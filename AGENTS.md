@@ -54,7 +54,17 @@ No cloud APIs, no database server, no package installs.
 - Phase 3b bake-off is done. Table is in the README. Nomic 10/10, Gemma 9/10.
   Gemma missed one figure question and did not win hit@10 by 2. Nomic stays.
   Gemma index: `data/index.embeddinggemma-2.json`. Do not delete it.
-- Next: Phase 4, quote-first answers, on the nomic index. Not on Gemma.
+- Next: Phase 4 live answers. Code is in (`prompt.py`, `answer.py`, `POST /ask`
+  mode `ask`). The quote must be a substring of the cited chunk. Essays and
+  extra words after a refusal are discarded. explain and quiz still return
+  the fixture until Phase 6.
+- The answer model is not on disk. `qwen2.5:7b` is 4.7GB, quant Q4_K_M, on
+  the Ollama library page. Do not pull it without a yes on that size.
+- Nomic is the v1 index, not a forever lock. Stop and say so before any of
+  these: a different nomic quant (rebuild the index, rerun the 10 questions),
+  an embedder finetune (new file, new bake-off, do not overwrite
+  `data/index.json` until it wins), a smaller qwen quant, or a Gemma vision
+  index (separate file, cannot mix with nomic vectors).
 - Not started: 3b, 4, 5, 6, 7, 8.
 
 ## Verify

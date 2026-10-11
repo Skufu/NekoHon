@@ -76,16 +76,44 @@ class Handler(BaseHTTPRequestHandler):
         if mode == "explain" and not request.get("selection"):
             self._send_json(400, {"error": "missing selection"})
             return
-        self._send_json(200, load_fixture())
+        if mode != "ask":
+            self._send_json(200, load_fixture())
+            return
+        book = load_book()
+        if book is None:
+            self._send_json(500, {"error": "missing index"})
+            return
+        try:
+            body = ask(book, request["question"])
+        except (urllib.error.URLError, TimeoutError, RuntimeError):
+            self._send_json(500, {"error": "answer model unavailable"})
+            return
+        self._send_json(200, body)
+
+
+def load_book():
+    """The nomic index. Loaded once. A later embedder does not swap in silently."""
+    global BOOK
+    if BOOK is None and INDEX.is_file():
+        BOOK = load_index(INDEX)
+    return BOOK
 
 
 def main():
+    load_book()
     server = ThreadingHTTPServer((HOST, PORT), Handler)
     print(f"ask-this-book: http://{HOST}:{PORT}  (GET /health, POST /ask; ctrl-c to stop)")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         pass
+    finally:
+        server.server_close()
+
+
+if __name__ == "__main__":
+    main()
+   pass
     finally:
         server.server_close()
 
