@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Ask this book</title>
+  <style>
+    body { font-family: Georgia, serif; max-width: 42rem; margin: 2rem auto; padding: 0 1rem; }
+    form { display: flex; gap: 0.5rem; }
+    input { flex: 1; font: inherit; }
+    pre { white-space: pre-wrap; }
+    figure { margin: 1rem 0; }
+    img { max-width: 100%; }
+  </style>
+</head>
+<body>
+  <form id="ask">
+    <input name="question" required placeholder="Ask the book">
+    <button type="submit">Ask</button>
+  </form>
+  <pre id="answer"></pre>
+  <div id="figures"></div>
+  <script>
+    const form = document.getElementById("ask");
+    const answer = document.getElementById("answer");
+    const figures = document.getElementById("figures");
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      answer.textContent = "Looking...";
+      figures.replaceChildren();
+      const response = await fetch("/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          book_id: "fde",
+          question: form.question.value,
+          selection: null,
+          mode: "ask"
+        })
+      });
+      const body = await response.json();
+      answer.textContent = body.answer || body.error || "";
+      for (const figure of body.figures || []) {
+        const node = document.createElement("figure");
+        const image = document.createElement("img");
+        image.src = figure.src;
+        image.alt = figure.caption || "";
+        const caption = document.createElement("figcaption");
+        caption.textContent = figure.caption || "";
+        node.append(image, caption);
+        figures.append(node);
+      }
+    });
+  </script>
+</body>
+</html>

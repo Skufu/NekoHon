@@ -1,19 +1,25 @@
 """ask-this-book engine. stdlib only; the route shape is locked in README.md.
 
-Phase 1: GET /health probes Ollama on localhost, POST /ask returns the
-contract fixture unchanged. Retrieval and generation land in later phases.
+POST /ask in mode "ask" retrieves from the nomic index and checks the quote.
+explain and quiz stay on the fixture until Phase 6. No new routes.
 """
 
 import json
+import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+
+from answer import ask
+from figures import figure_file
+from retrieve import INDEX, load_index
 
 HOST = "127.0.0.1"
 PORT = 8000
 OLLAMA_URL = "http://127.0.0.1:11434/"
 MODES = ("ask", "explain", "quiz")
 FIXTURE = Path(__file__).resolve().parent / "tests" / "fixtures" / "ask_response.json"
+BOOK = None
 
 
 def load_fixture():
@@ -52,11 +58,36 @@ class Handler(BaseHTTPRequestHandler):
         except (UnicodeDecodeError, ValueError):
             return None
 
+    def _send_bytes(self, status, payload, content_type):
+        self.send_response(status)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
+
     def do_GET(self):
-        if self._route() == "/health":
+        route = self._route()
+        if route == "/health":
             self._send_json(200, {"ok": True, "ollama": ollama_up()})
-        else:
-            self._send_json(404, {"error": "not found"})
+            return
+        if route == "/":
+            page = Path(__file__).resolve().parent / "window" / "index.html"
+            if not page.is_file():
+                self._send_json(404, {"error": "not found"})
+                return
+            self._send_bytes(200, page.read_bytes(), "text/html; charset=utf-8")
+            return
+        if route.startswith("/figures/"):
+            figure_id = route[len("/figures/"):]
+            book = load_book()
+            path = figure_file(figure_id, (book or {}).get("figures") or [])
+            if path is None:
+                self._send_json(404, {"error": "not found"})
+                return
+            kind = "image/png" if path.suffix.lower() == ".png" else "application/octet-stream"
+            self._send_bytes(200, path.read_bytes(), kind)
+            return
+        self._send_json(404, {"error": "not found"})
 
     def do_POST(self):
         if self._route() != "/ask":
@@ -107,13 +138,6 @@ def main():
         server.serve_forever()
     except KeyboardInterrupt:
         pass
-    finally:
-        server.server_close()
-
-
-if __name__ == "__main__":
-    main()
-   pass
     finally:
         server.server_close()
 

@@ -61,7 +61,13 @@ No cloud APIs, no database server, no package installs.
   "What is the capital of France?" returned exactly `Not in this book.`
   The HTTP server was not the thing measured. explain and quiz still return
   the fixture until Phase 6.
-- Next: Phase 5, figures on the page. Do not start it by describing pixels.
+- Phase 5 figure attach is in. A figure is added only when a kept passage names
+  its number, and the file exists. Measured 2026-10-11: "What is a watermark?"
+  returned figure-8-8, file fode_0808.png, 18913 bytes. CRUD returned no figure.
+  Score does not attach a figure. The score floor is still unset.
+- `GET /` serves `window/index.html`. `GET /figures/{id}` returns the image.
+  The page was not opened in a browser. The answer still must not describe pixels.
+- Next: Phase 6, explain and quiz. Do not start Phase 8.
 - Nomic is the v1 index, not a forever lock. Stop and say so before any of
   these, and do not do them quietly:
   - A different nomic quant. This index is from the F16 tag. Q4 or Q8 makes

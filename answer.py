@@ -8,6 +8,7 @@ import json
 import re
 import urllib.request
 
+from figures import figures_for
 from prompt import ANSWER_MODEL, REFUSAL, SYSTEM
 from retrieve import search
 
@@ -88,16 +89,16 @@ def _matching_passage(chapter, quote, passages):
     return None
 
 
-def parse_completion(completion, passages):
+def parse_completion(completion, passages, figures=None):
     """Return a contract body. Unchecked prose is a refusal.
 
-    figures stays empty. Showing an image is Phase 5.
+    A figure is attached only when a kept passage names it.
     """
     text = (completion or "").strip()
     if text == REFUSAL:
-        return _refusal(passages)
+        return _refusal(passages, figures)
     if not text.startswith("[Ch."):
-        return _refusal(passages)
+        return _refusal(passages, figures)
 
     citations = []
     gloss = []
@@ -115,14 +116,14 @@ def parse_completion(completion, passages):
         quote = _strip_quotes(quoted.group(1) if quoted else rest)
         hit = _matching_passage(chapter, quote, passages)
         if hit is None:
-            return _refusal(passages)
+            return _refusal(passages, figures)
         citations.append({
             "chunk_id": hit["chunk_id"],
             "chapter": str(hit["chapter"]),
             "quote": quote,
         })
     if not citations:
-        return _refusal(passages)
+        return _refusal(passages, figures)
     answer_lines = [
         f"[Ch. {item['chapter']}] \"{item['quote']}\"" for item in citations
     ]
@@ -131,12 +132,12 @@ def parse_completion(completion, passages):
     return {
         "answer": "\n".join(answer_lines),
         "citations": citations,
-        "figures": [],
+        "figures": figures_for(passages, figures or []),
         "refused": False,
     }
 
 
-def _refusal(passages):
+def _refusal(passages, figures=None):
     misses = []
     for hit in passages[:3]:
         snippet = re.sub(r"\s+", " ", hit.get("text") or "").strip()
@@ -148,7 +149,7 @@ def _refusal(passages):
     return {
         "answer": REFUSAL,
         "citations": misses,
-        "figures": [],
+        "figures": figures_for(passages[:3], figures or []),
         "refused": True,
     }
 
@@ -160,4 +161,4 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL):
     if not passages:
         return _refusal([])
     completion = generate_fn(SYSTEM, user_message(question, passages), model)
-    return parse_completion(completion, passages)
+    return parse_completion(completion, passages, index.get("figures") or [])
