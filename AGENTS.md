@@ -47,12 +47,12 @@ No cloud APIs, no database server, no package installs.
 
 - Done: Phase 0 (book at `books/fde.epub`), 0b (README corrected for this
   book), 1 (fixture + `server.py` + contract test — green), 2 (ingest).
-- Phase 3 embed step is done for nomic. `data/index.json` has 1065 chunk
-  vectors and 111 figure vectors, 768 dims, embedded 2026-10-11 in 15.6s after
-  the figure-id leak fix. The 10-question smoke test is not written. Do not
-  invent hits.
-- Next: 10 questions in `tests/fixtures/questions.json`, then
-  `python retrieve.py --smoke tests/fixtures/questions.json`. Need 8 of 10.
+- Phase 3 nomic smoke is done. `data/index.json` has 1065 chunk vectors and
+  111 figure vectors, 768 dims. `python retrieve.py --smoke tests/fixtures/questions.json`
+  printed 10/10 top-10 in 5.9 seconds on 2026-10-11. The list is in the README.
+  Two hits were rank 7 and rank 8. Do not raise top-k.
+- Next: Phase 3b bake-off. Same 10 questions, same frozen chunks, EmbeddingGemma 2
+  in its own index file. Do not start Phase 4 until that table exists.
 - Not started: 3b, 4, 5, 6, 7, 8.
 
 ## Verify

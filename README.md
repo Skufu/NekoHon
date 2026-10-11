@@ -265,7 +265,23 @@ Include at least three kinds:
 - A named technique whose description and its "when to use" sentence are in the same section. If they are not in the same section, that question is illegal in v1. Do not ask the model to fuse.
 - A figure question whose citing paragraph is non-empty. If that figure's citing paragraph is empty, the figure is not a test question.
 
-`tests/test_retrieve.py` can stay on the tiny fixture (one embedded vector mocked, or a fake embed function). The 10-question run is a manual script against Ollama, `python3 retrieve.py --smoke tests/fixtures/questions.json`. Save the printed hit/miss list in the README. Do not invent a hit.
+`tests/test_retrieve.py` can stay on the tiny fixture (one embedded vector mocked, or a fake embed function). The 10-question run is a manual script against Ollama, `python retrieve.py --smoke tests/fixtures/questions.json`. Save the printed hit/miss list in the README. Do not invent a hit.
+
+**Nomic smoke, 2026-10-11, after the figure-id recut.** Index: 1065 chunks, 111 figures, `nomic-embed-text`, 768 dims. Command: `python retrieve.py --smoke tests/fixtures/questions.json`. Result: 10/10 top-10, 5.9 seconds. Gate is 8/10. Two hits landed late (rank 7, rank 8); they still count. Do not raise top-k to make those look better.
+
+```
+hit rank 1 ch 5 What does CRUD stand for?
+hit rank 1 ch 7 What is data ingestion?
+hit rank 1 ch 8 What is a watermark?
+hit rank 2 ch 5 When is an insert-only table useful?
+hit rank 1 ch 6 Where does storage sit in the data engineering lifecycle?
+hit rank 7 ch 5 What do source systems provide to the rest of the lifecycle?
+hit rank 8 ch 3 How does data architecture relate to enterprise architecture?
+hit rank 1 ch 2 What is the difference between batch and streaming?
+hit rank 1 ch 7 What happens to data after it is extracted in ETL?
+hit rank 3 ch 8 What do transformations do in the data engineering lifecycle?
+hits 10/10 top-10 seconds 5.9
+```
 
 ## Phase 3b — Embedding bake-off (nomic vs EmbeddingGemma v1/v2)
 

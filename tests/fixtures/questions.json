@@ -1,0 +1,52 @@
+[
+  {
+    "q": "What does CRUD stand for?",
+    "chapter": "5",
+    "must_contain": "stands for create, read, update, and delete"
+  },
+  {
+    "q": "What is data ingestion?",
+    "chapter": "7",
+    "must_contain": "the process of moving data from one place to another"
+  },
+  {
+    "q": "What is a watermark?",
+    "chapter": "8",
+    "must_contain": "is a threshold used by a window"
+  },
+  {
+    "q": "When is an insert-only table useful?",
+    "chapter": "5",
+    "must_contain": "especially useful if the application needs access to history"
+  },
+  {
+    "q": "Where does storage sit in the data engineering lifecycle?",
+    "chapter": "6",
+    "must_contain": "storage is the cornerstone of the data engineering lifecycle"
+  },
+  {
+    "q": "What do source systems provide to the rest of the lifecycle?",
+    "chapter": "5",
+    "must_contain": "this chapter covers some popular operational source system patterns"
+  },
+  {
+    "q": "How does data architecture relate to enterprise architecture?",
+    "chapter": "3",
+    "must_contain": "enterprise architecture has many subsets"
+  },
+  {
+    "q": "What is the difference between batch and streaming?",
+    "chapter": "2",
+    "must_contain": "batch versus streaming"
+  },
+  {
+    "q": "What happens to data after it is extracted in ETL?",
+    "chapter": "7",
+    "must_contain": "Once data is extracted, it can either be transformed"
+  },
+  {
+    "q": "What do transformations do in the data engineering lifecycle?",
+    "chapter": "8",
+    "must_contain": "turn raw data ingredients into something consumable"
+  }
+]
