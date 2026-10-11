@@ -45,6 +45,15 @@ The engine is the product. The HTML page exists so a person can see the quote an
 | Weak-machine note | `llama3.2:3b` (2.0 GB) | yes | README fallback only. Not the dev model. |
 | Do not use | `deepseek-r1:7b` | yes | leave it |
 
+`qwen2.5:7b` is the locked answer model, not a proven best. The job is a quote check, not a smart essay. A later swap still has to pass the Phase 4 checks: quote is a substring, answer starts with `[Ch.`, refusal is exactly `Not in this book.`
+
+Stop and say so before any of these. Do not do them quietly:
+
+- A different nomic quant. This index is from the F16 tag. Q4 or Q8 makes different numbers. Rebuild, rerun the 10 questions. Do not reuse this file.
+- An embedder finetune. New file, new bake-off. Do not overwrite `data/index.json` until it wins.
+- A smaller qwen. The library tag is already Q4_K_M, 4.7GB. A smaller one may fail the quote check more often.
+- A Gemma picture index. Separate file. It cannot mix with nomic numbers.
+
 Ollama is already the server on the Mac; on this Windows box v0.40.3 is installed (see `AGENTS.md`). Restart it only if `ollama list` fails. Embedder pulls are approved (Status). Do not `ollama pull` anything beyond the Phase 3b contenders. Everything else still needs an explicit megabyte number before the transfer: the book, a Readest clone, an Ollama upgrade, and any vision model. An upgrade is not Windows runner setup.
 
 Run the engine with system `python3`, not the Hermes venv. If imports look insane, the shell leaked `PYTHONPATH` from a Python 3.14 env. Run `env -u PYTHONPATH -u PYTHONHOME python3`. (macOS note — on Windows just use `python`; see `AGENTS.md`.)

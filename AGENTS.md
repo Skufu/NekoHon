@@ -61,10 +61,14 @@ No cloud APIs, no database server, no package installs.
 - The answer model is not on disk. `qwen2.5:7b` is 4.7GB, quant Q4_K_M, on
   the Ollama library page. Do not pull it without a yes on that size.
 - Nomic is the v1 index, not a forever lock. Stop and say so before any of
-  these: a different nomic quant (rebuild the index, rerun the 10 questions),
-  an embedder finetune (new file, new bake-off, do not overwrite
-  `data/index.json` until it wins), a smaller qwen quant, or a Gemma vision
-  index (separate file, cannot mix with nomic vectors).
+  these, and do not do them quietly:
+  - A different nomic quant. This index is from the F16 tag. Q4 or Q8 makes
+    different numbers. Rebuild, rerun the 10 questions. Do not reuse this file.
+  - An embedder finetune. New file, new bake-off. Do not overwrite
+    `data/index.json` until it wins.
+  - A smaller qwen. The library tag is already Q4_K_M, 4.7GB. A smaller one
+    may fail the quote check more often.
+  - A Gemma picture index. Separate file. It cannot mix with nomic numbers.
 - Not started: 3b, 4, 5, 6, 7, 8.
 
 ## Verify
