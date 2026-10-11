@@ -51,8 +51,10 @@ No cloud APIs, no database server, no package installs.
   111 figure vectors, 768 dims. `python retrieve.py --smoke tests/fixtures/questions.json`
   printed 10/10 top-10 in 5.9 seconds on 2026-10-11. The list is in the README.
   Two hits were rank 7 and rank 8. Do not raise top-k.
-- Next: Phase 3b bake-off. Same 10 questions, same frozen chunks, EmbeddingGemma 2
-  in its own index file. Do not start Phase 4 until that table exists.
+- Phase 3b bake-off is done. Table is in the README. Nomic 10/10, Gemma 9/10.
+  Gemma missed one figure question and did not win hit@10 by 2. Nomic stays.
+  Gemma index: `data/index.embeddinggemma-2.json`. Do not delete it.
+- Next: Phase 4, quote-first answers, on the nomic index. Not on Gemma.
 - Not started: 3b, 4, 5, 6, 7, 8.
 
 ## Verify

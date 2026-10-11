@@ -15,12 +15,19 @@ ROOT = Path(__file__).resolve().parent
 INDEX = ROOT / "data" / "index.json"
 OLLAMA = "http://127.0.0.1:11434/api/embed"
 DEFAULT_EMBEDDER = "nomic-embed-text"
+GEMMA_EMBEDDER = "embeddinggemma-2:270m-bf16-text"
 TOP_K = 10
 BATCH = 16
 
 # nomic was trained with these. Ollama's Modelfile does not add them.
 NOMIC_DOCUMENT = "search_document: "
 NOMIC_QUERY = "search_query: "
+
+# Hugging Face card for google/embeddinggemma-2, "Task Instruction Prefixes".
+# Web search, not question-answering: these questions retrieve a passage.
+# prompt_name="Document" is only "title: none". A real heading must be written in.
+GEMMA_QUERY = "task: search result | query: "
+GEMMA_TITLE = "title: {title} | text: "
 
 
 def cosine(a, b):
@@ -49,15 +56,48 @@ def figure_body(figure):
     return "\n".join(part for part in parts if part).strip()
 
 
-def task_prefix(model, kind):
-    """kind is 'document' or 'query'. Unknown models fail closed."""
+def format_input(model, kind, text, title=""):
+    """kind is 'document' or 'query'. Unknown models fail closed.
+
+    Confirmed 2026-10-11 from the Hugging Face card, not guessed.
+    """
     if model == DEFAULT_EMBEDDER:
-        return NOMIC_DOCUMENT if kind == "document" else NOMIC_QUERY
+        prefix = NOMIC_DOCUMENT if kind == "document" else NOMIC_QUERY
+        return prefix + text
+    if model == GEMMA_EMBEDDER:
+        if kind == "query":
+            return GEMMA_QUERY + text
+        shown = title.strip() or "none"
+        return GEMMA_TITLE.format(title=shown) + text
     raise SystemExit(
         f"no confirmed task prefix for {model}. "
-        "Do not embed it until the prefix is checked. "
-        "EmbeddingGemma 2 wants different prompts on queries and documents."
+        "Do not embed it until the prefix is checked."
     )
+
+
+def chunk_title(chunk):
+    heading = (chunk.get("heading") or "").strip()
+    text = chunk.get("text") or ""
+    if heading and text.startswith(heading):
+        body = text[len(heading):].lstrip("\n").strip()
+        return heading, body or text
+    return "", text
+
+
+def document_input(model, record, kind):
+    """kind is 'chunk' or 'figure'."""
+    if kind == "chunk":
+        title, body = chunk_title(record)
+        if model == DEFAULT_EMBEDDER:
+            return format_input(model, "document", record.get("text") or "")
+        return format_input(model, "document", body, title)
+    caption = (record.get("caption") or "").strip()
+    cite = (record.get("referencing_paragraph") or "").strip()
+    if model == DEFAULT_EMBEDDER:
+        return format_input(model, "document", figure_body(record))
+    if cite:
+        return format_input(model, "document", cite, caption)
+    return format_input(model, "document", caption, "")
 
 
 def ollama_embed(texts, model=DEFAULT_EMBEDDER, url=OLLAMA, timeout=120):
@@ -75,9 +115,9 @@ def ollama_embed(texts, model=DEFAULT_EMBEDDER, url=OLLAMA, timeout=120):
     return vectors
 
 
-def embed_texts(texts, model, embed_fn, kind):
-    prefix = task_prefix(model, kind)
-    return embed_fn([prefix + text for text in texts], model)
+def embed_texts(texts, model, embed_fn, kind, title=""):
+    formatted = [format_input(model, kind, text, title) for text in texts]
+    return embed_fn(formatted, model)
 
 
 def _needs_vector(record, dims):
@@ -99,27 +139,27 @@ def embed_index(index, model=DEFAULT_EMBEDDER, embed_fn=None, batch=BATCH, dims=
             "Write a new file. Do not mix vectors."
         )
 
-    def fill(records, body_fn):
+    def fill(records, kind):
         pending = []
         for record in records:
-            text = body_fn(record)
-            if not text:
+            text = document_input(model, record, kind)
+            if not text or text.endswith("text: ") or text.endswith("search_document: "):
                 record.pop("embedding", None)
                 continue
             if _needs_vector(record, width):
                 pending.append((record, text))
         for start in range(0, len(pending), batch):
             group = pending[start:start + batch]
-            vectors = embed_texts([text for _, text in group], model, embed_fn, "document")
+            vectors = embed_fn([text for _, text in group], model)
             for (record, _), vector in zip(group, vectors):
                 record["embedding"] = [round(value, 6) for value in vector]
             yield len(group)
 
     chunks_done = 0
     figures_done = 0
-    for count in fill(index.get("chunks", []), chunk_body):
+    for count in fill(index.get("chunks", []), "chunk"):
         chunks_done += count
-    for count in fill(index.get("figures", []), figure_body):
+    for count in fill(index.get("figures", []), "figure"):
         figures_done += count
     index["embedder"] = model
     index["embedding_dims"] = width
@@ -189,8 +229,23 @@ def main():
     parser.add_argument("--k", type=int, default=TOP_K)
     args = parser.parse_args()
     index_path = Path(args.index)
+    if args.embedder != DEFAULT_EMBEDDER and index_path.resolve() == INDEX.resolve():
+        raise SystemExit(
+            f"{args.embedder} must not write data/index.json. "
+            "Pass --index data/index.<model>.json."
+        )
     if not index_path.is_file():
-        raise SystemExit(f"missing index: {index_path}")
+        if not args.smoke and INDEX.is_file():
+            base = load_index(INDEX)
+            if base.get("embedder") not in (None, args.embedder):
+                for record in base.get("chunks", []) + base.get("figures", []):
+                    record.pop("embedding", None)
+                base.pop("embedder", None)
+                base.pop("embedding_dims", None)
+            save_index(index_path, base)
+            print(f"copied frozen chunks to {index_path.name}")
+        else:
+            raise SystemExit(f"missing index: {index_path}")
     index = load_index(index_path)
     if args.smoke:
         question_path = Path(args.smoke)

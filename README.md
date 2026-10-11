@@ -283,6 +283,31 @@ hit rank 3 ch 8 What do transformations do in the data engineering lifecycle?
 hits 10/10 top-10 seconds 5.9
 ```
 
+**Bake-off, 2026-10-11.** Same 10 questions, same frozen chunks. Gemma index is `data/index.embeddinggemma-2.json`. Text tag only: `embeddinggemma-2:270m-bf16-text`. Prefixes from the Hugging Face card, not guessed: documents are `title: {heading} | text: {body}`, queries are `task: search result | query: {question}`. Figure-attachment rate is not in this table. The floor is not set. Figure questions are 5, 6, 7, and 10.
+
+| Model | hit@10 | hit@5 | figure questions inside top-10 | embed seconds | index bytes |
+| --- | --- | --- | --- | --- | --- |
+| nomic-embed-text | 10/10 | 8/10 | 4/4 | 15.6 | 10609296 |
+| embeddinggemma-2:270m-bf16-text | 9/10 | 8/10 | 3/4 | 86.9 | 10599865 |
+
+Gemma's miss at top-10: "How does data architecture relate to enterprise architecture?" Top chunk was chapter 3, the right chapter, but the required sentence was not in it. That is still a miss. It is also a figure-question regression. Gemma does not win hit@10 by 2. Nomic stays. Gemma stays on disk as the fallback. Do not start Phase 4 on Gemma.
+
+Gemma top-10 printout:
+
+```
+hit rank 1 ch 5 What does CRUD stand for?
+hit rank 1 ch 7 What is data ingestion?
+hit rank 1 ch 8 What is a watermark?
+hit rank 2 ch 5 When is an insert-only table useful?
+hit rank 2 ch 6 Where does storage sit in the data engineering lifecycle?
+hit rank 2 ch 5 What do source systems provide to the rest of the lifecycle?
+miss top ch 3 wanted 3 How does data architecture relate to enterprise architecture?
+hit rank 1 ch 2 What is the difference between batch and streaming?
+hit rank 1 ch 7 What happens to data after it is extracted in ETL?
+hit rank 7 ch 8 What do transformations do in the data engineering lifecycle?
+hits 9/10 top-10 seconds 1.3
+```
+
 ## Phase 3b — Embedding bake-off (nomic vs EmbeddingGemma v1/v2)
 
 **Done when:** the same 10 Phase-3 questions run against three indexes and the hit/miss table is saved in the README. Retrieval-only; no LLM involved. Do not start Phase 4 until the table exists, whichever model wins.

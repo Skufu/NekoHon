@@ -2,7 +2,17 @@
 
 import unittest
 
-from retrieve import NOMIC_DOCUMENT, NOMIC_QUERY, cosine, embed_index, search, smoke
+from retrieve import (
+    GEMMA_EMBEDDER,
+    NOMIC_DOCUMENT,
+    NOMIC_QUERY,
+    cosine,
+    document_input,
+    embed_index,
+    format_input,
+    search,
+    smoke,
+)
 
 DIMS = 3
 
@@ -110,6 +120,24 @@ class RetrieveTests(unittest.TestCase):
         self.assertEqual((hits, total), (1, 2))
         self.assertTrue(lines[0].startswith("hit"))
         self.assertTrue(lines[1].startswith("miss"))
+
+    def test_gemma_uses_the_card_prefixes(self):
+        query = format_input(GEMMA_EMBEDDER, "query", "What is a watermark?")
+        self.assertEqual(query, "task: search result | query: What is a watermark?")
+        untitled = format_input(GEMMA_EMBEDDER, "document", "a passage")
+        self.assertEqual(untitled, "title: none | text: a passage")
+        chunk = {
+            "heading": "Watermarks",
+            "text": "Watermarks\nA watermark is a threshold.",
+        }
+        formatted = document_input(GEMMA_EMBEDDER, chunk, "chunk")
+        self.assertEqual(
+            formatted,
+            "title: Watermarks | text: A watermark is a threshold.",
+        )
+        nomic = document_input("nomic-embed-text", chunk, "chunk")
+        self.assertTrue(nomic.startswith(NOMIC_DOCUMENT))
+        self.assertIn("Watermarks", nomic)
 
     def test_query_prefix_is_not_the_document_prefix(self):
         seen = []
