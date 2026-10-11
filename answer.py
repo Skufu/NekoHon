@@ -12,8 +12,14 @@ from prompt import ANSWER_MODEL, REFUSAL, SYSTEM
 from retrieve import search
 
 OLLAMA_CHAT = "http://127.0.0.1:11434/api/chat"
-PASSAGE_LIMIT = 10
+PASSAGE_LIMIT = 5
 MISS_QUOTE_CHARS = 160
+FORMAT_REMINDER = (
+    "Copy one sentence from a passage. Do not reword it.\n"
+    "Format example, not an answer:\n"
+    "[Ch. 2] \"exact sentence copied from a passage\"\n"
+    "One short line in simple words."
+)
 
 
 def passages_block(passages):
@@ -29,7 +35,8 @@ def user_message(question, passages):
     return (
         f"Question: {question}\n\n"
         "Passages:\n"
-        f"{passages_block(passages)}"
+        f"{passages_block(passages)}\n\n"
+        f"{FORMAT_REMINDER}"
     )
 
 
@@ -103,7 +110,9 @@ def parse_completion(completion, passages):
             gloss.append(stripped)
             continue
         chapter = match.group(1).strip().rstrip(".")
-        quote = _strip_quotes(match.group(2))
+        rest = match.group(2)
+        quoted = re.search(r"[\"“](.+?)[\"”]", rest)
+        quote = _strip_quotes(quoted.group(1) if quoted else rest)
         hit = _matching_passage(chapter, quote, passages)
         if hit is None:
             return _refusal(passages)

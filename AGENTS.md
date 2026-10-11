@@ -54,12 +54,14 @@ No cloud APIs, no database server, no package installs.
 - Phase 3b bake-off is done. Table is in the README. Nomic 10/10, Gemma 9/10.
   Gemma missed one figure question and did not win hit@10 by 2. Nomic stays.
   Gemma index: `data/index.embeddinggemma-2.json`. Do not delete it.
-- Next: Phase 4 live answers. Code is in (`prompt.py`, `answer.py`, `POST /ask`
-  mode `ask`). The quote must be a substring of the cited chunk. Essays and
-  extra words after a refusal are discarded. explain and quiz still return
+- Phase 4 quote check is green on three in-book questions and one refusal,
+  2026-10-11, via `answer.ask` on the nomic index. Model: `qwen2.5:7b`,
+  4.7 GB, Q4_K_M, pulled after a yes on 4683 MB. Quotes checked:
+  CRUD (ch05-019), data ingestion (ch07-002), watermark (ch08-040).
+  "What is the capital of France?" returned exactly `Not in this book.`
+  The HTTP server was not the thing measured. explain and quiz still return
   the fixture until Phase 6.
-- The answer model is not on disk. `qwen2.5:7b` is 4.7GB, quant Q4_K_M, on
-  the Ollama library page. Do not pull it without a yes on that size.
+- Next: Phase 5, figures on the page. Do not start it by describing pixels.
 - Nomic is the v1 index, not a forever lock. Stop and say so before any of
   these, and do not do them quietly:
   - A different nomic quant. This index is from the F16 tag. Q4 or Q8 makes

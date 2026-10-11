@@ -36,6 +36,15 @@ class AnswerTests(unittest.TestCase):
         self.assertEqual(body["figures"], [])
         self.assertIn("stands for create, read, update, and delete", body["citations"][0]["quote"])
 
+    def test_words_after_the_quote_are_not_part_of_the_quote(self):
+        body = parse_completion(
+            '[Ch. 5] "stands for create, read, update, and delete" and then some extra words.',
+            PASSAGES,
+        )
+        self.assertFalse(body["refused"])
+        self.assertEqual(body["citations"][0]["quote"], "stands for create, read, update, and delete")
+        self.assertNotIn("extra words", body["citations"][0]["quote"])
+
     def test_invented_quote_is_a_refusal(self):
         body = parse_completion(
             '[Ch. 5] "CRUD stores data in the cloud and never loses a row."',
@@ -79,6 +88,8 @@ class AnswerTests(unittest.TestCase):
         body = ask({}, "What does CRUD stand for?", generate, lambda *args, **kwargs: PASSAGES)
         self.assertFalse(body["refused"])
         self.assertIn("chunk_id=ch05-019", seen["user"])
+        self.assertIn("Do not reword it.", seen["user"])
+        self.assertFalse(seen["user"].rstrip().endswith(REFUSAL))
         self.assertEqual(seen["model"], "qwen2.5:7b")
 
 
