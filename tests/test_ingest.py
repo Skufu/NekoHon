@@ -1,0 +1,96 @@
+"""Phase 2 ingest. Tiny fake EPUB, not the real book."""
+
+import tempfile
+import unittest
+import zipfile
+from pathlib import Path
+
+from ingest import ingest_epub
+
+CHAPTER = """<?xml version="1.0" encoding="utf-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<body>
+<section>
+<h1>Chapter 7. Ingestion</h1>
+<p>Change data capture streams row-level database changes.</p>
+<h2>Batch and streaming</h2>
+<p>See <a data-type="xref" href="#fig-7-3">Figure 7-3</a> for the split.</p>
+<figure><div class="figure" id="fig-7-3">
+<img alt="" src="images/fig-7-3.png"/>
+<h6><span class="label">Figure 7-3. </span>Batch and streaming ingestion.</h6>
+</div></figure>
+<table>
+<caption>Table 7-1. Patterns</caption>
+<tr><td>batch</td><td>once a day</td></tr>
+<tr><td>stream</td><td>row by row</td></tr>
+</table>
+</section>
+</body>
+</html>
+"""
+
+CONTAINER = """<?xml version="1.0" encoding="utf-8"?>
+<container xmlns="urn:oasis:names:tc:opendocument:xmlns:container" version="1.0">
+<rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles>
+</container>
+"""
+
+OPF = """<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+<metadata/>
+<manifest>
+<item id="ch07" href="ch07.html" media-type="application/xhtml+xml"/>
+<item id="fig" href="images/fig-7-3.png" media-type="image/png"/>
+</manifest>
+<spine>
+<itemref idref="ch07"/>
+</spine>
+</package>
+"""
+
+# 1x1 png
+PNG = (
+    b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01"
+    b"\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\x0cIDATx\x9cc\xf8\xcf\xc0"
+    b"\x00\x00\x00\x03\x00\x01\x00\x05\xfe\xd4\xef\x00\x00\x00\x00IEND\xaeB`\x82"
+)
+
+
+def _write_epub(path):
+    with zipfile.ZipFile(path, "w") as zf:
+        zf.writestr("mimetype", "application/epub+zip")
+        zf.writestr("META-INF/container.xml", CONTAINER)
+        zf.writestr("OEBPS/content.opf", OPF)
+        zf.writestr("OEBPS/ch07.html", CHAPTER)
+        zf.writestr("OEBPS/images/fig-7-3.png", PNG)
+
+
+class IngestTests(unittest.TestCase):
+    def test_fake_epub_keeps_table_and_caption(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            epub = tmp / "fake.epub"
+            figures = tmp / "figures"
+            _write_epub(epub)
+            index = ingest_epub(epub, figures, write_images=True)
+            image_written = (figures / "fig-7-3.png").is_file()
+
+        self.assertGreater(len(index["chunks"]), 0)
+        tables = [c for c in index["chunks"] if "batch" in c["text"] and "stream" in c["text"]]
+        self.assertEqual(len(tables), 1)
+        self.assertIn("once a day", tables[0]["text"])
+        self.assertIn("row by row", tables[0]["text"])
+        self.assertTrue(tables[0]["text"].startswith("Batch and streaming"))
+
+        self.assertEqual(len(index["figures"]), 1)
+        figure = index["figures"][0]
+        for key in ("id", "chapter", "caption", "referencing_paragraph", "file"):
+            self.assertIn(key, figure)
+        self.assertEqual(figure["caption"], "Batch and streaming ingestion.")
+        self.assertIn("Figure 7-3", figure["referencing_paragraph"])
+        self.assertEqual(figure["chapter"], "7")
+        self.assertTrue(image_written)
+
+
+if __name__ == "__main__":
+    unittest.main()

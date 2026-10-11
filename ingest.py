@@ -1,0 +1,418 @@
+"""EPUB -> data/index.json + data/figures/. Phase 2. No vectors, no Ollama.
+
+Stdlib only. Records are JSON. Pictures stay files. No pickle.
+"""
+
+import json
+import re
+import zipfile
+from html.parser import HTMLParser
+from pathlib import Path
+from xml.etree import ElementTree as ET
+
+ROOT = Path(__file__).resolve().parent
+BOOK = ROOT / "books" / "fde.epub"
+INDEX = ROOT / "data" / "index.json"
+FIGURES = ROOT / "data" / "figures"
+
+# ~300 tokens and ~40 tokens, since stdlib has no tokenizer.
+# Tuned after the first real run if chunks look wrong.
+CHUNK_CHARS = 1400
+OVERLAP_CHARS = 180
+
+OPF = "{http://www.idpf.org/2007/opf}"
+CONTAINER = "{urn:oasis:names:tc:opendocument:xmlns:container}"
+
+SKIP_TAGS = {"script", "style", "head"}
+HEADING_TAGS = {"h1", "h2", "h3", "h4"}
+BLOCK_TAGS = {"p", "li", "blockquote", "pre", "h1", "h2", "h3", "h4", "h5"}
+
+# Index and front matter steal search slots. They are not teaching text.
+# Preface, part openers, chapters, and appendices stay.
+SKIP_DOCS = {
+    "cover",
+    "dedication01",
+    "titlepage01",
+    "copyright-page01",
+    "ix01",
+    "colophon01",
+    "colophon02",
+}
+
+
+class ChapterParser(HTMLParser):
+    """Walk one spine document into blocks, tables, and figure records.
+
+    A block is a heading or a paragraph. A table is one whole block, never split.
+    A figure keeps its caption (h6 inside the figure, else img alt, else "").
+    """
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.blocks = []
+        self.figures = []
+        self._skip = 0
+        self._stack = []
+        self._text = []
+        self._in_figure = 0
+        self._fig = None
+        self._capture = None
+
+    def handle_starttag(self, tag, attrs):
+        tag = tag.lower()
+        attr = dict(attrs)
+        if tag in SKIP_TAGS:
+            self._skip += 1
+            return
+        if self._skip:
+            return
+        if tag == "figure":
+            self._in_figure += 1
+            if self._in_figure == 1:
+                self._fig = {
+                    "anchor": "",
+                    "src": "",
+                    "alt": "",
+                    "label": "",
+                    "caption": "",
+                }
+            return
+        if self._in_figure:
+            if tag == "div" and attr.get("id") and not self._fig["anchor"]:
+                self._fig["anchor"] = attr["id"]
+            elif tag == "img":
+                self._fig["src"] = attr.get("src", "")
+                self._fig["alt"] = (attr.get("alt") or "").strip()
+            elif tag == "h6":
+                self._capture = "caption"
+                self._text = []
+            elif tag == "span" and attr.get("class") == "label" and self._capture == "caption":
+                self._capture = "label"
+            return
+        if tag == "table":
+            self._capture = "table"
+            self._text = []
+            self._stack.append(tag)
+            return
+        if tag == "a" and attr.get("data-type") == "xref":
+            self._text.append("\x00" + attr.get("href", "").lstrip("#") + "\x00")
+            return
+        if tag in BLOCK_TAGS or tag in ("ul", "ol", "dl"):
+            self._stack.append(tag)
+            if tag in BLOCK_TAGS and self._capture is None:
+                self._capture = tag
+                self._text = []
+
+    def handle_endtag(self, tag):
+        tag = tag.lower()
+        if tag in SKIP_TAGS and self._skip:
+            self._skip -= 1
+            return
+        if self._skip:
+            return
+        if tag == "figure" and self._in_figure:
+            self._in_figure -= 1
+            if self._in_figure == 0 and self._fig and self._fig["src"]:
+                caption = self._fig["caption"].strip()
+                if not caption:
+                    caption = self._fig["alt"]
+                self.figures.append({
+                    "anchor": self._fig["anchor"],
+                    "label": self._fig["label"].strip(),
+                    "caption": caption,
+                    "src": self._fig["src"],
+                })
+                self._fig = None
+            return
+        if self._in_figure:
+            if tag == "h6" and self._capture == "caption":
+                self._fig["caption"] = _clean("".join(self._text))
+                self._capture = None
+                self._text = []
+            elif tag == "span" and self._capture == "label":
+                self._fig["label"] = _clean("".join(self._text))
+                self._capture = "caption"
+                self._text = []
+            return
+        if tag == "table" and self._capture == "table":
+            text = _clean("".join(self._text))
+            if text:
+                self.blocks.append({"kind": "table", "text": text})
+            self._capture = None
+            self._text = []
+            if self._stack and self._stack[-1] == "table":
+                self._stack.pop()
+            return
+        if tag in BLOCK_TAGS and self._capture == tag:
+            text = _clean("".join(self._text))
+            if text:
+                kind = "heading" if tag in HEADING_TAGS else "para"
+                self.blocks.append({"kind": kind, "tag": tag, "text": text})
+            self._capture = None
+            self._text = []
+            if self._stack and self._stack[-1] == tag:
+                self._stack.pop()
+
+    def handle_data(self, data):
+        if self._skip or self._capture is None:
+            return
+        self._text.append(data)
+
+
+def _clean(text):
+    text = text.replace("\xa0", " ")
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
+
+
+def _chapter_number(doc_id, html_text):
+    match = re.match(r"ch(\d+)", doc_id)
+    if match:
+        return str(int(match.group(1)))
+    label = re.search(r"Chapter\s+(\d+)", html_text[:800])
+    if label:
+        return label.group(1)
+    return doc_id
+
+
+def _spine(zf):
+    container = ET.fromstring(zf.read("META-INF/container.xml"))
+    rootfile = container.find(f".//{CONTAINER}rootfile")
+    opf_path = rootfile.get("full-path")
+    opf_dir = str(Path(opf_path).parent).replace("\\", "/")
+    if opf_dir == ".":
+        opf_dir = ""
+    opf = ET.fromstring(zf.read(opf_path))
+    manifest = {}
+    for item in opf.find(f"{OPF}manifest"):
+        manifest[item.get("id")] = item.get("href")
+    docs = []
+    for itemref in opf.find(f"{OPF}spine"):
+        href = manifest[itemref.get("idref")]
+        path = f"{opf_dir}/{href}" if opf_dir else href
+        doc_id = Path(href).stem
+        docs.append((doc_id, path))
+    return docs
+
+
+def _figure_id(label, chapter, index):
+    match = re.search(r"((?:Figure|Table|Fig\.)\s*[A-Z]?\d+-\d+)", label or "", re.I)
+    if match:
+        raw = match.group(1).lower().replace(" ", "-").replace(".", "")
+        return raw
+    return f"fig-{chapter}-{index}"
+
+
+def _cites(text):
+    return set(re.findall(r"\x00([^\x00]+)\x00", text))
+
+
+def _visible(text):
+    return re.sub(r"\x00[^\x00]*\x00", "", text).strip()
+
+
+def _mentions_figure(text):
+    visible = _visible(text)
+    return bool(re.search(r"\b(Figure|Fig\.)\b", visible))
+
+
+def _tail(text, limit):
+    words = text.split()
+    kept = []
+    size = 0
+    for word in reversed(words):
+        if size + len(word) + 1 > limit:
+            break
+        kept.append(word)
+        size += len(word) + 1
+    return " ".join(reversed(kept))
+
+
+def _section_chunks(heading, body_blocks):
+    """One section. Overlap only when the section is longer than the cap.
+
+    Tables stay one piece even if they are longer than the cap.
+    """
+    pieces = []
+    for block in body_blocks:
+        text = block["text"]
+        if block["kind"] == "table" or len(text) <= CHUNK_CHARS:
+            pieces.append(text)
+            continue
+        start = 0
+        while start < len(text):
+            end = min(start + CHUNK_CHARS, len(text))
+            if end < len(text):
+                cut = text.rfind(" ", start, end)
+                if cut > start + CHUNK_CHARS // 2:
+                    end = cut
+            pieces.append(text[start:end].strip())
+            if end >= len(text):
+                break
+            start = max(end - OVERLAP_CHARS, start + 1)
+
+    if not pieces and not heading:
+        return []
+
+    chunks = []
+    current = []
+    current_len = 0
+    heading_prefix = (heading + "\n") if heading else ""
+    budget = max(CHUNK_CHARS - len(heading_prefix), 200)
+
+    def flush():
+        nonlocal current, current_len
+        if not current and not heading:
+            return
+        body = "\n\n".join(current).strip()
+        text = (heading_prefix + body).strip()
+        if text:
+            chunks.append(text)
+        current = []
+        current_len = 0
+
+    for piece in pieces:
+        extra = len(piece) + (2 if current else 0)
+        if current and current_len + extra > budget:
+            flush()
+            # overlap only because this section did not fit in one chunk
+            if chunks:
+                tail = _tail(chunks[-1], OVERLAP_CHARS)
+                if tail:
+                    current = [tail]
+                    current_len = len(tail)
+        current.append(piece)
+        current_len += extra
+    flush()
+    return chunks
+
+
+def _chunk_chapter(blocks):
+    sections = []
+    heading = ""
+    body = []
+    for block in blocks:
+        if block["kind"] == "heading":
+            if heading or body:
+                sections.append((heading, body))
+            heading = block["text"]
+            body = []
+        else:
+            body.append(block)
+    if heading or body:
+        sections.append((heading, body))
+
+    texts = []
+    for heading, body in sections:
+        texts.extend(_section_chunks(heading, body))
+    return texts
+
+
+def _attach_paragraphs(figures, blocks):
+    """Nearest paragraph that points at the figure, else empty.
+
+    A pointer is an xref href matching the figure anchor, or the words
+    Figure / Fig. in the same stretch of text.
+    """
+    paras = [b for b in blocks if b["kind"] == "para"]
+    for figure in figures:
+        anchor = figure["anchor"]
+        best = ""
+        best_distance = None
+        for index, para in enumerate(paras):
+            cited = anchor and anchor in _cites(para["text"])
+            named = _mentions_figure(para["text"]) and (
+                not anchor or cited or _label_in_text(figure["label"], para["text"])
+            )
+            if not cited and not named:
+                continue
+            if best_distance is None or index < best_distance:
+                best = _visible(para["text"])
+                best_distance = index
+                if cited:
+                    break
+        figure["referencing_paragraph"] = best
+
+
+def _label_in_text(label, text):
+    match = re.search(r"(\d+-\d+)", label or "")
+    if not match:
+        return False
+    return match.group(1) in _visible(text)
+
+
+def ingest_epub(epub_path, figures_dir=None, write_images=True):
+    """Return the index dict. Write images when figures_dir is set."""
+    epub_path = Path(epub_path)
+    chunks = []
+    figures = []
+    with zipfile.ZipFile(epub_path) as zf:
+        names = set(zf.namelist())
+        for doc_id, path in _spine(zf):
+            if doc_id in SKIP_DOCS or path not in names:
+                continue
+            raw = zf.read(path).decode("utf-8")
+            parser = ChapterParser()
+            parser.feed(raw)
+            parser.close()
+            chapter = _chapter_number(doc_id, raw)
+            texts = _chunk_chapter(parser.blocks)
+            if not texts and not parser.figures:
+                continue
+            _attach_paragraphs(parser.figures, parser.blocks)
+            for index, text in enumerate(texts, start=1):
+                heading = text.split("\n", 1)[0]
+                chunks.append({
+                    "chunk_id": f"{doc_id}-{index:03d}",
+                    "chapter": chapter,
+                    "heading": heading,
+                    "text": text,
+                    "source": doc_id,
+                })
+            for index, figure in enumerate(parser.figures, start=1):
+                file_name = ""
+                src = figure["src"]
+                image_path = str(Path(path).parent / src).replace("\\", "/")
+                if write_images and figures_dir and image_path in names:
+                    figures_dir = Path(figures_dir)
+                    figures_dir.mkdir(parents=True, exist_ok=True)
+                    file_name = Path(src).name
+                    (figures_dir / file_name).write_bytes(zf.read(image_path))
+                figures.append({
+                    "id": _figure_id(figure["label"], chapter, index),
+                    "chapter": chapter,
+                    "caption": figure["caption"],
+                    "referencing_paragraph": figure["referencing_paragraph"],
+                    "file": file_name or Path(src).name,
+                    "anchor": figure["anchor"],
+                    "source": doc_id,
+                })
+    return {
+        "book_id": "fde",
+        "chunks": chunks,
+        "figures": figures,
+    }
+
+
+def main():
+    if not BOOK.is_file():
+        raise SystemExit(f"missing book: {BOOK}")
+    if FIGURES.is_dir():
+        for old in FIGURES.iterdir():
+            if old.is_file():
+                old.unlink()
+    FIGURES.mkdir(parents=True, exist_ok=True)
+    index = ingest_epub(BOOK, FIGURES, write_images=True)
+    INDEX.parent.mkdir(parents=True, exist_ok=True)
+    INDEX.write_text(json.dumps(index, indent=2), encoding="utf-8")
+    reloaded = json.loads(INDEX.read_text(encoding="utf-8"))
+    captions = [f["caption"] for f in reloaded["figures"] if f["caption"]][:3]
+    print(f"chunks {len(reloaded['chunks'])}")
+    print(f"figures {len(reloaded['figures'])}")
+    for caption in captions:
+        print(f"caption: {caption}")
+
+
+if __name__ == "__main__":
+    main()

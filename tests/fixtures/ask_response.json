@@ -1,0 +1,15 @@
+{
+  "answer": "[Ch. 7] \"...exact quote...\"\nChange data capture streams row-level database changes so downstream systems stay in sync.",
+  "citations": [
+    {"chunk_id": "c7-014", "chapter": "7", "quote": "exact quote"}
+  ],
+  "figures": [
+    {
+      "id": "fig-7-3",
+      "chapter": "7",
+      "caption": "Figure 7-3. Batch and streaming ingestion.",
+      "src": "/figures/fig-7-3"
+    }
+  ],
+  "refused": false
+}

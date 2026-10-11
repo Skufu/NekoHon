@@ -1,0 +1,4 @@
+data/
+books/
+__pycache__/
+data/index.*.json
