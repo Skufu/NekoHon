@@ -14,31 +14,52 @@
 </head>
 <body>
   <form id="ask">
-    <input name="question" required placeholder="Ask the book">
-    <button type="submit">Ask</button>
+    <select name="mode">
+      <option value="ask">ask</option>
+      <option value="explain">explain</option>
+      <option value="quiz">quiz</option>
+    </select>
+    <input name="question" placeholder="Ask the book">
+    <input name="selection" placeholder="Highlighted text">
+    <button type="submit">Go</button>
   </form>
   <pre id="answer"></pre>
+  <button id="show-key" hidden type="button">Show the key</button>
+  <pre id="key" hidden></pre>
   <div id="figures"></div>
   <script>
     const form = document.getElementById("ask");
     const answer = document.getElementById("answer");
     const figures = document.getElementById("figures");
+    const showKey = document.getElementById("show-key");
+    const key = document.getElementById("key");
+    showKey.addEventListener("click", () => {
+      key.hidden = false;
+      showKey.hidden = true;
+    });
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       answer.textContent = "Looking...";
       figures.replaceChildren();
+      key.hidden = true;
+      showKey.hidden = true;
+      const mode = form.mode.value;
       const response = await fetch("/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           book_id: "fde",
-          question: form.question.value,
-          selection: null,
-          mode: "ask"
+          question: mode === "quiz" ? "" : form.question.value,
+          selection: form.selection.value || null,
+          mode
         })
       });
       const body = await response.json();
       answer.textContent = body.answer || body.error || "";
+      if (mode === "quiz" && body.citations && body.citations.length) {
+        key.textContent = body.citations.map((item) => item.quote).join("\n");
+        showKey.hidden = false;
+      }
       for (const figure of body.figures || []) {
         const node = document.createElement("figure");
         const image = document.createElement("img");

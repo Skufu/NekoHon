@@ -10,7 +10,7 @@ import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from answer import ask
+from answer import ask, explain, quiz
 from figures import figure_file
 from retrieve import INDEX, load_index
 
@@ -107,15 +107,20 @@ class Handler(BaseHTTPRequestHandler):
         if mode == "explain" and not request.get("selection"):
             self._send_json(400, {"error": "missing selection"})
             return
-        if mode != "ask":
-            self._send_json(200, load_fixture())
-            return
         book = load_book()
         if book is None:
             self._send_json(500, {"error": "missing index"})
             return
         try:
-            body = ask(book, request["question"])
+            if mode == "ask":
+                body = ask(book, request["question"])
+            elif mode == "explain":
+                body = explain(book, request.get("selection") or "")
+            else:
+                body = quiz(book)
+        except ValueError as exc:
+            self._send_json(400, {"error": str(exc)})
+            return
         except (urllib.error.URLError, TimeoutError, RuntimeError):
             self._send_json(500, {"error": "answer model unavailable"})
             return

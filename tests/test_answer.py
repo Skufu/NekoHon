@@ -2,7 +2,7 @@
 
 import unittest
 
-from answer import REFUSAL, ask, parse_completion
+from answer import REFUSAL, ask, explain, parse_completion, quiz
 
 PASSAGES = [
     {
@@ -91,6 +91,51 @@ class AnswerTests(unittest.TestCase):
         self.assertIn("Do not reword it.", seen["user"])
         self.assertFalse(seen["user"].rstrip().endswith(REFUSAL))
         self.assertEqual(seen["model"], "qwen2.5:7b")
+
+    def test_explain_uses_the_selection_as_the_question(self):
+        seen = {}
+
+        def generate(system, user, model):
+            seen["user"] = user
+            return '[Ch. 5] "create, read, update, and delete"'
+
+        body = explain(
+            {},
+            "CRUD stands for create, read, update, and delete",
+            generate,
+            lambda *args, **kwargs: PASSAGES,
+        )
+        self.assertFalse(body["refused"])
+        self.assertIn("CRUD stands for create, read, update, and delete", seen["user"])
+
+    def test_quiz_hides_the_key_from_the_question(self):
+        chunk = {
+            "chunk_id": "ch05-019",
+            "chapter": "5",
+            "text": PASSAGES[0]["text"],
+        }
+
+        def generate(system, user, model):
+            return "Which four operations does CRUD name?"
+
+        body = quiz({"chunks": [chunk], "figures": []}, generate, chunk=chunk)
+        self.assertFalse(body["refused"])
+        self.assertNotIn(body["citations"][0]["quote"].lower(), body["answer"].lower())
+        self.assertEqual(body["citations"][0]["chunk_id"], "ch05-019")
+
+    def test_quiz_leaking_the_key_is_a_refusal(self):
+        chunk = {
+            "chunk_id": "ch05-019",
+            "chapter": "5",
+            "text": "CRUD, which stands for create, read, update, and delete, is a transactional pattern.",
+        }
+
+        def generate(system, user, model):
+            return chunk["text"]
+
+        body = quiz({"chunks": [chunk], "figures": []}, generate, chunk=chunk)
+        self.assertTrue(body["refused"])
+        self.assertEqual(body["answer"], REFUSAL)
 
 
 if __name__ == "__main__":

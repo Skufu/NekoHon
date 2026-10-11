@@ -67,7 +67,13 @@ No cloud APIs, no database server, no package installs.
   Score does not attach a figure. The score floor is still unset.
 - `GET /` serves `window/index.html`. `GET /figures/{id}` returns the image.
   The page was not opened in a browser. The answer still must not describe pixels.
-- Next: Phase 6, explain and quiz. Do not start Phase 8.
+- Phase 6 explain and quiz are in. Explain treats the highlight as the question
+  and still checks the quote. Quiz returns one question plus one key sentence
+  from one chunk. The question must not contain the key. No score. No sparring.
+  Live 2026-10-11: explain of the CRUD sentence quoted ch05-019. One quiz
+  question did not contain its key. The page hides the key behind a button.
+  That button was not clicked in a browser.
+- Next: Phase 7, wifi-off gate. Not Phase 8.
 - Nomic is the v1 index, not a forever lock. Stop and say so before any of
   these, and do not do them quietly:
   - A different nomic quant. This index is from the F16 tag. Q4 or Q8 makes

@@ -5,6 +5,7 @@ A failed check is a refusal. It is never a free answer.
 """
 
 import json
+import random
 import re
 import urllib.request
 
@@ -21,6 +22,12 @@ FORMAT_REMINDER = (
     "[Ch. 2] \"exact sentence copied from a passage\"\n"
     "One short line in simple words."
 )
+QUIZ_INSTRUCTION = (
+    "Write one question a person could answer with a quote from the single "
+    "passage below. Do not include that quote in the question. "
+    "Do not start with [Ch. The question is one or two sentences."
+)
+KEY_MIN_CHARS = 40
 
 
 def passages_block(passages):
@@ -162,3 +169,75 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL):
         return _refusal([])
     completion = generate_fn(SYSTEM, user_message(question, passages), model)
     return parse_completion(completion, passages, index.get("figures") or [])
+
+
+def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MODEL):
+    """The highlight is the question. The neighborhood is the passages."""
+    if not (selection or "").strip():
+        raise ValueError("missing selection")
+    return ask(index, selection.strip(), generate_fn, search_fn, model)
+
+
+def _sentences(text):
+    raw = (text or "").strip()
+    lines = raw.splitlines()
+    if len(lines) > 1 and not lines[0].strip().endswith((".", "?", "!")):
+        raw = "\n".join(lines[1:])
+    parts = re.split(r"(?<=[.!?])\s+", re.sub(r"\s+", " ", raw).strip())
+    sentences = []
+    for part in parts:
+        sentence = part.strip()
+        if len(sentence) < KEY_MIN_CHARS:
+            continue
+        if sentence[0].isupper() and sentence.endswith((".", "?", "!")):
+            sentences.append(sentence)
+    return sentences
+
+
+def pick_quiz_chunk(index, rng=None):
+    """One real teaching chunk. Not a part title. Not the index."""
+    rng = rng or random.Random()
+    usable = []
+    for chunk in index.get("chunks") or []:
+        if not str(chunk.get("chapter", "")).isdigit():
+            continue
+        if _sentences(chunk.get("text") or ""):
+            usable.append(chunk)
+    if not usable:
+        return None
+    return rng.choice(usable)
+
+
+def quiz(index, generate_fn=None, model=ANSWER_MODEL, rng=None, chunk=None):
+    """One question. The key is one sentence from one chunk. No score.
+
+    The question must not contain the key. A leak is a refusal.
+    """
+    generate_fn = generate_fn or ollama_generate
+    chunk = chunk or pick_quiz_chunk(index, rng)
+    if chunk is None:
+        return _refusal([])
+    sentences = _sentences(chunk.get("text") or "")
+    if not sentences:
+        return _refusal([])
+    key = sentences[0]
+    user = (
+        f"{QUIZ_INSTRUCTION}\n\n"
+        f"[Ch. {chunk['chapter']}] chunk_id={chunk['chunk_id']}\n"
+        f"{chunk['text']}"
+    )
+    completion = generate_fn(SYSTEM, user, model).strip()
+    if not completion or completion == REFUSAL or "[Ch." in completion:
+        return _refusal([chunk], index.get("figures") or [])
+    if _quote_in_passage(key, completion) or key.lower() in completion.lower():
+        return _refusal([chunk], index.get("figures") or [])
+    return {
+        "answer": completion,
+        "citations": [{
+            "chunk_id": chunk["chunk_id"],
+            "chapter": str(chunk["chapter"]),
+            "quote": key,
+        }],
+        "figures": figures_for([chunk], index.get("figures") or []),
+        "refused": False,
+    }
