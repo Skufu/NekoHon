@@ -82,6 +82,11 @@ class IngestTests(unittest.TestCase):
         self.assertIn("row by row", tables[0]["text"])
         self.assertTrue(tables[0]["text"].startswith("Batch and streaming"))
 
+        cited = [c for c in index["chunks"] if "Figure 7-3" in c["text"]]
+        self.assertEqual(len(cited), 1)
+        self.assertNotIn("fig-7-3", cited[0]["text"])
+        self.assertNotIn("\x00", cited[0]["text"])
+
         self.assertEqual(len(index["figures"]), 1)
         figure = index["figures"][0]
         for key in ("id", "chapter", "caption", "referencing_paragraph", "file"):

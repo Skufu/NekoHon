@@ -95,6 +95,9 @@ class ChapterParser(HTMLParser):
             self._stack.append(tag)
             return
         if tag == "a" and attr.get("data-type") == "xref":
+            # The href is a machine id. Keep it only as a hidden marker so the
+            # citing-paragraph search can find the figure. Stored chunk text
+            # drops the marker and keeps the link words ("Figure 2-1").
             self._text.append("\x00" + attr.get("href", "").lstrip("#") + "\x00")
             return
         if tag in BLOCK_TAGS or tag in ("ul", "ol", "dl"):
@@ -212,6 +215,11 @@ def _visible(text):
     return re.sub(r"\x00[^\x00]*\x00", "", text).strip()
 
 
+def _stored(text):
+    """Text that gets saved and embedded. No hidden figure ids."""
+    return _clean(_visible(text))
+
+
 def _mentions_figure(text):
     visible = _visible(text)
     return bool(re.search(r"\b(Figure|Fig\.)\b", visible))
@@ -236,7 +244,7 @@ def _section_chunks(heading, body_blocks):
     """
     pieces = []
     for block in body_blocks:
-        text = block["text"]
+        text = _stored(block["text"])
         if block["kind"] == "table" or len(text) <= CHUNK_CHARS:
             pieces.append(text)
             continue
@@ -258,6 +266,7 @@ def _section_chunks(heading, body_blocks):
     chunks = []
     current = []
     current_len = 0
+    heading = _stored(heading)
     heading_prefix = (heading + "\n") if heading else ""
     budget = max(CHUNK_CHARS - len(heading_prefix), 200)
 

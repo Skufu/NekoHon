@@ -46,9 +46,14 @@ No cloud APIs, no database server, no package installs.
 ## Current state (update this block when a phase lands)
 
 - Done: Phase 0 (book at `books/fde.epub`), 0b (README corrected for this
-  book), 1 (fixture + `server.py` + contract test — green).
-- Next: Phase 2, ingest — brief: `artifacts/phase-2-brief.md`.
-- Not started: 3, 3b, 4, 5, 6, 7, 8. Ollama is not needed until Phase 3.
+  book), 1 (fixture + `server.py` + contract test — green), 2 (ingest).
+- Phase 3 embed step is done for nomic. `data/index.json` has 1065 chunk
+  vectors and 111 figure vectors, 768 dims, embedded 2026-10-11 in 15.6s after
+  the figure-id leak fix. The 10-question smoke test is not written. Do not
+  invent hits.
+- Next: 10 questions in `tests/fixtures/questions.json`, then
+  `python retrieve.py --smoke tests/fixtures/questions.json`. Need 8 of 10.
+- Not started: 3b, 4, 5, 6, 7, 8.
 
 ## Verify
 
