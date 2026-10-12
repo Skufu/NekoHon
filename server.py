@@ -18,13 +18,7 @@ HOST = "127.0.0.1"
 PORT = 8000
 OLLAMA_URL = "http://127.0.0.1:11434/"
 MODES = ("ask", "explain", "quiz")
-FIXTURE = Path(__file__).resolve().parent / "tests" / "fixtures" / "ask_response.json"
 BOOK = None
-
-
-def load_fixture():
-    with FIXTURE.open(encoding="utf-8") as handle:
-        return json.load(handle)
 
 
 def ollama_up(timeout=1.0):

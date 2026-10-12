@@ -16,7 +16,7 @@ The product bet: local inference, cited answers, figures on screen, wifi off.
 
 Two older drafts in `~/.hermes/cache/scratch/hackathon-plan.md` and `hackathon-plan-full.md` disagree with each other. This file replaces both.
 
-**Machine note (2026-10-11):** Mac and Windows are both full runners. Windows still needs Ollama installed plus model pulls (nomic-embed-text, qwen2.5:7b, bake-off contenders). `books/` is gitignored, so Phase 0 runs once per machine. On Windows, `python3` in the verify commands means the Python 3 binary (`python` or `py -3` if `python3` is missing).
+**Machine note (2026-10-12):** Mac and Windows are both full runners. Windows has Ollama installed and the models on disk (`nomic-embed-text`, `qwen2.5:7b`); phases 0-7 were measured there, including the wifi-off gate. `books/` is gitignored, so Phase 0 runs once per machine. On Windows, `python3` in the verify commands means the Python 3 binary (`python` or `py -3` if `python3` is missing).
 
 **Download budget (2026-10-11):** unlimited approved for embedder pulls and Windows runner setup. Every other download (book, Readest clone, anything else) still needs an explicit megabyte approval before transfer.
 
