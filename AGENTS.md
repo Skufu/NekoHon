@@ -73,7 +73,19 @@ No cloud APIs, no database server, no package installs.
   Live 2026-10-11: explain of the CRUD sentence quoted ch05-019. One quiz
   question did not contain its key. The page hides the key behind a button.
   That button was not clicked in a browser.
-- Next: Phase 7, wifi-off gate. Not Phase 8.
+- Phase 7 gate passed 2026-10-12. Wired machine: the Ethernet cable was
+  unplugged for the run; the offline probe (`https://example.com`) returned
+  `000`. With the link down, the same watermark ask over HTTP returned
+  `refused: false` with the same cited answer as online (first line starts
+  `[Ch. 8] "A watermark (Figure 8-8)`), citation `ch08-040`, figure
+  `figure-8-8`. netstat: engine PID 26996, Ollama PID 18996, every line
+  `127.0.0.1`, nothing foreign; same PIDs online and offline, no restarts.
+  Raw log: `artifacts/phase7-offline.log`. This is the first end-to-end
+  exercise of the HTTP path. Embeddings and answers are Ollama on localhost;
+  models are nomic-embed-text and qwen2.5:7b; no cloud model API; base
+  models, no training.
+- Next: Phase 8, optional sequel. Phases 0-7 pass; v1 is done by the README's
+  definition.
 - Nomic is the v1 index, not a forever lock. Stop and say so before any of
   these, and do not do them quietly:
   - A different nomic quant. This index is from the F16 tag. Q4 or Q8 makes
@@ -83,7 +95,7 @@ No cloud APIs, no database server, no package installs.
   - A smaller qwen. The library tag is already Q4_K_M, 4.7GB. A smaller one
     may fail the quote check more often.
   - A Gemma picture index. Separate file. It cannot mix with nomic numbers.
-- Not started: 3b, 4, 5, 6, 7, 8.
+- Not started: 8.
 
 ## Verify
 
@@ -101,7 +113,8 @@ No cloud APIs, no database server, no package installs.
   `ollama version is 0.40.3`.
 - On disk: `nomic-embed-text:latest` (274 MB, pulled 2026-10-11). Smoke embed
   returned 768 dims. `moistral:latest` (4.0 GB) is also on disk; do not use it.
-  `qwen2.5:7b` is not pulled yet.
+  `qwen2.5:7b` (4.7 GB, Q4_K_M) is on disk; pulled 2026-10-11 after approval
+  (see the Phase 4 bullet).
 - MLX runtime installed 2026-10-11 from `ollama-windows-amd64-mlx.zip`,
   1403168802 bytes, extracted into the Ollama program folder. Zip deleted.
   `embeddinggemma-2:270m-bf16-text` (574 MB) is on disk. Smoke embed returned

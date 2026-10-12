@@ -1,0 +1,27 @@
+== phase 7 offline run ==
+2026-10-12 14:57:38
+offline check: https://example.com -> 200
+ABORT: still online (expected 000). Turn Wi-Fi off first. Nothing else was run.
+== phase 7 offline run ==
+2026-10-12 14:58:07
+offline check: https://example.com -> 000
+--- health ---
+{"ok": true, "ollama": true}
+--- ask (same command as online) ---
+{"answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late\"", "citations": [{"chunk_id": "ch08-040", "chapter": "8", "quote": "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late"}], "figures": [{"id": "figure-8-8", "chapter": "8", "caption": "Watermark acting as a threshold for late-arriving data", "src": "/figures/figure-8-8"}], "refused": false}
+--- netstat :8000 ---
+  TCP    127.0.0.1:8000         0.0.0.0:0              LISTENING       26996
+  TCP    127.0.0.1:8000         127.0.0.1:54944        TIME_WAIT       0
+  TCP    127.0.0.1:8000         127.0.0.1:60699        TIME_WAIT       0
+  TCP    127.0.0.1:8000         127.0.0.1:60701        TIME_WAIT       0
+  TCP    127.0.0.1:54944        127.0.0.1:8000         TIME_WAIT       0
+--- netstat pid 26996 ---
+  TCP    127.0.0.1:8000         0.0.0.0:0              LISTENING       26996
+--- netstat :11434 ---
+  TCP    127.0.0.1:11434        0.0.0.0:0              LISTENING       18996
+  TCP    127.0.0.1:11434        127.0.0.1:54836        TIME_WAIT       0
+  TCP    127.0.0.1:11434        127.0.0.1:54945        TIME_WAIT       0
+  TCP    127.0.0.1:11434        127.0.0.1:60700        TIME_WAIT       0
+  TCP    127.0.0.1:11434        127.0.0.1:60702        TIME_WAIT       0
+  TCP    127.0.0.1:60702        127.0.0.1:11434        TIME_WAIT       0
+== done. Wi-Fi can go back on. Hand the log to the agent. ==

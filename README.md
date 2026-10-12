@@ -357,6 +357,24 @@ Do not start this phase if phase 3 is under 8/10.
 
 Write the command and the result in the README. That note is the disclosure.
 
+**Passed 2026-10-12.** Wired machine: the Ethernet cable was unplugged for the
+run (restored afterwards). An attempt with the link still up was caught by the
+guard (`https://example.com` returned `200` -> abort; nothing measured). Engine
+and Ollama were not restarted: same PIDs online and offline (26996, 18996).
+
+Command, identical online and offline:
+
+    curl -s -X POST http://127.0.0.1:8000/ask -H 'Content-Type: application/json' -d '{"book_id": "fde", "question": "What is a watermark?", "selection": null, "mode": "ask"}'
+
+- Offline proof: `curl -s -m 3 -o /dev/null -w "%{http_code}" https://example.com` -> `000`.
+- The same ask while offline: `refused: false`; first line `[Ch. 8] "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late"`; citation `ch08-040`; figure `figure-8-8`.
+- Sockets while offline: `netstat -ano | findstr :8000` -> engine PID 26996; that PID's lines -> `127.0.0.1` only. `netstat -ano | findstr :11434` -> Ollama PID 18996, `127.0.0.1` only. No foreign address.
+- Raw log: `artifacts/phase7-offline.log` and `artifacts/phase7-offline-ask.json`.
+
+Disclosure: embeddings and answers are Ollama on localhost; models are
+`nomic-embed-text` and `qwen2.5:7b`; no cloud model API; base models, no
+training.
+
 ## Phase 8 — Readest, only after phase 7
 
 Not scheduled until the gate passes.

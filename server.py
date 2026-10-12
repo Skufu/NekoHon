@@ -1,7 +1,7 @@
 """ask-this-book engine. stdlib only; the route shape is locked in README.md.
 
 POST /ask in mode "ask" retrieves from the nomic index and checks the quote.
-explain and quiz stay on the fixture until Phase 6. No new routes.
+explain and quiz are live since Phase 6 and use the same index. No new routes.
 """
 
 import json
