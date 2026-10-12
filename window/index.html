@@ -10,6 +10,7 @@
     pre { white-space: pre-wrap; }
     figure { margin: 1rem 0; }
     img { max-width: 100%; }
+    .nearby { color: #8a6d00; font-style: italic; margin: 1rem 0 0; }
     #refs { color: #666; font-size: 0.9em; }
   </style>
 </head>
@@ -65,6 +66,12 @@
       if (mode === "quiz" && body.citations && body.citations.length) {
         key.textContent = body.citations.map((item) => item.quote).join("\n");
         showKey.hidden = false;
+      }
+      if (body.refused && (body.figures || []).length) {
+        const note = document.createElement("p");
+        note.className = "nearby";
+        note.textContent = "nearby, not an answer";
+        figures.append(note);
       }
       for (const figure of body.figures || []) {
         const node = document.createElement("figure");

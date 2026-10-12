@@ -1,6 +1,9 @@
 """Phase 4 answer checks. Fake generator. No Ollama."""
 
+import tempfile
 import unittest
+from pathlib import Path
+from unittest import mock
 
 from answer import REFUSAL, ask, explain, parse_completion, quiz
 
@@ -128,6 +131,29 @@ class AnswerTests(unittest.TestCase):
         )
         self.assertFalse(body["refused"])
         self.assertIn("CRUD stands for create, read, update, and delete", seen["user"])
+
+    def test_a_refusal_can_still_carry_the_nearby_figure(self):
+        passage = {
+            "chunk_id": "ch08-040",
+            "chapter": "8",
+            "heading": "Watermarks",
+            "text": "A watermark (Figure 8-8) is a threshold used by a window.",
+            "source": "ch08",
+            "score": 0.8,
+        }
+        figure = {
+            "id": "figure-8-8",
+            "chapter": "8",
+            "caption": "A watermark marks late data.",
+            "file": "fode_0808.png",
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            Path(tmp, "fode_0808.png").write_bytes(b"png")
+            with mock.patch("figures.FIGURES", Path(tmp)):
+                body = parse_completion(REFUSAL, [passage], [figure])
+        self.assertTrue(body["refused"])
+        self.assertEqual(body["answer"], REFUSAL)
+        self.assertEqual([item["id"] for item in body["figures"]], ["figure-8-8"])
 
     def test_quiz_hides_the_key_from_the_question(self):
         chunk = {
