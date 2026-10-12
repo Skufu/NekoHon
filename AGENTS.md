@@ -43,7 +43,8 @@ No cloud APIs, no database server, no package installs.
 - Improvements must generalize, not fit this book's test set — the system has
   to hold for other books later. No chunk ids, figure ids, chapter numbers,
   query strings, or book ids in the logic modules (`answer.py`, `captions.py`,
-  `figures.py`, `keywords.py`, `prompt.py`, `readings.py`, `retrieve.py`).
+  `figures.py`, `keywords.py`, `preprocess.py`, `prompt.py`, `readings.py`,
+  `retrieve.py`).
   Pins and ids belong in tests, the battery, and docstrings.
   `tests/test_generalization.py` enforces the literal part. Thresholds are the
   subtler half: a constant is fitted if its stated reason is which known test it
@@ -245,14 +246,12 @@ No cloud APIs, no database server, no package installs.
   `data/index.pre-sentence.json`, the other intermediates are deleted.
   Battery rerun over HTTP on a fresh server with the new pins: golden 10/10
   answered and 10/10 against pins, typos PASS, probes PASS, France exact,
-  battery PASS; warm asks 0.5-1.2 s. 77 unit tests.
-  Two quality deltas the battery cannot see, both found by reading the measured
-  quotes rather than the pins: the transformations answer now opens with the
-  chunk's heading line ("Key considerations for the transformation phase
-  Logically, we treat...") — verbatim book text, but it reads as a fragment;
-  and the atermark answer attaches three figures instead of one, because the
-  new boundaries put more figure-naming passages in the top five. Both are
-  written into `artifacts/demo-questions.md`; neither fails a pin.
+  battery PASS; warm asks 0.5-1.2 s. 77 unit tests at that point.
+  Two quality deltas the battery could not see were found by reading the
+  measured quotes rather than the pins, and both are fixed — see the
+  answer-layer bullet above: the transformations quote no longer opens with the
+  chunk's heading line, and the atermark answer attaches one figure, not three.
+  `artifacts/demo-questions.md` was corrected the same day.
 - Chunk metadata added 2026-10-12 (`ingest.py`): every chunk now carries `doc`
   (the EPUB file, e.g. `OEBPS/ch04.html`), `section` (the heading trail, e.g.
   "Chapter 6. Storage > Object Storage"), `anchor` (the heading's own id) and
@@ -348,7 +347,7 @@ No cloud APIs, no database server, no package installs.
   stays dead). The multicloud case now answers the full disadvantages
   paragraph of ch04-038 (egress costs, complexity, "dizzying array...
   diabolically complicated"). Battery 18 asks over HTTP, all pass
-  (`artifacts/step2-battery.{log,json}`); 52 unit tests green.
+  (`artifacts/step2-battery.{log,json}`); 83 unit tests green.
 - Caption-seeded recall landed 2026-10-12 (`captions.py`, post-v1 retrieval):
   when a figure caption outscores the best chunk, the best-scoring chunk that
   names that figure is seeded first in the passage set (chosen by cosine, not
@@ -411,7 +410,7 @@ No cloud APIs, no database server, no package installs.
 
 ## Verify
 
-- `python -m unittest tests.test_contract -v` (must stay green)
+- `python -m unittest discover -s tests` (must stay green)
 - Server: `python server.py` -> `GET http://127.0.0.1:8000/health`
 
 ## Machine facts (this Windows box)

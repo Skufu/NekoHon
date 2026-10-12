@@ -66,19 +66,22 @@ Create: `~/workspace/github.com/Skufu/ask-this-book`
 
 ```
 ask-this-book/
-  README.md
-  server.py          # stdlib HTTP
-  ingest.py          # epub zip → chunks + figure records
+  README.md          # this plan
+  AGENTS.md          # entry point, hard rules, current state
+  server.py          # stdlib HTTP; four routes
+  ingest.py          # epub zip → chunks (+ provenance) and figure records
+  preprocess.py      # the one text seam: tokens/words, the dense view
   retrieve.py        # ollama embed + pure-python cosine
-  answer.py          # prompt + ollama generate
+  keywords.py        # rare-word postings, the dense band, anchor words
+  captions.py        # seed the chunk that names a matched figure
+  readings.py        # the self-proving second reading for out-of-book words
+  answer.py          # prompt, ollama generate, the quote check
   prompt.py          # the only system prompt
-  figures.py         # attach a figure when a passage names it
+  figures.py         # attach a figure when a cited passage names it
   tests/
-    test_contract.py
-    test_ingest.py
-    test_retrieve.py
-    test_answer.py
-    test_figures.py
+    test_contract.py  test_ingest.py  test_retrieve.py  test_answer.py
+    test_figures.py   test_keywords.py  test_captions.py  test_readings.py
+    test_preprocess.py  test_chunking.py  test_generalization.py
     fixtures/ask_response.json
     fixtures/questions.json
   window/index.html  # the v1 window

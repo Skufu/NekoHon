@@ -7,8 +7,10 @@ Engine: `python server.py`; page at `http://127.0.0.1:8000/`.
 Re-measured 2026-10-12 after the sentence-boundary re-chunk: four chunk ids
 moved (watermark and atermark ch08-040 -> ch08-039, batch versus streaming
 ch02-018 -> ch02-019, transformations ch02-025 -> ch02-027, multicloud
-ch04-038 -> ch04-037) and the two rows below marked "wart" changed their
-sentence, because the boundary moved under the model.
+ch04-038 -> ch04-037) and two answers changed their sentence, because the
+boundary moved under the model. Later the same day the heading line that had
+leaked into the transformations quote was dropped, and answers began attaching
+only figures named by the passage they cited.
 
 ## What "Highlighted text" means
 
@@ -30,7 +32,7 @@ explain mode. Text that is not in the book gets `Not in this book.`
 | How does data architecture relate to enterprise architecture? | ch03-013: `"Data architecture is a subset of enterprise architecture..."` |
 | What is the difference between batch and streaming? | ch02-019: `"Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML"` |
 | What happens to data after it is extracted in ETL? | ch07-033: `"Once data is extracted, it can either be transformed (ETL)..."` |
-| What do transformations do in the data engineering lifecycle? | ch02-027: `"Key considerations for the transformation phase Logically, we treat transformation as a standalone area of the data engineering lifecycle..."` — the quote opens with the chunk's heading line, a wart of the sentence re-chunk |
+| What do transformations do in the data engineering lifecycle? | ch02-027: `"Logically, we treat transformation as a standalone area of the data engineering lifecycle..."` — this quote used to open with the chunk's heading line; the answer layer drops it now |
 
 ## Explain mode — example selections
 
