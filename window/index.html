@@ -10,6 +10,7 @@
     pre { white-space: pre-wrap; }
     figure { margin: 1rem 0; }
     img { max-width: 100%; }
+    #refs { color: #666; font-size: 0.9em; }
   </style>
 </head>
 <body>
@@ -24,6 +25,7 @@
     <button type="submit">Go</button>
   </form>
   <pre id="answer"></pre>
+  <div id="refs"></div>
   <button id="show-key" hidden type="button">Show the key</button>
   <pre id="key" hidden></pre>
   <div id="figures"></div>
@@ -33,6 +35,7 @@
     const figures = document.getElementById("figures");
     const showKey = document.getElementById("show-key");
     const key = document.getElementById("key");
+    const refs = document.getElementById("refs");
     showKey.addEventListener("click", () => {
       key.hidden = false;
       showKey.hidden = true;
@@ -41,6 +44,7 @@
       event.preventDefault();
       answer.textContent = "Looking...";
       figures.replaceChildren();
+      refs.textContent = "";
       key.hidden = true;
       showKey.hidden = true;
       const mode = form.mode.value;
@@ -56,6 +60,8 @@
       });
       const body = await response.json();
       answer.textContent = body.answer || body.error || "";
+      refs.textContent = (body.citations || []).map((item) => item.chunk_id).join(" ");
+      if (body.refused && refs.textContent) refs.textContent = "nearest misses: " + refs.textContent;
       if (mode === "quiz" && body.citations && body.citations.length) {
         key.textContent = body.citations.map((item) => item.quote).join("\n");
         showKey.hidden = false;
