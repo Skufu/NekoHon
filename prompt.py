@@ -12,6 +12,7 @@ Do not use a passage from a different chapter to fill a gap. If more than one pa
 Do not describe an image. You cannot see images. If a passage names a figure, quote that passage. The app will show the image."""
 
 REFUSAL = "Not in this book."
-# The default is locked. The env seam exists so a bake-off can run the same
-# battery per candidate without editing this file.
-ANSWER_MODEL = os.environ.get("ANSWER_MODEL", "qwen2.5:7b")
+# The default is the bake-off winner (granite4.1:3b, swapped 2026-10-13). The
+# env seam exists so a bake-off can run the same battery per candidate without
+# editing this file.
+ANSWER_MODEL = os.environ.get("ANSWER_MODEL", "granite4.1:3b")

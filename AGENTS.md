@@ -434,7 +434,8 @@ No cloud APIs, no database server, no package installs.
   one hard gate (4b: MAD, wrong sentence in the right chunk, 3/3; both granites:
   multicloud quote stops three sentences early). All three fix the open gloss
   weakness (gloss on almost every answer vs 2/17). Seam: `ANSWER_MODEL=<tag> python
-  server.py` runs any model through the same battery; default locked.
+  server.py` runs any model through the same battery; the default stayed `qwen2.5:7b`
+  until the 2026-10-13 swap below.
 - Quote-to-paragraph expansion landed 2026-10-13 (`answer.py`): when the paragraph
   around a verified quote holds an anchor word (a question word rare in this book)
   and fits PARAGRAPH_CAP=1200, the paragraph replaces the quote. The old rule also
@@ -447,14 +448,19 @@ No cloud APIs, no database server, no package installs.
   ch02-022, unresponsive); granite4.1:8b PASS; qwen3:4b-instruct FAIL (MAD wrong
   sentence unchanged; its CRU typo refused 4/4 — a no-citation refusal, so not this
   change; points at the retrieval side). granite4.1:3b is eligible for the small-PC
-  slot per the bake-off plan; the swap itself is a separate, announced decision.
+  slot per the bake-off plan. Swap landed 2026-10-13 (user-approved): `prompt.py`
+  default is `granite4.1:3b`; `qwen2.5:7b` stays on disk as the fallback via
+  `ANSWER_MODEL=qwen2.5:7b`. The post-swap battery with no env set is the
+  `step2-battery.{json,log}` pair (snapshot `bakeoff-granite4.1-3b-postswap.*`).
+  The choice is measured against this book's index: a new book, or a new index,
+  triggers a fresh bake-off under the same frozen rules.
 - Not started: 8.
 
 ## Verify
 
 - `python -m unittest discover -s tests` (must stay green)
 - Server: `python server.py` -> `GET http://127.0.0.1:8000/health`
-- Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/step2-battery.py`. Default stays qwen2.5:7b; keep exactly one listener on :8000.
+- Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/step2-battery.py`. Default is granite4.1:3b (swapped 2026-10-13); keep exactly one listener on :8000.
 
 ## Machine facts (this Windows box)
 

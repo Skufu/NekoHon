@@ -141,6 +141,9 @@ quotes the ch03-056 monolith definition. granite4.1:3b's monolith answer lost it
 gloss versus v1 (quote unchanged) — noted, not a gate. qwen3:4b's storage gloss
 brushes the plain sense ("where data is kept and used") but stays book-bound.
 
-Per the frozen rules, both granites now clear the battery. The small-PC slot
-belongs to granite4.1:3b (2,100MB) pending the separate, announced swap decision;
-nothing in the live app changed.
+Per the frozen rules, both granites now clear the battery. Swap granted
+2026-10-13: the default is now `granite4.1:3b` (`prompt.py`); qwen2.5:7b stays as
+the `ANSWER_MODEL` fallback. The post-swap battery with no env set is the
+`step2-battery.{json,log}` pair — the third consecutive granite4.1:3b pass,
+snapshot `bakeoff-granite4.1-3b-postswap.*`. A new book or a new index triggers
+a fresh bake-off under the same frozen rules.
