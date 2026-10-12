@@ -72,7 +72,7 @@ No cloud APIs, no database server, no package installs.
   from one chunk. The question must not contain the key. No score. No sparring.
   Live 2026-10-11: explain of the CRUD sentence quoted ch05-019. One quiz
   question did not contain its key. The page hides the key behind a button.
-  That button was not clicked in a browser.
+  That button had not been clicked in a browser yet.
 - Phase 7 gate passed 2026-10-12. Wired machine: the Ethernet cable was
   unplugged for the run; the offline probe (`https://example.com`) returned
   `000`. With the link down, the same watermark ask over HTTP returned
@@ -85,9 +85,9 @@ No cloud APIs, no database server, no package installs.
   models are nomic-embed-text and qwen2.5:7b; no cloud model API; base
   models, no training.
 - Window first opened in a browser 2026-10-12: the ask path showed the quoted
-  answer and the `figure-8-8` image with caption, live from the engine. The
-  explain mode and the quiz "Show the key" button are not yet exercised in a
-  browser.
+  answer and the `figure-8-8` image with caption, live from the engine.
+  explain and the quiz "Show the key" button were clicked the same day; both
+  worked.
 - explain and quiz verified over HTTP 2026-10-12, both `refused: false`, no key
   leak in the quiz question. Latency profile: warm asks ~0.8-1.6 s; the first
   ask after ~5 min idle pays a one-time ~25 s Ollama model load.
