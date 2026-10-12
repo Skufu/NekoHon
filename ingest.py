@@ -10,6 +10,8 @@ from html.parser import HTMLParser
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
+from figures import cited_numbers
+
 ROOT = Path(__file__).resolve().parent
 BOOK = ROOT / "books" / "fde.epub"
 INDEX = ROOT / "data" / "index.json"
@@ -57,6 +59,7 @@ class ChapterParser(HTMLParser):
         self._in_figure = 0
         self._fig = None
         self._capture = None
+        self._heading_id = ""
 
     def handle_starttag(self, tag, attrs):
         tag = tag.lower()
@@ -105,6 +108,9 @@ class ChapterParser(HTMLParser):
             if tag in BLOCK_TAGS and self._capture is None:
                 self._capture = tag
                 self._text = []
+                # The heading's own id, so a chunk can point back at the spot
+                # in the reader. Nothing else on a block carries one.
+                self._heading_id = attr.get("id", "") if tag in HEADING_TAGS else ""
 
     def handle_endtag(self, tag):
         tag = tag.lower()
@@ -150,9 +156,15 @@ class ChapterParser(HTMLParser):
             text = _clean("".join(self._text))
             if text:
                 kind = "heading" if tag in HEADING_TAGS else "para"
-                self.blocks.append({"kind": kind, "tag": tag, "text": text})
+                self.blocks.append({
+                    "kind": kind,
+                    "tag": tag,
+                    "text": text,
+                    "id": self._heading_id,
+                })
             self._capture = None
             self._text = []
+            self._heading_id = ""
             if self._stack and self._stack[-1] == tag:
                 self._stack.pop()
 
@@ -376,25 +388,47 @@ def _section_chunks(heading, body_blocks):
     return chunks
 
 
+def _heading_level(block):
+    tag = block.get("tag") or ""
+    return int(tag[1]) if tag[:1] == "h" and tag[1:].isdigit() else 1
+
+
+def _trail_text(trail):
+    return " > ".join(text for _, text in trail)
+
+
 def _chunk_chapter(blocks):
+    """Sections as units: the chunk text plus where it came from.
+
+    `section` is the heading trail and `anchor` is the heading's own id. Both
+    are metadata only: joining them to the text would move every vector that
+    was built from it.
+    """
     sections = []
+    trail = []
     heading = ""
+    anchor = ""
     body = []
     for block in blocks:
         if block["kind"] == "heading":
             if heading or body:
-                sections.append((heading, body))
+                sections.append((heading, anchor, _trail_text(trail), body))
+            level = _heading_level(block)
+            trail = [(height, text) for height, text in trail if height < level]
+            trail.append((level, block["text"]))
             heading = block["text"]
+            anchor = block.get("id", "")
             body = []
         else:
             body.append(block)
     if heading or body:
-        sections.append((heading, body))
+        sections.append((heading, anchor, _trail_text(trail), body))
 
-    texts = []
-    for heading, body in sections:
-        texts.extend(_section_chunks(heading, body))
-    return texts
+    units = []
+    for heading, anchor, trail_text, body in sections:
+        for text in _section_chunks(heading, body):
+            units.append({"text": text, "section": trail_text, "anchor": anchor})
+    return units
 
 
 def _attach_paragraphs(figures, blocks):
@@ -445,11 +479,12 @@ def ingest_epub(epub_path, figures_dir=None, write_images=True):
             parser.feed(raw)
             parser.close()
             chapter = _chapter_number(doc_id, raw)
-            texts = _chunk_chapter(parser.blocks)
-            if not texts and not parser.figures:
+            units = _chunk_chapter(parser.blocks)
+            if not units and not parser.figures:
                 continue
             _attach_paragraphs(parser.figures, parser.blocks)
-            for index, text in enumerate(texts, start=1):
+            for index, unit in enumerate(units, start=1):
+                text = unit["text"]
                 heading = text.split("\n", 1)[0]
                 chunks.append({
                     "chunk_id": f"{doc_id}-{index:03d}",
@@ -457,6 +492,9 @@ def ingest_epub(epub_path, figures_dir=None, write_images=True):
                     "heading": heading,
                     "text": text,
                     "source": doc_id,
+                    "doc": path,
+                    "section": unit["section"],
+                    "anchor": unit["anchor"],
                 })
             for index, figure in enumerate(parser.figures, start=1):
                 file_name = ""
@@ -476,6 +514,19 @@ def ingest_epub(epub_path, figures_dir=None, write_images=True):
                     "anchor": figure["anchor"],
                     "source": doc_id,
                 })
+    by_number = {}
+    for figure in figures:
+        match = re.search(r"(\d+-\d+)", figure.get("id") or "")
+        if match:
+            by_number[match.group(1)] = figure["id"]
+    for chunk in chunks:
+        # Which figures this chunk names. Derived from the text with the same
+        # rule the answer layer uses, so a split chunk cannot lose a figure.
+        chunk["figures"] = sorted({
+            by_number[number]
+            for number in cited_numbers(chunk["text"])
+            if number in by_number
+        })
     return {
         "book_id": "fde",
         "chunks": chunks,

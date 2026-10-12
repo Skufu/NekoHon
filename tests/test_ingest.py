@@ -96,6 +96,39 @@ class IngestTests(unittest.TestCase):
         self.assertEqual(figure["chapter"], "7")
         self.assertTrue(image_written)
 
+    def test_every_chunk_carries_where_it_came_from(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            epub = Path(tmp) / "fake.epub"
+            _write_epub(epub)
+            index = ingest_epub(epub, None, write_images=False)
+
+        for chunk in index["chunks"]:
+            self.assertEqual(chunk["doc"], "OEBPS/ch07.html")
+            self.assertTrue(chunk["section"].startswith("Chapter 7. Ingestion"))
+            self.assertIn("anchor", chunk)
+            self.assertIn("figures", chunk)
+
+        cited = [c for c in index["chunks"] if "Figure 7-3" in c["text"]][0]
+        self.assertEqual(cited["figures"], ["figure-7-3"])
+        plain = [c for c in index["chunks"] if "Figure 7-3" not in c["text"]][0]
+        self.assertEqual(plain["figures"], [])
+
+    def test_the_trail_is_metadata_and_never_joins_the_text(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            epub = Path(tmp) / "fake.epub"
+            _write_epub(epub)
+            index = ingest_epub(epub, None, write_images=False)
+
+        for chunk in index["chunks"]:
+            if " > " in chunk["section"]:
+                self.assertNotIn(chunk["section"], chunk["text"])
+        # The table sits under the h2, so its trail holds both headings.
+        tables = [c for c in index["chunks"] if "row by row" in c["text"]][0]
+        self.assertEqual(
+            tables["section"], "Chapter 7. Ingestion > Batch and streaming"
+        )
+        self.assertTrue(tables["text"].startswith("Batch and streaming"))
+
 
 if __name__ == "__main__":
     unittest.main()

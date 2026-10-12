@@ -253,6 +253,30 @@ No cloud APIs, no database server, no package installs.
   and the atermark answer attaches three figures instead of one, because the
   new boundaries put more figure-naming passages in the top five. Both are
   written into `artifacts/demo-questions.md`; neither fails a pin.
+- Chunk metadata added 2026-10-12 (`ingest.py`): every chunk now carries `doc`
+  (the EPUB file, e.g. `OEBPS/ch04.html`), `section` (the heading trail, e.g.
+  "Chapter 6. Storage > Object Storage"), `anchor` (the heading's own id) and
+  `figures` (the figure ids the chunk names, derived with the same rule the
+  answer layer uses). The trail and ids are metadata only: joining them to the
+  text would move every vector, so the rebuild reused the existing vectors and
+  proved it — 1042 chunk ids and texts byte-identical to the build they
+  replaced, all 111 figure captions identical, no vector recomputed, index
+  +140 KB. Battery rerun with the SAME pins: golden 10/10, typos PASS, probes
+  PASS, France exact, battery PASS. That is the payoff of metadata that never
+  enters the text.
+  `anchor` is empty for all 1042 chunks, and that is honest rather than broken:
+  this EPUB's headings carry no id (0 of 59 in ch04). The nearest-preceding
+  anchor was measured as a fallback and rejected — only 9 of 51 headings have
+  one within 300 characters, and the ones they have are stray footnote markers
+  (`#ch01fn42-marker`) and LibreOffice auto ids (`#idm45075143877808`). A wrong
+  deep link is worse than none. The field stays wired for a book that does
+  carry heading ids. Previous build kept as `data/index.pre-metadata.json`.
+- Flake worth knowing, seen once 2026-10-12: one battery run refused the
+  multicloud probe while citing ch04-037, the correct chunk. The same question
+  answered correctly twice in-process and 5 of 5 in isolation over HTTP, and
+  the immediate battery rerun passed. Under 17 sequential requests the local
+  model is not bit-exact. Treat a single red probe line as suspect until it
+  repeats, and re-run before believing it. 79 unit tests.
 - Quote-check tag-slip fix landed 2026-10-12: when the model writes the wrong
   `[Ch. N]` tag but the quoted sentence is verbatim in another attached
   passage, the check matches that passage; the answer's chapter is rebuilt
