@@ -236,13 +236,23 @@ No cloud APIs, no database server, no package installs.
   citation list), so chunks grew 1200 -> 5700 in a chain; and taking the tail
   from the chunk instead of the body repeated the heading inside the next
   chunk. A trailing sentence longer than the overlap limit now yields nothing.
-  Re-derived battery pins against the new index (in-process, model included):
-  ch08-040 -> ch08-039 (watermark and atermark), ch02-018 -> ch02-019 (batch
-  versus streaming), ch02-025 -> ch02-027 (transformations), ch04-038 ->
-  ch04-037 (multicloud). Unchanged: ch05-019, ch07-002, ch05-020, ch06-001,
-  ch02-005, ch03-013, ch07-033, ch04-012, ch04-020. France still exact.
-  Switching is a one-line copy plus those four pin edits, and only then is the
-  live battery meaningful again. 77 unit tests.
+  Re-derived battery pins (ch08-040 -> ch08-039 for watermark and atermark,
+  ch02-018 -> ch02-019 batch versus streaming, ch02-025 -> ch02-027
+  transformations, ch04-038 -> ch04-037 multicloud; ch05-019, ch07-002,
+  ch05-020, ch06-001, ch02-005, ch03-013, ch07-033, ch04-012 and ch04-020
+  unchanged) and SWITCHED IN the same day: `data/index.json` is now the
+  sentence-chunked build, the previous one is kept as
+  `data/index.pre-sentence.json`, the other intermediates are deleted.
+  Battery rerun over HTTP on a fresh server with the new pins: golden 10/10
+  answered and 10/10 against pins, typos PASS, probes PASS, France exact,
+  battery PASS; warm asks 0.5-1.2 s. 77 unit tests.
+  Two quality deltas the battery cannot see, both found by reading the measured
+  quotes rather than the pins: the transformations answer now opens with the
+  chunk's heading line ("Key considerations for the transformation phase
+  Logically, we treat...") — verbatim book text, but it reads as a fragment;
+  and the atermark answer attaches three figures instead of one, because the
+  new boundaries put more figure-naming passages in the top five. Both are
+  written into `artifacts/demo-questions.md`; neither fails a pin.
 - Quote-check tag-slip fix landed 2026-10-12: when the model writes the wrong
   `[Ch. N]` tag but the quoted sentence is verbatim in another attached
   passage, the check matches that passage; the answer's chapter is rebuilt

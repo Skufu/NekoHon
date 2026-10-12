@@ -20,27 +20,27 @@ LOG = Path(__file__).resolve().parent / "step2-battery.log"
 GOLDEN_PINS = [
     ("What does CRUD stand for?", "ch05-019"),
     ("What is data ingestion?", "ch07-002"),
-    ("What is a watermark?", "ch08-040"),
+    ("What is a watermark?", "ch08-039"),
     ("When is an insert-only table useful?", "ch05-020"),
     ("Where does storage sit in the data engineering lifecycle?", "ch06-001"),
     ("What do source systems provide to the rest of the lifecycle?", "ch02-005"),
     ("How does data architecture relate to enterprise architecture?", "ch03-013"),
-    ("What is the difference between batch and streaming?", "ch02-018"),
+    ("What is the difference between batch and streaming?", "ch02-019"),
     ("What happens to data after it is extracted in ETL?", "ch07-033"),
-    ("What do transformations do in the data engineering lifecycle?", "ch02-025"),
+    ("What do transformations do in the data engineering lifecycle?", "ch02-027"),
 ]
 # (question, expected chunk, required phrase)
 PROBES = [
     ("what does data engineers need to be pragmatic about", "ch04-012", "pragmatic about flexibility"),
     ("Data engineers need to be pragmatic about?", "ch04-012", "pragmatic about flexibility"),
     ("MAD data landscape", "ch04-020", "ML, AI, and data (MAD) landscape"),
-    ("multicloud methodology disadvantages", "ch04-038", "dizzying array"),
+    ("multicloud methodology disadvantages", "ch04-037", "dizzying array"),
 ]
 # (question, required chunk, required phrase)
 TYPOS = [
     ("What does CRU stand for?", "ch05-019", "stands for create, read, update, and delete"),
     ("What happens to data after it is extracted in ET?", "ch07-033", "once data is extracted"),
-    ("what is a atermark?", "ch08-040", "watermark"),
+    ("what is a atermark?", "ch08-039", "watermark"),
 ]
 FRANCE = "What is the capital of France?"
 REFUSAL = "Not in this book."
@@ -148,8 +148,8 @@ def main():
         "# post-v1 step 2 battery + rare-word probe — 2026-10-12",
         "# Server: python server.py on :8000; model qwen2.5:7b; index data/index.json",
         "# (nomic-embed-text, 1065 chunks). PASS is judged against pins from",
-        "# artifacts/demo-questions.md; typo asks pin ch05-019 / ch07-033 / ch08-040;",
-        "# probes pin ch04-012 (pragmatic), ch04-020 (MAD), ch04-038 (multicloud list).",
+        "# artifacts/demo-questions.md; typo asks pin ch05-019 / ch07-033 / ch08-039;",
+        "# probes pin ch04-012 (pragmatic), ch04-020 (MAD), ch04-037 (multicloud list).",
     ]
     OUT.write_text(json.dumps(results, indent=2), encoding="utf-8")
     LOG.write_text("\n".join(header + lines) + "\n", encoding="utf-8")

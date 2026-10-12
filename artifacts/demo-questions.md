@@ -4,6 +4,11 @@ The 10 golden questions (`tests/fixtures/questions.json`) run end-to-end
 through `POST /ask` on this machine, plus explain and quiz examples.
 Expected answers are what the engine actually returned that day.
 Engine: `python server.py`; page at `http://127.0.0.1:8000/`.
+Re-measured 2026-10-12 after the sentence-boundary re-chunk: four chunk ids
+moved (watermark and atermark ch08-040 -> ch08-039, batch versus streaming
+ch02-018 -> ch02-019, transformations ch02-025 -> ch02-027, multicloud
+ch04-038 -> ch04-037) and the two rows below marked "wart" changed their
+sentence, because the boundary moved under the model.
 
 ## What "Highlighted text" means
 
@@ -18,14 +23,14 @@ explain mode. Text that is not in the book gets `Not in this book.`
 | --- | --- |
 | What does CRUD stand for? | ch05-019: `"CRUD, which stands for create, read, update, and delete..."` |
 | What is data ingestion? | ch07-002 + `figure-7-2`: `"Data ingestion is the process of moving data..."` |
-| What is a watermark? | ch08-040 + `figure-8-8` |
+| What is a watermark? | ch08-039 + `figure-8-8` |
 | When is an insert-only table useful? | ch05-020: `"The insert-only pattern retains history directly in a table..."` |
 | Where does storage sit in the data engineering lifecycle? | ch06-001: `"and underlies its major stages—ingestion, transformation, and serving"` (the model dropped `(Figure 6-1)`; the kept span is the copied part) |
 | What do source systems provide to the rest of the lifecycle? | ch02-005: `"A source system is the origin of the data..."` |
 | How does data architecture relate to enterprise architecture? | ch03-013: `"Data architecture is a subset of enterprise architecture..."` |
-| What is the difference between batch and streaming? | ch02-018: `"Batch ingestion is a one-way door..."` |
+| What is the difference between batch and streaming? | ch02-019: `"Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML"` |
 | What happens to data after it is extracted in ETL? | ch07-033: `"Once data is extracted, it can either be transformed (ETL)..."` |
-| What do transformations do in the data engineering lifecycle? | ch02-025: `"data needs to be changed from its original form into something useful for downstream use cases"` (the lead-in was rewritten; the kept span is the copied part) |
+| What do transformations do in the data engineering lifecycle? | ch02-027: `"Key considerations for the transformation phase Logically, we treat transformation as a standalone area of the data engineering lifecycle..."` — the quote opens with the chunk's heading line, a wart of the sentence re-chunk |
 
 ## Explain mode — example selections
 
@@ -33,7 +38,7 @@ explain mode. Text that is not in the book gets `Not in this book.`
 | --- | --- |
 | `Data ingestion is the process of moving data from one place to another` | ch07-002, quoted back |
 | `CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage` | ch05-019: `"CRUD is the most common pattern for storing application state in a database"` |
-| `A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late` | ch08-040 |
+| `A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late` | ch08-039 |
 
 ## Quiz mode
 
