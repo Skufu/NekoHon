@@ -1,0 +1,29 @@
+# post-v1 step 2 battery + rare-word probe — 2026-10-12
+# Server: python server.py on :8000; model granite4.1:3b; index data/index.json
+# (nomic-embed-text, 1065 chunks). PASS is judged against pins from
+# artifacts/demo-questions.md; typo asks pin ch05-019 / ch07-033 / ch08-039;
+# probes pin ch04-012 (pragmatic), ch04-020 (MAD), ch04-037 (multicloud list).
+PASS  11.91s refused=0 ch05-019 What does CRUD stand for?
+PASS   0.83s refused=0 ch07-002 What is data ingestion?
+PASS   1.09s refused=0 ch08-039 What is a watermark?
+PASS   1.18s refused=0 ch05-020 When is an insert-only table useful?
+PASS   1.06s refused=0 ch06-001 Where does storage sit in the data engineering lifecycle?
+PASS   0.97s refused=0 ch02-005 What do source systems provide to the rest of the lifecycle?
+PASS   1.10s refused=0 ch03-013 How does data architecture relate to enterprise architecture?
+PASS   0.97s refused=0 ch02-019 What is the difference between batch and streaming?
+FAIL   0.96s refused=0 ch02-022 What happens to data after it is extracted in ETL?
+     chunk ch02-022 != ch07-033
+PASS   0.83s refused=0 ch02-027 What do transformations do in the data engineering lifecycle?
+PASS   0.94s refused=0 ch05-019 What does CRU stand for?
+PASS   1.26s refused=0 ch07-033 What happens to data after it is extracted in ET?
+PASS   1.38s refused=0 ch08-039 what is a atermark?
+PASS   0.89s refused=0 ch04-012 what does data engineers need to be pragmatic about
+PASS   0.85s refused=0 ch04-012 Data engineers need to be pragmatic about?
+PASS   1.27s refused=0 ch04-020 MAD data landscape
+FAIL   1.20s refused=0 ch04-037 multicloud methodology disadvantages
+     pinned ask must answer with the pin phrase
+PASS   0.73s refused=1 ch01-064 What is the capital of France?
+golden: 10/10 answered, 9/10 pass (bar 8)
+typos: PASS
+probes: FAIL
+France: PASS

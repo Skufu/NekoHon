@@ -406,12 +406,24 @@ No cloud APIs, no database server, no package installs.
   - A smaller qwen. The library tag is already Q4_K_M, 4.7GB. A smaller one
     may fail the quote check more often.
   - A Gemma picture index. Separate file. It cannot mix with nomic numbers.
+- Answer-model bake-off landed 2026-10-12 (`artifacts/answer-model-bakeoff-plan.md`,
+  `answer-model-bakeoff-results.md`; evidence `artifacts/bakeoff-*`). Three pulled
+  candidates ran the 18-ask battery under rules frozen before the runs:
+  `qwen3:4b-instruct` (2,497 MB), `granite4.1:3b` (2,100 MB), `granite4.1:8b`
+  (5,348 MB). Verdict: no swap — qwen2.5:7b stays the default; each candidate fails
+  one hard gate (4b: MAD, wrong sentence in the right chunk, 3/3; both granites:
+  multicloud quote stops three sentences early). All three fix the open gloss
+  weakness (gloss on almost every answer vs 2/17). Seam: `ANSWER_MODEL=<tag> python
+  server.py` runs any model through the same battery; default locked. Open: whether
+  list questions should always get the whole paragraph (flips granite's multicloud
+  gate; decide on intent, then rerun all 18).
 - Not started: 8.
 
 ## Verify
 
 - `python -m unittest discover -s tests` (must stay green)
 - Server: `python server.py` -> `GET http://127.0.0.1:8000/health`
+- Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/step2-battery.py`. Default stays qwen2.5:7b; keep exactly one listener on :8000.
 
 ## Machine facts (this Windows box)
 
@@ -425,7 +437,9 @@ No cloud APIs, no database server, no package installs.
 - On disk: `nomic-embed-text:latest` (274 MB, pulled 2026-10-11). Smoke embed
   returned 768 dims. `moistral:latest` (4.0 GB) is also on disk; do not use it.
   `qwen2.5:7b` (4.7 GB, Q4_K_M) is on disk; pulled 2026-10-11 after approval
-  (see the Phase 4 bullet).
+  (see the Phase 4 bullet). Bake-off pulls 2026-10-12 (9,945 MB approved):
+  `qwen3:4b-instruct` (2,497 MB), `granite4.1:3b` (2,100 MB), `granite4.1:8b`
+  (5,348 MB).
 - MLX runtime installed 2026-10-11 from `ollama-windows-amd64-mlx.zip`,
   1403168802 bytes, extracted into the Ollama program folder. Zip deleted.
   `embeddinggemma-2:270m-bf16-text` (574 MB) is on disk. Smoke embed returned
