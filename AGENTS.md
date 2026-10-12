@@ -1,8 +1,7 @@
 # AGENTS.md — ask-this-book
 
 Agent entry point for this repo. Read this file, then `README.md` (the full
-locked build plan) and the current phase brief in `artifacts/`. On a new machine, start with
-`HANDOFF.md`.
+locked build plan) and the current phase brief in `artifacts/`.
 
 ## What this is
 
