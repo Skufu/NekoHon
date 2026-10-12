@@ -4,6 +4,7 @@ The model quotes. This module checks the quote is in the passage.
 A failed check is a refusal. It is never a free answer.
 """
 
+import difflib
 import json
 import random
 import re
@@ -12,6 +13,7 @@ import urllib.request
 from figures import figures_for
 from prompt import ANSWER_MODEL, REFUSAL, SYSTEM
 from retrieve import search
+from spelling import correct_question
 
 OLLAMA_CHAT = "http://127.0.0.1:11434/api/chat"
 PASSAGE_LIMIT = 5
@@ -28,6 +30,7 @@ QUIZ_INSTRUCTION = (
     "Do not start with [Ch. The question is one or two sentences."
 )
 KEY_MIN_CHARS = 40
+SPAN_MIN_CHARS = 40
 
 
 def passages_block(passages):
@@ -87,6 +90,40 @@ def _quote_in_passage(quote, text):
     return folded_quote in folded_text
 
 
+def _fold(text):
+    return re.sub(r"\s+", " ", text or "").lower()
+
+
+def longest_copied_span(completion, passage):
+    """The longest word-for-word run the model copied. The edit is dropped.
+
+    Under 40 characters is not a quote. Short overlap stays a refusal.
+    """
+    folded_passage = _fold(passage)
+    folded_completion = _fold(completion)
+    if not folded_passage or not folded_completion:
+        return ""
+    match = difflib.SequenceMatcher(
+        None, folded_passage, folded_completion, autojunk=False
+    ).find_longest_match(0, len(folded_passage), 0, len(folded_completion))
+    if match.size < SPAN_MIN_CHARS:
+        return ""
+    return folded_passage[match.a:match.a + match.size].strip(" .")
+
+
+def _span_from_chapter(chapter, completion, passages):
+    best = ("", None)
+    for hit in passages:
+        if str(hit["chapter"]) != str(chapter):
+            continue
+        span = longest_copied_span(completion, hit.get("text") or "")
+        if len(span) > len(best[0]):
+            best = (span, hit)
+    if best[1] is None:
+        return None, ""
+    return best[1], best[0]
+
+
 def _matching_passage(chapter, quote, passages):
     for hit in passages:
         if str(hit["chapter"]) != str(chapter):
@@ -121,7 +158,11 @@ def parse_completion(completion, passages, figures=None):
         rest = match.group(2)
         quoted = re.search(r"[\"“](.+?)[\"”]", rest)
         quote = _strip_quotes(quoted.group(1) if quoted else rest)
+        if len(quote) < SPAN_MIN_CHARS:
+            quote = ""
         hit = _matching_passage(chapter, quote, passages)
+        if hit is None:
+            hit, quote = _span_from_chapter(chapter, rest or text, passages)
         if hit is None:
             return _refusal(passages, figures)
         citations.append({
@@ -167,7 +208,8 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL):
     passages = search_fn(index, question, k=PASSAGE_LIMIT)
     if not passages:
         return _refusal([])
-    completion = generate_fn(SYSTEM, user_message(question, passages), model)
+    model_question = correct_question(question, index, passages)
+    completion = generate_fn(SYSTEM, user_message(model_question, passages), model)
     return parse_completion(completion, passages, index.get("figures") or [])
 
 

@@ -45,6 +45,27 @@ class AnswerTests(unittest.TestCase):
         self.assertEqual(body["citations"][0]["quote"], "stands for create, read, update, and delete")
         self.assertNotIn("extra words", body["citations"][0]["quote"])
 
+    def test_a_dropped_clause_keeps_the_copied_span(self):
+        body = parse_completion(
+            "[Ch. 5] CRUD stands for create, read, update, and delete.",
+            PASSAGES,
+        )
+        self.assertFalse(body["refused"])
+        self.assertEqual(
+            body["citations"][0]["quote"],
+            "stands for create, read, update, and delete",
+        )
+        self.assertNotIn(", which", body["citations"][0]["quote"])
+        self.assertEqual(body["citations"][0]["chunk_id"], "ch05-019")
+
+    def test_a_short_overlap_is_still_a_refusal(self):
+        body = parse_completion(
+            "[Ch. 5] transactional",
+            PASSAGES,
+        )
+        self.assertTrue(body["refused"])
+        self.assertEqual(body["answer"], REFUSAL)
+
     def test_invented_quote_is_a_refusal(self):
         body = parse_completion(
             '[Ch. 5] "CRUD stores data in the cloud and never loses a row."',
@@ -83,7 +104,7 @@ class AnswerTests(unittest.TestCase):
         def generate(system, user, model):
             seen["user"] = user
             seen["model"] = model
-            return '[Ch. 5] "create, read, update, and delete"'
+            return '[Ch. 5] "stands for create, read, update, and delete"'
 
         body = ask({}, "What does CRUD stand for?", generate, lambda *args, **kwargs: PASSAGES)
         self.assertFalse(body["refused"])
@@ -97,7 +118,7 @@ class AnswerTests(unittest.TestCase):
 
         def generate(system, user, model):
             seen["user"] = user
-            return '[Ch. 5] "create, read, update, and delete"'
+            return '[Ch. 5] "stands for create, read, update, and delete"'
 
         body = explain(
             {},

@@ -97,6 +97,17 @@ No cloud APIs, no database server, no package installs.
   answer layer. Demo sheet: `artifacts/demo-questions.md`.
 - Window shows citation chunk ids under the answer (2026-10-12); on refusals
   they are labeled "nearest misses".
+- Post-v1 step 2 (typo tolerance) landed 2026-10-12: `spelling.py` repairs one
+  question word when it is absent from the book, exactly one book word is
+  within difflib 0.85 in the top passage, and it is present there; the repair
+  reaches the model prompt only, search runs raw.
+- Span fix landed 2026-10-12: when the model edits a near-verbatim copy, keep
+  the longest word-for-word run (difflib, floor 40 chars) instead of refusing.
+  Measured via `answer.ask` on the nomic index: 12 asks answered, France
+  refused exactly. The two old golden refusals now answer (storage ch06-001,
+  transformations ch02-025). CRU answers ch05-019 with `"stands for create,
+  read, update, and delete"`. 32 unit tests green. The battery was run by
+  calling `answer.ask`, not over HTTP. HTTP battery rerun still owed.
 - Next: Phase 8, optional sequel. Phases 0-7 pass; v1 is done by the README's
   definition.
 - Nomic is the v1 index, not a forever lock. Stop and say so before any of
@@ -143,12 +154,15 @@ No cloud APIs, no database server, no package installs.
 
 ## Post-v1 backlog (not approved; confirm before starting)
 
-- Typo tolerance for questions. Retrieval keeps the right chunk at rank 1 for
-  small typos, but the answer layer refuses ("What does CRU stand for?"). A
-  prompt-line fix was tried 2026-10-12 and REVERTED: both variants still
-  refused the typos and one added a regression (golden #6). Next candidate:
-  normalizing the question against the book vocabulary, with the same battery
-  (10 golden questions, quote checks, France refusal).
+- Typo tolerance for questions: question normalization is IN (`spelling.py`,
+  post-v1 step 2, 2026-10-12) and the prompt-line fix stays dead. One word not
+  in the book with exactly one book word within difflib 0.85 in the top
+  passage is replaced in the model prompt only; search stays raw. Measured in
+  `artifacts/step2-battery.log`: ET answers ch07-033; CRU is corrected to CRUD
+  but the raw completion comes back as `[Ch. 5] CRUD stands for create, read,
+  update, and delete.` (no quote marks, ", which" dropped) and the exact check
+  refuses. That is the step-1 model-copy bug, not the parser. Open decision:
+  a copy-fidelity prompt/format change (stop-and-say) or leave CRU refused.
 - Figures shown on refusals: a refusal can carry nearest-miss figures. Label
   them in the window as nearby, not an answer.
 - Caption quoting: README Figure honesty allows quoting the caption; the

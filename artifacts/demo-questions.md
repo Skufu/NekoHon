@@ -12,7 +12,7 @@ your reader; the page shows no book text). Explain treats that sentence as
 the question and quotes from its neighborhood. "Ask the book" is ignored in
 explain mode. Text that is not in the book gets `Not in this book.`
 
-## Ask mode — 10 questions, 8 answered, 2 refused
+## Ask mode — 10 questions, all answered (2026-10-12, after the span fix)
 
 | Ask this | Measured result |
 | --- | --- |
@@ -20,12 +20,12 @@ explain mode. Text that is not in the book gets `Not in this book.`
 | What is data ingestion? | ch07-002 + `figure-7-2`: `"Data ingestion is the process of moving data..."` |
 | What is a watermark? | ch08-040 + `figure-8-8` |
 | When is an insert-only table useful? | ch05-020: `"The insert-only pattern retains history directly in a table..."` |
-| Where does storage sit in the data engineering lifecycle? | REFUSED: `Not in this book.` (2 nearest-miss figures shown) |
+| Where does storage sit in the data engineering lifecycle? | ch06-001: `"and underlies its major stages—ingestion, transformation, and serving"` (the model dropped `(Figure 6-1)`; the kept span is the copied part) |
 | What do source systems provide to the rest of the lifecycle? | ch02-005: `"A source system is the origin of the data..."` |
 | How does data architecture relate to enterprise architecture? | ch03-013: `"Data architecture is a subset of enterprise architecture..."` |
 | What is the difference between batch and streaming? | ch02-018: `"Batch ingestion is a one-way door..."` |
 | What happens to data after it is extracted in ETL? | ch07-033: `"Once data is extracted, it can either be transformed (ETL)..."` |
-| What do transformations do in the data engineering lifecycle? | REFUSED: `Not in this book.` |
+| What do transformations do in the data engineering lifecycle? | ch02-025: `"data needs to be changed from its original form into something useful for downstream use cases"` (the lead-in was rewritten; the kept span is the copied part) |
 
 ## Explain mode — example selections
 
@@ -47,7 +47,8 @@ Example (2026-10-12):
 ## Edge cases seen while testing
 
 - Small typos: retrieval keeps the right chunk at rank 1 (`CRU` -> ch05-019,
-  `ET` -> ch07-033) but the answer layer may refuse (`What does CRU stand
-  for?` refused). Spell terms correctly for demos.
+  `ET` -> ch07-033) and both now answer. `CRU` quotes `"stands for create,
+  read, update, and delete"` from ch05-019 (the model drops `, which`; the
+  kept span is the copied part).
 - Refusals can still show nearest-miss figures (storage question above).
 - Improvement ideas live in `AGENTS.md` "Post-v1 backlog".
