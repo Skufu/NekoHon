@@ -59,7 +59,7 @@ No cloud APIs, no database server, no package installs.
   4.7 GB, Q4_K_M, pulled after a yes on 4683 MB. Quotes checked:
   CRUD (ch05-019), data ingestion (ch07-002), watermark (ch08-040).
   "What is the capital of France?" returned exactly `Not in this book.`
-  The HTTP server was not the thing measured. explain and quiz still return
+  The HTTP server was not the thing measured. explain and quiz returned
   the fixture until Phase 6.
 - Phase 5 figure attach is in. A figure is added only when a kept passage names
   its number, and the file exists. Measured 2026-10-11: "What is a watermark?"
@@ -120,6 +120,9 @@ No cloud APIs, no database server, no package installs.
   `embeddinggemma-2:270m-bf16-text` (574 MB) is on disk. Smoke embed returned
   768 dims. Runner shows `mlx`, `100% GPU`. Do not pull `embeddinggemma` (v1)
   or the picture/audio tags. This book only needs the text tag.
+- `agent-browser` (browser-automation skill) does not start on this box as of
+  2026-10-12: its daemon fails to bind a TCP socket (os error 10013, Windows
+  excluded port ranges). Use a real browser for window checks.
 - Do not delete `tests/__init__.py`: a user-site `tests` package shadows the
   directory without it (the file itself explains why).
 - `books/` and `data/` are gitignored. On a fresh machine, re-run Phase 0: the

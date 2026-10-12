@@ -32,11 +32,11 @@ The engine is the product. The HTML page exists so a person can see the quote an
 - Fusing several chapters into one synthesized answer.
 - Sparring, "argue the other side," or any mode not in the contract.
 - A Readest fork on the critical path.
-- A new embedding model (except the Phase 3b bake-off contenders), a finetune, Laya, Bonsai, or `deepseek-r1:7b` (on disk, wrong job: it rambles past the quote).
+- A new embedding model (except the Phase 3b bake-off contenders), a finetune, Laya, Bonsai, or `deepseek-r1:7b` (Mac only so far; wrong job: it rambles past the quote).
 - A database, a package install, or a cloud API.
 - Cross-chapter tracing.
 
-## Locked stack (verified on Mac, 2026-10-09; Windows setup pending)
+## Locked stack (verified on Mac 2026-10-09; Windows runner built out 2026-10-11)
 
 | Job | Model | On disk | Use |
 | --- | --- | --- | --- |
@@ -44,6 +44,8 @@ The engine is the product. The HTML page exists so a person can see the quote an
 | Answer | `qwen2.5:7b` (4.7 GB) | yes | quote, then one line |
 | Weak-machine note | `llama3.2:3b` (2.0 GB) | yes | README fallback only. Not the dev model. |
 | Do not use | `deepseek-r1:7b` | yes | leave it |
+
+On the Windows runner (measured 2026-10-12): `qwen2.5:7b`, `nomic-embed-text:latest`, `embeddinggemma-2:270m-bf16-text`, and `moistral:latest` are on disk. The `llama3.2:3b` and `deepseek-r1:7b` rows are Mac-only so far.
 
 `qwen2.5:7b` is the locked answer model, not a proven best. The job is a quote check, not a smart essay. A later swap still has to pass the Phase 4 checks: quote is a substring, answer starts with `[Ch.`, refusal is exactly `Not in this book.`
 
@@ -70,13 +72,17 @@ ask-this-book/
   retrieve.py        # ollama embed + pure-python cosine
   answer.py          # prompt + ollama generate
   prompt.py          # the only system prompt
-  store.py           # one JSON file
+  figures.py         # attach a figure when a passage names it
   tests/
     test_contract.py
     test_ingest.py
     test_retrieve.py
+    test_answer.py
+    test_figures.py
     fixtures/ask_response.json
+    fixtures/questions.json
   window/index.html  # the v1 window
+  artifacts/         # phase briefs, model notes, gate logs
   data/              # gitignored: index + extracted images
   books/             # gitignored: the epub, or a one-line path file
   .gitignore         # data/, books/, __pycache__/, per-model indexes
@@ -398,5 +404,7 @@ If `cargo tauri` is missing, stop. The HTML window remains the product shell. Do
 ## Done
 
 v1 is done when phases 0 through 7 pass on the book in `books/SOURCE.txt`, the README has the smoke-test hit list and the wifi-off note, and the page can ask, explain a selection, show a figure that has a real citing paragraph, and quiz from one chunk.
+
+**Passed 2026-10-12** (see Phase 7).
 
 Phase 8 is a sequel. It is not required for the product to be real.
