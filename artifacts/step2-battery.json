@@ -1,7 +1,7 @@
 [
   {
     "question": "What does CRUD stand for?",
-    "seconds": 0.79,
+    "seconds": 1.13,
     "pass": true,
     "notes": [],
     "response": {
@@ -19,7 +19,7 @@
   },
   {
     "question": "What is data ingestion?",
-    "seconds": 0.75,
+    "seconds": 0.67,
     "pass": true,
     "notes": [],
     "response": {
@@ -44,7 +44,7 @@
   },
   {
     "question": "What is a watermark?",
-    "seconds": 1.08,
+    "seconds": 0.98,
     "pass": true,
     "notes": [],
     "response": {
@@ -69,7 +69,7 @@
   },
   {
     "question": "When is an insert-only table useful?",
-    "seconds": 0.55,
+    "seconds": 0.48,
     "pass": true,
     "notes": [],
     "response": {
@@ -87,29 +87,27 @@
   },
   {
     "question": "Where does storage sit in the data engineering lifecycle?",
-    "seconds": 0.7,
+    "seconds": 0.64,
     "pass": true,
-    "notes": [],
+    "notes": [
+      "answered where 2026-10-12 refused"
+    ],
     "response": {
-      "answer": "Not in this book.",
+      "answer": "[Ch. 6] \"and underlies its major stages\u2014ingestion, transformation, and serving\"",
       "citations": [
         {
           "chunk_id": "ch06-001",
           "chapter": "6",
-          "quote": "Chapter 6. Storage Storage is the cornerstone of the data engineering lifecycle (Figure 6-1) and underlies its major stages\u2014ingestion, transformation, and servi"
-        },
-        {
-          "chunk_id": "ch02-002",
-          "chapter": "2",
-          "quote": "What Is the Data Engineering Lifecycle? The data engineering lifecycle comprises stages that turn raw data ingredients into a useful end product, ready for cons"
-        },
-        {
-          "chunk_id": "ch06-130",
-          "chapter": "6",
-          "quote": "Conclusion Storage is everywhere and underlays many stages of the data engineering lifecycle. In this chapter, you learned about the raw ingredients, types, abs"
+          "quote": "and underlies its major stages\u2014ingestion, transformation, and serving"
         }
       ],
       "figures": [
+        {
+          "id": "figure-1-1",
+          "chapter": "1",
+          "caption": "The data engineering lifecycle",
+          "src": "/figures/figure-1-1"
+        },
         {
           "id": "figure-2-1",
           "chapter": "2",
@@ -123,12 +121,12 @@
           "src": "/figures/figure-6-1"
         }
       ],
-      "refused": true
+      "refused": false
     }
   },
   {
     "question": "What do source systems provide to the rest of the lifecycle?",
-    "seconds": 0.79,
+    "seconds": 0.7,
     "pass": true,
     "notes": [],
     "response": {
@@ -159,7 +157,7 @@
   },
   {
     "question": "How does data architecture relate to enterprise architecture?",
-    "seconds": 0.71,
+    "seconds": 0.65,
     "pass": true,
     "notes": [],
     "response": {
@@ -177,7 +175,7 @@
   },
   {
     "question": "What is the difference between batch and streaming?",
-    "seconds": 0.72,
+    "seconds": 0.64,
     "pass": true,
     "notes": [],
     "response": {
@@ -195,7 +193,7 @@
   },
   {
     "question": "What happens to data after it is extracted in ETL?",
-    "seconds": 0.82,
+    "seconds": 0.75,
     "pass": true,
     "notes": [],
     "response": {
@@ -213,26 +211,18 @@
   },
   {
     "question": "What do transformations do in the data engineering lifecycle?",
-    "seconds": 0.86,
+    "seconds": 0.78,
     "pass": true,
-    "notes": [],
+    "notes": [
+      "answered where 2026-10-12 refused"
+    ],
     "response": {
-      "answer": "Not in this book.",
+      "answer": "[Ch. 2] \"data needs to be changed from its original form into something useful for downstream use cases\"",
       "citations": [
         {
           "chunk_id": "ch02-025",
           "chapter": "2",
-          "quote": "Transformation After you\u2019ve ingested and stored data, you need to do something with it. The next stage of the data engineering lifecycle is transformation, mean"
-        },
-        {
-          "chunk_id": "ch08-164",
-          "chapter": "8",
-          "quote": "Conclusion Transformations sit at the heart of data pipelines. It\u2019s critical to keep in mind the purpose of transformations. Ultimately, engineers are not hired"
-        },
-        {
-          "chunk_id": "ch08-001",
-          "chapter": "8",
-          "quote": "Chapter 8. Queries, Modeling, and Transformation Up to this point, the stages of the data engineering lifecycle have primarily been about passing data from one "
+          "quote": "data needs to be changed from its original form into something useful for downstream use cases"
         }
       ],
       "figures": [
@@ -243,42 +233,30 @@
           "src": "/figures/figure-8-1"
         }
       ],
-      "refused": true
+      "refused": false
     }
   },
   {
     "question": "What does CRU stand for?",
-    "seconds": 0.5,
-    "pass": false,
-    "notes": [
-      "typo ask must answer with the pin phrase"
-    ],
+    "seconds": 0.67,
+    "pass": true,
+    "notes": [],
     "response": {
-      "answer": "Not in this book.",
+      "answer": "[Ch. 5] \"stands for create, read, update, and delete\"",
       "citations": [
         {
           "chunk_id": "ch05-019",
           "chapter": "5",
-          "quote": "CRUD CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations o"
-        },
-        {
-          "chunk_id": "ch01-066",
-          "chapter": "1",
-          "quote": "Chief information officer A chief information officer (CIO) is the senior C-suite executive responsible for information technology within an organization; it is"
-        },
-        {
-          "chunk_id": "ch01-069",
-          "chapter": "1",
-          "quote": "Chief analytics officer The chief analytics officer (CAO) is a variant of the CDO role. Where both roles exist, the CDO focuses on the technology and organizati"
+          "quote": "stands for create, read, update, and delete"
         }
       ],
       "figures": [],
-      "refused": true
+      "refused": false
     }
   },
   {
     "question": "What happens to data after it is extracted in ET?",
-    "seconds": 0.79,
+    "seconds": 0.71,
     "pass": true,
     "notes": [],
     "response": {
@@ -296,7 +274,7 @@
   },
   {
     "question": "What is the capital of France?",
-    "seconds": 0.32,
+    "seconds": 0.3,
     "pass": true,
     "notes": [],
     "response": {

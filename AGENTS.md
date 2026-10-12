@@ -106,8 +106,14 @@ No cloud APIs, no database server, no package installs.
   Measured via `answer.ask` on the nomic index: 12 asks answered, France
   refused exactly. The two old golden refusals now answer (storage ch06-001,
   transformations ch02-025). CRU answers ch05-019 with `"stands for create,
-  read, update, and delete"`. 32 unit tests green. The battery was run by
-  calling `answer.ask`, not over HTTP. HTTP battery rerun still owed.
+  read, update, and delete"`. 32 unit tests green. HTTP battery rerun
+  2026-10-12 (`artifacts/step2-battery.{log,json}`): golden 10/10 answered,
+  typos PASS, France PASS, battery PASS. Golden #5 and #10 now answer where
+  they refused before (`ch06-001`, `ch02-025`).
+- Watch out: two `server.py` processes can listen on :8000 at once
+  (`allow_reuse_address`). A stale one silently served old code and made a
+  battery run look like a regression. Check `netstat -ano | findstr :8000`
+  for more than one LISTENING PID before trusting a battery run.
 - Next: Phase 8, optional sequel. Phases 0-7 pass; v1 is done by the README's
   definition.
 - Nomic is the v1 index, not a forever lock. Stop and say so before any of
