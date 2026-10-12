@@ -1,7 +1,7 @@
 [
   {
     "question": "What does CRUD stand for?",
-    "seconds": 1.07,
+    "seconds": 1.01,
     "pass": true,
     "notes": [],
     "response": {
@@ -19,7 +19,7 @@
   },
   {
     "question": "What is data ingestion?",
-    "seconds": 0.9,
+    "seconds": 0.88,
     "pass": true,
     "notes": [],
     "response": {
@@ -44,7 +44,7 @@
   },
   {
     "question": "What is a watermark?",
-    "seconds": 1.04,
+    "seconds": 1.0,
     "pass": true,
     "notes": [],
     "response": {
@@ -69,16 +69,16 @@
   },
   {
     "question": "When is an insert-only table useful?",
-    "seconds": 0.82,
+    "seconds": 0.58,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 5] \"Insert-Only The insert-only pattern retains history directly in a table containing data. Rather than updating records, new records get inserted with a timestamp indicating when they were created (Table 5-1). For example, suppose you have a table of customer addresses. Following a CRUD pattern, you would simply update the record if the customer changed their address. With the insert-only pattern, a new address record is inserted with the same customer ID. To read the current customer address by customer ID, you would look up the latest record under that ID.\"",
+      "answer": "[Ch. 5] \"The insert-only pattern retains history directly in a table containing data\"",
       "citations": [
         {
           "chunk_id": "ch05-020",
           "chapter": "5",
-          "quote": "Insert-Only The insert-only pattern retains history directly in a table containing data. Rather than updating records, new records get inserted with a timestamp indicating when they were created (Table 5-1). For example, suppose you have a table of customer addresses. Following a CRUD pattern, you would simply update the record if the customer changed their address. With the insert-only pattern, a new address record is inserted with the same customer ID. To read the current customer address by customer ID, you would look up the latest record under that ID."
+          "quote": "The insert-only pattern retains history directly in a table containing data"
         }
       ],
       "figures": [],
@@ -87,7 +87,7 @@
   },
   {
     "question": "Where does storage sit in the data engineering lifecycle?",
-    "seconds": 0.81,
+    "seconds": 0.76,
     "pass": true,
     "notes": [],
     "response": {
@@ -101,18 +101,6 @@
       ],
       "figures": [
         {
-          "id": "figure-1-1",
-          "chapter": "1",
-          "caption": "The data engineering lifecycle",
-          "src": "/figures/figure-1-1"
-        },
-        {
-          "id": "figure-2-1",
-          "chapter": "2",
-          "caption": "Components and undercurrents of the data engineering lifecycle",
-          "src": "/figures/figure-2-1"
-        },
-        {
           "id": "figure-6-1",
           "chapter": "6",
           "caption": "Storage plays a central role in the data engineering lifecycle",
@@ -124,7 +112,7 @@
   },
   {
     "question": "What do source systems provide to the rest of the lifecycle?",
-    "seconds": 0.86,
+    "seconds": 0.78,
     "pass": true,
     "notes": [],
     "response": {
@@ -136,26 +124,13 @@
           "quote": "A source system is the origin of the data used in the data engineering lifecycle"
         }
       ],
-      "figures": [
-        {
-          "id": "figure-2-3",
-          "chapter": "2",
-          "caption": "Source system example: an application database",
-          "src": "/figures/figure-2-3"
-        },
-        {
-          "id": "figure-2-4",
-          "chapter": "2",
-          "caption": "Source system example: an IoT swarm and message queue",
-          "src": "/figures/figure-2-4"
-        }
-      ],
+      "figures": [],
       "refused": false
     }
   },
   {
     "question": "How does data architecture relate to enterprise architecture?",
-    "seconds": 0.93,
+    "seconds": 0.84,
     "pass": true,
     "notes": [],
     "response": {
@@ -167,20 +142,13 @@
           "quote": "Data architecture is a subset of enterprise architecture, inheriting its properties: processes, strategy, change management, and evaluating trade-offs"
         }
       ],
-      "figures": [
-        {
-          "id": "figure-3-1",
-          "chapter": "3",
-          "caption": "Data architecture is a subset of enterprise architecture",
-          "src": "/figures/figure-3-1"
-        }
-      ],
+      "figures": [],
       "refused": false
     }
   },
   {
     "question": "What is the difference between batch and streaming?",
-    "seconds": 1.07,
+    "seconds": 1.02,
     "pass": true,
     "notes": [],
     "response": {
@@ -198,7 +166,7 @@
   },
   {
     "question": "What happens to data after it is extracted in ETL?",
-    "seconds": 0.97,
+    "seconds": 0.9,
     "pass": true,
     "notes": [],
     "response": {
@@ -216,32 +184,25 @@
   },
   {
     "question": "What do transformations do in the data engineering lifecycle?",
-    "seconds": 0.88,
+    "seconds": 0.84,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 2] \"Key considerations for the transformation phase Logically, we treat transformation as a standalone area of the data engineering lifecycle, but the realities of the lifecycle can be much more complicated in practice. Transformation is often entangled in other phases of the lifecycle. Typically, data is transformed in source systems or in flight during ingestion. For example, a source system may add an event timestamp to a record before forwarding it to an ingestion process. Or a record within a streaming pipeline may be \u201cenriched\u201d with additional fields and calculations before it\u2019s sent to a data warehouse. Transformations are ubiquitous in various parts of the lifecycle. Data preparation, data wrangling, and cleaning\u2014these transformative tasks add value for end consumers of data.\"",
+      "answer": "[Ch. 2] \"Logically, we treat transformation as a standalone area of the data engineering lifecycle, but the realities of the lifecycle can be much more complicated in practice. Transformation is often entangled in other phases of the lifecycle. Typically, data is transformed in source systems or in flight during ingestion. For example, a source system may add an event timestamp to a record before forwarding it to an ingestion process. Or a record within a streaming pipeline may be \u201cenriched\u201d with additional fields and calculations before it\u2019s sent to a data warehouse. Transformations are ubiquitous in various parts of the lifecycle. Data preparation, data wrangling, and cleaning\u2014these transformative tasks add value for end consumers of data.\"",
       "citations": [
         {
           "chunk_id": "ch02-027",
           "chapter": "2",
-          "quote": "Key considerations for the transformation phase Logically, we treat transformation as a standalone area of the data engineering lifecycle, but the realities of the lifecycle can be much more complicated in practice. Transformation is often entangled in other phases of the lifecycle. Typically, data is transformed in source systems or in flight during ingestion. For example, a source system may add an event timestamp to a record before forwarding it to an ingestion process. Or a record within a streaming pipeline may be \u201cenriched\u201d with additional fields and calculations before it\u2019s sent to a data warehouse. Transformations are ubiquitous in various parts of the lifecycle. Data preparation, data wrangling, and cleaning\u2014these transformative tasks add value for end consumers of data."
+          "quote": "Logically, we treat transformation as a standalone area of the data engineering lifecycle, but the realities of the lifecycle can be much more complicated in practice. Transformation is often entangled in other phases of the lifecycle. Typically, data is transformed in source systems or in flight during ingestion. For example, a source system may add an event timestamp to a record before forwarding it to an ingestion process. Or a record within a streaming pipeline may be \u201cenriched\u201d with additional fields and calculations before it\u2019s sent to a data warehouse. Transformations are ubiquitous in various parts of the lifecycle. Data preparation, data wrangling, and cleaning\u2014these transformative tasks add value for end consumers of data."
         }
       ],
-      "figures": [
-        {
-          "id": "figure-8-1",
-          "chapter": "8",
-          "caption": "Transformations allow us to create value from data",
-          "src": "/figures/figure-8-1"
-        }
-      ],
+      "figures": [],
       "refused": false
     }
   },
   {
     "question": "What does CRU stand for?",
-    "seconds": 1.3,
+    "seconds": 1.14,
     "pass": true,
     "notes": [],
     "response": {
@@ -259,7 +220,7 @@
   },
   {
     "question": "What happens to data after it is extracted in ET?",
-    "seconds": 0.98,
+    "seconds": 0.9,
     "pass": true,
     "notes": [],
     "response": {
@@ -277,7 +238,7 @@
   },
   {
     "question": "what is a atermark?",
-    "seconds": 1.31,
+    "seconds": 1.21,
     "pass": true,
     "notes": [],
     "response": {
@@ -291,18 +252,6 @@
       ],
       "figures": [
         {
-          "id": "figure-3-12",
-          "chapter": "3",
-          "caption": "ETL or ELT plus data marts",
-          "src": "/figures/figure-3-12"
-        },
-        {
-          "id": "figure-5-7",
-          "chapter": "5",
-          "caption": "RDBMS stores and retrieves data at a row level",
-          "src": "/figures/figure-5-7"
-        },
-        {
           "id": "figure-8-8",
           "chapter": "8",
           "caption": "Watermark acting as a threshold for late-arriving data",
@@ -314,7 +263,7 @@
   },
   {
     "question": "what does data engineers need to be pragmatic about",
-    "seconds": 1.05,
+    "seconds": 0.98,
     "pass": true,
     "notes": [],
     "response": {
@@ -332,7 +281,7 @@
   },
   {
     "question": "Data engineers need to be pragmatic about?",
-    "seconds": 0.6,
+    "seconds": 0.56,
     "pass": true,
     "notes": [],
     "response": {
@@ -350,7 +299,7 @@
   },
   {
     "question": "MAD data landscape",
-    "seconds": 1.21,
+    "seconds": 1.04,
     "pass": true,
     "notes": [],
     "response": {
@@ -364,22 +313,10 @@
       ],
       "figures": [
         {
-          "id": "figure-3-18",
-          "chapter": "3",
-          "caption": "Simplified example of a data mesh architecture. Source: From Data Mesh, by Zhamak Dehghani. Copyright \u00a9 2022 Zhamak Dehghani. Published by O\u2019Reilly Media, Inc. Used with permission.",
-          "src": "/figures/figure-3-18"
-        },
-        {
           "id": "figure-4-1",
           "chapter": "4",
           "caption": "Matt Turck\u2019s 2021 MAD data landscape",
           "src": "/figures/figure-4-1"
-        },
-        {
-          "id": "figure-11-1",
-          "chapter": "11",
-          "caption": "In the live data stack, data and intelligence moves in real time between the application and supporting systems",
-          "src": "/figures/figure-11-1"
         }
       ],
       "refused": false
@@ -387,7 +324,7 @@
   },
   {
     "question": "multicloud methodology disadvantages",
-    "seconds": 0.7,
+    "seconds": 0.66,
     "pass": true,
     "notes": [],
     "response": {
@@ -405,7 +342,7 @@
   },
   {
     "question": "What is the capital of France?",
-    "seconds": 0.45,
+    "seconds": 0.43,
     "pass": true,
     "notes": [],
     "response": {

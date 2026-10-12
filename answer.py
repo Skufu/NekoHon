@@ -189,13 +189,42 @@ def _covers_more(anchors, paragraph, sentence):
     return False
 
 
+def _without_heading(quote, passage):
+    """A quote that opens with the passage's heading line drops it.
+
+    A chunk's first line is its heading, so a model copying across that line
+    writes "Insert-Only The insert-only pattern retains history..." or "Key
+    considerations for the transformation phase Logically, we treat..." —
+    verbatim, but it reads as a fragment.
+
+    The test is what follows the heading: a heading that runs on into its own
+    sentence leaves a lowercase remainder ("Modularity allows engineers..."),
+    and a heading that was the sentence's subject leaves a bracket or lower case
+    ("Modularity (Figure 4-5) is...", "Storage is the cornerstone..."). Only a
+    genuine new sentence after the heading — an upper-case start of real length
+    — gets the heading dropped.
+    """
+    heading = (passage.get("text") or "").split("\n", 1)[0].strip()
+    words = heading.split()
+    if not words:
+        return quote
+    pattern = r"\s*".join(re.escape(word) for word in words)
+    match = re.match(rf"\s*{pattern}[\s:\u2014-]*", quote, re.I)
+    if not match:
+        return quote
+    rest = quote[match.end():].strip()
+    if len(rest) < SPAN_MIN_CHARS or not rest[:1].isupper():
+        return quote
+    return rest
+
+
 def parse_completion(completion, passages, figures=None, anchors=None):
     """Return a contract body. Unchecked prose is a refusal.
 
-    A figure is attached only when a kept passage names it. When the
-    paragraph around a verified quote holds an anchor word the quote
-    lacked, the paragraph replaces the quote; paragraph text is passage
-    text, so the quote check holds by construction.
+    A figure is attached only when a passage the answer cited names it. When
+    the paragraph around a verified quote holds an anchor word the quote
+    lacked, the paragraph replaces the quote; paragraph text is passage text,
+    so the quote check holds by construction.
     """
     text = (completion or "").strip()
     if text == REFUSAL:
@@ -244,15 +273,29 @@ def parse_completion(completion, passages, figures=None, anchors=None):
             paragraph = _paragraph_around(item["quote"], spot.get("text") or "")
             if paragraph and _covers_more(anchors, paragraph, item["quote"]):
                 item["quote"] = paragraph
+    # One trim, after every path that can set a quote: the anchor expansion
+    # above replaces the quote with the whole paragraph, heading line included.
+    for item in citations:
+        spot = next(
+            (hit for hit in passages if hit["chunk_id"] == item["chunk_id"]),
+            None,
+        )
+        if spot is not None:
+            item["quote"] = _without_heading(item["quote"], spot)
     answer_lines = [
         f"[Ch. {item['chapter']}] \"{item['quote']}\"" for item in citations
     ]
     if gloss:
         answer_lines.append(" ".join(gloss))
+    # Only the passages the answer actually cited may attach a figure. The rest
+    # of the kept passages used to ride along, which is how a data-mesh figure
+    # appeared on an answer about the MAD landscape.
+    cited = {item["chunk_id"] for item in citations}
+    named = [hit for hit in passages if hit["chunk_id"] in cited] or passages
     return {
         "answer": "\n".join(answer_lines),
         "citations": citations,
-        "figures": figures_for(passages, figures or []),
+        "figures": figures_for(named, figures or []),
         "refused": False,
     }
 

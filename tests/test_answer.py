@@ -328,6 +328,99 @@ class AnswerTests(unittest.TestCase):
             seen["user"].splitlines()[0], "Question: What does CRU stand for?"
         )
 
+    def test_the_gloss_line_rides_beside_the_quote(self):
+        body = parse_completion(
+            '[Ch. 5] "stands for create, read, update, and delete"\n'
+            'In plain words: CRUD names the four basic things you can do to data.',
+            PASSAGES,
+        )
+        self.assertFalse(body["refused"])
+        lines = body["answer"].splitlines()
+        self.assertEqual(len(lines), 2)
+        self.assertTrue(lines[1].startswith("In plain words:"))
+        self.assertNotIn("In plain words", body["citations"][0]["quote"])
+
+    def test_a_quote_that_opens_with_the_heading_line_drops_it(self):
+        passage = {
+            "chunk_id": "ch02-027",
+            "chapter": "2",
+            "heading": "Key considerations for the transformation phase",
+            "text": (
+                "Key considerations for the transformation phase\n"
+                "Logically, we treat transformation as a standalone area of the "
+                "data engineering lifecycle, but the reality is more complex."
+            ),
+            "source": "ch02",
+            "score": 0.9,
+        }
+        body = parse_completion(
+            '[Ch. 2] "Key considerations for the transformation phase Logically, '
+            'we treat transformation as a standalone area of the data '
+            'engineering lifecycle, but the reality is more complex."',
+            [passage],
+        )
+        self.assertFalse(body["refused"])
+        self.assertTrue(body["citations"][0]["quote"].startswith("Logically,"))
+
+    def test_a_one_word_heading_stays_because_it_is_the_subject(self):
+        passage = {
+            "chunk_id": "ch04-069",
+            "chapter": "4",
+            "heading": "Modularity",
+            "text": (
+                "Modularity\nModularity (Figure 4-5) is an old concept in "
+                "software engineering, but modular distributed systems came "
+                "into vogue with the rise of microservices."
+            ),
+            "source": "ch04",
+            "score": 0.9,
+        }
+        body = parse_completion(
+            '[Ch. 4] "Modularity (Figure 4-5) is an old concept in software '
+            'engineering, but modular distributed systems came into vogue with '
+            'the rise of microservices."',
+            [passage],
+        )
+        self.assertFalse(body["refused"])
+        self.assertTrue(body["citations"][0]["quote"].startswith("Modularity"))
+
+    def test_a_figure_from_an_uncited_passage_is_not_attached(self):
+        cited = {
+            "chunk_id": "ch04-020",
+            "chapter": "4",
+            "heading": "Today Versus the Future",
+            "text": (
+                "Today Versus the Future\nJust consider the number of "
+                "technologies in the MAD landscape (Figure 4-1)."
+            ),
+            "source": "ch04",
+            "score": 0.9,
+        }
+        rider = {
+            "chunk_id": "ch03-102",
+            "chapter": "3",
+            "heading": "Data Mesh",
+            "text": "Data Mesh\nThe data mesh is a recent response (Figure 3-18).",
+            "source": "ch03",
+            "score": 0.6,
+        }
+        figures = [
+            {"id": "figure-4-1", "chapter": "4", "caption": "MAD", "file": "fode_0401.png"},
+            {"id": "figure-3-18", "chapter": "3", "caption": "Mesh", "file": "fode_0318.png"},
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            Path(tmp, "fode_0401.png").write_bytes(b"png")
+            Path(tmp, "fode_0318.png").write_bytes(b"png")
+            with mock.patch("figures.FIGURES", Path(tmp)):
+                body = parse_completion(
+                    '[Ch. 4] "Just consider the number of technologies in the '
+                    'MAD landscape (Figure 4-1)."',
+                    [cited, rider],
+                    figures,
+                )
+        self.assertFalse(body["refused"])
+        self.assertEqual([item["id"] for item in body["figures"]], ["figure-4-1"])
+
 
 if __name__ == "__main__":
     unittest.main()

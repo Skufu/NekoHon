@@ -277,6 +277,35 @@ No cloud APIs, no database server, no package installs.
   the immediate battery rerun passed. Under 17 sequential requests the local
   model is not bit-exact. Treat a single red probe line as suspect until it
   repeats, and re-run before believing it. 79 unit tests.
+- Two answer-layer warts fixed 2026-10-12 (`answer.py`), both measured.
+  (a) A quote that opens with the passage's heading line drops it. The
+  transformations answer read "Key considerations for the transformation phase
+  Logically, we treat..." and the insert-only answer read "Insert-Only The
+  insert-only pattern retains...". The test is what follows the heading: a
+  heading that ran on into its own sentence leaves a lower-case remainder, and
+  one that was the sentence's subject leaves a bracket or lower case, so only a
+  genuine new sentence in upper case gets the heading dropped — "Modularity
+  (Figure 4-5) is..." and "Storage is the cornerstone..." keep their subject.
+  The trim runs after the anchor-paragraph expansion, because that path
+  replaces the quote and re-introduces the heading; the earlier placement
+  silently did nothing, which the measurement caught and the unit tests did
+  not.
+  (b) A figure attaches only from a passage the answer cited, not from every
+  kept passage. MAD 2 figures -> 1 (figure-4-1), storage 3 -> 1 (figure-6-1),
+  atermark 3 -> 1 (figure-8-8); refusals keep the "nearby" labelling. Cost of
+  the narrower rule: the modular-services answer now cites a neighbouring chunk
+  that names no figure, so it shows none where it used to show figure-4-5.
+  Battery PASS on all four lines after both.
+- Gloss forcing tried and REVERTED 2026-10-12. The plan promises one line of
+  gloss after the quote; measured, 15 of 17 answers skip it. A FORMAT_REMINDER
+  asking for a line beginning "In plain words:" put a gloss into 10 of 10
+  answers and broke the golden set to 6/10 — four refusals, because the model
+  refuses rather than emit a format it cannot satisfy. Probes went red too.
+  Reverted; battery back to PASS on all four lines. Three attempts to steer
+  this model with instructions have now failed the same way (definition verbs,
+  the CRU spelling note, the gloss); do not try a fourth without changing the
+  model. `FORMAT_REMINDER` and `SYSTEM` are back to their committed text.
+  83 unit tests.
 - Quote-check tag-slip fix landed 2026-10-12: when the model writes the wrong
   `[Ch. N]` tag but the quoted sentence is verbatim in another attached
   passage, the check matches that passage; the answer's chapter is rebuilt
