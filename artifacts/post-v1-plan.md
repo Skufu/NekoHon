@@ -17,7 +17,12 @@ Save the raw completion for those four calls before any code change. If the raw 
 
 ## 2. Typo tolerance, only after step 1
 
-Do not correct the question before search. Search already finds the chunk.
+Do not correct the question on the way into the first search. Search finds
+the chunk for mild typos (measured: CRU rank 1, ET rank 1; 2026-10-12) but
+not for stronger ones (measured: `atermark`, top chunk 0.573, the correct
+word not in the top-5; 2026-10-12). A corrected question may be used for one
+retry search — when the whole book has a clear closest word (unique best
+within 0.85) — and only if that retry retrieves strictly better passages.
 
 Correct a word in the question text sent to qwen only when all of these are true:
 
@@ -27,7 +32,7 @@ Correct a word in the question text sent to qwen only when all of these are true
 
 Do not correct "France". Do not correct a word that is a real book word. If two book words are equally close, correct nothing.
 
-Battery: the two typos answer from ch05-019 and ch07-033. The 10 golden questions stay at least 8/10, same chunks where possible. France is still exactly `Not in this book.`
+Battery: the two typos answer from ch05-019 and ch07-033, and `what is a atermark?` answers from ch08-040. The 10 golden questions stay at least 8/10, same chunks where possible. France is still exactly `Not in this book.`
 
 ## 3. Label refusal figures
 

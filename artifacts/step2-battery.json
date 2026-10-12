@@ -1,7 +1,7 @@
 [
   {
     "question": "What does CRUD stand for?",
-    "seconds": 1.13,
+    "seconds": 0.87,
     "pass": true,
     "notes": [],
     "response": {
@@ -19,7 +19,7 @@
   },
   {
     "question": "What is data ingestion?",
-    "seconds": 0.67,
+    "seconds": 0.75,
     "pass": true,
     "notes": [],
     "response": {
@@ -44,7 +44,7 @@
   },
   {
     "question": "What is a watermark?",
-    "seconds": 0.98,
+    "seconds": 1.04,
     "pass": true,
     "notes": [],
     "response": {
@@ -69,7 +69,7 @@
   },
   {
     "question": "When is an insert-only table useful?",
-    "seconds": 0.48,
+    "seconds": 0.57,
     "pass": true,
     "notes": [],
     "response": {
@@ -87,11 +87,9 @@
   },
   {
     "question": "Where does storage sit in the data engineering lifecycle?",
-    "seconds": 0.64,
+    "seconds": 0.73,
     "pass": true,
-    "notes": [
-      "answered where 2026-10-12 refused"
-    ],
+    "notes": [],
     "response": {
       "answer": "[Ch. 6] \"and underlies its major stages\u2014ingestion, transformation, and serving\"",
       "citations": [
@@ -126,7 +124,7 @@
   },
   {
     "question": "What do source systems provide to the rest of the lifecycle?",
-    "seconds": 0.7,
+    "seconds": 0.76,
     "pass": true,
     "notes": [],
     "response": {
@@ -157,7 +155,7 @@
   },
   {
     "question": "How does data architecture relate to enterprise architecture?",
-    "seconds": 0.65,
+    "seconds": 0.75,
     "pass": true,
     "notes": [],
     "response": {
@@ -169,13 +167,20 @@
           "quote": "Data architecture is a subset of enterprise architecture, inheriting its properties: processes, strategy, change management, and evaluating trade-offs"
         }
       ],
-      "figures": [],
+      "figures": [
+        {
+          "id": "figure-3-1",
+          "chapter": "3",
+          "caption": "Data architecture is a subset of enterprise architecture",
+          "src": "/figures/figure-3-1"
+        }
+      ],
       "refused": false
     }
   },
   {
     "question": "What is the difference between batch and streaming?",
-    "seconds": 0.64,
+    "seconds": 0.76,
     "pass": true,
     "notes": [],
     "response": {
@@ -193,7 +198,7 @@
   },
   {
     "question": "What happens to data after it is extracted in ETL?",
-    "seconds": 0.75,
+    "seconds": 0.81,
     "pass": true,
     "notes": [],
     "response": {
@@ -205,24 +210,29 @@
           "quote": "Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation"
         }
       ],
-      "figures": [],
+      "figures": [
+        {
+          "id": "figure-7-5",
+          "chapter": "7",
+          "caption": "A synchronous ingestion process runs as discrete batch steps",
+          "src": "/figures/figure-7-5"
+        }
+      ],
       "refused": false
     }
   },
   {
     "question": "What do transformations do in the data engineering lifecycle?",
-    "seconds": 0.78,
+    "seconds": 0.88,
     "pass": true,
-    "notes": [
-      "answered where 2026-10-12 refused"
-    ],
+    "notes": [],
     "response": {
-      "answer": "[Ch. 2] \"data needs to be changed from its original form into something useful for downstream use cases\"",
+      "answer": "[Ch. 2] \"Transformation After you\u2019ve ingested and stored data, you need to do something with it. The next stage of the data engineering lifecycle is transformation, meaning data needs to be changed from its original form into something useful for downstream use cases. Without proper transformations, data will sit inert, and not be in a useful form for reports, analysis, or ML. Typically, the transformation stage is where data begins to create value for downstream user consumption.\"",
       "citations": [
         {
           "chunk_id": "ch02-025",
           "chapter": "2",
-          "quote": "data needs to be changed from its original form into something useful for downstream use cases"
+          "quote": "Transformation After you\u2019ve ingested and stored data, you need to do something with it. The next stage of the data engineering lifecycle is transformation, meaning data needs to be changed from its original form into something useful for downstream use cases. Without proper transformations, data will sit inert, and not be in a useful form for reports, analysis, or ML. Typically, the transformation stage is where data begins to create value for downstream user consumption."
         }
       ],
       "figures": [
@@ -238,16 +248,16 @@
   },
   {
     "question": "What does CRU stand for?",
-    "seconds": 0.67,
+    "seconds": 0.99,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 5] \"stands for create, read, update, and delete\"",
+      "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage\"",
       "citations": [
         {
           "chunk_id": "ch05-019",
           "chapter": "5",
-          "quote": "stands for create, read, update, and delete"
+          "quote": "CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage"
         }
       ],
       "figures": [],
@@ -256,7 +266,7 @@
   },
   {
     "question": "What happens to data after it is extracted in ET?",
-    "seconds": 0.71,
+    "seconds": 0.79,
     "pass": true,
     "notes": [],
     "response": {
@@ -273,8 +283,118 @@
     }
   },
   {
+    "question": "what is a atermark?",
+    "seconds": 1.24,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late\"\nA watermark is a time threshold used to check if data is current or delayed.",
+      "citations": [
+        {
+          "chunk_id": "ch08-040",
+          "chapter": "8",
+          "quote": "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late"
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-8-8",
+          "chapter": "8",
+          "caption": "Watermark acting as a threshold for late-arriving data",
+          "src": "/figures/figure-8-8"
+        }
+      ],
+      "refused": false
+    }
+  },
+  {
+    "question": "what does data engineers need to be pragmatic about",
+    "seconds": 0.68,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"\nData engineers should be flexible with their technology choices.",
+      "citations": [
+        {
+          "chunk_id": "ch04-012",
+          "chapter": "4",
+          "quote": "Data engineers need to be pragmatic about flexibility"
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "Data engineers need to be pragmatic about?",
+    "seconds": 0.55,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"",
+      "citations": [
+        {
+          "chunk_id": "ch04-012",
+          "chapter": "4",
+          "quote": "Data engineers need to be pragmatic about flexibility"
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "MAD data landscape",
+    "seconds": 1.03,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 4] \"It\u2019s hard. Just consider the number of technologies in Matt Turck\u2019s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)\"",
+      "citations": [
+        {
+          "chunk_id": "ch04-020",
+          "chapter": "4",
+          "quote": "It\u2019s hard. Just consider the number of technologies in Matt Turck\u2019s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)"
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-3-18",
+          "chapter": "3",
+          "caption": "Simplified example of a data mesh architecture. Source: From Data Mesh, by Zhamak Dehghani. Copyright \u00a9 2022 Zhamak Dehghani. Published by O\u2019Reilly Media, Inc. Used with permission.",
+          "src": "/figures/figure-3-18"
+        },
+        {
+          "id": "figure-4-1",
+          "chapter": "4",
+          "caption": "Matt Turck\u2019s 2021 MAD data landscape",
+          "src": "/figures/figure-4-1"
+        }
+      ],
+      "refused": false
+    }
+  },
+  {
+    "question": "multicloud methodology disadvantages",
+    "seconds": 0.64,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 4] \"A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks are critical. Going multicloud can introduce significant complexity. Companies must now manage a dizzying array of services across several clouds; cross-cloud integration and security present a considerable challenge; multicloud networking can be diabolically complicated.\"",
+      "citations": [
+        {
+          "chunk_id": "ch04-038",
+          "chapter": "4",
+          "quote": "A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks are critical. Going multicloud can introduce significant complexity. Companies must now manage a dizzying array of services across several clouds; cross-cloud integration and security present a considerable challenge; multicloud networking can be diabolically complicated."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
     "question": "What is the capital of France?",
-    "seconds": 0.3,
+    "seconds": 0.5,
     "pass": true,
     "notes": [],
     "response": {

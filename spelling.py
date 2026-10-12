@@ -1,12 +1,13 @@
 """One-word typo repair for the question text the model sees. Post-v1 step 2.
 
-Search still runs on the raw question: retrieval keeps the right chunk at
-rank 1 for the CRU and ET typos. Only the model gets the repair. Rules, from
-artifacts/post-v1-plan.md:
-- the word is not already in the book,
-- exactly one book word within a tight difflib cutoff,
-- that word appears in the top retrieved passage.
-A tie, a book word, or a weak match is left alone.
+Two repair paths (artifacts/post-v1-plan.md step 2, amended 2026-10-12):
+- the prompt repair uses only words of the top passage; search already found
+  the chunk (CRU, ET),
+- the retry repair lets the whole book pick the word when search itself was
+  misled (atermark); the caller must prove the retry retrieves strictly
+  better passages before using it.
+
+Both paths refuse ties, sub-cutoff matches, and real book words.
 """
 
 import difflib
@@ -16,41 +17,48 @@ CUTOFF = 0.85
 WORD = re.compile(r"[A-Za-z]+")
 
 
-def book_words(index):
-    """Every word of every chunk, lowercased. Rebuild per call: 0.03 s measured."""
-    words = set()
+def book_spellings(index):
+    """Folded word -> the spelling used in the book, first occurrence."""
+    spellings = {}
     for chunk in index.get("chunks") or []:
-        words.update(m.group().lower() for m in WORD.finditer(chunk.get("text") or ""))
-    return words
+        for match in WORD.finditer(chunk.get("text") or ""):
+            spellings.setdefault(match.group().lower(), match.group())
+    return spellings
 
 
-def correct_question(question, index, passages):
-    """The question with unambiguous one-word typos repaired.
+def _ranked(folded, candidates):
+    return sorted(
+        (
+            (difflib.SequenceMatcher(None, folded, candidate).ratio(), candidate)
+            for candidate in candidates
+        ),
+        reverse=True,
+    )
 
-    Only words of the top passage may be substituted. Unchanged otherwise.
-    """
-    if not passages:
-        return question
-    top_spellings = {}
-    for match in WORD.finditer(passages[0].get("text") or ""):
-        top_spellings.setdefault(match.group().lower(), match.group())
-    known = book_words(index)
-    fixes = []
-    for match in WORD.finditer(question):
-        folded = match.group().lower()
-        if folded in known:
-            continue
-        ranked = sorted(
-            (
-                (difflib.SequenceMatcher(None, folded, candidate).ratio(), candidate)
-                for candidate in top_spellings
-            ),
-            reverse=True,
-        )
-        nearest = [candidate for score, candidate in ranked if score >= CUTOFF]
-        if len(nearest) != 1:
-            continue
-        fixes.append((match.start(), match.end(), top_spellings[nearest[0]]))
+
+def _only_candidate(folded, candidates):
+    """The single candidate within CUTOFF. Two or more within it: none."""
+    within = [
+        candidate
+        for score, candidate in _ranked(folded, candidates)
+        if score >= CUTOFF
+    ]
+    if len(within) != 1:
+        return None
+    return within[0]
+
+
+def _clearest_candidate(folded, candidates):
+    """The strictly closest candidate within CUTOFF. A tie at the top: none."""
+    ranked = _ranked(folded, candidates)
+    if not ranked or ranked[0][0] < CUTOFF:
+        return None
+    if len(ranked) > 1 and ranked[1][0] == ranked[0][0]:
+        return None
+    return ranked[0][1]
+
+
+def _apply(question, fixes):
     if not fixes:
         return question
     parts = []
@@ -61,3 +69,46 @@ def correct_question(question, index, passages):
         cursor = end
     parts.append(question[cursor:])
     return "".join(parts)
+
+
+def correct_question(question, index, passages):
+    """Prompt repair. Candidates come from the top passage only.
+
+    Search already found the chunk; this changes the prompt text only.
+    Unchanged otherwise.
+    """
+    if not passages:
+        return question
+    top_spellings = {}
+    for match in WORD.finditer(passages[0].get("text") or ""):
+        top_spellings.setdefault(match.group().lower(), match.group())
+    known = book_spellings(index)
+    fixes = []
+    for match in WORD.finditer(question):
+        folded = match.group().lower()
+        if folded in known:
+            continue
+        candidate = _only_candidate(folded, top_spellings)
+        if candidate is None:
+            continue
+        fixes.append((match.start(), match.end(), top_spellings[candidate]))
+    return _apply(question, fixes)
+
+
+def book_repair(question, index):
+    """Retry repair. The whole book picks the word; unique best only.
+
+    The caller re-searches with the repaired question and keeps the result
+    only when the top score strictly improves. Unchanged otherwise.
+    """
+    known = book_spellings(index)
+    fixes = []
+    for match in WORD.finditer(question):
+        folded = match.group().lower()
+        if folded in known:
+            continue
+        candidate = _clearest_candidate(folded, known)
+        if candidate is None:
+            continue
+        fixes.append((match.start(), match.end(), known[candidate]))
+    return _apply(question, fixes)

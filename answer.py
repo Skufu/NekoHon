@@ -10,14 +10,17 @@ import random
 import re
 import urllib.request
 
+from captions import caption_seed
 from figures import figures_for
+from keywords import anchor_words, boost, postings, rare
 from prompt import ANSWER_MODEL, REFUSAL, SYSTEM
-from retrieve import search
-from spelling import correct_question
+from retrieve import dense_rank, search
+from spelling import book_repair, correct_question
 
 OLLAMA_CHAT = "http://127.0.0.1:11434/api/chat"
 PASSAGE_LIMIT = 5
 MISS_QUOTE_CHARS = 160
+FIGURE_REFERENCE = re.compile(r"\((?:figure|fig\.)\s*[A-Za-z]?\d+-\d+\)", re.I)
 FORMAT_REMINDER = (
     "Copy one sentence from a passage. Do not reword it.\n"
     "Format example, not an answer:\n"
@@ -82,11 +85,23 @@ def _strip_quotes(text):
     return re.sub(r"\s+", " ", text).strip(" .")
 
 
+def _strip_figure_refs(text):
+    """Drop "(Figure 6-1)" and the like before a quote is matched.
+
+    The model leaves figure references out when it copies, and the book puts
+    them mid-sentence. Matching with them removed keeps "Storage is the
+    cornerstone ... and underlies its major stages" whole; otherwise the
+    longest copied run starts after the parenthetical. Both sides are stripped,
+    so a quote that keeps its "(Figure 8-8)" still matches.
+    """
+    return FIGURE_REFERENCE.sub(" ", text or "")
+
+
 def _quote_in_passage(quote, text):
     if not quote:
         return False
-    folded_quote = re.sub(r"\s+", " ", quote).lower()
-    folded_text = re.sub(r"\s+", " ", text).lower()
+    folded_quote = re.sub(r"\s+", " ", _strip_figure_refs(quote)).lower()
+    folded_text = re.sub(r"\s+", " ", _strip_figure_refs(text)).lower()
     return folded_quote in folded_text
 
 
@@ -133,10 +148,54 @@ def _matching_passage(chapter, quote, passages):
     return None
 
 
-def parse_completion(completion, passages, figures=None):
+def _matching_passage_anywhere(quote, passages):
+    """A verbatim quote from any attached passage is still a true quote.
+
+    The model's [Ch. N] tag can slip when the matching passage sits last in
+    a list of mostly one chapter (measured 2026-10-12: tagged [Ch. 1] for a
+    ch04 sentence). The answer's chapter is rebuilt from the matched hit.
+    """
+    for hit in passages:
+        if _quote_in_passage(quote, hit["text"]):
+            return hit
+    return None
+
+
+def _paragraph_around(quote, passage_text):
+    """The passage paragraph that holds the quote, whitespace-normalized."""
+    folded = _fold(quote)
+    if not folded:
+        return ""
+    for paragraph in re.split(r"\n\s*\n", passage_text or ""):
+        if folded in _fold(paragraph):
+            return re.sub(r"\s+", " ", paragraph).strip()
+    return ""
+
+
+def _covers_more(anchors, paragraph, sentence):
+    """True when the paragraph holds an anchor word the sentence lacks.
+
+    That means the paragraph answers more of the question than the quoted
+    sentence did; the whole paragraph is shown instead.
+    """
+    folded_paragraph = _fold(paragraph)
+    folded_sentence = _fold(sentence)
+    for word in anchors:
+        pattern = rf"\b{re.escape(word)}\b"
+        if re.search(pattern, folded_paragraph) and not re.search(
+            pattern, folded_sentence
+        ):
+            return True
+    return False
+
+
+def parse_completion(completion, passages, figures=None, anchors=None):
     """Return a contract body. Unchecked prose is a refusal.
 
-    A figure is attached only when a kept passage names it.
+    A figure is attached only when a kept passage names it. When the
+    paragraph around a verified quote holds an anchor word the quote
+    lacked, the paragraph replaces the quote; paragraph text is passage
+    text, so the quote check holds by construction.
     """
     text = (completion or "").strip()
     if text == REFUSAL:
@@ -162,6 +221,8 @@ def parse_completion(completion, passages, figures=None):
             quote = ""
         hit = _matching_passage(chapter, quote, passages)
         if hit is None:
+            hit = _matching_passage_anywhere(quote, passages)
+        if hit is None:
             hit, quote = _span_from_chapter(chapter, rest or text, passages)
         if hit is None:
             return _refusal(passages, figures)
@@ -172,6 +233,17 @@ def parse_completion(completion, passages, figures=None):
         })
     if not citations:
         return _refusal(passages, figures)
+    if anchors:
+        for item in citations:
+            spot = next(
+                (hit for hit in passages if hit["chunk_id"] == item["chunk_id"]),
+                None,
+            )
+            if spot is None:
+                continue
+            paragraph = _paragraph_around(item["quote"], spot.get("text") or "")
+            if paragraph and _covers_more(anchors, paragraph, item["quote"]):
+                item["quote"] = paragraph
     answer_lines = [
         f"[Ch. {item['chapter']}] \"{item['quote']}\"" for item in citations
     ]
@@ -209,8 +281,26 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL):
     if not passages:
         return _refusal([])
     model_question = correct_question(question, index, passages)
+    search_question = question
+    retry_question = book_repair(question, index)
+    if retry_question != question:
+        retry_passages = search_fn(index, retry_question, k=PASSAGE_LIMIT)
+        # The retry must prove itself: strictly better or it is discarded.
+        if retry_passages and retry_passages[0]["score"] > passages[0]["score"]:
+            passages = retry_passages
+            model_question = retry_question
+            search_question = retry_question
+    passages = caption_seed(index, search_question, passages)
+    word_map = postings(index)
+    # The rank map costs one embed plus a full cosine pass. Only a rare word can
+    # lead to an injection, so other asks do not pay for it.
+    ranks = dense_rank(index, search_question) if rare(search_question, word_map) else {}
+    passages = boost(index, search_question, passages, word_map, ranks)
     completion = generate_fn(SYSTEM, user_message(model_question, passages), model)
-    return parse_completion(completion, passages, index.get("figures") or [])
+    anchors = anchor_words(question, word_map)
+    return parse_completion(
+        completion, passages, index.get("figures") or [], anchors
+    )
 
 
 def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MODEL):

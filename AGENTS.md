@@ -40,8 +40,20 @@ No cloud APIs, no database server, no package installs.
 - `rag-template/` is read-only reference. Never touch its `.venv`. Do not port
   numpy, pickle, BM25, rerankers, or agentic/multimodal code from it.
 - Do not commit unless the human asks.
+- Improvements must generalize, not fit this book's test set — the system has
+  to hold for other books later. No chunk ids, figure ids, chapter numbers,
+  query strings, or book ids in the logic modules (`answer.py`, `captions.py`,
+  `figures.py`, `keywords.py`, `prompt.py`, `retrieve.py`, `spelling.py`).
+  Pins and ids belong in tests, the battery, and docstrings.
+  `tests/test_generalization.py` enforces the literal part. Thresholds are the
+  subtler half: a constant is fitted if its stated reason is which known test it
+  keeps green (e.g. `RARE_DF = 8` justified by "keeps 'capital' out"), not if it
+  falls out of a rule that survives a different book. Say so when you see one.
+  Do not quietly tune a constant until a battery run passes.
 - Report measured results, not impressions: files changed, exact command, real
-  output. If a test fails, say so with the actual failure.
+  output. If a test fails, say so with the actual failure. An improvement that
+  cannot be told apart from luck is not measured: report the before number, the
+  after number, and what was held constant.
 
 ## Current state (update this block when a phase lands)
 
@@ -97,10 +109,124 @@ No cloud APIs, no database server, no package installs.
   answer layer. Demo sheet: `artifacts/demo-questions.md`.
 - Window shows citation chunk ids under the answer (2026-10-12); on refusals
   they are labeled "nearest misses".
-- Post-v1 step 2 (typo tolerance) landed 2026-10-12: `spelling.py` repairs one
-  question word when it is absent from the book, exactly one book word is
-  within difflib 0.85 in the top passage, and it is present there; the repair
-  reaches the model prompt only, search runs raw.
+- Post-v1 step 2 (typo tolerance) landed 2026-10-12, amended the same day:
+  `spelling.py` repairs one question word when it is absent from the book.
+  The prompt repair needs exactly one book word within difflib 0.85 in the
+  top passage (CRU, ET). The retry repair uses the whole book's unique best
+  and re-searches with the repaired question, kept only when the top score
+  strictly improves (atermark: 0.573 -> 0.817, answers ch08-040). Search
+  runs raw first, always. Battery 14 asks over HTTP, all pass
+  (`artifacts/step2-battery.{log,json}`): golden 10/10 answered and 10/10
+  against pins, typos PASS (CRU ch05-019, ET ch07-033, atermark ch08-040),
+  France exact refusal; 37 unit tests green; warm asks 0.9-1.4 s.
+- Post-v1 step 3 (label refusal figures) landed 2026-10-12: the window marks
+  nearest-miss figures on a refusal "nearby, not an answer"
+  (`window/index.html`, `.nearby`); a real answer gets no such label.
+- Rare-word boost landed 2026-10-12 (user-approved experiment, `keywords.py`):
+  when the question carries a word with df <= 8, the best idf-overlap chunk
+  replaces the last dense passage unless it is already present. No model, no
+  download; postings build ~0.065 s per ask. Motivated by measurement: the
+  flexibility chunk (ch04-012) ranked 51 of 1065 for "what does data
+  engineers need to be pragmatic about"; dense search is weak at rare exact
+  words ("pragmatic" df=6). Battery 15 asks over HTTP, all pass
+  (`artifacts/step2-battery.{log,json}`); the probe answers ch04-012 with the
+  flexibility sentence. Golden pins #5/#10 tightened to ch06-001 / ch02-025
+  (the span fix made them answer). `retrieve.py` and the smoke path are
+  untouched; `explain` inherits the boost through `ask`.
+- Dense band added to the boost 2026-10-12, superseding the RARE_DF safety.
+  The boost used to lean on `RARE_DF = 8` to keep "capital" (df=10) away from
+  the France question — a constant fitted to this book's word counts. Now the
+  promoted chunk must sit in the dense top `RANK_BAND` (0.10) of the corpus,
+  or nothing is injected; no rank map is no evidence and fails closed.
+  `retrieve.rank_chunks` is the shared ranking and `dense_rank` exposes it.
+  Measured: with the df gate forced open (RARE_DF=40) and the same rank map,
+  the France candidate ch02-068 (dense rank 695) is rejected at band 0.10 and
+  injected at band 1.00 — the band is the deciding gate, not the df. The
+  France ask refuses exactly with RARE_DF at both 8 and 40. Positives keep
+  working: pragmatic -> ch04-012 (rank 51), multicloud -> ch04-038 (rank 1),
+  watermark -> ch08-040 + figure-8-8; golden 10/10, MAD -> ch04-020. Every band
+  between 4.8% and 65% decides those three the same way, so 10% is inside a
+  wide margin, not at its edge. Cost: the rank map adds one embed plus a full
+  cosine pass (~0.11 s), paid only when the rare gate fires. 57 unit tests
+  green. Battery not rerun (stale :8000 server); `embedding` vectors and
+  `data/index.json` untouched.
+- Quote-check tag-slip fix landed 2026-10-12: when the model writes the wrong
+  `[Ch. N]` tag but the quoted sentence is verbatim in another attached
+  passage, the check matches that passage; the answer's chapter is rebuilt
+  from the hit. A quote in no attached passage still refuses (unit test).
+  Measured motivation: "Data engineers need to be pragmatic about?" returned
+  the right sentence tagged `[Ch. 1]` — the ch04 passage sits last of five;
+  alone or first it tags `[Ch. 4]`. Battery 16 asks over HTTP, all pass
+  (`artifacts/step2-battery.{log,json}`); both pragmatic phrasings pin
+  ch04-012. 42 unit tests green.
+- Figure-reference normalizer landed 2026-10-12 (`answer.py`, quote check):
+  "(Figure N-N)" is folded out of both the quote and the passage before the
+  match. The model drops the parenthetical when it copies and the book puts it
+  mid-sentence, so the exact match failed and the span fix kept the longer
+  remaining run. That is how "Where does storage sit in the data engineering
+  lifecycle?" answered "and underlies its major stages—ingestion,
+  transformation, and serving" while the model had actually written the whole
+  sentence. Both sides are stripped: the watermark quote keeps "(Figure 8-8)"
+  and still matches. Measured after: storage -> ch06-001 quotes "Storage is the
+  cornerstone of the data engineering lifecycle and underlies its major
+  stages—ingestion, transformation, and serving"; modular services -> ch04-069
+  keeps "Modularity" as its subject. The quote contract is now "verbatim
+  except figure references" — the one place the check is not literal, recorded
+  here on purpose. Golden 10/10, France exact refusal, MAD ch04-020, quiz still
+  refuses key leaks; 60 unit tests green.
+- Multi-quote experiment (list questions) tried and REVERTED 2026-10-12: one
+  `FORMAT_REMINDER` line asked for up to three sentences from a passage when
+  the question asks for a list. It worked for the multicloud case (answer
+  included the "dizzying array... diabolically complicated" sentence) but
+  broke the battery: watermark and atermark returned bare refusals, the
+  insert-only ask quoted a different chunk (ch08-110), and one pragmatic
+  probe refused in the served run. Reverted; battery 17 asks all pass again.
+  Reverted; battery 17 asks all pass again. The parser keeps multiple
+  [Ch.] lines (unit test: two quotes from one passage both kept); the
+  blocker was prompt steering, not the format.
+- List-quote expansion landed 2026-10-12 (`answer.py`): when the question
+  names a list word (advantages, disadvantages, reasons, types, steps, ...),
+  the verified quote is expanded to the whole passage paragraph that held
+  it. Paragraph text is passage text, so the quote check holds by
+  construction; the model's prompt is untouched (the prompt-steering route
+  stays dead). The multicloud case now answers the full disadvantages
+  paragraph of ch04-038 (egress costs, complexity, "dizzying array...
+  diabolically complicated"). Battery 18 asks over HTTP, all pass
+  (`artifacts/step2-battery.{log,json}`); 52 unit tests green.
+- Caption-seeded recall landed 2026-10-12 (`captions.py`, post-v1 retrieval):
+  when a figure caption outscores the best chunk, the best-scoring chunk that
+  names that figure is seeded first in the passage set (chosen by cosine, not
+  position). It runs before the rare-word boost, so the two fill opposite ends.
+  Fixes the class the boost missed: for "MAD data landscape" the boost injected
+  ch04-019 last (position tie) so the model quoted the data-mesh passage even
+  though figure-4-1's caption "Matt Turck's 2021 MAD data landscape" scores
+  0.751 vs ch03-102 at 0.671, and ch04-020 (dense rank 35) holds the sentence.
+  Now the ask quotes ch04-020 and attaches figure-4-1. Measured in-process via
+  `answer.ask` on the nomic index: golden 10/10, France exact refusal, MAD probe
+  ch04-020. 48 unit tests green. HTTP battery carries the MAD probe (ch04-020)
+  but was not rerun same day (a stale :8000 server was live); evidence in
+  `artifacts/mad-caption-probe.md`.
+- Definition-first ordering tried and reverted 2026-10-12 (negative result).
+  The prompt route and the code route both failed. A prompt rewrite naming the
+  definition verbs (is, are, includes) made "monolith" quote ch03-057 but made
+  "What is a watermark?" refuse — its definition reads "A watermark (Figure
+  8-8) is a threshold", so the rigid verb list does not survive a parenthetical.
+  A deterministic `definitions.py` that moved the defining passage to the front
+  (bare-term questions only) reordered correctly but changed nothing: for
+  "monolith" the model still skipped ch03-057 (rank 1) and quoted ch03-058's
+  mid-sentence fragment instead — worse than the pros paragraph it quoted before.
+  Baselines measured: watermark, CRUD, microservices were already definition
+  quotes and were unaffected; only "monolith" changed, for the worse. Module and
+  its 7 tests deleted; prompt.py and the golden set back at 10/10. Do not retry
+  prompt-level definition forcing without a model change.
+- The real cause of the fragment class: 373 of 1065 chunks (~35%) start
+  mid-sentence. Measured 2026-10-12 with `retrieve.chunk_title` (body's first
+  character lowercase): e.g. ch01-003 begins "and operate the organization's data
+  infrastructure…", ch03-058 begins "of unknown consequences with other areas of
+  the monolith." A model quoting such a chunk produces a passing but nonsensical
+  fragment, which is how "monolith" answered ch03-058. Fixing this means
+  re-chunking on sentence boundaries and re-embedding all 1065 chunks (Phase 2
+  territory) — not approved.
 - Span fix landed 2026-10-12: when the model edits a near-verbatim copy, keep
   the longest word-for-word run (difflib, floor 40 chars) instead of refusing.
   Measured via `answer.ask` on the nomic index: 12 asks answered, France
@@ -160,17 +286,6 @@ No cloud APIs, no database server, no package installs.
 
 ## Post-v1 backlog (not approved; confirm before starting)
 
-- Typo tolerance for questions: question normalization is IN (`spelling.py`,
-  post-v1 step 2, 2026-10-12) and the prompt-line fix stays dead. One word not
-  in the book with exactly one book word within difflib 0.85 in the top
-  passage is replaced in the model prompt only; search stays raw. Measured in
-  `artifacts/step2-battery.log`: ET answers ch07-033; CRU is corrected to CRUD
-  but the raw completion comes back as `[Ch. 5] CRUD stands for create, read,
-  update, and delete.` (no quote marks, ", which" dropped) and the exact check
-  refuses. That is the step-1 model-copy bug, not the parser. Open decision:
-  a copy-fidelity prompt/format change (stop-and-say) or leave CRU refused.
-- Figures shown on refusals: a refusal can carry nearest-miss figures. Label
-  them in the window as nearby, not an answer.
 - Caption quoting: README Figure honesty allows quoting the caption; the
   pipeline currently feeds only passages.
 - `keep_alive` in the Ollama requests: removes the ~25 s cold-load; warm asks

@@ -22,17 +22,25 @@ GOLDEN_PINS = [
     ("What is data ingestion?", "ch07-002"),
     ("What is a watermark?", "ch08-040"),
     ("When is an insert-only table useful?", "ch05-020"),
-    ("Where does storage sit in the data engineering lifecycle?", None),
+    ("Where does storage sit in the data engineering lifecycle?", "ch06-001"),
     ("What do source systems provide to the rest of the lifecycle?", "ch02-005"),
     ("How does data architecture relate to enterprise architecture?", "ch03-013"),
     ("What is the difference between batch and streaming?", "ch02-018"),
     ("What happens to data after it is extracted in ETL?", "ch07-033"),
-    ("What do transformations do in the data engineering lifecycle?", None),
+    ("What do transformations do in the data engineering lifecycle?", "ch02-025"),
+]
+# (question, expected chunk, required phrase)
+PROBES = [
+    ("what does data engineers need to be pragmatic about", "ch04-012", "pragmatic about flexibility"),
+    ("Data engineers need to be pragmatic about?", "ch04-012", "pragmatic about flexibility"),
+    ("MAD data landscape", "ch04-020", "ML, AI, and data (MAD) landscape"),
+    ("multicloud methodology disadvantages", "ch04-038", "dizzying array"),
 ]
 # (question, required chunk, required phrase)
 TYPOS = [
     ("What does CRU stand for?", "ch05-019", "stands for create, read, update, and delete"),
     ("What happens to data after it is extracted in ET?", "ch07-033", "once data is extracted"),
+    ("what is a atermark?", "ch08-040", "watermark"),
 ]
 FRANCE = "What is the capital of France?"
 REFUSAL = "Not in this book."
@@ -75,10 +83,10 @@ def judge(question, body):
         if first != chunk:
             return False, [f"chunk {first} != {chunk}"]
         return True, notes
-    for q, chunk, phrase in TYPOS:
+    for q, chunk, phrase in TYPOS + PROBES:
         if q == question:
             if body["refused"] or phrase.lower() not in body["answer"].lower():
-                return False, ["typo ask must answer with the pin phrase"]
+                return False, ["pinned ask must answer with the pin phrase"]
             if first != chunk:
                 return False, [f"chunk {first} != {chunk}"]
             return True, notes
@@ -90,7 +98,12 @@ def judge(question, body):
 
 
 def main():
-    questions = [q for q, _ in GOLDEN_PINS] + [q for q, _, _ in TYPOS] + [FRANCE]
+    questions = (
+        [q for q, _ in GOLDEN_PINS]
+        + [q for q, _, _ in TYPOS]
+        + [q for q, _, _ in PROBES]
+        + [FRANCE]
+    )
     lines = []
     results = []
     for question in questions:
@@ -115,19 +128,32 @@ def main():
     golden_answered = sum(1 for r in golden_results if not r["response"]["refused"])
     golden_pass = sum(1 for r in golden_results if r["pass"])
     golden_left_ok = golden_pass >= 8
-    typo_pass = all(r["pass"] for r in results[len(GOLDEN_PINS):len(GOLDEN_PINS) + 2])
+    typo_results = results[len(GOLDEN_PINS):len(GOLDEN_PINS) + len(TYPOS)]
+    probe_results = results[
+        len(GOLDEN_PINS) + len(TYPOS):len(GOLDEN_PINS) + len(TYPOS) + len(PROBES)
+    ]
+    typo_pass = all(r["pass"] for r in typo_results)
+    probe_pass = all(r["pass"] for r in probe_results)
     france_pass = results[-1]["pass"]
     summary = [
         f"golden: {golden_answered}/10 answered, {golden_pass}/10 pass (bar 8)",
         f"typos: {'PASS' if typo_pass else 'FAIL'}",
+        f"probes: {'PASS' if probe_pass else 'FAIL'}",
         f"France: {'PASS' if france_pass else 'FAIL'}",
     ]
     for line in summary:
         print(line)
         lines.append(line)
+    header = [
+        "# post-v1 step 2 battery + rare-word probe — 2026-10-12",
+        "# Server: python server.py on :8000; model qwen2.5:7b; index data/index.json",
+        "# (nomic-embed-text, 1065 chunks). PASS is judged against pins from",
+        "# artifacts/demo-questions.md; typo asks pin ch05-019 / ch07-033 / ch08-040;",
+        "# probes pin ch04-012 (pragmatic), ch04-020 (MAD), ch04-038 (multicloud list).",
+    ]
     OUT.write_text(json.dumps(results, indent=2), encoding="utf-8")
-    LOG.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    all_ok = golden_left_ok and typo_pass and france_pass
+    LOG.write_text("\n".join(header + lines) + "\n", encoding="utf-8")
+    all_ok = golden_left_ok and typo_pass and probe_pass and france_pass
     print("battery:", "PASS" if all_ok else "FAIL")
     sys.exit(0 if all_ok else 1)
 

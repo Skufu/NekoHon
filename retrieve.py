@@ -166,7 +166,8 @@ def embed_index(index, model=DEFAULT_EMBEDDER, embed_fn=None, batch=BATCH, dims=
     return chunks_done, figures_done
 
 
-def search(index, question, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K):
+def rank_chunks(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
+    """Every chunk with a vector, best cosine first. The math search uses."""
     embed_fn = embed_fn or ollama_embed
     if index.get("embedder") != model:
         raise SystemExit(f"index was embedded with {index.get('embedder')}, not {model}")
@@ -178,6 +179,11 @@ def search(index, question, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K):
             continue
         ranked.append((cosine(query, vector), chunk))
     ranked.sort(key=lambda item: item[0], reverse=True)
+    return ranked
+
+
+def search(index, question, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K):
+    ranked = rank_chunks(index, question, model, embed_fn)
     return [
         {
             "score": score,
@@ -189,6 +195,21 @@ def search(index, question, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K):
         }
         for score, chunk in ranked[:k]
     ]
+
+
+def dense_rank(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
+    """chunk_id -> 1-based dense rank over every chunk. No embedder: empty.
+
+    An index with no embedder has no evidence to offer, so a caller that needs
+    evidence fails closed instead of guessing.
+    """
+    if not index.get("embedder"):
+        return {}
+    ranked = rank_chunks(index, question, model, embed_fn)
+    return {
+        chunk["chunk_id"]: position
+        for position, (_, chunk) in enumerate(ranked, start=1)
+    }
 
 
 def smoke(index, questions, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K):
