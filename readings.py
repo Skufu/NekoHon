@@ -36,7 +36,8 @@ Stdlib only. The embedder is injected so tests never call Ollama.
 
 import difflib
 
-from keywords import WORD, postings
+from keywords import postings
+from preprocess import token_spans, tokens
 from retrieve import DEFAULT_EMBEDDER, rank_chunks
 
 CUTOFF = 0.85
@@ -67,15 +68,15 @@ def _fixes(question, word_map):
         return []
     fixes = []
     seen = set()
-    for match in WORD.finditer(text):
-        word = match.group().lower()
+    for start, end, token in token_spans(text):
+        word = token.lower()
         if word in word_map or word in seen:
             continue
         seen.add(word)
         score, candidate, runner_up = _closest(word, vocabulary)
         if score < CUTOFF or score <= runner_up:
             continue
-        fixes.append((match.start(), match.end(), match.group(), candidate))
+        fixes.append((start, end, token, candidate))
     return fixes
 
 
@@ -108,8 +109,8 @@ def _book_forms(index):
     """
     forms = {}
     for chunk in index.get("chunks") or []:
-        for match in WORD.finditer(chunk.get("text") or ""):
-            forms.setdefault(match.group().lower(), match.group())
+        for token in tokens(chunk.get("text")):
+            forms.setdefault(token.lower(), token)
     return forms
 
 

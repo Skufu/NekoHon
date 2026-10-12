@@ -182,6 +182,24 @@ No cloud APIs, no database server, no package installs.
   server (single listener, PID checked): golden 10/10 answered, typos PASS,
   probes PASS (MAD ch04-020), France exact refusal, battery PASS. 59 unit tests
   green. Warm asks 0.4-1.2 s.
+- One text seam landed 2026-10-12 (`preprocess.py`): `tokens()`/`words()` are
+  the only tokenizers, used by `postings`, `anchor_words`, `rare`, `boost`,
+  and the readings, so the index side and the query side cannot fold
+  differently. Before this, five call sites each ran their own `.lower()` over
+  the same regex — one forgotten fold and the channels stop matching silently.
+  `normalize()` is the dense-channel seam and is deliberately the identity: it
+  changes the bytes every vector was built from, so it moves only with
+  `data/index.<name>.json` and a rerun of the pins. `retrieve.format_input`
+  routes through it and adds the task prefix after it.
+  `tests/test_preprocess.py` asserts that `postings()` keys equal `words()`
+  over the same text, that four casings of one word all fire the rare gate,
+  and that the dense view stays the identity — that last test is the tripwire,
+  because if it fails the index is stale. Proven a no-op: every pin identical
+  in-process (golden 10/10, CRU/ET/atermark, pragmatic, multicloud, MAD
+  ch04-020, watermark, storage, France exact) and the HTTP battery rerun on a
+  fresh server is PASS on all four lines. 66 unit tests. Documented limit:
+  digits are not tokens ("S3" reads as "s"), kept because widening it moves
+  every df count and the rare gate rides on those.
 - Quote-check tag-slip fix landed 2026-10-12: when the model writes the wrong
   `[Ch. N]` tag but the quoted sentence is verbatim in another attached
   passage, the check matches that passage; the answer's chapter is rebuilt

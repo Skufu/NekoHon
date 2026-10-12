@@ -11,6 +11,8 @@ import time
 import urllib.request
 from pathlib import Path
 
+from preprocess import normalize
+
 ROOT = Path(__file__).resolve().parent
 INDEX = ROOT / "data" / "index.json"
 OLLAMA = "http://127.0.0.1:11434/api/embed"
@@ -59,8 +61,11 @@ def figure_body(figure):
 def format_input(model, kind, text, title=""):
     """kind is 'document' or 'query'. Unknown models fail closed.
 
-    Confirmed 2026-10-11 from the Hugging Face card, not guessed.
+    Confirmed 2026-10-11 from the Hugging Face card, not guessed. The text
+    passes through preprocess.normalize first: that is the one seam where the
+    dense channel's view of a text is decided, and it is the identity today.
     """
+    text = normalize(text)
     if model == DEFAULT_EMBEDDER:
         prefix = NOMIC_DOCUMENT if kind == "document" else NOMIC_QUERY
         return prefix + text

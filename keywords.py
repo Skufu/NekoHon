@@ -31,9 +31,9 @@ Stdlib only; no model, no download.
 """
 
 import math
-import re
 
-WORD = re.compile(r"[A-Za-z]+")
+from preprocess import words
+
 RARE_DF = 8
 COVER_DF = 80
 # A promoted chunk must sit in the dense top RANK_BAND of the corpus. Dimensionless
@@ -45,8 +45,7 @@ def postings(index):
     """word -> chunk positions, for every word of every chunk."""
     table = {}
     for position, chunk in enumerate(index.get("chunks") or []):
-        words = {m.group().lower() for m in WORD.finditer(chunk.get("text") or "")}
-        for word in words:
+        for word in set(words(chunk.get("text"))):
             table.setdefault(word, []).append(position)
     return table
 
@@ -57,9 +56,9 @@ def anchor_words(question, word_map, bound=COVER_DF):
     "disadvantages" (df=4), "pitfalls" (df=3), "characteristics" (df=45)
     all qualify; function words and book-wide vocabulary do not.
     """
-    words = {m.group().lower() for m in WORD.finditer(question or "")}
+    folded = set(words(question))
     return {
-        word for word in words if 0 < len(word_map.get(word, ())) <= bound
+        word for word in folded if 0 < len(word_map.get(word, ())) <= bound
     }
 
 
@@ -71,8 +70,8 @@ def rare(question, word_map, bound=None):
     """
     if bound is None:
         bound = RARE_DF
-    words = {m.group().lower() for m in WORD.finditer(question or "")}
-    return any(0 < len(word_map.get(word, ())) <= bound for word in words)
+    folded = set(words(question))
+    return any(0 < len(word_map.get(word, ())) <= bound for word in folded)
 
 
 def _plausible(chunk, rank_map, total):
@@ -105,9 +104,9 @@ def boost(index, question, passages, word_map=None, rank_map=None):
     total = len(chunks)
     if not rare(question, word_map):
         return passages
-    words = {m.group().lower() for m in WORD.finditer(question)}
+    folded = set(words(question))
     scores = {}
-    for word in words:
+    for word in folded:
         positions = word_map.get(word)
         if not positions or len(positions) > total / 2:
             continue

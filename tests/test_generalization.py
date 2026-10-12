@@ -20,6 +20,7 @@ LOGIC = (
     "captions.py",
     "figures.py",
     "keywords.py",
+    "preprocess.py",
     "prompt.py",
     "readings.py",
     "retrieve.py",
