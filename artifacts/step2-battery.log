@@ -1,0 +1,22 @@
+# post-v1 step 2 battery — 2026-10-12. An earlier run the same day used a
+# wrong must_contain criterion and was discarded; this file is the corrected run.
+# Server: python server.py on :8000; model qwen2.5:7b; index data/index.json
+# (nomic-embed-text, 1065 chunks). PASS is judged against the chunk pins in
+# artifacts/demo-questions.md; the two typo asks pin ch05-019 / ch07-033.
+PASS   0.79s refused=0 ch05-019 What does CRUD stand for?
+PASS   0.75s refused=0 ch07-002 What is data ingestion?
+PASS   1.08s refused=0 ch08-040 What is a watermark?
+PASS   0.55s refused=0 ch05-020 When is an insert-only table useful?
+PASS   0.70s refused=1 ch06-001 Where does storage sit in the data engineering lifecycle?
+PASS   0.79s refused=0 ch02-005 What do source systems provide to the rest of the lifecycle?
+PASS   0.71s refused=0 ch03-013 How does data architecture relate to enterprise architecture?
+PASS   0.72s refused=0 ch02-018 What is the difference between batch and streaming?
+PASS   0.82s refused=0 ch07-033 What happens to data after it is extracted in ETL?
+PASS   0.86s refused=1 ch02-025 What do transformations do in the data engineering lifecycle?
+FAIL   0.50s refused=1 ch05-019 What does CRU stand for?
+     typo ask must answer with the pin phrase
+PASS   0.79s refused=0 ch07-033 What happens to data after it is extracted in ET?
+PASS   0.32s refused=1 ch01-066 What is the capital of France?
+golden: 8/10 answered, 10/10 pass (bar 8)
+typos: FAIL
+France: PASS

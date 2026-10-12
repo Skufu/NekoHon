@@ -1,0 +1,332 @@
+[
+  {
+    "question": "What does CRUD stand for?",
+    "seconds": 0.79,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage\"",
+      "citations": [
+        {
+          "chunk_id": "ch05-019",
+          "chapter": "5",
+          "quote": "CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage"
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "What is data ingestion?",
+    "seconds": 0.75,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 7] \"Data ingestion is the process of moving data from one place to another\"",
+      "citations": [
+        {
+          "chunk_id": "ch07-002",
+          "chapter": "7",
+          "quote": "Data ingestion is the process of moving data from one place to another"
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-7-2",
+          "chapter": "7",
+          "caption": "Data from system 1 is ingested into system 2",
+          "src": "/figures/figure-7-2"
+        }
+      ],
+      "refused": false
+    }
+  },
+  {
+    "question": "What is a watermark?",
+    "seconds": 1.08,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late\"",
+      "citations": [
+        {
+          "chunk_id": "ch08-040",
+          "chapter": "8",
+          "quote": "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late"
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-8-8",
+          "chapter": "8",
+          "caption": "Watermark acting as a threshold for late-arriving data",
+          "src": "/figures/figure-8-8"
+        }
+      ],
+      "refused": false
+    }
+  },
+  {
+    "question": "When is an insert-only table useful?",
+    "seconds": 0.55,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 5] \"The insert-only pattern retains history directly in a table containing data\"",
+      "citations": [
+        {
+          "chunk_id": "ch05-020",
+          "chapter": "5",
+          "quote": "The insert-only pattern retains history directly in a table containing data"
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "Where does storage sit in the data engineering lifecycle?",
+    "seconds": 0.7,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "Not in this book.",
+      "citations": [
+        {
+          "chunk_id": "ch06-001",
+          "chapter": "6",
+          "quote": "Chapter 6. Storage Storage is the cornerstone of the data engineering lifecycle (Figure 6-1) and underlies its major stages\u2014ingestion, transformation, and servi"
+        },
+        {
+          "chunk_id": "ch02-002",
+          "chapter": "2",
+          "quote": "What Is the Data Engineering Lifecycle? The data engineering lifecycle comprises stages that turn raw data ingredients into a useful end product, ready for cons"
+        },
+        {
+          "chunk_id": "ch06-130",
+          "chapter": "6",
+          "quote": "Conclusion Storage is everywhere and underlays many stages of the data engineering lifecycle. In this chapter, you learned about the raw ingredients, types, abs"
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-2-1",
+          "chapter": "2",
+          "caption": "Components and undercurrents of the data engineering lifecycle",
+          "src": "/figures/figure-2-1"
+        },
+        {
+          "id": "figure-6-1",
+          "chapter": "6",
+          "caption": "Storage plays a central role in the data engineering lifecycle",
+          "src": "/figures/figure-6-1"
+        }
+      ],
+      "refused": true
+    }
+  },
+  {
+    "question": "What do source systems provide to the rest of the lifecycle?",
+    "seconds": 0.79,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 2] \"A source system is the origin of the data used in the data engineering lifecycle\"",
+      "citations": [
+        {
+          "chunk_id": "ch02-005",
+          "chapter": "2",
+          "quote": "A source system is the origin of the data used in the data engineering lifecycle"
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-2-3",
+          "chapter": "2",
+          "caption": "Source system example: an application database",
+          "src": "/figures/figure-2-3"
+        },
+        {
+          "id": "figure-2-4",
+          "chapter": "2",
+          "caption": "Source system example: an IoT swarm and message queue",
+          "src": "/figures/figure-2-4"
+        }
+      ],
+      "refused": false
+    }
+  },
+  {
+    "question": "How does data architecture relate to enterprise architecture?",
+    "seconds": 0.71,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 3] \"Data architecture is a subset of enterprise architecture, inheriting its properties: processes, strategy, change management, and evaluating trade-offs\"",
+      "citations": [
+        {
+          "chunk_id": "ch03-013",
+          "chapter": "3",
+          "quote": "Data architecture is a subset of enterprise architecture, inheriting its properties: processes, strategy, change management, and evaluating trade-offs"
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "What is the difference between batch and streaming?",
+    "seconds": 0.72,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 2] \"Batch ingestion is a one-way door: once data is broken into batches, the latency for downstream consumers is inherently constrained\"",
+      "citations": [
+        {
+          "chunk_id": "ch02-018",
+          "chapter": "2",
+          "quote": "Batch ingestion is a one-way door: once data is broken into batches, the latency for downstream consumers is inherently constrained"
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "What happens to data after it is extracted in ETL?",
+    "seconds": 0.82,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation\"",
+      "citations": [
+        {
+          "chunk_id": "ch07-033",
+          "chapter": "7",
+          "quote": "Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation"
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "What do transformations do in the data engineering lifecycle?",
+    "seconds": 0.86,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "Not in this book.",
+      "citations": [
+        {
+          "chunk_id": "ch02-025",
+          "chapter": "2",
+          "quote": "Transformation After you\u2019ve ingested and stored data, you need to do something with it. The next stage of the data engineering lifecycle is transformation, mean"
+        },
+        {
+          "chunk_id": "ch08-164",
+          "chapter": "8",
+          "quote": "Conclusion Transformations sit at the heart of data pipelines. It\u2019s critical to keep in mind the purpose of transformations. Ultimately, engineers are not hired"
+        },
+        {
+          "chunk_id": "ch08-001",
+          "chapter": "8",
+          "quote": "Chapter 8. Queries, Modeling, and Transformation Up to this point, the stages of the data engineering lifecycle have primarily been about passing data from one "
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-8-1",
+          "chapter": "8",
+          "caption": "Transformations allow us to create value from data",
+          "src": "/figures/figure-8-1"
+        }
+      ],
+      "refused": true
+    }
+  },
+  {
+    "question": "What does CRU stand for?",
+    "seconds": 0.5,
+    "pass": false,
+    "notes": [
+      "typo ask must answer with the pin phrase"
+    ],
+    "response": {
+      "answer": "Not in this book.",
+      "citations": [
+        {
+          "chunk_id": "ch05-019",
+          "chapter": "5",
+          "quote": "CRUD CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations o"
+        },
+        {
+          "chunk_id": "ch01-066",
+          "chapter": "1",
+          "quote": "Chief information officer A chief information officer (CIO) is the senior C-suite executive responsible for information technology within an organization; it is"
+        },
+        {
+          "chunk_id": "ch01-069",
+          "chapter": "1",
+          "quote": "Chief analytics officer The chief analytics officer (CAO) is a variant of the CDO role. Where both roles exist, the CDO focuses on the technology and organizati"
+        }
+      ],
+      "figures": [],
+      "refused": true
+    }
+  },
+  {
+    "question": "What happens to data after it is extracted in ET?",
+    "seconds": 0.79,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation\"",
+      "citations": [
+        {
+          "chunk_id": "ch07-033",
+          "chapter": "7",
+          "quote": "Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation"
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "What is the capital of France?",
+    "seconds": 0.32,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "Not in this book.",
+      "citations": [
+        {
+          "chunk_id": "ch01-066",
+          "chapter": "1",
+          "quote": "Chief information officer A chief information officer (CIO) is the senior C-suite executive responsible for information technology within an organization; it is"
+        },
+        {
+          "chunk_id": "ch03-072",
+          "chapter": "3",
+          "quote": "Data Warehouse A data warehouse is a central data hub used for reporting and analysis. Data in a data warehouse is typically highly formatted and structured for"
+        },
+        {
+          "chunk_id": "ch05-030",
+          "chapter": "5",
+          "quote": "Relational databases A relational database management system (RDBMS) is one of the most common application backends. Relational databases were developed at IBM "
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-5-7",
+          "chapter": "5",
+          "caption": "RDBMS stores and retrieves data at a row level",
+          "src": "/figures/figure-5-7"
+        }
+      ],
+      "refused": true
+    }
+  }
+]
