@@ -141,9 +141,16 @@ quotes the ch03-056 monolith definition. granite4.1:3b's monolith answer lost it
 gloss versus v1 (quote unchanged) — noted, not a gate. qwen3:4b's storage gloss
 brushes the plain sense ("where data is kept and used") but stays book-bound.
 
-Per the frozen rules, both granites now clear the battery. Swap granted
-2026-10-13: the default is now `granite4.1:3b` (`prompt.py`); qwen2.5:7b stays as
-the `ANSWER_MODEL` fallback. The post-swap battery with no env set is the
-`step2-battery.{json,log}` pair — the third consecutive granite4.1:3b pass,
-snapshot `bakeoff-granite4.1-3b-postswap.*`. A new book or a new index triggers
-a fresh bake-off under the same frozen rules.
+Per the frozen rules, both granites cleared the battery. Swap granted
+2026-10-13: the default became `granite4.1:3b` (`prompt.py`); the post-swap
+battery with no env set was the third consecutive granite4.1:3b pass
+(snapshot `bakeoff-granite4.1-3b-postswap.*`). Reverted the same day: "what is
+MAD data landscape" — a natural phrasing — got the data-mesh passage from
+granite4.1:3b (3/3) and a refusal from granite4.1:8b, while qwen2.5:7b answers
+both phrasings (`mad-phrasing-probe.md`; post-revert check
+`mad-phrasing-postrevert.txt`, battery `bakeoff-qwen2.5-7b-postrevert.*`). The
+multicloud flake recurred once on the cold post-revert run and cleared on rerun
+(`bakeoff-qwen2.5-7b-postrevert-flaked.*`) — third recorded occurrence, always
+cold. The default is `qwen2.5:7b` again; granite4.1:3b remains the finetune
+candidate. A new book or a new index triggers a fresh bake-off under the same
+frozen rules.

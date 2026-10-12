@@ -448,19 +448,22 @@ No cloud APIs, no database server, no package installs.
   ch02-022, unresponsive); granite4.1:8b PASS; qwen3:4b-instruct FAIL (MAD wrong
   sentence unchanged; its CRU typo refused 4/4 — a no-citation refusal, so not this
   change; points at the retrieval side). granite4.1:3b is eligible for the small-PC
-  slot per the bake-off plan. Swap landed 2026-10-13 (user-approved): `prompt.py`
-  default is `granite4.1:3b`; `qwen2.5:7b` stays on disk as the fallback via
-  `ANSWER_MODEL=qwen2.5:7b`. The post-swap battery with no env set is the
-  `step2-battery.{json,log}` pair (snapshot `bakeoff-granite4.1-3b-postswap.*`).
-  The choice is measured against this book's index: a new book, or a new index,
-  triggers a fresh bake-off under the same frozen rules.
+  slot per the bake-off plan. Swapped to `granite4.1:3b` 2026-10-13, then
+  reverted the same day: granite answered "what is MAD data landscape" with the
+  data-mesh passage (3/3 deterministic; retrieval was right, ch04-020 led the
+  set) and granite4.1:8b refused the same phrasing, while qwen2.5:7b answers
+  both phrasings (`artifacts/mad-phrasing-probe.md`, `mad-phrasing-postrevert.txt`).
+  `prompt.py` default is back to `qwen2.5:7b`; granite4.1:3b stays on disk as
+  the finetune candidate and the small-PC option. The choice is measured against
+  this book's index: a new book, or a new index, triggers a fresh bake-off under
+  the same frozen rules.
 - Not started: 8.
 
 ## Verify
 
 - `python -m unittest discover -s tests` (must stay green)
 - Server: `python server.py` -> `GET http://127.0.0.1:8000/health`
-- Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/step2-battery.py`. Default is granite4.1:3b (swapped 2026-10-13); keep exactly one listener on :8000.
+- Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/step2-battery.py`. Default is qwen2.5:7b (the granite4.1:3b swap was reverted 2026-10-13 — see the bake-off bullet); keep exactly one listener on :8000.
 
 ## Machine facts (this Windows box)
 
