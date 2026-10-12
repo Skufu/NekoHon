@@ -1,0 +1,297 @@
+# qa sweep — default — 303 asks
+# refused: 80 | incoherent: 30 | no gloss: 179
+
+## incoherent (quote missing the question's rarest book word)
+- what does a data engineer actually do | ch01-005 | guard actually | Data engineering is the development, implementation, and maintenance of systems and processes that take in raw data and 
+- how did the data engineer role evolve | ch11-011 | guard did | What does this enhanced abstraction mean for data engineers? As we’ve already argued in this chapter, the role of the da
+- how does data architecture relate to enterprise architecture | ch03-013 | guard relate | Now that you understand enterprise architecture, let’s dive into data architecture by establishing a working definition 
+- architecting for iot | ch03-091 | guard architecting | The Internet of Things (IoT) is the distributed collection of devices, aka things—computers, sensors, mobile devices, sm
+- caveat emptor | ch04-088 | guard emptor | As with all things in data technology, let the buyer beware. Do your homework before blindly relying on vendor benchmark
+- how do you detect upstream and downstream schema changes | ch07-026 | guard detect | Changes in schema frequently occur in source systems and are often well out of data engineers’ control. Examples of sche
+- how does micro-batch differ from true streaming | ch08-141 | guard differ | Micro-batching is a way to take a batch-oriented framework and apply it in a streaming situation. A micro-batch might ru
+- what is business intelligence | ch02-032 | guard intelligence | BI marshals collected data to describe a business’s past and current state. BI requires using business logic to process 
+- what is acquisitions | ch04-010 | guard acquisitions | Capital expenses, also known as capex, require an up-front investment
+- what is actors | ch01-057 | guard actors | Data engineers work with data analysts to build pipelines for new data sources required by the business
+- what is adopts | ch04-051 | guard adopts | Technology adoption within companies is becoming an organic, continuous process
+- what is advised | preface01-003 | guard advised | This book connects the dots of the end-to-end data lifecycle
+- what is affairs | preface01-003 | guard affairs | This book aims to fill a gap in current data engineering content and materials
+- what is aimed | preface01-002 | guard aimed | This book isn’t about data engineering using a particular tool, technology, or platform
+- what is algorithmic | ch05-045 | guard algorithmic | A time series is a series of values organized by time
+- what is allocated | ch02-030 | guard allocated | from data means different things to different users
+- what is altogether | preface01-003 | guard altogether | This book aims to fill a gap in current data engineering content and materials
+- what is amounted | ch04-010 | guard amounted | Total cost of ownership (TCO) is the total estimated cost of an initiative, including the direct and indirect costs of p
+- what is ancient | preface01-002 | guard ancient | This book isn’t about data engineering using a particular tool, technology, or platform
+- what is anthos | ch02-079 | guard anthos | Orchestration is the process of coordinating many jobs to run as quickly and efficiently as possible on a scheduled cade
+- what is antonio | ch01-067 | guard antonio | cao is responsible for analytics, strategy, and decision making for the business
+- what is Preface | preface01-002 | guard preface | This book isn’t about data engineering using a particular tool, technology, or platform
+- what is Prerequisites | preface01-006 | guard prerequisites | We assume a good deal of familiarity with the types of data systems found in a corporate setting. In addition, we assume
+- what is What You’ll Learn and How It Will Improve Your Abilities | preface01-008 | guard abilities | This book aims to help you build a solid foundation for solving real-world data engineering problems.
+- what is The early 2000s: The birth of contemporary data engineering | ch01-013 | guard birth | The early big data tools and public cloud laid the foundation for today’s data ecosystem. The modern data landscape—and 
+- what is Data Engineering Skills and Activities | ch01-005 | guard activities | Data engineering is the development, implementation, and maintenance of systems and processes that take in raw data and 
+- what is The Background and Skills of a Data Engineer | ch01-033 | guard background | Data engineering is a fast-growing field, and a lot of questions remain about how to become a data engineer. Because dat
+- what is Machine learning engineers and AI researchers | ch01-058 | guard researchers | Machine learning engineers (ML engineers) overlap with data engineers and data scientists. ML engineers develop advanced
+- what is Data in the C-suite | ch01-062 | guard suite | C-level executives are increasingly involved in data and analytics, as these are recognized as significant assets for mo
+- what is Chief executive officer | ch01-063 | guard officer | Chief executive officers (CEOs) at nontech companies generally don’t concern themselves with the nitty-gritty of data fr
+
+## refused
+- types of metadata | ch02-054 | Metadata Here are some common types of technical metadata that a data engineer will use: Pipeline me
+- why should you plan for failure | ch03-023 | Principle 2: Plan for Failure Everything fails, all the time. Werner Vogels, CTO of Amazon Web Servi
+- crud stands for what | ch05-019 | CRUD CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly us
+- hot warm cold data | ch06-102 | Hot, warm, and cold data Did you know that data has a temperature? Depending on how frequently data 
+- what does iops mean | ch02-072 | Automation After automation is adopted, the data team is much happier and experiences far fewer head
+- what is normalization | ch08-051 | Normalization Normalization is a database data modeling practice that enforces strict control over t
+- normailzation | ch08-051 | Normalization Normalization is a database data modeling practice that enforces strict control over t
+- how does encryption at rest differ from encryption in motion | ch07-090 | Data ethics, privacy, and compliance This access should be tightly scoped to a particular issue and 
+- what is aaron | preface01-016 | Acknowledgments Scott Taylor, Kate Strachnyi, Kristen Kehrer, Taylor Miller, Abe Gong, Ben Castleton
+- what is aashish | preface01-002 | What This Book Isn’t Before we cover what this book is about and what you’ll get out of it, let’s qu
+- what is abandon | ch02-030 | Serving Data You’ve reached the last stage of the data engineering lifecycle. Now that the data has 
+- what is abbreviated | ch01-035 | Business Responsibilities The macro responsibilities we list in this section aren’t exclusive to dat
+- what is abc | ch01-052 | Software engineers Software engineers build the software and systems that run a business; they are l
+- what is abe | preface01-016 | Acknowledgments Scott Taylor, Kate Strachnyi, Kristen Kehrer, Taylor Miller, Abe Gong, Ben Castleton
+- what is abound | ch01-052 | Software engineers Software engineers build the software and systems that run a business; they are l
+- what is abraham | preface01-002 | What This Book Isn’t Before we cover what this book is about and what you’ll get out of it, let’s qu
+- what is absorber | ch07-014 | Synchronous Versus Asynchronous Ingestion The big idea is that rather than relying on asynchronous p
+- what is abundance | preface01-003 | What This Book Is About This book aims to fill a gap in current data engineering content and materia
+- what is accelerates | ch01-043 | The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer
+- what is accelerating | ch01-043 | The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer
+- what is accepting | preface01-004 | What This Book Is About With this framework, the reader will come away with a sound understanding fo
+- what is accommodated | ch01-043 | The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer
+- what is accompanied | ch07-059 | Message Queues and Event-Streaming Platforms Message queues and event-streaming platforms are widesp
+- what is accumulation | preface01-003 | What This Book Is About This book aims to fill a gap in current data engineering content and materia
+- what is accustomed | ch01-007 | Evolution of the Data Engineer History doesn’t repeat itself, but it rhymes. A famous adage often at
+- what is achieving | preface01-003 | What This Book Is About This book aims to fill a gap in current data engineering content and materia
+- what is ackerman | preface01-016 | Acknowledgments Scott Taylor, Kate Strachnyi, Kristen Kehrer, Taylor Miller, Abe Gong, Ben Castleton
+- what is acolytes | ch08-101 | Example: Optimizing Spark and other processing frameworks Spark acolytes often complain that SQL doe
+- what is acronym | preface01-003 | What This Book Is About This book aims to fill a gap in current data engineering content and materia
+- what is acyclic | app01-011 | ORC Optimized Row Columnar (ORC) is a columnar storage format similar to Parquet. ORC was very popul
+- what is adapted | preface01-005 | Who Should Read This Book Our primary intended audience for this book consists of technical practiti
+- what is adaptive | ch01-007 | Evolution of the Data Engineer History doesn’t repeat itself, but it rhymes. A famous adage often at
+- what is addison | preface01-003 | What This Book Is About This book aims to fill a gap in current data engineering content and materia
+- what is additions | preface01-003 | What This Book Is About This book aims to fill a gap in current data engineering content and materia
+- what is adhering | ch07-003 | What Is Data Ingestion? We consider this another part of the general data transformation process cov
+- what is adi | preface01-003 | What This Book Is About This book aims to fill a gap in current data engineering content and materia
+- what is adjusted | ch01-007 | Evolution of the Data Engineer History doesn’t repeat itself, but it rhymes. A famous adage often at
+- what is adkins | ch10-029 | Additional Resources Building Secure and Reliable Systems by Heather Adkins et al. (O’Reilly) Open W
+- what is admin | ch02-043 | Security Security must be top of mind for data engineers, and those who ignore it do so at their per
+- what is admits | ch01-043 | The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer
+- what is advantageous | ch01-007 | Evolution of the Data Engineer History doesn’t repeat itself, but it rhymes. A famous adage often at
+- what is advertises | preface01-002 | What This Book Isn’t Before we cover what this book is about and what you’ll get out of it, let’s qu
+- what is advisory | ch03-005 | Gartner’s definition Gartner is a global research and advisory company that produces research articl
+- what is advocates | ch03-039 | Principle 9: Embrace FinOps Let’s start by considering a couple of definitions of FinOps. First, the
+- what is afzaal | ch01-052 | Software engineers Software engineers build the software and systems that run a business; they are l
+- what is agency | ch01-043 | The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer
+- what is agendas | ch01-068 | Chief algorithms officer A chief algorithms officer (CAO-2) is a recent innovation in the C-suite, a
+- what is agent | ch05-014 | Logs A log captures information about events that occur in systems. For example, a log may capture t
+- what is aggressive | ch01-024 | Data Engineering Skills and Activities Their work would be devoted to cluster administration and mai
+- what is agonize | ch01-052 | Software engineers Software engineers build the software and systems that run a business; they are l
+- what is agrees | ch01-043 | The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer
+- what is ahmad | ch01-052 | Software engineers Software engineers build the software and systems that run a business; they are l
+- what is aid | preface01-003 | What This Book Is About This book aims to fill a gap in current data engineering content and materia
+- what is aiming | ch01-027 | Stage 1: Starting with data We’ve seen countless data teams get stuck and fall short when they try t
+- what is airplane | ch03-011 | Our definition It bears repeating: Technical solutions exist not for their own sake but in support o
+- what is akhil | ch01-043 | The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer
+- what is aks | ch05-045 | Time series A time series is a series of values organized by time. For example, stock prices might m
+- what is alessya | ch01-043 | The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer
+- what is algebra | ch05-031 | Relational databases The indexing strategy for the primary key is closely connected with the layout 
+- what is allocates | ch01-043 | The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer
+- what is allocations | ch04-076 | Containers In conjunction with serverless and microservices, containers are one of the most powerful
+- what is amenable | ch01-025 | Data Maturity and the Data Engineer The level of data engineering complexity within a company depend
+- what is american | ch01-007 | Evolution of the Data Engineer History doesn’t repeat itself, but it rhymes. A famous adage often at
+- what is amid | ch01-052 | Software engineers Software engineers build the software and systems that run a business; they are l
+- what is amidst | ch01-052 | Software engineers Software engineers build the software and systems that run a business; they are l
+- what is amir | ch01-052 | Software engineers Software engineers build the software and systems that run a business; they are l
+- what is ample | ch01-043 | The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer
+- what is amritha | ch01-043 | The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer
+- what is analogue | ch01-043 | The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer
+- what is ananth | preface01-015 | Acknowledgments Their ideas helped shape our book. There are too many people to name individually, b
+- what is andreas | preface01-015 | Acknowledgments Their ideas helped shape our book. There are too many people to name individually, b
+- what is andriy | ch08-164 | Additional Resources “Introduction to Data Warehousing”, “Introduction to Dimensional Modelling for 
+- what is anecdotes | ch09-014 | Data Definitions and Logic To calculate net profits, we would need a set of logical rules to determi
+- what is anemicdomainmodel | ch03-103 | Additional Resources “AnemicDomainModel” by Martin Fowler “Big Data Architectures” Azure documentati
+- what is angle | preface01-002 | What This Book Isn’t Before we cover what this book is about and what you’ll get out of it, let’s qu
+- what is anomalous | ch05-045 | Time series A time series is a series of values organized by time. For example, stock prices might m
+- what is Navigating This Book | preface01-009 | Navigating This Book This book is composed of four parts: Part I, “Foundation and Building Blocks” P
+- what is Acknowledgments | preface01-014 | Acknowledgments When we started writing this book, we were warned by many people that we faced a har
+- what is Part I. Foundation and Building Blocks | part01-001 | Part I. Foundation and Building Blocks
+- what is Data Engineers Inside an Organization | ch01-045 | Data Engineers Inside an Organization Data engineers don’t work in a vacuum. Depending on what they’
+
+## glossless
+- data engineering lifecycle | ch02-002
+- what is data engineering | ch01-005
+- what does a data engineer actually do | ch01-005
+- how did the data engineer role evolve | ch11-011
+- data science vs data engineering | ch01-021
+- internal facing vs external facing data engineering | ch01-047
+- what is data maturity | ch01-025
+- source systems | ch02-005
+- what is data ingestion | ch07-002
+- what is data management | ch02-046
+- what is dataops | ch02-067
+- what is data quality | ch02-057
+- batch processing remains an extremely popular way to do what | ch02-019
+- what are the undercurrents of the data engineering lifecycle | ch02-003
+- what is data architecture | ch03-016
+- how does data architecture relate to enterprise architecture | ch03-013
+- principles of good data architecture | ch03-019
+- what is the data mesh | ch03-099
+- big ball of mud | ch03-056
+- brownfield vs greenfield data projects | ch03-067
+- togaf defines data architecture as what | ch03-014
+- what does finops help a data team do | ch03-039
+- loosely coupled systems | ch03-030
+- what is the modern data stack | ch03-084
+- MAD data landscape | ch04-020
+- multicloud disadvantages | ch04-037
+- caveat emptor | ch04-088
+- immutable vs transitory technologies | ch04-017
+- serverless | ch04-081
+- containers | ch04-076
+- what is an oltp system | ch05-007
+- what is acid in database terms | ch05-008
+- what is change data capture | ch07-051
+- types of nosql databases | ch05-034
+- what is a key-value store | ch05-035
+- graph databases | ch05-041
+- advantages of insert-only tables | ch05-020
+- what is data sharing between organizations | ch06-085
+- database logs | ch05-018
+- the four basic operations of persistent storage are what | ch05-019
+- wide-column databases | ch05-030
+- what is a data lake | ch06-074
+- what is a data lakehouse | ch06-075
+- raid stands for what | ch06-034
+- how does separation of compute and storage help | ch06-089
+- what is data retention | ch06-101
+- what is a data catalog | ch06-080
+- schema on read vs schema on write | ch06-086
+- data ingestion is the process of doing what | ch07-002
+- etl vs elt | ch03-075
+- what is a message queue | ch05-060
+- what is an event-streaming platform | ch05-064
+- kafka | ch07-043
+- bounded vs unbounded data | ch07-007
+- push vs pull ingestion | ch02-022
+- what is a direct database connection | ch07-048
+- why does replay matter for event streams | ch07-041
+- what is polling | ch07-029
+- what is a data migration | ch07-035
+- stream-to-batch architecture | ch06-078
+- how do you detect upstream and downstream schema changes | ch07-026
+- what is a watermark | ch08-039
+- watermark | ch08-039
+- what is denormalization | ch08-056
+- types of joins | ch08-013
+- what is a broadcast join | ch08-092
+- what is a query optimizer | ch08-011
+- types of windows in stream processing | ch08-034
+- what is a star schema | ch08-071
+- what is a fact table | ch08-065
+- what is a dimension table | ch08-067
+- what is data vault modeling | ch08-073
+- kimball is on the opposite end of the data modeling spectrum from who | ch08-064
+- under the hood, batch processing is what | ch08-160
+- data wrangling | ch08-115
+- how does micro-batch differ from true streaming | ch08-141
+- slowly changing dimensions | ch08-069
+- what is reverse etl | ch09-055
+- what is a feature store | ch02-037
+- what is business intelligence | ch02-032
+- what is embedded analytics | ch09-028
+- what is query federation | ch09-044
+- how do data scientists use notebooks | ch09-051
+- ways to serve data to consumers | ch07-077
+- why do data definitions matter when serving data | ch09-013
+- olap vs oltp | ch05-007
+- what is a data product | ch09-008
+- what is the principle of least privilege | ch10-010
+- what is tokenization | ch07-088
+- hashing vs encryption | ch07-090
+- what does it mean to always be paranoid about security | ch10-004
+- what is the live data stack | ch11-018
+- why is the data engineering lifecycle not going away | ch11-003
+- what comes after the modern data stack | ch11-018
+- how will data engineering titles change | ch11-015
+- streaming pipelines and real-time analytics | ch11-019
+- what is the cloud-scale data os | ch11-008
+- what is abbreviation | ch01-075
+- what is abramson | ch08-163
+- what is academia | ch01-060
+- what is accesses | ch10-022
+- what is accountable | ch02-056
+- what is accounted | ch04-010
+- what is achievable | ch03-068
+- what is acquired | ch03-040
+- what is acquisition | ch04-010
+- what is acquisitions | ch04-010
+- what is actors | ch01-057
+- what is adage | ch01-007
+- what is adverse | ch03-023
+- what is advisable | ch03-052
+- what is aeronautics | ch05-056
+- what is affairs | preface01-003
+- what is affiliated | ch04-055
+- what is afternoon | ch07-007
+- what is aggregator | ch07-073
+- what is aimed | preface01-002
+- what is aircraft | ch04-083
+- what is alarming | ch03-035
+- what is algorithmic | ch05-045
+- what is alignment | ch03-007
+- what is alleviating | ch09-062
+- what is allocated | ch02-030
+- what is altogether | preface01-003
+- what is amounted | ch04-010
+- what is analog | ch05-002
+- what is anonymize | ch07-088
+- what is anonymized | ch09-065
+- what is answered | ch02-016
+- what is answering | ch08-004
+- what is anthos | ch02-079
+- what is antonio | ch01-067
+- what is What This Book Isn’t | preface01-002
+- what is What This Book Is About | preface01-003
+- what is Who Should Read This Book | preface01-005
+- what is What You’ll Learn and How It Will Improve Your Abilities | preface01-008
+- what is Conventions Used in This Book | preface01-012
+- what is How to Contact Us | ch05-057
+- what is Chapter 1. Data Engineering Described | ch01-005
+- what is What Is Data Engineering? | ch01-005
+- what is Data Engineering Defined | ch01-005
+- what is Evolution of the Data Engineer | ch01-007
+- what is The early 2000s: The birth of contemporary data engineering | ch01-013
+- what is The 2000s and 2010s: Big data engineering | ch01-015
+- what is The 2020s: Engineering for the data lifecycle | ch01-019
+- what is Data Engineering and Data Science | ch01-005
+- what is Data Engineering Skills and Activities | ch01-005
+- what is Data Maturity and the Data Engineer | ch01-025
+- what is Stage 1: Starting with data | ch01-026
+- what is Stage 3: Leading with data | ch01-031
+- what is The Background and Skills of a Data Engineer | ch01-033
+- what is Business Responsibilities | ch01-035
+- what is Technical Responsibilities | ch01-042
+- what is The Continuum of Data Engineering Roles, from A to B | ch01-044
+- what is Data Engineers and Other Technical Roles | ch01-048
+- what is Upstream stakeholders | ch08-145
+- what is Data architects | ch01-050
+- what is Software engineers | ch01-052
+- what is Downstream stakeholders | ch08-147
+- what is Data scientists | ch01-055
+- what is Data analysts | ch01-057
+- what is Machine learning engineers and AI researchers | ch01-058
+- what is Data in the C-suite | ch01-062
+- what is Chief executive officer | ch01-063
+- what is Chief information officer | ch01-064
+- what is Chief technology officer | ch01-065
+- what is Chief data officer | ch01-066
+- what is Chief analytics officer | ch01-067
+- what is Chief algorithms officer | ch01-068
+- what is Data engineers and project managers | ch01-069
+- what is Data engineers and product managers | ch01-071
+- what is Data engineers and other management roles | ch01-072
+- what is Additional Resources | preface01-007
+- what is Chapter 2. The Data Engineering Lifecycle | ch02-001
+- what is What Is the Data Engineering Lifecycle? | ch02-002
+- what is The Data Lifecycle Versus the Data Engineering Lifecycle | ch02-004
+- what is Generation: Source Systems | ch02-005
+- what is Evaluating source systems: Key engineering considerations | ch02-007
+- what is Storage | ch06-001

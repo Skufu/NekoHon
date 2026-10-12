@@ -1,0 +1,799 @@
+{
+  "shown": [
+    {
+      "question": "what is aaron",
+      "word": "aaron",
+      "chunks": [
+        "preface01-016",
+        "ch03-071",
+        "ch05-030",
+        "ch03-005",
+        "ch05-045"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is abe",
+      "word": "abe",
+      "chunks": [
+        "preface01-016",
+        "ch05-030",
+        "ch06-011",
+        "ch03-006",
+        "ch06-035"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is absorber",
+      "word": "absorber",
+      "chunks": [
+        "ch07-014",
+        "ch07-067",
+        "ch03-005",
+        "ch07-097",
+        "ch05-019"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is ackerman",
+      "word": "ackerman",
+      "chunks": [
+        "preface01-016",
+        "ch04-052",
+        "ch03-005",
+        "preface01-014",
+        "ch01-057"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is acolytes",
+      "word": "acolytes",
+      "chunks": [
+        "ch08-101",
+        "ch04-052",
+        "ch05-030",
+        "ch05-019",
+        "ch04-055"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is adkins",
+      "word": "adkins",
+      "chunks": [
+        "ch10-029",
+        "ch04-052",
+        "ch03-071",
+        "ch03-006",
+        "ch03-078"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is advisory",
+      "word": "advisory",
+      "chunks": [
+        "ch03-005",
+        "ch09-018",
+        "ch01-064",
+        "ch01-067",
+        "ch01-057"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is anemicdomainmodel",
+      "word": "anemicdomainmodel",
+      "chunks": [
+        "ch03-103",
+        "ch08-064",
+        "ch08-072",
+        "ch08-080",
+        "ch08-164"
+      ],
+      "completion": "Not in this book."
+    }
+  ],
+  "absent": [
+    {
+      "question": "what does iops mean",
+      "word": "iops",
+      "chunks": [
+        "ch02-072",
+        "ch06-123",
+        "ch02-067",
+        "ch03-039",
+        "ch02-068"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is aashish",
+      "word": "aashish",
+      "chunks": [
+        "preface01-002",
+        "ch07-067",
+        "ch07-068",
+        "ch04-052",
+        "ch08-119"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is abandon",
+      "word": "abandon",
+      "chunks": [
+        "ch02-030",
+        "ch04-052",
+        "ch03-009",
+        "ch04-010",
+        "ch05-019"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is abc",
+      "word": "abc",
+      "chunks": [
+        "ch01-052",
+        "ch05-030",
+        "ch06-016",
+        "ch04-052",
+        "app01-014"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is abound",
+      "word": "abound",
+      "chunks": [
+        "ch01-052",
+        "ch07-067",
+        "ch07-060",
+        "ch07-097",
+        "ch02-082"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is abraham",
+      "word": "abraham",
+      "chunks": [
+        "preface01-002",
+        "ch03-005",
+        "ch05-045",
+        "preface01-017",
+        "app01-014"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is abundance",
+      "word": "abundance",
+      "chunks": [
+        "preface01-003",
+        "ch02-034",
+        "ch06-127",
+        "ch05-045",
+        "ch07-096"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is accelerates",
+      "word": "accelerates",
+      "chunks": [
+        "ch01-043",
+        "ch07-014",
+        "ch11-020",
+        "ch05-045",
+        "ch06-008"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is accelerating",
+      "word": "accelerating",
+      "chunks": [
+        "ch01-043",
+        "ch04-006",
+        "ch07-008",
+        "ch03-005",
+        "app01-014"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is accepting",
+      "word": "accepting",
+      "chunks": [
+        "preface01-004",
+        "ch05-006",
+        "ch07-077",
+        "ch04-052",
+        "ch07-067"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is accommodated",
+      "word": "accommodated",
+      "chunks": [
+        "ch01-043",
+        "ch06-080",
+        "ch06-044",
+        "ch07-077",
+        "ch07-023"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is accompanied",
+      "word": "accompanied",
+      "chunks": [
+        "ch07-059",
+        "ch01-052",
+        "ch08-132",
+        "ch03-064",
+        "ch03-065"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is accumulation",
+      "word": "accumulation",
+      "chunks": [
+        "preface01-003",
+        "ch06-127",
+        "ch07-096",
+        "ch05-045",
+        "ch07-002"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is accustomed",
+      "word": "accustomed",
+      "chunks": [
+        "ch01-007",
+        "ch04-010",
+        "ch10-008",
+        "ch07-051",
+        "ch05-045"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is achieving",
+      "word": "achieving",
+      "chunks": [
+        "preface01-003",
+        "ch03-010",
+        "ch01-052",
+        "ch04-006",
+        "ch01-030"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is acronym",
+      "word": "acronym",
+      "chunks": [
+        "preface01-003",
+        "ch03-071",
+        "ch06-080",
+        "ch05-045",
+        "app01-007"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is acyclic",
+      "word": "acyclic",
+      "chunks": [
+        "app01-011",
+        "ch07-051",
+        "ch05-013",
+        "ch02-079",
+        "ch07-053"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is adapted",
+      "word": "adapted",
+      "chunks": [
+        "preface01-005",
+        "ch04-052",
+        "ch02-025",
+        "ch07-051",
+        "ch04-077"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is adaptive",
+      "word": "adaptive",
+      "chunks": [
+        "ch01-007",
+        "ch05-045",
+        "ch03-010",
+        "ch03-009",
+        "ch03-071"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is addison",
+      "word": "addison",
+      "chunks": [
+        "preface01-003",
+        "ch05-006",
+        "ch03-005",
+        "ch05-047",
+        "ch01-064"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is additions",
+      "word": "additions",
+      "chunks": [
+        "preface01-003",
+        "ch03-078",
+        "ch08-042",
+        "ch08-106",
+        "ch05-045"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is adhering",
+      "word": "adhering",
+      "chunks": [
+        "ch07-003",
+        "ch06-085",
+        "ch06-016",
+        "ch01-064",
+        "ch03-071"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is adi",
+      "word": "adi",
+      "chunks": [
+        "preface01-003",
+        "ch03-078",
+        "app01-016",
+        "ch03-015",
+        "ch03-071"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is adjusted",
+      "word": "adjusted",
+      "chunks": [
+        "ch01-007",
+        "ch05-045",
+        "ch03-012",
+        "ch08-106",
+        "ch08-051"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is admits",
+      "word": "admits",
+      "chunks": [
+        "ch01-043",
+        "ch06-080",
+        "ch04-052",
+        "ch08-020",
+        "ch06-016"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is advantageous",
+      "word": "advantageous",
+      "chunks": [
+        "ch01-007",
+        "ch04-014",
+        "ch03-011",
+        "ch01-064",
+        "ch04-010"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is advertises",
+      "word": "advertises",
+      "chunks": [
+        "preface01-002",
+        "ch03-044",
+        "ch03-045",
+        "ch04-052",
+        "ch03-078"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is advocates",
+      "word": "advocates",
+      "chunks": [
+        "ch03-039",
+        "ch04-052",
+        "ch05-069",
+        "ch01-057",
+        "preface01-015"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is afzaal",
+      "word": "afzaal",
+      "chunks": [
+        "ch01-052",
+        "ch08-133",
+        "ch05-030",
+        "ch03-078",
+        "app01-014"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is agency",
+      "word": "agency",
+      "chunks": [
+        "ch01-043",
+        "ch03-071",
+        "ch03-044",
+        "ch09-020",
+        "ch09-019"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is agendas",
+      "word": "agendas",
+      "chunks": [
+        "ch01-068",
+        "ch05-060",
+        "ch03-064",
+        "ch01-064",
+        "ch09-019"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is agent",
+      "word": "agent",
+      "chunks": [
+        "ch05-014",
+        "ch03-005",
+        "ch03-010",
+        "ch03-044",
+        "ch01-057"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is aggressive",
+      "word": "aggressive",
+      "chunks": [
+        "ch01-024",
+        "ch10-009",
+        "ch10-027",
+        "ch03-035",
+        "ch07-097"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is agonize",
+      "word": "agonize",
+      "chunks": [
+        "ch01-052",
+        "ch06-016",
+        "ch06-127",
+        "ch05-045",
+        "app01-017"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is agrees",
+      "word": "agrees",
+      "chunks": [
+        "ch01-043",
+        "ch06-024",
+        "ch06-023",
+        "ch04-052",
+        "ch07-077"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is ahmad",
+      "word": "ahmad",
+      "chunks": [
+        "ch01-052",
+        "ch05-045",
+        "ch05-030",
+        "ch05-052",
+        "ch02-079"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is aid",
+      "word": "aid",
+      "chunks": [
+        "preface01-003",
+        "ch04-052",
+        "ch03-071",
+        "ch05-019",
+        "ch03-005"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is aiming",
+      "word": "aiming",
+      "chunks": [
+        "ch01-027",
+        "ch09-019",
+        "ch02-034",
+        "ch09-020",
+        "ch09-027"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is airplane",
+      "word": "airplane",
+      "chunks": [
+        "ch03-011",
+        "ch03-092",
+        "ch07-020",
+        "ch05-045",
+        "ch03-091"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is akhil",
+      "word": "akhil",
+      "chunks": [
+        "ch01-043",
+        "app01-014",
+        "ch05-030",
+        "ch03-071",
+        "ch07-068"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is aks",
+      "word": "aks",
+      "chunks": [
+        "ch05-045",
+        "ch04-052",
+        "ch08-033",
+        "ch03-044",
+        "ch04-026"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is alessya",
+      "word": "alessya",
+      "chunks": [
+        "ch01-043",
+        "ch04-052",
+        "ch02-081",
+        "ch05-045",
+        "ch07-067"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is algebra",
+      "word": "algebra",
+      "chunks": [
+        "ch05-031",
+        "ch06-127",
+        "ch05-030",
+        "ch08-004",
+        "ch03-071"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is allocates",
+      "word": "allocates",
+      "chunks": [
+        "ch01-043",
+        "ch04-052",
+        "ch06-022",
+        "ch05-066",
+        "ch04-067"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is allocations",
+      "word": "allocations",
+      "chunks": [
+        "ch04-076",
+        "ch04-052",
+        "ch07-077",
+        "ch05-006",
+        "ch06-044"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is amenable",
+      "word": "amenable",
+      "chunks": [
+        "ch01-025",
+        "ch03-008",
+        "ch03-047",
+        "ch03-046",
+        "ch03-035"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is american",
+      "word": "american",
+      "chunks": [
+        "ch01-007",
+        "ch05-045",
+        "ch05-030",
+        "ch06-016",
+        "ch03-078"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is amid",
+      "word": "amid",
+      "chunks": [
+        "ch01-052",
+        "ch03-071",
+        "ch07-067",
+        "app01-016",
+        "ch05-030"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is amidst",
+      "word": "amidst",
+      "chunks": [
+        "ch01-052",
+        "ch04-070",
+        "ch04-071",
+        "ch07-097",
+        "ch03-056"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is amir",
+      "word": "amir",
+      "chunks": [
+        "ch01-052",
+        "ch03-044",
+        "ch05-045",
+        "app01-007",
+        "ch01-057"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is ample",
+      "word": "ample",
+      "chunks": [
+        "ch01-043",
+        "ch03-005",
+        "ch03-078",
+        "ch03-071",
+        "ch03-006"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is amritha",
+      "word": "amritha",
+      "chunks": [
+        "ch01-043",
+        "ch05-030",
+        "ch03-015",
+        "app01-007",
+        "ch08-065"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is analogue",
+      "word": "analogue",
+      "chunks": [
+        "ch01-043",
+        "ch03-056",
+        "ch03-068",
+        "ch05-060",
+        "ch04-020"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is ananth",
+      "word": "ananth",
+      "chunks": [
+        "preface01-015",
+        "ch04-065",
+        "ch03-056",
+        "ch07-068",
+        "ch04-052"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is andreas",
+      "word": "andreas",
+      "chunks": [
+        "preface01-015",
+        "ch04-052",
+        "ch01-067",
+        "ch05-045",
+        "ch05-048"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is andriy",
+      "word": "andriy",
+      "chunks": [
+        "ch08-164",
+        "app01-007",
+        "ch05-030",
+        "ch03-071",
+        "ch08-037"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is anecdotes",
+      "word": "anecdotes",
+      "chunks": [
+        "ch09-014",
+        "ch09-020",
+        "ch09-019",
+        "ch05-045",
+        "ch09-018"
+      ],
+      "completion": "Not in this book."
+    },
+    {
+      "question": "what is angle",
+      "word": "angle",
+      "chunks": [
+        "preface01-002",
+        "ch01-057",
+        "ch07-067",
+        "ch09-020",
+        "ch03-056"
+      ],
+      "completion": "Not in this book."
+    }
+  ],
+  "none": []
+}

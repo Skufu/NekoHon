@@ -1,0 +1,3032 @@
+[
+  {
+    "question": "data engineering lifecycle",
+    "refused": false,
+    "cite": "ch02-002",
+    "quote": "The data engineering lifecycle comprises stages that turn raw data ingredients into a useful end product, ready for consumption by analysts, data scientists, ML engineers, and others",
+    "gloss": "",
+    "seconds": 1.32,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is data engineering",
+    "refused": false,
+    "cite": "ch01-005",
+    "quote": "Data engineering is the development, implementation, and maintenance of systems and processes that take in raw data and produce high-quality, consistent information that supports downstream use cases,",
+    "gloss": "",
+    "seconds": 1.53,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what does a data engineer actually do",
+    "refused": false,
+    "cite": "ch01-005",
+    "quote": "Data engineering is the development, implementation, and maintenance of systems and processes that take in raw data and produce high-quality, consistent information that supports downstream use cases,",
+    "gloss": "",
+    "seconds": 1.41,
+    "guard_word": "actually",
+    "coherent": false
+  },
+  {
+    "question": "how did the data engineer role evolve",
+    "refused": false,
+    "cite": "ch11-011",
+    "quote": "What does this enhanced abstraction mean for data engineers? As we’ve already argued in this chapter, the role of the data engineer won’t go away, but it will evolve significantly. By comparison, more",
+    "gloss": "",
+    "seconds": 1.33,
+    "guard_word": "did",
+    "coherent": false
+  },
+  {
+    "question": "data science vs data engineering",
+    "refused": false,
+    "cite": "ch01-021",
+    "quote": "Where does data engineering fit in with data science? There’s some debate, with some arguing data engineering is a subdiscipline of data science. We believe data engineering is separate from data scie",
+    "gloss": "",
+    "seconds": 1.05,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "internal facing vs external facing data engineering",
+    "refused": false,
+    "cite": "ch01-047",
+    "quote": "The systems built by these data engineers have a feedback loop from the application to the data pipeline, and then back to the application (Figure 1-10).",
+    "gloss": "",
+    "seconds": 1.3,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is data maturity",
+    "refused": false,
+    "cite": "ch01-025",
+    "quote": "Data maturity is the progression toward higher data utilization, capabilities, and integration across the organization, but data maturity does not simply depend on the age or revenue of a company. An ",
+    "gloss": "",
+    "seconds": 1.12,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is the data engineering lifecycle",
+    "refused": false,
+    "cite": "ch02-002",
+    "quote": "The data engineering lifecycle comprises stages that turn raw data ingredients into a useful end product, ready for consumption by analysts, data scientists, ML engineers, and others",
+    "gloss": "The data engineering lifecycle transforms raw data into usable data for various users.",
+    "seconds": 1.48,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "source systems",
+    "refused": false,
+    "cite": "ch02-005",
+    "quote": "A source system is the origin of the data used in the data engineering lifecycle",
+    "gloss": "",
+    "seconds": 0.96,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is data ingestion",
+    "refused": false,
+    "cite": "ch07-002",
+    "quote": "Data ingestion is the process of moving data from one place to another",
+    "gloss": "",
+    "seconds": 1.15,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is data management",
+    "refused": false,
+    "cite": "ch02-046",
+    "quote": "Data management is the development, execution, and supervision of plans, policies, programs, and practices that deliver, control, protect, and enhance the value of data and information assets througho",
+    "gloss": "",
+    "seconds": 1.42,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is dataops",
+    "refused": false,
+    "cite": "ch02-067",
+    "quote": "DataOps is a collection of technical practices, workflows, cultural norms, and architectural patterns that enable: rapid innovation and experimentation delivering new insights to customers with increa",
+    "gloss": "",
+    "seconds": 1.36,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is orchestration in the data engineering lifecycle",
+    "refused": false,
+    "cite": "ch02-079",
+    "quote": "Orchestration is the process of coordinating many jobs to run as quickly and efficiently as possible on a scheduled cadence. For instance, people often refer to orchestration tools like Apache Airflow",
+    "gloss": "Coordinating jobs to run smoothly and on time.",
+    "seconds": 1.24,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "types of metadata",
+    "refused": true,
+    "cite": "ch02-054",
+    "quote": "Metadata Here are some common types of technical metadata that a data engineer will use: Pipeline metadata (often produced in orchestration systems) Data lineag",
+    "gloss": "",
+    "seconds": 0.98,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is data quality",
+    "refused": false,
+    "cite": "ch02-057",
+    "quote": "Data quality is the optimization of data toward the desired state and orbits the question, “What do you get compared with what you expect?” Data should conform to the expectations in the business meta",
+    "gloss": "",
+    "seconds": 1.31,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is observabilty",
+    "refused": false,
+    "cite": "ch09-004",
+    "quote": "Observability provides an ongoing view of data and data processes",
+    "gloss": "The ability to continuously monitor and understand the state of data and its processes.",
+    "seconds": 1.47,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "batch processing remains an extremely popular way to do what",
+    "refused": false,
+    "cite": "ch02-019",
+    "quote": "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML.",
+    "gloss": "",
+    "seconds": 1.0,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what are the undercurrents of the data engineering lifecycle",
+    "refused": false,
+    "cite": "ch02-003",
+    "quote": "Acting as a bedrock are undercurrents (Figure 2-1, bottom) that cut across multiple stages of the data engineering lifecycle: security, data management, DataOps, data architecture, orchestration, and ",
+    "gloss": "",
+    "seconds": 1.03,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is data architecture",
+    "refused": false,
+    "cite": "ch03-016",
+    "quote": "Data architecture is the design of systems to support the evolving data needs of an enterprise, achieved by flexible and reversible decisions reached through a careful evaluation of trade-offs",
+    "gloss": "",
+    "seconds": 1.16,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "how does data architecture relate to enterprise architecture",
+    "refused": false,
+    "cite": "ch03-013",
+    "quote": "Now that you understand enterprise architecture, let’s dive into data architecture by establishing a working definition that will set the stage for the rest of the book. Data architecture is a subset ",
+    "gloss": "",
+    "seconds": 1.16,
+    "guard_word": "relate",
+    "coherent": false
+  },
+  {
+    "question": "principles of good data architecture",
+    "refused": false,
+    "cite": "ch03-019",
+    "quote": "Good data architecture is a living, breathing thing. It’s never finished. In fact, per our definition, change and evolution are central to the meaning and purpose of data architecture. Let’s now look ",
+    "gloss": "",
+    "seconds": 0.94,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is the data mesh",
+    "refused": false,
+    "cite": "ch03-099",
+    "quote": "The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and “the great divide of data,” wherein the landscape is divided between ",
+    "gloss": "",
+    "seconds": 1.38,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "big ball of mud",
+    "refused": false,
+    "cite": "ch03-056",
+    "quote": "Data teams will often ignore solving the growing complexity of their monolith, letting it devolve into a big ball of mud.",
+    "gloss": "",
+    "seconds": 1.25,
+    "guard_word": "ball",
+    "coherent": true
+  },
+  {
+    "question": "brownfield vs greenfield data projects",
+    "refused": false,
+    "cite": "ch03-067",
+    "quote": "Brownfield projects often involve refactoring and reorganizing an existing architecture and are constrained by the choices of the present and past. Because a key part of architecture is change managem",
+    "gloss": "",
+    "seconds": 1.3,
+    "guard_word": "brownfield",
+    "coherent": true
+  },
+  {
+    "question": "togaf defines data architecture as what",
+    "refused": false,
+    "cite": "ch03-014",
+    "quote": "TOGAF defines data architecture as follows:5 A description of the structure and interaction of the enterprise’s major types and sources of data, logical data assets, physical data assets, and data man",
+    "gloss": "",
+    "seconds": 1.73,
+    "guard_word": "togaf",
+    "coherent": true
+  },
+  {
+    "question": "what does finops help a data team do",
+    "refused": false,
+    "cite": "ch03-039",
+    "quote": "FinOps is an evolving cloud financial management discipline and cultural practice that enables organizations to get maximum business value by helping engineering, finance, technology, and business tea",
+    "gloss": "",
+    "seconds": 1.63,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "why should you plan for failure",
+    "refused": true,
+    "cite": "ch03-023",
+    "quote": "Principle 2: Plan for Failure Everything fails, all the time. Werner Vogels, CTO of Amazon Web Services8 Modern hardware is highly robust and durable. Even so, ",
+    "gloss": "",
+    "seconds": 1.05,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "loosely coupled systems",
+    "refused": false,
+    "cite": "ch03-030",
+    "quote": "Systems are broken into many small components",
+    "gloss": "",
+    "seconds": 0.94,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is the modern data stack",
+    "refused": false,
+    "cite": "ch03-084",
+    "quote": "The modern data stack (Figure 3-13) is currently a trendy analytics architecture that highlights the type of abstraction we expect to see more widely used over the next several years. Whereas past dat",
+    "gloss": "",
+    "seconds": 1.26,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "architecting for iot",
+    "refused": false,
+    "cite": "ch03-091",
+    "quote": "The Internet of Things (IoT) is the distributed collection of devices, aka things—computers, sensors, mobile devices, smart home devices, and anything else with an internet connection. Rather than gen",
+    "gloss": "IoT refers to a network of devices connected to the internet.",
+    "seconds": 1.45,
+    "guard_word": "architecting",
+    "coherent": false
+  },
+  {
+    "question": "MAD data landscape",
+    "refused": false,
+    "cite": "ch04-020",
+    "quote": "It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1).",
+    "gloss": "",
+    "seconds": 1.11,
+    "guard_word": "mad",
+    "coherent": true
+  },
+  {
+    "question": "multicloud disadvantages",
+    "refused": false,
+    "cite": "ch04-037",
+    "quote": "A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks are critical. Going multicloud can introduce significant complexity. Companies mu",
+    "gloss": "",
+    "seconds": 1.1,
+    "guard_word": "disadvantages",
+    "coherent": true
+  },
+  {
+    "question": "multiclould disadvantages",
+    "refused": false,
+    "cite": "ch04-037",
+    "quote": "A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks are critical. Going multicloud can introduce significant complexity. Companies mu",
+    "gloss": "Read as: \"multicloud disadvantages\"",
+    "seconds": 1.28,
+    "guard_word": "disadvantages",
+    "coherent": true
+  },
+  {
+    "question": "what is total cost of ownership",
+    "refused": false,
+    "cite": "ch04-010",
+    "quote": "Total cost of ownership (TCO) is the total estimated cost of an initiative, including the direct and indirect costs of products and services utilized. Direct costs can be directly attributed to an ini",
+    "gloss": "TCO includes both direct and indirect costs related to an initiative.",
+    "seconds": 1.38,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "caveat emptor",
+    "refused": false,
+    "cite": "ch04-088",
+    "quote": "As with all things in data technology, let the buyer beware. Do your homework before blindly relying on vendor benchmarks to evaluate and choose technology.",
+    "gloss": "",
+    "seconds": 1.38,
+    "guard_word": "emptor",
+    "coherent": false
+  },
+  {
+    "question": "immutable vs transitory technologies",
+    "refused": false,
+    "cite": "ch04-017",
+    "quote": "We have two classes of tools to consider: immutable and transitory. Immutable technologies might be components that underpin the cloud or languages and paradigms that have stood the test of time. In t",
+    "gloss": "",
+    "seconds": 1.18,
+    "guard_word": "transitory",
+    "coherent": true
+  },
+  {
+    "question": "serverless",
+    "refused": false,
+    "cite": "ch04-081",
+    "quote": "Serverless works best for simple, discrete tasks and workloads. It’s not as suitable if you have many moving parts or require a lot of compute or memory horsepower. In that case, consider using contai",
+    "gloss": "",
+    "seconds": 0.92,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "containers",
+    "refused": false,
+    "cite": "ch04-076",
+    "quote": "Containers are often referred to as lightweight virtual machines. Whereas a traditional VM wraps up an entire operating system, a container packages an isolated user space (such as a filesystem and a ",
+    "gloss": "",
+    "seconds": 1.11,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "data engineers need to be pragmatic about what",
+    "refused": false,
+    "cite": "ch04-012",
+    "quote": "Data engineers need to be pragmatic about flexibility. The data landscape is changing too quickly to invest in long-term hardware that inevitably goes stale, can’t easily scale, and potentially hamper",
+    "gloss": "Be flexible about technology choices.",
+    "seconds": 1.07,
+    "guard_word": "pragmatic",
+    "coherent": true
+  },
+  {
+    "question": "crud stands for what",
+    "refused": true,
+    "cite": "ch05-019",
+    "quote": "CRUD CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations o",
+    "gloss": "",
+    "seconds": 0.95,
+    "guard_word": "crud",
+    "coherent": false
+  },
+  {
+    "question": "what is an oltp system",
+    "refused": false,
+    "cite": "ch05-007",
+    "quote": "An application database stores the state of an application. A standard example is a database that stores account balances for bank accounts. As customer transactions and payments happen, the applicati",
+    "gloss": "",
+    "seconds": 1.18,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is acid in database terms",
+    "refused": false,
+    "cite": "ch05-008",
+    "quote": "Support for atomic transactions is one of a critical set of database characteristics known together as ACID (as you may recall from Chapter 3, this stands for atomicity, consistency, isolation, durabi",
+    "gloss": "",
+    "seconds": 1.52,
+    "guard_word": "acid",
+    "coherent": true
+  },
+  {
+    "question": "what is change data capture",
+    "refused": false,
+    "cite": "ch07-051",
+    "quote": "Change data capture (CDC), introduced in Chapter 2, is the process of ingesting changes from a source database system. For example, we might have a source PostgreSQL system that supports an applicatio",
+    "gloss": "",
+    "seconds": 1.06,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "types of nosql databases",
+    "refused": false,
+    "cite": "ch05-034",
+    "quote": "NoSQL remains vague in 2022, but it’s been widely adopted to describe a universe of “new school” databases, alternatives to relational databases.",
+    "gloss": "",
+    "seconds": 1.45,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is a key-value store",
+    "refused": false,
+    "cite": "ch05-035",
+    "quote": "Key-value stores encompass several NoSQL database types—for example, document stores and wide column databases",
+    "gloss": "",
+    "seconds": 1.29,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "graph databases",
+    "refused": false,
+    "cite": "ch05-041",
+    "quote": "Graph databases explicitly store data with a mathematical graph structure (as a set of nodes and edges).3 Neo4j has proven extremely popular, while Amazon, Oracle, and other vendors offer their graph ",
+    "gloss": "",
+    "seconds": 1.24,
+    "guard_word": "graph",
+    "coherent": true
+  },
+  {
+    "question": "advantages of insert-only tables",
+    "refused": false,
+    "cite": "ch05-020",
+    "quote": "The insert-only pattern retains history directly in a table containing data. Rather than updating records, new records get inserted with a timestamp indicating when they were created (Table 5-1). For ",
+    "gloss": "",
+    "seconds": 1.17,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is data sharing between organizations",
+    "refused": false,
+    "cite": "ch06-085",
+    "quote": "Data sharing allows organizations and individuals to share specific data and carefully defined permissions with specific entities. Data sharing allows data scientists to share data from a sandbox with",
+    "gloss": "",
+    "seconds": 1.17,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "database logs",
+    "refused": false,
+    "cite": "ch05-018",
+    "quote": "Database logs are essential enough that they deserve more detailed coverage. Write-ahead logs—typically, binary files stored in a specific database-native format—play a crucial role in database guaran",
+    "gloss": "",
+    "seconds": 0.93,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "the four basic operations of persistent storage are what",
+    "refused": false,
+    "cite": "ch05-019",
+    "quote": "CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage. CRUD is the most common",
+    "gloss": "",
+    "seconds": 1.09,
+    "guard_word": "persistent",
+    "coherent": true
+  },
+  {
+    "question": "wide-column databases",
+    "refused": false,
+    "cite": "ch05-030",
+    "quote": "Relational databases were developed at IBM in the 1970s and popularized by Oracle in the 1980s",
+    "gloss": "",
+    "seconds": 1.3,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is object storage",
+    "refused": false,
+    "cite": "ch06-040",
+    "quote": "Object storage contains objects of all shapes and sizes (Figure 6-8)",
+    "gloss": "Objects in object storage can be any type of file or data.",
+    "seconds": 1.21,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is block storage",
+    "refused": false,
+    "cite": "ch06-032",
+    "quote": "Fundamentally, block storage is the type of raw storage provided by SSDs and magnetic disks. In the cloud, virtualized block storage is the standard for VMs. These block storage abstractions allow fin",
+    "gloss": "Block storage is a type of raw storage from SSDs and magnetic disks.",
+    "seconds": 1.27,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is a data lake",
+    "refused": false,
+    "cite": "ch06-074",
+    "quote": "The data lake was originally conceived as a massive store where data was retained in raw, unprocessed form. Initially, data lakes were built primarily on Hadoop systems, where cheap storage allowed fo",
+    "gloss": "",
+    "seconds": 1.13,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is a data warehouse",
+    "refused": false,
+    "cite": "ch06-073",
+    "quote": "Data warehouses are a standard OLAP data architecture",
+    "gloss": "A place for analyzing and reporting data.",
+    "seconds": 1.06,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is a data lakehouse",
+    "refused": false,
+    "cite": "ch06-075",
+    "quote": "The data lakehouse is an architecture that combines aspects of the data warehouse and the data lake. As it is generally conceived, the lakehouse stores data in object storage just like a lake. However",
+    "gloss": "",
+    "seconds": 1.08,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "raid stands for what",
+    "refused": false,
+    "cite": "ch06-034",
+    "quote": "RAID stands for redundant array of independent disks, as noted previously. RAID simultaneously controls multiple disks to improve data durability, enhance performance, and combine capacity from multip",
+    "gloss": "",
+    "seconds": 1.3,
+    "guard_word": "raid",
+    "coherent": true
+  },
+  {
+    "question": "hot warm cold data",
+    "refused": true,
+    "cite": "ch06-102",
+    "quote": "Hot, warm, and cold data Did you know that data has a temperature? Depending on how frequently data is accessed, we can roughly bucket the way it is stored into",
+    "gloss": "",
+    "seconds": 0.92,
+    "guard_word": "warm",
+    "coherent": false
+  },
+  {
+    "question": "what does iops mean",
+    "refused": true,
+    "cite": "ch02-072",
+    "quote": "Automation After automation is adopted, the data team is much happier and experiences far fewer headaches. One of the tenets of the DataOps Manifesto is “Embrac",
+    "gloss": "",
+    "seconds": 0.86,
+    "guard_word": "iops",
+    "coherent": false
+  },
+  {
+    "question": "how does separation of compute and storage help",
+    "refused": false,
+    "cite": "ch06-089",
+    "quote": "Colocation of compute and storage has long been a standard method to improve database performance. For transactional databases, data colocation allows fast, low-latency disk reads and high bandwidth. ",
+    "gloss": "",
+    "seconds": 1.11,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is data retention",
+    "refused": false,
+    "cite": "ch06-101",
+    "quote": "Storing data isn’t as simple as just saving it to object storage or disk and forgetting about it. You need to think about the data storage lifecycle and data retention. When you think about access fre",
+    "gloss": "",
+    "seconds": 1.46,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is a data catalog",
+    "refused": false,
+    "cite": "ch06-080",
+    "quote": "A data catalog is a centralized metadata store for all data across an organization. Strictly speaking, a data catalog is not a top-level data storage abstraction, but it integrates with various system",
+    "gloss": "",
+    "seconds": 1.0,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "schema on read vs schema on write",
+    "refused": false,
+    "cite": "ch06-086",
+    "quote": "Schema can function as a sort of Rosetta stone, instructions that tell us how to read the data. Two major schema patterns exist: schema on write and schema on read. Schema on write is essentially the ",
+    "gloss": "",
+    "seconds": 1.18,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "data ingestion is the process of doing what",
+    "refused": false,
+    "cite": "ch07-002",
+    "quote": "Data ingestion is the process of moving data from one place to another",
+    "gloss": "",
+    "seconds": 0.96,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "etl vs elt",
+    "refused": false,
+    "cite": "ch03-075",
+    "quote": "One variation on ETL is ELT. With the ELT data warehouse architecture, data gets moved more or less directly from production systems into a staging area in the data warehouse. Staging in this setting ",
+    "gloss": "",
+    "seconds": 1.2,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is a message queue",
+    "refused": false,
+    "cite": "ch05-060",
+    "quote": "A message queue is a mechanism to asynchronously send data (usually as small individual messages, in the kilobytes) between discrete systems using a publish and subscribe model. Data is published to a",
+    "gloss": "",
+    "seconds": 1.22,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is an event-streaming platform",
+    "refused": false,
+    "cite": "ch05-064",
+    "quote": "In some ways, an event-streaming platform is a continuation of a message queue in that messages are passed from producers to consumers. As discussed previously in this chapter, the big difference betw",
+    "gloss": "",
+    "seconds": 1.06,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "kafka",
+    "refused": false,
+    "cite": "ch07-043",
+    "quote": "Message size is an easily overlooked issue: you must ensure that the streaming framework in question can handle the maximum expected message size. Amazon Kinesis supports a maximum message size of 1 M",
+    "gloss": "",
+    "seconds": 1.07,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "bounded vs unbounded data",
+    "refused": false,
+    "cite": "ch07-007",
+    "quote": "As you might recall from Chapter 3, data comes in two forms: bounded and unbounded (Figure 7-3). Unbounded data is data as it exists in reality, as events happen, either sporadically or continuously, ",
+    "gloss": "",
+    "seconds": 1.49,
+    "guard_word": "bounded",
+    "coherent": true
+  },
+  {
+    "question": "push vs pull ingestion",
+    "refused": false,
+    "cite": "ch02-022",
+    "quote": "In the push model of data ingestion, a source system writes data out to a target, whether a database, object store, or filesystem. In the pull model, data is retrieved from the source system. The line",
+    "gloss": "",
+    "seconds": 1.26,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is a direct database connection",
+    "refused": false,
+    "cite": "ch07-048",
+    "quote": "Data can be pulled from databases for ingestion by querying and reading over a network connection. Most commonly, this connection is made using ODBC or JDBC.",
+    "gloss": "",
+    "seconds": 1.05,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "why does replay matter for event streams",
+    "refused": false,
+    "cite": "ch07-041",
+    "quote": "Replay allows readers to request a range of messages from the history, allowing you to rewind your event history to a particular point in time. Replay is a key capability in many streaming ingestion p",
+    "gloss": "",
+    "seconds": 1.21,
+    "guard_word": "replay",
+    "coherent": true
+  },
+  {
+    "question": "what is polling",
+    "refused": false,
+    "cite": "ch07-029",
+    "quote": "Another pattern related to pulling is polling for data (Figure 7-9). Polling involves periodically checking a data source for any changes. When changes are detected, the destination pulls the data as ",
+    "gloss": "",
+    "seconds": 1.23,
+    "guard_word": "polling",
+    "coherent": true
+  },
+  {
+    "question": "what is a data migration",
+    "refused": false,
+    "cite": "ch07-035",
+    "quote": "Migrating data to a new database or environment is not usually trivial, and data needs to be moved in bulk. Sometimes this means moving data sizes that are hundreds of terabytes or much larger, often ",
+    "gloss": "",
+    "seconds": 1.37,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "stream-to-batch architecture",
+    "refused": false,
+    "cite": "ch06-078",
+    "quote": "The stream-to-batch storage architecture has many similarities to the Lambda architecture, though some might quibble over the technical details. Essentially, data flowing through a topic in the stream",
+    "gloss": "",
+    "seconds": 1.02,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "how do you detect upstream and downstream schema changes",
+    "refused": false,
+    "cite": "ch07-026",
+    "quote": "Changes in schema frequently occur in source systems and are often well out of data engineers’ control. Examples of schema changes include the following:",
+    "gloss": "",
+    "seconds": 1.44,
+    "guard_word": "detect",
+    "coherent": false
+  },
+  {
+    "question": "what is a watermark",
+    "refused": false,
+    "cite": "ch08-039",
+    "quote": "We’ve covered various types of windows and their uses. As discussed in Chapter 7, data is sometimes ingested out of the order from which it originated. A watermark (Figure 8-8) is a threshold used by ",
+    "gloss": "",
+    "seconds": 1.39,
+    "guard_word": "watermark",
+    "coherent": true
+  },
+  {
+    "question": "watermark",
+    "refused": false,
+    "cite": "ch08-039",
+    "quote": "We’ve covered various types of windows and their uses. As discussed in Chapter 7, data is sometimes ingested out of the order from which it originated. A watermark (Figure 8-8) is a threshold used by ",
+    "gloss": "",
+    "seconds": 1.4,
+    "guard_word": "watermark",
+    "coherent": true
+  },
+  {
+    "question": "watermak",
+    "refused": false,
+    "cite": "ch08-039",
+    "quote": "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late",
+    "gloss": "Read as: \"watermark\"",
+    "seconds": 1.51,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "next codd introduced the idea of what",
+    "refused": false,
+    "cite": "ch08-051",
+    "quote": "Codd introduced the idea of normal forms. The normal forms are sequential, with each form incorporating the conditions of prior forms. We describe Codd’s first three normal forms here:",
+    "gloss": "A set of rules to organize database tables to avoid redundancy and improve data integrity.",
+    "seconds": 1.28,
+    "guard_word": "codd",
+    "coherent": true
+  },
+  {
+    "question": "what is normalization",
+    "refused": true,
+    "cite": "ch08-051",
+    "quote": "Normalization Normalization is a database data modeling practice that enforces strict control over the relationships of tables and columns within a database. Th",
+    "gloss": "",
+    "seconds": 1.16,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "normailzation",
+    "refused": true,
+    "cite": "ch08-051",
+    "quote": "Normalization Normalization is a database data modeling practice that enforces strict control over the relationships of tables and columns within a database. Th",
+    "gloss": "",
+    "seconds": 1.43,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is denormalization",
+    "refused": false,
+    "cite": "ch08-056",
+    "quote": "Although denormalization may seem like an antipattern, it’s common in many OLAP systems that store semistructured data.",
+    "gloss": "",
+    "seconds": 1.28,
+    "guard_word": "denormalization",
+    "coherent": true
+  },
+  {
+    "question": "types of joins",
+    "refused": false,
+    "cite": "ch08-013",
+    "quote": "Joins are critical in data engineering and are well supported and performant in many databases. Even columnar databases, which in the past had a reputation for slow join performance, now generally off",
+    "gloss": "",
+    "seconds": 1.22,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is a broadcast join",
+    "refused": false,
+    "cite": "ch08-092",
+    "quote": "A broadcast join is generally asymmetric, with one large table distributed across nodes and one small table that can easily fit on a single node (Figure 8-17). The query engine “broadcasts” the small ",
+    "gloss": "",
+    "seconds": 1.68,
+    "guard_word": "broadcast",
+    "coherent": true
+  },
+  {
+    "question": "what is a query optimizer",
+    "refused": false,
+    "cite": "ch08-011",
+    "quote": "Queries can have wildly different execution times, depending on how they’re executed. A query optimizer’s job is to optimize query performance and minimize costs by breaking the query into appropriate",
+    "gloss": "",
+    "seconds": 1.14,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "types of windows in stream processing",
+    "refused": false,
+    "cite": "ch08-034",
+    "quote": "Windows are an essential feature in streaming queries and processing. Windows are small batches that are processed based on dynamic triggers. Windows are generated dynamically over time in some ways. ",
+    "gloss": "",
+    "seconds": 1.12,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is a materialized view",
+    "refused": false,
+    "cite": "ch08-131",
+    "quote": "A materialized view does some or all of the view computation in advance. In our example, a materialized view might save the five table join results every time a change occurs in the source tables. The",
+    "gloss": "A materialized view precomputes part or all of the data before storing it for faster query execution.",
+    "seconds": 1.29,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is a star schema",
+    "refused": false,
+    "cite": "ch08-071",
+    "quote": "Now that you have a basic understanding of facts and dimensions, it’s time to integrate them into a star schema. The star schema represents the data model of the business. Unlike highly normalized app",
+    "gloss": "",
+    "seconds": 1.25,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is a fact table",
+    "refused": false,
+    "cite": "ch08-065",
+    "quote": "The first type of table in a star schema is the fact table, which contains factual, quantitative, and event-related data. The data in a fact table is immutable because facts relate to events. Therefor",
+    "gloss": "",
+    "seconds": 1.33,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is a dimension table",
+    "refused": false,
+    "cite": "ch08-067",
+    "quote": "The second primary type of table in a Kimball data model is called a dimension. Dimension tables provide the reference data, attributes, and relational context for the events stored in fact tables. Di",
+    "gloss": "",
+    "seconds": 2.2,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is data vault modeling",
+    "refused": false,
+    "cite": "ch08-073",
+    "quote": "Whereas Kimball and Inmon focus on the structure of business logic in the data warehouse, the Data Vault offers a different approach to data modeling.11 Created in the 1990s by Dan Linstedt, the Data ",
+    "gloss": "",
+    "seconds": 1.52,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "kimball is on the opposite end of the data modeling spectrum from who",
+    "refused": false,
+    "cite": "ch08-064",
+    "quote": "If there are spectrums to data modeling, Kimball is very much on the opposite end of Inmon. Created by Ralph Kimball in the early 1990s, this approach to data modeling focuses less on normalization, a",
+    "gloss": "",
+    "seconds": 1.2,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "under the hood, batch processing is what",
+    "refused": false,
+    "cite": "ch08-160",
+    "quote": "You still need to understand what’s going on under the hood.",
+    "gloss": "",
+    "seconds": 1.24,
+    "guard_word": "hood",
+    "coherent": true
+  },
+  {
+    "question": "data wrangling",
+    "refused": false,
+    "cite": "ch08-115",
+    "quote": "Data wrangling takes messy, malformed data and turns it into useful, clean data. This is generally a batch transformation process.",
+    "gloss": "",
+    "seconds": 1.83,
+    "guard_word": "wrangling",
+    "coherent": true
+  },
+  {
+    "question": "how does micro-batch differ from true streaming",
+    "refused": false,
+    "cite": "ch08-141",
+    "quote": "Micro-batching is a way to take a batch-oriented framework and apply it in a streaming situation. A micro-batch might run anywhere from every two minutes to every second. Some micro-batch frameworks (",
+    "gloss": "",
+    "seconds": 1.55,
+    "guard_word": "differ",
+    "coherent": false
+  },
+  {
+    "question": "slowly changing dimensions",
+    "refused": false,
+    "cite": "ch08-069",
+    "quote": "A slowly changing dimension (SCD) is necessary to track changes in dimensions. The preceding example is a Type 2 SCD: a new record is inserted when an existing record changes. Though SCDs can go up to",
+    "gloss": "",
+    "seconds": 1.07,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is reverse etl",
+    "refused": false,
+    "cite": "ch09-055",
+    "quote": "Today, reverse ETL is a buzzword that describes serving data by loading it from an OLAP database back into a source system. That said, any data engineer who’s worked in the field for more than a few y",
+    "gloss": "",
+    "seconds": 1.33,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is a feature store",
+    "refused": false,
+    "cite": "ch02-037",
+    "quote": "The feature store is a recently developed tool that combines data engineering and ML engineering. Feature stores are designed to reduce the operational burden for ML engineers by maintaining feature h",
+    "gloss": "",
+    "seconds": 1.43,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is business intelligence",
+    "refused": false,
+    "cite": "ch02-032",
+    "quote": "BI marshals collected data to describe a business’s past and current state. BI requires using business logic to process raw data. Note that data serving for analytics is yet another area where the sta",
+    "gloss": "",
+    "seconds": 1.35,
+    "guard_word": "intelligence",
+    "coherent": false
+  },
+  {
+    "question": "what is embedded analytics",
+    "refused": false,
+    "cite": "ch09-028",
+    "quote": "In both cases, an application allows users to make real-time decisions (manually or automatically) based on data.",
+    "gloss": "",
+    "seconds": 1.67,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is query federation",
+    "refused": false,
+    "cite": "ch09-044",
+    "quote": "As you learned in Chapter 8, query federation pulls data from multiple sources, such as data lakes, RDBMSs, and data warehouses. Federation is becoming more popular as distributed query virtualization",
+    "gloss": "",
+    "seconds": 1.15,
+    "guard_word": "federation",
+    "coherent": true
+  },
+  {
+    "question": "how do data scientists use notebooks",
+    "refused": false,
+    "cite": "ch09-051",
+    "quote": "Data scientists will programmatically connect to a data source, such as an API, a database, a data warehouse, or a data lake (Figure 9-4). In a notebook, all connections are created using the appropri",
+    "gloss": "",
+    "seconds": 1.41,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "ways to serve data to consumers",
+    "refused": false,
+    "cite": "ch07-077",
+    "quote": "Data providers will offer datasets to third-party subscribers, either for free or at a cost",
+    "gloss": "",
+    "seconds": 1.27,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "why do data definitions matter when serving data",
+    "refused": false,
+    "cite": "ch09-013",
+    "quote": "Data definition refers to the meaning of data as it is understood throughout the organization",
+    "gloss": "",
+    "seconds": 1.15,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "olap vs oltp",
+    "refused": false,
+    "cite": "ch05-007",
+    "quote": "Typically, an application database is an online transaction processing (OLTP) system—a database that reads and writes individual data records at a high rate. OLTP systems are often referred to as tran",
+    "gloss": "",
+    "seconds": 1.11,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is a data product",
+    "refused": false,
+    "cite": "ch09-008",
+    "quote": "A good definition of a data product is a product that facilitates an end goal through the use of data.",
+    "gloss": "",
+    "seconds": 1.24,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is the principle of least privilege",
+    "refused": false,
+    "cite": "ch10-010",
+    "quote": "The principle of least privilege means that a person or system should be given only the privileges and data they need to complete the task at hand and nothing more. Often, we see an antipattern in the",
+    "gloss": "",
+    "seconds": 1.42,
+    "guard_word": "privilege",
+    "coherent": true
+  },
+  {
+    "question": "what is zero trust",
+    "refused": false,
+    "cite": "ch03-034",
+    "quote": "Every data engineer must assume responsibility for the security of the systems they build and maintain. We focus now on two main ideas: zero-trust security and the shared responsibility security model",
+    "gloss": "This means data engineers are responsible for keeping the systems they work on secure.",
+    "seconds": 1.21,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "how does encryption at rest differ from encryption in motion",
+    "refused": true,
+    "cite": "ch07-090",
+    "quote": "Data ethics, privacy, and compliance This access should be tightly scoped to a particular issue and come with an expiration date. Our last bit of advice on sens",
+    "gloss": "",
+    "seconds": 1.11,
+    "guard_word": "motion",
+    "coherent": false
+  },
+  {
+    "question": "what is tokenization",
+    "refused": false,
+    "cite": "ch07-088",
+    "quote": "But engineers should look at where this tokenization is used.",
+    "gloss": "",
+    "seconds": 1.25,
+    "guard_word": "tokenization",
+    "coherent": true
+  },
+  {
+    "question": "hashing vs encryption",
+    "refused": false,
+    "cite": "ch07-090",
+    "quote": "Thoughtlessly hashing data without salting and other strategies may not protect privacy as well as you think.",
+    "gloss": "",
+    "seconds": 1.04,
+    "guard_word": "hashing",
+    "coherent": true
+  },
+  {
+    "question": "what is data masking",
+    "refused": false,
+    "cite": "ch02-044",
+    "quote": "Data security is also about timing—providing data access to exactly the people and systems that need to access it and only for the duration necessary to perform their work. Data should be protected fr",
+    "gloss": "This means making sure only the right people can see the data they need for a short time.",
+    "seconds": 1.65,
+    "guard_word": "masking",
+    "coherent": true
+  },
+  {
+    "question": "what is shared responsibility in the cloud",
+    "refused": false,
+    "cite": "ch10-012",
+    "quote": "Security is a shared responsibility in the cloud. The cloud vendor is responsible for ensuring the physical security of its data center and hardware. At the same time, you are responsible for the secu",
+    "gloss": "Security in the cloud involves both the cloud vendor and the user sharing responsibilities for different aspects of security.",
+    "seconds": 1.12,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what does it mean to always be paranoid about security",
+    "refused": false,
+    "cite": "ch10-004",
+    "quote": "The weakest link in security and privacy is you. Security is often compromised at the human level, so conduct yourself as if you’re always a target. A bot or human actor is trying to infiltrate your s",
+    "gloss": "",
+    "seconds": 1.22,
+    "guard_word": "paranoid",
+    "coherent": true
+  },
+  {
+    "question": "what is pii",
+    "refused": false,
+    "cite": "ch02-066",
+    "quote": "How do ethics and privacy impact the data engineering lifecycle? Data engineers need to ensure that datasets mask personally identifiable information (PII) and other sensitive information; bias can be",
+    "gloss": "PII is personally identifiable information that needs to be masked by data engineers to protect individuals' privacy.",
+    "seconds": 1.4,
+    "guard_word": "pii",
+    "coherent": true
+  },
+  {
+    "question": "what is the live data stack",
+    "refused": false,
+    "cite": "ch11-018",
+    "quote": "This democratization of real-time technologies will lead us to the successor to the MDS: the live data stack will soon be accessible and pervasive. The live data stack, depicted in Figure 11-1, will f",
+    "gloss": "",
+    "seconds": 1.51,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "dark matter data",
+    "refused": false,
+    "cite": "ch11-025",
+    "quote": "What’s the most widely used data platform? It’s the humble spreadsheet. Depending on the estimates you read, the user base of spreadsheets is between 700 million and 2 billion people. Spreadsheets are",
+    "gloss": "Data that exists but is not accounted for in sophisticated data systems.",
+    "seconds": 1.29,
+    "guard_word": "dark",
+    "coherent": true
+  },
+  {
+    "question": "why is the data engineering lifecycle not going away",
+    "refused": false,
+    "cite": "ch11-003",
+    "quote": "While data science has received the bulk of the attention in recent years, data engineering is rapidly maturing into a distinct and visible field. It’s one of the fastest-growing careers in technology",
+    "gloss": "",
+    "seconds": 1.3,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "how are data and applications fusing",
+    "refused": false,
+    "cite": "ch06-081",
+    "quote": "Ideally, data applications are designed to integrate with catalog APIs to handle their metadata and updates directly",
+    "gloss": "Data applications are meant to connect with catalog APIs for managing their metadata and updates.",
+    "seconds": 1.51,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what comes after the modern data stack",
+    "refused": false,
+    "cite": "ch11-018",
+    "quote": "This democratization of real-time technologies will lead us to the successor to the MDS: the live data stack will soon be accessible and pervasive. The live data stack, depicted in Figure 11-1, will f",
+    "gloss": "",
+    "seconds": 1.43,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "how will data engineering titles change",
+    "refused": false,
+    "cite": "ch11-015",
+    "quote": "Another area in which titles may morph is at the intersection of software engineering and data engineering. Data applications, which blend traditional software applications with analytics, will drive ",
+    "gloss": "",
+    "seconds": 1.48,
+    "guard_word": "titles",
+    "coherent": true
+  },
+  {
+    "question": "streaming pipelines and real-time analytics",
+    "refused": false,
+    "cite": "ch11-019",
+    "quote": "Streaming technologies will continue to see extreme growth for the foreseeable future",
+    "gloss": "",
+    "seconds": 0.94,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is the cloud-scale data os",
+    "refused": false,
+    "cite": "ch11-008",
+    "quote": "Now let’s return to data in the cloud. The simplified data services that we’ve mentioned throughout this book (e.g., Google Cloud BigQuery, Azure Blob Storage, Snowflake, and AWS Lambda) resemble oper",
+    "gloss": "",
+    "seconds": 1.4,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is aaron",
+    "refused": true,
+    "cite": "preface01-016",
+    "quote": "Acknowledgments Scott Taylor, Kate Strachnyi, Kristen Kehrer, Taylor Miller, Abe Gong, Ben Castleton, Ben Rogojan, David Mertz, Emmanuel Raj, Andrew Jones, Aver",
+    "gloss": "",
+    "seconds": 0.93,
+    "guard_word": "aaron",
+    "coherent": false
+  },
+  {
+    "question": "what is aashish",
+    "refused": true,
+    "cite": "preface01-002",
+    "quote": "What This Book Isn’t Before we cover what this book is about and what you’ll get out of it, let’s quickly cover what this book isn’t. This book isn’t about data",
+    "gloss": "",
+    "seconds": 0.8,
+    "guard_word": "aashish",
+    "coherent": false
+  },
+  {
+    "question": "what is abandon",
+    "refused": true,
+    "cite": "ch02-030",
+    "quote": "Serving Data You’ve reached the last stage of the data engineering lifecycle. Now that the data has been ingested, stored, and transformed into coherent and use",
+    "gloss": "",
+    "seconds": 0.89,
+    "guard_word": "abandon",
+    "coherent": false
+  },
+  {
+    "question": "what is abandoned",
+    "refused": false,
+    "cite": "ch04-021",
+    "quote": "Given the reasonable probability of failure for many data technologies, you need to consider how easy it is to transition from a chosen technology. What are the barriers to leaving? As mentioned previ",
+    "gloss": "This means you should be prepared for a project or technology to be discontinued or replaced, as it might not work out in the long term.",
+    "seconds": 1.85,
+    "guard_word": "abandoned",
+    "coherent": true
+  },
+  {
+    "question": "what is abbreviated",
+    "refused": true,
+    "cite": "ch01-035",
+    "quote": "Business Responsibilities The macro responsibilities we list in this section aren’t exclusive to data engineers but are crucial for anyone working in a data or ",
+    "gloss": "",
+    "seconds": 1.25,
+    "guard_word": "abbreviated",
+    "coherent": false
+  },
+  {
+    "question": "what is abbreviation",
+    "refused": false,
+    "cite": "ch01-075",
+    "quote": "8 DataOps is an abbreviation for data operations. We cover this topic in Chapter 2. For more information, read the DataOps Manifesto.",
+    "gloss": "",
+    "seconds": 1.06,
+    "guard_word": "abbreviation",
+    "coherent": true
+  },
+  {
+    "question": "what is abc",
+    "refused": true,
+    "cite": "ch01-052",
+    "quote": "Software engineers Software engineers build the software and systems that run a business; they are largely responsible for generating the internal data that dat",
+    "gloss": "",
+    "seconds": 0.87,
+    "guard_word": "abc",
+    "coherent": false
+  },
+  {
+    "question": "what is abe",
+    "refused": true,
+    "cite": "preface01-016",
+    "quote": "Acknowledgments Scott Taylor, Kate Strachnyi, Kristen Kehrer, Taylor Miller, Abe Gong, Ben Castleton, Ben Rogojan, David Mertz, Emmanuel Raj, Andrew Jones, Aver",
+    "gloss": "",
+    "seconds": 0.85,
+    "guard_word": "abe",
+    "coherent": false
+  },
+  {
+    "question": "what is abound",
+    "refused": true,
+    "cite": "ch01-052",
+    "quote": "Software engineers Software engineers build the software and systems that run a business; they are largely responsible for generating the internal data that dat",
+    "gloss": "",
+    "seconds": 0.83,
+    "guard_word": "abound",
+    "coherent": false
+  },
+  {
+    "question": "what is abraham",
+    "refused": true,
+    "cite": "preface01-002",
+    "quote": "What This Book Isn’t Before we cover what this book is about and what you’ll get out of it, let’s quickly cover what this book isn’t. This book isn’t about data",
+    "gloss": "",
+    "seconds": 0.77,
+    "guard_word": "abraham",
+    "coherent": false
+  },
+  {
+    "question": "what is abramson",
+    "refused": false,
+    "cite": "ch08-163",
+    "quote": "Kimball” by Ian Abramson The Data Warehouse Toolkit by Ralph Kimball and Margy Ross (Wiley) “Data Vault—An Overview” by John Ryan “Data Vault 2.0 Modeling Basics” by Kent Graziano “A Detailed Guide on",
+    "gloss": "",
+    "seconds": 1.2,
+    "guard_word": "abramson",
+    "coherent": true
+  },
+  {
+    "question": "what is absorber",
+    "refused": true,
+    "cite": "ch07-014",
+    "quote": "Synchronous Versus Asynchronous Ingestion The big idea is that rather than relying on asynchronous processing, where a batch process runs for each stage as the ",
+    "gloss": "",
+    "seconds": 0.83,
+    "guard_word": "absorber",
+    "coherent": false
+  },
+  {
+    "question": "what is abundance",
+    "refused": true,
+    "cite": "preface01-003",
+    "quote": "What This Book Is About This book aims to fill a gap in current data engineering content and materials. While there’s no shortage of technical resources that ad",
+    "gloss": "",
+    "seconds": 0.82,
+    "guard_word": "abundance",
+    "coherent": false
+  },
+  {
+    "question": "what is academia",
+    "refused": false,
+    "cite": "ch01-060",
+    "quote": "ML engineers in academia usually have fewer resources but rely on teams of graduate students, postdocs, and university staff to provide engineering support.",
+    "gloss": "",
+    "seconds": 1.15,
+    "guard_word": "academia",
+    "coherent": true
+  },
+  {
+    "question": "what is accelerates",
+    "refused": true,
+    "cite": "ch01-043",
+    "quote": "The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer as a “unicorn” who must possess every data skill imaginable",
+    "gloss": "",
+    "seconds": 0.88,
+    "guard_word": "accelerates",
+    "coherent": false
+  },
+  {
+    "question": "what is accelerating",
+    "refused": true,
+    "cite": "ch01-043",
+    "quote": "The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer as a “unicorn” who must possess every data skill imaginable",
+    "gloss": "",
+    "seconds": 0.79,
+    "guard_word": "accelerating",
+    "coherent": false
+  },
+  {
+    "question": "what is accepting",
+    "refused": true,
+    "cite": "preface01-004",
+    "quote": "What This Book Is About With this framework, the reader will come away with a sound understanding for applying technologies to real-world business problems. Our",
+    "gloss": "",
+    "seconds": 0.78,
+    "guard_word": "accepting",
+    "coherent": false
+  },
+  {
+    "question": "what is accepts",
+    "refused": false,
+    "cite": "ch07-062",
+    "quote": "In our view, object storage is the most optimal and secure way to handle file exchange. Public cloud storage implements the latest security standards, has a robust track record of scalability and reli",
+    "gloss": "This means it can handle any kind of file, no matter what it is or how big it is.",
+    "seconds": 1.18,
+    "guard_word": "accepts",
+    "coherent": true
+  },
+  {
+    "question": "what is accesses",
+    "refused": false,
+    "cite": "ch10-022",
+    "quote": "Who’s accessing what, when, and from where? What new accesses were granted? Are there strange patterns with your current users that might indicate their account is compromised, such as trying to acces",
+    "gloss": "",
+    "seconds": 1.44,
+    "guard_word": "accesses",
+    "coherent": true
+  },
+  {
+    "question": "what is accommodated",
+    "refused": true,
+    "cite": "ch01-043",
+    "quote": "The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer as a “unicorn” who must possess every data skill imaginable",
+    "gloss": "",
+    "seconds": 0.74,
+    "guard_word": "accommodated",
+    "coherent": false
+  },
+  {
+    "question": "what is accompanied",
+    "refused": true,
+    "cite": "ch07-059",
+    "quote": "Message Queues and Event-Streaming Platforms Message queues and event-streaming platforms are widespread ways to ingest real-time data from web and mobile appli",
+    "gloss": "",
+    "seconds": 0.81,
+    "guard_word": "accompanied",
+    "coherent": false
+  },
+  {
+    "question": "what is accountable",
+    "refused": false,
+    "cite": "ch02-056",
+    "quote": "Data accountability means assigning an individual to govern a portion of data. The responsible person then coordinates the governance activities of other stakeholders. Managing data quality is tough i",
+    "gloss": "",
+    "seconds": 1.22,
+    "guard_word": "accountable",
+    "coherent": true
+  },
+  {
+    "question": "what is accounted",
+    "refused": false,
+    "cite": "ch04-010",
+    "quote": "Apart from direct and indirect costs, how something is purchased impacts the way costs are accounted for.",
+    "gloss": "",
+    "seconds": 1.53,
+    "guard_word": "accounted",
+    "coherent": true
+  },
+  {
+    "question": "what is accumulation",
+    "refused": true,
+    "cite": "preface01-003",
+    "quote": "What This Book Is About This book aims to fill a gap in current data engineering content and materials. While there’s no shortage of technical resources that ad",
+    "gloss": "",
+    "seconds": 0.83,
+    "guard_word": "accumulation",
+    "coherent": false
+  },
+  {
+    "question": "what is accustomed",
+    "refused": true,
+    "cite": "ch01-007",
+    "quote": "Evolution of the Data Engineer History doesn’t repeat itself, but it rhymes. A famous adage often attributed to Mark Twain Understanding data engineering today ",
+    "gloss": "",
+    "seconds": 0.81,
+    "guard_word": "accustomed",
+    "coherent": false
+  },
+  {
+    "question": "what is achievable",
+    "refused": false,
+    "cite": "ch03-068",
+    "quote": "It’s important to note that deprecation might be “ivory tower” advice and not practical or achievable.",
+    "gloss": "",
+    "seconds": 1.47,
+    "guard_word": "achievable",
+    "coherent": true
+  },
+  {
+    "question": "what is achieving",
+    "refused": true,
+    "cite": "preface01-003",
+    "quote": "What This Book Is About This book aims to fill a gap in current data engineering content and materials. While there’s no shortage of technical resources that ad",
+    "gloss": "",
+    "seconds": 0.79,
+    "guard_word": "achieving",
+    "coherent": false
+  },
+  {
+    "question": "what is ackerman",
+    "refused": true,
+    "cite": "preface01-016",
+    "quote": "Acknowledgments Scott Taylor, Kate Strachnyi, Kristen Kehrer, Taylor Miller, Abe Gong, Ben Castleton, Ben Rogojan, David Mertz, Emmanuel Raj, Andrew Jones, Aver",
+    "gloss": "",
+    "seconds": 0.89,
+    "guard_word": "ackerman",
+    "coherent": false
+  },
+  {
+    "question": "what is acknowledgment",
+    "refused": false,
+    "cite": "ch05-018",
+    "quote": "Database logs are essential enough that they deserve more detailed coverage. Write-ahead logs—typically, binary files stored in a specific database-native format—play a crucial role in database guaran",
+    "gloss": "Acknowledgment is a confirmation that a request has been received and will be processed, often involving logging the operation first.",
+    "seconds": 1.55,
+    "guard_word": "acknowledgment",
+    "coherent": true
+  },
+  {
+    "question": "what is acolytes",
+    "refused": true,
+    "cite": "ch08-101",
+    "quote": "Example: Optimizing Spark and other processing frameworks Spark acolytes often complain that SQL doesn’t give them control over data processing. The SQL engine ",
+    "gloss": "",
+    "seconds": 0.9,
+    "guard_word": "acolytes",
+    "coherent": false
+  },
+  {
+    "question": "what is acquaint",
+    "refused": false,
+    "cite": "ch04-094",
+    "quote": "We highly recommend that anyone choosing an orchestration technology study the options discussed here. They should also acquaint themselves with activity in the space, as new developments will certain",
+    "gloss": "To get familiar with or learn about something, especially new developments in a field.",
+    "seconds": 1.73,
+    "guard_word": "acquaint",
+    "coherent": true
+  },
+  {
+    "question": "what is acquired",
+    "refused": false,
+    "cite": "ch03-040",
+    "quote": "The cost structure of data has evolved dramatically during the cloud era. In an on-premises setting, data systems are generally acquired with a capital expenditure (described more in Chapter 4) for a ",
+    "gloss": "",
+    "seconds": 1.89,
+    "guard_word": "acquired",
+    "coherent": true
+  },
+  {
+    "question": "what is acquisition",
+    "refused": false,
+    "cite": "ch04-010",
+    "quote": "Before the cloud existed, companies would typically purchase hardware and software up front through large acquisition contracts.",
+    "gloss": "",
+    "seconds": 1.14,
+    "guard_word": "acquisition",
+    "coherent": true
+  },
+  {
+    "question": "what is acquisitions",
+    "refused": false,
+    "cite": "ch04-010",
+    "quote": "Capital expenses, also known as capex, require an up-front investment",
+    "gloss": "",
+    "seconds": 1.13,
+    "guard_word": "acquisitions",
+    "coherent": false
+  },
+  {
+    "question": "what is acronym",
+    "refused": true,
+    "cite": "preface01-003",
+    "quote": "What This Book Is About This book aims to fill a gap in current data engineering content and materials. While there’s no shortage of technical resources that ad",
+    "gloss": "",
+    "seconds": 0.79,
+    "guard_word": "acronym",
+    "coherent": false
+  },
+  {
+    "question": "what is acted",
+    "refused": false,
+    "cite": "ch02-044",
+    "quote": "People and organizational structure are always the biggest security vulnerabilities in any company. When we hear about major security breaches in the media, it often turns out that someone in the comp",
+    "gloss": "People who handle company data need to know how to keep it safe.",
+    "seconds": 1.4,
+    "guard_word": "acted",
+    "coherent": true
+  },
+  {
+    "question": "what is actors",
+    "refused": false,
+    "cite": "ch01-057",
+    "quote": "Data engineers work with data analysts to build pipelines for new data sources required by the business",
+    "gloss": "",
+    "seconds": 1.21,
+    "guard_word": "actors",
+    "coherent": false
+  },
+  {
+    "question": "what is acyclic",
+    "refused": true,
+    "cite": "app01-011",
+    "quote": "ORC Optimized Row Columnar (ORC) is a columnar storage format similar to Parquet. ORC was very popular for use with Apache Hive; while still widely used, we gen",
+    "gloss": "",
+    "seconds": 0.71,
+    "guard_word": "acyclic",
+    "coherent": false
+  },
+  {
+    "question": "what is adage",
+    "refused": false,
+    "cite": "ch01-007",
+    "quote": "A famous adage often attributed to Mark Twain",
+    "gloss": "",
+    "seconds": 1.2,
+    "guard_word": "adage",
+    "coherent": true
+  },
+  {
+    "question": "what is adapted",
+    "refused": true,
+    "cite": "preface01-005",
+    "quote": "Who Should Read This Book Our primary intended audience for this book consists of technical practitioners, mid- to senior-level software engineers, data scienti",
+    "gloss": "",
+    "seconds": 0.95,
+    "guard_word": "adapted",
+    "coherent": false
+  },
+  {
+    "question": "what is adaptive",
+    "refused": true,
+    "cite": "ch01-007",
+    "quote": "Evolution of the Data Engineer History doesn’t repeat itself, but it rhymes. A famous adage often attributed to Mark Twain Understanding data engineering today ",
+    "gloss": "",
+    "seconds": 0.79,
+    "guard_word": "adaptive",
+    "coherent": false
+  },
+  {
+    "question": "what is addison",
+    "refused": true,
+    "cite": "preface01-003",
+    "quote": "What This Book Is About This book aims to fill a gap in current data engineering content and materials. While there’s no shortage of technical resources that ad",
+    "gloss": "",
+    "seconds": 0.72,
+    "guard_word": "addison",
+    "coherent": false
+  },
+  {
+    "question": "what is additions",
+    "refused": true,
+    "cite": "preface01-003",
+    "quote": "What This Book Is About This book aims to fill a gap in current data engineering content and materials. While there’s no shortage of technical resources that ad",
+    "gloss": "",
+    "seconds": 1.04,
+    "guard_word": "additions",
+    "coherent": false
+  },
+  {
+    "question": "what is addressable",
+    "refused": false,
+    "cite": "ch06-032",
+    "quote": "In our earlier discussion of SSDs and magnetic disks, we mentioned that with these random-access devices, the operating system can seek, read, and write any data on the disk. A block is the smallest a",
+    "gloss": "This means the smallest part of data that can be read or written on a disk.",
+    "seconds": 1.29,
+    "guard_word": "addressable",
+    "coherent": true
+  },
+  {
+    "question": "what is adhering",
+    "refused": true,
+    "cite": "ch07-003",
+    "quote": "What Is Data Ingestion? We consider this another part of the general data transformation process covered in Chapter 8. Data Pipelines Defined Data pipelines beg",
+    "gloss": "",
+    "seconds": 0.86,
+    "guard_word": "adhering",
+    "coherent": false
+  },
+  {
+    "question": "what is adi",
+    "refused": true,
+    "cite": "preface01-003",
+    "quote": "What This Book Is About This book aims to fill a gap in current data engineering content and materials. While there’s no shortage of technical resources that ad",
+    "gloss": "",
+    "seconds": 0.77,
+    "guard_word": "adi",
+    "coherent": false
+  },
+  {
+    "question": "what is adjusted",
+    "refused": true,
+    "cite": "ch01-007",
+    "quote": "Evolution of the Data Engineer History doesn’t repeat itself, but it rhymes. A famous adage often attributed to Mark Twain Understanding data engineering today ",
+    "gloss": "",
+    "seconds": 0.72,
+    "guard_word": "adjusted",
+    "coherent": false
+  },
+  {
+    "question": "what is adkins",
+    "refused": true,
+    "cite": "ch10-029",
+    "quote": "Additional Resources Building Secure and Reliable Systems by Heather Adkins et al. (O’Reilly) Open Web Application Security Project (OWASP) publications Practic",
+    "gloss": "",
+    "seconds": 0.76,
+    "guard_word": "adkins",
+    "coherent": false
+  },
+  {
+    "question": "what is admin",
+    "refused": true,
+    "cite": "ch02-043",
+    "quote": "Security Security must be top of mind for data engineers, and those who ignore it do so at their peril. That’s why security is the first undercurrent. Data engi",
+    "gloss": "",
+    "seconds": 1.11,
+    "guard_word": "admin",
+    "coherent": false
+  },
+  {
+    "question": "what is administrator",
+    "refused": false,
+    "cite": "ch10-023",
+    "quote": "Increasingly, vendors are providing tools that monitor for permissions that are not utilized by a user or service account over some time. These tools can often be configured to automatically alert an ",
+    "gloss": "An administrator is a person who receives alerts or can remove permissions based on monitored activities.",
+    "seconds": 1.39,
+    "guard_word": "administrator",
+    "coherent": true
+  },
+  {
+    "question": "what is admits",
+    "refused": true,
+    "cite": "ch01-043",
+    "quote": "The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer as a “unicorn” who must possess every data skill imaginable",
+    "gloss": "",
+    "seconds": 0.8,
+    "guard_word": "admits",
+    "coherent": false
+  },
+  {
+    "question": "what is admittedly",
+    "refused": false,
+    "cite": "ch09-030",
+    "quote": "Admittedly, the boundary between ML, data science, data engineering, and ML engineering is increasingly fuzzy, and this boundary varies dramatically between organizations. In some organizations, ML en",
+    "gloss": "This means that the lines separating these fields are becoming unclear.",
+    "seconds": 1.29,
+    "guard_word": "admittedly",
+    "coherent": true
+  },
+  {
+    "question": "what is adopters",
+    "refused": false,
+    "cite": "ch08-111",
+    "quote": "This is part of the reason that early adopters of big data and data lakes rejected updates: managing files and updates seemed too complicated. So they simply used an insert-only pattern and assumed th",
+    "gloss": "People who were among the first to use big data and data lakes found it hard to manage updates.",
+    "seconds": 1.41,
+    "guard_word": "adopters",
+    "coherent": true
+  },
+  {
+    "question": "what is adopts",
+    "refused": false,
+    "cite": "ch04-051",
+    "quote": "Technology adoption within companies is becoming an organic, continuous process",
+    "gloss": "This means companies are now more likely to gradually and continuously adopt new technologies rather than making big, top-down decisions.",
+    "seconds": 1.25,
+    "guard_word": "adopts",
+    "coherent": false
+  },
+  {
+    "question": "what is advantageous",
+    "refused": true,
+    "cite": "ch01-007",
+    "quote": "Evolution of the Data Engineer History doesn’t repeat itself, but it rhymes. A famous adage often attributed to Mark Twain Understanding data engineering today ",
+    "gloss": "",
+    "seconds": 0.75,
+    "guard_word": "advantageous",
+    "coherent": false
+  },
+  {
+    "question": "what is adverse",
+    "refused": false,
+    "cite": "ch03-023",
+    "quote": "A website outage of just five minutes could have a significant adverse business impact on an online retailer.",
+    "gloss": "",
+    "seconds": 1.22,
+    "guard_word": "adverse",
+    "coherent": true
+  },
+  {
+    "question": "what is advertises",
+    "refused": true,
+    "cite": "preface01-002",
+    "quote": "What This Book Isn’t Before we cover what this book is about and what you’ll get out of it, let’s quickly cover what this book isn’t. This book isn’t about data",
+    "gloss": "",
+    "seconds": 0.8,
+    "guard_word": "advertises",
+    "coherent": false
+  },
+  {
+    "question": "what is advisable",
+    "refused": false,
+    "cite": "ch03-052",
+    "quote": "For instance, it is often impractical (and not advisable) to run analytics queries against production application databases.",
+    "gloss": "",
+    "seconds": 1.17,
+    "guard_word": "advisable",
+    "coherent": true
+  },
+  {
+    "question": "what is advised",
+    "refused": false,
+    "cite": "preface01-003",
+    "quote": "This book connects the dots of the end-to-end data lifecycle",
+    "gloss": "It explains how to combine different technologies for data processing.",
+    "seconds": 1.07,
+    "guard_word": "advised",
+    "coherent": false
+  },
+  {
+    "question": "what is advisory",
+    "refused": true,
+    "cite": "ch03-005",
+    "quote": "Gartner’s definition Gartner is a global research and advisory company that produces research articles and reports on trends related to enterprises. Among other",
+    "gloss": "",
+    "seconds": 0.74,
+    "guard_word": "advisory",
+    "coherent": false
+  },
+  {
+    "question": "what is advocates",
+    "refused": true,
+    "cite": "ch03-039",
+    "quote": "Principle 9: Embrace FinOps Let’s start by considering a couple of definitions of FinOps. First, the FinOps Foundation offers this:16 FinOps is an evolving clou",
+    "gloss": "",
+    "seconds": 0.87,
+    "guard_word": "advocates",
+    "coherent": false
+  },
+  {
+    "question": "what is aeronautics",
+    "refused": false,
+    "cite": "ch05-056",
+    "quote": "The National Aeronautics and Space Administration (NASA) publishes various data from its research initiatives.",
+    "gloss": "",
+    "seconds": 1.21,
+    "guard_word": "aeronautics",
+    "coherent": true
+  },
+  {
+    "question": "what is affairs",
+    "refused": false,
+    "cite": "preface01-003",
+    "quote": "This book aims to fill a gap in current data engineering content and materials",
+    "gloss": "",
+    "seconds": 1.62,
+    "guard_word": "affairs",
+    "coherent": false
+  },
+  {
+    "question": "what is affiliated",
+    "refused": false,
+    "cite": "ch04-055",
+    "quote": "A vendor is often affiliated with the community OSS project. As an OSS project becomes more popular, the maintainers may create a separate business for a managed version of the OSS. This typically bec",
+    "gloss": "",
+    "seconds": 1.23,
+    "guard_word": "affiliated",
+    "coherent": true
+  },
+  {
+    "question": "what is afternoon",
+    "refused": false,
+    "cite": "ch07-007",
+    "quote": "The grocery list that I scribbled this afternoon is bounded data.",
+    "gloss": "",
+    "seconds": 1.16,
+    "guard_word": "afternoon",
+    "coherent": true
+  },
+  {
+    "question": "what is afzaal",
+    "refused": true,
+    "cite": "ch01-052",
+    "quote": "Software engineers Software engineers build the software and systems that run a business; they are largely responsible for generating the internal data that dat",
+    "gloss": "",
+    "seconds": 0.83,
+    "guard_word": "afzaal",
+    "coherent": false
+  },
+  {
+    "question": "what is agencies",
+    "refused": false,
+    "cite": "ch05-056",
+    "quote": "The consumerization of technology means every company is essentially now a technology company. The consequence is that these companies—and increasingly government agencies—want to make their data avai",
+    "gloss": "A government agency provides data about the labor market.",
+    "seconds": 1.37,
+    "guard_word": "agencies",
+    "coherent": true
+  },
+  {
+    "question": "what is agency",
+    "refused": true,
+    "cite": "ch01-043",
+    "quote": "The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer as a “unicorn” who must possess every data skill imaginable",
+    "gloss": "",
+    "seconds": 0.92,
+    "guard_word": "agency",
+    "coherent": false
+  },
+  {
+    "question": "what is agendas",
+    "refused": true,
+    "cite": "ch01-068",
+    "quote": "Chief algorithms officer A chief algorithms officer (CAO-2) is a recent innovation in the C-suite, a highly technical role focused specifically on data science ",
+    "gloss": "",
+    "seconds": 0.81,
+    "guard_word": "agendas",
+    "coherent": false
+  },
+  {
+    "question": "what is agent",
+    "refused": true,
+    "cite": "ch05-014",
+    "quote": "Logs A log captures information about events that occur in systems. For example, a log may capture traffic and usage patterns on a web server. Your desktop comp",
+    "gloss": "",
+    "seconds": 0.79,
+    "guard_word": "agent",
+    "coherent": false
+  },
+  {
+    "question": "what is aggregator",
+    "refused": false,
+    "cite": "ch07-073",
+    "quote": "Web scraping automatically extracts data from web pages, often by combing the web page’s various HTML elements. You might scrape ecommerce sites to extract product pricing information or scrape multip",
+    "gloss": "",
+    "seconds": 1.25,
+    "guard_word": "aggregator",
+    "coherent": true
+  },
+  {
+    "question": "what is aggressive",
+    "refused": true,
+    "cite": "ch01-024",
+    "quote": "Data Engineering Skills and Activities Their work would be devoted to cluster administration and maintenance, managing overhead, and writing pipeline and transf",
+    "gloss": "",
+    "seconds": 0.77,
+    "guard_word": "aggressive",
+    "coherent": false
+  },
+  {
+    "question": "what is agonize",
+    "refused": true,
+    "cite": "ch01-052",
+    "quote": "Software engineers Software engineers build the software and systems that run a business; they are largely responsible for generating the internal data that dat",
+    "gloss": "",
+    "seconds": 0.75,
+    "guard_word": "agonize",
+    "coherent": false
+  },
+  {
+    "question": "what is agrees",
+    "refused": true,
+    "cite": "ch01-043",
+    "quote": "The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer as a “unicorn” who must possess every data skill imaginable",
+    "gloss": "",
+    "seconds": 0.8,
+    "guard_word": "agrees",
+    "coherent": false
+  },
+  {
+    "question": "what is ahmad",
+    "refused": true,
+    "cite": "ch01-052",
+    "quote": "Software engineers Software engineers build the software and systems that run a business; they are largely responsible for generating the internal data that dat",
+    "gloss": "",
+    "seconds": 0.83,
+    "guard_word": "ahmad",
+    "coherent": false
+  },
+  {
+    "question": "what is aid",
+    "refused": true,
+    "cite": "preface01-003",
+    "quote": "What This Book Is About This book aims to fill a gap in current data engineering content and materials. While there’s no shortage of technical resources that ad",
+    "gloss": "",
+    "seconds": 0.85,
+    "guard_word": "aid",
+    "coherent": false
+  },
+  {
+    "question": "what is aimed",
+    "refused": false,
+    "cite": "preface01-002",
+    "quote": "This book isn’t about data engineering using a particular tool, technology, or platform",
+    "gloss": "",
+    "seconds": 1.11,
+    "guard_word": "aimed",
+    "coherent": false
+  },
+  {
+    "question": "what is aiming",
+    "refused": true,
+    "cite": "ch01-027",
+    "quote": "Stage 1: Starting with data We’ve seen countless data teams get stuck and fall short when they try to jump to ML without building a solid data foundation. That’",
+    "gloss": "",
+    "seconds": 0.85,
+    "guard_word": "aiming",
+    "coherent": false
+  },
+  {
+    "question": "what is aircraft",
+    "refused": false,
+    "cite": "ch04-083",
+    "quote": "You don’t have to know much about cars or aircraft to recognize that this is an idiotic comparison.",
+    "gloss": "",
+    "seconds": 1.39,
+    "guard_word": "aircraft",
+    "coherent": true
+  },
+  {
+    "question": "what is airplane",
+    "refused": true,
+    "cite": "ch03-011",
+    "quote": "Our definition It bears repeating: Technical solutions exist not for their own sake but in support of business goals. We found significant inspiration in Fundam",
+    "gloss": "",
+    "seconds": 0.83,
+    "guard_word": "airplane",
+    "coherent": false
+  },
+  {
+    "question": "what is akhil",
+    "refused": true,
+    "cite": "ch01-043",
+    "quote": "The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer as a “unicorn” who must possess every data skill imaginable",
+    "gloss": "",
+    "seconds": 0.8,
+    "guard_word": "akhil",
+    "coherent": false
+  },
+  {
+    "question": "what is aks",
+    "refused": true,
+    "cite": "ch05-045",
+    "quote": "Time series A time series is a series of values organized by time. For example, stock prices might move as trades are executed throughout the day, or a weather ",
+    "gloss": "",
+    "seconds": 0.9,
+    "guard_word": "aks",
+    "coherent": false
+  },
+  {
+    "question": "what is alarming",
+    "refused": false,
+    "cite": "ch03-035",
+    "quote": "For at least a decade, alarming media reports have made us aware of the growing menace of security breaches that exploit human targets inside hardened organizational security perimeters. Even as emplo",
+    "gloss": "",
+    "seconds": 1.32,
+    "guard_word": "alarming",
+    "coherent": true
+  },
+  {
+    "question": "what is alessya",
+    "refused": true,
+    "cite": "ch01-043",
+    "quote": "The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer as a “unicorn” who must possess every data skill imaginable",
+    "gloss": "",
+    "seconds": 0.89,
+    "guard_word": "alessya",
+    "coherent": false
+  },
+  {
+    "question": "what is algebra",
+    "refused": true,
+    "cite": "ch05-031",
+    "quote": "Relational databases The indexing strategy for the primary key is closely connected with the layout of the table on disk. Tables can also have various foreign k",
+    "gloss": "",
+    "seconds": 0.82,
+    "guard_word": "algebra",
+    "coherent": false
+  },
+  {
+    "question": "what is algolia",
+    "refused": false,
+    "cite": "ch05-044",
+    "quote": "Depending on the type of company you work at, you may use search databases either regularly or not at all. Regardless, it’s good to be aware they exist in case you come across them in the wild. Search",
+    "gloss": "A tool for quickly searching through text data in applications like e-commerce websites.",
+    "seconds": 1.43,
+    "guard_word": "algolia",
+    "coherent": true
+  },
+  {
+    "question": "what is algorithmic",
+    "refused": false,
+    "cite": "ch05-045",
+    "quote": "A time series is a series of values organized by time",
+    "gloss": "",
+    "seconds": 1.06,
+    "guard_word": "algorithmic",
+    "coherent": false
+  },
+  {
+    "question": "what is alignment",
+    "refused": false,
+    "cite": "ch03-007",
+    "quote": "We extract a few common threads in these definitions of enterprise architecture: change, alignment, organization, opportunities, problem-solving, and migration.",
+    "gloss": "",
+    "seconds": 1.6,
+    "guard_word": "alignment",
+    "coherent": true
+  },
+  {
+    "question": "what is alleviating",
+    "refused": false,
+    "cite": "ch09-062",
+    "quote": "Access controls are critical when serving data in a multitenant environment. Make sure users can access only their data and nothing more. A good approach is to mediate access through filtered views, t",
+    "gloss": "",
+    "seconds": 1.58,
+    "guard_word": "alleviating",
+    "coherent": true
+  },
+  {
+    "question": "what is allocated",
+    "refused": false,
+    "cite": "ch02-030",
+    "quote": "from data means different things to different users",
+    "gloss": "",
+    "seconds": 1.0,
+    "guard_word": "allocated",
+    "coherent": false
+  },
+  {
+    "question": "what is allocates",
+    "refused": true,
+    "cite": "ch01-043",
+    "quote": "The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer as a “unicorn” who must possess every data skill imaginable",
+    "gloss": "",
+    "seconds": 0.86,
+    "guard_word": "allocates",
+    "coherent": false
+  },
+  {
+    "question": "what is allocations",
+    "refused": true,
+    "cite": "ch04-076",
+    "quote": "Containers In conjunction with serverless and microservices, containers are one of the most powerful trending operational technologies as of this writing. Conta",
+    "gloss": "",
+    "seconds": 0.8,
+    "guard_word": "allocations",
+    "coherent": false
+  },
+  {
+    "question": "what is alter",
+    "refused": false,
+    "cite": "ch08-007",
+    "quote": "After using DDL to define database objects, you need to add and alter data within these objects, which is the primary purpose of data manipulation language (DML). Some common DML commands you’ll use a",
+    "gloss": "To change or modify existing data in database objects using DML commands.",
+    "seconds": 1.15,
+    "guard_word": "alter",
+    "coherent": true
+  },
+  {
+    "question": "what is altogether",
+    "refused": false,
+    "cite": "preface01-003",
+    "quote": "This book aims to fill a gap in current data engineering content and materials",
+    "gloss": "",
+    "seconds": 1.61,
+    "guard_word": "altogether",
+    "coherent": false
+  },
+  {
+    "question": "what is alves",
+    "refused": false,
+    "cite": "ch03-104",
+    "quote": "“Disasters I’ve Seen in a Microservices World” by Joao Alves",
+    "gloss": "Joao Alves wrote about disasters in microservices.",
+    "seconds": 1.36,
+    "guard_word": "alves",
+    "coherent": true
+  },
+  {
+    "question": "what is amenable",
+    "refused": true,
+    "cite": "ch01-025",
+    "quote": "Data Maturity and the Data Engineer The level of data engineering complexity within a company depends a great deal on the company’s data maturity. This signific",
+    "gloss": "",
+    "seconds": 0.91,
+    "guard_word": "amenable",
+    "coherent": false
+  },
+  {
+    "question": "what is american",
+    "refused": true,
+    "cite": "ch01-007",
+    "quote": "Evolution of the Data Engineer History doesn’t repeat itself, but it rhymes. A famous adage often attributed to Mark Twain Understanding data engineering today ",
+    "gloss": "",
+    "seconds": 0.87,
+    "guard_word": "american",
+    "coherent": false
+  },
+  {
+    "question": "what is amid",
+    "refused": true,
+    "cite": "ch01-052",
+    "quote": "Software engineers Software engineers build the software and systems that run a business; they are largely responsible for generating the internal data that dat",
+    "gloss": "",
+    "seconds": 0.8,
+    "guard_word": "amid",
+    "coherent": false
+  },
+  {
+    "question": "what is amidst",
+    "refused": true,
+    "cite": "ch01-052",
+    "quote": "Software engineers Software engineers build the software and systems that run a business; they are largely responsible for generating the internal data that dat",
+    "gloss": "",
+    "seconds": 0.87,
+    "guard_word": "amidst",
+    "coherent": false
+  },
+  {
+    "question": "what is amir",
+    "refused": true,
+    "cite": "ch01-052",
+    "quote": "Software engineers Software engineers build the software and systems that run a business; they are largely responsible for generating the internal data that dat",
+    "gloss": "",
+    "seconds": 0.86,
+    "guard_word": "amir",
+    "coherent": false
+  },
+  {
+    "question": "what is amounted",
+    "refused": false,
+    "cite": "ch04-010",
+    "quote": "Total cost of ownership (TCO) is the total estimated cost of an initiative, including the direct and indirect costs of products and services utilized",
+    "gloss": "",
+    "seconds": 1.33,
+    "guard_word": "amounted",
+    "coherent": false
+  },
+  {
+    "question": "what is ample",
+    "refused": true,
+    "cite": "ch01-043",
+    "quote": "The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer as a “unicorn” who must possess every data skill imaginable",
+    "gloss": "",
+    "seconds": 0.79,
+    "guard_word": "ample",
+    "coherent": false
+  },
+  {
+    "question": "what is amritha",
+    "refused": true,
+    "cite": "ch01-043",
+    "quote": "The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer as a “unicorn” who must possess every data skill imaginable",
+    "gloss": "",
+    "seconds": 0.76,
+    "guard_word": "amritha",
+    "coherent": false
+  },
+  {
+    "question": "what is analog",
+    "refused": false,
+    "cite": "ch05-002",
+    "quote": "Analog data creation occurs in the real world, such as vocal speech, sign language, writing on paper, or playing an instrument. This analog data is often transient; how often have you had a verbal con",
+    "gloss": "",
+    "seconds": 1.49,
+    "guard_word": "analog",
+    "coherent": true
+  },
+  {
+    "question": "what is analogue",
+    "refused": true,
+    "cite": "ch01-043",
+    "quote": "The Continuum of Data Engineering Roles, from A to B Although job descriptions paint a data engineer as a “unicorn” who must possess every data skill imaginable",
+    "gloss": "",
+    "seconds": 0.86,
+    "guard_word": "analogue",
+    "coherent": false
+  },
+  {
+    "question": "what is ananth",
+    "refused": true,
+    "cite": "preface01-015",
+    "quote": "Acknowledgments Their ideas helped shape our book. There are too many people to name individually, but we’d like to give shoutouts to Jordan Tigani, Zhamak Dehg",
+    "gloss": "",
+    "seconds": 0.98,
+    "guard_word": "ananth",
+    "coherent": false
+  },
+  {
+    "question": "what is ancient",
+    "refused": false,
+    "cite": "preface01-002",
+    "quote": "This book isn’t about data engineering using a particular tool, technology, or platform",
+    "gloss": "This book focuses on the fundamental concepts of data engineering rather than specific tools or technologies.",
+    "seconds": 1.38,
+    "guard_word": "ancient",
+    "coherent": false
+  },
+  {
+    "question": "what is andreas",
+    "refused": true,
+    "cite": "preface01-015",
+    "quote": "Acknowledgments Their ideas helped shape our book. There are too many people to name individually, but we’d like to give shoutouts to Jordan Tigani, Zhamak Dehg",
+    "gloss": "",
+    "seconds": 0.95,
+    "guard_word": "andreas",
+    "coherent": false
+  },
+  {
+    "question": "what is andriy",
+    "refused": true,
+    "cite": "ch08-164",
+    "quote": "Additional Resources “Introduction to Data Warehousing”, “Introduction to Dimensional Modelling for Data Warehousing”, and “Introduction to Data Vault for Data ",
+    "gloss": "",
+    "seconds": 0.85,
+    "guard_word": "andriy",
+    "coherent": false
+  },
+  {
+    "question": "what is anecdotes",
+    "refused": true,
+    "cite": "ch09-014",
+    "quote": "Data Definitions and Logic To calculate net profits, we would need a set of logical rules to determine which expenses to deduct from gross revenue. Frequently, ",
+    "gloss": "",
+    "seconds": 0.86,
+    "guard_word": "anecdotes",
+    "coherent": false
+  },
+  {
+    "question": "what is anemicdomainmodel",
+    "refused": true,
+    "cite": "ch03-103",
+    "quote": "Additional Resources “AnemicDomainModel” by Martin Fowler “Big Data Architectures” Azure documentation “BoundedContext” by Martin Fowler “A Brief Introduction t",
+    "gloss": "",
+    "seconds": 0.97,
+    "guard_word": "anemicdomainmodel",
+    "coherent": false
+  },
+  {
+    "question": "what is angle",
+    "refused": true,
+    "cite": "preface01-002",
+    "quote": "What This Book Isn’t Before we cover what this book is about and what you’ll get out of it, let’s quickly cover what this book isn’t. This book isn’t about data",
+    "gloss": "",
+    "seconds": 0.84,
+    "guard_word": "angle",
+    "coherent": false
+  },
+  {
+    "question": "what is anomalous",
+    "refused": true,
+    "cite": "ch05-045",
+    "quote": "Time series A time series is a series of values organized by time. For example, stock prices might move as trades are executed throughout the day, or a weather ",
+    "gloss": "",
+    "seconds": 1.18,
+    "guard_word": "anomalous",
+    "coherent": false
+  },
+  {
+    "question": "what is anonymize",
+    "refused": false,
+    "cite": "ch07-088",
+    "quote": "Where it is truly necessary to keep track of sensitive identities, it is common practice to apply tokenization to anonymize identities in model training and analytics.",
+    "gloss": "",
+    "seconds": 1.59,
+    "guard_word": "anonymize",
+    "coherent": true
+  },
+  {
+    "question": "what is anonymized",
+    "refused": false,
+    "cite": "ch09-065",
+    "quote": "What data do people need to do their jobs? Especially with regulatory and compliance concerns weighing on data teams, giving people access to the raw data—even with limited fields and rows—poses a pro",
+    "gloss": "",
+    "seconds": 1.42,
+    "guard_word": "anonymized",
+    "coherent": true
+  },
+  {
+    "question": "what is answered",
+    "refused": false,
+    "cite": "ch02-016",
+    "quote": "But you’re in good shape, assuming you’ve answered the big questions about source systems.",
+    "gloss": "",
+    "seconds": 1.49,
+    "guard_word": "answered",
+    "coherent": true
+  },
+  {
+    "question": "what is answering",
+    "refused": false,
+    "cite": "ch08-004",
+    "quote": "Before we get into more complicated topics about queries, data modeling, and transformations, let’s start by answering a pretty simple question: what is a query?",
+    "gloss": "",
+    "seconds": 1.23,
+    "guard_word": "answering",
+    "coherent": true
+  },
+  {
+    "question": "what is antecedents",
+    "refused": false,
+    "cite": "ch01-011",
+    "quote": "In 2003, Google published a paper on the Google File System, and shortly after that, in 2004, a paper on MapReduce, an ultra-scalable data-processing paradigm. In truth, big data has earlier anteceden",
+    "gloss": "Earlier examples of big data include complex data management systems used in experimental physics and large-scale data warehouses.",
+    "seconds": 1.42,
+    "guard_word": "antecedents",
+    "coherent": true
+  },
+  {
+    "question": "what is anthos",
+    "refused": false,
+    "cite": "ch02-079",
+    "quote": "Orchestration is the process of coordinating many jobs to run as quickly and efficiently as possible on a scheduled cadence",
+    "gloss": "",
+    "seconds": 1.1,
+    "guard_word": "anthos",
+    "coherent": false
+  },
+  {
+    "question": "what is antonio",
+    "refused": false,
+    "cite": "ch01-067",
+    "quote": "cao is responsible for analytics, strategy, and decision making for the business",
+    "gloss": "",
+    "seconds": 1.09,
+    "guard_word": "antonio",
+    "coherent": false
+  },
+  {
+    "question": "what is Preface",
+    "refused": false,
+    "cite": "preface01-002",
+    "quote": "This book isn’t about data engineering using a particular tool, technology, or platform",
+    "gloss": "This book focuses on the fundamental concepts of data engineering rather than specific tools or technologies.",
+    "seconds": 1.32,
+    "guard_word": "preface",
+    "coherent": false
+  },
+  {
+    "question": "what is What This Book Isn’t",
+    "refused": false,
+    "cite": "preface01-002",
+    "quote": "Before we cover what this book is about and what you’ll get out of it, let’s quickly cover what this book isn’t. This book isn’t about data engineering using a particular tool, technology, or platform",
+    "gloss": "",
+    "seconds": 1.2,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is What This Book Is About",
+    "refused": false,
+    "cite": "preface01-003",
+    "quote": "This book aims to fill a gap in current data engineering content and materials",
+    "gloss": "",
+    "seconds": 1.05,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Who Should Read This Book",
+    "refused": false,
+    "cite": "preface01-005",
+    "quote": "Our primary intended audience for this book consists of technical practitioners, mid- to senior-level software engineers, data scientists, or analysts interested in moving into data engineering; or da",
+    "gloss": "",
+    "seconds": 1.65,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Prerequisites",
+    "refused": false,
+    "cite": "preface01-006",
+    "quote": "We assume a good deal of familiarity with the types of data systems found in a corporate setting. In addition, we assume that readers have some familiarity with SQL and Python (or some other programmi",
+    "gloss": "This means readers should know about the data systems typically used in businesses.",
+    "seconds": 1.25,
+    "guard_word": "prerequisites",
+    "coherent": false
+  },
+  {
+    "question": "what is What You’ll Learn and How It Will Improve Your Abilities",
+    "refused": false,
+    "cite": "preface01-008",
+    "quote": "This book aims to help you build a solid foundation for solving real-world data engineering problems.",
+    "gloss": "",
+    "seconds": 1.18,
+    "guard_word": "abilities",
+    "coherent": false
+  },
+  {
+    "question": "what is Navigating This Book",
+    "refused": true,
+    "cite": "preface01-009",
+    "quote": "Navigating This Book This book is composed of four parts: Part I, “Foundation and Building Blocks” Part II, “The Data Engineering Lifecycle in Depth” Part III, ",
+    "gloss": "",
+    "seconds": 1.0,
+    "guard_word": "navigating",
+    "coherent": false
+  },
+  {
+    "question": "what is Conventions Used in This Book",
+    "refused": false,
+    "cite": "preface01-012",
+    "quote": "The following typographical conventions are used in this book:",
+    "gloss": "",
+    "seconds": 1.1,
+    "guard_word": "conventions",
+    "coherent": true
+  },
+  {
+    "question": "what is How to Contact Us",
+    "refused": false,
+    "cite": "ch05-057",
+    "quote": "We see a common workflow to get data from a CRM, blend the CRM data through the customer scoring model, and then use reverse ETL to send that data back into CRM for salespeople to contact better-quali",
+    "gloss": "",
+    "seconds": 1.14,
+    "guard_word": "contact",
+    "coherent": true
+  },
+  {
+    "question": "what is Acknowledgments",
+    "refused": true,
+    "cite": "preface01-014",
+    "quote": "Acknowledgments When we started writing this book, we were warned by many people that we faced a hard task. A book like this has a lot of moving parts, and due ",
+    "gloss": "",
+    "seconds": 1.05,
+    "guard_word": "acknowledgments",
+    "coherent": false
+  },
+  {
+    "question": "what is Part I. Foundation and Building Blocks",
+    "refused": true,
+    "cite": "part01-001",
+    "quote": "Part I. Foundation and Building Blocks",
+    "gloss": "",
+    "seconds": 0.89,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Chapter 1. Data Engineering Described",
+    "refused": false,
+    "cite": "ch01-005",
+    "quote": "Data engineering is the development, implementation, and maintenance of systems and processes that take in raw data and produce high-quality, consistent information that supports downstream use cases,",
+    "gloss": "",
+    "seconds": 1.32,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is What Is Data Engineering?",
+    "refused": false,
+    "cite": "ch01-005",
+    "quote": "Data engineering is the development, implementation, and maintenance of systems and processes that take in raw data and produce high-quality, consistent information that supports downstream use cases,",
+    "gloss": "",
+    "seconds": 1.51,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Data Engineering Defined",
+    "refused": false,
+    "cite": "ch01-005",
+    "quote": "Data engineering is the development, implementation, and maintenance of systems and processes that take in raw data and produce high-quality, consistent information that supports downstream use cases,",
+    "gloss": "",
+    "seconds": 1.56,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Evolution of the Data Engineer",
+    "refused": false,
+    "cite": "ch01-007",
+    "quote": "History doesn’t repeat itself, but it rhymes.",
+    "gloss": "",
+    "seconds": 0.95,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is The early 2000s: The birth of contemporary data engineering",
+    "refused": false,
+    "cite": "ch01-013",
+    "quote": "The early big data tools and public cloud laid the foundation for today’s data ecosystem. The modern data landscape—and data engineering as we know it now—would not exist without these innovations.",
+    "gloss": "",
+    "seconds": 1.11,
+    "guard_word": "birth",
+    "coherent": false
+  },
+  {
+    "question": "what is The 2000s and 2010s: Big data engineering",
+    "refused": false,
+    "cite": "ch01-015",
+    "quote": "Big data engineers typically maintained massive clusters of commodity hardware to deliver data at scale",
+    "gloss": "",
+    "seconds": 1.09,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is The 2020s: Engineering for the data lifecycle",
+    "refused": false,
+    "cite": "ch01-019",
+    "quote": "Data engineering is increasingly a discipline of interoperation, and connecting various technologies like LEGO bricks, to serve ultimate business goals",
+    "gloss": "",
+    "seconds": 1.17,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Data Engineering and Data Science",
+    "refused": false,
+    "cite": "ch01-005",
+    "quote": "Data engineering is the development, implementation, and maintenance of systems and processes that take in raw data and produce high-quality, consistent information that supports downstream use cases,",
+    "gloss": "",
+    "seconds": 1.39,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Data Engineering Skills and Activities",
+    "refused": false,
+    "cite": "ch01-005",
+    "quote": "Data engineering is the development, implementation, and maintenance of systems and processes that take in raw data and produce high-quality, consistent information that supports downstream use cases,",
+    "gloss": "",
+    "seconds": 1.41,
+    "guard_word": "activities",
+    "coherent": false
+  },
+  {
+    "question": "what is Data Maturity and the Data Engineer",
+    "refused": false,
+    "cite": "ch01-025",
+    "quote": "Data maturity is the progression toward higher data utilization, capabilities, and integration across the organization, but data maturity does not simply depend on the age or revenue of a company. An ",
+    "gloss": "",
+    "seconds": 1.09,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Stage 1: Starting with data",
+    "refused": false,
+    "cite": "ch01-026",
+    "quote": "A company getting started with data is, by definition, in the very early stages of its data maturity. The company may have fuzzy, loosely defined goals or no goals. Data architecture and infrastructur",
+    "gloss": "",
+    "seconds": 1.19,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Stage 2: Scaling with data",
+    "refused": false,
+    "cite": "ch01-029",
+    "quote": "The main bottleneck for scaling is not cluster nodes, storage, or technology but the data engineering team. Focus on solutions that are simple to deploy and manage to expand your team’s throughput.",
+    "gloss": "Improving efficiency by choosing easy-to-manage solutions.",
+    "seconds": 1.17,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Stage 3: Leading with data",
+    "refused": false,
+    "cite": "ch01-031",
+    "quote": "At this stage, the company is data-driven. The automated pipelines and systems created by data engineers allow people within the company to do self-service analytics and ML. Introducing new data sourc",
+    "gloss": "",
+    "seconds": 1.11,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is The Background and Skills of a Data Engineer",
+    "refused": false,
+    "cite": "ch01-033",
+    "quote": "Data engineering is a fast-growing field, and a lot of questions remain about how to become a data engineer. Because data engineering is a relatively new discipline, little formal training is availabl",
+    "gloss": "",
+    "seconds": 1.61,
+    "guard_word": "background",
+    "coherent": false
+  },
+  {
+    "question": "what is Business Responsibilities",
+    "refused": false,
+    "cite": "ch01-035",
+    "quote": "The macro responsibilities we list in this section aren’t exclusive to data engineers but are crucial for anyone working in a data or technology field. Because a simple Google search will yield tons o",
+    "gloss": "",
+    "seconds": 1.23,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Technical Responsibilities",
+    "refused": false,
+    "cite": "ch01-042",
+    "quote": "Data engineers may also need to develop proficiency in secondary programming languages, including R, JavaScript, Go, Rust, C/C++, C#, and Julia. Developing in these languages is often necessary when p",
+    "gloss": "",
+    "seconds": 1.19,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is The Continuum of Data Engineering Roles, from A to B",
+    "refused": false,
+    "cite": "ch01-044",
+    "quote": "Borrowing from this data scientist continuum, we’ll create a similar distinction for two types of data engineers: A stands for abstraction.",
+    "gloss": "",
+    "seconds": 1.19,
+    "guard_word": "continuum",
+    "coherent": true
+  },
+  {
+    "question": "what is Data Engineers Inside an Organization",
+    "refused": true,
+    "cite": "ch01-045",
+    "quote": "Data Engineers Inside an Organization Data engineers don’t work in a vacuum. Depending on what they’re working on, they will interact with technical and nontech",
+    "gloss": "",
+    "seconds": 0.97,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Internal-Facing Versus External-Facing Data Engineers",
+    "refused": false,
+    "cite": "ch01-046",
+    "quote": "An external-facing data engineer typically aligns with the users of external-facing applications, such as social media apps, Internet of Things (IoT) devices, and ecommerce platforms. This data engine",
+    "gloss": "This means data engineers who work on systems that connect to external applications like social media or IoT devices.",
+    "seconds": 1.52,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Data Engineers and Other Technical Roles",
+    "refused": false,
+    "cite": "ch01-048",
+    "quote": "In practice, the data engineering lifecycle cuts across many domains of responsibility. Data engineers sit at the nexus of various roles, directly or through managers, interacting with many organizati",
+    "gloss": "",
+    "seconds": 1.09,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Upstream stakeholders",
+    "refused": false,
+    "cite": "ch08-145",
+    "quote": "When it comes to transformations, upstream stakeholders can be broken into two broad categories: those who control the business definitions and those who control the systems generating data.",
+    "gloss": "",
+    "seconds": 1.01,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Data architects",
+    "refused": false,
+    "cite": "ch01-050",
+    "quote": "Data architects function at a level of abstraction one step removed from data engineers. Data architects design the blueprint for organizational data management, mapping out processes and overall data",
+    "gloss": "",
+    "seconds": 1.32,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Software engineers",
+    "refused": false,
+    "cite": "ch01-052",
+    "quote": "Software engineers build the software and systems that run a business",
+    "gloss": "",
+    "seconds": 0.89,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is DevOps engineers and site-reliability engineers",
+    "refused": false,
+    "cite": "ch01-053",
+    "quote": "DevOps and SREs often produce data through operational monitoring. We classify them as upstream of data engineers, but they may also be downstream, consuming data through dashboards or interacting wit",
+    "gloss": "DevOps and SREs monitor operations to generate data.",
+    "seconds": 1.09,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Downstream stakeholders",
+    "refused": false,
+    "cite": "ch08-147",
+    "quote": "Transformations are where data starts providing utility to downstream stakeholders. Your downstream stakeholders include many people, including data analysts, data scientists, ML engineers, and “the b",
+    "gloss": "",
+    "seconds": 1.29,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Data scientists",
+    "refused": false,
+    "cite": "ch01-055",
+    "quote": "Data scientists build forward-looking models to make predictions and recommendations. These models are then evaluated on live data to provide value in various ways. For example, model scoring might de",
+    "gloss": "",
+    "seconds": 1.12,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Data analysts",
+    "refused": false,
+    "cite": "ch01-057",
+    "quote": "Data analysts (or business analysts) seek to understand business performance and trends. Whereas data scientists are forward-looking, a data analyst typically focuses on the past or present. Data anal",
+    "gloss": "",
+    "seconds": 1.11,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Machine learning engineers and AI researchers",
+    "refused": false,
+    "cite": "ch01-058",
+    "quote": "Machine learning engineers (ML engineers) overlap with data engineers and data scientists. ML engineers develop advanced ML techniques, train models, and design and maintain the infrastructure running",
+    "gloss": "",
+    "seconds": 1.23,
+    "guard_word": "researchers",
+    "coherent": false
+  },
+  {
+    "question": "what is Data Engineers and Business Leadership",
+    "refused": false,
+    "cite": "ch01-061",
+    "quote": "We’ve discussed technical roles with which a data engineer interacts. But data engineers also operate more broadly as organizational connectors, often in a nontechnical capacity. Businesses have come ",
+    "gloss": "Data engineers are involved in planning and leading important projects that go beyond just IT.",
+    "seconds": 1.23,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Data in the C-suite",
+    "refused": false,
+    "cite": "ch01-062",
+    "quote": "C-level executives are increasingly involved in data and analytics, as these are recognized as significant assets for modern businesses. For example, CEOs now concern themselves with initiatives that ",
+    "gloss": "",
+    "seconds": 1.06,
+    "guard_word": "suite",
+    "coherent": false
+  },
+  {
+    "question": "what is Chief executive officer",
+    "refused": false,
+    "cite": "ch01-063",
+    "quote": "Chief executive officers (CEOs) at nontech companies generally don’t concern themselves with the nitty-gritty of data frameworks and software. Instead, they define a vision in collaboration with techn",
+    "gloss": "",
+    "seconds": 1.39,
+    "guard_word": "officer",
+    "coherent": false
+  },
+  {
+    "question": "what is Chief information officer",
+    "refused": false,
+    "cite": "ch01-064",
+    "quote": "A chief information officer (CIO) is the senior C-suite executive responsible for information technology within an organization; it is an internal-facing role. A CIO must possess deep knowledge of inf",
+    "gloss": "",
+    "seconds": 1.11,
+    "guard_word": "officer",
+    "coherent": true
+  },
+  {
+    "question": "what is Chief technology officer",
+    "refused": false,
+    "cite": "ch01-065",
+    "quote": "A chief technology officer (CTO) is similar to a CIO but faces outward. A CTO owns the key technological strategy and architectures for external-facing applications, such as mobile, web apps, and IoT—",
+    "gloss": "",
+    "seconds": 1.4,
+    "guard_word": "officer",
+    "coherent": true
+  },
+  {
+    "question": "what is Chief data officer",
+    "refused": false,
+    "cite": "ch01-066",
+    "quote": "The chief data officer (CDO) was created in 2002 at Capital One to recognize the growing importance of data as a business asset. The CDO is responsible for a company’s data assets and strategy. CDOs a",
+    "gloss": "",
+    "seconds": 1.33,
+    "guard_word": "officer",
+    "coherent": true
+  },
+  {
+    "question": "what is Chief analytics officer",
+    "refused": false,
+    "cite": "ch01-067",
+    "quote": "The chief analytics officer (CAO) is a variant of the CDO role. Where both roles exist, the CDO focuses on the technology and organization required to deliver data. The CAO is responsible for analytic",
+    "gloss": "",
+    "seconds": 1.82,
+    "guard_word": "officer",
+    "coherent": true
+  },
+  {
+    "question": "what is Chief algorithms officer",
+    "refused": false,
+    "cite": "ch01-068",
+    "quote": "A chief algorithms officer (CAO-2) is a recent innovation in the C-suite, a highly technical role focused specifically on data science and ML. CAO-2s typically have experience as individual contributo",
+    "gloss": "",
+    "seconds": 1.18,
+    "guard_word": "officer",
+    "coherent": true
+  },
+  {
+    "question": "what is Data engineers and project managers",
+    "refused": false,
+    "cite": "ch01-069",
+    "quote": "Data engineers often work on significant initiatives, potentially spanning many years. As we write this book, many data engineers are working on cloud migrations, migrating pipelines and warehouses to",
+    "gloss": "",
+    "seconds": 1.01,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Data engineers and product managers",
+    "refused": false,
+    "cite": "ch01-071",
+    "quote": "Product managers oversee product development, often owning product lines. In the context of data engineers, these products are called data products. Data products are either built from the ground up o",
+    "gloss": "",
+    "seconds": 1.09,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Data engineers and other management roles",
+    "refused": false,
+    "cite": "ch01-072",
+    "quote": "Data engineers interact with various managers beyond project and product managers. However, these interactions usually follow either the services or cross-functional models. Data engineers either serv",
+    "gloss": "",
+    "seconds": 1.21,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Conclusion",
+    "refused": false,
+    "cite": "ch11-027",
+    "quote": "Thank you for joining us on this journey through data engineering! We traversed good architecture, the stages of the data engineering lifecycle, and security best practices. We’ve discussed strategies",
+    "gloss": "We covered data engineering topics and discussed future trends.",
+    "seconds": 1.03,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Additional Resources",
+    "refused": false,
+    "cite": "preface01-007",
+    "quote": "Developing familiarity with corporate data systems outside of a corporate environment remains difficult, and this creates certain barriers for aspiring data engineers who have yet to land their first ",
+    "gloss": "",
+    "seconds": 1.29,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Chapter 2. The Data Engineering Lifecycle",
+    "refused": false,
+    "cite": "ch02-001",
+    "quote": "The major goal of this book is to encourage you to move beyond viewing data engineering as a specific collection of data technologies",
+    "gloss": "",
+    "seconds": 1.06,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is What Is the Data Engineering Lifecycle?",
+    "refused": false,
+    "cite": "ch02-002",
+    "quote": "The data engineering lifecycle comprises stages that turn raw data ingredients into a useful end product, ready for consumption by analysts, data scientists, ML engineers, and others",
+    "gloss": "",
+    "seconds": 1.23,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is The Data Lifecycle Versus the Data Engineering Lifecycle",
+    "refused": false,
+    "cite": "ch02-004",
+    "quote": "You may be wondering about the difference between the overall data lifecycle and the data engineering lifecycle. There’s a subtle distinction between the two. The data engineering lifecycle is a subse",
+    "gloss": "",
+    "seconds": 0.96,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Generation: Source Systems",
+    "refused": false,
+    "cite": "ch02-005",
+    "quote": "A source system is the origin of the data used in the data engineering lifecycle. For example, a source system could be an IoT device, an application message queue, or a transactional database. A data",
+    "gloss": "",
+    "seconds": 1.06,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Evaluating source systems: Key engineering considerations",
+    "refused": false,
+    "cite": "ch02-007",
+    "quote": "There are many things to consider when assessing source systems, including how the system handles ingestion, state, and data generation. The following is a starting set of evaluation questions of sour",
+    "gloss": "",
+    "seconds": 1.16,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Storage",
+    "refused": false,
+    "cite": "ch06-001",
+    "quote": "Storage is the cornerstone of the data engineering lifecycle (Figure 6-1) and underlies its major stages—ingestion, transformation, and serving",
+    "gloss": "",
+    "seconds": 1.21,
+    "guard_word": "",
+    "coherent": true
+  },
+  {
+    "question": "what is Evaluating storage systems: Key engineering considerations",
+    "refused": false,
+    "cite": "ch02-012",
+    "quote": "Is this storage solution compatible with the architecture’s required write and read speeds?",
+    "gloss": "Does the storage system meet the speed needs for writing and reading data?",
+    "seconds": 1.19,
+    "guard_word": "",
+    "coherent": true
+  }
+]

@@ -457,6 +457,20 @@ No cloud APIs, no database server, no package installs.
   the finetune candidate and the small-PC option. The choice is measured against
   this book's index: a new book, or a new index, triggers a fresh bake-off under
   the same frozen rules.
+- Overnight QA ran 2026-10-13 (`artifacts/overnight-report.md`): a 303-question
+  sweep in the user's styles (`qa-sweep.py`; question set from a subagent plus
+  rare-word and heading asks), refusal classification with raw completions, and
+  an audit of the coherence guard. Findings: (a) the coherence guard fixed the
+  known cases but its 303-ask audit caught 19 misfires in 21 swaps — the word
+  picker cannot tell a subject from vocabulary — so it was reverted the same
+  night and stays out until refined; (b) ~14 sweep refusals are mechanical
+  discards of correct model answers (9 short complete-sentence quotes killed by
+  the 40-char floor, 3 tagless verbatim replies, 1 typographic-quote mismatch) —
+  proposals in the report, none shipped; (c) the multicloud refusal flake
+  recurred on every cold battery run (5 recorded, 4 today), always clearing on
+  a warm rerun; (d) sweep design lesson: "what is <rare word>" asks are mostly
+  junk — 58 of the 80 refusals were correct refusals of junk, so ask about
+  topics. 91 tests green; battery green on the reverted tree.
 - Not started: 8.
 
 ## Verify

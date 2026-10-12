@@ -1,0 +1,482 @@
+[
+  {
+    "question": "types of metadata",
+    "class": "tag short quote (<40)",
+    "refused_still": true,
+    "completion": "[Ch. 2] \"Metadata is data about data.\""
+  },
+  {
+    "question": "why should you plan for failure",
+    "class": "tag short quote (<40)",
+    "refused_still": true,
+    "completion": "[Ch. 3] \"Everything fails, all the time.\" \nMeaning: Nothing lasts forever and everything has a chance to break down."
+  },
+  {
+    "question": "crud stands for what",
+    "class": "no-tag span>=40",
+    "refused_still": true,
+    "completion": "CRUD stands for create, read, update, and delete."
+  },
+  {
+    "question": "hot warm cold data",
+    "class": "tag short quote (<40)",
+    "refused_still": true,
+    "completion": "[Ch. 6] \"Hot, warm, and cold data\""
+  },
+  {
+    "question": "what does iops mean",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is normalization",
+    "class": "no-tag verbatim",
+    "refused_still": true,
+    "completion": "Normalization is a database data modeling practice that enforces strict control over the relationships of tables and columns within a database."
+  },
+  {
+    "question": "normailzation",
+    "class": "no-tag verbatim",
+    "refused_still": true,
+    "completion": "Normalization is a database data modeling practice that enforces strict control over the relationships of tables and columns within a database."
+  },
+  {
+    "question": "how does encryption at rest differ from encryption in motion",
+    "class": "tag unmatched",
+    "refused_still": true,
+    "completion": "[Ch. 10] \"Encryption at rest is about securing data when it is stored, such as on a hard drive or in a database.\""
+  },
+  {
+    "question": "what is aaron",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is aashish",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is abandon",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is abbreviated",
+    "class": "tag short quote (<40)",
+    "refused_still": true,
+    "completion": "[Ch. preface01] chunk_id=preface01-012\nIndicates new terms, URLs, email addresses, filenames, and file extensions"
+  },
+  {
+    "question": "what is abc",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is abe",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is abound",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is abraham",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is absorber",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is abundance",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is accelerates",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is accelerating",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is accepting",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is accommodated",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is accompanied",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is accumulation",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is accustomed",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is achieving",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is ackerman",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is acolytes",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is acronym",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is acyclic",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is adapted",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is adaptive",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is addison",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is additions",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is adhering",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is adi",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is adjusted",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is adkins",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is admin",
+    "class": "tag short quote (<40)",
+    "refused_still": true,
+    "completion": "[Ch. 2] \"This is ultimately a great thing!\"\nData engineering becoming more enterprise-focused is beneficial."
+  },
+  {
+    "question": "what is admits",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is advantageous",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is advertises",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is advisory",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is advocates",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is afzaal",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is agency",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is agendas",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is agent",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is aggressive",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is agonize",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is agrees",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is ahmad",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is aid",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is aiming",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is airplane",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is akhil",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is aks",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is alessya",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is algebra",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is allocates",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is allocations",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is amenable",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is american",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is amid",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is amidst",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is amir",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is ample",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is amritha",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is analogue",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is ananth",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is andreas",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is andriy",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is anecdotes",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is anemicdomainmodel",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is angle",
+    "class": "model-refusal",
+    "refused_still": true,
+    "completion": "Not in this book."
+  },
+  {
+    "question": "what is anomalous",
+    "class": "tag short quote (<40)",
+    "refused_still": true,
+    "completion": "[Ch. 8] \"anomalous data, outliers, and nulls.\" These are data points that deviate significantly from the norm."
+  },
+  {
+    "question": "what is Navigating This Book",
+    "class": "tag short quote (<40)",
+    "refused_still": true,
+    "completion": "[Ch. preface01] \"This book is composed of four parts:\""
+  },
+  {
+    "question": "what is Acknowledgments",
+    "class": "tag short quote (<40)",
+    "refused_still": true,
+    "completion": "[Ch. preface01] \"Acknowledgments\""
+  },
+  {
+    "question": "what is Part I. Foundation and Building Blocks",
+    "class": "tag punctuation-variant",
+    "refused_still": true,
+    "completion": "[Ch. part01] \"Part I, ‘Foundation and Building Blocks’\""
+  },
+  {
+    "question": "what is Data Engineers Inside an Organization",
+    "class": "tag short quote (<40)",
+    "refused_still": true,
+    "completion": "[Ch. 1] \"Data engineers don’t work in a vacuum.\" They interact with various technical and non-technical people within an organization."
+  }
+]

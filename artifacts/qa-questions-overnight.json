@@ -1,0 +1,746 @@
+[
+  {
+    "question": "data engineering lifecycle",
+    "subject": "data engineering lifecycle",
+    "style": "bare",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is data engineering",
+    "subject": "data engineering",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what does a data engineer actually do",
+    "subject": "data engineer",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "how did the data engineer role evolve",
+    "subject": "evolution of the data engineer",
+    "style": "subject-first",
+    "expected_chunk_hint": "ch01-007"
+  },
+  {
+    "question": "data science vs data engineering",
+    "subject": "data science",
+    "style": "bare",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "internal facing vs external facing data engineering",
+    "subject": "external-facing",
+    "style": "bare",
+    "expected_chunk_hint": "ch01-046"
+  },
+  {
+    "question": "what is data maturity",
+    "subject": "data maturity",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is the data engineering lifecycle",
+    "subject": "data engineering lifecycle",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "source systems",
+    "subject": "source system",
+    "style": "bare",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is data ingestion",
+    "subject": "data ingestion",
+    "style": "what-is",
+    "expected_chunk_hint": "ch07-002"
+  },
+  {
+    "question": "what is data management",
+    "subject": "data management",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is dataops",
+    "subject": "DataOps",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is orchestration in the data engineering lifecycle",
+    "subject": "orchestration",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "types of metadata",
+    "subject": "metadata",
+    "style": "list",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is data quality",
+    "subject": "data quality",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is observabilty",
+    "subject": "observability",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "batch processing remains an extremely popular way to do what",
+    "subject": "batch processing",
+    "style": "quiz",
+    "expected_chunk_hint": "ch02-019"
+  },
+  {
+    "question": "what are the undercurrents of the data engineering lifecycle",
+    "subject": "undercurrents",
+    "style": "list",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is data architecture",
+    "subject": "data architecture",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "how does data architecture relate to enterprise architecture",
+    "subject": "enterprise architecture",
+    "style": "subject-first",
+    "expected_chunk_hint": "ch03-013"
+  },
+  {
+    "question": "principles of good data architecture",
+    "subject": "principles of good data architecture",
+    "style": "list",
+    "expected_chunk_hint": "ch03-020"
+  },
+  {
+    "question": "what is the data mesh",
+    "subject": "data mesh",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "big ball of mud",
+    "subject": "big ball of mud",
+    "style": "bare",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "brownfield vs greenfield data projects",
+    "subject": "brownfield",
+    "style": "bare",
+    "expected_chunk_hint": "ch03-066"
+  },
+  {
+    "question": "togaf defines data architecture as what",
+    "subject": "TOGAF",
+    "style": "quiz",
+    "expected_chunk_hint": "ch03-014"
+  },
+  {
+    "question": "what does finops help a data team do",
+    "subject": "FinOps",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "why should you plan for failure",
+    "subject": "plan for failure",
+    "style": "subject-first",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "loosely coupled systems",
+    "subject": "loosely coupled",
+    "style": "bare",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is the modern data stack",
+    "subject": "modern data stack",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "architecting for iot",
+    "subject": "IoT",
+    "style": "bare",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "MAD data landscape",
+    "subject": "MAD",
+    "style": "bare",
+    "expected_chunk_hint": "ch04-020"
+  },
+  {
+    "question": "multicloud disadvantages",
+    "subject": "multicloud",
+    "style": "list",
+    "expected_chunk_hint": "ch04-037"
+  },
+  {
+    "question": "multiclould disadvantages",
+    "subject": "multicloud",
+    "style": "list",
+    "expected_chunk_hint": "ch04-037"
+  },
+  {
+    "question": "what is total cost of ownership",
+    "subject": "total cost of ownership",
+    "style": "what-is",
+    "expected_chunk_hint": "ch04-010"
+  },
+  {
+    "question": "caveat emptor",
+    "subject": "caveat emptor",
+    "style": "bare",
+    "expected_chunk_hint": "ch04-088"
+  },
+  {
+    "question": "immutable vs transitory technologies",
+    "subject": "immutable versus transitory",
+    "style": "bare",
+    "expected_chunk_hint": "ch04-016"
+  },
+  {
+    "question": "serverless",
+    "subject": "serverless",
+    "style": "bare",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "containers",
+    "subject": "containers",
+    "style": "bare",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "data engineers need to be pragmatic about what",
+    "subject": "pragmatic",
+    "style": "quiz",
+    "expected_chunk_hint": "ch04-012"
+  },
+  {
+    "question": "crud stands for what",
+    "subject": "CRUD",
+    "style": "quiz",
+    "expected_chunk_hint": "ch05-019"
+  },
+  {
+    "question": "what is an oltp system",
+    "subject": "OLTP",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is acid in database terms",
+    "subject": "ACID",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is change data capture",
+    "subject": "change data capture",
+    "style": "what-is",
+    "expected_chunk_hint": "ch05-013"
+  },
+  {
+    "question": "types of nosql databases",
+    "subject": "NoSQL",
+    "style": "list",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is a key-value store",
+    "subject": "key-value store",
+    "style": "what-is",
+    "expected_chunk_hint": "ch05-035"
+  },
+  {
+    "question": "graph databases",
+    "subject": "graph databases",
+    "style": "bare",
+    "expected_chunk_hint": "ch05-042"
+  },
+  {
+    "question": "advantages of insert-only tables",
+    "subject": "insert-only",
+    "style": "list",
+    "expected_chunk_hint": "ch05-020"
+  },
+  {
+    "question": "what is data sharing between organizations",
+    "subject": "data sharing",
+    "style": "what-is",
+    "expected_chunk_hint": "ch05-054"
+  },
+  {
+    "question": "database logs",
+    "subject": "database logs",
+    "style": "bare",
+    "expected_chunk_hint": "ch05-018"
+  },
+  {
+    "question": "the four basic operations of persistent storage are what",
+    "subject": "persistent storage",
+    "style": "quiz",
+    "expected_chunk_hint": "ch05-019"
+  },
+  {
+    "question": "wide-column databases",
+    "subject": "wide-column",
+    "style": "bare",
+    "expected_chunk_hint": "ch05-040"
+  },
+  {
+    "question": "what is object storage",
+    "subject": "object storage",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is block storage",
+    "subject": "block storage",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is a data lake",
+    "subject": "data lake",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is a data warehouse",
+    "subject": "data warehouse",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is a data lakehouse",
+    "subject": "data lakehouse",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "raid stands for what",
+    "subject": "RAID",
+    "style": "quiz",
+    "expected_chunk_hint": "ch06-034"
+  },
+  {
+    "question": "hot warm cold data",
+    "subject": "hot, warm, and cold data",
+    "style": "bare",
+    "expected_chunk_hint": "ch06-102"
+  },
+  {
+    "question": "what does iops mean",
+    "subject": "IOPS",
+    "style": "what-is",
+    "expected_chunk_hint": "ch06-007"
+  },
+  {
+    "question": "how does separation of compute and storage help",
+    "subject": "separation of compute and storage",
+    "style": "subject-first",
+    "expected_chunk_hint": "ch06-090"
+  },
+  {
+    "question": "what is data retention",
+    "subject": "data retention",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is a data catalog",
+    "subject": "data catalog",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "schema on read vs schema on write",
+    "subject": "schema on read",
+    "style": "bare",
+    "expected_chunk_hint": "ch06-086"
+  },
+  {
+    "question": "data ingestion is the process of doing what",
+    "subject": "data ingestion",
+    "style": "quiz",
+    "expected_chunk_hint": "ch07-002"
+  },
+  {
+    "question": "etl vs elt",
+    "subject": "ELT",
+    "style": "bare",
+    "expected_chunk_hint": "ch07-033"
+  },
+  {
+    "question": "what is a message queue",
+    "subject": "message queue",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is an event-streaming platform",
+    "subject": "event-streaming",
+    "style": "what-is",
+    "expected_chunk_hint": "ch07-059"
+  },
+  {
+    "question": "kafka",
+    "subject": "Kafka",
+    "style": "bare",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "bounded vs unbounded data",
+    "subject": "unbounded",
+    "style": "bare",
+    "expected_chunk_hint": "ch07-007"
+  },
+  {
+    "question": "push vs pull ingestion",
+    "subject": "push",
+    "style": "bare",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is a direct database connection",
+    "subject": "direct database connection",
+    "style": "what-is",
+    "expected_chunk_hint": "ch07-048"
+  },
+  {
+    "question": "why does replay matter for event streams",
+    "subject": "replay",
+    "style": "subject-first",
+    "expected_chunk_hint": "ch07-041"
+  },
+  {
+    "question": "what is polling",
+    "subject": "polling",
+    "style": "what-is",
+    "expected_chunk_hint": "ch07-029"
+  },
+  {
+    "question": "what is a data migration",
+    "subject": "data migration",
+    "style": "what-is",
+    "expected_chunk_hint": "ch07-035"
+  },
+  {
+    "question": "stream-to-batch architecture",
+    "subject": "stream-to-batch",
+    "style": "bare",
+    "expected_chunk_hint": "ch06-078"
+  },
+  {
+    "question": "how do you detect upstream and downstream schema changes",
+    "subject": "schema changes",
+    "style": "subject-first",
+    "expected_chunk_hint": "ch07-086"
+  },
+  {
+    "question": "what is a watermark",
+    "subject": "watermark",
+    "style": "what-is",
+    "expected_chunk_hint": "ch08-039"
+  },
+  {
+    "question": "watermark",
+    "subject": "watermark",
+    "style": "bare",
+    "expected_chunk_hint": "ch08-039"
+  },
+  {
+    "question": "watermak",
+    "subject": "watermark",
+    "style": "bare",
+    "expected_chunk_hint": "ch08-039"
+  },
+  {
+    "question": "next codd introduced the idea of what",
+    "subject": "Codd",
+    "style": "quiz",
+    "expected_chunk_hint": "ch08-051"
+  },
+  {
+    "question": "what is normalization",
+    "subject": "normalization",
+    "style": "what-is",
+    "expected_chunk_hint": "ch08-051"
+  },
+  {
+    "question": "normailzation",
+    "subject": "normalization",
+    "style": "bare",
+    "expected_chunk_hint": "ch08-051"
+  },
+  {
+    "question": "what is denormalization",
+    "subject": "denormalization",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "types of joins",
+    "subject": "joins",
+    "style": "list",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is a broadcast join",
+    "subject": "broadcast join",
+    "style": "what-is",
+    "expected_chunk_hint": "ch08-092"
+  },
+  {
+    "question": "what is a query optimizer",
+    "subject": "query optimizer",
+    "style": "what-is",
+    "expected_chunk_hint": "ch08-011"
+  },
+  {
+    "question": "types of windows in stream processing",
+    "subject": "windows",
+    "style": "list",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is a materialized view",
+    "subject": "materialized view",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is a star schema",
+    "subject": "star schema",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is a fact table",
+    "subject": "fact table",
+    "style": "what-is",
+    "expected_chunk_hint": "ch08-065"
+  },
+  {
+    "question": "what is a dimension table",
+    "subject": "dimension table",
+    "style": "what-is",
+    "expected_chunk_hint": "ch08-068"
+  },
+  {
+    "question": "what is data vault modeling",
+    "subject": "data vault",
+    "style": "what-is",
+    "expected_chunk_hint": "ch08-073"
+  },
+  {
+    "question": "kimball is on the opposite end of the data modeling spectrum from who",
+    "subject": "Kimball",
+    "style": "quiz",
+    "expected_chunk_hint": "ch08-064"
+  },
+  {
+    "question": "under the hood, batch processing is what",
+    "subject": "batch processing",
+    "style": "quiz",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "data wrangling",
+    "subject": "data wrangling",
+    "style": "bare",
+    "expected_chunk_hint": "ch08-116"
+  },
+  {
+    "question": "how does micro-batch differ from true streaming",
+    "subject": "micro-batch",
+    "style": "subject-first",
+    "expected_chunk_hint": "ch08-142"
+  },
+  {
+    "question": "slowly changing dimensions",
+    "subject": "slowly changing dimension",
+    "style": "bare",
+    "expected_chunk_hint": "ch08-068"
+  },
+  {
+    "question": "what is reverse etl",
+    "subject": "reverse ETL",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is a feature store",
+    "subject": "feature store",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is business intelligence",
+    "subject": "business intelligence",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is embedded analytics",
+    "subject": "embedded analytics",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is query federation",
+    "subject": "query federation",
+    "style": "what-is",
+    "expected_chunk_hint": "ch09-044"
+  },
+  {
+    "question": "how do data scientists use notebooks",
+    "subject": "notebooks",
+    "style": "subject-first",
+    "expected_chunk_hint": "ch09-054"
+  },
+  {
+    "question": "ways to serve data to consumers",
+    "subject": "serving data",
+    "style": "list",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "why do data definitions matter when serving data",
+    "subject": "data definitions",
+    "style": "subject-first",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "olap vs oltp",
+    "subject": "OLAP",
+    "style": "bare",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is a data product",
+    "subject": "data product",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is the principle of least privilege",
+    "subject": "least privilege",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is zero trust",
+    "subject": "zero-trust",
+    "style": "what-is",
+    "expected_chunk_hint": "ch03-035"
+  },
+  {
+    "question": "how does encryption at rest differ from encryption in motion",
+    "subject": "encryption at rest",
+    "style": "subject-first",
+    "expected_chunk_hint": "ch10-019"
+  },
+  {
+    "question": "what is tokenization",
+    "subject": "tokenization",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "hashing vs encryption",
+    "subject": "hashing",
+    "style": "bare",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is data masking",
+    "subject": "data masking",
+    "style": "what-is",
+    "expected_chunk_hint": "ch02-044"
+  },
+  {
+    "question": "what is shared responsibility in the cloud",
+    "subject": "shared responsibility",
+    "style": "what-is",
+    "expected_chunk_hint": "ch10-012"
+  },
+  {
+    "question": "what does it mean to always be paranoid about security",
+    "subject": "always be paranoid",
+    "style": "what-is",
+    "expected_chunk_hint": "ch10-006"
+  },
+  {
+    "question": "what is pii",
+    "subject": "PII",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "what is the live data stack",
+    "subject": "live data stack",
+    "style": "what-is",
+    "expected_chunk_hint": ""
+  },
+  {
+    "question": "dark matter data",
+    "subject": "dark matter",
+    "style": "bare",
+    "expected_chunk_hint": "ch11-025"
+  },
+  {
+    "question": "why is the data engineering lifecycle not going away",
+    "subject": "isn't going away",
+    "style": "subject-first",
+    "expected_chunk_hint": "ch11-003"
+  },
+  {
+    "question": "how are data and applications fusing",
+    "subject": "fusion of data with applications",
+    "style": "subject-first",
+    "expected_chunk_hint": "ch11-023"
+  },
+  {
+    "question": "what comes after the modern data stack",
+    "subject": "beyond the modern data stack",
+    "style": "what-is",
+    "expected_chunk_hint": "ch11-016"
+  },
+  {
+    "question": "how will data engineering titles change",
+    "subject": "titles and responsibilities",
+    "style": "subject-first",
+    "expected_chunk_hint": "ch11-013"
+  },
+  {
+    "question": "streaming pipelines and real-time analytics",
+    "subject": "streaming pipelines",
+    "style": "bare",
+    "expected_chunk_hint": "ch11-019"
+  },
+  {
+    "question": "what is the cloud-scale data os",
+    "subject": "data OS",
+    "style": "what-is",
+    "expected_chunk_hint": "ch11-007"
+  }
+]

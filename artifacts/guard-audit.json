@@ -1,0 +1,128 @@
+[
+  {
+    "question": "togaf defines data architecture as what",
+    "word": "togaf",
+    "before": "a description of the structure and interaction of the enterprise’s major types and sources of data, logical data assets, physical data assets, and data manageme",
+    "after": "TOGAF defines data architecture as follows:5 A description of the structure and interaction of the enterprise’s major types and sources of data, logical data as"
+  },
+  {
+    "question": "what is denormalization",
+    "word": "denormalization",
+    "before": "Normalization is a database data modeling practice that enforces strict control over the relationships of tables and columns within a database",
+    "after": "Although denormalization may seem like an antipattern, it’s common in many OLAP systems that store semistructured data."
+  },
+  {
+    "question": "under the hood, batch processing is what",
+    "word": "hood",
+    "before": "Once data reaches a batch process, the batch frequency becomes a bottleneck for all downstream processing",
+    "after": "You still need to understand what’s going on under the hood."
+  },
+  {
+    "question": "what is tokenization",
+    "word": "tokenization",
+    "before": "But if this data is not needed, why collect it at all?",
+    "after": "But engineers should look at where this tokenization is used."
+  },
+  {
+    "question": "hashing vs encryption",
+    "word": "hashing",
+    "before": "Our last bit of advice on sensitive data: be wary of naive technological solutions to human problems. Both encryption and tokenization are often treated like pr",
+    "after": "Thoughtlessly hashing data without salting and other strategies may not protect privacy as well as you think."
+  },
+  {
+    "question": "what is abramson",
+    "word": "abramson",
+    "before": "The Kimball approach effectively makes the data mart the data warehouse itself",
+    "after": "Kimball” by Ian Abramson The Data Warehouse Toolkit by Ralph Kimball and Margy Ross (Wiley) “Data Vault—An Overview” by John Ryan “Data Vault 2.0 Modeling Basic"
+  },
+  {
+    "question": "what is academia",
+    "word": "academia",
+    "before": "AI researchers work on new, advanced ML techniques",
+    "after": "ML engineers in academia usually have fewer resources but rely on teams of graduate students, postdocs, and university staff to provide engineering support."
+  },
+  {
+    "question": "what is accounted",
+    "word": "accounted",
+    "before": "Total cost of ownership (TCO) is the total estimated cost of an initiative, including the direct and indirect costs of products and services utilized",
+    "after": "Apart from direct and indirect costs, how something is purchased impacts the way costs are accounted for."
+  },
+  {
+    "question": "what is achievable",
+    "word": "achievable",
+    "before": "Adopting a culture of reversible decisions helps overcome this tendency by reducing the risk attached to a decision",
+    "after": "It’s important to note that deprecation might be “ivory tower” advice and not practical or achievable."
+  },
+  {
+    "question": "what is acquisition",
+    "word": "acquisition",
+    "before": "Apart from direct and indirect costs, how something is purchased impacts the way costs are accounted for",
+    "after": "Before the cloud existed, companies would typically purchase hardware and software up front through large acquisition contracts."
+  },
+  {
+    "question": "what is adverse",
+    "word": "adverse",
+    "before": "The system’s probability of meeting defined standards in performing its intended function during a specified interval",
+    "after": "A website outage of just five minutes could have a significant adverse business impact on an online retailer."
+  },
+  {
+    "question": "what is advisable",
+    "word": "advisable",
+    "before": "Adopting a culture of reversible decisions helps overcome this tendency by reducing the risk attached to a decision",
+    "after": "For instance, it is often impractical (and not advisable) to run analytics queries against production application databases."
+  },
+  {
+    "question": "what is aeronautics",
+    "word": "aeronautics",
+    "before": "Orchestration is the process of coordinating many jobs to run as quickly and efficiently as possible on a scheduled cadence",
+    "after": "The National Aeronautics and Space Administration (NASA) publishes various data from its research initiatives."
+  },
+  {
+    "question": "what is afternoon",
+    "word": "afternoon",
+    "before": "A time series is a series of values organized by time",
+    "after": "The grocery list that I scribbled this afternoon is bounded data."
+  },
+  {
+    "question": "what is aircraft",
+    "word": "aircraft",
+    "before": "are the physical hardware connected to the internet, sensing the environment around them and collecting and transmitting data to a downstream destination",
+    "after": "You don’t have to know much about cars or aircraft to recognize that this is an idiotic comparison."
+  },
+  {
+    "question": "what is alignment",
+    "word": "alignment",
+    "before": "Enterprise architecture is the design of systems to support change in the enterprise, achieved by flexible and reversible decisions reached through careful eval",
+    "after": "We extract a few common threads in these definitions of enterprise architecture: change, alignment, organization, opportunities, problem-solving, and migration."
+  },
+  {
+    "question": "what is anonymize",
+    "word": "anonymize",
+    "before": "these “fake” datasets should sufficiently allow an analyst or data scientist to get the necessary signal from the data, but in a way that makes identifying prot",
+    "after": "Where it is truly necessary to keep track of sensitive identities, it is common practice to apply tokenization to anonymize identities in model training and ana"
+  },
+  {
+    "question": "what is answered",
+    "word": "answered",
+    "before": "After you understand the data source, the characteristics of the source system you’re using, and how data is stored, you need to gather the data",
+    "after": "But you’re in good shape, assuming you’ve answered the big questions about source systems."
+  },
+  {
+    "question": "what is answering",
+    "word": "answering",
+    "before": "Queries are a fundamental part of data engineering, data science, and analysis",
+    "after": "Before we get into more complicated topics about queries, data modeling, and transformations, let’s start by answering a pretty simple question: what is a query"
+  },
+  {
+    "question": "what is How to Contact Us",
+    "word": "contact",
+    "before": "Please address comments and questions concerning this book to the publisher: O’Reilly Media, Inc",
+    "after": "We see a common workflow to get data from a CRM, blend the CRM data through the customer scoring model, and then use reverse ETL to send that data back into CRM"
+  },
+  {
+    "question": "what is The Continuum of Data Engineering Roles, from A to B",
+    "word": "continuum",
+    "before": "Type A data engineers manage the data engineering lifecycle mainly by using entirely off-the-shelf products, managed services, and tools",
+    "after": "Borrowing from this data scientist continuum, we’ll create a similar distinction for two types of data engineers: A stands for abstraction."
+  }
+]
