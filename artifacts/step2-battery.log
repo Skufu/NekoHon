@@ -3,24 +3,24 @@
 # (nomic-embed-text, 1065 chunks). PASS is judged against pins from
 # artifacts/demo-questions.md; typo asks pin ch05-019 / ch07-033 / ch08-040;
 # probes pin ch04-012 (pragmatic), ch04-020 (MAD), ch04-038 (multicloud list).
-PASS   0.87s refused=0 ch05-019 What does CRUD stand for?
-PASS   0.75s refused=0 ch07-002 What is data ingestion?
-PASS   1.04s refused=0 ch08-040 What is a watermark?
-PASS   0.57s refused=0 ch05-020 When is an insert-only table useful?
-PASS   0.73s refused=0 ch06-001 Where does storage sit in the data engineering lifecycle?
-PASS   0.76s refused=0 ch02-005 What do source systems provide to the rest of the lifecycle?
-PASS   0.75s refused=0 ch03-013 How does data architecture relate to enterprise architecture?
-PASS   0.76s refused=0 ch02-018 What is the difference between batch and streaming?
-PASS   0.81s refused=0 ch07-033 What happens to data after it is extracted in ETL?
-PASS   0.88s refused=0 ch02-025 What do transformations do in the data engineering lifecycle?
-PASS   0.99s refused=0 ch05-019 What does CRU stand for?
-PASS   0.79s refused=0 ch07-033 What happens to data after it is extracted in ET?
-PASS   1.24s refused=0 ch08-040 what is a atermark?
-PASS   0.68s refused=0 ch04-012 what does data engineers need to be pragmatic about
-PASS   0.55s refused=0 ch04-012 Data engineers need to be pragmatic about?
-PASS   1.03s refused=0 ch04-020 MAD data landscape
-PASS   0.64s refused=0 ch04-038 multicloud methodology disadvantages
-PASS   0.50s refused=1 ch01-066 What is the capital of France?
+PASS   0.92s refused=0 ch05-019 What does CRUD stand for?
+PASS   0.72s refused=0 ch07-002 What is data ingestion?
+PASS   1.19s refused=0 ch08-040 What is a watermark?
+PASS   0.53s refused=0 ch05-020 When is an insert-only table useful?
+PASS   0.72s refused=0 ch06-001 Where does storage sit in the data engineering lifecycle?
+PASS   0.74s refused=0 ch02-005 What do source systems provide to the rest of the lifecycle?
+PASS   0.83s refused=0 ch03-013 How does data architecture relate to enterprise architecture?
+PASS   0.69s refused=0 ch02-018 What is the difference between batch and streaming?
+PASS   0.90s refused=0 ch07-033 What happens to data after it is extracted in ETL?
+PASS   0.87s refused=0 ch02-025 What do transformations do in the data engineering lifecycle?
+PASS   1.11s refused=0 ch05-019 What does CRU stand for?
+PASS   0.96s refused=0 ch07-033 What happens to data after it is extracted in ET?
+PASS   1.16s refused=0 ch08-040 what is a atermark?
+PASS   0.74s refused=0 ch04-012 what does data engineers need to be pragmatic about
+PASS   0.54s refused=0 ch04-012 Data engineers need to be pragmatic about?
+PASS   1.12s refused=0 ch04-020 MAD data landscape
+PASS   0.65s refused=0 ch04-038 multicloud methodology disadvantages
+PASS   0.38s refused=1 ch01-066 What is the capital of France?
 golden: 10/10 answered, 10/10 pass (bar 8)
 typos: PASS
 probes: PASS

@@ -10,12 +10,18 @@ chunk to be promoted must sit inside the dense top RANK_BAND of the corpus,
 or nothing is injected. Measured 2026-10-12:
 - "what does data engineers need to be pragmatic about" promotes ch04-012,
   dense rank 51 of 1065 (4.8%),
+- "MAD data landscape" promotes ch04-019, rank 140 (13.1%) — and ch04-019's
+  presence is what makes the model quote the MAD sentence out of ch04-020,
 - "multicloud methodology disadvantages" promotes ch04-038, rank 1,
 - "What is the capital of France?" would promote ch02-068 at rank 695 (65%),
   so the band refuses it. The refusal stands even with RARE_DF raised, so it
   no longer rests on this book's df for "capital".
-Every band between 4.8% and 65% decides those three the same way; RANK_BAND
-sits inside that range rather than at its edge.
+The band first stood at 0.10, which silently dropped the MAD case (13.1%) and
+with it the MAD sentence: what the model is handed changed under it. 0.20
+admits every measured legitimate anchor and still refuses France by more than
+3x, so the safe range is 13.1% to 65%. Recorded because moving a constant is a
+judgment, not a fit: the band exists to exclude the tail, and 13.1% is not the
+tail. Do not move it again without a case outside that range.
 
 Anchors: question words rare enough in the book (df <= COVER_DF) that
 finding one in a paragraph makes it answering material. A fixed English
@@ -32,7 +38,7 @@ RARE_DF = 8
 COVER_DF = 80
 # A promoted chunk must sit in the dense top RANK_BAND of the corpus. Dimensionless
 # on purpose: an absolute count would mean a different thing on a bigger book.
-RANK_BAND = 0.10
+RANK_BAND = 0.20
 
 
 def postings(index):

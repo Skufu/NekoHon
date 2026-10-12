@@ -155,20 +155,33 @@ No cloud APIs, no database server, no package installs.
 - Dense band added to the boost 2026-10-12, superseding the RARE_DF safety.
   The boost used to lean on `RARE_DF = 8` to keep "capital" (df=10) away from
   the France question — a constant fitted to this book's word counts. Now the
-  promoted chunk must sit in the dense top `RANK_BAND` (0.10) of the corpus,
-  or nothing is injected; no rank map is no evidence and fails closed.
+  promoted chunk must sit in the dense top `RANK_BAND` of the corpus, or
+  nothing is injected; no rank map is no evidence and fails closed.
   `retrieve.rank_chunks` is the shared ranking and `dense_rank` exposes it.
   Measured: with the df gate forced open (RARE_DF=40) and the same rank map,
   the France candidate ch02-068 (dense rank 695) is rejected at band 0.10 and
   injected at band 1.00 — the band is the deciding gate, not the df. The
   France ask refuses exactly with RARE_DF at both 8 and 40. Positives keep
   working: pragmatic -> ch04-012 (rank 51), multicloud -> ch04-038 (rank 1),
-  watermark -> ch08-040 + figure-8-8; golden 10/10, MAD -> ch04-020. Every band
-  between 4.8% and 65% decides those three the same way, so 10% is inside a
-  wide margin, not at its edge. Cost: the rank map adds one embed plus a full
-  cosine pass (~0.11 s), paid only when the rare gate fires. 57 unit tests
-  green. Battery not rerun (stale :8000 server); `embedding` vectors and
-  `data/index.json` untouched.
+  watermark -> ch08-040 + figure-8-8; golden 10/10, MAD -> ch04-020. Cost: the
+  rank map adds one embed plus a full cosine pass (~0.11 s), paid only when the
+  rare gate fires. `embedding` vectors and `data/index.json` untouched.
+- RANK_BAND moved 0.10 -> 0.20, 2026-10-12, and the reason is worth keeping.
+  The 0.10 band silently dropped the MAD case: the "mad" anchor is ch04-019 at
+  dense rank 140 (13.1%), so boost stopped promoting it, the passage set the
+  model received changed, and "MAD data landscape" began quoting "Even
+  relatively successful technologies often fade into obscurity…" out of the
+  right chunk instead of the (MAD) landscape sentence — measured three times,
+  deterministic, and proven causal by putting ch04-019 back: with it the MAD
+  sentence returns. The battery caught it (probes FAIL, chunk pin still
+  ch04-020). 0.20 admits every measured legitimate anchor and still refuses
+  France by more than 3x; the safe range is now 13.1% to 65%. Moving a constant
+  is a judgment, not a fit, and the judge here is the band's purpose: it exists
+  to exclude the tail, and 13.1% is not the tail. Do not move it again without
+  a case outside that range. Battery rerun over HTTP 2026-10-12 on a fresh
+  server (single listener, PID checked): golden 10/10 answered, typos PASS,
+  probes PASS (MAD ch04-020), France exact refusal, battery PASS. 59 unit tests
+  green. Warm asks 0.4-1.2 s.
 - Quote-check tag-slip fix landed 2026-10-12: when the model writes the wrong
   `[Ch. N]` tag but the quoted sentence is verbatim in another attached
   passage, the check matches that passage; the answer's chapter is rebuilt

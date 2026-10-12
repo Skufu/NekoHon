@@ -1,7 +1,7 @@
 [
   {
     "question": "What does CRUD stand for?",
-    "seconds": 0.87,
+    "seconds": 0.92,
     "pass": true,
     "notes": [],
     "response": {
@@ -19,7 +19,7 @@
   },
   {
     "question": "What is data ingestion?",
-    "seconds": 0.75,
+    "seconds": 0.72,
     "pass": true,
     "notes": [],
     "response": {
@@ -44,11 +44,11 @@
   },
   {
     "question": "What is a watermark?",
-    "seconds": 1.04,
+    "seconds": 1.19,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late\"",
+      "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late\"\nA watermark is a time threshold used to check if data is on time or late.",
       "citations": [
         {
           "chunk_id": "ch08-040",
@@ -69,7 +69,7 @@
   },
   {
     "question": "When is an insert-only table useful?",
-    "seconds": 0.57,
+    "seconds": 0.53,
     "pass": true,
     "notes": [],
     "response": {
@@ -87,16 +87,16 @@
   },
   {
     "question": "Where does storage sit in the data engineering lifecycle?",
-    "seconds": 0.73,
+    "seconds": 0.72,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 6] \"and underlies its major stages\u2014ingestion, transformation, and serving\"",
+      "answer": "[Ch. 6] \"Storage is the cornerstone of the data engineering lifecycle and underlies its major stages\u2014ingestion, transformation, and serving\"",
       "citations": [
         {
           "chunk_id": "ch06-001",
           "chapter": "6",
-          "quote": "and underlies its major stages\u2014ingestion, transformation, and serving"
+          "quote": "Storage is the cornerstone of the data engineering lifecycle and underlies its major stages\u2014ingestion, transformation, and serving"
         }
       ],
       "figures": [
@@ -124,7 +124,7 @@
   },
   {
     "question": "What do source systems provide to the rest of the lifecycle?",
-    "seconds": 0.76,
+    "seconds": 0.74,
     "pass": true,
     "notes": [],
     "response": {
@@ -155,7 +155,7 @@
   },
   {
     "question": "How does data architecture relate to enterprise architecture?",
-    "seconds": 0.75,
+    "seconds": 0.83,
     "pass": true,
     "notes": [],
     "response": {
@@ -180,7 +180,7 @@
   },
   {
     "question": "What is the difference between batch and streaming?",
-    "seconds": 0.76,
+    "seconds": 0.69,
     "pass": true,
     "notes": [],
     "response": {
@@ -198,7 +198,7 @@
   },
   {
     "question": "What happens to data after it is extracted in ETL?",
-    "seconds": 0.81,
+    "seconds": 0.9,
     "pass": true,
     "notes": [],
     "response": {
@@ -223,7 +223,7 @@
   },
   {
     "question": "What do transformations do in the data engineering lifecycle?",
-    "seconds": 0.88,
+    "seconds": 0.87,
     "pass": true,
     "notes": [],
     "response": {
@@ -248,11 +248,11 @@
   },
   {
     "question": "What does CRU stand for?",
-    "seconds": 0.99,
+    "seconds": 1.11,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage\"",
+      "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage\"\nRead as: \"What does crud stand for?\"",
       "citations": [
         {
           "chunk_id": "ch05-019",
@@ -266,7 +266,7 @@
   },
   {
     "question": "What happens to data after it is extracted in ET?",
-    "seconds": 0.79,
+    "seconds": 0.96,
     "pass": true,
     "notes": [],
     "response": {
@@ -284,11 +284,11 @@
   },
   {
     "question": "what is a atermark?",
-    "seconds": 1.24,
+    "seconds": 1.16,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late\"\nA watermark is a time threshold used to check if data is current or delayed.",
+      "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late\"\nRead as: \"what is a watermark?\"",
       "citations": [
         {
           "chunk_id": "ch08-040",
@@ -297,6 +297,18 @@
         }
       ],
       "figures": [
+        {
+          "id": "figure-3-12",
+          "chapter": "3",
+          "caption": "ETL or ELT plus data marts",
+          "src": "/figures/figure-3-12"
+        },
+        {
+          "id": "figure-5-7",
+          "chapter": "5",
+          "caption": "RDBMS stores and retrieves data at a row level",
+          "src": "/figures/figure-5-7"
+        },
         {
           "id": "figure-8-8",
           "chapter": "8",
@@ -309,11 +321,11 @@
   },
   {
     "question": "what does data engineers need to be pragmatic about",
-    "seconds": 0.68,
+    "seconds": 0.74,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"\nData engineers should be flexible with their technology choices.",
+      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"",
       "citations": [
         {
           "chunk_id": "ch04-012",
@@ -327,7 +339,7 @@
   },
   {
     "question": "Data engineers need to be pragmatic about?",
-    "seconds": 0.55,
+    "seconds": 0.54,
     "pass": true,
     "notes": [],
     "response": {
@@ -345,7 +357,7 @@
   },
   {
     "question": "MAD data landscape",
-    "seconds": 1.03,
+    "seconds": 1.12,
     "pass": true,
     "notes": [],
     "response": {
@@ -376,7 +388,7 @@
   },
   {
     "question": "multicloud methodology disadvantages",
-    "seconds": 0.64,
+    "seconds": 0.65,
     "pass": true,
     "notes": [],
     "response": {
@@ -394,7 +406,7 @@
   },
   {
     "question": "What is the capital of France?",
-    "seconds": 0.5,
+    "seconds": 0.38,
     "pass": true,
     "notes": [],
     "response": {
