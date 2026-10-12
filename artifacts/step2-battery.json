@@ -1,7 +1,7 @@
 [
   {
     "question": "What does CRUD stand for?",
-    "seconds": 0.92,
+    "seconds": 1.02,
     "pass": true,
     "notes": [],
     "response": {
@@ -19,7 +19,7 @@
   },
   {
     "question": "What is data ingestion?",
-    "seconds": 0.83,
+    "seconds": 0.82,
     "pass": true,
     "notes": [],
     "response": {
@@ -44,7 +44,7 @@
   },
   {
     "question": "What is a watermark?",
-    "seconds": 0.93,
+    "seconds": 0.97,
     "pass": true,
     "notes": [],
     "response": {
@@ -87,7 +87,7 @@
   },
   {
     "question": "Where does storage sit in the data engineering lifecycle?",
-    "seconds": 0.7,
+    "seconds": 0.74,
     "pass": true,
     "notes": [],
     "response": {
@@ -112,7 +112,7 @@
   },
   {
     "question": "What do source systems provide to the rest of the lifecycle?",
-    "seconds": 0.74,
+    "seconds": 0.84,
     "pass": true,
     "notes": [],
     "response": {
@@ -130,7 +130,7 @@
   },
   {
     "question": "How does data architecture relate to enterprise architecture?",
-    "seconds": 0.8,
+    "seconds": 0.9,
     "pass": true,
     "notes": [],
     "response": {
@@ -148,7 +148,7 @@
   },
   {
     "question": "What is the difference between batch and streaming?",
-    "seconds": 0.96,
+    "seconds": 1.13,
     "pass": true,
     "notes": [],
     "response": {
@@ -166,7 +166,7 @@
   },
   {
     "question": "What happens to data after it is extracted in ETL?",
-    "seconds": 0.86,
+    "seconds": 1.04,
     "pass": true,
     "notes": [],
     "response": {
@@ -184,7 +184,7 @@
   },
   {
     "question": "What do transformations do in the data engineering lifecycle?",
-    "seconds": 0.76,
+    "seconds": 0.97,
     "pass": true,
     "notes": [],
     "response": {
@@ -202,7 +202,7 @@
   },
   {
     "question": "What does CRU stand for?",
-    "seconds": 0.81,
+    "seconds": 1.04,
     "pass": true,
     "notes": [],
     "response": {
@@ -220,7 +220,7 @@
   },
   {
     "question": "What happens to data after it is extracted in ET?",
-    "seconds": 0.83,
+    "seconds": 1.05,
     "pass": true,
     "notes": [],
     "response": {
@@ -238,7 +238,7 @@
   },
   {
     "question": "what is a atermark?",
-    "seconds": 1.19,
+    "seconds": 1.77,
     "pass": true,
     "notes": [],
     "response": {
@@ -263,7 +263,7 @@
   },
   {
     "question": "what does data engineers need to be pragmatic about",
-    "seconds": 0.79,
+    "seconds": 1.01,
     "pass": true,
     "notes": [],
     "response": {
@@ -281,7 +281,7 @@
   },
   {
     "question": "Data engineers need to be pragmatic about?",
-    "seconds": 0.76,
+    "seconds": 0.97,
     "pass": true,
     "notes": [],
     "response": {
@@ -299,7 +299,7 @@
   },
   {
     "question": "MAD data landscape",
-    "seconds": 1.12,
+    "seconds": 1.32,
     "pass": true,
     "notes": [],
     "response": {
@@ -324,7 +324,7 @@
   },
   {
     "question": "multicloud methodology disadvantages",
-    "seconds": 0.66,
+    "seconds": 0.9,
     "pass": true,
     "notes": [],
     "response": {
@@ -342,7 +342,7 @@
   },
   {
     "question": "What is the capital of France?",
-    "seconds": 0.42,
+    "seconds": 0.58,
     "pass": true,
     "notes": [],
     "response": {

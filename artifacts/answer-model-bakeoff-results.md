@@ -103,3 +103,44 @@ No re-embedding, no index change, no re-pins, no prompt edits, no default swap, 
 engine change beyond the `ANSWER_MODEL` env seam (`prompt.py`, header in
 `artifacts/step2-battery.py`). `step2-battery.{json,log}` hold the live default's
 fresh PASS run.
+
+## v2 rerun — after the expansion (2026-10-13)
+
+Tree: the quote-to-paragraph expansion (`_whole_paragraph`, PARAGRAPH_CAP=1200)
+uncommitted on top of the RRF fusion commit `853736b`. Frozen across all runs:
+md5 fingerprints of `answer.py`, `fusion.py`, `keywords.py`, `captions.py` and the
+five test files were identical before and after; every run is snapshotted as
+`bakeoff-<tag>-v2.{json,log}`, side asks in `bakeoff-side-asks-v2.txt`.
+
+| model | France | typos | probes | golden (bar 8) | battery |
+|---|---|---|---|---|---|
+| qwen2.5:7b | PASS | PASS | PASS | 10/10 | PASS |
+| qwen3:4b-instruct | PASS | **FAIL (CRU refused)** | **FAIL (MAD)** | 7/10 pin | FAIL |
+| granite4.1:3b | PASS | PASS | PASS | 9/10 | **PASS** |
+| granite4.1:8b | PASS | PASS | PASS | 8/10 | **PASS** |
+
+What the expansion changed:
+- Multicloud flipped green: granite4.1:3b's answer now carries the whole
+  disadvantages paragraph, "…dizzying array…diabolically complicated" included,
+  with its gloss (`bakeoff-granite4.1-3b-v2.json`). qwen3:4b already passed it.
+- CRUD's answer (qwen3:4b) grew to the full CRUD paragraph — the expansion firing
+  on an anchored, non-list ask, as designed.
+
+New finding, not the expansion's: qwen3:4b-instruct refuses the CRU typo ask 4/4
+on this tree (`bakeoff-qwen3-4b-instruct-cru-retries-v2.txt`) where v1 answered it
+from ch05-019. A refusal carries no citations, so the expansion path was never
+reached — the retrieval change (RRF + caption placement) is the suspect. The other
+three models pass CRU on the same tree.
+
+Determinism: granite4.1:3b's full battery reproduced exactly on a second run
+(`bakeoff-granite4.1-3b-v2-run2.*`): the same single reviewed miss (ETL full
+question, ch02-022), everything else green.
+
+Side asks (v2): all four models answer monolith and storage. granite4.1:8b still
+quotes the ch03-056 monolith definition. granite4.1:3b's monolith answer lost its
+gloss versus v1 (quote unchanged) — noted, not a gate. qwen3:4b's storage gloss
+brushes the plain sense ("where data is kept and used") but stays book-bound.
+
+Per the frozen rules, both granites now clear the battery. The small-PC slot
+belongs to granite4.1:3b (2,100MB) pending the separate, announced swap decision;
+nothing in the live app changed.

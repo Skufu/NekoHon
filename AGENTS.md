@@ -434,9 +434,20 @@ No cloud APIs, no database server, no package installs.
   one hard gate (4b: MAD, wrong sentence in the right chunk, 3/3; both granites:
   multicloud quote stops three sentences early). All three fix the open gloss
   weakness (gloss on almost every answer vs 2/17). Seam: `ANSWER_MODEL=<tag> python
-  server.py` runs any model through the same battery; default locked. Open: whether
-  list questions should always get the whole paragraph (flips granite's multicloud
-  gate; decide on intent, then rerun all 18).
+  server.py` runs any model through the same battery; default locked.
+- Quote-to-paragraph expansion landed 2026-10-13 (`answer.py`): when the paragraph
+  around a verified quote holds an anchor word (a question word rare in this book)
+  and fits PARAGRAPH_CAP=1200, the paragraph replaces the quote. The old rule also
+  required the quote to lack the anchor, which stopped granite's multicloud quote
+  three sentences early; the intent call (a list answer carries the book's list)
+  was made first and the test flip followed it, not the other way round. v2 battery
+  on the expansion+RRF tree (frozen: fingerprints equal before and after all runs;
+  evidence `artifacts/bakeoff-*-v2.*`): qwen2.5:7b 18/18 PASS; granite4.1:3b PASS,
+  reproduced on a second run (one reviewed miss: the ETL full question quotes
+  ch02-022, unresponsive); granite4.1:8b PASS; qwen3:4b-instruct FAIL (MAD wrong
+  sentence unchanged; its CRU typo refused 4/4 — a no-citation refusal, so not this
+  change; points at the retrieval side). granite4.1:3b is eligible for the small-PC
+  slot per the bake-off plan; the swap itself is a separate, announced decision.
 - Not started: 8.
 
 ## Verify

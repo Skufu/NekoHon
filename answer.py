@@ -35,6 +35,10 @@ QUIZ_INSTRUCTION = (
 )
 KEY_MIN_CHARS = 40
 SPAN_MIN_CHARS = 40
+# One screen of quoted text (about 16 lines at 75 chars). A paragraph over this
+# keeps the model's quote instead of the whole paragraph. Chosen for
+# readability; not tuned to any ask.
+PARAGRAPH_CAP = 1200
 
 
 def passages_block(passages):
@@ -173,21 +177,23 @@ def _paragraph_around(quote, passage_text):
     return ""
 
 
-def _covers_more(anchors, paragraph, sentence):
-    """True when the paragraph holds an anchor word the sentence lacks.
+def _whole_paragraph(anchors, paragraph):
+    """True when the paragraph around a verified quote replaces it.
 
-    That means the paragraph answers more of the question than the quoted
-    sentence did; the whole paragraph is shown instead.
+    The paragraph must hold an anchor word — a question word the book itself
+    counts as rare (`keywords.anchor_words`), so there is no English list-word
+    table here — and it must fit PARAGRAPH_CAP, so an answer quote stays about
+    one screen. The quote is passage text and the paragraph holds it, so the
+    swap can only add book text; the quote check holds by construction.
+
+    The older rule also required the quote to *lack* the anchor, which stopped
+    short whenever the model named the question's word but quoted only part of
+    the paragraph (measured: the multicloud list, 2026-10-12).
     """
-    folded_paragraph = _fold(paragraph)
-    folded_sentence = _fold(sentence)
-    for word in anchors:
-        pattern = rf"\b{re.escape(word)}\b"
-        if re.search(pattern, folded_paragraph) and not re.search(
-            pattern, folded_sentence
-        ):
-            return True
-    return False
+    if not paragraph or len(paragraph) > PARAGRAPH_CAP:
+        return False
+    folded = _fold(paragraph)
+    return any(re.search(rf"\b{re.escape(word)}\b", folded) for word in anchors)
 
 
 def _without_heading(quote, passage):
@@ -223,9 +229,9 @@ def parse_completion(completion, passages, figures=None, anchors=None):
     """Return a contract body. Unchecked prose is a refusal.
 
     A figure is attached only when a passage the answer cited names it. When
-    the paragraph around a verified quote holds an anchor word the quote
-    lacked, the paragraph replaces the quote; paragraph text is passage text,
-    so the quote check holds by construction.
+    the paragraph around a verified quote holds an anchor word and fits
+    PARAGRAPH_CAP, the paragraph replaces the quote; paragraph text is passage
+    text, so the quote check holds by construction.
     """
     text = (completion or "").strip()
     if text == REFUSAL:
@@ -272,7 +278,7 @@ def parse_completion(completion, passages, figures=None, anchors=None):
             if spot is None:
                 continue
             paragraph = _paragraph_around(item["quote"], spot.get("text") or "")
-            if paragraph and _covers_more(anchors, paragraph, item["quote"]):
+            if _whole_paragraph(anchors, paragraph):
                 item["quote"] = paragraph
     # One trim, after every path that can set a quote: the anchor expansion
     # above replaces the quote with the whole paragraph, heading line included.

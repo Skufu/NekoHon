@@ -201,7 +201,10 @@ class AnswerTests(unittest.TestCase):
             body["citations"][0]["quote"].startswith("A multicloud methodology")
         )
 
-    def test_a_sentence_that_already_holds_the_anchor_stays(self):
+    def test_a_quote_the_paragraph_extends_expands(self):
+        # Pinned to the old rule until 2026-10-12 (“quote already holds the
+        # anchor, leave it”). The bake-off showed the cost: the model names
+        # the question’s word and stops mid-paragraph. The paragraph wins now.
         passage = {
             "chunk_id": "ch04-038",
             "chapter": "4",
@@ -218,7 +221,55 @@ class AnswerTests(unittest.TestCase):
             {"egress"},
         )
         self.assertFalse(body["refused"])
-        self.assertNotIn("diabolically complicated", body["answer"].split("\n")[0])
+        self.assertIn("diabolically complicated", body["answer"].split("\n")[0])
+        self.assertTrue(
+            body["citations"][0]["quote"].startswith("A multicloud")
+        )
+
+    def test_a_paragraph_over_the_cap_keeps_the_quote(self):
+        filler = "Filler sentence with padding words for size. " * 30
+        passage = {
+            "chunk_id": "ch04-001",
+            "chapter": "4",
+            "text": (
+                "A multicloud methodology has several disadvantages. "
+                "Data egress costs and networking bottlenecks are critical. "
+                + filler
+            ),
+        }
+        body = parse_completion(
+            '[Ch. 4] "Data egress costs and networking bottlenecks are critical"',
+            [passage],
+            [],
+            {"disadvantages"},
+        )
+        self.assertFalse(body["refused"])
+        self.assertEqual(
+            body["citations"][0]["quote"],
+            "Data egress costs and networking bottlenecks are critical",
+        )
+
+    def test_a_paragraph_without_an_anchor_keeps_the_quote(self):
+        passage = {
+            "chunk_id": "ch04-002",
+            "chapter": "4",
+            "text": (
+                "A multicloud methodology has several disadvantages. "
+                "Data egress costs and networking bottlenecks are critical. "
+                "Multicloud networking can be diabolically complicated."
+            ),
+        }
+        body = parse_completion(
+            '[Ch. 4] "Data egress costs and networking bottlenecks are critical"',
+            [passage],
+            [],
+            {"watermark"},
+        )
+        self.assertFalse(body["refused"])
+        self.assertEqual(
+            body["citations"][0]["quote"],
+            "Data egress costs and networking bottlenecks are critical",
+        )
 
     def test_a_refusal_stays_a_refusal_with_anchors(self):
         body = parse_completion(REFUSAL, PASSAGES, [], {"disadvantages"})
