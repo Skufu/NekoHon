@@ -13,8 +13,7 @@ import urllib.request
 from captions import caption_seed
 from figures import figures_for
 from fusion import fuse
-from keywords import RARE_DF, anchor_words, postings, rare
-from preprocess import words
+from keywords import anchor_words, postings, rare
 from prompt import ANSWER_MODEL, REFUSAL, SYSTEM
 from readings import second_reading
 from retrieve import search
@@ -197,57 +196,6 @@ def _whole_paragraph(anchors, paragraph):
     return any(re.search(rf"\b{re.escape(word)}\b", folded) for word in anchors)
 
 
-def _rarest_word(question, word_map, bound=RARE_DF):
-    """The rarest question word the book contains, or "".
-
-    The coherence guard's subject. When the question names something the book
-    rarely says ("codd", df=4; "mad"), the answer's quote must hold that
-    word. Ties keep the question's own order.
-    """
-    present = [
-        word for word in words(question)
-        if 0 < len(word_map.get(word, ())) <= bound
-    ]
-    if not present:
-        return ""
-    return min(present, key=lambda word: len(word_map.get(word, ())))
-
-
-def _coherence_swap(passages, rare_word, quote):
-    """(passage, sentence) holding the question's rarest word, or None.
-
-    Fires only when the verified quote lacks that word — the model answered
-    from a place the question does not name (measured: "Codd introduced the
-    idea of what" quoted the normalization definition). The replacement is the
-    tightest sentence that holds the word, in the strongest shown passage that
-    holds it; passage text, so the quote check holds by construction. No shown
-    passage holds it, and nothing changes.
-    """
-    if not rare_word:
-        return None
-    pattern = rf"\b{re.escape(rare_word)}\b"
-    if re.search(pattern, _fold(quote)):
-        return None
-    for hit in passages:
-        text = hit.get("text") or ""
-        if not re.search(pattern, _fold(text)):
-            continue
-        # Prefer the tightest sentence holding the word: a run-on list can
-        # pass a "word leads" test (measured: "Codd outlined four main
-        # objectives ...", one 300-char list sentence), while the shortest
-        # candidate is the word's own statement ("Codd introduced the idea of
-        # normal forms." over "It was first introduced by ... Edgar Codd ...").
-        best = None
-        for sentence in _sentences(text):
-            if not re.search(pattern, _fold(sentence)):
-                continue
-            if best is None or len(sentence) < len(best):
-                best = sentence
-        if best is not None:
-            return hit, best
-    return None
-
-
 def _without_heading(quote, passage):
     """A quote that opens with the passage's heading line drops it.
 
@@ -277,17 +225,13 @@ def _without_heading(quote, passage):
     return rest
 
 
-def parse_completion(completion, passages, figures=None, anchors=None,
-                     rare_word=""):
+def parse_completion(completion, passages, figures=None, anchors=None):
     """Return a contract body. Unchecked prose is a refusal.
 
     A figure is attached only when a passage the answer cited names it. When
     the paragraph around a verified quote holds an anchor word and fits
     PARAGRAPH_CAP, the paragraph replaces the quote; paragraph text is passage
-    text, so the quote check holds by construction. When the question carries
-    a word the book rarely says (`rare_word`), the quote must hold it; a quote
-    that does not is swapped for the anchor sentence, same by-construction
-    rule as the paragraph expansion.
+    text, so the quote check holds by construction.
     """
     text = (completion or "").strip()
     if text == REFUSAL:
@@ -336,19 +280,8 @@ def parse_completion(completion, passages, figures=None, anchors=None,
             paragraph = _paragraph_around(item["quote"], spot.get("text") or "")
             if _whole_paragraph(anchors, paragraph):
                 item["quote"] = paragraph
-    swapped = False
-    if rare_word:
-        for item in citations:
-            swap = _coherence_swap(passages, rare_word, item["quote"])
-            if swap is not None:
-                hit, sentence = swap
-                item["chunk_id"] = hit["chunk_id"]
-                item["chapter"] = str(hit["chapter"])
-                item["quote"] = sentence
-                swapped = True
-    # One trim, after every path that can set a quote: the expansion above
-    # replaces the quote with the whole paragraph and the coherence swap with
-    # an anchor sentence; both can drag the heading line along.
+    # One trim, after every path that can set a quote: the anchor expansion
+    # above replaces the quote with the whole paragraph, heading line included.
     for item in citations:
         spot = next(
             (hit for hit in passages if hit["chunk_id"] == item["chunk_id"]),
@@ -356,10 +289,6 @@ def parse_completion(completion, passages, figures=None, anchors=None,
         )
         if spot is not None:
             item["quote"] = _without_heading(item["quote"], spot)
-    # The model's gloss described the passage it chose; after a coherence
-    # swap it would describe the wrong thing, so it is dropped.
-    if swapped:
-        gloss = []
     answer_lines = [
         f"[Ch. {item['chapter']}] \"{item['quote']}\"" for item in citations
     ]
@@ -424,13 +353,8 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL):
     passages = caption_seed(index, asked, passages)
     completion = generate_fn(SYSTEM, user_message(asked, passages), model)
     anchors = anchor_words(question, word_map)
-    # A disclosed reading (typo repair) answers for the repaired question; the
-    # guard would demand the repaired word inside the quote and swap away a
-    # valid phrase answer (measured: "What does CRU stand for?", 2026-10-13).
-    rare_word = "" if reading is not None else _rarest_word(asked, word_map)
     body = parse_completion(
-        completion, passages, index.get("figures") or [], anchors,
-        rare_word,
+        completion, passages, index.get("figures") or [], anchors
     )
     if reading is not None and not body["refused"]:
         body["answer"] = f'{body["answer"]}\nRead as: "{asked}"'
