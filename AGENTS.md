@@ -88,6 +88,9 @@ No cloud APIs, no database server, no package installs.
   answer and the `figure-8-8` image with caption, live from the engine. The
   explain mode and the quiz "Show the key" button are not yet exercised in a
   browser.
+- explain and quiz verified over HTTP 2026-10-12, both `refused: false`, no key
+  leak in the quiz question. Latency profile: warm asks ~0.8-1.6 s; the first
+  ask after ~5 min idle pays a one-time ~25 s Ollama model load.
 - Next: Phase 8, optional sequel. Phases 0-7 pass; v1 is done by the README's
   definition.
 - Nomic is the v1 index, not a forever lock. Stop and say so before any of
