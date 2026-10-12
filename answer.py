@@ -12,10 +12,11 @@ import urllib.request
 
 from captions import caption_seed
 from figures import figures_for
-from keywords import anchor_words, boost, postings, rare
+from fusion import fuse
+from keywords import anchor_words, postings, rare
 from prompt import ANSWER_MODEL, REFUSAL, SYSTEM
 from readings import second_reading
-from retrieve import dense_rank, search
+from retrieve import search
 
 OLLAMA_CHAT = "http://127.0.0.1:11434/api/chat"
 PASSAGE_LIMIT = 5
@@ -336,11 +337,14 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL):
         )
         if not present:
             passages = [reading["chunk"]] + passages[:-1]
+    # Fusion pays one embed plus a full cosine pass. The lexical channel joins
+    # only when the question carries a rare book word, the trigger the boost
+    # used; other asks do not pay.
+    if rare(asked, word_map):
+        passages = fuse(index, asked, passages, word_map)
+    # Caption seeding runs last: its measured effect is which chunk leads, and
+    # fusion would otherwise be free to demote that lead.
     passages = caption_seed(index, asked, passages)
-    # The rank map costs one embed plus a full cosine pass. Only a rare word can
-    # lead to an injection, so other asks do not pay for it.
-    ranks = dense_rank(index, asked) if rare(asked, word_map) else {}
-    passages = boost(index, asked, passages, word_map, ranks)
     completion = generate_fn(SYSTEM, user_message(asked, passages), model)
     anchors = anchor_words(question, word_map)
     body = parse_completion(

@@ -1,16 +1,16 @@
 [
   {
     "question": "What does CRUD stand for?",
-    "seconds": 0.99,
+    "seconds": 0.92,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage\"",
+      "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage. CRUD is the most common pattern for storing application state in a database. A basic tenet of CRUD is that data must be created before being used. After the data has been created, the data can be read and updated. Finally, the data may need to be destroyed. CRUD guarantees these four operations will occur on data, regardless of its storage.\"",
       "citations": [
         {
           "chunk_id": "ch05-019",
           "chapter": "5",
-          "quote": "CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage"
+          "quote": "CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage. CRUD is the most common pattern for storing application state in a database. A basic tenet of CRUD is that data must be created before being used. After the data has been created, the data can be read and updated. Finally, the data may need to be destroyed. CRUD guarantees these four operations will occur on data, regardless of its storage."
         }
       ],
       "figures": [],
@@ -44,16 +44,16 @@
   },
   {
     "question": "What is a watermark?",
-    "seconds": 0.94,
+    "seconds": 0.93,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late\"",
+      "answer": "[Ch. 8] \"We\u2019ve covered various types of windows and their uses. As discussed in Chapter 7, data is sometimes ingested out of the order from which it originated. A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late. If data arrives that is new to the window but older than the timestamp of the watermark, it is considered to be late-arriving data.\"",
       "citations": [
         {
           "chunk_id": "ch08-039",
           "chapter": "8",
-          "quote": "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late"
+          "quote": "We\u2019ve covered various types of windows and their uses. As discussed in Chapter 7, data is sometimes ingested out of the order from which it originated. A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late. If data arrives that is new to the window but older than the timestamp of the watermark, it is considered to be late-arriving data."
         }
       ],
       "figures": [
@@ -69,7 +69,7 @@
   },
   {
     "question": "When is an insert-only table useful?",
-    "seconds": 0.73,
+    "seconds": 0.74,
     "pass": true,
     "notes": [],
     "response": {
@@ -87,7 +87,7 @@
   },
   {
     "question": "Where does storage sit in the data engineering lifecycle?",
-    "seconds": 0.71,
+    "seconds": 0.7,
     "pass": true,
     "notes": [],
     "response": {
@@ -112,7 +112,7 @@
   },
   {
     "question": "What do source systems provide to the rest of the lifecycle?",
-    "seconds": 0.73,
+    "seconds": 0.74,
     "pass": true,
     "notes": [],
     "response": {
@@ -130,16 +130,16 @@
   },
   {
     "question": "How does data architecture relate to enterprise architecture?",
-    "seconds": 0.83,
+    "seconds": 0.8,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 3] \"Data architecture is a subset of enterprise architecture, inheriting its properties: processes, strategy, change management, and evaluating trade-offs\"",
+      "answer": "[Ch. 3] \"Now that you understand enterprise architecture, let\u2019s dive into data architecture by establishing a working definition that will set the stage for the rest of the book. Data architecture is a subset of enterprise architecture, inheriting its properties: processes, strategy, change management, and evaluating trade-offs. Here are a couple of definitions of data architecture that influence our definition.\"",
       "citations": [
         {
           "chunk_id": "ch03-013",
           "chapter": "3",
-          "quote": "Data architecture is a subset of enterprise architecture, inheriting its properties: processes, strategy, change management, and evaluating trade-offs"
+          "quote": "Now that you understand enterprise architecture, let\u2019s dive into data architecture by establishing a working definition that will set the stage for the rest of the book. Data architecture is a subset of enterprise architecture, inheriting its properties: processes, strategy, change management, and evaluating trade-offs. Here are a couple of definitions of data architecture that influence our definition."
         }
       ],
       "figures": [],
@@ -166,16 +166,16 @@
   },
   {
     "question": "What happens to data after it is extracted in ETL?",
-    "seconds": 0.85,
+    "seconds": 0.86,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation\"",
+      "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation. When loading data, you should be mindful of the type of system you\u2019re loading, the schema of the data, and the performance impact of loading.\"",
       "citations": [
         {
           "chunk_id": "ch07-033",
           "chapter": "7",
-          "quote": "Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation"
+          "quote": "Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation. When loading data, you should be mindful of the type of system you\u2019re loading, the schema of the data, and the performance impact of loading."
         }
       ],
       "figures": [],
@@ -184,7 +184,7 @@
   },
   {
     "question": "What do transformations do in the data engineering lifecycle?",
-    "seconds": 0.84,
+    "seconds": 0.76,
     "pass": true,
     "notes": [],
     "response": {
@@ -202,16 +202,16 @@
   },
   {
     "question": "What does CRU stand for?",
-    "seconds": 1.1,
+    "seconds": 0.81,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage\"\nRead as: \"What does crud stand for?\"",
+      "answer": "[Ch. 5] \"stands for create, read, update, and delete\"\nRead as: \"What does crud stand for?\"",
       "citations": [
         {
           "chunk_id": "ch05-019",
           "chapter": "5",
-          "quote": "CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage"
+          "quote": "stands for create, read, update, and delete"
         }
       ],
       "figures": [],
@@ -220,16 +220,16 @@
   },
   {
     "question": "What happens to data after it is extracted in ET?",
-    "seconds": 0.86,
+    "seconds": 0.83,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation\"",
+      "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation. When loading data, you should be mindful of the type of system you\u2019re loading, the schema of the data, and the performance impact of loading.\"",
       "citations": [
         {
           "chunk_id": "ch07-033",
           "chapter": "7",
-          "quote": "Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation"
+          "quote": "Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation. When loading data, you should be mindful of the type of system you\u2019re loading, the schema of the data, and the performance impact of loading."
         }
       ],
       "figures": [],
@@ -238,7 +238,7 @@
   },
   {
     "question": "what is a atermark?",
-    "seconds": 1.17,
+    "seconds": 1.19,
     "pass": true,
     "notes": [],
     "response": {
@@ -263,16 +263,16 @@
   },
   {
     "question": "what does data engineers need to be pragmatic about",
-    "seconds": 0.93,
+    "seconds": 0.79,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"\nThis means data engineers should be adaptable and not invest in fixed, long-term solutions that might limit their ability to try new technologies.",
+      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility. The data landscape is changing too quickly to invest in long-term hardware that inevitably goes stale, can\u2019t easily scale, and potentially hampers a data engineer\u2019s flexibility to try new things. Given the upside for flexibility and low initial costs, we urge data engineers to take an opex-first approach centered on the cloud and flexible, pay-as-you-go technologies.\"\nBeing flexible with technology choices is important because the data landscape changes quickly.",
       "citations": [
         {
           "chunk_id": "ch04-012",
           "chapter": "4",
-          "quote": "Data engineers need to be pragmatic about flexibility"
+          "quote": "Data engineers need to be pragmatic about flexibility. The data landscape is changing too quickly to invest in long-term hardware that inevitably goes stale, can\u2019t easily scale, and potentially hampers a data engineer\u2019s flexibility to try new things. Given the upside for flexibility and low initial costs, we urge data engineers to take an opex-first approach centered on the cloud and flexible, pay-as-you-go technologies."
         }
       ],
       "figures": [],
@@ -281,16 +281,16 @@
   },
   {
     "question": "Data engineers need to be pragmatic about?",
-    "seconds": 0.56,
+    "seconds": 0.76,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"",
+      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility. The data landscape is changing too quickly to invest in long-term hardware that inevitably goes stale, can\u2019t easily scale, and potentially hampers a data engineer\u2019s flexibility to try new things. Given the upside for flexibility and low initial costs, we urge data engineers to take an opex-first approach centered on the cloud and flexible, pay-as-you-go technologies.\"\nBeing flexible in choosing tools and technologies that can change quickly.",
       "citations": [
         {
           "chunk_id": "ch04-012",
           "chapter": "4",
-          "quote": "Data engineers need to be pragmatic about flexibility"
+          "quote": "Data engineers need to be pragmatic about flexibility. The data landscape is changing too quickly to invest in long-term hardware that inevitably goes stale, can\u2019t easily scale, and potentially hampers a data engineer\u2019s flexibility to try new things. Given the upside for flexibility and low initial costs, we urge data engineers to take an opex-first approach centered on the cloud and flexible, pay-as-you-go technologies."
         }
       ],
       "figures": [],
@@ -299,16 +299,16 @@
   },
   {
     "question": "MAD data landscape",
-    "seconds": 1.1,
+    "seconds": 1.12,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 4] \"It\u2019s hard. Just consider the number of technologies in Matt Turck\u2019s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)\"",
+      "answer": "[Ch. 4] \"It\u2019s hard. Just consider the number of technologies in Matt Turck\u2019s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1).\"",
       "citations": [
         {
           "chunk_id": "ch04-020",
           "chapter": "4",
-          "quote": "It\u2019s hard. Just consider the number of technologies in Matt Turck\u2019s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)"
+          "quote": "It\u2019s hard. Just consider the number of technologies in Matt Turck\u2019s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)."
         }
       ],
       "figures": [

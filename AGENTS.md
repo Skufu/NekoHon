@@ -395,6 +395,26 @@ No cloud APIs, no database server, no package installs.
   (`allow_reuse_address`). A stale one silently served old code and made a
   battery run look like a regression. Check `netstat -ano | findstr :8000`
   for more than one LISTENING PID before trusting a battery run.
+- RRF fusion landed 2026-10-12 as post-v1 retrieval work, user-approved:
+  `fusion.py` replaces the boost's swap-last-slot. The lexical channel
+  contributes its single strongest admissible candidate; reciprocal rank
+  fusion (RRF_K=60) places it by both ranks. The dense band stays the
+  admission gate and the trigger stays where the boost had it (a rare word).
+  A head of five candidates was tried first and narrowed the same day: five
+  candidates flooded out dense leaders and the MAD quote flipped back to the
+  data-mesh passage (the battery caught it). Caption seeding now runs after
+  fusion and keeps "present -> leave": moving a present naming chunk to the
+  front broke the transformations golden (the battery caught that too).
+  Measured after: pragmatic ch04-012 now leads its five (the boost put it
+  last); MAD five is [ch04-020, ch04-019, ch03-099, ch02-037, ch11-018] and
+  keeps ch04-019's presence, which the band record says is causal; HTTP
+  battery 18 asks all pass on a fresh server (golden 10/10 answered, typos
+  PASS, probes PASS, France exact; `artifacts/step2-battery.{log,json}`);
+  91 unit tests. `keywords.py` is gate + anchors only now; `fusion.py` is in
+  the generalization guard. Re-measured on the live 1042-chunk index: the
+  pragmatic anchor sits at dense rank 76, the MAD anchor at 38, the France
+  candidate at 649 (62.3%), refused by the band as before. Do not widen the
+  trigger or the candidate count without a measured case and a battery run.
 - Next: Phase 8, optional sequel. Phases 0-7 pass; v1 is done by the README's
   definition.
 - Nomic is the v1 index, not a forever lock. Stop and say so before any of

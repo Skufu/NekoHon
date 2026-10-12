@@ -19,6 +19,7 @@ LOGIC = (
     "answer.py",
     "captions.py",
     "figures.py",
+    "fusion.py",
     "keywords.py",
     "preprocess.py",
     "prompt.py",

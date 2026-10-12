@@ -106,6 +106,14 @@ class CaptionSeedTests(unittest.TestCase):
         )
         self.assertEqual(seeded, passages)
 
+    def test_a_present_seed_is_left_where_it_is(self):
+        figures = [figure("figure-4-1", "Matt Turck's 2021 MAD data landscape", [1.0, 0.0])]
+        passages = DENSE[:3] + [passage("ch04-020", 0.8)] + DENSE[3:4]
+        seeded = caption_seed(
+            mad_index(figures), "MAD data landscape", passages, embed_fn=fake_embed
+        )
+        self.assertEqual(seeded, passages)
+
     def test_a_figure_without_a_naming_chunk_is_ignored(self):
         figures = [figure("figure-9-9", "Some other figure", [1.0, 0.0])]
         seeded = caption_seed(
