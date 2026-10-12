@@ -63,7 +63,7 @@ def format_input(model, kind, text, title=""):
 
     Confirmed 2026-10-11 from the Hugging Face card, not guessed. The text
     passes through preprocess.normalize first: that is the one seam where the
-    dense channel's view of a text is decided, and it is the identity today.
+    dense channel's view of a text is decided, and both sides use it.
     """
     text = normalize(text)
     if model == DEFAULT_EMBEDDER:

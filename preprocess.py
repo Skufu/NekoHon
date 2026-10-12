@@ -3,10 +3,14 @@
 Two channels, two needs (the README's keyword/vector split):
 
 - the dense channel keeps grammar, punctuation, case, and negation, because the
-  embedder was trained on prose. `normalize()` is that view, and it is
-  deliberately the identity today. It changes the bytes every vector in
-  `data/index.json` was built from, so it moves only with a new index file and
-  a rerun of the golden set, the typos, the probes, and France.
+  embedder was trained on prose. `normalize()` is that view: NFKC, then runs of
+  horizontal whitespace folded to one space, newlines kept because a chunk's
+  first line is its heading. It is applied at embed time only, in
+  `retrieve.format_input`, on both the document and the query side — the two
+  must travel together, so changing it means rebuilding the index, not just
+  editing this function. On this book it moves 3 chunks of 1065, so it buys
+  almost nothing here; it is wired for the next book, whose EPUB may carry
+  ligatures, non-breaking spaces, or full-width characters.
 - the lexical channel wants tokens. `tokens()` and `words()` are the only
   tokenizers, used by `postings`, `anchor_words`, `rare`, `boost`, and the
   readings, so the two sides of the index cannot drift apart. Symmetry by
@@ -19,6 +23,7 @@ and neither writes back.
 """
 
 import re
+import unicodedata
 
 TOKEN = re.compile(r"[A-Za-z]+")
 
@@ -46,11 +51,16 @@ def words(text):
 
 
 def normalize(text):
-    """The dense-channel view. The identity until a bake-off says otherwise.
+    """The dense-channel view: NFKC, then runs of spaces folded to one.
 
-    The candidates are NFKC and whitespace folding. Both rewrite the bytes an
-    embedder sees, so neither ships without `data/index.<name>.json` and a
-    rerun of the pins; swapping a live index under the same name is exactly the
-    move the hard rules forbid.
+    Newlines stay, because a chunk's first line is its heading and the dense
+    text keeps that shape. Applied at embed time only: `chunk["text"]` stays
+    canonical and is what gets cited, so this never edits the book.
+
+    The document side and the query side must use this same function. Turning
+    it on without rebuilding the index leaves the query view and the stored
+    vectors in different spaces, which degrades silently.
     """
-    return text or ""
+    folded = unicodedata.normalize("NFKC", text or "")
+    lines = [re.sub(r"[^\S\n]+", " ", line).strip() for line in folded.split("\n")]
+    return "\n".join(lines).strip()

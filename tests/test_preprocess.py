@@ -39,19 +39,25 @@ class SymmetryTests(unittest.TestCase):
 
 
 class DenseSeamTests(unittest.TestCase):
-    def test_the_dense_view_is_deliberately_the_identity(self):
-        # If this fails, the bytes the embedder sees changed, and every vector
-        # in data/index.json is stale. That is a bake-off, not a commit.
-        self.assertEqual(normalize("A  B\n\tC"), "A  B\n\tC")
+    def test_normalize_is_nfkc_then_single_spaces(self):
+        self.assertEqual(normalize("the ﬁle  is\topen"), "the file is open")
+        self.assertEqual(normalize("a\u00a0b"), "a b")
+
+    def test_normalize_keeps_newlines_so_the_heading_line_survives(self):
+        self.assertEqual(normalize("Heading\n  body   text"), "Heading\nbody text")
+
+    def test_normalize_is_idempotent(self):
+        once = normalize("the ﬁle \u2460  runs")
+        self.assertEqual(normalize(once), once)
 
     def test_the_prefix_is_added_after_the_dense_view(self):
         self.assertEqual(
             format_input(DEFAULT_EMBEDDER, "query", "a  b"),
-            "search_query: a  b",
+            "search_query: a b",
         )
         self.assertEqual(
             format_input(DEFAULT_EMBEDDER, "document", "a  b"),
-            "search_document: a  b",
+            "search_document: a b",
         )
 
 

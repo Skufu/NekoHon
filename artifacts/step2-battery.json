@@ -1,7 +1,7 @@
 [
   {
     "question": "What does CRUD stand for?",
-    "seconds": 0.85,
+    "seconds": 16.63,
     "pass": true,
     "notes": [],
     "response": {
@@ -19,7 +19,7 @@
   },
   {
     "question": "What is data ingestion?",
-    "seconds": 0.67,
+    "seconds": 1.14,
     "pass": true,
     "notes": [],
     "response": {
@@ -44,11 +44,11 @@
   },
   {
     "question": "What is a watermark?",
-    "seconds": 1.07,
+    "seconds": 1.56,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late\"\nA watermark is a time threshold used to check if data is on time or late.",
+      "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late\"\nA watermark is a time threshold used to check if data is current or delayed.",
       "citations": [
         {
           "chunk_id": "ch08-040",
@@ -69,7 +69,7 @@
   },
   {
     "question": "When is an insert-only table useful?",
-    "seconds": 0.51,
+    "seconds": 0.92,
     "pass": true,
     "notes": [],
     "response": {
@@ -87,7 +87,7 @@
   },
   {
     "question": "Where does storage sit in the data engineering lifecycle?",
-    "seconds": 0.64,
+    "seconds": 1.17,
     "pass": true,
     "notes": [],
     "response": {
@@ -124,7 +124,7 @@
   },
   {
     "question": "What do source systems provide to the rest of the lifecycle?",
-    "seconds": 0.69,
+    "seconds": 1.23,
     "pass": true,
     "notes": [],
     "response": {
@@ -155,7 +155,7 @@
   },
   {
     "question": "How does data architecture relate to enterprise architecture?",
-    "seconds": 0.73,
+    "seconds": 1.15,
     "pass": true,
     "notes": [],
     "response": {
@@ -180,7 +180,7 @@
   },
   {
     "question": "What is the difference between batch and streaming?",
-    "seconds": 0.65,
+    "seconds": 1.14,
     "pass": true,
     "notes": [],
     "response": {
@@ -198,7 +198,7 @@
   },
   {
     "question": "What happens to data after it is extracted in ETL?",
-    "seconds": 0.86,
+    "seconds": 1.32,
     "pass": true,
     "notes": [],
     "response": {
@@ -223,7 +223,7 @@
   },
   {
     "question": "What do transformations do in the data engineering lifecycle?",
-    "seconds": 0.88,
+    "seconds": 1.24,
     "pass": true,
     "notes": [],
     "response": {
@@ -248,7 +248,7 @@
   },
   {
     "question": "What does CRU stand for?",
-    "seconds": 1.14,
+    "seconds": 1.5,
     "pass": true,
     "notes": [],
     "response": {
@@ -266,7 +266,7 @@
   },
   {
     "question": "What happens to data after it is extracted in ET?",
-    "seconds": 0.85,
+    "seconds": 1.25,
     "pass": true,
     "notes": [],
     "response": {
@@ -284,7 +284,7 @@
   },
   {
     "question": "what is a atermark?",
-    "seconds": 1.25,
+    "seconds": 1.67,
     "pass": true,
     "notes": [],
     "response": {
@@ -321,7 +321,7 @@
   },
   {
     "question": "what does data engineers need to be pragmatic about",
-    "seconds": 0.77,
+    "seconds": 1.1,
     "pass": true,
     "notes": [],
     "response": {
@@ -339,7 +339,7 @@
   },
   {
     "question": "Data engineers need to be pragmatic about?",
-    "seconds": 0.64,
+    "seconds": 1.04,
     "pass": true,
     "notes": [],
     "response": {
@@ -357,7 +357,7 @@
   },
   {
     "question": "MAD data landscape",
-    "seconds": 1.17,
+    "seconds": 1.63,
     "pass": true,
     "notes": [],
     "response": {
@@ -388,7 +388,7 @@
   },
   {
     "question": "multicloud methodology disadvantages",
-    "seconds": 0.73,
+    "seconds": 1.08,
     "pass": true,
     "notes": [],
     "response": {
@@ -406,7 +406,7 @@
   },
   {
     "question": "What is the capital of France?",
-    "seconds": 0.46,
+    "seconds": 0.96,
     "pass": true,
     "notes": [],
     "response": {

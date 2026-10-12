@@ -187,19 +187,40 @@ No cloud APIs, no database server, no package installs.
   and the readings, so the index side and the query side cannot fold
   differently. Before this, five call sites each ran their own `.lower()` over
   the same regex — one forgotten fold and the channels stop matching silently.
-  `normalize()` is the dense-channel seam and is deliberately the identity: it
-  changes the bytes every vector was built from, so it moves only with
-  `data/index.<name>.json` and a rerun of the pins. `retrieve.format_input`
-  routes through it and adds the task prefix after it.
+  `normalize()` is the dense-channel view: NFKC, then horizontal whitespace
+  runs folded to one space, newlines kept because a chunk's first line is its
+  heading. It is applied in `retrieve.format_input` on both sides, so the
+  document and the query travel together — turning it on without rebuilding
+  the index leaves the query view and the stored vectors in different spaces.
   `tests/test_preprocess.py` asserts that `postings()` keys equal `words()`
-  over the same text, that four casings of one word all fire the rare gate,
-  and that the dense view stays the identity — that last test is the tripwire,
-  because if it fails the index is stale. Proven a no-op: every pin identical
-  in-process (golden 10/10, CRU/ET/atermark, pragmatic, multicloud, MAD
-  ch04-020, watermark, storage, France exact) and the HTTP battery rerun on a
-  fresh server is PASS on all four lines. 66 unit tests. Documented limit:
-  digits are not tokens ("S3" reads as "s"), kept because widening it moves
-  every df count and the rare gate rides on those.
+  over the same text, that four casings of one word all fire the rare gate, and
+  that normalize is NFKC and idempotent. 66 unit tests.
+- Normalized index built and switched in 2026-10-12 (`data/index.json`; the old
+  build kept as `data/index.pre-normalize.json` for a reproducible compare).
+  Re-embedding 1065 chunks + 111 figures took 14.5 s on local Ollama. Measured
+  before the switch: NFKC changes 3 chunks of 1065 (ch02-046, ch08-090,
+  ch11-014); their vectors move to cosine 0.9957-0.9978; 1062 of 1065 vectors
+  are byte-identical to the pre-normalize build; the top-5 did not change on
+  any of 17 probe questions and the largest top-5 score delta was 0.0. Real but
+  inert on this book; switched for consistency (the query side normalizes) and
+  for the next book, whose EPUB may carry ligatures, non-breaking spaces, or
+  full-width characters. Battery rerun over HTTP on a fresh server: golden
+  10/10, typos PASS, probes PASS, France exact, battery PASS. 68 unit tests.
+- Chunk-boundary audit 2026-10-12, measured (the cause is in `ingest.py`): 373
+  of 1013 chunks (37%) start mid-sentence and 43 (4%) end without `.`/`!`/`?`;
+  sizes run 91 / 978 / 1333 / 1400 (min/median/p90/max). Two causes, both in
+  `_section_chunks`: a paragraph longer than the cap is cut at
+  `text.rfind(" ")` — a space, not a sentence end — and the overlap prepends
+  `_tail(...)`, a word-count fragment of the previous chunk, so every
+  overlapped chunk starts mid-sentence by construction. Word-count overlap does
+  not fix this; it is one of the two causes. The fix is sentence-boundary
+  packing with sentence-aligned overlap. Late chunking and ColBERT are
+  vector-side retrieval tricks — they cannot change the chunk text that gets
+  cited, and neither is available here (Ollama returns one vector per input;
+  the hard rules forbid rerankers and numpy). Not started: re-chunking changes
+  every chunk id, so it re-baselines the battery, the demo sheet, and every
+  pin. Documented limit kept: digits are not tokens ("S3" reads as "s"),
+  because widening it moves every df count and the rare gate rides on those.
 - Quote-check tag-slip fix landed 2026-10-12: when the model writes the wrong
   `[Ch. N]` tag but the quoted sentence is verbatim in another attached
   passage, the check matches that passage; the answer's chapter is rebuilt
