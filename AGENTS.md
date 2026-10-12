@@ -91,6 +91,10 @@ No cloud APIs, no database server, no package installs.
 - explain and quiz verified over HTTP 2026-10-12, both `refused: false`, no key
   leak in the quiz question. Latency profile: warm asks ~0.8-1.6 s; the first
   ask after ~5 min idle pays a one-time ~25 s Ollama model load.
+- All 10 golden questions run end-to-end over HTTP 2026-10-12: 8 answered with
+  a chunk and quote, 2 refused (`Not in this book.`): the storage-cornerstone
+  and transformations questions. Retrieval stayed 10/10; the refusals are the
+  answer layer. Demo sheet: `artifacts/demo-questions.md`.
 - Next: Phase 8, optional sequel. Phases 0-7 pass; v1 is done by the README's
   definition.
 - Nomic is the v1 index, not a forever lock. Stop and say so before any of
@@ -134,3 +138,19 @@ No cloud APIs, no database server, no package installs.
   directory without it (the file itself explains why).
 - `books/` and `data/` are gitignored. On a fresh machine, re-run Phase 0: the
   original EPUB path is recorded in `books/SOURCE.txt`.
+
+## Post-v1 backlog (not approved; confirm before starting)
+
+- Typo tolerance for questions. Measured: small typos keep the right chunk at
+  rank 1 but the answer layer may refuse ("What does CRU stand for?" did).
+  Options: a prompt line to match the nearest term, or normalizing the
+  question against the book vocabulary. Re-run the 10 questions, the quote
+  checks, and the France refusal after.
+- Figures shown on refusals: a refusal can carry nearest-miss figures. Label
+  them in the window as nearby, not an answer.
+- Caption quoting: README Figure honesty allows quoting the caption; the
+  pipeline currently feeds only passages.
+- Citation ids on the page: render chunk ids (`ch07-002`) in the window; the
+  API response already carries them.
+- `keep_alive` in the Ollama requests: removes the ~25 s cold-load; warm asks
+  are ~1 s (measured). Cost: ~5 GB VRAM held.
