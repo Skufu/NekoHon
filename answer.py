@@ -14,8 +14,8 @@ from captions import caption_seed
 from figures import figures_for
 from keywords import anchor_words, boost, postings, rare
 from prompt import ANSWER_MODEL, REFUSAL, SYSTEM
+from readings import second_reading
 from retrieve import dense_rank, search
-from spelling import book_repair, correct_question
 
 OLLAMA_CHAT = "http://127.0.0.1:11434/api/chat"
 PASSAGE_LIMIT = 5
@@ -280,27 +280,32 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL):
     passages = search_fn(index, question, k=PASSAGE_LIMIT)
     if not passages:
         return _refusal([])
-    model_question = correct_question(question, index, passages)
-    search_question = question
-    retry_question = book_repair(question, index)
-    if retry_question != question:
-        retry_passages = search_fn(index, retry_question, k=PASSAGE_LIMIT)
-        # The retry must prove itself: strictly better or it is discarded.
-        if retry_passages and retry_passages[0]["score"] > passages[0]["score"]:
-            passages = retry_passages
-            model_question = retry_question
-            search_question = retry_question
-    passages = caption_seed(index, search_question, passages)
     word_map = postings(index)
+    # A word the book does not contain may be a typo. One self-proving reading
+    # becomes the question when it scores strictly better, and the answer says
+    # which reading it answered. Nothing is repaired silently.
+    reading = second_reading(index, question, passages[0]["score"], word_map=word_map)
+    asked = question
+    if reading is not None:
+        asked = reading["reading"]
+        present = any(
+            hit["chunk_id"] == reading["chunk"]["chunk_id"] for hit in passages
+        )
+        if not present:
+            passages = [reading["chunk"]] + passages[:-1]
+    passages = caption_seed(index, asked, passages)
     # The rank map costs one embed plus a full cosine pass. Only a rare word can
     # lead to an injection, so other asks do not pay for it.
-    ranks = dense_rank(index, search_question) if rare(search_question, word_map) else {}
-    passages = boost(index, search_question, passages, word_map, ranks)
-    completion = generate_fn(SYSTEM, user_message(model_question, passages), model)
+    ranks = dense_rank(index, asked) if rare(asked, word_map) else {}
+    passages = boost(index, asked, passages, word_map, ranks)
+    completion = generate_fn(SYSTEM, user_message(asked, passages), model)
     anchors = anchor_words(question, word_map)
-    return parse_completion(
+    body = parse_completion(
         completion, passages, index.get("figures") or [], anchors
     )
+    if reading is not None and not body["refused"]:
+        body["answer"] = f'{body["answer"]}\nRead as: "{asked}"'
+    return body
 
 
 def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MODEL):

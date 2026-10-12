@@ -21,8 +21,8 @@ LOGIC = (
     "figures.py",
     "keywords.py",
     "prompt.py",
+    "readings.py",
     "retrieve.py",
-    "spelling.py",
 )
 FORBIDDEN = (
     (re.compile(r"\bch\d{2}-\d{3}\b"), "chunk id"),

@@ -46,8 +46,8 @@
 
 | Failure seen in the wild | Slayer | Pinned by |
 | --- | --- | --- |
-| Typo, chunk still found (CRU, ET) | question repair (spelling.py) | battery typos |
-| Typo breaks the search itself (atermark) | retry search, kept only if score improves | battery typos |
+| Typo, chunk found but the model refuses (CRU) | second reading becomes the question, disclosed as the `Read as:` line | battery typos |
+| Typo breaks the search itself (atermark) | second reading, kept only when the score strictly improves | battery typos |
 | Model edits its quote, or tags the wrong chapter | span-keep + any-attached-passage match | unit tests + battery |
 | Search drowns a rare word (pragmatic); list answers thin (multicloud) | rare-word boost + anchor paragraph expansion | battery probes |
 

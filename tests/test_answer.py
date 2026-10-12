@@ -316,6 +316,18 @@ class AnswerTests(unittest.TestCase):
         self.assertTrue(body["refused"])
         self.assertEqual(body["answer"], REFUSAL)
 
+    def test_a_question_without_a_swap_is_passed_through_verbatim(self):
+        seen = {}
+
+        def generate(system, user, model):
+            seen["user"] = user
+            return '[Ch. 5] "stands for create, read, update, and delete"'
+
+        ask({}, "What does CRU stand for?", generate, lambda *args, **kwargs: PASSAGES)
+        self.assertEqual(
+            seen["user"].splitlines()[0], "Question: What does CRU stand for?"
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

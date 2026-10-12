@@ -43,7 +43,7 @@ No cloud APIs, no database server, no package installs.
 - Improvements must generalize, not fit this book's test set — the system has
   to hold for other books later. No chunk ids, figure ids, chapter numbers,
   query strings, or book ids in the logic modules (`answer.py`, `captions.py`,
-  `figures.py`, `keywords.py`, `prompt.py`, `retrieve.py`, `spelling.py`).
+  `figures.py`, `keywords.py`, `prompt.py`, `readings.py`, `retrieve.py`).
   Pins and ids belong in tests, the battery, and docstrings.
   `tests/test_generalization.py` enforces the literal part. Thresholds are the
   subtler half: a constant is fitted if its stated reason is which known test it
@@ -119,6 +119,25 @@ No cloud APIs, no database server, no package installs.
   (`artifacts/step2-battery.{log,json}`): golden 10/10 answered and 10/10
   against pins, typos PASS (CRU ch05-019, ET ch07-033, atermark ch08-040),
   France exact refusal; 37 unit tests green; warm asks 0.9-1.4 s.
+- Post-v1 step 2 superseded 2026-10-12: `spelling.py` is deleted. It repaired
+  the question twice — once for the prompt text, once for a re-search — and the
+  reader was answered a question they never asked. `readings.py` keeps one
+  reading: a word absent from the book swaps to its closest book word (whole
+  book, difflib 0.85, unique best only); the reading is kept only when its best
+  dense score strictly beats the literal one, which is a comparison, not a
+  tuned cutoff; and the reading becomes the question the model answers. The
+  answer states it
+  as one line, `Read as: "..."`, so nothing is repaired silently.
+  Measured 2026-10-12: atermark 0.573 -> 0.817 (ch08-040), CRU 0.675 -> 0.785
+  (ch05-019), France 0.544 -> 0.530 dropped — the refusal is protected by the
+  improvement gate, not by the similarity margin (france/franca sits 0.017
+  under the cutoff, so the cutoff alone would not be trusted).
+  Hints were tried first and failed: six shapes of note (plain, quoted,
+  system-level rule, bracket on the question line) all returned exactly
+  `Not in this book.` for "What does CRU stand for?" with five passages
+  attached; the model needs the reading as the question. Typo probes
+  re-measured in-process: CRU/ET/atermark PASS, golden 10/10, France exact,
+  MAD ch04-020; 59 unit tests green. HTTP battery not rerun (stale :8000).
 - Post-v1 step 3 (label refusal figures) landed 2026-10-12: the window marks
   nearest-miss figures on a refusal "nearby, not an answer"
   (`window/index.html`, `.nearby`); a real answer gets no such label.
