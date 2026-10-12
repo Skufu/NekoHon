@@ -66,7 +66,7 @@ No cloud APIs, no database server, no package installs.
   returned figure-8-8, file fode_0808.png, 18913 bytes. CRUD returned no figure.
   Score does not attach a figure. The score floor is still unset.
 - `GET /` serves `window/index.html`. `GET /figures/{id}` returns the image.
-  The page was not opened in a browser. The answer still must not describe pixels.
+  The page had not been opened in a browser yet. The answer still must not describe pixels.
 - Phase 6 explain and quiz are in. Explain treats the highlight as the question
   and still checks the quote. Quiz returns one question plus one key sentence
   from one chunk. The question must not contain the key. No score. No sparring.
@@ -84,6 +84,10 @@ No cloud APIs, no database server, no package installs.
   exercise of the HTTP path. Embeddings and answers are Ollama on localhost;
   models are nomic-embed-text and qwen2.5:7b; no cloud model API; base
   models, no training.
+- Window first opened in a browser 2026-10-12: the ask path showed the quoted
+  answer and the `figure-8-8` image with caption, live from the engine. The
+  explain mode and the quiz "Show the key" button are not yet exercised in a
+  browser.
 - Next: Phase 8, optional sequel. Phases 0-7 pass; v1 is done by the README's
   definition.
 - Nomic is the v1 index, not a forever lock. Stop and say so before any of

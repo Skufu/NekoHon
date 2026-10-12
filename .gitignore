@@ -2,3 +2,4 @@ data/
 books/
 __pycache__/
 data/index.*.json
+artifacts/engine.*.log
