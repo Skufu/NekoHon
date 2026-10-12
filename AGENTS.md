@@ -221,6 +221,28 @@ No cloud APIs, no database server, no package installs.
   every chunk id, so it re-baselines the battery, the demo sheet, and every
   pin. Documented limit kept: digits are not tokens ("S3" reads as "s"),
   because widening it moves every df count and the rare gate rides on those.
+- Sentence-boundary chunking written 2026-10-12 (`ingest.py`), built into
+  `data/index.sentence.json` and NOT yet live — `data/index.json` is still the
+  old build, on purpose. Boundaries measured before/after:
+  mid-sentence starts 373 -> 0, chunk ends cut mid-sentence 25 -> 0, open ends
+  43 -> 41 (the rest are list-intro colons and citation lists, not cuts), chunk
+  count 1013 -> 990, sizes 91/978/1333/1400 -> 83/978/1333/1399. No fixture
+  phrase was split across a boundary, and the retrieval smoke is 10/10 on both.
+  What changed: `_pieces()` packs sentences to the cap instead of cutting at
+  `rfind(" ")`, and the overlap is `_sentence_tail`, whole trailing sentences
+  from the chunk body, instead of a word-count tail.
+  Two bugs of mine, both found by the audit and fixed: `_sentence_tail`
+  returned the whole previous chunk when the text has no sentence ends (a
+  citation list), so chunks grew 1200 -> 5700 in a chain; and taking the tail
+  from the chunk instead of the body repeated the heading inside the next
+  chunk. A trailing sentence longer than the overlap limit now yields nothing.
+  Re-derived battery pins against the new index (in-process, model included):
+  ch08-040 -> ch08-039 (watermark and atermark), ch02-018 -> ch02-019 (batch
+  versus streaming), ch02-025 -> ch02-027 (transformations), ch04-038 ->
+  ch04-037 (multicloud). Unchanged: ch05-019, ch07-002, ch05-020, ch06-001,
+  ch02-005, ch03-013, ch07-033, ch04-012, ch04-020. France still exact.
+  Switching is a one-line copy plus those four pin edits, and only then is the
+  live battery meaningful again. 77 unit tests.
 - Quote-check tag-slip fix landed 2026-10-12: when the model writes the wrong
   `[Ch. N]` tag but the quoted sentence is verbatim in another attached
   passage, the check matches that passage; the answer's chapter is rebuilt

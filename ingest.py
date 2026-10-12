@@ -225,15 +225,98 @@ def _mentions_figure(text):
     return bool(re.search(r"\b(Figure|Fig\.)\b", visible))
 
 
-def _tail(text, limit):
-    words = text.split()
+SENTENCE_END = re.compile(r"(?<=[.!?])\s+")
+# A sentence does not end inside these. Being liberal here is the safe side:
+# a missed merge only makes a piece longer, while a false split becomes a
+# chunk that starts mid-sentence.
+ABBREVIATIONS = (
+    "e.g.", "i.e.", "et al.", "vs.", "etc.", "cf.", "approx.", "Fig.", "Figs.",
+    "Dr.", "Mr.", "Ms.", "Mrs.", "Jr.", "Sr.", "St.", "Inc.", "Ltd.", "Co.",
+)
+INITIAL = re.compile(r"(?:^|\s)[A-Z]\.$")
+
+
+def _sentences(text):
+    """Sentences of a block. Known abbreviations and initials do not end one.
+
+    A false boundary here matters: pieces are cut only where this function says
+    a sentence ends, so a wrong split becomes a chunk that starts mid-sentence.
+    """
+    sentences = []
+    for part in SENTENCE_END.split((text or "").strip()):
+        part = part.strip()
+        if not part:
+            continue
+        if sentences and (
+            sentences[-1].endswith(ABBREVIATIONS) or INITIAL.search(sentences[-1])
+        ):
+            sentences[-1] = sentences[-1] + " " + part
+        else:
+            sentences.append(part)
+    return sentences
+
+
+def _by_words(text):
+    """Fallback for one sentence past the cap: it has to be cut somewhere."""
+    pieces = []
+    start = 0
+    while start < len(text):
+        end = min(start + CHUNK_CHARS, len(text))
+        if end < len(text):
+            cut = text.rfind(" ", start, end)
+            if cut > start + CHUNK_CHARS // 2:
+                end = cut
+        pieces.append(text[start:end].strip())
+        if end >= len(text):
+            break
+        start = end
+    return pieces
+
+
+def _pieces(text):
+    """Text as pieces no longer than the cap, cut only at sentence ends.
+
+    A short text is one piece. A long one is packed from its sentences, so a
+    piece can only begin where a sentence begins.
+    """
+    if len(text) <= CHUNK_CHARS:
+        return [text]
+    pieces = []
+    current = ""
+    for sentence in _sentences(text):
+        if len(sentence) > CHUNK_CHARS:
+            if current:
+                pieces.append(current)
+                current = ""
+            pieces.extend(_by_words(sentence))
+            continue
+        if current and len(current) + len(sentence) + 1 > CHUNK_CHARS:
+            pieces.append(current)
+            current = sentence
+        else:
+            current = (current + " " + sentence).strip()
+    if current:
+        pieces.append(current)
+    return pieces
+
+
+def _sentence_tail(text, limit):
+    """Trailing whole sentences, up to the limit. Never a mid-sentence cut.
+
+    A single trailing sentence longer than the limit yields nothing. A citation
+    list has no sentence ends at all, so its whole text reads as one sentence;
+    taking that as the overlap made every chunk the previous chunk plus more,
+    which is how chunks grew past 5000 characters.
+    """
     kept = []
     size = 0
-    for word in reversed(words):
-        if size + len(word) + 1 > limit:
+    for sentence in reversed(_sentences(text)):
+        if len(sentence) > limit:
             break
-        kept.append(word)
-        size += len(word) + 1
+        if kept and size + len(sentence) + 1 > limit:
+            break
+        kept.append(sentence)
+        size += len(sentence) + 1
     return " ".join(reversed(kept))
 
 
@@ -245,20 +328,12 @@ def _section_chunks(heading, body_blocks):
     pieces = []
     for block in body_blocks:
         text = _stored(block["text"])
-        if block["kind"] == "table" or len(text) <= CHUNK_CHARS:
+        # A table stays one piece even past the cap: a cut table is worse than
+        # a long chunk.
+        if block["kind"] == "table":
             pieces.append(text)
             continue
-        start = 0
-        while start < len(text):
-            end = min(start + CHUNK_CHARS, len(text))
-            if end < len(text):
-                cut = text.rfind(" ", start, end)
-                if cut > start + CHUNK_CHARS // 2:
-                    end = cut
-            pieces.append(text[start:end].strip())
-            if end >= len(text):
-                break
-            start = max(end - OVERLAP_CHARS, start + 1)
+        pieces.extend(_pieces(text))
 
     if not pieces and not heading:
         return []
@@ -266,18 +341,20 @@ def _section_chunks(heading, body_blocks):
     chunks = []
     current = []
     current_len = 0
+    last_body = ""
     heading = _stored(heading)
     heading_prefix = (heading + "\n") if heading else ""
     budget = max(CHUNK_CHARS - len(heading_prefix), 200)
 
     def flush():
-        nonlocal current, current_len
+        nonlocal current, current_len, last_body
         if not current and not heading:
             return
         body = "\n\n".join(current).strip()
         text = (heading_prefix + body).strip()
         if text:
             chunks.append(text)
+            last_body = body
         current = []
         current_len = 0
 
@@ -285,9 +362,11 @@ def _section_chunks(heading, body_blocks):
         extra = len(piece) + (2 if current else 0)
         if current and current_len + extra > budget:
             flush()
-            # overlap only because this section did not fit in one chunk
+            # Overlap only because this section did not fit in one chunk. The
+            # tail comes from the body, not the chunk: a heading in the
+            # overlap would repeat the heading inside the next chunk.
             if chunks:
-                tail = _tail(chunks[-1], OVERLAP_CHARS)
+                tail = _sentence_tail(last_body, OVERLAP_CHARS)
                 if tail:
                     current = [tail]
                     current_len = len(tail)
