@@ -1,0 +1,182 @@
+[
+  {
+    "mode": "ask",
+    "question": "types of metadata",
+    "on": {
+      "refused": false,
+      "chunk": "ch02-051",
+      "head": "[Ch. 2] \"Metadata is data about data\""
+    },
+    "off": {
+      "refused": false,
+      "chunk": "ch02-051",
+      "head": "[Ch. 2] \"Metadata is data about data\""
+    },
+    "same": true
+  },
+  {
+    "mode": "ask",
+    "question": "hot warm cold data",
+    "on": {
+      "refused": true,
+      "chunk": "ch06-102",
+      "head": "Not in this book."
+    },
+    "off": {
+      "refused": true,
+      "chunk": "ch06-102",
+      "head": "Not in this book."
+    },
+    "same": true
+  },
+  {
+    "mode": "ask",
+    "question": "dark matter data",
+    "on": {
+      "refused": false,
+      "chunk": "ch11-025",
+      "head": "[Ch. 11] \"What’s the most widely used data platform? It’s the humble spreadsheet. Depending on the estimates you read, the user base of spreadsheets i"
+    },
+    "off": {
+      "refused": false,
+      "chunk": "ch11-025",
+      "head": "[Ch. 11] \"Spreadsheets are the dark matter of the data world\" Data that exists but is not accounted for in sophisticated data systems."
+    },
+    "same": true
+  },
+  {
+    "mode": "ask",
+    "question": "capital of France",
+    "on": {
+      "refused": true,
+      "chunk": "ch01-064",
+      "head": "Not in this book."
+    },
+    "off": {
+      "refused": true,
+      "chunk": "ch03-071",
+      "head": "Not in this book."
+    },
+    "same": false
+  },
+  {
+    "mode": "ask",
+    "question": "IOPS",
+    "on": {
+      "refused": false,
+      "chunk": "ch04-030",
+      "head": "[Ch. 4] \"Here’s our educated guess. When purchasing cloud storage, each disk in a storage cluster has three assets that cloud providers and consumers "
+    },
+    "off": {
+      "refused": false,
+      "chunk": "ch04-030",
+      "head": "[Ch. 4] \"Here’s our educated guess. When purchasing cloud storage, each disk in a storage cluster has three assets that cloud providers and consumers "
+    },
+    "same": true
+  },
+  {
+    "mode": "ask",
+    "question": "watermark",
+    "on": {
+      "refused": false,
+      "chunk": "ch08-039",
+      "head": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whe"
+    },
+    "off": {
+      "refused": false,
+      "chunk": "ch08-039",
+      "head": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whe"
+    },
+    "same": true
+  },
+  {
+    "mode": "ask",
+    "question": "data mesh in simple words",
+    "on": {
+      "refused": false,
+      "chunk": "ch03-099",
+      "head": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and “the great"
+    },
+    "off": {
+      "refused": false,
+      "chunk": "ch03-099",
+      "head": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and ‘the great"
+    },
+    "same": true
+  },
+  {
+    "mode": "ask",
+    "question": "atermark",
+    "on": {
+      "refused": false,
+      "chunk": "ch08-039",
+      "head": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whe"
+    },
+    "off": {
+      "refused": false,
+      "chunk": "ch08-039",
+      "head": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whe"
+    },
+    "same": true
+  },
+  {
+    "mode": "ask",
+    "question": "What is normalization",
+    "on": {
+      "refused": false,
+      "chunk": "ch08-051",
+      "head": "[Ch. 8] \"Normalization is a database data modeling practice that enforces strict control over the relationships of tables and columns within a databas"
+    },
+    "off": {
+      "refused": false,
+      "chunk": "ch08-051",
+      "head": "[Ch. 8] \"Normalization is a database data modeling practice that enforces strict control over the relationships of tables and columns within a databas"
+    },
+    "same": true
+  },
+  {
+    "mode": "answer",
+    "question": "hot warm cold data",
+    "on": {
+      "refused": false,
+      "chunk": "ch06-104",
+      "head": "Hot, warm, and cold data refer to the frequency of data access. Hot data is accessed frequently, such as several times per day or even per second [Ch."
+    },
+    "off": {
+      "refused": false,
+      "chunk": "ch06-104",
+      "head": "Hot, warm, and cold data are categorized based on their access frequency. Hot data is accessed most frequently, often several times per day or even pe"
+    },
+    "same": true
+  },
+  {
+    "mode": "answer",
+    "question": "dark matter data",
+    "on": {
+      "refused": false,
+      "chunk": "ch11-025",
+      "head": "Dark matter data refers to data that is widely used in spreadsheets and never makes its way into sophisticated data systems [Ch. 11]. Spreadsheets, wh"
+    },
+    "off": {
+      "refused": true,
+      "chunk": "ch11-025",
+      "head": "Not in this book."
+    },
+    "same": false
+  },
+  {
+    "mode": "answer",
+    "question": "data mesh in simple words",
+    "on": {
+      "refused": false,
+      "chunk": "ch09-016",
+      "head": "Data from other teams can go into the domain team's software through analytics or ML features. [Ch. 9] Asked as: \"What is data mesh in simple words?\""
+    },
+    "off": {
+      "refused": false,
+      "chunk": "ch09-016",
+      "head": "Each domain team serves both their needs and data to peers. [Ch. 9]"
+    },
+    "same": true
+  }
+]

@@ -1,0 +1,30 @@
+content files: 25
+
+== marker: 'MAD) landscape'
+--- OEBPS/ch04.html @ 25784
+d fade slowly into obscurity. Top VCs are making big-money bets, knowing that most of their data-tooling investments will fail. If VCs pouring millions (or billions) into data-tooling investments can’t get it right, how can you possibly know which technologies to invest in for your data architecture? It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the <a href="https://oreil.ly/TWTfM">ML, AI, and data (MAD) landscape</a> that we introduced in <a data-type="xref" href="ch01.html#data_engineering_described">Chapter 1</a> (<a data-type="xref" href="#matt_turckapostrophes_twozerotwoone_mad">Figure 4-1</a>).</p>
+
+<p class="widows_3">Even relatively successful techn
+
+
+== marker: 'Enter nonrelational or NoSQL databases'
+--- OEBPS/ch05.html @ 46656
+> relational databases are terrific for many use cases, they’re not a one-size-fits-all solution. We often see that people start with a relational database under the impression it’s a universal appliance and shoehorn in a ton of use cases and workloads. As data and query requirements morph, the relational database collapses under its weight. At that point, you’ll want to use a database that’s appropriate for the specific workload under pressure. Enter nonrelational or NoSQL databases. <em>NoSQL</em>, which stands for <em>not only SQL</em>, refers to a whole class of databases that abandon the relational paradigm.</p>
+
+<p>On the one hand, dropping relational constraints can improve performance, scalability, and schema flexibili
+
+
+== marker: 'Figure 4-1'
+--- OEBPS/ch04.html @ 26728
+ssive datasets without coding complex MapReduce jobs by hand. Inspired by the success of Hive but wishing to improve on its shortcomings, engineers developed Presto and other technologies. Hive now appears primarily in legacy deployments. Almost every technology follows this inevitable path of decline.</p>
+
+<figure><div class="figure" id="matt_turckapostrophes_twozerotwoone_mad"><img alt="" src="assets/fode_0401.png"/>
+<h6><span class="label">Figure 4-1. </span>Matt Turck’s 2021 <a href="https://oreil.ly/TWTfM">MAD data landscape</a></h6>
+</div></figure>
+
+<section data-pdf-bookmark="Our Advice" data-type="sect2"><div class="sect2" id="our_advice-id000026">
+<h2>Our Advice</h2>
+
+<p>Given the ra
+
+total <a href=> across content: 2900; id= anchors: 2621

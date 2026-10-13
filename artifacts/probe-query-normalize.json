@@ -1,0 +1,393 @@
+[
+  {
+    "question": "What does CRUD stand for?",
+    "expect": "ch05-019",
+    "raw": {
+      "refused": false,
+      "chunk": "ch05-019",
+      "quote": "CRUD, which stands for create, read, update, and delete, is a transactional patt"
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch05-019",
+      "quote": "CRUD, which stands for create, read, update, and delete, is a transactional patt"
+    },
+    "raw_ok": true,
+    "alt_ok": true,
+    "changed": false
+  },
+  {
+    "question": "What is data ingestion?",
+    "expect": "ch07-002",
+    "raw": {
+      "refused": false,
+      "chunk": "ch07-002",
+      "quote": "Data ingestion is the process of moving data from one place to another"
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch07-002",
+      "quote": "Data ingestion is the process of moving data from one place to another"
+    },
+    "raw_ok": true,
+    "alt_ok": true,
+    "changed": false
+  },
+  {
+    "question": "What is a watermark?",
+    "expect": "ch08-039",
+    "raw": {
+      "refused": false,
+      "chunk": "ch08-039",
+      "quote": "A watermark (Figure 8-8) is a threshold used by a window to determine whether da"
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch08-039",
+      "quote": "A watermark (Figure 8-8) is a threshold used by a window to determine whether da"
+    },
+    "raw_ok": true,
+    "alt_ok": true,
+    "changed": false
+  },
+  {
+    "question": "When is an insert-only table useful?",
+    "expect": "ch05-020",
+    "raw": {
+      "refused": false,
+      "chunk": "ch05-020",
+      "quote": "The insert-only pattern retains history directly in a table containing data. Rat"
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch05-020",
+      "quote": "The insert-only pattern retains history directly in a table containing data"
+    },
+    "raw_ok": true,
+    "alt_ok": true,
+    "changed": true
+  },
+  {
+    "question": "Where does storage sit in the data engineering lifecycle?",
+    "expect": "ch06-001",
+    "raw": {
+      "refused": false,
+      "chunk": "ch06-001",
+      "quote": "Storage is the cornerstone of the data engineering lifecycle and underlies its m"
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch06-001",
+      "quote": "Storage is the cornerstone of the data engineering lifecycle (Figure 6-1) and un"
+    },
+    "raw_ok": true,
+    "alt_ok": true,
+    "changed": true
+  },
+  {
+    "question": "What do source systems provide to the rest of the lifecycle?",
+    "expect": "ch02-005",
+    "raw": {
+      "refused": false,
+      "chunk": "ch02-005",
+      "quote": "A source system is the origin of the data used in the data engineering lifecycle"
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch02-005",
+      "quote": "A source system is the origin of the data used in the data engineering lifecycle"
+    },
+    "raw_ok": true,
+    "alt_ok": true,
+    "changed": false
+  },
+  {
+    "question": "How does data architecture relate to enterprise architecture?",
+    "expect": "ch03-013",
+    "raw": {
+      "refused": false,
+      "chunk": "ch03-013",
+      "quote": "Data architecture is a subset of enterprise architecture, inheriting its propert"
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch03-013",
+      "quote": "Data architecture is a subset of enterprise architecture, inheriting its propert"
+    },
+    "raw_ok": true,
+    "alt_ok": true,
+    "changed": false
+  },
+  {
+    "question": "What is the difference between batch and streaming?",
+    "expect": "ch02-019",
+    "raw": {
+      "refused": false,
+      "chunk": "ch02-019",
+      "quote": "Batch processing remains an extremely popular way to ingest data for downstream "
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch02-019",
+      "quote": "Batch processing remains an extremely popular way to ingest data for downstream "
+    },
+    "raw_ok": true,
+    "alt_ok": true,
+    "changed": false
+  },
+  {
+    "question": "What happens to data after it is extracted in ETL?",
+    "expect": "ch07-033",
+    "raw": {
+      "refused": false,
+      "chunk": "ch07-033",
+      "quote": "Once data is extracted, it can either be transformed (ETL) before loading it int"
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch07-033",
+      "quote": "Once data is extracted, it can either be transformed (ETL) before loading it int"
+    },
+    "raw_ok": true,
+    "alt_ok": true,
+    "changed": false
+  },
+  {
+    "question": "What do transformations do in the data engineering lifecycle?",
+    "expect": "ch02-027",
+    "raw": {
+      "refused": false,
+      "chunk": "ch02-027",
+      "quote": "Logically, we treat transformation as a standalone area of the data engineering "
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch02-025",
+      "quote": "After you’ve ingested and stored data, you need to do something with it. The nex"
+    },
+    "raw_ok": true,
+    "alt_ok": false,
+    "changed": true
+  },
+  {
+    "question": "What does CRU stand for?",
+    "expect": "ch05-019",
+    "raw": {
+      "refused": false,
+      "chunk": "ch05-019",
+      "quote": "stands for create, read, update, and delete"
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch05-019",
+      "quote": "stands for create, read, update, and delete"
+    },
+    "raw_ok": true,
+    "alt_ok": true,
+    "changed": false
+  },
+  {
+    "question": "What happens to data after it is extracted in ET?",
+    "expect": "ch07-033",
+    "raw": {
+      "refused": false,
+      "chunk": "ch07-033",
+      "quote": "Once data is extracted, it can either be transformed (ETL) before loading it int"
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch07-033",
+      "quote": "Once data is extracted, it can either be transformed (ETL) before loading it int"
+    },
+    "raw_ok": true,
+    "alt_ok": true,
+    "changed": false
+  },
+  {
+    "question": "what is a atermark?",
+    "expect": "ch08-039",
+    "raw": {
+      "refused": false,
+      "chunk": "ch08-039",
+      "quote": "A watermark (Figure 8-8) is a threshold used by a window to determine whether da"
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch08-039",
+      "quote": "A watermark (Figure 8-8) is a threshold used by a window to determine whether da"
+    },
+    "raw_ok": true,
+    "alt_ok": true,
+    "changed": false
+  },
+  {
+    "question": "what does data engineers need to be pragmatic about",
+    "expect": "ch04-012",
+    "raw": {
+      "refused": false,
+      "chunk": "ch04-012",
+      "quote": "Data engineers need to be pragmatic about flexibility"
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch04-012",
+      "quote": "Data engineers need to be pragmatic about flexibility"
+    },
+    "raw_ok": true,
+    "alt_ok": true,
+    "changed": false
+  },
+  {
+    "question": "Data engineers need to be pragmatic about?",
+    "expect": "ch04-012",
+    "raw": {
+      "refused": false,
+      "chunk": "ch04-012",
+      "quote": "Data engineers need to be pragmatic about flexibility"
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch04-012",
+      "quote": "Data engineers need to be pragmatic about flexibility"
+    },
+    "raw_ok": true,
+    "alt_ok": true,
+    "changed": false
+  },
+  {
+    "question": "MAD data landscape",
+    "expect": "ch04-020",
+    "raw": {
+      "refused": false,
+      "chunk": "ch04-020",
+      "quote": "Just consider the number of technologies in Matt Turck’s (in)famous depictions o"
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch04-020",
+      "quote": "Just consider the number of technologies in Matt Turck’s (in)famous depictions o"
+    },
+    "raw_ok": true,
+    "alt_ok": true,
+    "changed": false
+  },
+  {
+    "question": "multicloud methodology disadvantages",
+    "expect": "ch04-037",
+    "raw": {
+      "refused": true,
+      "chunk": "ch04-037",
+      "quote": "Multicloud Given the intense competition among the major cloud providers, expect"
+    },
+    "stripped": {
+      "refused": true,
+      "chunk": "ch04-037",
+      "quote": "Multicloud Given the intense competition among the major cloud providers, expect"
+    },
+    "raw_ok": false,
+    "alt_ok": false,
+    "changed": false
+  },
+  {
+    "question": "what is MAD data landscape",
+    "expect": "ch04-020",
+    "raw": {
+      "refused": false,
+      "chunk": "ch04-020",
+      "quote": "It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous d"
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch04-020",
+      "quote": "It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous d"
+    },
+    "raw_ok": true,
+    "alt_ok": true,
+    "changed": false
+  },
+  {
+    "question": "what is data mesh",
+    "expect": "ch03-099",
+    "raw": {
+      "refused": false,
+      "chunk": "ch03-099",
+      "quote": "The data mesh is a recent response to sprawling monolithic data platforms, such "
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch03-099",
+      "quote": "The data mesh is a recent response to sprawling monolithic data platforms, such "
+    },
+    "raw_ok": true,
+    "alt_ok": true,
+    "changed": false
+  },
+  {
+    "question": "Codd introduced the idea of what",
+    "expect": "ch08-051",
+    "raw": {
+      "refused": false,
+      "chunk": "ch08-051",
+      "quote": "Codd introduced the idea of normal forms"
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch08-051",
+      "quote": "Codd introduced the idea of normal forms"
+    },
+    "raw_ok": true,
+    "alt_ok": true,
+    "changed": false
+  },
+  {
+    "question": "what is an endpoint in streaming ingestion",
+    "expect": "ch02-024",
+    "raw": {
+      "refused": false,
+      "chunk": "ch02-024",
+      "quote": "With streaming ingestion, data bypasses a backend database and is pushed directl"
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch02-024",
+      "quote": "With streaming ingestion, data bypasses a backend database and is pushed directl"
+    },
+    "raw_ok": true,
+    "alt_ok": true,
+    "changed": false
+  },
+  {
+    "question": "What is nonrelational database",
+    "expect": "ch05-032",
+    "raw": {
+      "refused": false,
+      "chunk": "ch05-032",
+      "quote": "While relational databases are terrific for many use cases, they’re not a one-si"
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch05-032",
+      "quote": "While relational databases are terrific for many use cases, they’re not a one-si"
+    },
+    "raw_ok": true,
+    "alt_ok": true,
+    "changed": false
+  },
+  {
+    "question": "What is nonrelational database?",
+    "expect": "ch05-032",
+    "raw": {
+      "refused": false,
+      "chunk": "ch05-034",
+      "quote": "NoSQL remains vague in 2022, but it’s been widely adopted to describe a universe"
+    },
+    "stripped": {
+      "refused": false,
+      "chunk": "ch05-032",
+      "quote": "While relational databases are terrific for many use cases, they’re not a one-si"
+    },
+    "raw_ok": false,
+    "alt_ok": true,
+    "changed": true
+  }
+]

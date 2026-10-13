@@ -1,0 +1,69 @@
+[
+  {
+    "mutation": "M1 no-op canonicalization",
+    "killed": true,
+    "failed": 10,
+    "tests": [
+      "test_a_bare_highlight_is_not_canonicalized",
+      "test_answer_mode_uses_the_canonical_string",
+      "test_ask_sees_one_canonical_string_everywhere",
+      "test_bare_phrases_fire (question='CRUD')",
+      "test_bare_phrases_fire (question='MAD data landscape')",
+      "test_bare_phrases_fire (question='data ingestion')",
+      "test_bare_phrases_fire (question='data mesh in simple words')",
+      "test_bare_phrases_fire (question='watermark')",
+      "test_casing_is_kept_and_edges_trimmed",
+      "test_empty_and_none"
+    ]
+  },
+  {
+    "mutation": "M2 over-firing trigger",
+    "killed": true,
+    "failed": 18,
+    "tests": [
+      "test_auxiliary_start_does_not_fire (question='Can you explain CDC')",
+      "test_auxiliary_start_does_not_fire (question='Do watermarks help?')",
+      "test_auxiliary_start_does_not_fire (question='Is data mesh decentralized?')",
+      "test_non_firing_is_byte_identical",
+      "test_openers_list_markers_and_pronouns_do_not_fire (question='compare batch and streaming')",
+      "test_openers_list_markers_and_pronouns_do_not_fire (question='describe CDC')",
+      "test_openers_list_markers_and_pronouns_do_not_fire (question='explain data ingestion')",
+      "test_openers_list_markers_and_pronouns_do_not_fire (question='hey can you tell me about data mesh')",
+      "test_openers_list_markers_and_pronouns_do_not_fire (question='list the transformation types')",
+      "test_openers_list_markers_and_pronouns_do_not_fire (question='types of metadata')",
+      "test_openers_list_markers_and_pronouns_do_not_fire (question='watermark for me')",
+      "test_question_form_passes_through_untouched",
+      "test_question_forms_do_not_fire (question='Data engineers need to be pragmatic about?')",
+      "test_question_forms_do_not_fire (question='How does batch processing work')",
+      "test_question_forms_do_not_fire (question='What is MAD data landscape')",
+      "test_question_forms_do_not_fire (question='What is MAD data landscape?')",
+      "test_question_forms_do_not_fire (question='what does CRUD stand for?')",
+      "test_sentence_punctuation_stops_it"
+    ]
+  },
+  {
+    "mutation": "M3 wiring dropped in answer.py",
+    "killed": true,
+    "failed": 2,
+    "tests": [
+      "test_answer_mode_uses_the_canonical_string",
+      "test_ask_sees_one_canonical_string_everywhere"
+    ]
+  },
+  {
+    "mutation": "M4 filterless anchors",
+    "killed": true,
+    "failed": 1,
+    "tests": [
+      "test_prefix_stopwords_add_no_anchors"
+    ]
+  },
+  {
+    "mutation": "M5 explain gate open",
+    "killed": true,
+    "failed": 1,
+    "tests": [
+      "test_a_bare_highlight_is_not_canonicalized"
+    ]
+  }
+]

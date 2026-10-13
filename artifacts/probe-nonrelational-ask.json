@@ -1,0 +1,76 @@
+[
+  {
+    "question": "What is nonrelational database",
+    "pool": [
+      {
+        "chunk_id": "ch05-032",
+        "score": 0.7786
+      },
+      {
+        "chunk_id": "ch05-034",
+        "score": 0.7234
+      },
+      {
+        "chunk_id": "ch05-029",
+        "score": 0.7011
+      },
+      {
+        "chunk_id": "ch05-030",
+        "score": 0.6872
+      },
+      {
+        "chunk_id": "ch05-035",
+        "score": 0.671
+      }
+    ],
+    "raw": [
+      "[Ch. 5] \"Nonrelational databases, or NoSQL, refers to a whole class of databases that abandon the relational paradigm.\""
+    ],
+    "answer": "[Ch. 5] \"While relational databases are terrific for many use cases, they’re not a one-size-fits-all solution. We often see that people start with a relational database under the impression it’s a universal appliance and shoehorn in a ton of use cases and workloads. As data and query requirements morph, the relational database collapses under its weight. At that point, you’ll want to use a database that’s appropriate for the specific workload under pressure. Enter nonrelational or NoSQL databases. NoSQL, which stands for not only SQL, refers to a whole class of databases that abandon the relational paradigm.\"",
+    "citations": [
+      "ch05-032"
+    ],
+    "quotes": [
+      "While relational databases are terrific for many use cases, they’re not a one-size-fits-all solution. We often see that people start with a relational database under the impression it’s a universal appliance and shoehorn in a ton of use cases and workloads. As data and query requirements morph, the relational database collapses under its weight. At that point, you’ll want to use a database that’s appropriate for the specific workload under pressure. Enter nonrelational or NoSQL databases. NoSQL, which stands for not only SQL, refers to a whole class of databases that abandon the relational paradigm."
+    ],
+    "figures": [],
+    "refused": false
+  },
+  {
+    "question": "What is nonrelational database?",
+    "pool": [
+      {
+        "chunk_id": "ch05-032",
+        "score": 0.7864
+      },
+      {
+        "chunk_id": "ch05-034",
+        "score": 0.7314
+      },
+      {
+        "chunk_id": "ch05-029",
+        "score": 0.7093
+      },
+      {
+        "chunk_id": "ch05-030",
+        "score": 0.6965
+      },
+      {
+        "chunk_id": "ch05-033",
+        "score": 0.6809
+      }
+    ],
+    "raw": [
+      "[Ch. 5] \"NoSQL remains vague in 2022, but it’s been widely adopted to describe a universe of “new school” databases, alternatives to relational databases.\""
+    ],
+    "answer": "[Ch. 5] \"NoSQL remains vague in 2022, but it’s been widely adopted to describe a universe of “new school” databases, alternatives to relational databases.\"",
+    "citations": [
+      "ch05-034"
+    ],
+    "quotes": [
+      "NoSQL remains vague in 2022, but it’s been widely adopted to describe a universe of “new school” databases, alternatives to relational databases."
+    ],
+    "figures": [],
+    "refused": false
+  }
+]

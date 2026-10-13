@@ -1,0 +1,36 @@
+[ask] same     'types of metadata'
+   on : refused=False chunk=ch02-051 [Ch. 2] "Metadata is data about data"
+   off: refused=False chunk=ch02-051 [Ch. 2] "Metadata is data about data"
+[ask] same     'hot warm cold data'
+   on : refused=True chunk=ch06-102 Not in this book.
+   off: refused=True chunk=ch06-102 Not in this book.
+[ask] same     'dark matter data'
+   on : refused=False chunk=ch11-025 [Ch. 11] "What’s the most widely used data platform? It’s the humble spreadsheet. Depending on the e
+   off: refused=False chunk=ch11-025 [Ch. 11] "Spreadsheets are the dark matter of the data world" Data that exists but is not accounted 
+[ask] CHANGED  'capital of France'
+   on : refused=True chunk=ch01-064 Not in this book.
+   off: refused=True chunk=ch03-071 Not in this book.
+[ask] same     'IOPS'
+   on : refused=False chunk=ch04-030 [Ch. 4] "Here’s our educated guess. When purchasing cloud storage, each disk in a storage cluster ha
+   off: refused=False chunk=ch04-030 [Ch. 4] "Here’s our educated guess. When purchasing cloud storage, each disk in a storage cluster ha
+[ask] same     'watermark'
+   on : refused=False chunk=ch08-039 [Ch. 8] "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a win
+   off: refused=False chunk=ch08-039 [Ch. 8] "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a win
+[ask] same     'data mesh in simple words'
+   on : refused=False chunk=ch03-099 [Ch. 3] "The data mesh is a recent response to sprawling monolithic data platforms, such as centrali
+   off: refused=False chunk=ch03-099 [Ch. 3] "The data mesh is a recent response to sprawling monolithic data platforms, such as centrali
+[ask] same     'atermark'
+   on : refused=False chunk=ch08-039 [Ch. 8] "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a win
+   off: refused=False chunk=ch08-039 [Ch. 8] "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a win
+[ask] same     'What is normalization'
+   on : refused=False chunk=ch08-051 [Ch. 8] "Normalization is a database data modeling practice that enforces strict control over the re
+   off: refused=False chunk=ch08-051 [Ch. 8] "Normalization is a database data modeling practice that enforces strict control over the re
+[answer] same     'hot warm cold data'
+   on : refused=False chunk=ch06-104 Hot, warm, and cold data refer to the frequency of data access. Hot data is accessed frequently, suc
+   off: refused=False chunk=ch06-104 Hot, warm, and cold data are categorized based on their access frequency. Hot data is accessed most 
+[answer] CHANGED  'dark matter data'
+   on : refused=False chunk=ch11-025 Dark matter data refers to data that is widely used in spreadsheets and never makes its way into sop
+   off: refused=True chunk=ch11-025 Not in this book.
+[answer] same     'data mesh in simple words'
+   on : refused=False chunk=ch09-016 Data from other teams can go into the domain team's software through analytics or ML features. [Ch. 
+   off: refused=False chunk=ch09-016 Each domain team serves both their needs and data to peers. [Ch. 9]

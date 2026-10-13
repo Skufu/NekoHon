@@ -1,0 +1,24 @@
+== marker sentences live in
+  ['ch05-032'] :: Enter nonrelational or NoSQL databases
+  ['ch05-033', 'ch05-034'] :: NoSQL remains vague in 2022
+  ['ch05-032'] :: abandon the relational paradigm
+
+== What is nonrelational database
+  [ch05-032 0.7786]
+  [ch05-034 0.7234]
+  [ch05-029 0.7011]
+  [ch05-030 0.6872]
+  [ch05-035 0.671]
+  RAW   : [Ch. 5] "Nonrelational databases, or NoSQL, refers to a whole class of databases that abandon the relational paradigm."
+  cites : ['ch05-032']  figures: []
+  quotes: ['While relational databases are terrific for many use cases, they’re not a one-size-fits-all solution. We often see that people start with a relational database under the impression it’s a universal appliance and shoehorn in a ton of use cases and workloads. As data and query requirements morph, the relational database collapses under its weight. At that point, you’ll want to use a database that’s appropriate for the specific workload under pressure. Enter nonrelational or NoSQL databases. NoSQL, which stands for not only SQL, refers to a whole class of databases that abandon the relational paradigm.']
+
+== What is nonrelational database?
+  [ch05-032 0.7864]
+  [ch05-034 0.7314]
+  [ch05-029 0.7093]
+  [ch05-030 0.6965]
+  [ch05-033 0.6809]
+  RAW   : [Ch. 5] "NoSQL remains vague in 2022, but it’s been widely adopted to describe a universe of “new school” databases, alternatives to relational databases."
+  cites : ['ch05-034']  figures: []
+  quotes: ['NoSQL remains vague in 2022, but it’s been widely adopted to describe a universe of “new school” databases, alternatives to relational databases.']

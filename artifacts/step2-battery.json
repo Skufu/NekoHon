@@ -1,7 +1,7 @@
 [
   {
     "question": "What does CRUD stand for?",
-    "seconds": 1.36,
+    "seconds": 1.58,
     "pass": true,
     "notes": [],
     "response": {
@@ -19,7 +19,7 @@
   },
   {
     "question": "What is data ingestion?",
-    "seconds": 0.96,
+    "seconds": 0.6,
     "pass": true,
     "notes": [],
     "response": {
@@ -44,7 +44,7 @@
   },
   {
     "question": "What is a watermark?",
-    "seconds": 1.29,
+    "seconds": 1.32,
     "pass": true,
     "notes": [],
     "response": {
@@ -69,7 +69,7 @@
   },
   {
     "question": "When is an insert-only table useful?",
-    "seconds": 0.97,
+    "seconds": 1.04,
     "pass": true,
     "notes": [],
     "response": {
@@ -87,7 +87,7 @@
   },
   {
     "question": "Where does storage sit in the data engineering lifecycle?",
-    "seconds": 1.14,
+    "seconds": 1.37,
     "pass": true,
     "notes": [],
     "response": {
@@ -112,7 +112,7 @@
   },
   {
     "question": "What do source systems provide to the rest of the lifecycle?",
-    "seconds": 1.12,
+    "seconds": 1.18,
     "pass": true,
     "notes": [],
     "response": {
@@ -130,7 +130,7 @@
   },
   {
     "question": "How does data architecture relate to enterprise architecture?",
-    "seconds": 1.1,
+    "seconds": 1.11,
     "pass": true,
     "notes": [],
     "response": {
@@ -148,7 +148,7 @@
   },
   {
     "question": "What is the difference between batch and streaming?",
-    "seconds": 1.29,
+    "seconds": 1.25,
     "pass": true,
     "notes": [],
     "response": {
@@ -166,7 +166,7 @@
   },
   {
     "question": "What happens to data after it is extracted in ETL?",
-    "seconds": 1.25,
+    "seconds": 1.22,
     "pass": true,
     "notes": [],
     "response": {
@@ -184,7 +184,7 @@
   },
   {
     "question": "What do transformations do in the data engineering lifecycle?",
-    "seconds": 1.08,
+    "seconds": 1.05,
     "pass": true,
     "notes": [],
     "response": {
@@ -202,7 +202,7 @@
   },
   {
     "question": "What does CRU stand for?",
-    "seconds": 1.12,
+    "seconds": 1.15,
     "pass": true,
     "notes": [],
     "response": {
@@ -220,7 +220,7 @@
   },
   {
     "question": "What happens to data after it is extracted in ET?",
-    "seconds": 1.19,
+    "seconds": 1.21,
     "pass": true,
     "notes": [],
     "response": {
@@ -238,7 +238,7 @@
   },
   {
     "question": "what is a atermark?",
-    "seconds": 1.49,
+    "seconds": 1.56,
     "pass": true,
     "notes": [],
     "response": {
@@ -263,11 +263,11 @@
   },
   {
     "question": "what does data engineers need to be pragmatic about",
-    "seconds": 1.15,
+    "seconds": 1.1,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"\nBeing flexible with technology choices is important because the data landscape changes rapidly.",
+      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"\nBeing flexible with technology choices is important because the data landscape changes quickly.",
       "citations": [
         {
           "chunk_id": "ch04-012",
@@ -281,7 +281,7 @@
   },
   {
     "question": "Data engineers need to be pragmatic about?",
-    "seconds": 1.11,
+    "seconds": 1.07,
     "pass": true,
     "notes": [],
     "response": {
@@ -299,16 +299,16 @@
   },
   {
     "question": "MAD data landscape",
-    "seconds": 1.52,
+    "seconds": 1.41,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 4] \"Just consider the number of technologies in Matt Turck\u2019s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)\"",
+      "answer": "[Ch. 4] \"It\u2019s hard. Just consider the number of technologies in Matt Turck\u2019s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)\"\nThe passage suggests that the landscape of ML, AI, and data technologies is complex and constantly changing.\nAsked as: \"What is MAD data landscape?\"",
       "citations": [
         {
           "chunk_id": "ch04-020",
           "chapter": "4",
-          "quote": "Just consider the number of technologies in Matt Turck\u2019s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)"
+          "quote": "It\u2019s hard. Just consider the number of technologies in Matt Turck\u2019s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)"
         }
       ],
       "figures": [
@@ -324,11 +324,11 @@
   },
   {
     "question": "multicloud methodology disadvantages",
-    "seconds": 1.06,
+    "seconds": 1.11,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 4] \"A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks are critical. Going multicloud can introduce significant complexity. Companies must now manage a dizzying array of services across several clouds; cross-cloud integration and security present a considerable challenge; multicloud networking can be diabolically complicated.\"",
+      "answer": "[Ch. 4] \"A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks are critical. Going multicloud can introduce significant complexity. Companies must now manage a dizzying array of services across several clouds; cross-cloud integration and security present a considerable challenge; multicloud networking can be diabolically complicated.\"\nAsked as: \"What is multicloud methodology disadvantages?\"",
       "citations": [
         {
           "chunk_id": "ch04-037",
@@ -342,7 +342,7 @@
   },
   {
     "question": "What is the capital of France?",
-    "seconds": 1.07,
+    "seconds": 1.16,
     "pass": true,
     "notes": [],
     "response": {

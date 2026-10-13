@@ -1,0 +1,27 @@
+ok /ok          What does CRUD stand for?                                  raw=ch05-019 stripped=ch05-019
+ok /ok          What is data ingestion?                                    raw=ch07-002 stripped=ch07-002
+ok /ok          What is a watermark?                                       raw=ch08-039 stripped=ch08-039
+ok /ok  changed When is an insert-only table useful?                       raw=ch05-020 stripped=ch05-020
+ok /ok  changed Where does storage sit in the data engineering lifecycle?  raw=ch06-001 stripped=ch06-001
+ok /ok          What do source systems provide to the rest of the lifecycl raw=ch02-005 stripped=ch02-005
+ok /ok          How does data architecture relate to enterprise architectu raw=ch03-013 stripped=ch03-013
+ok /ok          What is the difference between batch and streaming?        raw=ch02-019 stripped=ch02-019
+ok /ok          What happens to data after it is extracted in ETL?         raw=ch07-033 stripped=ch07-033
+ok /KO  changed What do transformations do in the data engineering lifecyc raw=ch02-027 stripped=ch02-025
+ok /ok          What does CRU stand for?                                   raw=ch05-019 stripped=ch05-019
+ok /ok          What happens to data after it is extracted in ET?          raw=ch07-033 stripped=ch07-033
+ok /ok          what is a atermark?                                        raw=ch08-039 stripped=ch08-039
+ok /ok          what does data engineers need to be pragmatic about        raw=ch04-012 stripped=ch04-012
+ok /ok          Data engineers need to be pragmatic about?                 raw=ch04-012 stripped=ch04-012
+ok /ok          MAD data landscape                                         raw=ch04-020 stripped=ch04-020
+KO /KO          multicloud methodology disadvantages                       raw=ch04-037 stripped=ch04-037
+ok /ok          what is MAD data landscape                                 raw=ch04-020 stripped=ch04-020
+ok /ok          what is data mesh                                          raw=ch03-099 stripped=ch03-099
+ok /ok          Codd introduced the idea of what                           raw=ch08-051 stripped=ch08-051
+ok /ok          what is an endpoint in streaming ingestion                 raw=ch02-024 stripped=ch02-024
+ok /ok          What is nonrelational database                             raw=ch05-032 stripped=ch05-032
+KO /ok  changed What is nonrelational database?                            raw=ch05-034 stripped=ch05-032
+
+quote changes: 4 of 23
+pin flips raw-vs-stripped: 2 ['What do transformations do in the data engineering lifecycle?', 'What is nonrelational database?']
+France refusal intact: True

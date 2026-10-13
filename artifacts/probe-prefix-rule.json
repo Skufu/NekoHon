@@ -1,0 +1,302 @@
+[
+  {
+    "case": "capital of France",
+    "mode": "answer",
+    "variant": "V2",
+    "refused": true,
+    "answer": "Not in this book.",
+    "cites": [
+      "ch01-064",
+      "ch03-071",
+      "ch05-030"
+    ],
+    "figs": [
+      "figure-5-7"
+    ],
+    "chunk": "ch01-064",
+    "quote": "Chief information officer A chief information officer (CIO) is the senior C-suite executive responsible for information "
+  },
+  {
+    "case": "MAD data landscape",
+    "mode": "answer",
+    "variant": "V0",
+    "draw": 1,
+    "refused": false,
+    "answer": "The MAD data landscape is complex and dynamic, with many technologies rising and falling in popularity [Ch. 4]. Technologies like Hive, which were once popular, have declined as newer, improved technologies like Presto emerged [Ch. 4]. This landscape is characterized by the rapid adoption and subseq",
+    "cites": [
+      "ch04-020",
+      "ch03-099",
+      "ch02-037",
+      "ch11-018"
+    ],
+    "figs": [
+      "figure-3-18",
+      "figure-4-1",
+      "figure-11-1"
+    ],
+    "chunk": "ch04-020",
+    "quote": "Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape t"
+  },
+  {
+    "case": "MAD data landscape",
+    "mode": "answer",
+    "variant": "V1",
+    "draw": 1,
+    "refused": false,
+    "answer": "The MAD data landscape refers to the depiction of technologies related to machine learning (ML), AI, and data, as mentioned in Chapter 1 [Ch. 1]. This landscape is characterized by the rapid adoption and subsequent decline of many technologies, as observed in the early 2010s with Hive and later with",
+    "cites": [
+      "ch04-020"
+    ],
+    "figs": [
+      "figure-4-1"
+    ],
+    "chunk": "ch04-020",
+    "quote": "Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape t"
+  },
+  {
+    "case": "MAD data landscape",
+    "mode": "answer",
+    "variant": "V2",
+    "draw": 1,
+    "refused": false,
+    "answer": "The MAD data landscape, as introduced in Chapter 1 [Ch. 4], refers to the complex and rapidly changing environment of technologies related to machine learning (ML), artificial intelligence (AI), and data. This landscape includes various technologies that may gain popularity and then decline due to t",
+    "cites": [
+      "ch04-020"
+    ],
+    "figs": [
+      "figure-4-1"
+    ],
+    "chunk": "ch04-020",
+    "quote": "Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape t"
+  },
+  {
+    "case": "MAD data landscape",
+    "mode": "answer",
+    "variant": "V0",
+    "draw": 2,
+    "refused": false,
+    "answer": "The MAD data landscape is complex and dynamic, with many technologies rising and falling in popularity [Ch. 4]. Technologies like Hive, which were once popular, have declined as newer, improved technologies like Presto emerged [Ch. 4]. This landscape is characterized by the rapid adoption and subseq",
+    "cites": [
+      "ch04-020",
+      "ch03-099",
+      "ch02-037",
+      "ch11-018"
+    ],
+    "figs": [
+      "figure-3-18",
+      "figure-4-1",
+      "figure-11-1"
+    ],
+    "chunk": "ch04-020",
+    "quote": "Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape t"
+  },
+  {
+    "case": "MAD data landscape",
+    "mode": "answer",
+    "variant": "V1",
+    "draw": 2,
+    "refused": false,
+    "answer": "The MAD data landscape refers to the depiction of technologies related to machine learning (ML), AI, and data, as mentioned in Chapter 1 [Ch. 1]. This landscape highlights the rapid adoption and subsequent decline of many technologies, indicating the transient nature of these technologies [Ch. 4]. N",
+    "cites": [
+      "ch04-020"
+    ],
+    "figs": [
+      "figure-4-1"
+    ],
+    "chunk": "ch04-020",
+    "quote": "Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape t"
+  },
+  {
+    "case": "MAD data landscape",
+    "mode": "answer",
+    "variant": "V2",
+    "draw": 2,
+    "refused": false,
+    "answer": "The MAD data landscape, as introduced in Chapter 1 [Ch. 4], refers to the complex and rapidly changing environment of technologies related to machine learning (ML), artificial intelligence (AI), and data. This landscape highlights that even successful technologies often decline quickly after a few y",
+    "cites": [
+      "ch04-020"
+    ],
+    "figs": [
+      "figure-4-1"
+    ],
+    "chunk": "ch04-020",
+    "quote": "Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape t"
+  },
+  {
+    "case": "MAD data landscape",
+    "mode": "ask",
+    "variant": "V0",
+    "pin_ok": true,
+    "refused": false,
+    "answer": "[Ch. 4] \"Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)\" The passage mentions the MAD landscape introduced earlier, highlighting the rapid changes in technology.",
+    "cites": [
+      "ch04-020"
+    ],
+    "figs": [
+      "figure-4-1"
+    ],
+    "chunk": "ch04-020",
+    "quote": "Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape t"
+  },
+  {
+    "case": "MAD data landscape",
+    "mode": "ask",
+    "variant": "V1",
+    "pin_ok": false,
+    "refused": true,
+    "answer": "Not in this book.",
+    "cites": [
+      "ch04-020",
+      "ch04-019",
+      "ch03-099"
+    ],
+    "figs": [
+      "figure-3-18",
+      "figure-4-1"
+    ],
+    "chunk": "ch04-020",
+    "quote": "Today Versus the Future: Immutable Versus Transitory Technologies It’s hard. Just consider the number of technologies in"
+  },
+  {
+    "case": "MAD data landscape",
+    "mode": "ask",
+    "variant": "V2",
+    "pin_ok": true,
+    "refused": false,
+    "answer": "[Ch. 4] \"It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)\" The passage suggests that the landscape of ML, AI, and data technologies is complex and constantly changing.",
+    "cites": [
+      "ch04-020"
+    ],
+    "figs": [
+      "figure-4-1"
+    ],
+    "chunk": "ch04-020",
+    "quote": "It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) "
+  },
+  {
+    "case": "multicloud methodology disadvantages",
+    "mode": "answer",
+    "variant": "V0",
+    "draw": 1,
+    "refused": false,
+    "answer": "A multicloud methodology has several disadvantages, including increased complexity and data egress costs. Companies must now manage a wide range of services across multiple clouds, and cross-cloud integration and security present significant challenges. Networking can also become diabolically compli",
+    "cites": [
+      "ch04-037"
+    ],
+    "figs": [],
+    "chunk": "ch04-037",
+    "quote": "Companies must now manage a dizzying array of services across several clouds; cross-cloud integration and security prese"
+  },
+  {
+    "case": "multicloud methodology disadvantages",
+    "mode": "answer",
+    "variant": "V1",
+    "draw": 1,
+    "refused": false,
+    "answer": "A multicloud methodology has several disadvantages. These include data egress costs and networking bottlenecks [Ch. 4], significant complexity in managing a variety of services across multiple clouds [Ch. 4], and challenges in cross-cloud integration and security [Ch. 4].",
+    "cites": [
+      "ch04-037"
+    ],
+    "figs": [],
+    "chunk": "ch04-037",
+    "quote": "As we just mentioned, data egress costs and networking bottlenecks are critical."
+  },
+  {
+    "case": "multicloud methodology disadvantages",
+    "mode": "answer",
+    "variant": "V2",
+    "draw": 1,
+    "refused": false,
+    "answer": "A multicloud methodology has several disadvantages, including increased complexity and data egress costs. Companies must now manage a variety of services across several clouds, which can introduce significant challenges in cross-cloud integration and security [Ch. 4]. Multicloud networking can also ",
+    "cites": [
+      "ch04-037"
+    ],
+    "figs": [],
+    "chunk": "ch04-037",
+    "quote": "Companies must now manage a dizzying array of services across several clouds; cross-cloud integration and security prese"
+  },
+  {
+    "case": "multicloud methodology disadvantages",
+    "mode": "answer",
+    "variant": "V0",
+    "draw": 2,
+    "refused": false,
+    "answer": "A multicloud methodology has several disadvantages, including increased complexity and data egress costs. Companies must now manage a wide range of services across multiple clouds, and cross-cloud integration and security present significant challenges. Networking can also become diabolically compli",
+    "cites": [
+      "ch04-037"
+    ],
+    "figs": [],
+    "chunk": "ch04-037",
+    "quote": "Companies must now manage a dizzying array of services across several clouds; cross-cloud integration and security prese"
+  },
+  {
+    "case": "multicloud methodology disadvantages",
+    "mode": "answer",
+    "variant": "V1",
+    "draw": 2,
+    "refused": false,
+    "answer": "A multicloud methodology has several disadvantages, including increased complexity and data egress costs. Companies must now manage a variety of services across several clouds, which can introduce significant challenges in cross-cloud integration and security [Ch. 4]. Multicloud networking can also ",
+    "cites": [
+      "ch04-037"
+    ],
+    "figs": [],
+    "chunk": "ch04-037",
+    "quote": "Companies must now manage a dizzying array of services across several clouds; cross-cloud integration and security prese"
+  },
+  {
+    "case": "multicloud methodology disadvantages",
+    "mode": "answer",
+    "variant": "V2",
+    "draw": 2,
+    "refused": false,
+    "answer": "A multicloud methodology has several disadvantages, including increased complexity and data egress costs. Companies must now manage a variety of services across several clouds, which can introduce significant challenges in cross-cloud integration and security [Ch. 4]. Multicloud networking can also ",
+    "cites": [
+      "ch04-037"
+    ],
+    "figs": [],
+    "chunk": "ch04-037",
+    "quote": "Companies must now manage a dizzying array of services across several clouds; cross-cloud integration and security prese"
+  },
+  {
+    "case": "multicloud methodology disadvantages",
+    "mode": "ask",
+    "variant": "V0",
+    "pin_ok": true,
+    "refused": false,
+    "answer": "[Ch. 4] \"A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks are critical. Going multicloud can introduce significant complexity. Companies must now manage a dizzying array of services across several clouds; cross-cloud integration a",
+    "cites": [
+      "ch04-037"
+    ],
+    "figs": [],
+    "chunk": "ch04-037",
+    "quote": "A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks a"
+  },
+  {
+    "case": "multicloud methodology disadvantages",
+    "mode": "ask",
+    "variant": "V1",
+    "pin_ok": true,
+    "refused": false,
+    "answer": "[Ch. 4] \"A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks are critical. Going multicloud can introduce significant complexity. Companies must now manage a dizzying array of services across several clouds; cross-cloud integration a",
+    "cites": [
+      "ch04-037"
+    ],
+    "figs": [],
+    "chunk": "ch04-037",
+    "quote": "A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks a"
+  },
+  {
+    "case": "multicloud methodology disadvantages",
+    "mode": "ask",
+    "variant": "V2",
+    "pin_ok": true,
+    "refused": false,
+    "answer": "[Ch. 4] \"A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks are critical. Going multicloud can introduce significant complexity. Companies must now manage a dizzying array of services across several clouds; cross-cloud integration a",
+    "cites": [
+      "ch04-037"
+    ],
+    "figs": [],
+    "chunk": "ch04-037",
+    "quote": "A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks a"
+  }
+]

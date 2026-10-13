@@ -1,0 +1,232 @@
+[
+  {
+    "question": "What does CRUD stand for?",
+    "chunk_id": "ch05-019",
+    "kind": "pin",
+    "refused": false,
+    "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage\"",
+    "chunk": "ch05-019",
+    "quote": "CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage",
+    "verdict": "ok"
+  },
+  {
+    "question": "What is data ingestion?",
+    "chunk_id": "ch07-002",
+    "kind": "pin",
+    "refused": false,
+    "answer": "[Ch. 7] \"Data ingestion is the process of moving data from one place to another\"",
+    "chunk": "ch07-002",
+    "quote": "Data ingestion is the process of moving data from one place to another",
+    "verdict": "ok"
+  },
+  {
+    "question": "What is a watermark?",
+    "chunk_id": "ch08-039",
+    "kind": "pin",
+    "refused": false,
+    "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late\"\nA watermark is a threshold to check if data is timely or delayed.",
+    "chunk": "ch08-039",
+    "quote": "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late",
+    "verdict": "ok"
+  },
+  {
+    "question": "When is an insert-only table useful?",
+    "chunk_id": "ch05-020",
+    "kind": "pin",
+    "refused": false,
+    "answer": "[Ch. 5] \"The insert-only pattern would work well for a banking application designed to present customer address history\"",
+    "chunk": "ch05-020",
+    "quote": "The insert-only pattern would work well for a banking application designed to present customer address history",
+    "verdict": "ok"
+  },
+  {
+    "question": "Where does storage sit in the data engineering lifecycle?",
+    "chunk_id": "ch06-001",
+    "kind": "pin",
+    "refused": false,
+    "answer": "[Ch. 6] \"Storage is the cornerstone of the data engineering lifecycle and underlies its major stages—ingestion, transformation, and serving\"",
+    "chunk": "ch06-001",
+    "quote": "Storage is the cornerstone of the data engineering lifecycle and underlies its major stages—ingestion, transformation, and serving",
+    "verdict": "ok"
+  },
+  {
+    "question": "What do source systems provide to the rest of the lifecycle?",
+    "chunk_id": "ch02-005",
+    "kind": "pin",
+    "refused": false,
+    "answer": "[Ch. 2] \"A source system is the origin of the data used in the data engineering lifecycle\"\nSource systems provide the raw data that is used throughout the data engineering lifecycle.",
+    "chunk": "ch02-005",
+    "quote": "A source system is the origin of the data used in the data engineering lifecycle",
+    "verdict": "ok"
+  },
+  {
+    "question": "How does data architecture relate to enterprise architecture?",
+    "chunk_id": "ch03-013",
+    "kind": "pin",
+    "refused": false,
+    "answer": "[Ch. 3] \"Data architecture is a subset of enterprise architecture, inheriting its properties: processes, strategy, change management, and evaluating trade-offs\"",
+    "chunk": "ch03-013",
+    "quote": "Data architecture is a subset of enterprise architecture, inheriting its properties: processes, strategy, change management, and evaluating trade-offs",
+    "verdict": "ok"
+  },
+  {
+    "question": "What is the difference between batch and streaming?",
+    "chunk_id": "ch02-019",
+    "kind": "pin",
+    "refused": false,
+    "answer": "[Ch. 2] \"Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML\"\nBatch processing involves handling large chunks of data at predetermined intervals, while streaming ingestion provides data continuously and in real-time.",
+    "chunk": "ch02-019",
+    "quote": "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML",
+    "verdict": "ok"
+  },
+  {
+    "question": "What happens to data after it is extracted in ETL?",
+    "chunk_id": "ch07-033",
+    "kind": "pin",
+    "refused": false,
+    "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation\"\nData is either transformed after extraction or stored for later transformation.",
+    "chunk": "ch07-033",
+    "quote": "Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation",
+    "verdict": "ok"
+  },
+  {
+    "question": "What do transformations do in the data engineering lifecycle?",
+    "chunk_id": "ch02-027",
+    "kind": "pin",
+    "refused": true,
+    "answer": "Not in this book.",
+    "chunk": "ch02-027",
+    "quote": "Key considerations for the transformation phase Logically, we treat transformation as a standalone area of the data engineering lifecycle, but the realities of ",
+    "verdict": "FAIL"
+  },
+  {
+    "question": "What does CRU stand for?",
+    "chunk_id": "ch05-019",
+    "key": "stands for create, read, update, and delete",
+    "kind": "pin",
+    "refused": false,
+    "answer": "[Ch. 5] \"stands for create, read, update, and delete\"\nRead as: \"What does crud stand for?\"",
+    "chunk": "ch05-019",
+    "quote": "stands for create, read, update, and delete",
+    "verdict": "ok"
+  },
+  {
+    "question": "What happens to data after it is extracted in ET?",
+    "chunk_id": "ch07-033",
+    "key": "once data is extracted",
+    "kind": "pin",
+    "refused": false,
+    "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation\"",
+    "chunk": "ch07-033",
+    "quote": "Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation",
+    "verdict": "ok"
+  },
+  {
+    "question": "what is a atermark?",
+    "chunk_id": "ch08-039",
+    "key": "watermark",
+    "kind": "pin",
+    "refused": false,
+    "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late\"\nA watermark is a time threshold used to identify late-arriving data in a window.\nRead as: \"what is a watermark?\"",
+    "chunk": "ch08-039",
+    "quote": "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late",
+    "verdict": "ok"
+  },
+  {
+    "question": "what does data engineers need to be pragmatic about",
+    "chunk_id": "ch04-012",
+    "key": "pragmatic about flexibility",
+    "kind": "pin",
+    "refused": false,
+    "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"\nData engineers should be flexible because the technology landscape changes rapidly.",
+    "chunk": "ch04-012",
+    "quote": "Data engineers need to be pragmatic about flexibility",
+    "verdict": "ok"
+  },
+  {
+    "question": "Data engineers need to be pragmatic about?",
+    "chunk_id": "ch04-012",
+    "key": "pragmatic about flexibility",
+    "kind": "pin",
+    "refused": false,
+    "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"\nData engineers should be flexible because the data landscape changes quickly.",
+    "chunk": "ch04-012",
+    "quote": "Data engineers need to be pragmatic about flexibility",
+    "verdict": "ok"
+  },
+  {
+    "question": "MAD data landscape",
+    "chunk_id": "ch04-020",
+    "key": "ML, AI, and data (MAD) landscape",
+    "kind": "pin",
+    "refused": false,
+    "answer": "[Ch. 4] \"It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)\"\nThe passage highlights the complexity and rapid change in technologies related to machine learning, AI, and data.",
+    "chunk": "ch04-020",
+    "quote": "It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)",
+    "verdict": "ok"
+  },
+  {
+    "question": "multicloud methodology disadvantages",
+    "chunk_id": "ch04-037",
+    "key": "dizzying array",
+    "kind": "pin",
+    "refused": true,
+    "answer": "Not in this book.",
+    "chunk": "ch04-037",
+    "quote": "Multicloud Given the intense competition among the major cloud providers, expect them to offer more best-of-breed services, making multicloud more compelling. A",
+    "verdict": "FAIL"
+  },
+  {
+    "question": "what is MAD data landscape",
+    "chunk_id": "ch04-020",
+    "key": "\\bmad\\b",
+    "kind": "regex",
+    "refused": false,
+    "answer": "[Ch. 4] \"It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)\"\nThe passage suggests that the MAD landscape, which includes ML, AI, and data technologies, is complex and constantly changing.",
+    "chunk": "ch04-020",
+    "quote": "It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)",
+    "verdict": "ok"
+  },
+  {
+    "question": "what is data mesh",
+    "chunk_id": "ch03-099",
+    "key": "data mesh",
+    "kind": "regex",
+    "refused": false,
+    "answer": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and “the great divide of data,\"\nData mesh is a recent approach to handle large data platforms by decentralizing data ownership and serving it in a domain-driven manner.",
+    "chunk": "ch03-099",
+    "quote": "The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and “the great divide of data,",
+    "verdict": "ok"
+  },
+  {
+    "question": "Codd introduced the idea of what",
+    "chunk_id": "ch08-051",
+    "key": "normal form|normalization",
+    "kind": "regex",
+    "refused": false,
+    "answer": "[Ch. 8] \"Codd introduced the idea of normal forms\"\nCodd introduced the concept of normal forms to organize database tables.",
+    "chunk": "ch08-051",
+    "quote": "Codd introduced the idea of normal forms",
+    "verdict": "ok"
+  },
+  {
+    "question": "what is an endpoint in streaming ingestion",
+    "chunk_id": "ch02-024",
+    "key": "endpoint",
+    "kind": "regex",
+    "refused": false,
+    "answer": "[Ch. 2] \"With streaming ingestion, data bypasses a backend database and is pushed directly to an endpoint, typically with data buffered by an event-streaming platform\"\nEndpoint in streaming ingestion is where the data is pushed directly after being buffered by an event-streaming platform.",
+    "chunk": "ch02-024",
+    "quote": "With streaming ingestion, data bypasses a backend database and is pushed directly to an endpoint, typically with data buffered by an event-streaming platform",
+    "verdict": "ok"
+  },
+  {
+    "question": "What is the capital of France?",
+    "kind": "refusal",
+    "refused": true,
+    "answer": "Not in this book.",
+    "chunk": "ch01-064",
+    "quote": "Chief information officer A chief information officer (CIO) is the senior C-suite executive responsible for information technology within an organization; it is",
+    "verdict": "ok"
+  }
+]

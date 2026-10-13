@@ -1,0 +1,740 @@
+{
+  "probe": "fold-ab",
+  "date": "2026-10-13",
+  "status": "ok",
+  "index": "data/index.json",
+  "embedder": "nomic-embed-text",
+  "dims": 768,
+  "typo_chars": "’‘“”–—",
+  "sanity": {
+    "chunk": {
+      "chunk_id": "preface01-001",
+      "cosine": 0.999999999968382
+    },
+    "figure-4-1_body": {
+      "cosine": 0.9999999999683911
+    }
+  },
+  "fold": {
+    "trigger_basis": "chunk text / figure caption+referencing_paragraph (the text the index embedded)",
+    "chunks_total": 1042,
+    "chunks_reembedded": 768,
+    "chunks_reused": 274,
+    "chunks_no_vector": 0,
+    "figures_total": 111,
+    "figures_reembedded": 53,
+    "figures_reused": 58,
+    "figures_no_vector": 0,
+    "figures_caption_only_trigger": 8,
+    "seconds": 9.701291099991067,
+    "time_guard_tripped": false,
+    "not_sampled_ids": [],
+    "chunk_displacement": {
+      "n": 768,
+      "min": 0.9970496611239413,
+      "median": 0.9999114793340789,
+      "max": 0.999996811272406,
+      "min_id": "ch03-105"
+    },
+    "figure_displacement": {
+      "n": 53,
+      "min": 0.9989467901520582,
+      "median": 0.999901114236475,
+      "max": 0.999977096052958,
+      "min_id": "figure-3-11"
+    }
+  },
+  "rank_cross_check": {
+    "question": "What does CRUD stand for?",
+    "engine_top5": [
+      "ch05-019",
+      "ch05-029",
+      "ch05-021",
+      "ch05-020",
+      "ch01-064"
+    ],
+    "direct_top5": [
+      "ch05-019",
+      "ch05-029",
+      "ch05-021",
+      "ch05-020",
+      "ch01-064"
+    ],
+    "ok": true
+  },
+  "figure_4_1": {
+    "straight_query": "Turck's 2021 MAD landscape",
+    "curly_query": "Turck’s 2021 MAD landscape",
+    "stored_vector_input": "caption+referencing_paragraph (measured)",
+    "cos_straight_vs_stored": 0.6895329651259957,
+    "cos_curly_vs_stored": 0.688653108292769,
+    "cos_straight_vs_folded_caption_only": 0.8222709591854128,
+    "cos_straight_vs_folded_body": 0.689327274542383,
+    "cos_folded_body_vs_stored": 0.9998255454701661
+  },
+  "verdict": {
+    "top1_flips": 0,
+    "flip_questions": [],
+    "non_zero_pin_deltas": [
+      {
+        "question": "what is a atermark?",
+        "pin": "ch08-039",
+        "stored_rank": 116,
+        "folded_rank": 102,
+        "delta": -14
+      },
+      {
+        "question": "what does data engineers need to be pragmatic about",
+        "pin": "ch04-012",
+        "stored_rank": 76,
+        "folded_rank": 78,
+        "delta": 2
+      },
+      {
+        "question": "Data engineers need to be pragmatic about?",
+        "pin": "ch04-012",
+        "stored_rank": 68,
+        "folded_rank": 69,
+        "delta": 1
+      },
+      {
+        "question": "MAD data landscape",
+        "pin": "ch04-020",
+        "stored_rank": 38,
+        "folded_rank": 37,
+        "delta": -1
+      },
+      {
+        "question": "what is MAD data landscape",
+        "pin": "ch04-020",
+        "stored_rank": 47,
+        "folded_rank": 48,
+        "delta": 1
+      },
+      {
+        "question": "Codd introduced the idea of what",
+        "pin": "ch08-051",
+        "stored_rank": 4,
+        "folded_rank": 3,
+        "delta": -1
+      }
+    ],
+    "max_abs_pin_delta": 14,
+    "pins_absent": [],
+    "criteria": "0 top-1 flips AND every pinned dense rank within +-2 places",
+    "criteria_met": false,
+    "recommendation": "fold changes rankings on this book: see flips and deltas; rebuild only if these moves are wanted"
+  },
+  "entries": [
+    {
+      "source": "GOLDEN_PINS",
+      "question": "What does CRUD stand for?",
+      "pin": "ch05-019",
+      "stored": {
+        "top1": "ch05-019",
+        "top5": [
+          "ch05-019",
+          "ch05-029",
+          "ch05-021",
+          "ch05-020",
+          "ch01-064"
+        ],
+        "pin_rank": 1
+      },
+      "folded": {
+        "top1": "ch05-019",
+        "top5": [
+          "ch05-019",
+          "ch05-029",
+          "ch05-021",
+          "ch05-020",
+          "ch01-064"
+        ],
+        "pin_rank": 1
+      },
+      "top1_flip": false,
+      "pin_rank_delta": 0
+    },
+    {
+      "source": "GOLDEN_PINS",
+      "question": "What is data ingestion?",
+      "pin": "ch07-002",
+      "stored": {
+        "top1": "ch07-002",
+        "top5": [
+          "ch07-002",
+          "ch07-004",
+          "ch07-098",
+          "ch07-003",
+          "ch02-016"
+        ],
+        "pin_rank": 1
+      },
+      "folded": {
+        "top1": "ch07-002",
+        "top5": [
+          "ch07-002",
+          "ch07-004",
+          "ch07-098",
+          "ch07-003",
+          "ch02-016"
+        ],
+        "pin_rank": 1
+      },
+      "top1_flip": false,
+      "pin_rank_delta": 0
+    },
+    {
+      "source": "GOLDEN_PINS",
+      "question": "What is a watermark?",
+      "pin": "ch08-039",
+      "stored": {
+        "top1": "ch08-039",
+        "top5": [
+          "ch08-039",
+          "ch05-019",
+          "ch06-032",
+          "ch06-070",
+          "app01-017"
+        ],
+        "pin_rank": 1
+      },
+      "folded": {
+        "top1": "ch08-039",
+        "top5": [
+          "ch08-039",
+          "ch05-019",
+          "ch06-032",
+          "ch06-070",
+          "app01-017"
+        ],
+        "pin_rank": 1
+      },
+      "top1_flip": false,
+      "pin_rank_delta": 0
+    },
+    {
+      "source": "GOLDEN_PINS",
+      "question": "When is an insert-only table useful?",
+      "pin": "ch05-020",
+      "stored": {
+        "top1": "ch08-107",
+        "top5": [
+          "ch08-107",
+          "ch05-021",
+          "ch05-020",
+          "ch08-108",
+          "ch07-034"
+        ],
+        "pin_rank": 3
+      },
+      "folded": {
+        "top1": "ch08-107",
+        "top5": [
+          "ch08-107",
+          "ch05-021",
+          "ch05-020",
+          "ch08-108",
+          "ch07-034"
+        ],
+        "pin_rank": 3
+      },
+      "top1_flip": false,
+      "pin_rank_delta": 0
+    },
+    {
+      "source": "GOLDEN_PINS",
+      "question": "Where does storage sit in the data engineering lifecycle?",
+      "pin": "ch06-001",
+      "stored": {
+        "top1": "ch06-001",
+        "top5": [
+          "ch06-001",
+          "ch02-002",
+          "ch06-129",
+          "ch01-006",
+          "ch02-091"
+        ],
+        "pin_rank": 1
+      },
+      "folded": {
+        "top1": "ch06-001",
+        "top5": [
+          "ch06-001",
+          "ch02-002",
+          "ch06-129",
+          "ch01-006",
+          "ch02-091"
+        ],
+        "pin_rank": 1
+      },
+      "top1_flip": false,
+      "pin_rank_delta": 0
+    },
+    {
+      "source": "GOLDEN_PINS",
+      "question": "What do source systems provide to the rest of the lifecycle?",
+      "pin": "ch02-005",
+      "stored": {
+        "top1": "ch02-005",
+        "top5": [
+          "ch02-005",
+          "ch05-083",
+          "ch05-004",
+          "ch02-016",
+          "ch02-006"
+        ],
+        "pin_rank": 1
+      },
+      "folded": {
+        "top1": "ch02-005",
+        "top5": [
+          "ch02-005",
+          "ch05-083",
+          "ch05-004",
+          "ch02-016",
+          "ch02-006"
+        ],
+        "pin_rank": 1
+      },
+      "top1_flip": false,
+      "pin_rank_delta": 0
+    },
+    {
+      "source": "GOLDEN_PINS",
+      "question": "How does data architecture relate to enterprise architecture?",
+      "pin": "ch03-013",
+      "stored": {
+        "top1": "ch03-013",
+        "top5": [
+          "ch03-013",
+          "ch03-002",
+          "ch03-016",
+          "ch03-102",
+          "ch03-101"
+        ],
+        "pin_rank": 1
+      },
+      "folded": {
+        "top1": "ch03-013",
+        "top5": [
+          "ch03-013",
+          "ch03-002",
+          "ch03-016",
+          "ch03-101",
+          "ch03-102"
+        ],
+        "pin_rank": 1
+      },
+      "top1_flip": false,
+      "pin_rank_delta": 0
+    },
+    {
+      "source": "GOLDEN_PINS",
+      "question": "What is the difference between batch and streaming?",
+      "pin": "ch02-019",
+      "stored": {
+        "top1": "ch02-019",
+        "top5": [
+          "ch02-019",
+          "ch02-018",
+          "ch02-021",
+          "ch03-090",
+          "ch02-020"
+        ],
+        "pin_rank": 1
+      },
+      "folded": {
+        "top1": "ch02-019",
+        "top5": [
+          "ch02-019",
+          "ch02-018",
+          "ch02-021",
+          "ch03-090",
+          "ch02-020"
+        ],
+        "pin_rank": 1
+      },
+      "top1_flip": false,
+      "pin_rank_delta": 0
+    },
+    {
+      "source": "GOLDEN_PINS",
+      "question": "What happens to data after it is extracted in ETL?",
+      "pin": "ch07-033",
+      "stored": {
+        "top1": "ch07-033",
+        "top5": [
+          "ch07-033",
+          "ch08-094",
+          "ch08-122",
+          "ch02-022",
+          "ch02-041"
+        ],
+        "pin_rank": 1
+      },
+      "folded": {
+        "top1": "ch07-033",
+        "top5": [
+          "ch07-033",
+          "ch08-094",
+          "ch02-022",
+          "ch08-122",
+          "ch02-041"
+        ],
+        "pin_rank": 1
+      },
+      "top1_flip": false,
+      "pin_rank_delta": 0
+    },
+    {
+      "source": "GOLDEN_PINS",
+      "question": "What do transformations do in the data engineering lifecycle?",
+      "pin": "ch02-027",
+      "stored": {
+        "top1": "ch02-027",
+        "top5": [
+          "ch02-027",
+          "ch02-025",
+          "ch08-161",
+          "ch08-001",
+          "ch02-026"
+        ],
+        "pin_rank": 1
+      },
+      "folded": {
+        "top1": "ch02-027",
+        "top5": [
+          "ch02-027",
+          "ch02-025",
+          "ch08-161",
+          "ch08-001",
+          "ch02-026"
+        ],
+        "pin_rank": 1
+      },
+      "top1_flip": false,
+      "pin_rank_delta": 0
+    },
+    {
+      "source": "TYPOS",
+      "question": "What does CRU stand for?",
+      "pin": "ch05-019",
+      "stored": {
+        "top1": "ch05-019",
+        "top5": [
+          "ch05-019",
+          "ch01-064",
+          "ch01-067",
+          "ch01-065",
+          "ch01-066"
+        ],
+        "pin_rank": 1
+      },
+      "folded": {
+        "top1": "ch05-019",
+        "top5": [
+          "ch05-019",
+          "ch01-064",
+          "ch01-067",
+          "ch01-065",
+          "ch01-066"
+        ],
+        "pin_rank": 1
+      },
+      "top1_flip": false,
+      "pin_rank_delta": 0
+    },
+    {
+      "source": "TYPOS",
+      "question": "What happens to data after it is extracted in ET?",
+      "pin": "ch07-033",
+      "stored": {
+        "top1": "ch07-033",
+        "top5": [
+          "ch07-033",
+          "ch02-022",
+          "ch07-031",
+          "ch02-024",
+          "ch08-094"
+        ],
+        "pin_rank": 1
+      },
+      "folded": {
+        "top1": "ch07-033",
+        "top5": [
+          "ch07-033",
+          "ch02-022",
+          "ch07-031",
+          "ch02-024",
+          "ch08-094"
+        ],
+        "pin_rank": 1
+      },
+      "top1_flip": false,
+      "pin_rank_delta": 0
+    },
+    {
+      "source": "TYPOS",
+      "question": "what is a atermark?",
+      "pin": "ch08-039",
+      "stored": {
+        "top1": "ch03-006",
+        "top5": [
+          "ch03-006",
+          "ch03-015",
+          "ch05-030",
+          "ch03-078",
+          "ch03-005"
+        ],
+        "pin_rank": 116
+      },
+      "folded": {
+        "top1": "ch03-006",
+        "top5": [
+          "ch03-006",
+          "ch03-015",
+          "ch05-030",
+          "ch03-078",
+          "ch03-005"
+        ],
+        "pin_rank": 102
+      },
+      "top1_flip": false,
+      "pin_rank_delta": -14
+    },
+    {
+      "source": "PROBES",
+      "question": "what does data engineers need to be pragmatic about",
+      "pin": "ch04-012",
+      "stored": {
+        "top1": "ch01-034",
+        "top5": [
+          "ch01-034",
+          "ch01-036",
+          "ch01-042",
+          "ch01-024",
+          "ch03-038"
+        ],
+        "pin_rank": 76
+      },
+      "folded": {
+        "top1": "ch01-034",
+        "top5": [
+          "ch01-034",
+          "ch01-036",
+          "ch01-042",
+          "ch01-024",
+          "ch03-038"
+        ],
+        "pin_rank": 78
+      },
+      "top1_flip": false,
+      "pin_rank_delta": 2
+    },
+    {
+      "source": "PROBES",
+      "question": "Data engineers need to be pragmatic about?",
+      "pin": "ch04-012",
+      "stored": {
+        "top1": "ch01-034",
+        "top5": [
+          "ch01-034",
+          "ch01-042",
+          "ch01-036",
+          "ch03-038",
+          "ch01-024"
+        ],
+        "pin_rank": 68
+      },
+      "folded": {
+        "top1": "ch01-034",
+        "top5": [
+          "ch01-034",
+          "ch01-036",
+          "ch01-042",
+          "ch03-038",
+          "ch01-024"
+        ],
+        "pin_rank": 69
+      },
+      "top1_flip": false,
+      "pin_rank_delta": 1
+    },
+    {
+      "source": "PROBES",
+      "question": "MAD data landscape",
+      "pin": "ch04-020",
+      "stored": {
+        "top1": "ch03-099",
+        "top5": [
+          "ch03-099",
+          "ch02-037",
+          "ch11-018",
+          "ch03-084",
+          "ch06-080"
+        ],
+        "pin_rank": 38
+      },
+      "folded": {
+        "top1": "ch03-099",
+        "top5": [
+          "ch03-099",
+          "ch02-037",
+          "ch11-018",
+          "ch03-084",
+          "ch06-080"
+        ],
+        "pin_rank": 37
+      },
+      "top1_flip": false,
+      "pin_rank_delta": -1
+    },
+    {
+      "source": "PROBES",
+      "question": "multicloud methodology disadvantages",
+      "pin": "ch04-037",
+      "stored": {
+        "top1": "ch04-037",
+        "top5": [
+          "ch04-037",
+          "ch04-036",
+          "ch04-038",
+          "ch03-063",
+          "ch03-062"
+        ],
+        "pin_rank": 1
+      },
+      "folded": {
+        "top1": "ch04-037",
+        "top5": [
+          "ch04-037",
+          "ch04-036",
+          "ch04-038",
+          "ch03-063",
+          "ch03-062"
+        ],
+        "pin_rank": 1
+      },
+      "top1_flip": false,
+      "pin_rank_delta": 0
+    },
+    {
+      "source": "COHERENCE",
+      "question": "what is MAD data landscape",
+      "pin": "ch04-020",
+      "stored": {
+        "top1": "ch03-099",
+        "top5": [
+          "ch03-099",
+          "ch02-059",
+          "ch06-080",
+          "ch04-092",
+          "ch03-084"
+        ],
+        "pin_rank": 47
+      },
+      "folded": {
+        "top1": "ch03-099",
+        "top5": [
+          "ch03-099",
+          "ch02-059",
+          "ch06-080",
+          "ch04-092",
+          "ch03-084"
+        ],
+        "pin_rank": 48
+      },
+      "top1_flip": false,
+      "pin_rank_delta": 1
+    },
+    {
+      "source": "COHERENCE",
+      "question": "what is data mesh",
+      "pin": "ch03-099",
+      "stored": {
+        "top1": "ch03-099",
+        "top5": [
+          "ch03-099",
+          "ch09-016",
+          "ch05-055",
+          "ch09-059",
+          "ch03-071"
+        ],
+        "pin_rank": 1
+      },
+      "folded": {
+        "top1": "ch03-099",
+        "top5": [
+          "ch03-099",
+          "ch09-016",
+          "ch05-055",
+          "ch09-059",
+          "ch03-071"
+        ],
+        "pin_rank": 1
+      },
+      "top1_flip": false,
+      "pin_rank_delta": 0
+    },
+    {
+      "source": "COHERENCE",
+      "question": "Codd introduced the idea of what",
+      "pin": "ch08-051",
+      "stored": {
+        "top1": "ch04-067",
+        "top5": [
+          "ch04-067",
+          "ch03-071",
+          "ch04-052",
+          "ch08-051",
+          "ch02-074"
+        ],
+        "pin_rank": 4
+      },
+      "folded": {
+        "top1": "ch04-067",
+        "top5": [
+          "ch04-067",
+          "ch03-071",
+          "ch08-051",
+          "ch04-052",
+          "ch08-052"
+        ],
+        "pin_rank": 3
+      },
+      "top1_flip": false,
+      "pin_rank_delta": -1
+    },
+    {
+      "source": "COHERENCE",
+      "question": "what is an endpoint in streaming ingestion",
+      "pin": "ch02-024",
+      "stored": {
+        "top1": "ch02-024",
+        "top5": [
+          "ch02-024",
+          "ch07-060",
+          "ch07-098",
+          "ch02-018",
+          "ch07-059"
+        ],
+        "pin_rank": 1
+      },
+      "folded": {
+        "top1": "ch02-024",
+        "top5": [
+          "ch02-024",
+          "ch07-060",
+          "ch07-098",
+          "ch02-018",
+          "ch07-059"
+        ],
+        "pin_rank": 1
+      },
+      "top1_flip": false,
+      "pin_rank_delta": 0
+    }
+  ],
+  "probe_seconds": 13.438400400002138
+}

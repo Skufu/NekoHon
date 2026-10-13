@@ -1,0 +1,32 @@
+ok   What does CRUD stand for?                            chunk=ch05-019 expected=ch05-019 refused=False
+ok   What is data ingestion?                              chunk=ch07-002 expected=ch07-002 refused=False
+ok   What is a watermark?                                 chunk=ch08-039 expected=ch08-039 refused=False
+ok   When is an insert-only table useful?                 chunk=ch05-020 expected=ch05-020 refused=False
+ok   Where does storage sit in the data engineering lifec chunk=ch06-001 expected=ch06-001 refused=False
+ok   What do source systems provide to the rest of the li chunk=ch02-005 expected=ch02-005 refused=False
+ok   How does data architecture relate to enterprise arch chunk=ch03-013 expected=ch03-013 refused=False
+ok   What is the difference between batch and streaming?  chunk=ch02-019 expected=ch02-019 refused=False
+ok   What happens to data after it is extracted in ETL?   chunk=ch07-033 expected=ch07-033 refused=False
+FAIL What do transformations do in the data engineering l chunk=ch02-027 expected=ch02-027 refused=True
+ok   What does CRU stand for?                             chunk=ch05-019 expected=ch05-019 refused=False
+ok   What happens to data after it is extracted in ET?    chunk=ch07-033 expected=ch07-033 refused=False
+ok   what is a atermark?                                  chunk=ch08-039 expected=ch08-039 refused=False
+ok   what does data engineers need to be pragmatic about  chunk=ch04-012 expected=ch04-012 refused=False
+ok   Data engineers need to be pragmatic about?           chunk=ch04-012 expected=ch04-012 refused=False
+ok   MAD data landscape                                   chunk=ch04-020 expected=ch04-020 refused=False
+FAIL multicloud methodology disadvantages                 chunk=ch04-037 expected=ch04-037 refused=True
+ok   what is MAD data landscape                           chunk=ch04-020 expected=ch04-020 refused=False
+ok   what is data mesh                                    chunk=ch03-099 expected=ch03-099 refused=False
+ok   Codd introduced the idea of what                     chunk=ch08-051 expected=ch08-051 refused=False
+ok   what is an endpoint in streaming ingestion           chunk=ch02-024 expected=ch02-024 refused=False
+ok   What is the capital of France?                       chunk=ch01-064 expected=- refused=True
+
+pin/refusal failures: 2
+
+== MAD MAD data landscape: meta='the passage' present: True
+   [Ch. 4] "It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)"
+The passage highlights the complexity and rapid change in technologies related to machine learning, AI, and data.
+
+== MAD what is MAD data landscape: meta='the passage' present: True
+   [Ch. 4] "It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)"
+The passage suggests that the MAD landscape, which includes ML, AI, and data technologies, is complex and constantly changing.

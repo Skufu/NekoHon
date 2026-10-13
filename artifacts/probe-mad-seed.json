@@ -1,0 +1,84 @@
+[
+  {
+    "question": "MAD data landscape",
+    "variant": "A",
+    "pool": [
+      "ch04-020",
+      "ch04-019",
+      "ch03-099",
+      "ch02-037",
+      "ch11-018"
+    ],
+    "raw": "[Ch. 4] \"Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1).\" The passage mentions the complexity of the ML, AI, and data landscape introduced earlier.",
+    "answer": "[Ch. 4] \"Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)\"\nThe passage mentions the complexity of the ML, AI, and data landscape introduced earlier.",
+    "citations": [
+      "ch04-020"
+    ],
+    "figures": [
+      "figure-4-1"
+    ],
+    "refused": false
+  },
+  {
+    "question": "MAD data landscape",
+    "variant": "B",
+    "pool": [
+      "ch04-020",
+      "ch01-018",
+      "ch04-019",
+      "ch03-099",
+      "ch02-037",
+      "ch11-018"
+    ],
+    "raw": "[Ch. 4] \"It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1).\"",
+    "answer": "[Ch. 4] \"It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)\"",
+    "citations": [
+      "ch04-020"
+    ],
+    "figures": [
+      "figure-4-1"
+    ],
+    "refused": false
+  },
+  {
+    "question": "what is MAD data landscape",
+    "variant": "A",
+    "pool": [
+      "ch04-020",
+      "ch03-099",
+      "ch02-059",
+      "ch06-080",
+      "ch04-092"
+    ],
+    "raw": "[Ch. 4] \"It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1).\" The passage indicates that the landscape of ML, AI, and data technologies is complex and constantly changing.",
+    "answer": "[Ch. 4] \"It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)\"\nThe passage indicates that the landscape of ML, AI, and data technologies is complex and constantly changing.",
+    "citations": [
+      "ch04-020"
+    ],
+    "figures": [
+      "figure-4-1"
+    ],
+    "refused": false
+  },
+  {
+    "question": "what is MAD data landscape",
+    "variant": "B",
+    "pool": [
+      "ch04-020",
+      "ch01-018",
+      "ch03-099",
+      "ch02-059",
+      "ch06-080",
+      "ch04-092"
+    ],
+    "raw": "[Ch. 4] \"It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1).\" The passage indicates that the landscape of machine learning, AI, and data technologies is complex and rapidly changing.",
+    "answer": "[Ch. 4] \"It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)\"\nThe passage indicates that the landscape of machine learning, AI, and data technologies is complex and rapidly changing.",
+    "citations": [
+      "ch04-020"
+    ],
+    "figures": [
+      "figure-4-1"
+    ],
+    "refused": false
+  }
+]

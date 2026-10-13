@@ -1,0 +1,23 @@
+== explain data engineering in simple words
+  change in ch01-005:
+    span          : 'by data scientists, analysts, and other'
+    old (0.25): When we unpack the common threads of how various people define data engineering, an obvious pattern emerges: a data engineer gets data, stores it, and prepares it for consumption by data scientists, analysts, and others.
+    new (0.5): We define data engineering and data engineer as follows: Data engineering is the development, implementation, and maintenance of systems and processes that take in raw data and produce high-quality, consistent information that supports downstream use cases, such as analysis and machine learning.
+  BEFORE (redundancy 0.9423): Data engineers get data, store it, and prepare it for others. [Ch. 1] Data engineering handles moving, changing, and managing data. [Ch. 1] It's easy to focus on new tech and forget the main goal of data engineering. [Ch. 4] Data engineers keep data available for others to use. [Ch. 1]
+  AFTER  (redundancy 0.8661): Data engineering makes systems to handle raw data and give clean info for use. [Ch. 1] Data engineering handles moving, changing, and managing data. [Ch. 1] It's easy to focus on new tech and forget the main goal of data engineering. [Ch. 4] Data engineers keep data available for others to use. [Ch. 1]
+
+== explain what a watermark is in simple words
+  BEFORE (redundancy 0.0): A watermark checks if data is on time or late. [Ch. 8]
+  AFTER  (redundancy 0.0): A watermark checks if data is on time or late. [Ch. 8]
+
+== explain CRUD in simple words
+  BEFORE (redundancy 0.0): CRUD means create, read, update, and delete. [Ch. 5]
+  AFTER  (redundancy 0.0): CRUD means create, read, update, and delete. [Ch. 5]
+
+== explain batch and streaming in simple words
+  BEFORE (redundancy 0.7083): Batch ingestion processes data in large groups at once. [Ch. 2] Many systems separate storage and computing, making data stream processing easier and more popular. [Ch. 2] A micro-batch runs every two minutes or less. [Ch. 8]
+  AFTER  (redundancy 0.7083): Batch ingestion processes data in large groups at once. [Ch. 2] Many systems separate storage and computing, making data stream processing easier and more popular. [Ch. 2] A micro-batch runs every two minutes or less. [Ch. 8]
+
+== explain data ingestion in simple words
+  BEFORE (redundancy 0.9294): Data ingestion moves data from one place to another. [Ch. 7] Ingestion moves data from one pipe to another. [Ch. 7] Data is taken from a source, based on time or data size. [Ch. 7]
+  AFTER  (redundancy 0.9294): Data ingestion moves data from one place to another. [Ch. 7] Ingestion moves data from one pipe to another. [Ch. 7] Data is taken from a source, based on time or data size. [Ch. 7]

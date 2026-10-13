@@ -1,0 +1,238 @@
+[
+  {
+    "label": "cue",
+    "question": "explain data engineering in simple words",
+    "asked": "explain data engineering in simple words",
+    "reading": null,
+    "passages": [
+      {
+        "chunk_id": "ch04-001",
+        "chapter": "4",
+        "score": null,
+        "head": "Chapter 4. Choosing Technologies Across the Data Engineering Lifecycle Data engineering nowadays suffers from an embarrassment of riches. We"
+      },
+      {
+        "chunk_id": "ch01-005",
+        "chapter": "1",
+        "score": 0.856,
+        "head": "Data Engineering Defined When we unpack the common threads of how various people define data engineering, an obvious pattern emerges: a data"
+      },
+      {
+        "chunk_id": "ch01-004",
+        "chapter": "1",
+        "score": 0.8308,
+        "head": "What Is Data Engineering? Maxime Beauchemin4 Data engineering is all about the movement, manipulation, and management of data. Lewis Gavin5 "
+      },
+      {
+        "chunk_id": "ch01-002",
+        "chapter": "1",
+        "score": 0.8306,
+        "head": "What Is Data Engineering? Despite the current popularity of data engineering, there’s a lot of confusion about what data engineering means a"
+      },
+      {
+        "chunk_id": "ch01-001",
+        "chapter": "1",
+        "score": 0.8172,
+        "head": "Chapter 1. Data Engineering Described If you work in data or software, you may have noticed data engineering emerging from the shadows and n"
+      }
+    ],
+    "respond_seconds": 3.3,
+    "calls": [
+      {
+        "tag": "draft",
+        "system_head": "You answer from the passages below, and only from them. Write a direct answer bu",
+        "user": "Question: explain data engineering in simple words Passages: [Ch. 4] chunk_id=ch04-001 Chapter 4. Choosing Technologies Across the Data Engineering Lifecycle Data engineering nowadays suffers from an embarrassment of riches. We have no shortage of technologies to solve various types of data problems. Data technologies are available as turnkey offerings consumable in almost every way—open source, managed open source, proprietary software, proprietary service, and more. However, it’s easy to get caught up in chasing bleeding-edge technology while losing sight of the core purpose of data engineering: designing robust and reliable systems to carry data through the full lifecycle and serve it according to the needs of end users. Just as structural engineers carefully choose technologies and materials to realize an architect’s vision for a building, data engineers are tasked with making appropriate technology choices to shepherd data through the lifecycle to serve data applications and users. Chapter 3 discussed “good” data architecture and why it matters. We now explain how to choose the right technologies to serve this architecture. Data engineers must choose good technologies to make the best possible data product. We feel the criteria to choose a good data technology is simple: does it add value to a data product and the broader business? [Ch. 1] chunk_id=ch01-005 Data Engineering Defined When we unpack the common threads of how various people define data engineering, an obvious pattern emerges: a data engineer gets data, stores it, and prepares it for consumption by data scientists, analysts, and others. We define data engineering and data engineer as follows: Data engineering is the development, implementation, and maintenance of systems and processes that take in raw data and produce high-quality, consistent information that supports downstream use cases, such as analysis and machine learning. Data engineering is the intersection of security, data management, DataO",
+        "out": "Data engineering involves developing, implementing, and maintaining systems and processes that handle raw data, transforming it into high-quality, consistent information for use by data scientists, analysts, and other stakeholders [Ch. 1]. It encompasses the movement, manipulation, and management of data [Ch. 1], and is the intersection of security, data management, DataOps, data architecture, orchestration, and software engineering [Ch. 1]. The core purpose is to design robust and reliable systems to carry data through its lifecycle and serve it according to end-user needs [Ch. 4]. Data engineers ensure data remains available and usable, setting up and operating the organization’s data infrastructure [Ch. 1].",
+        "seconds": 2.07
+      },
+      {
+        "tag": "rewrite",
+        "system_head": "Rewrite one sentence from a book in simpler words for a newcomer. Rewrite the wh",
+        "user": "Sentence: When we unpack the common threads of how various people define data engineering, an obvious pattern emerges: a data engineer gets data, stores it, and prepares it for consumption by data scientists, analysts, and others.",
+        "out": "Data engineers get data, store it, and prepare it for others.",
+        "seconds": 0.26
+      },
+      {
+        "tag": "rewrite",
+        "system_head": "Rewrite one sentence from a book in simpler words for a newcomer. Rewrite the wh",
+        "user": "Sentence: Data engineering is all about the movement, manipulation, and management of data.",
+        "out": "Data engineering handles moving, changing, and managing data.",
+        "seconds": 0.2
+      },
+      {
+        "tag": "rewrite",
+        "system_head": "Rewrite one sentence from a book in simpler words for a newcomer. Rewrite the wh",
+        "user": "Sentence: However, it’s easy to get caught up in chasing bleeding-edge technology while losing sight of the core purpose of data engineering: designing robust and reliable systems to carry data through the full lifecycle and serve it according to the needs of end users.",
+        "out": "It's easy to focus on new tech and forget the main goal of data engineering.",
+        "seconds": 0.29
+      },
+      {
+        "tag": "rewrite",
+        "system_head": "Rewrite one sentence from a book in simpler words for a newcomer. Rewrite the wh",
+        "user": "Sentence: It takes dedicated specialists—data engineers—to maintain data so that it remains available and usable by others.",
+        "out": "Data engineers keep data available for others to use.",
+        "seconds": 0.18
+      }
+    ],
+    "refused": false,
+    "answer": "Data engineers get data, store it, and prepare it for others. [Ch. 1] Data engineering handles moving, changing, and managing data. [Ch. 1] It's easy to focus on new tech and forget the main goal of data engineering. [Ch. 4] Data engineers keep data available for others to use. [Ch. 1]",
+    "citations": [
+      {
+        "chunk_id": "ch01-005",
+        "chapter": "1",
+        "quote": "When we unpack the common threads of how various people define data engineering, an obvious pattern emerges: a data engineer gets data, stores it, and prepares it for consumption by data scientists, analysts, and others.",
+        "sentence": null
+      },
+      {
+        "chunk_id": "ch01-004",
+        "chapter": "1",
+        "quote": "Data engineering is all about the movement, manipulation, and management of data.",
+        "sentence": null
+      },
+      {
+        "chunk_id": "ch04-001",
+        "chapter": "4",
+        "quote": "However, it’s easy to get caught up in chasing bleeding-edge technology while losing sight of the core purpose of data engineering: designing robust and reliable systems to carry data through the full lifecycle and serve it according to the needs of end users.",
+        "sentence": null
+      },
+      {
+        "chunk_id": "ch01-002",
+        "chapter": "1",
+        "quote": "It takes dedicated specialists—data engineers—to maintain data so that it remains available and usable by others.",
+        "sentence": null
+      }
+    ],
+    "figures": [],
+    "support": [
+      {
+        "sentence": "Data engineers get data, store it, and prepare it for others.",
+        "coverage": 0.0,
+        "supported": false
+      },
+      {
+        "sentence": "Data engineering handles moving, changing, and managing data.",
+        "coverage": 0.0,
+        "supported": false
+      },
+      {
+        "sentence": "It's easy to focus on new tech and forget the main goal of data engineering.",
+        "coverage": 0.077,
+        "supported": false
+      },
+      {
+        "sentence": "Data engineers keep data available for others to use.",
+        "coverage": 0.0,
+        "supported": false
+      }
+    ]
+  },
+  {
+    "label": "free",
+    "question": "explain data engineering",
+    "asked": "explain data engineering",
+    "reading": null,
+    "passages": [
+      {
+        "chunk_id": "ch04-001",
+        "chapter": "4",
+        "score": null,
+        "head": "Chapter 4. Choosing Technologies Across the Data Engineering Lifecycle Data engineering nowadays suffers from an embarrassment of riches. We"
+      },
+      {
+        "chunk_id": "ch01-005",
+        "chapter": "1",
+        "score": 0.8772,
+        "head": "Data Engineering Defined When we unpack the common threads of how various people define data engineering, an obvious pattern emerges: a data"
+      },
+      {
+        "chunk_id": "ch01-004",
+        "chapter": "1",
+        "score": 0.8606,
+        "head": "What Is Data Engineering? Maxime Beauchemin4 Data engineering is all about the movement, manipulation, and management of data. Lewis Gavin5 "
+      },
+      {
+        "chunk_id": "ch01-002",
+        "chapter": "1",
+        "score": 0.8556,
+        "head": "What Is Data Engineering? Despite the current popularity of data engineering, there’s a lot of confusion about what data engineering means a"
+      },
+      {
+        "chunk_id": "ch01-001",
+        "chapter": "1",
+        "score": 0.8531,
+        "head": "Chapter 1. Data Engineering Described If you work in data or software, you may have noticed data engineering emerging from the shadows and n"
+      }
+    ],
+    "respond_seconds": 3.18,
+    "calls": [
+      {
+        "tag": "draft",
+        "system_head": "You answer from the passages below, and only from them. Write a direct answer bu",
+        "user": "Question: explain data engineering Passages: [Ch. 4] chunk_id=ch04-001 Chapter 4. Choosing Technologies Across the Data Engineering Lifecycle Data engineering nowadays suffers from an embarrassment of riches. We have no shortage of technologies to solve various types of data problems. Data technologies are available as turnkey offerings consumable in almost every way—open source, managed open source, proprietary software, proprietary service, and more. However, it’s easy to get caught up in chasing bleeding-edge technology while losing sight of the core purpose of data engineering: designing robust and reliable systems to carry data through the full lifecycle and serve it according to the needs of end users. Just as structural engineers carefully choose technologies and materials to realize an architect’s vision for a building, data engineers are tasked with making appropriate technology choices to shepherd data through the lifecycle to serve data applications and users. Chapter 3 discussed “good” data architecture and why it matters. We now explain how to choose the right technologies to serve this architecture. Data engineers must choose good technologies to make the best possible data product. We feel the criteria to choose a good data technology is simple: does it add value to a data product and the broader business? [Ch. 1] chunk_id=ch01-005 Data Engineering Defined When we unpack the common threads of how various people define data engineering, an obvious pattern emerges: a data engineer gets data, stores it, and prepares it for consumption by data scientists, analysts, and others. We define data engineering and data engineer as follows: Data engineering is the development, implementation, and maintenance of systems and processes that take in raw data and produce high-quality, consistent information that supports downstream use cases, such as analysis and machine learning. Data engineering is the intersection of security, data management, DataOps, data archite",
+        "out": "Data engineering is the development, implementation, and maintenance of systems and processes that take in raw data and produce high-quality, consistent information for downstream use cases such as analysis and machine learning [Ch. 1]. It involves the movement, manipulation, and management of data [Ch. 1], and is the intersection of security, data management, DataOps, data architecture, orchestration, and software engineering [Ch. 1]. Data engineers are responsible for managing the data engineering lifecycle, from getting data from source systems to serving it for use cases [Ch. 1]. The core purpose of data engineering is to design robust and reliable systems to carry data through the full lifecycle and serve it according to the needs of end users [Ch. 4]. Data engineering also involves setting up and operating the organization’s data infrastructure, preparing it for further analysis by data analysts and scientists [Ch. 1]. [Ch. 4] emphasizes that data engineers should choose technologies that add value to a data product and the broader business.",
+        "seconds": 2.92
+      }
+    ],
+    "refused": false,
+    "answer": "Data engineering is the development, implementation, and maintenance of systems and processes that take in raw data and produce high-quality, consistent information for downstream use cases such as analysis and machine learning [Ch. 1]. It involves the movement, manipulation, and management of data [Ch. 1], and is the intersection of security, data management, DataOps, data architecture, orchestration, and software engineering [Ch. 1]. Data engineers are responsible for managing the data engineering lifecycle, from getting data from source systems to serving it for use cases [Ch. 1]. The core purpose of data engineering is to design robust and reliable systems to carry data through the full lifecycle and serve it according to the needs of end users [Ch. 4]. Data engineering also involves setting up and operating the organization’s data infrastructure, preparing it for further analysis by data analysts and scientists [Ch. 1]. [Ch. 4] emphasizes that data engineers should choose technologies that add value to a data product and the broader business.",
+    "citations": [
+      {
+        "chunk_id": "ch01-005",
+        "chapter": "1",
+        "quote": "We define data engineering and data engineer as follows: Data engineering is the development, implementation, and maintenance of systems and processes that take in raw data and produce high-quality, consistent information that supports downstream use cases, such as analysis and machine learning.",
+        "sentence": null
+      },
+      {
+        "chunk_id": "ch01-004",
+        "chapter": "1",
+        "quote": "Data engineering is all about the movement, manipulation, and management of data.",
+        "sentence": null
+      },
+      {
+        "chunk_id": "ch04-001",
+        "chapter": "4",
+        "quote": "However, it’s easy to get caught up in chasing bleeding-edge technology while losing sight of the core purpose of data engineering: designing robust and reliable systems to carry data through the full lifecycle and serve it according to the needs of end users.",
+        "sentence": null
+      },
+      {
+        "chunk_id": "ch01-002",
+        "chapter": "1",
+        "quote": "In short, data engineers set up and operate the organization’s data infrastructure, preparing it for further analysis by data analysts and scientists.",
+        "sentence": null
+      }
+    ],
+    "figures": [],
+    "support": [
+      {
+        "sentence": "Data engineering is the development, implementation, and maintenance of systems and processes that take in raw data and produce high-quality, consistent information for downstream use cases such as an",
+        "coverage": 0.867,
+        "supported": true
+      },
+      {
+        "sentence": "It involves the movement, manipulation, and management of data , and is the intersection of security, data management, DataOps, data architecture, orchestration, and software engineering .",
+        "coverage": 0.714,
+        "supported": true
+      },
+      {
+        "sentence": "Data engineers are responsible for managing the data engineering lifecycle, from getting data from source systems to serving it for use cases .",
+        "coverage": 0.158,
+        "supported": false
+      },
+      {
+        "sentence": "The core purpose of data engineering is to design robust and reliable systems to carry data through the full lifecycle and serve it according to the needs of end users .",
+        "coverage": 0.778,
+        "supported": true
+      },
+      {
+        "sentence": "Data engineering also involves setting up and operating the organization’s data infrastructure, preparing it for further analysis by data analysts and scientists .",
+        "coverage": 0.6,
+        "supported": true
+      },
+      {
+        "sentence": "emphasizes that data engineers should choose technologies that add value to a data product and the broader business.",
+        "coverage": 0.467,
+        "supported": false
+      }
+    ]
+  }
+]

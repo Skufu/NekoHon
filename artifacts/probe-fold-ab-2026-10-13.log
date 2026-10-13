@@ -1,0 +1,45 @@
+# fold-ab probe 2026-10-13  index data/index.json  embedder nomic-embed-text dims 768
+# typographic source chars: '’‘“”–—'
+# chunks 1042  figures 111
+sanity chunk preface01-001: re-embed cos vs stored 1.000000 (bar >0.999)
+sanity figure-4-1 body (caption+referencing_paragraph): re-embed cos vs stored 1.000000
+re-embed vs reuse: chunks embedded 768/1042 (reused 274, no vector 0); figures embedded 53/111 (reused 58, no vector 0)
+figure trigger note: 8 figures trigger on the caption alone; the fold uses caption+referencing_paragraph, the text the index embedded
+fold re-embeds done 821 in 9.7s (time guard tripped: False)
+fold displacement chunks: cos(folded, stored) min 0.997050 median 0.999911 max 0.999997 (n 768)
+fold displacement figures: cos(folded, stored) min 0.998947 median 0.999901 max 0.999977 (n 53)
+questions: 21 pinned entries over 21 unique questions (GOLDEN_PINS 10, TYPOS 3, PROBES 4, COHERENCE 4)
+rank cross-check vs retrieve.rank_chunks on 'What does CRUD stand for?': ok
+SAME    [GOLDEN_PINS] pin ch05-019 rank 1->1 (delta +0) top1 ch05-019->ch05-019  What does CRUD stand for?
+SAME    [GOLDEN_PINS] pin ch07-002 rank 1->1 (delta +0) top1 ch07-002->ch07-002  What is data ingestion?
+SAME    [GOLDEN_PINS] pin ch08-039 rank 1->1 (delta +0) top1 ch08-039->ch08-039  What is a watermark?
+SAME    [GOLDEN_PINS] pin ch05-020 rank 3->3 (delta +0) top1 ch08-107->ch08-107  When is an insert-only table useful?
+SAME    [GOLDEN_PINS] pin ch06-001 rank 1->1 (delta +0) top1 ch06-001->ch06-001  Where does storage sit in the data engineering lifecycle?
+SAME    [GOLDEN_PINS] pin ch02-005 rank 1->1 (delta +0) top1 ch02-005->ch02-005  What do source systems provide to the rest of the lifecycle?
+SAME    [GOLDEN_PINS] pin ch03-013 rank 1->1 (delta +0) top1 ch03-013->ch03-013  How does data architecture relate to enterprise architecture?
+SAME    [GOLDEN_PINS] pin ch02-019 rank 1->1 (delta +0) top1 ch02-019->ch02-019  What is the difference between batch and streaming?
+SAME    [GOLDEN_PINS] pin ch07-033 rank 1->1 (delta +0) top1 ch07-033->ch07-033  What happens to data after it is extracted in ETL?
+SAME    [GOLDEN_PINS] pin ch02-027 rank 1->1 (delta +0) top1 ch02-027->ch02-027  What do transformations do in the data engineering lifecycle?
+SAME    [TYPOS] pin ch05-019 rank 1->1 (delta +0) top1 ch05-019->ch05-019  What does CRU stand for?
+SAME    [TYPOS] pin ch07-033 rank 1->1 (delta +0) top1 ch07-033->ch07-033  What happens to data after it is extracted in ET?
+CHANGED [TYPOS] pin ch08-039 rank 116->102 (delta -14) top1 ch03-006->ch03-006  what is a atermark?
+MOVED   [PROBES] pin ch04-012 rank 76->78 (delta +2) top1 ch01-034->ch01-034  what does data engineers need to be pragmatic about
+MOVED   [PROBES] pin ch04-012 rank 68->69 (delta +1) top1 ch01-034->ch01-034  Data engineers need to be pragmatic about?
+MOVED   [PROBES] pin ch04-020 rank 38->37 (delta -1) top1 ch03-099->ch03-099  MAD data landscape
+SAME    [PROBES] pin ch04-037 rank 1->1 (delta +0) top1 ch04-037->ch04-037  multicloud methodology disadvantages
+MOVED   [COHERENCE] pin ch04-020 rank 47->48 (delta +1) top1 ch03-099->ch03-099  what is MAD data landscape
+SAME    [COHERENCE] pin ch03-099 rank 1->1 (delta +0) top1 ch03-099->ch03-099  what is data mesh
+MOVED   [COHERENCE] pin ch08-051 rank 4->3 (delta -1) top1 ch04-067->ch04-067  Codd introduced the idea of what
+SAME    [COHERENCE] pin ch02-024 rank 1->1 (delta +0) top1 ch02-024->ch02-024  what is an endpoint in streaming ingestion
+figure-4-1: straight query vs stored 0.6895; curly query vs stored 0.6887 (the old 0.6887 anchor, re-measured); straight query vs folded body 0.6893; straight vs folded caption-only 0.8223 (confounded: stored vector carries the referencing paragraph)
+
+verdict: top-1 flips 0/21; non-zero pinned-rank deltas 6/21; max |delta| 14; pins absent 0
+delta: pin ch08-039 rank 116->102 (up 14) [TYPOS] what is a atermark?
+delta: pin ch04-012 rank 76->78 (down 2) [PROBES] what does data engineers need to be pragmatic about
+delta: pin ch04-012 rank 68->69 (down 1) [PROBES] Data engineers need to be pragmatic about?
+delta: pin ch04-020 rank 38->37 (up 1) [PROBES] MAD data landscape
+delta: pin ch04-020 rank 47->48 (down 1) [COHERENCE] what is MAD data landscape
+delta: pin ch08-051 rank 4->3 (up 1) [COHERENCE] Codd introduced the idea of what
+criteria: 0 top-1 flips AND every pinned dense rank within +-2 places -> NOT MET
+recommendation: fold changes rankings on this book: see flips and deltas; rebuild only if these moves are wanted
+probe seconds 13.4

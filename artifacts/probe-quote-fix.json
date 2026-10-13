@@ -1,0 +1,126 @@
+[
+  {
+    "question": "explain data engineering in simple words",
+    "draft": "Data engineering involves developing, implementing, and maintaining systems and processes that handle raw data, transforming it into high-quality, consistent information for use by data scientists, analysts, and other stakeholders [Ch. 1]. It encompasses the movement, manipulation, and management of data [Ch. 1], and is the intersection of security, data management, DataOps, data architecture, orchestration, and software engineering [Ch. 1]. The core purpose is to design robust and reliable systems to carry data through its lifecycle and serve it according to end-user needs [Ch. 4]. Data engineers ensure data remains available and usable, setting up and operating the organization’s data infrastructure [Ch. 1].",
+    "claims": 5,
+    "diffs": [
+      {
+        "chunk_id": "ch01-005",
+        "claim": "Data engineering involves developing, implementing, and maintaining systems and processes that handle raw data, transforming it into high-quality, consistent information for use by data scientists, analysts, and other stakeholders",
+        "span": "by data scientists, analysts, and other",
+        "old_quote": "When we unpack the common threads of how various people define data engineering, an obvious pattern emerges: a data engineer gets data, stores it, and prepares it for consumption by data scientists, analysts, and others.",
+        "old_overlap": 0.25,
+        "new_quote": "We define data engineering and data engineer as follows: Data engineering is the development, implementation, and maintenance of systems and processes that take in raw data and produce high-quality, consistent information that supports downstream use cases, such as analysis and machine learning.",
+        "new_overlap": 0.5
+      }
+    ],
+    "before": {
+      "answer": "Data engineers get data, store it, and prepare it for others. [Ch. 1] Data engineering handles moving, changing, and managing data. [Ch. 1] It's easy to focus on new tech and forget the main goal of data engineering. [Ch. 4] Data engineers keep data available for others to use. [Ch. 1]",
+      "quotes": [
+        "When we unpack the common threads of how various people define data engineering, an obvious pattern emerges: a data engineer gets data, stores it, and prepares it for consumption by data scientists, analysts, and others.",
+        "Data engineering is all about the movement, manipulation, and management of data.",
+        "However, it’s easy to get caught up in chasing bleeding-edge technology while losing sight of the core purpose of data engineering: designing robust and reliable systems to carry data through the full lifecycle and serve it according to the needs of end users.",
+        "It takes dedicated specialists—data engineers—to maintain data so that it remains available and usable by others."
+      ],
+      "redundancy": 0.9423
+    },
+    "after": {
+      "answer": "Data engineering makes systems to handle raw data and give clean info for use. [Ch. 1] Data engineering handles moving, changing, and managing data. [Ch. 1] It's easy to focus on new tech and forget the main goal of data engineering. [Ch. 4] Data engineers keep data available for others to use. [Ch. 1]",
+      "quotes": [
+        "We define data engineering and data engineer as follows: Data engineering is the development, implementation, and maintenance of systems and processes that take in raw data and produce high-quality, consistent information that supports downstream use cases, such as analysis and machine learning.",
+        "Data engineering is all about the movement, manipulation, and management of data.",
+        "However, it’s easy to get caught up in chasing bleeding-edge technology while losing sight of the core purpose of data engineering: designing robust and reliable systems to carry data through the full lifecycle and serve it according to the needs of end users.",
+        "It takes dedicated specialists—data engineers—to maintain data so that it remains available and usable by others."
+      ],
+      "redundancy": 0.8661
+    }
+  },
+  {
+    "question": "explain what a watermark is in simple words",
+    "draft": "A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it is considered late-arriving data. [Ch. 8]",
+    "claims": 1,
+    "diffs": [],
+    "before": {
+      "answer": "A watermark checks if data is on time or late. [Ch. 8]",
+      "quotes": [
+        "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late."
+      ],
+      "redundancy": 0.0
+    },
+    "after": {
+      "answer": "A watermark checks if data is on time or late. [Ch. 8]",
+      "quotes": [
+        "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late."
+      ],
+      "redundancy": 0.0
+    }
+  },
+  {
+    "question": "explain CRUD in simple words",
+    "draft": "CRUD stands for create, read, update, and delete, which are the four basic operations of persistent storage [Ch. 5]. It is a common pattern used in programming and databases, representing how data is managed [Ch. 5]. When using CRUD, data must first be created before it can be read, updated, or deleted [Ch. 5]. CRUD is widely used in software applications, such as web applications that use RESTful HTTP requests and databases [Ch. 5].",
+    "claims": 4,
+    "diffs": [],
+    "before": {
+      "answer": "CRUD means create, read, update, and delete. [Ch. 5]",
+      "quotes": [
+        "CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage."
+      ],
+      "redundancy": 0.0
+    },
+    "after": {
+      "answer": "CRUD means create, read, update, and delete. [Ch. 5]",
+      "quotes": [
+        "CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage."
+      ],
+      "redundancy": 0.0
+    }
+  },
+  {
+    "question": "explain batch and streaming in simple words",
+    "draft": "Batch processing involves handling data in large chunks, typically on a predetermined schedule or when a certain amount of data is accumulated [Ch. 2]. Streaming, on the other hand, processes data in real-time or near real-time, continuously feeding data to downstream systems as it is produced [Ch. 2]. While batch processing is still widely used, especially in analytics and machine learning, streaming is becoming more accessible due to the separation of storage and compute in modern systems [Ch. 2]. Micro-batching is a hybrid approach where batch-oriented frameworks are used to process data in smaller, more frequent batches, typically every two minutes to every second [Ch. 8]. True streaming systems, like Beam and Flink, process data one event at a time, though they may still operate in batches for certain processes [Ch. 8].",
+    "claims": 5,
+    "diffs": [],
+    "before": {
+      "answer": "Batch ingestion processes data in large groups at once. [Ch. 2] Many systems separate storage and computing, making data stream processing easier and more popular. [Ch. 2] A micro-batch runs every two minutes or less. [Ch. 8]",
+      "quotes": [
+        "Batch ingestion is simply a specialized and convenient way of processing this stream in large chunks—for example, handling a full day’s worth of data in a single batch.",
+        "However, the separation of storage and compute in many systems and the ubiquity of event-streaming and processing platforms make the continuous processing of data streams much more accessible and increasingly popular.",
+        "A micro-batch might run anywhere from every two minutes to every second."
+      ],
+      "redundancy": 0.7083
+    },
+    "after": {
+      "answer": "Batch ingestion processes data in large groups at once. [Ch. 2] Many systems separate storage and computing, making data stream processing easier and more popular. [Ch. 2] A micro-batch runs every two minutes or less. [Ch. 8]",
+      "quotes": [
+        "Batch ingestion is simply a specialized and convenient way of processing this stream in large chunks—for example, handling a full day’s worth of data in a single batch.",
+        "However, the separation of storage and compute in many systems and the ubiquity of event-streaming and processing platforms make the continuous processing of data streams much more accessible and increasingly popular.",
+        "A micro-batch might run anywhere from every two minutes to every second."
+      ],
+      "redundancy": 0.7083
+    }
+  },
+  {
+    "question": "explain data ingestion in simple words",
+    "draft": "Data ingestion is the process of moving data from one place to another, typically from source systems into storage [Ch. 7]. It involves ensuring that data flows consistently and securely to its destination, which can be part of a data pipeline [Ch. 7]. This process can be done in batch, where data is ingested in bulk based on time intervals or the size of accumulated data [Ch. 7]. The exact method can vary depending on the needs of the data engineering lifecycle [Ch. 7].",
+    "claims": 4,
+    "diffs": [],
+    "before": {
+      "answer": "Data ingestion moves data from one place to another. [Ch. 7] Ingestion moves data from one pipe to another. [Ch. 7] Data is taken from a source, based on time or data size. [Ch. 7]",
+      "quotes": [
+        "Data ingestion is the process of moving data from one place to another.",
+        "At the heart, ingestion is plumbing, connecting pipes to other pipes, ensuring that data flows consistently and securely to its destination.",
+        "This means that data is ingested by taking a subset of data from a source system, based either on a time interval or the size of accumulated data (Figure 7-10)."
+      ],
+      "redundancy": 0.9294
+    },
+    "after": {
+      "answer": "Data ingestion moves data from one place to another. [Ch. 7] Ingestion moves data from one pipe to another. [Ch. 7] Data is taken from a source, based on time or data size. [Ch. 7]",
+      "quotes": [
+        "Data ingestion is the process of moving data from one place to another.",
+        "At the heart, ingestion is plumbing, connecting pipes to other pipes, ensuring that data flows consistently and securely to its destination.",
+        "This means that data is ingested by taking a subset of data from a source system, based either on a time interval or the size of accumulated data (Figure 7-10)."
+      ],
+      "redundancy": 0.9294
+    }
+  }
+]

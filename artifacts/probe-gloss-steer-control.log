@@ -1,0 +1,9 @@
+control draw1 refused=False chunk=ch02-027 :: [Ch. 2] "Logically, we treat transformation as a standalone area of the data engineering lifecycle, but the realities of
+control draw2 refused=False chunk=ch02-027 :: [Ch. 2] "Logically, we treat transformation as a standalone area of the data engineering lifecycle, but the realities of
+steer   draw1 refused=True  chunk=ch02-027 :: Not in this book.
+steer   draw2 refused=True  chunk=ch02-027 :: Not in this book.
+
+control draw1 refused=False chunk=ch04-037 :: [Ch. 4] "A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bott
+control draw2 refused=False chunk=ch04-037 :: [Ch. 4] "A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bott
+steer   draw1 refused=True  chunk=ch04-037 :: Not in this book.
+steer   draw2 refused=True  chunk=ch04-037 :: Not in this book.

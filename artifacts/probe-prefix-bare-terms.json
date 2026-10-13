@@ -1,0 +1,153 @@
+[
+  {
+    "question": "watermark",
+    "pin": "ch08-039",
+    "ask_raw": {
+      "refused": false,
+      "chunk": "ch08-039",
+      "cites": [
+        "ch08-039"
+      ],
+      "head": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time inter"
+    },
+    "ask_pre": {
+      "refused": false,
+      "chunk": "ch08-039",
+      "cites": [
+        "ch08-039"
+      ],
+      "head": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time inter"
+    },
+    "answer_raw": {
+      "refused": false,
+      "chunk": "ch08-039",
+      "cites": [
+        "ch08-039"
+      ],
+      "head": "A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s co"
+    },
+    "answer_pre": {
+      "refused": false,
+      "chunk": "ch08-039",
+      "cites": [
+        "ch08-039"
+      ],
+      "head": "A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it's co"
+    }
+  },
+  {
+    "question": "CRUD",
+    "pin": "ch05-019",
+    "ask_raw": {
+      "refused": false,
+      "chunk": "ch05-019",
+      "cites": [
+        "ch05-019"
+      ],
+      "head": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the"
+    },
+    "ask_pre": {
+      "refused": false,
+      "chunk": "ch05-019",
+      "cites": [
+        "ch05-019"
+      ],
+      "head": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the"
+    },
+    "answer_raw": {
+      "refused": false,
+      "chunk": "ch05-019",
+      "cites": [
+        "ch05-019"
+      ],
+      "head": "CRUD stands for create, read, update, and delete [Ch. 5]. These four operations represent the basic functions of persistent storage in progr"
+    },
+    "answer_pre": {
+      "refused": false,
+      "chunk": "ch05-019",
+      "cites": [
+        "ch05-019",
+        "ch05-028"
+      ],
+      "head": "CRUD stands for create, read, update, and delete, and it is a transactional pattern commonly used in programming [Ch. 5]. It represents the "
+    }
+  },
+  {
+    "question": "data ingestion",
+    "pin": "ch07-002",
+    "ask_raw": {
+      "refused": false,
+      "chunk": "ch07-002",
+      "cites": [
+        "ch07-002"
+      ],
+      "head": "[Ch. 7] \"Data ingestion is the process of moving data from one place to another\""
+    },
+    "ask_pre": {
+      "refused": false,
+      "chunk": "ch07-002",
+      "cites": [
+        "ch07-002"
+      ],
+      "head": "[Ch. 7] \"Data ingestion is the process of moving data from one place to another\""
+    },
+    "answer_raw": {
+      "refused": false,
+      "chunk": "ch07-002",
+      "cites": [
+        "ch07-002",
+        "ch07-003",
+        "ch07-098",
+        "ch07-004"
+      ],
+      "head": "Data ingestion is the process of moving data from one place to another, typically from source systems into storage [Ch. 7]. It involves desi"
+    },
+    "answer_pre": {
+      "refused": false,
+      "chunk": "ch07-002",
+      "cites": [
+        "ch07-002",
+        "ch07-003"
+      ],
+      "head": "Data ingestion is the process of moving data from one place to another, typically from source systems into storage [Ch. 7]. This process is "
+    }
+  },
+  {
+    "question": "data mesh",
+    "pin": "ch03-099",
+    "ask_raw": {
+      "refused": false,
+      "chunk": "ch03-099",
+      "cites": [
+        "ch03-099"
+      ],
+      "head": "[Ch. 3] \"The data mesh attempts to invert the challenges of centralized data architecture, taking the concepts of domain-driven design (comm"
+    },
+    "ask_pre": {
+      "refused": false,
+      "chunk": "ch03-099",
+      "cites": [
+        "ch03-099"
+      ],
+      "head": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and "
+    },
+    "answer_raw": {
+      "refused": false,
+      "chunk": "ch03-099",
+      "cites": [
+        "ch03-099",
+        "ch09-016"
+      ],
+      "head": "Data mesh is a decentralized approach to data management that addresses the challenges of monolithic data platforms [Ch. 3]. It involves dom"
+    },
+    "answer_pre": {
+      "refused": false,
+      "chunk": "ch03-099",
+      "cites": [
+        "ch03-099",
+        "ch09-016"
+      ],
+      "head": "Data mesh is a recent approach to data architecture that addresses the challenges of centralized data platforms [Ch. 3]. It involves decentr"
+    }
+  }
+]

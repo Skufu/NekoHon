@@ -1,0 +1,27 @@
+== watermark  (pin ch08-039)
+  ask raw : refused=False chunk=ch08-039
+  ask pre : refused=False chunk=ch08-039
+  ans raw : refused=False cites=['ch08-039']
+  ans pre : refused=False cites=['ch08-039']
+  ans pre text: A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it's co
+
+== CRUD  (pin ch05-019)
+  ask raw : refused=False chunk=ch05-019
+  ask pre : refused=False chunk=ch05-019
+  ans raw : refused=False cites=['ch05-019']
+  ans pre : refused=False cites=['ch05-019', 'ch05-028']
+  ans pre text: CRUD stands for create, read, update, and delete, and it is a transactional pattern commonly used in programming [Ch. 5]. It represents the 
+
+== data ingestion  (pin ch07-002)
+  ask raw : refused=False chunk=ch07-002
+  ask pre : refused=False chunk=ch07-002
+  ans raw : refused=False cites=['ch07-002', 'ch07-003', 'ch07-098', 'ch07-004']
+  ans pre : refused=False cites=['ch07-002', 'ch07-003']
+  ans pre text: Data ingestion is the process of moving data from one place to another, typically from source systems into storage [Ch. 7]. This process is 
+
+== data mesh  (pin ch03-099)
+  ask raw : refused=False chunk=ch03-099
+  ask pre : refused=False chunk=ch03-099
+  ans raw : refused=False cites=['ch03-099', 'ch09-016']
+  ans pre : refused=False cites=['ch03-099', 'ch09-016']
+  ans pre text: Data mesh is a recent approach to data architecture that addresses the challenges of centralized data platforms [Ch. 3]. It involves decentr

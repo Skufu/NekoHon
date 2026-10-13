@@ -1,0 +1,82 @@
+[
+  {
+    "question": "What do transformations do in the data engineering lifecycle?",
+    "expected": "ch02-027",
+    "condition": "control",
+    "draw": 1,
+    "refused": false,
+    "chunk": "ch02-027",
+    "quote": "Logically, we treat transformation as a standalone area of the data engineering lifecycle, but the realities of the lifecycle can be much more complicated in practice. Transformation is often entangled in other phases of the lifecycle. Typically, data is transformed in source systems or in flight during ingestion. For example, a source system may add an event timestamp to a record before forwarding it to an ingestion process. Or a record within a streaming pipeline may be “enriched” with additional fields and calculations before it’s sent to a data warehouse. Transformations are ubiquitous in various parts of the lifecycle. Data preparation, data wrangling, and cleaning—these transformative tasks add value for end consumers of data.",
+    "first_line": "[Ch. 2] \"Logically, we treat transformation as a standalone area of the data engineering lifecycle, but the realities of"
+  },
+  {
+    "question": "What do transformations do in the data engineering lifecycle?",
+    "expected": "ch02-027",
+    "condition": "control",
+    "draw": 2,
+    "refused": false,
+    "chunk": "ch02-027",
+    "quote": "Logically, we treat transformation as a standalone area of the data engineering lifecycle, but the realities of the lifecycle can be much more complicated in practice. Transformation is often entangled in other phases of the lifecycle. Typically, data is transformed in source systems or in flight during ingestion. For example, a source system may add an event timestamp to a record before forwarding it to an ingestion process. Or a record within a streaming pipeline may be “enriched” with additional fields and calculations before it’s sent to a data warehouse. Transformations are ubiquitous in various parts of the lifecycle. Data preparation, data wrangling, and cleaning—these transformative tasks add value for end consumers of data.",
+    "first_line": "[Ch. 2] \"Logically, we treat transformation as a standalone area of the data engineering lifecycle, but the realities of"
+  },
+  {
+    "question": "What do transformations do in the data engineering lifecycle?",
+    "expected": "ch02-027",
+    "condition": "steer",
+    "draw": 1,
+    "refused": true,
+    "chunk": "ch02-027",
+    "quote": "Key considerations for the transformation phase Logically, we treat transformation as a standalone area of the data engineering lifecycle, but the realities of ",
+    "first_line": "Not in this book."
+  },
+  {
+    "question": "What do transformations do in the data engineering lifecycle?",
+    "expected": "ch02-027",
+    "condition": "steer",
+    "draw": 2,
+    "refused": true,
+    "chunk": "ch02-027",
+    "quote": "Key considerations for the transformation phase Logically, we treat transformation as a standalone area of the data engineering lifecycle, but the realities of ",
+    "first_line": "Not in this book."
+  },
+  {
+    "question": "multicloud methodology disadvantages",
+    "expected": "ch04-037",
+    "condition": "control",
+    "draw": 1,
+    "refused": false,
+    "chunk": "ch04-037",
+    "quote": "A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks are critical. Going multicloud can introduce significant complexity. Companies must now manage a dizzying array of services across several clouds; cross-cloud integration and security present a considerable challenge; multicloud networking can be diabolically complicated.",
+    "first_line": "[Ch. 4] \"A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bott"
+  },
+  {
+    "question": "multicloud methodology disadvantages",
+    "expected": "ch04-037",
+    "condition": "control",
+    "draw": 2,
+    "refused": false,
+    "chunk": "ch04-037",
+    "quote": "A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks are critical. Going multicloud can introduce significant complexity. Companies must now manage a dizzying array of services across several clouds; cross-cloud integration and security present a considerable challenge; multicloud networking can be diabolically complicated.",
+    "first_line": "[Ch. 4] \"A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bott"
+  },
+  {
+    "question": "multicloud methodology disadvantages",
+    "expected": "ch04-037",
+    "condition": "steer",
+    "draw": 1,
+    "refused": true,
+    "chunk": "ch04-037",
+    "quote": "Multicloud Given the intense competition among the major cloud providers, expect them to offer more best-of-breed services, making multicloud more compelling. A",
+    "first_line": "Not in this book."
+  },
+  {
+    "question": "multicloud methodology disadvantages",
+    "expected": "ch04-037",
+    "condition": "steer",
+    "draw": 2,
+    "refused": true,
+    "chunk": "ch04-037",
+    "quote": "Multicloud Given the intense competition among the major cloud providers, expect them to offer more best-of-breed services, making multicloud more compelling. A",
+    "first_line": "Not in this book."
+  }
+]

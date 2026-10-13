@@ -27,9 +27,11 @@ Read the rules, then the index.
    commit, not a loss. `.git` size only grows via history (no rewrites).
 
 Untracked files (concurrent writers' scratch, `runs/`, logs) are not indexed;
-their owner decides. Two untracked files are referenced by `AGENTS.md` and
-must be committed or un-referenced: `mad-ask-ceiling.md`,
-`query-normalization.md`.
+their owner decides. Files from the 2026-10-13 query-form session are
+indexed in the rows below (undated probe names predate this index; the row
+date is the date). `mad-ask-ceiling.md` and `query-normalization.md` are
+referenced by `AGENTS.md` and remain uncommitted — the commit decision is
+the user's; the index rows below keep them non-prunable meanwhile.
 
 ## Index
 
@@ -50,6 +52,7 @@ Dates are first-commit dates (`2026-10-11/12/13`).
 | `secret-scan.py` | git-history secret scan (must stay clean) |
 | `plain-edge-check.py` | contract checker over `plain-edge-*.json` |
 | `probe-agentic.py`, `probe-plain.py`, `probe-llm-spell.py`, `probe-mad-phrasing.py`, `probe-codd.py`, `probe-refusal.py`, `probe-stages.py` | named probes with committed findings below |
+| `probe-prefix-rule.py`, `probe-prefix-bare-terms.py`, `probe-class-variance-2026-10-13.py`, `probe-canonical-retest-2026-10-13.py`, `probe-test-mutations-2026-10-13.py`, `probe-fold-ab-2026-10-13.py`, `probe-query-normalize.py`, `probe-nonrelational-ask.py`, `probe-quote-fix.py`, `probe-plain-diagnose.py`, `probe-quote-choice.py`, `probe-mad-quote.py`, `probe-mad-seed.py`, `probe-mad-caption.py`, `probe-gloss-steer.py`, `probe-gloss-steer-control.py`, `probe-epub-links.py` | 2026-10-13 session probes (query form, quote choice, MAD ceiling, fold A/B, test mutations); findings in the rows below |
 | `multihop-probe.py`, `multihop-explore.py`, `multihop-forced-keyword.py` | agentic multi-hop experiments |
 | `bakeoff-digest.py` | bake-off log digester |
 | `prune.py` | this directory's planner (rule 6) |
@@ -81,6 +84,11 @@ Dates are first-commit dates (`2026-10-11/12/13`).
 | `plain-register-night-2026-10-13.md` | the night run report (register draws, judge drift, fixes) | kept (2026-10-13) |
 | `answer-mode-overnight.md` | answer-mode overnight findings | kept (2026-10-13) |
 | `mad-caption-probe.md`, `mad-phrasing-{probe.md,postrevert.txt}`, `mad-ask-ceiling.md` (untracked) | MAD retrieval history | kept (2026-10-12/13) |
+| `query-canonicalization-2026-10-13.md`, `probe-class-variance-2026-10-13.{json,log}` (Stage 1 rerun), `probe-class-variance-2026-10-13-stage0.{json,log}` (baseline), `probe-canonical-retest-2026-10-13.{json,log}`, `probe-test-mutations-2026-10-13.{json,log}` (5 breaks, 0 survivors), `probe-prefix-rule.{json,log}`, `probe-prefix-bare-terms.{json,log}` | canonicalization plan + baselines + retest + test mutation check; R1 landed 2026-10-13 | kept (2026-10-13) |
+| `query-normalization.md`, `probe-nonrelational-ask.*`, `probe-query-normalize.{log,json}` | one-`?` flip evidence: model-side at identical pool order; blanket punctuation strip net 0 (2/23 opposite) | kept (2026-10-13) |
+| `probe-quote-fix.{json,log}`, `probe-quote-choice.log`, `probe-plain-diagnose*.{json,log}` | answer-mode quote-choice fix evidence (cited in AGENTS) | kept (2026-10-13) |
+| `probe-mad-quote.*`, `probe-mad-seed.*`, `probe-mad-caption.*`, `probe-gloss-steer*.*`, `probe-epub-links.log` | MAD ask ceiling; steer #4 negative; EPUB link graph | kept (2026-10-13) |
+| `probe-fold-ab-2026-10-13.{json,log}` | embedded-book typography-fold A/B (full re-embed): 0/21 top-1 flips, fold unproven -> no index rebuild; corrects figure-vector composition and the 1042-chunk count | kept (2026-10-13) |
 | `how-it-works.md` | pipeline mental image | kept (2026-10-12) |
 | `stage9-preprocessing.md` | preprocessing stages 5-9 | kept (2026-10-13) |
 | `refusal-fixes-evidence.txt` | refusal fixes evidence | kept (2026-10-13) |

@@ -1,0 +1,627 @@
+[
+  {
+    "question": "MAD data landscape",
+    "mode": "ask",
+    "variant": "MAD data landscape",
+    "r1_fires": true,
+    "canonical": "What is MAD data landscape?",
+    "refused": false,
+    "cites": [
+      "ch04-020"
+    ],
+    "figs": [
+      "figure-4-1"
+    ],
+    "head": "[Ch. 4] \"Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and dat"
+  },
+  {
+    "question": "MAD data landscape",
+    "mode": "ask",
+    "variant": "What is MAD data landscape",
+    "r1_fires": false,
+    "canonical": "What is MAD data landscape?",
+    "refused": false,
+    "cites": [
+      "ch04-020"
+    ],
+    "figs": [
+      "figure-4-1"
+    ],
+    "head": "[Ch. 4] \"It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, "
+  },
+  {
+    "question": "MAD data landscape",
+    "mode": "ask",
+    "variant": "What is MAD data landscape?",
+    "r1_fires": false,
+    "canonical": "What is MAD data landscape?",
+    "refused": true,
+    "cites": [
+      "ch04-020",
+      "ch03-099",
+      "ch02-059"
+    ],
+    "figs": [
+      "figure-3-18",
+      "figure-4-1"
+    ],
+    "head": "Not in this book."
+  },
+  {
+    "question": "MAD data landscape",
+    "mode": "ask",
+    "variant": "hey can you tell me about MAD data landscape",
+    "r1_fires": false,
+    "canonical": "What is MAD data landscape?",
+    "refused": false,
+    "cites": [
+      "ch04-020"
+    ],
+    "figs": [
+      "figure-4-1"
+    ],
+    "head": "[Ch. 4] \"It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, "
+  },
+  {
+    "question": "MAD data landscape",
+    "mode": "ask",
+    "variant": "explain MAD data landscape",
+    "r1_fires": false,
+    "canonical": "What is MAD data landscape?",
+    "refused": false,
+    "cites": [
+      "ch04-020"
+    ],
+    "figs": [
+      "figure-4-1"
+    ],
+    "head": "[Ch. 4] \"It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, "
+  },
+  {
+    "question": "MAD data landscape",
+    "mode": "answer",
+    "variant": "MAD data landscape",
+    "r1_fires": true,
+    "canonical": "What is MAD data landscape?",
+    "refused": false,
+    "cites": [
+      "ch04-020",
+      "ch03-099",
+      "ch11-018"
+    ],
+    "figs": [
+      "figure-3-18",
+      "figure-4-1",
+      "figure-11-1"
+    ],
+    "head": "The MAD data landscape is complex and dynamic, with many technologies rising and falling in popularity [Ch. 4]"
+  },
+  {
+    "question": "MAD data landscape",
+    "mode": "answer",
+    "variant": "What is MAD data landscape",
+    "r1_fires": false,
+    "canonical": "What is MAD data landscape?",
+    "refused": false,
+    "cites": [
+      "ch04-020"
+    ],
+    "figs": [
+      "figure-4-1"
+    ],
+    "head": "The MAD data landscape, as introduced in Chapter 1, refers to the complex and rapidly changing environment of "
+  },
+  {
+    "question": "MAD data landscape",
+    "mode": "answer",
+    "variant": "What is MAD data landscape?",
+    "r1_fires": false,
+    "canonical": "What is MAD data landscape?",
+    "refused": false,
+    "cites": [
+      "ch04-020"
+    ],
+    "figs": [
+      "figure-4-1"
+    ],
+    "head": "The MAD data landscape, as introduced in Chapter 1 [Ch. 4], refers to the complex and rapidly changing environ"
+  },
+  {
+    "question": "MAD data landscape",
+    "mode": "answer",
+    "variant": "hey can you tell me about MAD data landscape",
+    "r1_fires": false,
+    "canonical": "What is MAD data landscape?",
+    "refused": false,
+    "cites": [
+      "ch04-019",
+      "ch03-099"
+    ],
+    "figs": [
+      "figure-3-18",
+      "figure-4-1"
+    ],
+    "head": "The MAD data landscape, as depicted in Chapter 1, is complex and dynamic, with many technologies rising and fa"
+  },
+  {
+    "question": "MAD data landscape",
+    "mode": "answer",
+    "variant": "explain MAD data landscape",
+    "r1_fires": false,
+    "canonical": "What is MAD data landscape?",
+    "refused": false,
+    "cites": [
+      "ch01-073",
+      "ch04-020"
+    ],
+    "figs": [
+      "figure-4-1"
+    ],
+    "head": "The MAD landscape, as introduced in Chapter 1 [Ch. 1], refers to the complex and rapidly changing environment "
+  },
+  {
+    "question": "data mesh",
+    "mode": "ask",
+    "variant": "data mesh",
+    "r1_fires": true,
+    "canonical": "What is data mesh?",
+    "refused": false,
+    "cites": [
+      "ch03-099"
+    ],
+    "figs": [
+      "figure-3-18"
+    ],
+    "head": "[Ch. 3] \"The data mesh attempts to invert the challenges of centralized data architecture, taking the concepts"
+  },
+  {
+    "question": "data mesh",
+    "mode": "ask",
+    "variant": "What is data mesh",
+    "r1_fires": false,
+    "canonical": "What is data mesh?",
+    "refused": false,
+    "cites": [
+      "ch03-099"
+    ],
+    "figs": [
+      "figure-3-18"
+    ],
+    "head": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data l"
+  },
+  {
+    "question": "data mesh",
+    "mode": "ask",
+    "variant": "What is data mesh?",
+    "r1_fires": false,
+    "canonical": "What is data mesh?",
+    "refused": false,
+    "cites": [
+      "ch03-099"
+    ],
+    "figs": [
+      "figure-3-18"
+    ],
+    "head": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data l"
+  },
+  {
+    "question": "data mesh",
+    "mode": "ask",
+    "variant": "hey can you tell me about data mesh",
+    "r1_fires": false,
+    "canonical": "What is data mesh?",
+    "refused": false,
+    "cites": [
+      "ch03-099"
+    ],
+    "figs": [
+      "figure-3-18"
+    ],
+    "head": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data l"
+  },
+  {
+    "question": "data mesh",
+    "mode": "ask",
+    "variant": "explain data mesh",
+    "r1_fires": false,
+    "canonical": "What is data mesh?",
+    "refused": false,
+    "cites": [
+      "ch03-099"
+    ],
+    "figs": [
+      "figure-3-18"
+    ],
+    "head": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data l"
+  },
+  {
+    "question": "data mesh",
+    "mode": "answer",
+    "variant": "data mesh",
+    "r1_fires": true,
+    "canonical": "What is data mesh?",
+    "refused": false,
+    "cites": [
+      "ch03-099",
+      "ch09-016"
+    ],
+    "figs": [
+      "figure-3-18"
+    ],
+    "head": "Data mesh is a decentralized approach to data management that addresses the challenges of monolithic data plat"
+  },
+  {
+    "question": "data mesh",
+    "mode": "answer",
+    "variant": "What is data mesh",
+    "r1_fires": false,
+    "canonical": "What is data mesh?",
+    "refused": false,
+    "cites": [
+      "ch03-099",
+      "ch09-016"
+    ],
+    "figs": [
+      "figure-3-18"
+    ],
+    "head": "Data mesh is a recent approach to data architecture that addresses the challenges of centralized data platform"
+  },
+  {
+    "question": "data mesh",
+    "mode": "answer",
+    "variant": "What is data mesh?",
+    "r1_fires": false,
+    "canonical": "What is data mesh?",
+    "refused": false,
+    "cites": [
+      "ch03-099",
+      "ch09-016"
+    ],
+    "figs": [
+      "figure-3-18"
+    ],
+    "head": "Data mesh is a recent approach to data architecture that addresses the challenges of centralized data platform"
+  },
+  {
+    "question": "data mesh",
+    "mode": "answer",
+    "variant": "hey can you tell me about data mesh",
+    "r1_fires": false,
+    "canonical": "What is data mesh?",
+    "refused": false,
+    "cites": [
+      "ch03-099",
+      "ch09-016"
+    ],
+    "figs": [
+      "figure-3-18"
+    ],
+    "head": "Data mesh is a recent approach to data management that addresses the challenges of centralized data platforms "
+  },
+  {
+    "question": "data mesh",
+    "mode": "answer",
+    "variant": "explain data mesh",
+    "r1_fires": false,
+    "canonical": "What is data mesh?",
+    "refused": false,
+    "cites": [
+      "ch03-099",
+      "ch09-016"
+    ],
+    "figs": [
+      "figure-3-18"
+    ],
+    "head": "Data mesh is a recent approach to managing data that addresses the challenges of centralized data platforms li"
+  },
+  {
+    "question": "watermark",
+    "mode": "ask",
+    "variant": "watermark",
+    "r1_fires": true,
+    "canonical": "What is watermark?",
+    "refused": false,
+    "cites": [
+      "ch08-039"
+    ],
+    "figs": [
+      "figure-8-8"
+    ],
+    "head": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is wit"
+  },
+  {
+    "question": "watermark",
+    "mode": "ask",
+    "variant": "What is watermark",
+    "r1_fires": false,
+    "canonical": "What is watermark?",
+    "refused": false,
+    "cites": [
+      "ch08-039"
+    ],
+    "figs": [
+      "figure-8-8"
+    ],
+    "head": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is wit"
+  },
+  {
+    "question": "watermark",
+    "mode": "ask",
+    "variant": "What is watermark?",
+    "r1_fires": false,
+    "canonical": "What is watermark?",
+    "refused": false,
+    "cites": [
+      "ch08-039"
+    ],
+    "figs": [
+      "figure-8-8"
+    ],
+    "head": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is wit"
+  },
+  {
+    "question": "watermark",
+    "mode": "ask",
+    "variant": "hey can you tell me about watermark",
+    "r1_fires": false,
+    "canonical": "What is watermark?",
+    "refused": false,
+    "cites": [
+      "ch08-039"
+    ],
+    "figs": [
+      "figure-8-8"
+    ],
+    "head": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is wit"
+  },
+  {
+    "question": "watermark",
+    "mode": "ask",
+    "variant": "explain watermark",
+    "r1_fires": false,
+    "canonical": "What is watermark?",
+    "refused": false,
+    "cites": [
+      "ch08-039"
+    ],
+    "figs": [
+      "figure-8-8"
+    ],
+    "head": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is wit"
+  },
+  {
+    "question": "watermark",
+    "mode": "answer",
+    "variant": "watermark",
+    "r1_fires": true,
+    "canonical": "What is watermark?",
+    "refused": false,
+    "cites": [
+      "ch08-039"
+    ],
+    "figs": [
+      "figure-8-8"
+    ],
+    "head": "A watermark is a threshold used by a window to determine whether data in a window is within the established ti"
+  },
+  {
+    "question": "watermark",
+    "mode": "answer",
+    "variant": "What is watermark",
+    "r1_fires": false,
+    "canonical": "What is watermark?",
+    "refused": false,
+    "cites": [
+      "ch08-039"
+    ],
+    "figs": [
+      "figure-8-8"
+    ],
+    "head": "A watermark is a threshold used by a window to determine whether data in a window is within the established ti"
+  },
+  {
+    "question": "watermark",
+    "mode": "answer",
+    "variant": "What is watermark?",
+    "r1_fires": false,
+    "canonical": "What is watermark?",
+    "refused": false,
+    "cites": [
+      "ch08-039"
+    ],
+    "figs": [
+      "figure-8-8"
+    ],
+    "head": "A watermark is a threshold used by a window to determine whether data in a window is within the established ti"
+  },
+  {
+    "question": "watermark",
+    "mode": "answer",
+    "variant": "hey can you tell me about watermark",
+    "r1_fires": false,
+    "canonical": "What is watermark?",
+    "refused": false,
+    "cites": [
+      "ch08-039"
+    ],
+    "figs": [
+      "figure-8-8"
+    ],
+    "head": "Watermarks are not directly related to the concept of watermarking in documents or images, but rather refer to"
+  },
+  {
+    "question": "watermark",
+    "mode": "answer",
+    "variant": "explain watermark",
+    "r1_fires": false,
+    "canonical": "What is watermark?",
+    "refused": false,
+    "cites": [
+      "ch08-039"
+    ],
+    "figs": [
+      "figure-8-8"
+    ],
+    "head": "A watermark is a threshold used by a window to determine whether data in a window is within the established ti"
+  },
+  {
+    "question": "data ingestion",
+    "mode": "ask",
+    "variant": "data ingestion",
+    "r1_fires": true,
+    "canonical": "What is data ingestion?",
+    "refused": false,
+    "cites": [
+      "ch07-002"
+    ],
+    "figs": [
+      "figure-7-2"
+    ],
+    "head": "[Ch. 7] \"Data ingestion is the process of moving data from one place to another\""
+  },
+  {
+    "question": "data ingestion",
+    "mode": "ask",
+    "variant": "What is data ingestion",
+    "r1_fires": false,
+    "canonical": "What is data ingestion?",
+    "refused": false,
+    "cites": [
+      "ch07-002"
+    ],
+    "figs": [
+      "figure-7-2"
+    ],
+    "head": "[Ch. 7] \"Data ingestion is the process of moving data from one place to another\""
+  },
+  {
+    "question": "data ingestion",
+    "mode": "ask",
+    "variant": "What is data ingestion?",
+    "r1_fires": false,
+    "canonical": "What is data ingestion?",
+    "refused": false,
+    "cites": [
+      "ch07-002"
+    ],
+    "figs": [
+      "figure-7-2"
+    ],
+    "head": "[Ch. 7] \"Data ingestion is the process of moving data from one place to another\""
+  },
+  {
+    "question": "data ingestion",
+    "mode": "ask",
+    "variant": "hey can you tell me about data ingestion",
+    "r1_fires": false,
+    "canonical": "What is data ingestion?",
+    "refused": false,
+    "cites": [
+      "ch07-002"
+    ],
+    "figs": [
+      "figure-7-2"
+    ],
+    "head": "[Ch. 7] \"Data ingestion is the process of moving data from one place to another\""
+  },
+  {
+    "question": "data ingestion",
+    "mode": "ask",
+    "variant": "explain data ingestion",
+    "r1_fires": false,
+    "canonical": "What is data ingestion?",
+    "refused": false,
+    "cites": [
+      "ch07-002"
+    ],
+    "figs": [
+      "figure-7-2"
+    ],
+    "head": "[Ch. 7] \"Data ingestion is the process of moving data from one place to another\""
+  },
+  {
+    "question": "data ingestion",
+    "mode": "answer",
+    "variant": "data ingestion",
+    "r1_fires": true,
+    "canonical": "What is data ingestion?",
+    "refused": false,
+    "cites": [
+      "ch07-002",
+      "ch07-003",
+      "ch07-098",
+      "ch07-004"
+    ],
+    "figs": [
+      "figure-7-2"
+    ],
+    "head": "Data ingestion is the process of moving data from one place to another, typically from source systems into sto"
+  },
+  {
+    "question": "data ingestion",
+    "mode": "answer",
+    "variant": "What is data ingestion",
+    "r1_fires": false,
+    "canonical": "What is data ingestion?",
+    "refused": false,
+    "cites": [
+      "ch07-002",
+      "ch07-098"
+    ],
+    "figs": [
+      "figure-7-2"
+    ],
+    "head": "Data ingestion is the process of moving data from one place to another, typically from source systems into sto"
+  },
+  {
+    "question": "data ingestion",
+    "mode": "answer",
+    "variant": "What is data ingestion?",
+    "r1_fires": false,
+    "canonical": "What is data ingestion?",
+    "refused": false,
+    "cites": [
+      "ch07-002",
+      "ch07-098",
+      "ch07-003"
+    ],
+    "figs": [
+      "figure-7-2"
+    ],
+    "head": "Data ingestion is the process of moving data from one place to another, typically from source systems into sto"
+  },
+  {
+    "question": "data ingestion",
+    "mode": "answer",
+    "variant": "hey can you tell me about data ingestion",
+    "r1_fires": false,
+    "canonical": "What is data ingestion?",
+    "refused": false,
+    "cites": [
+      "ch07-002",
+      "ch07-061",
+      "ch07-098"
+    ],
+    "figs": [
+      "figure-7-2"
+    ],
+    "head": "Data ingestion is the process of moving data from one place to another, typically from source systems into sto"
+  },
+  {
+    "question": "data ingestion",
+    "mode": "answer",
+    "variant": "explain data ingestion",
+    "r1_fires": false,
+    "canonical": "What is data ingestion?",
+    "refused": false,
+    "cites": [
+      "ch07-002",
+      "ch07-098",
+      "ch07-004"
+    ],
+    "figs": [
+      "figure-7-2"
+    ],
+    "head": "Data ingestion is the process of moving data from one place to another, specifically from source systems into "
+  }
+]

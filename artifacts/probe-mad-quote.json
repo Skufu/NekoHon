@@ -1,0 +1,119 @@
+{
+  "chunk_sentences": {
+    "ch04-020": [
+      "Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1).",
+      "Even relatively successful technologies often fade into obscurity quickly, after a few years of rapid adoption, a victim of their success.",
+      "For instance, in the early 2010s, Hive was met with rapid uptake because it allowed both analysts and engineers to query massive datasets without coding complex MapReduce jobs by hand.",
+      "Inspired by the success of Hive but wishing to improve on its shortcomings, engineers developed Presto and other technologies.",
+      "Hive now appears primarily in legacy deployments.",
+      "Almost every technology follows this inevitable path of decline."
+    ],
+    "ch04-019": [
+      "What’s the popular frontend JavaScript framework three years from now?",
+      "New well-funded entrants and open source projects arrive on the data front every day.",
+      "Every vendor will say their product will change the industry and “make the world a better place”.",
+      "Most of these companies and projects don’t get long-term traction and fade slowly into obscurity.",
+      "Top VCs are making big-money bets, knowing that most of their data-tooling investments will fail.",
+      "If VCs pouring millions (or billions) into data-tooling investments can’t get it right, how can you possibly know which technologies to invest in for your data architecture?",
+      "Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)."
+    ]
+  },
+  "runs": [
+    {
+      "question": "MAD data landscape",
+      "passages": [
+        {
+          "chunk_id": "ch04-020",
+          "chapter": "4",
+          "score": 0.7512
+        },
+        {
+          "chunk_id": "ch04-019",
+          "chapter": "4",
+          "score": null
+        },
+        {
+          "chunk_id": "ch03-099",
+          "chapter": "3",
+          "score": 0.6709
+        },
+        {
+          "chunk_id": "ch02-037",
+          "chapter": "2",
+          "score": 0.6301
+        },
+        {
+          "chunk_id": "ch11-018",
+          "chapter": "11",
+          "score": 0.6284
+        }
+      ],
+      "refused": false,
+      "answer": "[Ch. 4] \"Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)\"\nThe passage mentions the complexity of the ML, AI, and data landscape introduced earlier.",
+      "citations": [
+        {
+          "chunk_id": "ch04-020",
+          "chapter": "4",
+          "quote": "Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)"
+        }
+      ],
+      "figures": [
+        "figure-4-1"
+      ],
+      "calls": [
+        {
+          "system_head": "You answer only from the passages below. If the passages do ",
+          "out": "[Ch. 4] \"Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1).\" The passage mentions the complexity of the ML, AI, and data landscape introduced earlier."
+        }
+      ]
+    },
+    {
+      "question": "what is MAD data landscape",
+      "passages": [
+        {
+          "chunk_id": "ch04-020",
+          "chapter": "4",
+          "score": null
+        },
+        {
+          "chunk_id": "ch03-099",
+          "chapter": "3",
+          "score": 0.6759
+        },
+        {
+          "chunk_id": "ch02-059",
+          "chapter": "2",
+          "score": 0.6283
+        },
+        {
+          "chunk_id": "ch06-080",
+          "chapter": "6",
+          "score": 0.6271
+        },
+        {
+          "chunk_id": "ch04-092",
+          "chapter": "4",
+          "score": 0.6235
+        }
+      ],
+      "refused": false,
+      "answer": "[Ch. 4] \"It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)\"\nThe passage indicates that the landscape of ML, AI, and data technologies is complex and constantly changing.",
+      "citations": [
+        {
+          "chunk_id": "ch04-020",
+          "chapter": "4",
+          "quote": "It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)"
+        }
+      ],
+      "figures": [
+        "figure-4-1"
+      ],
+      "calls": [
+        {
+          "system_head": "You answer only from the passages below. If the passages do ",
+          "out": "[Ch. 4] \"It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1).\" The passage indicates that the landscape of ML, AI, and data technologies is complex and constantly changing."
+        }
+      ]
+    }
+  ]
+}

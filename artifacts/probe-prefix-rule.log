@@ -1,0 +1,41 @@
+bare refusal 'capital of France': refused
+
+== MAD data landscape  (bare=True, pin ch04-020)
+  [V0 d1] cites=['ch04-020', 'ch03-099', 'ch02-037', 'ch11-018'] figs=['figure-3-18', 'figure-4-1', 'figure-11-1']
+      The MAD data landscape is complex and dynamic, with many technologies rising and falling in popularity [Ch. 4]. Technologies like Hive, which were once popular, have declined as newer, improved technologies like Presto e
+  [V1 d1] cites=['ch04-020'] figs=['figure-4-1']
+      The MAD data landscape refers to the depiction of technologies related to machine learning (ML), AI, and data, as mentioned in Chapter 1 [Ch. 1]. This landscape is characterized by the rapid adoption and subsequent decli
+  [V2 d1] cites=['ch04-020'] figs=['figure-4-1']
+      The MAD data landscape, as introduced in Chapter 1 [Ch. 4], refers to the complex and rapidly changing environment of technologies related to machine learning (ML), artificial intelligence (AI), and data. This landscape 
+  [V0 d2] cites=['ch04-020', 'ch03-099', 'ch02-037', 'ch11-018'] figs=['figure-3-18', 'figure-4-1', 'figure-11-1']
+      The MAD data landscape is complex and dynamic, with many technologies rising and falling in popularity [Ch. 4]. Technologies like Hive, which were once popular, have declined as newer, improved technologies like Presto e
+  [V1 d2] cites=['ch04-020'] figs=['figure-4-1']
+      The MAD data landscape refers to the depiction of technologies related to machine learning (ML), AI, and data, as mentioned in Chapter 1 [Ch. 1]. This landscape highlights the rapid adoption and subsequent decline of man
+  [V2 d2] cites=['ch04-020'] figs=['figure-4-1']
+      The MAD data landscape, as introduced in Chapter 1 [Ch. 4], refers to the complex and rapidly changing environment of technologies related to machine learning (ML), artificial intelligence (AI), and data. This landscape 
+  ask [V0] ok chunk=ch04-020 (pin ch04-020) refused=False
+      quote: Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) landscape t
+  ask [V1] KO chunk=ch04-020 (pin ch04-020) refused=True
+      quote: Today Versus the Future: Immutable Versus Transitory Technologies It’s hard. Just consider the number of technologies in
+  ask [V2] ok chunk=ch04-020 (pin ch04-020) refused=False
+      quote: It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and data (MAD) 
+
+== multicloud methodology disadvantages  (bare=True, pin ch04-037)
+  [V0 d1] cites=['ch04-037'] figs=[]
+      A multicloud methodology has several disadvantages, including increased complexity and data egress costs. Companies must now manage a wide range of services across multiple clouds, and cross-cloud integration and securit
+  [V1 d1] cites=['ch04-037'] figs=[]
+      A multicloud methodology has several disadvantages. These include data egress costs and networking bottlenecks [Ch. 4], significant complexity in managing a variety of services across multiple clouds [Ch. 4], and challen
+  [V2 d1] cites=['ch04-037'] figs=[]
+      A multicloud methodology has several disadvantages, including increased complexity and data egress costs. Companies must now manage a variety of services across several clouds, which can introduce significant challenges 
+  [V0 d2] cites=['ch04-037'] figs=[]
+      A multicloud methodology has several disadvantages, including increased complexity and data egress costs. Companies must now manage a wide range of services across multiple clouds, and cross-cloud integration and securit
+  [V1 d2] cites=['ch04-037'] figs=[]
+      A multicloud methodology has several disadvantages, including increased complexity and data egress costs. Companies must now manage a variety of services across several clouds, which can introduce significant challenges 
+  [V2 d2] cites=['ch04-037'] figs=[]
+      A multicloud methodology has several disadvantages, including increased complexity and data egress costs. Companies must now manage a variety of services across several clouds, which can introduce significant challenges 
+  ask [V0] ok chunk=ch04-037 (pin ch04-037) refused=False
+      quote: A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks a
+  ask [V1] ok chunk=ch04-037 (pin ch04-037) refused=False
+      quote: A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks a
+  ask [V2] ok chunk=ch04-037 (pin ch04-037) refused=False
+      quote: A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks a

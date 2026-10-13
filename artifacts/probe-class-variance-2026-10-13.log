@@ -1,0 +1,103 @@
+== MAD data landscape | ask
+  r1=Y refused=False figs=1 cites=['ch04-020']
+    'MAD data landscape' -> [Ch. 4] "It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous de
+  r1=n refused=False figs=1 cites=['ch04-020']
+    'What is MAD data landscape' -> [Ch. 4] "It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous de
+  r1=n refused=False figs=1 cites=['ch04-020']
+    'What is MAD data landscape?' -> [Ch. 4] "It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous de
+  r1=n refused=False figs=1 cites=['ch04-020']
+    'hey can you tell me about MAD data landscape' -> [Ch. 4] "It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous de
+  r1=n refused=False figs=1 cites=['ch04-020']
+    'explain MAD data landscape' -> [Ch. 4] "It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous de
+  distinct behaviors: 1; R1 variants that would change behavior: 0 []
+
+== MAD data landscape | answer
+  r1=Y refused=False figs=1 cites=['ch04-020']
+    'MAD data landscape' -> The MAD data landscape, as introduced in Chapter 1 [Ch. 4], refers to the complex and rapi
+  r1=n refused=False figs=1 cites=['ch04-020']
+    'What is MAD data landscape' -> The MAD data landscape, as introduced in Chapter 1, refers to the complex and rapidly chan
+  r1=n refused=False figs=1 cites=['ch04-020']
+    'What is MAD data landscape?' -> The MAD data landscape, as introduced in Chapter 1 [Ch. 4], refers to the depiction of tec
+  r1=n refused=False figs=2 cites=['ch04-019', 'ch03-099']
+    'hey can you tell me about MAD data landscape' -> The MAD data landscape, as depicted in Chapter 1, is complex and dynamic, with many techno
+  r1=n refused=False figs=1 cites=['ch01-073', 'ch04-020']
+    'explain MAD data landscape' -> The MAD landscape, as introduced in Chapter 1 [Ch. 1], refers to the complex and rapidly c
+  distinct behaviors: 3; R1 variants that would change behavior: 0 []
+
+== data mesh | ask
+  r1=Y refused=False figs=1 cites=['ch03-099']
+    'data mesh' -> [Ch. 3] "The data mesh is a recent response to sprawling monolithic data platforms, such a
+  r1=n refused=False figs=1 cites=['ch03-099']
+    'What is data mesh' -> [Ch. 3] "The data mesh is a recent response to sprawling monolithic data platforms, such a
+  r1=n refused=False figs=1 cites=['ch03-099']
+    'What is data mesh?' -> [Ch. 3] "The data mesh is a recent response to sprawling monolithic data platforms, such a
+  r1=n refused=False figs=1 cites=['ch03-099']
+    'hey can you tell me about data mesh' -> [Ch. 3] "The data mesh is a recent response to sprawling monolithic data platforms, such a
+  r1=n refused=False figs=1 cites=['ch03-099']
+    'explain data mesh' -> [Ch. 3] "The data mesh is a recent response to sprawling monolithic data platforms, such a
+  distinct behaviors: 1; R1 variants that would change behavior: 0 []
+
+== data mesh | answer
+  r1=Y refused=False figs=1 cites=['ch03-099', 'ch09-016']
+    'data mesh' -> Data mesh is a recent approach to data architecture that addresses the challenges of centr
+  r1=n refused=False figs=1 cites=['ch03-099', 'ch09-016']
+    'What is data mesh' -> Data mesh is a recent approach to data architecture that addresses the challenges of centr
+  r1=n refused=False figs=1 cites=['ch03-099', 'ch09-016']
+    'What is data mesh?' -> Data mesh is a recent approach to data architecture that addresses the challenges of centr
+  r1=n refused=False figs=1 cites=['ch03-099', 'ch09-016']
+    'hey can you tell me about data mesh' -> Data mesh is a recent approach to data management that addresses the challenges of central
+  r1=n refused=False figs=1 cites=['ch03-099', 'ch09-016']
+    'explain data mesh' -> Data mesh is a recent approach to managing data that addresses the challenges of centraliz
+  distinct behaviors: 1; R1 variants that would change behavior: 0 []
+
+== watermark | ask
+  r1=Y refused=False figs=1 cites=['ch08-039']
+    'watermark' -> [Ch. 8] "A watermark (Figure 8-8) is a threshold used by a window to determine whether dat
+  r1=n refused=False figs=1 cites=['ch08-039']
+    'What is watermark' -> [Ch. 8] "A watermark (Figure 8-8) is a threshold used by a window to determine whether dat
+  r1=n refused=False figs=1 cites=['ch08-039']
+    'What is watermark?' -> [Ch. 8] "A watermark (Figure 8-8) is a threshold used by a window to determine whether dat
+  r1=n refused=False figs=1 cites=['ch08-039']
+    'hey can you tell me about watermark' -> [Ch. 8] "A watermark (Figure 8-8) is a threshold used by a window to determine whether dat
+  r1=n refused=False figs=1 cites=['ch08-039']
+    'explain watermark' -> [Ch. 8] "A watermark (Figure 8-8) is a threshold used by a window to determine whether dat
+  distinct behaviors: 1; R1 variants that would change behavior: 0 []
+
+== watermark | answer
+  r1=Y refused=False figs=1 cites=['ch08-039']
+    'watermark' -> A watermark is a threshold used by a window to determine whether data in a window is withi
+  r1=n refused=False figs=1 cites=['ch08-039']
+    'What is watermark' -> A watermark is a threshold used by a window to determine whether data in a window is withi
+  r1=n refused=False figs=1 cites=['ch08-039']
+    'What is watermark?' -> A watermark is a threshold used by a window to determine whether data in a window is withi
+  r1=n refused=False figs=1 cites=['ch08-039']
+    'hey can you tell me about watermark' -> Watermarks are not directly related to the concept of watermarking in documents or images,
+  r1=n refused=False figs=1 cites=['ch08-039']
+    'explain watermark' -> A watermark is a threshold used by a window to determine whether data in a window is withi
+  distinct behaviors: 1; R1 variants that would change behavior: 0 []
+
+== data ingestion | ask
+  r1=Y refused=False figs=1 cites=['ch07-002']
+    'data ingestion' -> [Ch. 7] "Data ingestion is the process of moving data from one place to another" Asked as:
+  r1=n refused=False figs=1 cites=['ch07-002']
+    'What is data ingestion' -> [Ch. 7] "Data ingestion is the process of moving data from one place to another"
+  r1=n refused=False figs=1 cites=['ch07-002']
+    'What is data ingestion?' -> [Ch. 7] "Data ingestion is the process of moving data from one place to another"
+  r1=n refused=False figs=1 cites=['ch07-002']
+    'hey can you tell me about data ingestion' -> [Ch. 7] "Data ingestion is the process of moving data from one place to another"
+  r1=n refused=False figs=1 cites=['ch07-002']
+    'explain data ingestion' -> [Ch. 7] "Data ingestion is the process of moving data from one place to another"
+  distinct behaviors: 1; R1 variants that would change behavior: 0 []
+
+== data ingestion | answer
+  r1=Y refused=False figs=1 cites=['ch07-002', 'ch07-098', 'ch02-016']
+    'data ingestion' -> Data ingestion is the process of moving data from one place to another, typically from sou
+  r1=n refused=False figs=1 cites=['ch07-002', 'ch07-098', 'ch02-016']
+    'What is data ingestion' -> Data ingestion is the process of moving data from one place to another, typically from sou
+  r1=n refused=False figs=1 cites=['ch07-002', 'ch07-098']
+    'What is data ingestion?' -> Data ingestion is the process of moving data from one place to another, typically from sou
+  r1=n refused=False figs=1 cites=['ch07-002', 'ch07-061', 'ch07-098']
+    'hey can you tell me about data ingestion' -> Data ingestion is the process of moving data from one place to another, typically from sou
+  r1=n refused=False figs=1 cites=['ch07-002', 'ch07-098', 'ch07-004']
+    'explain data ingestion' -> Data ingestion is the process of moving data from one place to another, specifically from 
+  distinct behaviors: 4; R1 variants that would change behavior: 1 ['data ingestion']
