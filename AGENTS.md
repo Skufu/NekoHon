@@ -571,6 +571,7 @@ server.
 - Answer mode: `BATTERY_MODE=answer python artifacts/step2-battery.py`; sweeps `SWEEP_MODE=answer python artifacts/qa-sweep.py <label>`; groundedness `python artifacts/groundedness.py --battery --label <name>` or `--label <name>` over `qa-questions-overnight.json` (in-process, no server needed).
 - Agentic prototype (not wired): `python artifacts/probe-agentic.py` (live Ollama, 5 asks).
 - Judge backends: default `ollama:granite4.1:8b`; cloud replay, e.g. `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/eval.py --judge-only --label v1`, then `python artifacts/judge-agreement.py eval-v1-ollama-granite4-1-8b eval-v1-openai-muse-spark-1-3-contributor`. `.judge-key` is gitignored; the engine never uses it.
+- Secret scan: `python artifacts/secret-scan.py` (git history + tracked tree; masked output; exit 1 on any hit). Clean 2026-10-13: this repo 516 blobs, 0 hits; `rag-template` 170 blobs, 0 hits.
 
 ## Machine facts (this Windows box)
 
