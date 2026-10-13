@@ -4,3 +4,5 @@ __pycache__/
 data/index.*.json
 artifacts/engine.*.log
 .judge-key
+.env
+.env.*
