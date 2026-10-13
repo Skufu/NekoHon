@@ -2,11 +2,11 @@
 
 > **For Hermes:** Use subagent-driven-development skill to implement this plan task-by-task.
 
-**Goal:** An offline book companion that answers from the open book, quotes the passage, and shows the figure that passage explains. Nothing leaves the machine.
+**Goal:** An offline book companion that answers from the open book, cites the passages it used, and shows the figure those passages point at. Nothing leaves the machine.
 
 **Architecture:** A stdlib Python engine ingests one EPUB into a JSON index, retrieves with the Phase 3b winning embedder (`nomic-embed-text` default), and answers with on-disk `qwen2.5:7b`. The window is one HTML file that calls that engine. Readest is a later shell, not the way the engine gets proven.
 
-**Tech Stack:** Python 3 stdlib only. Ollama on `127.0.0.1:11434`. No pip installs. No new model downloads except the approved embedder pulls (see Status). No database server.
+**Tech Stack:** Python 3 stdlib (one exception for vendored text-preprocessing tools; see `AGENTS.md`). Ollama on `127.0.0.1:11434`. No pip installs. No new model downloads except the approved embedder pulls (see Status). No database server.
 
 ---
 
@@ -22,18 +22,18 @@ Two older drafts in `~/.hermes/cache/scratch/hackathon-plan.md` and `hackathon-p
 
 ## What v1 is
 
-One local EPUB. Ask a question. Get a quote with a chapter tag, then one line of gloss. If the retrieved passage points at a figure, show that image with its caption. Highlighted text can be explained. Quiz is one question whose answer is a quote in the retrieved chunk.
+One local EPUB. Ask a question. In `answer` mode (the window default) the model writes a direct answer from the retrieved passages with `[Ch. N]` citations; in `ask` mode you get a checked quote with a chapter tag, then one line of gloss. If a cited passage points at a figure, show that image with its caption. Highlighted text can be explained. Quiz is one question whose answer is a quote in the retrieved chunk.
 
-The engine is the product. The HTML page exists so a person can see the quote and the image. Polish is not the work.
+The engine is the product. The HTML page exists so a person can see the answer, the citations, and the image. Polish is not the work.
 
 ## What v1 is not
 
 - The model looking at image bytes.
-- Fusing several chapters into one synthesized answer.
+- Fusing anything retrieval did not surface: the `answer` mode may combine only the passages it was shown.
 - Sparring, "argue the other side," or any mode not in the contract.
 - A Readest fork on the critical path.
 - A new embedding model (except the Phase 3b bake-off contenders), a finetune, Laya, Bonsai, or `deepseek-r1:7b` (Mac only so far; wrong job: it rambles past the quote).
-- A database, a package install, or a cloud API.
+- A database, a package install (one exception: vendored text-preprocessing tools, see `AGENTS.md`), or a cloud API.
 - Cross-chapter tracing.
 
 ## Locked stack (verified on Mac 2026-10-09; Windows runner built out 2026-10-11)
@@ -47,7 +47,7 @@ The engine is the product. The HTML page exists so a person can see the quote an
 
 On the Windows runner (measured 2026-10-12): `qwen2.5:7b`, `nomic-embed-text:latest`, `embeddinggemma-2:270m-bf16-text`, and `moistral:latest` are on disk. The `llama3.2:3b` and `deepseek-r1:7b` rows are Mac-only so far.
 
-`qwen2.5:7b` is the locked answer model, not a proven best. The job is a quote check, not a smart essay. A later swap still has to pass the Phase 4 checks: quote is a substring, answer starts with `[Ch.`, refusal is exactly `Not in this book.`
+`qwen2.5:7b` is the locked answer model, not a proven best. In `ask` mode the job is a quote check; in `answer` mode it is a grounded free answer. A later swap still has to pass the battery in both modes: ask — quote is a substring, answer starts with `[Ch.`, refusal is exactly `Not in this book.`; answer — citations only from the shown passages and the coherence probes pass.
 
 Stop and say so before any of these. Do not do them quietly:
 
@@ -123,9 +123,10 @@ This is the only meeting between engine and window. Check the fixture in before 
 }
 ```
 
-`mode` is `ask`, `explain`, or `quiz`.
+`mode` is `ask`, `answer`, `explain`, or `quiz`.
 
-- `ask`: `question` required. `selection` optional.
+- `ask`: `question` required. `selection` optional. Quote-checked; the reply must start with `[Ch.` or it refuses.
+- `answer`: `question` required. Free generation from the same passages; the window's default. `[Ch. N]` tags become citations; quotation marks the shown passages cannot back are stripped.
 - `explain`: `selection` required. `question` may be empty.
 - `quiz`: `question` empty on the first call. Response `answer` is one question. v1 quiz is: server returns one question and the chunk quote that is the key. The page shows the key after the person answers. No model-assigned score. (A graded second call — user reply as `question` plus `"grade": true` — is out of scope.)
 
@@ -149,7 +150,7 @@ This is the only meeting between engine and window. Check the fixture in before 
 }
 ```
 
-`refused: true` means the passages do not contain the answer. `answer` is then exactly `Not in this book.` Citations may still list the nearest misses. Figures empty unless a miss is itself a figure cite. Do not gloss a refusal.
+`refused: true` means the passages do not contain the answer. `answer` is then exactly `Not in this book.` Citations may still list the nearest misses. Figures empty unless a miss is itself a figure cite. Do not gloss a refusal. In `answer` mode the refusal is the model's own exact first line — prompted and tested, never fabricated from a failed check.
 
 `GET /figures/{id}` returns the extracted image bytes. `GET /health` returns `{"ok": true, "ollama": true}` after a localhost probe to Ollama. `GET /` serves the window. Those three plus `POST /ask` are the only routes.
 
@@ -190,9 +191,9 @@ Wide net is the mitigation for a small general embedder. Do not raise top-k past
 
 ## Generation rules
 
-The model is a literate parrot with the book open. It quotes, then it glosses in one line. It does not merge chapters into a new essay.
+Two generation modes share one retrieval. Both see the same passages; what differs is what the answer layer does with the model's reply.
 
-System prompt, verbatim, in `prompt.py`:
+`ask` — the model is a literate parrot with the book open. It quotes, then it glosses in one line. System prompt, verbatim, in `prompt.py` (`SYSTEM`):
 
 ```
 You answer only from the passages below. If the passages do not contain the answer, reply with exactly this sentence and nothing else: Not in this book.
@@ -201,11 +202,23 @@ Do not use a passage from a different chapter to fill a gap. If more than one pa
 Do not describe an image. You cannot see images. If a passage names a figure, quote that passage. The app will show the image.
 ```
 
+A good `ask` answer must start with `[Ch.`. A refusal must be exactly `Not in this book.` — that sentence, period included, and nothing else. A failed quote check is a refusal.
+
+`answer` — free generation from the retrieved passages (user decision 2026-10-13; the window default). The model writes the answer. System prompt, verbatim, in `prompt.py` (`SYSTEM_ANSWER`):
+
+```
+You answer from the passages below, and only from them. Write a direct answer built from those passages: a few sentences, or one short paragraph. Stay close to the passages' wording, and use a passage's own definition when the question asks what something is. Match the shape of the question: if it asks for the kinds or parts of a thing, list them. Do not state any fact the passages do not contain.
+Put a [Ch. N] tag at the end of each sentence that uses a passage, with N from that passage. Use quotation marks only when you copy the exact words of a passage. Never put quotation marks around your own words.
+If the passages do not contain the answer, reply with exactly this sentence and nothing else:
+Not in this book.
+Do not describe an image. You cannot see images. If a passage names a figure, mention it; the app will show the image.
+```
+
+The reply is kept as written, minus quotation marks the shown passages cannot back. Citations come from the model's `[Ch. N]` tags: each tagged sentence is matched to the shown passage of that chapter with the most word overlap, and each citation's quote is passage text; a zero-overlap claim gets no citation. A refusal is the exact sentence on the first line; other prose is never discarded. Groundedness is measured (`artifacts/groundedness.py`: share of answer-sentence 4-grams found in the shown passages), not enforced.
+
 User message is the question, then the top passages as plain text blocks with chapter and chunk id. For `explain`, the selection is the question and the retrieved neighborhood is the passages. For `quiz`, the prompt addition is: write one question a person could answer with a quote from the single best passage. Do not include the quote in that question.
 
 Temperature 0. Do not sample a creative answer.
-
-A good answer must start with `[Ch.`. A refusal must be exactly `Not in this book.` — that sentence, period included, and nothing else. Anything else is discarded and returned as `refused: true`. Do not show a free answer. A prefix check is not enough: `Not in this book. Here is an essay.` is not a refusal.
 
 ## Figure honesty
 
@@ -217,7 +230,7 @@ Before any figure is used in a rehearsal, open that figure's stored caption and 
 
 `window/index.html`. No build step. No npm.
 
-- Question box, mode select (`ask`, `explain`, `quiz`), optional selection box.
+- Question box, mode select (`answer`, `ask`, `explain`, `quiz`; `answer` is the default), optional selection box.
 - `fetch` `POST /ask` on the engine origin.
 - Render `answer`, each citation quote, and each figure as an `img` whose `src` is the returned path.
 - No theater controls: nothing whose job is looking local in DevTools. The proof is wifi off, documented in the README.

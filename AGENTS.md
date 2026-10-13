@@ -7,16 +7,23 @@ locked build plan) and the current phase brief in `artifacts/`.
 
 An offline book companion. One EPUB ("Fundamentals of Data Engineering",
 `book_id` = `fde`) is ingested into a JSON index, passages are retrieved with a
-local embedder, and questions are answered with exact quotes plus the figures
-those passages cite. All inference is local Ollama on `127.0.0.1:11434`.
-No cloud APIs, no database server, no package installs.
+local embedder, and questions are answered from the retrieved passages in two
+modes: `answer` (free generation with `[Ch. N]` citations; the window default)
+and `ask` (a checked quote plus a gloss). Cited figures still attach. All
+inference is local Ollama on `127.0.0.1:11434`. No cloud APIs, no database
+server.
 
 ## Hard rules (do not break)
 
-- Python stdlib only — the whole standard library is fair game, e.g.
+- Python stdlib by default — the whole standard library is fair game, e.g.
   `zipfile`, `json`, `html.parser`, `xml.etree.ElementTree`, `urllib`,
-  `http.server`, `pathlib`, `re`. No pip installs, no `requirements.txt`, no
-  numpy. If a task seems to need a package, the task is wrong — redesign it.
+  `http.server`, `pathlib`, `re`. One exception (user decision 2026-10-13):
+  text preprocessing may use standard third-party tools — stemmers, stopword
+  lists, normalization tables — vendored into the repo with their license
+  (a `vendor/` copy beats a pip dependency; the app stays offline). Record a
+  download's megabyte count before pulling. Everything else stays stdlib: no
+  `requirements.txt`, no numpy. If a non-preprocessing task seems to need a
+  package, the task is wrong — redesign it.
   `urllib` may talk only to this machine: Ollama at `127.0.0.1:11434`, and the
   engine itself. No other host.
 - No pickle, no marshal, no shelve, no sqlite. Records are JSON. Reload with
@@ -30,9 +37,11 @@ No cloud APIs, no database server, no package installs.
   on this box (upgraded 2026-10-11). A further upgrade is not "runner setup."
 - Only four routes: `POST /ask`, `GET /health`, `GET /figures/{id}`, `GET /`.
   No fifth route. `POST /ask` request/response shape is frozen (README
-  "Contract"). `refused: true` means `answer` is exactly `Not in this book.`
-  That sentence, period included, and nothing else. A line that starts that
-  way and then keeps talking is not a refusal.
+  "Contract"); `mode` is `ask`, `answer`, `explain`, or `quiz`. When
+  `refused: true`, `answer` is exactly `Not in this book.` — that sentence,
+  period included, and nothing else. In `answer` mode the model's first line
+  must be that exact sentence for a refusal; in `ask` mode a line that starts
+  that way and then keeps talking is not a refusal.
 - Chunking (Phase 2) and embedding (Phase 3) stay separate phases. Do not do
   a later phase's work inside an earlier phase. If the plan looks wrong, say
   so BEFORE changing anything — honest architect, not a yes-man. Do not reorder
