@@ -151,6 +151,81 @@ class RetrieveTests(unittest.TestCase):
         search(index, "change data capture", embed_fn=recording, k=1)
         self.assertTrue(seen[-1].startswith(NOMIC_QUERY))
 
+    def test_embed_index_refuses_a_non_finite_vector(self):
+        def bad_embed(texts, model):
+            return [[float("nan"), 0.0, 0.0] for _ in texts]
+
+        index = tiny_index()
+        with self.assertRaises(SystemExit) as caught:
+            embed_index(index, embed_fn=bad_embed, dims=DIMS)
+        self.assertIn("c7-001", str(caught.exception))
+        self.assertNotIn("embedding", index["chunks"][0])
+
+    def test_embed_index_refuses_a_zero_vector(self):
+        def bad_embed(texts, model):
+            return [[0.0, 0.0, 0.0] for _ in texts]
+
+        index = tiny_index()
+        with self.assertRaises(SystemExit) as caught:
+            embed_index(index, embed_fn=bad_embed, dims=DIMS)
+        self.assertIn("c7-001", str(caught.exception))
+        self.assertIn("all-zero", str(caught.exception))
+
+    def test_embed_index_refuses_a_wrong_width_response(self):
+        def bad_embed(texts, model):
+            return [[1.0, 0.0] for _ in texts]
+
+        index = tiny_index()
+        with self.assertRaises(SystemExit) as caught:
+            embed_index(index, embed_fn=bad_embed, dims=DIMS)
+        self.assertIn("width 2, expected 3", str(caught.exception))
+
+    def test_embed_index_refuses_a_short_response(self):
+        def bad_embed(texts, model):
+            return [[1.0, 0.0, 0.0]]
+
+        index = tiny_index()
+        with self.assertRaises(SystemExit) as caught:
+            embed_index(index, embed_fn=bad_embed, dims=DIMS)
+        self.assertIn("1 vectors for 2 texts", str(caught.exception))
+
+    def test_rank_refuses_a_query_width_drift(self):
+        index = tiny_index()
+        embed_index(index, embed_fn=fake_embed, dims=DIMS)
+
+        def short_embed(texts, model):
+            return [[1.0, 0.0] for _ in texts]
+
+        with self.assertRaises(SystemExit) as caught:
+            search(index, "batch", embed_fn=short_embed)
+        self.assertIn("index declares 3", str(caught.exception))
+
+    def test_rank_refuses_a_non_finite_query(self):
+        index = tiny_index()
+        embed_index(index, embed_fn=fake_embed, dims=DIMS)
+
+        def nan_embed(texts, model):
+            return [[float("nan"), 0.0, 0.0] for _ in texts]
+
+        with self.assertRaises(SystemExit) as caught:
+            search(index, "batch", embed_fn=nan_embed)
+        self.assertIn("non-finite", str(caught.exception))
+
+    def test_rank_names_a_drifted_stored_vector(self):
+        index = tiny_index()
+        embed_index(index, embed_fn=fake_embed, dims=DIMS)
+        index["chunks"][1]["embedding"] = [1.0, 0.0]
+        with self.assertRaises(SystemExit) as caught:
+            search(index, "batch", embed_fn=fake_embed)
+        self.assertIn("c5-001", str(caught.exception))
+
+    def test_search_skips_a_record_without_a_vector(self):
+        index = tiny_index()
+        embed_index(index, embed_fn=fake_embed, dims=DIMS)
+        index["chunks"][0].pop("embedding")
+        hits = search(index, "batch", embed_fn=fake_embed, k=10)
+        self.assertEqual([hit["chunk_id"] for hit in hits], ["c5-001"])
+
 
 if __name__ == "__main__":
     unittest.main()

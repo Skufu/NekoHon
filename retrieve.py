@@ -130,6 +130,18 @@ def _needs_vector(record, dims):
     return not isinstance(vector, list) or len(vector) != dims
 
 
+def _vector_problem(vector, width):
+    """Reason a response vector must not be stored, or None when it may."""
+    if not isinstance(vector, list) or len(vector) != width:
+        got = len(vector) if isinstance(vector, list) else "not a list"
+        return f"width {got}, expected {width}"
+    if not all(math.isfinite(value) for value in vector):
+        return "non-finite value"
+    if all(value == 0.0 for value in vector):
+        return "all-zero vector"
+    return None
+
+
 def embed_index(index, model=DEFAULT_EMBEDDER, embed_fn=None, batch=BATCH, dims=None):
     """Add vectors to chunks and figures. Skip records that already match."""
     embed_fn = embed_fn or ollama_embed
@@ -156,7 +168,19 @@ def embed_index(index, model=DEFAULT_EMBEDDER, embed_fn=None, batch=BATCH, dims=
         for start in range(0, len(pending), batch):
             group = pending[start:start + batch]
             vectors = embed_fn([text for _, text in group], model)
+            if not isinstance(vectors, list) or len(vectors) != len(group):
+                got = len(vectors) if isinstance(vectors, list) else "no"
+                raise SystemExit(
+                    f"embedder returned {got} vectors for {len(group)} texts; "
+                    "refusing to store the batch."
+                )
             for (record, _), vector in zip(group, vectors):
+                name = record.get("chunk_id") if kind == "chunk" else record.get("id")
+                problem = _vector_problem(vector, width)
+                if problem:
+                    raise SystemExit(
+                        f"{kind} {name}: embedding is {problem}; refusing to store it."
+                    )
                 record["embedding"] = [round(value, 6) for value in vector]
             yield len(group)
 
@@ -177,11 +201,26 @@ def rank_chunks(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
     if index.get("embedder") != model:
         raise SystemExit(f"index was embedded with {index.get('embedder')}, not {model}")
     query = embed_texts([question], model, embed_fn, "query")[0]
+    if not isinstance(query, list) or not query or any(
+        not math.isfinite(value) for value in query
+    ):
+        raise SystemExit("query embedding is empty or non-finite; refusing to rank.")
+    declared = index.get("embedding_dims")
+    if declared and len(query) != declared:
+        raise SystemExit(
+            f"query embedding is {len(query)} wide, index declares {declared}. "
+            "Do not mix vectors."
+        )
     ranked = []
     for chunk in index.get("chunks", []):
         vector = chunk.get("embedding")
-        if not vector:
+        if vector is None:
             continue
+        if declared and len(vector) != declared:
+            raise SystemExit(
+                f"chunk {chunk.get('chunk_id')}: vector is {len(vector)} wide, "
+                f"index declares {declared}. Re-embed or repair the index."
+            )
         ranked.append((cosine(query, vector), chunk))
     ranked.sort(key=lambda item: item[0], reverse=True)
     return ranked
