@@ -1,7 +1,10 @@
 # AGENTS.md — ask-this-book
 
-Agent entry point for this repo. Read this file, then `README.md` (the full
-locked build plan) and the current phase brief in `artifacts/`.
+Agent entry point for this repo. Read this file, then `BUILD_PLAN.md` (the
+full locked build plan; renamed from `README.md` during the `epub-local` repo
+prep — references below to "the README" mean it) and the current phase brief
+in `artifacts/`. The human-facing front page is `README.md` (overview,
+quickstart, tests; this file stays the rules-and-state authority).
 
 ## What this is
 
@@ -573,6 +576,8 @@ server.
 ## Verify
 
 - `python -m unittest discover -s tests` (must stay green)
+- Setup readiness: `python preflight.py` (read-only; Python version, book,
+  index, Ollama, models, vector audit; exit 0 when ready to serve)
 - Index hygiene: `python verify_index.py` (read-only; exits 1 on dirty vectors)
 - Server: `python server.py` -> `GET http://127.0.0.1:8000/health`
 - Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/step2-battery.py`. Default is qwen2.5:7b (the granite4.1:3b swap was reverted 2026-10-13 — see the bake-off bullet); keep exactly one listener on :8000.

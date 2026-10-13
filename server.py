@@ -1,4 +1,4 @@
-"""ask-this-book engine. stdlib only; the route shape is locked in README.md.
+"""ask-this-book engine. stdlib only; the route shape is locked in BUILD_PLAN.md.
 
 POST /ask in mode "ask" retrieves from the nomic index and checks the quote.
 Mode "answer" is free generation from the same passages with a measured

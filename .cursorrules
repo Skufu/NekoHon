@@ -1,4 +1,5 @@
 # ask-this-book
 
 Read `AGENTS.md` at the repo root first: hard rules, current phase state,
-machine facts, and verify commands. The full locked plan is `README.md`.
+machine facts, and verify commands. The full locked plan is `BUILD_PLAN.md`
+(renamed from `README.md`); `README.md` is the human-facing overview.
