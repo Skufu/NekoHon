@@ -58,9 +58,9 @@ server.
 - Do not commit unless the human asks.
 - Improvements must generalize, not fit this book's test set — the system has
   to hold for other books later. No chunk ids, figure ids, chapter numbers,
-  query strings, or book ids in the logic modules (`answer.py`, `captions.py`,
-  `figures.py`, `keywords.py`, `preprocess.py`, `prompt.py`, `readings.py`,
-  `retrieve.py`).
+  query strings, or book ids in the logic modules (`answer.py`, `canonical.py`,
+  `captions.py`, `figures.py`, `keywords.py`, `preprocess.py`, `prompt.py`,
+  `readings.py`, `retrieve.py`).
   Pins and ids belong in tests, the battery, and docstrings.
   `tests/test_generalization.py` enforces the literal part. Thresholds are the
   subtler half: a constant is fitted if its stated reason is which known test it
@@ -674,6 +674,76 @@ server.
   HTTP check on the user's exact questions: subjects preserved. Both
   batteries PASS; 193 tests green. Files `plain-fix-check-*.json`,
   `eval-plain-quotealign*`.
+- Quote-choice fix 2026-10-13, after the user's live report (two plain lines,
+  both Ch. 1, the same idea twice): the citation quote could come from the
+  sentence holding the longest copied run even when another sentence
+  overlapped the claim far more, so the plain register rewrote the wrong
+  sentence — the draft paraphrased ch01-005's definition, but the stray run
+  "by data scientists, analysts, and other" (41 chars, generic) handed the
+  quote to the enumeration sentence. `_evidence_quote` now picks the quote
+  sentence by claim overlap, the rule `_best_passage` already uses for the
+  passage; a copied run breaks ties and stays the fallback when no sentence
+  can hold it; `_whole_sentence` folded away. Measured on the exact
+  question, one draft, same passages (`probe-quote-fix`): quote overlap
+  0.25 -> 0.50 (the definition sentence), first plain line "Data engineers
+  get data, store it, and prepare it for others." -> the definition's
+  rewrite, max pairwise line similarity 0.94 -> 0.87, four other scorecard
+  questions byte-identical. Regression test added; 194 tests green. No Muse
+  draw (single-draw scorecards carry +/-1-2 borderline questions; one quote
+  moved). Residual: the ch04 rewrite still drops its payload ("...forget
+  the main goal"), and plain lines 2 and 4 still restate each other —
+  rewriter-side and draft-side levers, both open. Files
+  `probe-quote-fix*`, `probe-plain-diagnose*`, `probe-quote-choice.log`.
+- MAD ask ceiling probed 2026-10-13 (user live report: "MAD data landscape"
+  quotes the Ch. 4 pointer sentence "…that we introduced in Chapter 1";
+  "looks like first person … who even is Matt Turck"). Reproduced exactly.
+  Four measured negatives, no engine change: +ch01-018 in the pool (Figure
+  1-3's paragraph) changes nothing and one draw lost the gloss; the
+  figure-4-1 caption as a passage is never quoted, and caption-first
+  refused one phrasing; a narrow gloss-content steer ("never write 'The
+  passage'") left the meta-gloss in place and refused two battery pins
+  (transformations, multicloud) 2/2 draws each, control 2/2 pass both — the
+  steer family is now 0/4, do not retry a prompt shape without a model
+  change. The book's text names MAD once (the pointer); the Ch. 1 treatment
+  is figure-1-3; "who is Matt Turck" is not in the book. Summary
+  `artifacts/mad-ask-ceiling.md`; probes `probe-mad-{quote,seed,caption}.*`,
+  `probe-gloss-steer*`.
+- Query-phrasing sensitivity probed 2026-10-13 (user report: one "?" changed
+  "What is nonrelational database" from the ch05-032 definition to ch05-034's
+  "NoSQL remains vague" sentence at the same pool order — model-side, not
+  retrieval). Battery sweep, trailing "?.!" stripped, 23 questions x 2
+  (`probe-query-normalize`): quotes changed 4/23; pin flips 2/23 in opposite
+  directions (transformations loses its pin, nonrelational gains); multicloud
+  flaked both ways (known flake; control passed 2/2 minutes earlier). Blanket
+  normalization is consistency, not correctness — not landed. EPUB link
+  graph verified (`probe-epub-links`): the MAD sentence carries internal
+  xrefs (ch01#data_engineering_described, the figure anchor); index chunks
+  keep no links. A one-hop link channel is a backlog-probe candidate; its
+  A one-hop link channel is a backlog-probe candidate; its
+  MAD targets were already tested and ignored. Summary
+  `artifacts/query-normalization.md`.
+- Bare-phrase canonicalization landed 2026-10-13 (`canonical.py`,
+  `answer.py`, `tests/test_canonical.py`): `canonical_query` prefixes a
+  structurally bare phrase ("mAD DaTa" -> "What is mAD DaTa?") before
+  retrieval and prompt; `ask`/`respond` take a `canonical` flag, `explain`
+  is gated off (its highlight is a book sentence); non-refused answers show
+  `Asked as:` (readings precedent). Guards: no "?", no wh-word, first token
+  not auxiliary or opener/list marker ("explain …", "types of …"), no
+  pronoun anywhere. 210 tests green (16 new: trigger table, byte-identical
+  pass-through, the seam — search, fuse, caption_seed and the prompt see
+  one string — refusal exactness, explain gate, anchor equivalence; one
+  audit pass strengthened two fixtures: the anchor map carries in-bound df
+  and the explain test asserts its highlight is trigger-eligible).
+  Fixture rerun vs `-stage0`: bare MAD ask follows the question-form
+  behavior; answer-mode bare MAD drops 3 figures to 1; mesh/watermark/
+  ingestion lead and figures stable (ingestion tails stay draw noise).
+  Retest: zero regressions, one intended delta — answer-mode "dark matter
+  data" bare refusal becomes a book-backed answer; France refuses both.
+  Both batteries PASS over HTTP on a fresh server (ask PASS; answer golden
+  10/10, typos, probes, coherence). Residual: MAD ask wh-form refusal flake
+  (did not recur); answer-mode filler variants still diverge (Stage 2/3);
+  `Asked as:` not seen in the window yet. Plan
+  `artifacts/query-canonicalization-2026-10-13.md`.
 
 ## Verify
 

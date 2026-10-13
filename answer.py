@@ -12,6 +12,7 @@ import random
 import re
 import urllib.request
 
+from canonical import canonical_query
 from captions import caption_seed
 from figures import figures_for
 from fusion import fuse
@@ -522,23 +523,28 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None):
     return context
 
 
-def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL):
+def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
+        canonical=True):
     generate_fn = generate_fn or ollama_generate
-    context = retrieval_context(index, question, search_fn, generate_fn)
+    asked_form = canonical_query(question) if canonical else question
+    context = retrieval_context(index, asked_form, search_fn, generate_fn)
     passages = context["passages"]
     if not passages:
         return _refusal([])
     completion = generate_fn(SYSTEM, user_message(context["asked"], passages), model)
-    anchors = anchor_words(question, context["word_map"])
+    anchors = anchor_words(asked_form, context["word_map"])
     body = parse_completion(
         completion, passages, index.get("figures") or [], anchors
     )
+    if asked_form != question and not body["refused"]:
+        body["answer"] = f'{body["answer"]}\nAsked as: "{asked_form}"'
     if context["reading"] is not None and not body["refused"]:
         body["answer"] = f'{body["answer"]}\nRead as: "{context["asked"]}"'
     return body
 
 
-def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL):
+def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
+            canonical=True):
     """Free-generation answer from the retrieved passages.
 
     No quote enforcement: the model writes, its [Ch. n] tags become the
@@ -546,20 +552,24 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
     (see parse_answered). Groundedness is measured, not enforced. A question
     that asks for simple words routes through the plain register
     (`_plain_body`): the draft selects evidence sentences and each is
-    rewritten one-in-one-out, so nothing is written from scratch.
+    rewritten one-in-one-out, so nothing is written from scratch. A bare
+    topic phrase is asked as its question first (canonical_query).
     """
     generate_fn = generate_fn or ollama_generate
-    context = retrieval_context(index, question, search_fn, generate_fn)
+    asked_form = canonical_query(question) if canonical else question
+    context = retrieval_context(index, asked_form, search_fn, generate_fn)
     passages = context["passages"]
     if not passages:
         return _refusal([])
-    if simple_words(question):
+    if simple_words(asked_form):
         body = _plain_body(index, context, generate_fn, model)
     else:
         completion = generate_fn(
             SYSTEM_ANSWER, answer_user_message(context["asked"], passages), model
         )
         body = parse_answered(completion, passages, index.get("figures") or [])
+    if asked_form != question and not body["refused"]:
+        body["answer"] = f'{body["answer"]}\nAsked as: "{asked_form}"'
     if context["reading"] is not None and not body["refused"]:
         body["answer"] = f'{body["answer"]}\nRead as: "{context["asked"]}"'
     return body
@@ -704,45 +714,33 @@ def _best_passage(claim, chapters, passages):
     return best if best_score > 0 else None
 
 
-def _whole_sentence(span, text, hit):
-    """The passage sentence that holds the span, or "" when none does.
-
-    A copied run can start mid-sentence ("about the movement, manipulation,
-    and management of data"), and a quote that starts lowercase reads as a
-    fragment. The plain register rewrites quotes, so a fragment source
-    becomes a fragment sentence — the subject the run dropped cannot be
-    invented back. The containing sentence restores it.
-    """
-    folded = _fold(span)
-    for sentence in _sentences(text):
-        if folded in _fold(sentence):
-            return _without_heading(sentence, hit)
-    return ""
-
-
 def _evidence_quote(claim, hit):
     """A passage sentence as the citation's quote.
 
-    The longest copied run when the model copied; else the passage sentence
-    with the most overlap with the claim; else the passage's opening line.
-    A copied run is expanded to the sentence that holds it; the run itself is
-    the fallback when no single sentence does.
+    The sentence with the most overlap with the claim decides — the same
+    rule `_best_passage` uses for the passage itself. A copied run only
+    breaks a tie, and the run alone is the fallback when no sentence can
+    hold it: a stray generic run ("by data scientists, analysts, and
+    other", 41 chars) must not hand the quote to a sentence the claim
+    barely uses (measured 2026-10-13: the plain register then rewrote the
+    enumeration instead of the definition).
     """
     text = hit.get("text") or ""
     span = longest_copied_span(claim, text)
-    if span:
-        return _whole_sentence(span, text, hit) or _original_case(span, text)
     tokens = _tokens(claim)
-    best, best_score = "", 0.0
+    best, best_key = "", (-1.0, False)
     for sentence in _sentences(text):
         sentence_tokens = _tokens(sentence)
         if not sentence_tokens:
             continue
-        overlap = len(tokens & sentence_tokens) / len(tokens)
-        if overlap > best_score:
-            best, best_score = sentence, overlap
+        overlap = len(tokens & sentence_tokens) / len(tokens) if tokens else 0.0
+        holds = bool(span) and _fold(span) in _fold(sentence)
+        if (overlap, holds) > best_key:
+            best, best_key = sentence, (overlap, holds)
     if best:
         return _without_heading(best, hit)
+    if span:
+        return _original_case(span, text)
     return _without_heading(re.sub(r"\s+", " ", text).strip(), hit)
 
 
@@ -785,7 +783,8 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
     """The highlight is the question. The neighborhood is the passages."""
     if not (selection or "").strip():
         raise ValueError("missing selection")
-    return ask(index, selection.strip(), generate_fn, search_fn, model)
+    return ask(index, selection.strip(), generate_fn, search_fn, model,
+               canonical=False)
 
 
 # A footnote marker glued to the citing line ("Maxime Beauchemin4") has no

@@ -166,6 +166,36 @@ class ParseAnsweredTest(unittest.TestCase):
         )
 
 
+    def test_a_stray_run_does_not_beat_the_defining_sentence(self):
+        # Measured 2026-10-13 on "explain data engineering in simple words":
+        # the draft paraphrased ch01-005's definition, but its longest copied
+        # run ("by data scientists, analysts, and other", 41 chars) sits in
+        # the enumeration sentence, so the quote -- and with it the plain
+        # register's rewrite source -- was the enumeration. The quote must be
+        # the sentence the claim overlaps most, span or no span.
+        chunk = hit(
+            "c1-004",
+            "1",
+            "Data Engineering Defined\n"
+            "When we unpack the common threads of how various people define "
+            "data engineering, an obvious pattern emerges: a data engineer "
+            "gets data, stores it, and prepares it for consumption by data "
+            "scientists, analysts, and others. We define data engineering and "
+            "data engineer as follows: Data engineering is the development, "
+            "implementation, and maintenance of systems and processes that "
+            "take in raw data and produce high-quality, consistent "
+            "information that supports downstream use cases.",
+        )
+        quote = A._evidence_quote(
+            "Data engineering involves developing, implementing, and "
+            "maintaining systems and processes that handle raw data, "
+            "transforming it into high-quality, consistent information for "
+            "use by data scientists, analysts, and other stakeholders.",
+            chunk,
+        )
+        self.assertTrue(quote.startswith("We define data engineering"), quote)
+
+
 class RespondTest(unittest.TestCase):
     def _index(self):
         return {

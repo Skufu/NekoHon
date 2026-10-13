@@ -17,6 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 LOGIC = (
     "answer.py",
+    "canonical.py",
     "captions.py",
     "figures.py",
     "fusion.py",
