@@ -35,6 +35,10 @@ QUIZ_INSTRUCTION = (
 )
 KEY_MIN_CHARS = 40
 SPAN_MIN_CHARS = 40
+# A complete sentence may answer even when shorter than SPAN_MIN_CHARS:
+# "Everything fails, all the time." is 30 characters. Sentence shape is the
+# test; a fragment or a bare heading stays a refusal.
+MIN_QUOTE_CHARS = 20
 # One screen of quoted text (about 16 lines at 75 chars). A paragraph over this
 # keeps the model's quote instead of the whole paragraph. Chosen for
 # readability; not tuned to any ask.
@@ -88,6 +92,20 @@ def _strip_quotes(text):
     text = text.strip()
     text = text.strip("\"'`“”")
     return re.sub(r"\s+", " ", text).strip(" .")
+
+
+def _short_sentence(raw, quote):
+    """True when a sub-SPAN_MIN_CHARS quote is a complete sentence.
+
+    Shape, not length: an upper-case start and terminal punctuation in the
+    text the model wrote, plus real cleaned length. "Everything fails, all the
+    time." passes (measured 2026-10-13); a mid-sentence fragment or a bare
+    heading ("Hot, warm, and cold data") does not.
+    """
+    raw = (raw or "").strip()
+    if len(quote) < MIN_QUOTE_CHARS:
+        return False
+    return raw[:1].isupper() and raw.endswith((".", "?", "!"))
 
 
 def _strip_figure_refs(text):
@@ -252,8 +270,9 @@ def parse_completion(completion, passages, figures=None, anchors=None):
         chapter = match.group(1).strip().rstrip(".")
         rest = match.group(2)
         quoted = re.search(r"[\"“](.+?)[\"”]", rest)
-        quote = _strip_quotes(quoted.group(1) if quoted else rest)
-        if len(quote) < SPAN_MIN_CHARS:
+        raw = quoted.group(1) if quoted else rest
+        quote = _strip_quotes(raw)
+        if len(quote) < SPAN_MIN_CHARS and not _short_sentence(raw, quote):
             quote = ""
         hit = _matching_passage(chapter, quote, passages)
         if hit is None:

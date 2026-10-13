@@ -276,6 +276,40 @@ class AnswerTests(unittest.TestCase):
         self.assertTrue(body["refused"])
         self.assertEqual(body["answer"], REFUSAL)
 
+    def test_a_short_complete_sentence_quote_is_accepted(self):
+        passage = {
+            "chunk_id": "ch03-023",
+            "chapter": "3",
+            "text": (
+                "Principle 2: Plan for Failure\nEverything fails, all the time. "
+                "Modern hardware is highly robust and durable."
+            ),
+        }
+        body = parse_completion(
+            '[Ch. 3] "Everything fails, all the time."',
+            [passage],
+        )
+        self.assertFalse(body["refused"])
+        self.assertEqual(
+            body["citations"][0]["quote"], "Everything fails, all the time"
+        )
+
+    def test_a_short_fragment_quote_still_refuses(self):
+        passage = {
+            "chunk_id": "ch03-058",
+            "chapter": "3",
+            "text": (
+                "a fragment with other areas of the monolith. "
+                "It continues here with real content."
+            ),
+        }
+        body = parse_completion(
+            '[Ch. 3] "a fragment with other areas"',
+            [passage],
+        )
+        self.assertTrue(body["refused"])
+        self.assertEqual(body["answer"], REFUSAL)
+
     def test_quiz_hides_the_key_from_the_question(self):
         chunk = {
             "chunk_id": "ch05-019",
