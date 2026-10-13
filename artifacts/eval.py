@@ -23,7 +23,11 @@ which side failed:
   disagreement, the strongest calibration signal this run can show.
 
 Run: python artifacts/eval.py --label v1 [--judge] [--limit N]
-Writes artifacts/eval-<label>.{json,log}.
+Judge-only replay under another judge (same answers, new verdicts):
+  JUDGE_BACKEND=openai JUDGE_MODEL=<m> JUDGE_BASE_URL=<u> JUDGE_API_KEY=<k> \
+    python artifacts/eval.py --judge-only --label v1
+Agreement between two judged runs: python artifacts/judge-agreement.py <a> <b>
+Writes artifacts/eval-<label>[-<judge-slug>].{json,log}.
 """
 
 import argparse
@@ -104,15 +108,16 @@ def eval_item(index, item, timeout):
 
 
 def judge_phase(rows, timeout):
-    """The granite phase: relevance for every shown passage, key-fact rescue.
+    """The judge phase: relevance for every shown passage, key-fact rescue.
 
     Runs after all answering is done, so the two model families load once each
-    (this box holds one of them in 8 GB at a time).
+    (this box holds one of them in 8 GB at a time). Rows carry the judge's
+    identity so an agreement run can tell two verdict sets apart.
     """
     import judge as J
 
     for row in rows:
-        passages = row.pop("shown_texts")
+        passages = row.pop("shown_texts", [])
         if (
             not row["refused"]
             and row["key_fact"] is not None
@@ -129,7 +134,14 @@ def judge_phase(rows, timeout):
                     row["judge_errors"] += 1
                 verdicts.append({"chunk_id": chunk_id, "verdict": verdict})
         row["relevance"] = verdicts
+        row["judge"] = J.judge_name()
     return rows
+
+
+def J_judge_name():
+    import judge as J
+
+    return J.judge_name()
 
 
 def summarize(rows, judge_used):
@@ -167,7 +179,10 @@ def summarize(rows, judge_used):
 
     lines = [
         f"# eval — {len(rows)} items — answerer {ANSWER_MODEL}"
-        + (" — judge granite4.1:8b (UNVALIDATED vs human labels)" if judge_used else ""),
+        + (
+            f" — judge {J_judge_name()} (UNVALIDATED vs human labels)"
+            if judge_used else ""
+        ),
         f"# recall@10 dense {dense_recall}/{len(with_gold)}"
         f" | shown recall@5 {shown_recall}/{len(with_gold)}"
         f" | MRR@10 {mrr:.3f}"
@@ -234,8 +249,44 @@ def main():
     parser.add_argument("--label", default="v1")
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--judge", action="store_true")
+    parser.add_argument(
+        "--judge-only", action="store_true",
+        help="replay a judged run under the configured judge; answers are not regenerated",
+    )
     parser.add_argument("--timeout", type=float, default=180.0)
     args = parser.parse_args()
+
+    index = load_index(INDEX)
+    replay_note = ""
+    if args.judge_only:
+        base = ROOT / "artifacts" / f"eval-{args.label}.json"
+        rows = json.loads(base.read_text(encoding="utf-8"))
+        mismatches = 0
+        for row in rows:
+            passages = A.retrieval_context(index, row["question"])["passages"]
+            ids = [hit["chunk_id"] for hit in passages]
+            if ids != row["shown"]:
+                mismatches += 1
+            row["shown_texts"] = [
+                (hit["chunk_id"], hit.get("text") or "") for hit in passages
+            ]
+        rows = judge_phase(rows, args.timeout)
+        replay_note = (
+            f"# judge-only replay of {base.name}; shown passages recomputed",
+            f" identical for {len(rows) - mismatches}/{len(rows)} items",
+        )
+        slug = re.sub(r"[^a-z0-9-]+", "-", J_judge_name().lower()).strip("-")
+        out = ROOT / "artifacts" / f"eval-{args.label}-{slug}.json"
+        log = out.with_suffix(".log")
+        lines = summarize(rows, True)
+        lines.insert(1, "".join(replay_note))
+        for row in rows:
+            row.pop("shown_texts", None)
+        out.write_text(json.dumps(rows, indent=2, ensure_ascii=False), encoding="utf-8")
+        log.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        print("\n".join(lines[:6]))
+        print("wrote", out.name, "and", log.name)
+        return
 
     items = json.loads(SET_PATH.read_text(encoding="utf-8"))["items"]
     if args.limit:
@@ -243,7 +294,6 @@ def main():
 
     out = ROOT / "artifacts" / f"eval-{args.label}.json"
     log = out.with_suffix(".log")
-    index = load_index(INDEX)
 
     rows = []
     for position, item in enumerate(items, start=1):

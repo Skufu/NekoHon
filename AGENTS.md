@@ -25,7 +25,11 @@ server.
   `requirements.txt`, no numpy. If a non-preprocessing task seems to need a
   package, the task is wrong — redesign it.
   `urllib` may talk only to this machine: Ollama at `127.0.0.1:11434`, and the
-  engine itself. No other host.
+  engine itself. No other host — one exception, evaluation only (user
+  direction 2026-10-13): the eval/judge artifacts may call a configured cloud
+  judge when `JUDGE_BACKEND=openai` is set explicitly; the key comes from the
+  environment or `JUDGE_API_KEY_FILE` and is never committed; the engine,
+  server, and batteries never take this path.
 - No pickle, no marshal, no shelve, no sqlite. Records are JSON. Reload with
   the stdlib `json` module. Pictures stay as files under `data/figures/`.
   Bake-off indexes are `data/index.<model>.json`. After the bake-off,
@@ -541,6 +545,7 @@ server.
 - Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/step2-battery.py`. Default is qwen2.5:7b (the granite4.1:3b swap was reverted 2026-10-13 — see the bake-off bullet); keep exactly one listener on :8000.
 - Answer mode: `BATTERY_MODE=answer python artifacts/step2-battery.py`; sweeps `SWEEP_MODE=answer python artifacts/qa-sweep.py <label>`; groundedness `python artifacts/groundedness.py --battery --label <name>` or `--label <name>` over `qa-questions-overnight.json` (in-process, no server needed).
 - Agentic prototype (not wired): `python artifacts/probe-agentic.py` (live Ollama, 5 asks).
+- Judge backends: default `ollama:granite4.1:8b`; cloud replay `JUDGE_BACKEND=openai JUDGE_MODEL=<m> JUDGE_BASE_URL=<u> JUDGE_API_KEY=<k> python artifacts/eval.py --judge-only --label <base>`, then `python artifacts/judge-agreement.py <base> eval-<base>-<judge-slug>`.
 
 ## Machine facts (this Windows box)
 
