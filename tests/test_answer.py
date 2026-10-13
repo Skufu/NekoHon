@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from answer import REFUSAL, ask, explain, parse_completion, quiz
+from answer import REFUSAL, _plural, ask, explain, parse_completion, quiz
 
 PASSAGES = [
     {
@@ -202,10 +202,11 @@ class AnswerTests(unittest.TestCase):
             body["citations"][0]["quote"].startswith("A multicloud methodology")
         )
 
-    def test_a_quote_the_paragraph_extends_expands(self):
-        # Pinned to the old rule until 2026-10-12 (“quote already holds the
-        # anchor, leave it”). The bake-off showed the cost: the model names
-        # the question’s word and stops mid-paragraph. The paragraph wins now.
+    def test_a_plural_anchor_the_quote_holds_still_expands(self):
+        # The quote already names the question's word; a plural ask still takes
+        # the paragraph, because a plural question wants the kinds of a thing
+        # (measured: the multicloud list, 2026-10-12; narrowed to plurals
+        # 2026-10-13 after "endpoint" over-expanded).
         passage = {
             "chunk_id": "ch04-038",
             "chapter": "4",
@@ -216,16 +217,50 @@ class AnswerTests(unittest.TestCase):
             ),
         }
         body = parse_completion(
-            '[Ch. 4] "Data egress costs and networking bottlenecks are critical"',
+            '[Ch. 4] "A multicloud methodology has several disadvantages. '
+            'Data egress costs and networking bottlenecks are critical"',
             [passage],
             [],
-            {"egress"},
+            {"disadvantages"},
         )
         self.assertFalse(body["refused"])
         self.assertIn("diabolically complicated", body["answer"].split("\n")[0])
-        self.assertTrue(
-            body["citations"][0]["quote"].startswith("A multicloud")
+
+    def test_a_singular_anchor_keeps_the_models_sentence(self):
+        passage = {
+            "chunk_id": "ch02-024",
+            "chapter": "2",
+            "text": (
+                "With streaming ingestion, data bypasses a backend database "
+                "and is pushed directly to an endpoint, typically with data "
+                "buffered by an event-streaming platform. This pattern is "
+                "useful with fleets of IoT sensors emitting sensor data."
+            ),
+        }
+        body = parse_completion(
+            '[Ch. 2] "With streaming ingestion, data bypasses a backend database '
+            'and is pushed directly to an endpoint, typically with data buffered '
+            'by an event-streaming platform."',
+            [passage],
+            [],
+            {"endpoint"},
         )
+        self.assertFalse(body["refused"])
+        self.assertNotIn("IoT sensors", body["answer"].split("\n")[0])
+        self.assertEqual(
+            body["citations"][0]["quote"],
+            "With streaming ingestion, data bypasses a backend database and is "
+            "pushed directly to an endpoint, typically with data buffered by "
+            "an event-streaming platform",
+        )
+
+    def test_the_plural_rule(self):
+        for word in ("disadvantages", "types", "steps", "categories",
+                     "batches", "reasons"):
+            self.assertTrue(_plural(word), word)
+        for word in ("endpoint", "analysis", "status", "business", "class",
+                     "criteria"):
+            self.assertFalse(_plural(word), word)
 
     def test_a_paragraph_over_the_cap_keeps_the_quote(self):
         filler = "Filler sentence with padding words for size. " * 30

@@ -1,0 +1,21 @@
+'endpoint' df: 4
+======================================================================
+Q: endpoint | anchors: ['endpoint']
+shown: ['ch02-024', 'ch05-052', 'ch05-030', 'ch03-071', 'ch09-027']
+RAW: "[Ch. 2] \"With streaming ingestion, data bypasses a backend database and is pushed directly to an endpoint, typically with data buffered by an event-streaming platform.\" This means data is sent directly to a specific place without going through a database first."
+FINAL: "[Ch. 2] \"With streaming ingestion, data bypasses a backend database and is pushed directly to an endpoint, typically with data buffered by an event-streaming platform\""
+======================================================================
+Q: what is an endpoint | anchors: ['endpoint']
+shown: ['ch02-024', 'ch05-052', 'ch03-071', 'ch09-027', 'ch05-030']
+RAW: "[Ch. 5] \"Webhooks are a simple event-based data-transmission pattern.\" \nA way for a system to send data to another system when an event happens."
+FINAL: "[Ch. 5] \"Webhooks are a simple event-based data-transmission pattern. The data source can be an application backend, a web page, or a mobile app. When specified events happen in the source system, this triggers a call to an HTTP endpoint hosted by the data consumer. Notice that the connection goes from the source syste"
+======================================================================
+Q: streaming ingestion endpoint | anchors: ['endpoint']
+shown: ['ch07-098', 'ch02-024', 'ch07-060', 'ch02-018', 'ch02-020']
+RAW: "[Ch. 2] \"streaming ingestion, data bypasses a backend database and is pushed directly to an endpoint, typically with data buffered by an event-streaming platform.\" Streaming data is pushed to an endpoint without going through a backend database."
+FINAL: "[Ch. 2] \"streaming ingestion, data bypasses a backend database and is pushed directly to an endpoint, typically with data buffered by an event-streaming platform\""
+======================================================================
+Q: multicloud methodology disadvantages | anchors: ['disadvantages', 'methodology', 'multicloud']
+shown: ['ch04-037', 'ch04-036', 'ch04-038', 'ch03-063', 'ch03-062']
+RAW: "[Ch. 4] \"Going multicloud can introduce significant complexity.\" Complexity in managing services across multiple clouds."
+FINAL: "[Ch. 4] \"A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks are critical. Going multicloud can introduce significant complexity. Companies must now manage a dizzying array of services across several clouds; cross-cloud integration and security present "

@@ -238,23 +238,50 @@ def _paragraph_around(quote, passage_text):
     return ""
 
 
-def _whole_paragraph(anchors, paragraph):
+def _plural(word):
+    """True when an English word is a regular plural — the list detector.
+
+    Stemming's first step is a suffix rule, not a dictionary; the same works
+    here. "disadvantages", "types", "steps", "categories", "batches" pass;
+    "endpoint", "analysis", "status", "business", "class" do not. Irregulars
+    ("criteria") fall through to the model's own answer, the safe side.
+    """
+    if len(word) < 4 or word.endswith(("ss", "us", "is", "ous")):
+        return False
+    if word.endswith("ies"):
+        return True
+    if word.endswith(("ches", "shes", "xes", "zes", "ses")):
+        return True
+    return word.endswith("s")
+
+
+def _whole_paragraph(anchors, paragraph, quote):
     """True when the paragraph around a verified quote replaces it.
 
-    The paragraph must hold an anchor word — a question word the book itself
-    counts as rare (`keywords.anchor_words`), so there is no English list-word
-    table here — and it must fit PARAGRAPH_CAP, so an answer quote stays about
+    Two triggers, both book-general:
+    - the paragraph holds an anchor word the quote lacks: the model quoted
+      near the topic without naming it, so the paragraph is the answering
+      material;
+    - the paragraph holds a plural anchor ("disadvantages", "types",
+      "steps"): a plural question wants the kinds of a thing, and the
+      paragraph is the book's list (measured: "multicloud methodology
+      disadvantages" takes the paragraph while "endpoint" keeps the model's
+      sentence, 2026-10-13).
+    The paragraph must also fit PARAGRAPH_CAP, so an answer quote stays about
     one screen. The quote is passage text and the paragraph holds it, so the
     swap can only add book text; the quote check holds by construction.
-
-    The older rule also required the quote to *lack* the anchor, which stopped
-    short whenever the model named the question's word but quoted only part of
-    the paragraph (measured: the multicloud list, 2026-10-12).
     """
     if not paragraph or len(paragraph) > PARAGRAPH_CAP:
         return False
     folded = _fold(paragraph)
-    return any(re.search(rf"\b{re.escape(word)}\b", folded) for word in anchors)
+    folded_quote = _fold(quote)
+    for word in anchors:
+        pattern = rf"\b{re.escape(word)}\b"
+        if not re.search(pattern, folded):
+            continue
+        if _plural(word) or not re.search(pattern, folded_quote):
+            return True
+    return False
 
 
 def _without_heading(quote, passage):
@@ -350,7 +377,7 @@ def parse_completion(completion, passages, figures=None, anchors=None):
             if spot is None:
                 continue
             paragraph = _paragraph_around(item["quote"], spot.get("text") or "")
-            if _whole_paragraph(anchors, paragraph):
+            if _whole_paragraph(anchors, paragraph, item["quote"]):
                 item["quote"] = paragraph
     # One trim, after every path that can set a quote: the anchor expansion
     # above replaces the quote with the whole paragraph, heading line included.
