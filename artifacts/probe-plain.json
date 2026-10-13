@@ -1,0 +1,316 @@
+[
+  {
+    "question": "explain data engineering in simple words",
+    "current": {
+      "answer": "Data engineering involves developing, implementing, and maintaining systems and processes that handle raw data, transforming it into high-quality, consistent information for use by data scientists, analysts, and other stakeholders [Ch. 1]. It encompasses the movement, manipulation, and management of data [Ch. 1], and is crucial for supporting downstream use cases such as analysis and machine learning [Ch. 1]. Data engineers ensure data remains available and usable, setting up and operating the organization’s data infrastructure [Ch. 1]. The core purpose is to design robust and reliable systems to carry data through its lifecycle, serving it according to the needs of end users [Ch. 4].",
+      "citations": [
+        "ch01-005",
+        "ch01-004",
+        "ch01-002",
+        "ch04-001"
+      ],
+      "stats": {
+        "sentences": 4,
+        "words": 95,
+        "mean_sentence": 23.8,
+        "fk_grade": 17.6,
+        "big_word_share": 0.28
+      },
+      "grounding": {
+        "sentences": 4,
+        "supported": 1,
+        "mean_coverage": 0.329
+      },
+      "fake_quotes": []
+    },
+    "plain": {
+      "answer": "Data engineering is about moving, managing, and preparing data for use. [Ch. 1] A data engineer's job is to get data from sources, store it properly, and make it ready for analysis or machine learning. [Ch. 1] This involves designing and maintaining systems that handle data throughout its lifecycle. [Ch. 4] Data engineering is crucial for ensuring data is reliable and usable for downstream applications. [Ch. 1]",
+      "citations": [
+        "ch01-002",
+        "ch01-005",
+        "ch04-001"
+      ],
+      "stats": {
+        "sentences": 4,
+        "words": 59,
+        "mean_sentence": 14.8,
+        "fk_grade": 12.6,
+        "big_word_share": 0.25
+      },
+      "grounding": {
+        "sentences": 4,
+        "supported": 0,
+        "mean_coverage": 0.013
+      },
+      "fake_quotes": []
+    },
+    "plain2": {
+      "answer": "Data engineering is the development, implementation, and maintenance of systems and processes that take in raw data and produce high-quality, consistent information that supports downstream use cases, such as analysis and machine learning. [Ch. 1] This involves managing the data lifecycle from getting data from source systems to serving it for use cases. [Ch. 1] Essentially, data engineers ensure that data is available and usable by others, setting up and operating the organization’s data infrastructure. [Ch. 1] For example, a data engineer might design and maintain pipelines that ingest data from various sources, clean and transform it, and make it accessible for analysis. [Ch. 4]",
+      "citations": [
+        "ch01-005",
+        "ch01-002",
+        "ch04-001"
+      ],
+      "stats": {
+        "sentences": 4,
+        "words": 99,
+        "mean_sentence": 24.8,
+        "fk_grade": 16.9,
+        "big_word_share": 0.24
+      },
+      "grounding": {
+        "sentences": 4,
+        "supported": 1,
+        "mean_coverage": 0.339
+      },
+      "fake_quotes": []
+    }
+  },
+  {
+    "question": "explain batch and streaming in simple words",
+    "current": {
+      "answer": "Batch processing involves handling data in large chunks, typically on a predetermined schedule or when a certain amount of data is accumulated [Ch. 2]. Streaming, on the other hand, processes data in real-time or near real-time, continuously feeding data to downstream systems as it is produced [Ch. 2]. While batch processing is still widely used, especially in analytics and machine learning, streaming is becoming more accessible due to the separation of storage and compute in modern systems [Ch. 2]. Micro-batching is a hybrid approach that uses batch-oriented frameworks for streaming, processing data in small batches, usually every few seconds to every two minutes [Ch. 8]. True streaming systems, like Beam and Flink, process data one event at a time, though they may still operate in batches for certain operations [Ch. 8].",
+      "citations": [
+        "ch02-018",
+        "ch02-019",
+        "ch08-141"
+      ],
+      "stats": {
+        "sentences": 5,
+        "words": 125,
+        "mean_sentence": 25.0,
+        "fk_grade": 15.2,
+        "big_word_share": 0.2
+      },
+      "grounding": {
+        "sentences": 5,
+        "supported": 0,
+        "mean_coverage": 0.106
+      },
+      "fake_quotes": []
+    },
+    "plain": {
+      "answer": "Batch processing involves handling data in large chunks, like a full day's worth of data at once [Ch. 2]. Streaming, on the other hand, processes data continuously and in real-time, as it is produced [Ch. 2]. Batch processing is useful for analytics and machine learning where data is ingested on a predetermined schedule [Ch. 2]. Streaming is more suitable for applications requiring real-time data, such as financial trading or live event monitoring [Ch. 2].",
+      "citations": [
+        "ch02-018"
+      ],
+      "stats": {
+        "sentences": 4,
+        "words": 68,
+        "mean_sentence": 17.0,
+        "fk_grade": 11.7,
+        "big_word_share": 0.24
+      },
+      "grounding": {
+        "sentences": 4,
+        "supported": 0,
+        "mean_coverage": 0.086
+      },
+      "fake_quotes": []
+    },
+    "plain2": {
+      "answer": "Batch processing [Ch. 2] involves ingesting and processing data in large chunks, typically on a predetermined schedule or when a certain amount of data has been collected. This method is often used in analytics and machine learning [Ch. 2] because it simplifies the data processing workflow and is suitable for tasks that do not require real-time data. An example of batch processing is handling a full day’s worth of data in a single batch.\n\nStreaming [Ch. 2] refers to the continuous and real-time processing of data as it is produced. This approach is suitable for applications that require immediate analysis or response to data, such as financial trading or real-time analytics. For instance, data can be processed and made available to downstream systems within a second of its production, ensuring that the data is up-to-date and relevant.",
+      "citations": [
+        "ch02-018"
+      ],
+      "stats": {
+        "sentences": 6,
+        "words": 137,
+        "mean_sentence": 22.8,
+        "fk_grade": 13.4,
+        "big_word_share": 0.2
+      },
+      "grounding": {
+        "sentences": 6,
+        "supported": 1,
+        "mean_coverage": 0.107
+      },
+      "fake_quotes": []
+    }
+  },
+  {
+    "question": "explain data ingestion in simple words",
+    "current": {
+      "answer": "Data ingestion is the process of moving data from one place to another, typically from source systems into storage [Ch. 7]. It involves ensuring that data flows consistently and securely to its destination, which can be part of a data pipeline [Ch. 7]. This process can be done in batch, where data is ingested in bulk based on time intervals or the size of accumulated data [Ch. 7]. The exact method can vary widely depending on the needs of the data engineering lifecycle [Ch. 7].",
+      "citations": [
+        "ch07-002",
+        "ch07-098",
+        "ch07-030"
+      ],
+      "stats": {
+        "sentences": 4,
+        "words": 77,
+        "mean_sentence": 19.2,
+        "fk_grade": 12.5,
+        "big_word_share": 0.21
+      },
+      "grounding": {
+        "sentences": 4,
+        "supported": 1,
+        "mean_coverage": 0.361
+      },
+      "fake_quotes": []
+    },
+    "plain": {
+      "answer": "Data ingestion is the process of moving data from one place to another. For example, imagine you have a CSV file with customer information, and you want to put that data into a database. Data ingestion involves taking that CSV file and moving its contents into the database [Ch. 7].",
+      "citations": [
+        "ch07-002"
+      ],
+      "stats": {
+        "sentences": 3,
+        "words": 48,
+        "mean_sentence": 16.0,
+        "fk_grade": 10.8,
+        "big_word_share": 0.21
+      },
+      "grounding": {
+        "sentences": 3,
+        "supported": 1,
+        "mean_coverage": 0.333
+      },
+      "fake_quotes": []
+    },
+    "plain2": {
+      "answer": "Data ingestion is the process of moving data from one place to another [Ch. 7]. It involves taking data from its source and transporting it to a storage location, acting as an intermediate step in the data engineering lifecycle [Ch. 7]. For example, imagine you have a CSV file that you want to import into a database. Data ingestion would be the process of moving the contents of that CSV file into the database [Ch. 7].\n\nA simple example of data ingestion is when a company uses a data pipeline to move data from a CRM system, advertising analytics, and web analytics into a data warehouse [Ch. 7]. This process allows the company to combine and analyze data from different sources in one place, which can be used for creating user profiles or other analytics [Ch. 7].",
+      "citations": [
+        "ch07-002",
+        "ch07-022"
+      ],
+      "stats": {
+        "sentences": 6,
+        "words": 127,
+        "mean_sentence": 21.2,
+        "fk_grade": 13.2,
+        "big_word_share": 0.2
+      },
+      "grounding": {
+        "sentences": 6,
+        "supported": 1,
+        "mean_coverage": 0.233
+      },
+      "fake_quotes": []
+    }
+  },
+  {
+    "question": "explain what a watermark is in simple words",
+    "current": {
+      "answer": "A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it is considered late-arriving data. [Ch. 8]",
+      "citations": [
+        "ch08-039"
+      ],
+      "stats": {
+        "sentences": 1,
+        "words": 30,
+        "mean_sentence": 30.0,
+        "fk_grade": 17.0,
+        "big_word_share": 0.2
+      },
+      "grounding": {
+        "sentences": 1,
+        "supported": 1,
+        "mean_coverage": 0.741
+      },
+      "fake_quotes": []
+    },
+    "plain": {
+      "answer": "A watermark is a threshold used to determine if data is within a time interval or considered late. [Ch. 8]",
+      "citations": [
+        "ch08-039"
+      ],
+      "stats": {
+        "sentences": 1,
+        "words": 18,
+        "mean_sentence": 18.0,
+        "fk_grade": 11.8,
+        "big_word_share": 0.22
+      },
+      "grounding": {
+        "sentences": 1,
+        "supported": 0,
+        "mean_coverage": 0.067
+      },
+      "fake_quotes": []
+    },
+    "plain2": {
+      "answer": "A watermark, as defined in [Ch. 8], is a threshold used by a window to determine whether data in a window is within the established time interval or whether it is considered late-arriving data. In simpler terms, a watermark helps in identifying if data is current or delayed. If data arrives that is newer than the watermark, it is considered current; if it is older, it is considered late. This is particularly useful when data is ingested out of order, as discussed in [Ch. 7].\n\nFor example, in a system that processes streaming data, a watermark might be set to a specific timestamp. If data arrives with a timestamp before the watermark, it is treated as late-arriving data and may be handled differently, such as being stored in a separate buffer or processed later, as illustrated in [Ch. 8].",
+      "citations": [
+        "ch08-039"
+      ],
+      "stats": {
+        "sentences": 6,
+        "words": 135,
+        "mean_sentence": 22.5,
+        "fk_grade": 13.6,
+        "big_word_share": 0.22
+      },
+      "grounding": {
+        "sentences": 6,
+        "supported": 1,
+        "mean_coverage": 0.153
+      },
+      "fake_quotes": []
+    }
+  },
+  {
+    "question": "explain transformations in simple words",
+    "current": {
+      "answer": "Transformations are processes that manipulate and enhance data to make it useful for downstream use cases [Ch. 2]. They differ from queries in that they persist the results for further use, whereas queries retrieve data from sources [Ch. 8]. Transformations can involve complex pipelines combining data from multiple sources and reusing intermediate results, which can be stored temporarily or permanently [Ch. 8]. They help unify and integrate data, providing a single view across the organization [Ch. 8]. Without transformations, data would remain inert and not be useful for reports, analysis, or machine learning [Ch. 2].",
+      "citations": [
+        "ch02-025",
+        "ch08-088",
+        "ch08-089"
+      ],
+      "stats": {
+        "sentences": 5,
+        "words": 85,
+        "mean_sentence": 17.0,
+        "fk_grade": 13.8,
+        "big_word_share": 0.21
+      },
+      "grounding": {
+        "sentences": 5,
+        "supported": 0,
+        "mean_coverage": 0.104
+      },
+      "fake_quotes": []
+    },
+    "plain": {
+      "answer": "Transformations are processes that change data into a more useful form. They help unify and integrate data so it can be viewed as a single entity. Transformations are necessary because running the same complex query repeatedly can be inefficient and costly. For example, if you have to join and aggregate data from 20 different sources every time you want to view results, it would be better to run the query once and save the results. Transformations can also enhance and save data for use in downstream processes, making data more valuable. [Ch. 2] [Ch. 8]",
+      "citations": [
+        "ch08-088"
+      ],
+      "stats": {
+        "sentences": 5,
+        "words": 90,
+        "mean_sentence": 18.0,
+        "fk_grade": 11.4,
+        "big_word_share": 0.19
+      },
+      "grounding": {
+        "sentences": 5,
+        "supported": 0,
+        "mean_coverage": 0.14
+      },
+      "fake_quotes": []
+    },
+    "plain2": {
+      "answer": "Transformations, as defined in [Ch. 2], are processes that change data from its original form into something useful for downstream use cases. This means taking raw data and making it ready for analysis, reports, or machine learning. [Ch. 2] explains that transformations are crucial because without them, data would remain inert and not be useful for any further processing or analysis.\n\nTransformations can involve basic tasks like changing data types, cleaning records, and removing bad data. They can also include more complex operations such as normalizing data, aggregating it for reporting, or featurizing it for machine learning. [Ch. 2] notes that these transformations are necessary to unlock the value of data for downstream users.\n\nFor example, imagine you have a dataset with customer information that includes various formats of dates and numbers. A transformation might involve cleaning this data to standardize the date and number formats, ensuring that all records are consistent and ready for analysis. This process would make the data more useful for generating reports or training machine learning models. [Ch. 2]",
+      "citations": [
+        "ch02-025"
+      ],
+      "stats": {
+        "sentences": 9,
+        "words": 166,
+        "mean_sentence": 18.4,
+        "fk_grade": 13.3,
+        "big_word_share": 0.2
+      },
+      "grounding": {
+        "sentences": 9,
+        "supported": 0,
+        "mean_coverage": 0.058
+      },
+      "fake_quotes": []
+    }
+  }
+]
