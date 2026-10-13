@@ -20,7 +20,7 @@ gate (2026-10-12). 171 unit tests green, index audit clean, HTTP battery PASS
 | --- | --- | --- | --- |
 | Embed | `nomic-embed-text:latest` | 274 MB | 768-dim. Won the embedder bake-off: 10/10 vs EmbeddingGemma-2's 9/10. |
 | Answer | `qwen2.5:7b` | 4.7 GB (Q4_K_M) | The default for both answer modes. Temperature 0. |
-| Eval judge | `granite4.1:8b` | 5.3 GB | The LLM judge (`artifacts/judge.py`), eval harness only: passage relevance, key facts, book fidelity, example use. Local and keyless; a cloud judge is opt-in for calibration; the engine never uses either. |
+| Eval judge | `granite4.1:8b` local; `muse-spark-1.3-contributor` cloud | 5.3 GB local | The LLM judge (`artifacts/judge.py`): passage relevance, key facts, book fidelity, example use. Local is the offline default; the eval runs currently use Muse Spark 1.3 over the OpenCode Go relay. Any stronger OpenAI-compatible model can be swapped in — `judge_name()` records it and `artifacts/judge-agreement.py` re-calibrates. The engine never uses either. |
 
 Also on disk, not defaults: `granite4.1:3b` (eligible small-PC slot and the
 finetune candidate; a trial swap to it was reverted the same day — it answered
@@ -251,11 +251,14 @@ Ollama; the rest need Ollama up, and the battery-style checks need
 
 8. **Eval harness + LLM judge** — labeled-set evaluation (dense recall, shown
    recall, MRR, refusal classes, key facts). The LLM judge is
-   `artifacts/judge.py`: one-word verdicts at temperature 0, local
-   `granite4.1:8b` by default (cross-family with the answerer, offline,
-   keyless). A cloud judge (any OpenAI-compatible wire, e.g. the Muse Spark
-   relay) is opt-in for calibration only — key in `.judge-key`, gitignored,
-   never read by the engine. Verdicts are unvalidated against human labels.
+   `artifacts/judge.py`: one-word verdicts at temperature 0. Local
+   `granite4.1:8b` (cross-family with the answerer, offline, keyless) is the
+   default; the eval runs currently use `muse-spark-1.3-contributor` over the
+   OpenCode Go relay (key in `.judge-key`, gitignored, never read by the
+   engine). Judges are swappable by design: if a stronger model is available,
+   use it — `judge_name()` records the judge in every output, and
+   `judge-agreement.py` re-calibrates it against the previous one before runs
+   are compared. Verdicts are unvalidated against human labels.
 
    ```sh
    python artifacts/eval.py --label v1
