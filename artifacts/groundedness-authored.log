@@ -1,0 +1,466 @@
+# groundedness — authored — 124 asks — model qwen2.5:7b
+# answered: 122 | refused: 2 | sentences: 482 | supported: 127 (26.3%) | mean coverage: 0.312 | fake quote spans: 0
+
+## data engineering lifecycle
+- untraceable: The data engineering lifecycle consists of five main stages: Generation, Storage, Ingestion, Transformation, and Serving data  .
+- untraceable: These stages are designed to turn raw data into a useful end product for consumption by analysts, data scientists, and ML engineers.
+- untraceable: The lifecycle can repeat, occur out of order, overlap, or intertwine in various ways  .
+- untraceable: Additionally, there are undercurrents that support these stages: security, data management, DataOps, data architecture, orchestration, and software engineering 
+## what is data engineering
+- untraceable: It can be SQL-focused or Big Data-focused, involving the use of SQL or programming languages like Java, Scala, and Python  .
+- untraceable: Data engineering is also seen as a superset of business intelligence and data warehousing, integrating elements from software engineering and operations of big 
+## what does a data engineer actually do
+- untraceable: A data engineer's role involves getting and preparing data for consumption by data scientists and analysts, as well as maintaining the integrity of the systems 
+- untraceable: They design, build, and maintain the integrity of systems that query and transform data, implementing data models within these systems  .
+## how did the data engineer role evolve
+- untraceable: The data engineer role is evolving as tools and practices become more sophisticated and user-friendly.
+- untraceable: Data engineers will spend less time on low-level tasks like managing servers and configuration, and more on higher-level work.
+- untraceable: This shift is similar to how mobile app developers can now focus on building better applications as mobile operating systems have become more advanced.
+- untraceable: Additionally, as data becomes more integral to business processes, new roles are emerging that blend data engineering and machine learning engineering.
+- untraceable: Not in this book.
+## data science vs data engineering
+- untraceable: Data science and data engineering are distinct but complementary fields.
+- untraceable: Data engineering sits upstream from data science, providing the necessary infrastructure and data for data scientists to work with  .
+- untraceable: Data engineers focus on gathering, cleaning, and processing data, while data scientists concentrate on analysis and machine learning  .
+- untraceable: Data engineers help automate and scale data science work, enabling data scientists to focus more on analytics, experimentation, and machine learning  .
+- untraceable: Both fields are important for building a solid data foundation, with data engineering being crucial for the efficiency and success of data science  .
+## internal facing vs external facing data engineering
+- untraceable: External-facing data engineering, on the other hand, involves building systems that collect, store, and process transactional and event data from external appli
+- untraceable: External-facing systems often handle larger concurrency loads and require tighter query limits to manage infrastructure impact and security  .
+## what is data maturity
+- untraceable: It is not solely dependent on a company's age or revenue, but rather on how data is leveraged as a competitive advantage  .
+- untraceable: Data maturity models, such as Data Management Maturity (DMM), can help understand the types of data challenges a company faces as it grows its data capability  
+## what is the data engineering lifecycle
+- untraceable: The data engineering lifecycle is a subset of the broader data lifecycle, focusing on the stages controlled by data engineers  .
+- untraceable: It comprises five main stages: Generation, Storage, Ingestion, Transformation, and Serving data  .
+- untraceable: These stages aim to turn raw data into a useful end product for analysts, data scientists, and ML engineers  .
+- untraceable: The overarching goals are to produce optimum ROI and reduce costs, reduce risk, and maximize data value and utility  .
+## source systems
+- untraceable: Source systems are the origins of data used in the data engineering lifecycle.
+- untraceable: They can include IoT devices, application message queues, or transactional databases  .
+- untraceable: Common examples include traditional application databases and more recent IoT swarms  .
+- untraceable: Collaboration with source system owners is crucial to avoid breaking pipelines and analytics  .
+- untraceable: The integration between data engineers and source system teams is growing, with examples like reverse ETL and event-streaming platforms  .
+## what is data ingestion
+- untraceable: This process is a part of the data engineering lifecycle and involves actively designing data pipeline activities  .
+- untraceable: It is also distinct from internal data movement within a system, such as copying data from one table to another  .
+- untraceable: In the context of data pipelines, ingestion is the stage where data engineers begin designing these activities  .
+## what is data management
+- untraceable: It involves practices such as data governance, master data management, and data quality management  .
+- untraceable: Data management is important as it demonstrates that data is a vital asset to daily operations, similar to financial resources, finished goods, or real estate  
+## what is dataops
+- untraceable: It borrows from Agile methodology, DevOps, and statistical process control, aiming to improve the release and quality of data products  .
+- untraceable: It involves monitoring data health, data downtime, latency, data quality, data and system security, data and model versions, and uptime to achieve service level
+- untraceable: DataOps also focuses on data observability, ensuring reliability and quality through data and system monitoring, with a recent emphasis on data reliability engi
+## what is orchestration in the data engineering lifecycle
+- untraceable: It involves managing and automating complex workflows, ensuring data flows across teams and are made available to consumers at the promised time  .
+- untraceable: Orchestration is crucial for coordinating data processing steps, especially as pipeline complexity grows  .
+- untraceable: It is highly entangled with storage, acting as the "pump" for data to flow through pipelines  .
+- untraceable: In terms of ownership, it can be centralized or decentralized, each approach having its own advantages and challenges  .
+- untraceable: Orchestration also involves ensuring correct network access, authentication, and authorization for source systems  .
+## types of metadata
+- untraceable: Types of metadata include business metadata and technical metadata.
+- untraceable: Technical metadata describes data created and used by systems, including data models, schema, data lineage, and pipeline workflows  .
+- untraceable: Common types of technical metadata are pipeline metadata, data lineage, and schema  .
+## what is data quality
+- untraceable: It encompasses three main characteristics: factual correctness, completeness, and timeliness  .
+- untraceable: Data quality involves both human and technology problems, requiring robust processes for collecting actionable human feedback and using technology tools to dete
+- untraceable: Ensuring data quality is crucial for building stakeholder trust and realizing the full potential of data in business operations  .
+## what is observabilty
+- untraceable: Observability is the ability to understand the state of a system, particularly in terms of data, by monitoring and analyzing it.
+- untraceable: It involves making data and data applications visible throughout the data engineering lifecycle, from ingestion to analysis  .
+- untraceable: Observability helps in identifying changes and troubleshooting data issues, ensuring that data is consistently available and up-to-date as expected  .
+- untraceable: Not in this book.
+## what are the undercurrents of the data engineering lifecycle
+- untraceable: These undercurrents support every aspect of the data engineering lifecycle and are critical for its proper functioning  .
+## what is data architecture
+- untraceable: Data architecture can be further divided into operational and technical aspects.
+- untraceable: Operational architecture focuses on the functional requirements related to people, processes, and technology, such as business processes, data quality managemen
+## principles of good data architecture
+- untraceable: Principles of good data architecture include choosing common components wisely, planning for failure, architecting for scalability, building loosely coupled sys
+- untraceable: These principles are designed to ensure flexibility, maintainability, and the ability to evolve in response to changes within the business and new technologies 
+- untraceable: Good data architecture should be a living, breathing entity that is always evolving, rather than a rigid, tightly coupled system  .
+## what is the data mesh
+- untraceable: The data mesh is a decentralized approach to data architecture that addresses the challenges of monolithic data platforms  .
+- untraceable: In a data mesh, each domain team is responsible for serving data to other teams and potentially running its own dashboards and analytics for self-service  .
+## big ball of mud
+- untraceable: A big ball of mud refers to a monolithic architecture that has become overly complex and difficult to manage due to a lack of modularity and high coupling among
+- untraceable: Data teams often let such a monolithic system devolve into a big ball of mud when they ignore solving the growing complexity  .
+## brownfield vs greenfield data projects
+- untraceable: Brownfield and greenfield data projects are two types of projects that require different approaches.
+- untraceable: Greenfield projects start with a clean slate, allowing for the use of the latest technologies and tools, but they come with risks of overexuberance and prioriti
+- untraceable: Brownfield projects, on the other hand, involve refactoring and reorganizing an existing architecture, which can be challenging due to the constraints of legacy
+- untraceable: Both types of projects require making reversible, high-ROI decisions  .
+- untraceable: A popular approach for brownfield projects is the strangler pattern, where new systems incrementally replace old components  .
+## what does finops help a data team do
+- untraceable: FinOps helps a data team manage budgets, priorities, and efficiency  .
+- untraceable: It involves thinking about cost structures and appropriate resource mixes, such as AWS spot instances  .
+- untraceable: FinOps also includes ongoing spending monitoring and alerts  .
+- untraceable: By embracing FinOps, data teams can ensure that their spending remains within acceptable limits, especially when dealing with public data sharing and excessive 
+## why should you plan for failure
+- untraceable: You should plan for failure to ensure that your systems can handle unexpected issues and maintain performance.
+- untraceable: As everything fails given enough time  , you need to design your systems to recover from failures.
+- untraceable: This includes considering reliability, availability, recovery time objective (RTO), and recovery point objective (RPO)  .
+- untraceable: Additionally, planning for failure helps in creating scalable systems that can dynamically adjust to handle varying workloads, ensuring that your services remai
+- untraceable: Having an escape plan for technology lock-in also provides flexibility and a way out if things go wrong  .
+## loosely coupled systems
+- untraceable: Loosely coupled systems are characterized by several properties.
+- untraceable: As a result, internal changes to a system component do not require changes in other parts  .
+- untraceable: Additionally, loosely coupled systems enable teams to rapidly evolve and improve their components independently of other teams  .
+- untraceable: Not in this book.
+## what is the modern data stack
+- untraceable: The modern data stack (MDS) is a trendy analytics architecture that aims to reduce complexity and increase modularization by using cloud-based, plug-and-play, a
+- untraceable: It is designed to be self-service, agile, and use open source or simple proprietary tools with clear pricing structures  .
+- untraceable: The MDS is evolving and may be replaced by the live data stack, which integrates real-time analytics and machine learning into applications  .
+## architecting for iot
+- untraceable: Architecting for IoT involves several key principles and concepts.
+- untraceable: First, it is important to understand that IoT architecture is complex and less familiar to many data engineers  .
+- untraceable: An IoT gateway acts as a hub for connecting devices and securely routing them to appropriate destinations on the internet  .
+- untraceable: Additionally, the principle of "Always Be Architecting" is crucial, as it emphasizes constant design and adaptation in response to changes  .
+- untraceable: This principle, borrowed from Google Cloud’s Five Principles for Cloud-Native Architecture, highlights that data architects should maintain a target architectur
+## MAD data landscape
+- untraceable: The MAD data landscape is complex and dynamic, with many technologies rising and falling in popularity  .
+- untraceable: Technologies like Hive, which were once popular, have declined as newer, improved technologies like Presto emerged  .
+- untraceable: This landscape is characterized by the rapid adoption and subsequent decline of technologies, making it challenging to predict which will succeed  .
+- untraceable: The data mesh, a recent response to monolithic data platforms, aims to decentralize data ownership and architecture, but it is not directly related to the MAD l
+- untraceable: The MAD landscape includes machine learning (ML) as one of its components, which has seen significant growth and integration with data engineering  .
+- untraceable: Not in this book.
+## multicloud disadvantages
+- untraceable: Multicloud disadvantages include increased complexity, data egress costs, and networking bottlenecks  .
+- untraceable: Companies must manage a variety of services across multiple clouds, and cross-cloud integration and security present significant challenges  .
+## multiclould disadvantages
+- untraceable: Multicloud has several disadvantages.
+## what is total cost of ownership
+- untraceable: Direct costs can be directly attributed to the initiative, such as salaries and AWS bills  .
+- untraceable: TCO also considers how the costs are accounted for, distinguishing between capital expenses (capex) and operational expenses (opex)  .
+- untraceable: Capex requires an up-front investment, while opex is gradual and spread out over time, often allowing for more flexibility and quicker iteration  .
+- untraceable: Cloud-based services enable pay-as-you-go models, making opex a preferred approach for data engineers  .
+## caveat emptor
+- untraceable: Caveat emptor is a Latin phrase meaning "let the buyer beware."
+## immutable vs transitory technologies
+- untraceable: Immutable technologies, such as object storage and certain programming languages, are those that are likely to stay relevant for a long time, benefiting from th
+- untraceable: Transitory technologies, on the other hand, come and go quickly, often following a trajectory of hype, rapid growth, and eventual decline  .
+- untraceable: Examples of transitory technologies include various JavaScript frontend frameworks that have emerged and faded over the years  .
+## serverless
+- untraceable: It is popular due to cost and convenience, as you only pay when your code is evoked  .
+- untraceable: Serverless has various flavors, such as function as a service (FaaS), and systems like Google Cloud’s BigQuery, which are serverless in nature  .
+- untraceable: Serverless works best for simple, discrete tasks and workloads, and it’s not as suitable for applications with many moving parts or high compute requirements  .
+- untraceable: The payment model for serverless is based on consumption and storage, making it more cost-effective for applications that process data infrequently  .
+- untraceable: However, serverless functions can be expensive when handling a high event rate, and they lack complete operating system abstractions, limiting the runtime image
+## containers
+- untraceable: Containers are lightweight virtual machines that package an isolated user space, such as a filesystem and a few processes, allowing many containers to coexist o
+- untraceable: Containers are used in serverless environments and with Kubernetes, a container management system  .
+- untraceable: Container clusters, however, do not offer the same security and isolation as full VMs, and container escape is a risk for multitenancy  .
+- untraceable: Various container platforms add serverless features, running containers as ephemeral units triggered by events  .
+## data engineers need to be pragmatic about what
+- untraceable: This means recognizing the rapid changes in the data landscape and being open to trying new technologies without investing heavily in long-term hardware that ma
+## what is acid in database terms
+- untraceable: In database terms, acid refers to a set of properties that guarantee the reliability of transactions.
+- untraceable: Specifically, acid stands for atomicity, consistency, isolation, and durability  .
+- untraceable: Atomicity ensures that transactions are treated as a single indivisible unit of work.
+- untraceable: Consistency ensures that transactions move the database from one valid state to another.
+- untraceable: Isolation ensures that concurrent transactions do not interfere with each other.
+- untraceable: Durability ensures that once a transaction is committed, it will remain so, even in the event of a failure  .
+## what is change data capture
+- untraceable: CDC involves ingesting changes from a source database system, such as a PostgreSQL database, for analytics purposes  .
+- untraceable: The handling of CDC can vary depending on the database technology, with relational databases often generating an event log stored directly on the database serve
+## types of nosql databases
+- untraceable: NoSQL databases include several types, such as key-value, document, wide-column, graph, search, and time series databases.
+- untraceable: These types are chosen because they are widely popular and suitable for various use cases.
+- untraceable: Key-value databases retrieve records using a unique key, offering both temporary and durable storage options.
+## what is a key-value store
+- untraceable: Key-value stores are scalable and can be used for various applications, from caching session data for web and mobile apps to storing and updating large amounts 
+- untraceable: Object stores, a type of key-value store, are used for immutable data objects, where data can only be written once and must be rewritten if changes are needed  
+- untraceable: In object stores, objects are referenced by keys, and a bucket acts as a top-level logical container  .
+- untraceable: Document stores, another type of key-value store, store nested objects as documents, which can be thought of as JSON objects, and are retrieved by key  .
+## graph databases
+- untraceable: They are particularly suited for scenarios where understanding complex traversals between elements is crucial, such as in social media contexts  .
+- untraceable: Unlike document stores, graph databases are optimized for queries based on connectivity between elements  .
+- untraceable: They support rich data models for both nodes and edges and utilize specialized query languages like SPARQL, RDF, GQL, and Cypher  .
+- untraceable: Graph databases can reveal deep insights into human interactions and behavior, making them valuable for data science and machine learning applications  .
+## advantages of insert-only tables
+- untraceable: Advantages of insert-only tables include maintaining a current view of data by inserting new records without changing or deleting old records  .
+- untraceable: This approach can be useful for applications needing access to history, as it retains history directly in the table  .
+- untraceable: Additionally, it works well for applications like banking where presenting historical data is important  .
+## what is data sharing between organizations
+- untraceable: Data sharing between organizations allows for the exchange of specific data and permissions, facilitating collaboration and serving as a security and access con
+- untraceable: It can be managed through cloud multitenant environments, making interorganizational collaboration easier while presenting new security challenges  .
+- untraceable: Data sharing can also be part of a data marketplace, where data providers can advertise and sell their offerings  .
+## database logs
+- untraceable: Database logs are essential for database recoverability and are typically stored as binary files in a specific database-native format  .
+- untraceable: They are crucial for ensuring that even if a server fails, it can recover its state on reboot by completing unfinished work from the logs  .
+- untraceable: Not in this book.
+## wide-column databases
+- untraceable: These databases support rapid scans of large datasets but lack support for complex queries, requiring data extraction to secondary analytics systems for such ta
+- untraceable: Adding a field in a wide-column database is initially a change to metadata, with new files added as data is written into the new field  .
+- untraceable: Wide tables can have thousands of columns, are usually sparse, and are beneficial for analytics queries due to the absence of joins  .
+- untraceable: Wide denormalized tables are a form of schema evolution where fields are gradually added over time, offering advantages in storage and query performance  .
+## what is object storage
+- untraceable: Object storage is a type of storage designed for unstructured data, including files, images, videos, and audio  .
+- untraceable: It is a key-value store for immutable data objects, where objects are written once as a stream of bytes and cannot be changed or appended to without rewriting t
+- untraceable: Object storage is ideal for high-volume web traffic and delivering data to distributed query engines  .
+- untraceable: It is multitenant and scalable, making it suitable for data lakes and cloud data warehouses  .
+- untraceable: Object storage is often referred to as a "serverless" service, as engineers do not need to manage the underlying hardware  .
+## what is block storage
+- untraceable: In cloud environments, virtualized block storage is the standard for VMs, offering high random access performance  .
+- untraceable: Block storage applications include transactional database systems and operating system boot disks on cloud VMs  .
+- untraceable: Cloud virtualized block storage, such as Amazon Elastic Block Store (EBS), provides virtualized block storage devices over a network, offering fine-grained stor
+- untraceable: EBS volumes can be highly scalable, with some classes capable of up to 64 TiB, 256,000 IOPS, and 4,000 MiB/s  .
+## what is a data lake
+- untraceable: A data lake is a massive store where data is retained in raw, unprocessed form, initially built primarily on Hadoop systems but later migrated to cloud object s
+- untraceable: It was intended to be a democratizing force, liberating businesses to access a vast amount of data, but faced challenges with data management, schema, and delet
+## what is a data warehouse
+- untraceable: It focuses on a specific subject area, consolidates and normalizes data from disparate sources, and stores data that remains unchanged after storage  .
+- untraceable: Traditionally, data is extracted, transformed, and loaded into the data warehouse using ETL processes  .
+- untraceable: Cloud data warehouses are also a form of data warehouse, often used to organize data into a data lake  .
+## what is a data lakehouse
+- untraceable: These features include robust table and schema support, managing incremental updates and deletes, and supporting table history and rollback  .
+- untraceable: It supports ACID transactions and can handle both structured and unstructured data  .
+## hot warm cold data
+- untraceable: Hot, warm, and cold data are categorized based on their access frequency.
+- untraceable: Hot data   is most frequently accessed, often retrieved many times per day or even several times per second, and is stored for fast retrieval.
+- untraceable: Warm data   is accessed semi-regularly, such as once per month, and is cheaper to store than hot data but more expensive to retrieve.
+- untraceable: Cold data   is infrequently accessed, suitable for long-term archival, and is the cheapest to store but more expensive to retrieve.
+## how does separation of compute and storage help
+- untraceable: Separation of compute and storage can help in several ways.
+- untraceable: First, it allows for more flexibility in scaling and managing resources independently, as data storage can be optimized for long-term retention while compute re
+- untraceable: Additionally, separating compute and storage can lead to cost savings, as storage can be provisioned based on actual data needs, potentially reducing the amount
+- untraceable: This separation also enables the use of different storage technologies optimized for specific use cases, enhancing overall performance and efficiency  .
+## what is data retention
+- untraceable: Data retention is the practice of determining how long data should be kept before it can be discarded.
+- untraceable: It involves considering the importance of the data to downstream users and the frequency of its access  .
+- untraceable: Data retention policies are crucial in managing data storage costs and ensuring compliance with privacy and data retention laws such as GDPR and CCPA  .
+- untraceable: The decision on how long to retain data is influenced by factors like storage costs and the need to respect users' rights to have their data forgotten  .
+- untraceable: also notes that data retention can be managed through automatic data lifecycle management practices, moving data to cold storage or deleting it if it's no longe
+## what is a data catalog
+- untraceable: Data catalogs provide a central place for people to view their data, queries, and data storage  .
+## data ingestion is the process of doing what
+- untraceable: This involves taking data from source systems and moving it into storage, often as an intermediate step in the data engineering lifecycle.
+## etl vs elt
+- untraceable: ETL and ELT are two methods of data processing.
+- untraceable: ETL involves extracting data from a source, transforming it, and then loading it into a target system, typically a data warehouse.
+- untraceable: ELT, on the other hand, extracts data from a source and loads it into a data warehouse or data lake in its raw form, with the transformation happening later in 
+- untraceable: Both methods are used in data pipelines, but the choice between them can depend on the specific needs of the organization.
+## what is a message queue
+- untraceable: A message queue is a mechanism for asynchronously sending data between systems using a publish and subscribe model  .
+- untraceable: It allows applications and systems to be decoupled, making them useful in microservices architectures  .
+- untraceable: Message queues buffer messages to handle load spikes and ensure message durability through a distributed architecture with replication  .
+- untraceable: They are critical for decoupled microservices and event-driven architectures, and considerations include frequency of delivery, message ordering, and scalabilit
+## what is an event-streaming platform
+- untraceable: An event-streaming platform is a system used to ingest and process data in an ordered log of records, retaining data for a while and allowing messages to be rep
+- untraceable: It differs from a message queue in that it is used for real-time analytics and can be used in the ingestion and transformation stage  .
+- untraceable: These platforms can be used as source systems and for message passing in event-driven applications  .
+- untraceable: In an event-streaming platform, producers stream events to a topic, which can have multiple producers and consumers  .
+## kafka
+- untraceable: Kafka is a highly scalable message queue and framework for streaming/real-time analytics, which emerged in the early to mid-2010s  .
+- untraceable: Kafka can be configured for a maximum message size of up to 20 MB  .
+- untraceable: In the Kappa architecture, Kafka is used as a streaming storage system for retrieving and querying historical data  .
+## bounded vs unbounded data
+- untraceable: Bounded data is data that has been organized or segmented into discrete units, such as a list of grocery items  .
+- untraceable: Unbounded data, on the other hand, refers to data that flows continuously and is not confined to a specific boundary, like real-time event streams  .
+- untraceable: In the context of data processing, bounded data can be thought of as data batches, while unbounded data represents ongoing real-time event streams  .
+- untraceable: Real-time and batch processing can use nearly identical code in the Dataflow model, treating both as event streams, with the key difference being the boundednes
+## push vs pull ingestion
+- untraceable: In the push model, a source system writes data directly to a target, as seen in streaming ingestion where data is pushed to an endpoint  .
+- untraceable: In contrast, the pull model involves a target system retrieving data from a source, exemplified by ETL processes that query a source database for changed rows  
+- untraceable: The lines between these paradigms can be blurry, and both models can be used in various data ingestion scenarios  .
+## what is a direct database connection
+- untraceable: A direct database connection involves querying and reading data from a database over a network connection, typically using standards like ODBC or JDBC  .
+- untraceable: ODBC and JDBC act as translation layers between the client application and the database, allowing data to be pulled for ingestion  .
+- untraceable: JDBC, in particular, provides database driver portability across different JVM languages and frameworks  .
+- untraceable: These connections can be used to ingest data from relational databases, with various enhancements like parallel connections to speed up the process  .
+- untraceable: However, using parallel connections can increase the load on the source database  .
+## why does replay matter for event streams
+- untraceable: Replay is crucial for event streams because it allows readers to request a range of messages from the history, enabling the reprocessing of data for a specific 
+- untraceable: This capability is particularly useful in event-streaming platforms where data is retained for a while and can be replayed from a past point in time  .
+## what is a data migration
+- untraceable: It is crucial to consider schema management, as subtle differences between database systems can cause issues  .
+- untraceable: For massive data sizes, physical transfer appliances like Snowmobile can be used to move data more efficiently than over the internet  .
+## stream-to-batch architecture
+- untraceable: The stream-to-batch architecture, similar to the Lambda architecture, processes data from a streaming storage system in both real-time and batch modes.
+- untraceable: Data is written to multiple consumers, including real-time processing systems and batch storage consumers like AWS Kinesis Firehose or BigQuery  .
+- untraceable: This architecture supports seamless querying of both streaming and batch data, providing a current, nearly real-time view of the data  .
+## how do you detect upstream and downstream schema changes
+- untraceable: Specifically, you should run data-quality tests on the input and transformed datasets to ensure the data meets expectations  .
+- untraceable: Automation can help detect schema changes, such as adding a new column or changing a column type, but communication is crucial to avoid breaking downstream pipe
+## what is normalization
+- untraceable: It typically involves applying normal forms, such as 1NF, 2NF, and 3NF, to ensure that each column contains a single value, and that no partial or transitive de
+- untraceable: The goal is to free the database from undesirable insertion, update, and deletion dependencies, reduce the need for restructuring, make the model more informati
+- untraceable: The degree of normalization depends on the use case, and while denormalization can offer performance advantages, normalization is generally preferred  .
+## normailzation
+- untraceable: It was introduced by Edgar Codd in the early 1970s and involves applying normal forms to achieve different levels of normalization.
+- untraceable: The first three normal forms are:  1.
+- untraceable: First Normal Form (1NF): Each column is unique and has a single value, with a unique primary key.
+- untraceable: Second Normal Form (2NF): Removes partial dependencies and ensures that each non-key column is fully functionally dependent on the primary key.
+- untraceable: Third Normal Form (3NF): Removes transitive dependencies, ensuring that each non-key column is not dependent on another non-key column.
+- untraceable: The degree of normalization depends on the use case, and while a database is usually considered normalized if it’s in third normal form, denormalization can be 
+## what is denormalization
+- untraceable: Denormalization is a practice in database design that involves reducing the benefits of normalization to improve performance, especially in scenarios where data
+- untraceable: It can be seen as the opposite of normalization, where data is repeated across multiple tables to avoid complex joins and improve query performance  .
+## types of joins
+- untraceable: The types of joins mentioned in the passages include inner, outer, left, and cross joins  .
+- untraceable: Additionally, the passages discuss broadcast joins and shuffle hash joins, which are specific to distributed environments.
+- untraceable: Broadcast joins are typically used when one table is small enough to fit on a single node, while shuffle hash joins are used when neither table fits on a single
+## what is a query optimizer
+- untraceable: A query optimizer is a component that helps in optimizing query performance and minimizing costs by breaking the query into efficient steps.
+- untraceable: Its job is to determine the most efficient way to execute a query, considering factors like joins, indexes, and data scan size  .
+- untraceable: Understanding the functionality of a query optimizer can help in writing more performant queries, although you won't directly work with it  .
+## types of windows in stream processing
+- untraceable: The types of windows in stream processing include session, fixed-time, and sliding windows.
+- untraceable: A fixed-time window processes all data from a fixed time period, such as every 20 seconds.
+## what is a materialized view
+- untraceable: A materialized view is a database object that precomputes and stores the results of a query, allowing for faster query execution  .
+- untraceable: Unlike nonmaterialized views, which require the query to be run every time a user queries the view, a materialized view saves the results of the query in a tabl
+- untraceable: This precomputed data can be queried directly, providing faster response times  .
+- untraceable: Additionally, materialized views can serve as a query optimization tool, even for queries that do not directly reference them  .
+- untraceable: They can be updated automatically when the source data changes, offering a balance between the performance benefits of a native table and the flexibility of a v
+## what is a star schema
+- untraceable: A star schema is a data model that consists of a fact table surrounded by necessary dimensions, which speeds up query performance and is easier for business use
+- untraceable: The fact table in a star schema contains factual, quantitative, and event-related data and is append-only  .
+- untraceable: Star schemas can have multiple schemas addressing different facts of the business, and dimensions that are reused across multiple schemas are called conformed d
+## what is a fact table
+- untraceable: It is immutable and append-only, with data typically represented as numbers  .
+- untraceable: Fact tables are narrow and long, meaning they have few columns but many rows representing events  .
+- untraceable: Each row in a fact table represents the grain of the data, and fact tables do not reference other fact tables but only dimensions  .
+## what is a dimension table
+- untraceable: These tables are typically smaller and have a wide and short shape, as opposed to the narrow and long shape of fact tables  .
+- untraceable: Dimension tables can include fields such as date, customer information, and other attributes that describe the events  .
+- untraceable: For example, a date dimension table might include fields like DateKey, Date-ISO, Year, Quarter, Month, and Day-of-week  .
+- untraceable: Additionally, dimension tables can include slowly changing dimensions, such as a Type 2 SCD, which tracks changes in the dimension records by inserting new reco
+## what is data vault modeling
+- untraceable: Hubs store business keys, links maintain relationships among business keys, and satellites represent a business key’s attributes and context  .
+- untraceable: Unlike Kimball and Inmon approaches, Data Vault does not represent business logic in facts or highly normalized tables; instead, it loads data directly into a h
+## kimball is on the opposite end of the data modeling spectrum from who
+- untraceable: kimball is on the opposite end of the data modeling spectrum from Inmon  .
+## under the hood, batch processing is what
+- untraceable: Batch processing remains a popular way to ingest data for downstream consumption, especially in analytics and machine learning  .
+## data wrangling
+- untraceable: Data wrangling is the process of transforming messy, malformed data into clean, useful data  .
+- untraceable: It often involves steps like dealing with mistyped data, splitting text fields, and joining with lookup tables  .
+- untraceable: This process can be time-consuming, but data wrangling tools can help automate some of these tasks  .
+- untraceable: Over time, data wrangling helps identify anomalies and edge cases, preparing data for downstream transformation  .
+- untraceable: Tools for data wrangling are designed to simplify this process, allowing data engineers to focus on more interesting tasks  .
+## how does micro-batch differ from true streaming
+- untraceable: Micro-batch differs from true streaming in how they handle data processing.
+- untraceable: Micro-batch processes data in small batches, typically ranging from every two minutes to every second, whereas true streaming processes data one event at a time
+- untraceable: Micro-batch can be more efficient in terms of resource allocation and performance when dealing with high-frequency data, as seen in Spark Streaming  .
+- untraceable: True streaming, on the other hand, is designed for low-latency processing but comes with higher overhead  .
+- untraceable: The choice between the two depends on the specific use case, such as the acceptable latency and the frequency of data processing  .
+## slowly changing dimensions
+- untraceable: In the example provided, when Matt Housley changed his zip code, a new record was created to reflect the change, while the old record was marked with an end dat
+- untraceable: There are three common types of SCDs: Type 1, Type 2, and Type 3.
+- untraceable: Type 2 SCDs involve inserting a new record when an existing record changes, while Type 3 SCDs create new fields to record the change  .
+- untraceable: Not in this book.
+## what is reverse etl
+- untraceable: Reverse ETL is a process that involves loading processed data from an OLAP database back into a source system, such as a CRM.
+- untraceable: This practice is increasingly recognized as a formal data engineering responsibility, especially as businesses rely more on SaaS and external platforms  .
+- untraceable: While the term may evolve, the practice of loading data from OLAP systems back into source systems is expected to remain important  .
+- untraceable: Reverse ETL can be used to reduce friction with end users, such as a sales team, by directly updating their systems with relevant data  .
+- untraceable: However, reverse ETL can create feedback loops, so it's important to implement monitoring and guardrails to prevent issues like excessive spending on ads  .
+## what is a feature store
+- untraceable: It maintains feature history and versions, supports feature sharing among teams, and provides basic operational and orchestration capabilities, such as backfill
+## what is business intelligence
+- untraceable: As a company grows, it moves from ad hoc data analysis to self-service analytics, allowing business users to access and analyze data themselves.
+## what is embedded analytics
+- untraceable: Embedded analytics refers to analytics dashboards embedded within applications, allowing end-users to make real-time decisions based on data  .
+- untraceable: These applications can range from a smart thermostat showing real-time temperature and power consumption metrics to a third-party ecommerce platform providing s
+- untraceable: The key characteristics of embedded analytics include low data latency, fast query performance, and high concurrency to support multiple dashboards and customer
+- untraceable: As the demand for such applications grows, they face unique challenges, such as managing high query rates and ensuring tenant-level security to prevent data lea
+## what is query federation
+- untraceable: Query federation is a technique that allows an OLAP database to select data from external sources, such as object storage or relational databases  .
+- untraceable: It enables ad hoc queries for analyzing data from various systems without setting up complex data pipelines or ETL processes  .
+- untraceable: Federated queries can be used when flexibility in data analysis is needed, and when source data access needs to be tightly controlled  .
+- untraceable: This approach can also provide read-only access to source systems, ensuring that users only access the data they are supposed to  .
+- untraceable: Federated queries can be implemented using distributed query virtualization engines like Trino, Presto, or Starburst  .
+- untraceable: Some OLAP systems can convert federated queries into materialized views, which can offer performance similar to native tables without the need for manual data i
+## how do data scientists use notebooks
+- untraceable: Data scientists use notebooks for various tasks, such as exploring data, engineering features, and training models  .
+- untraceable: They programmatically connect to data sources like APIs, databases, or data lakes using appropriate libraries  .
+- untraceable: Notebooks can be hosted locally or in the cloud, with cloud-based notebooks offering scalable storage and memory  .
+- untraceable: When working with large datasets, data scientists might use distributed execution systems like Dask, Ray, or Spark  .
+- untraceable: Notably, Jupyter Notebook and JupyterLab are popular choices for data scientists  .
+## ways to serve data to consumers
+- untraceable: These methods allow data engineers to provide the necessary data to data scientists and ML engineers for their work  .
+- untraceable: Data sharing, in particular, is a common approach where datasets are shared in a read-only fashion, enabling integration with other data but not granting owners
+## why do data definitions matter when serving data
+- untraceable: Data definitions matter when serving data because they ensure the correctness and trustworthiness of the data  .
+- untraceable: Proper data definitions and logic are crucial for computing metrics accurately, such as gross sales or customer churn  .
+- untraceable: Without clear and consistent definitions, the meaning of data can vary across departments, leading to potential misunderstandings and errors  .
+- untraceable: Therefore, data definitions and logic must be baked into the data throughout its lifecycle to ensure its utility and reliability  .
+## olap vs oltp
+- untraceable: OLAP and OLTP serve different purposes.
+- untraceable: OLTP systems are designed for transactional workloads, handling high rates of read and write operations on individual records  .
+- untraceable: In contrast, OLAP systems are built for running large analytics queries, often involving scanning large volumes of data  .
+- untraceable: OLAP systems are less efficient for individual record lookups  .
+- untraceable: Both types of systems are important in data management, with OLTP supporting real-time transactions and OLAP enabling scalable analytics  .
+## what is a data product
+- untraceable: It is not created in a vacuum but involves a mix of product and business alongside technology, requiring the involvement of key stakeholders such as data analys
+- untraceable: A good data product should have positive feedback loops, where more usage generates more useful data to improve the product  .
+- untraceable: It is important to understand the user's motivation and the outcomes expected by them  .
+- untraceable: Data products are built around sound business logic and metrics, serving either internal or external users, and their success depends on user adoption and trust
+## what is the principle of least privilege
+- untraceable: This principle applies to both humans and machines, ensuring that they are provided with only the necessary access and permissions for their job, and only for t
+- untraceable: It is crucial for privacy as well, ensuring that sensitive data is accessed only when necessary  .
+## what is zero trust
+- untraceable: Zero-trust security is a security model that does not assume any internal network is secure or trustworthy  .
+- untraceable: It requires that all assets, whether inside or outside the network, be treated as untrusted and must be authenticated and authorized before accessing resources 
+- untraceable: This approach is more aligned with cloud-native environments where the notion of a hardened perimeter is less applicable due to the interconnected nature of clo
+## how does encryption at rest differ from encryption in motion
+- untraceable: Encryption at rest protects data when it is stored, such as on a storage device, server, or backup  .
+- untraceable: Encryption in motion, or "encryption over the wire," protects data during transmission between locations  .
+- untraceable: emphasizes that full-disk encryption and server-side encryption are essential for data at rest, while   stresses the importance of encrypting data during transi
+## what is tokenization
+- untraceable: Tokenization is a process used to anonymize sensitive identities in model training and analytics, particularly when it is necessary to keep track of sensitive i
+## hashing vs encryption
+- untraceable: Encryption and hashing serve different purposes.
+- untraceable: Encryption is used to protect data in transit and at rest, ensuring that only authorized parties can access the data.
+- untraceable: It is a security measure that transforms data into a secure format that can only be accessed with the correct decryption key.
+- untraceable: On the other hand, hashing is a one-way function that converts data into a fixed-size string of characters, which is not reversible.
+- untraceable: Hashing is used to verify the integrity of data and to securely store passwords, as it does not reveal the original data.
+## what is data masking
+- untraceable: Data masking is a technique used to protect sensitive data by scrambling or obfuscating the data in a way that allows for the necessary analysis while making it
+- untraceable: This method is part of a broader set of data security measures that also includes encryption, tokenization, and access controls  .
+## what is shared responsibility in the cloud
+- untraceable: Shared responsibility in the cloud refers to the division of security responsibilities between the cloud provider and the user.
+- untraceable: According to the shared responsibility model, AWS is responsible for the security of the cloud infrastructure, including the hardware and the underlying systems
+- untraceable: This model applies to most cloud providers, where they secure their services according to published specifications, but the user is ultimately responsible for d
+## what does it mean to always be paranoid about security
+- untraceable: Always being paranoid about security means maintaining a cautious and vigilant mindset, especially when it comes to protecting sensitive credentials and informa
+- untraceable: You should always assume that someone, whether a bot or a human, is trying to infiltrate your data  .
+- untraceable: This involves exercising extreme caution when asked for credentials, and never providing them without getting second opinions and confirming the legitimacy of t
+- untraceable: It also means being the first line of defense for privacy and ethics, raising concerns about sensitive data and ethical handling of information  .
+## what is pii
+- untraceable: PII, or personally identifiable information, is a type of sensitive information that data engineers need to mask in datasets to ensure privacy  .
+- untraceable: Not in this book.
+## what is the live data stack
+- untraceable: The live data stack is a next-generation technology that integrates real-time analytics and machine learning into applications, leveraging streaming technologie
+- untraceable: It covers the entire data lifecycle, from application source systems to data processing and back, and aims to make real-time data application technologies acces
+- untraceable: This stack is seen as a successor to the modern data stack (MDS) and represents a shift from data-warehouse-based analytics to real-time business and applicatio
+## why is the data engineering lifecycle not going away
+- untraceable: Additionally, the data engineering lifecycle provides a framework for organizing the work of data engineering, covering stages like generation, storage, ingesti
+- untraceable: This lifecycle ensures that data engineers can think and act on a higher level, producing optimum ROI and reducing costs, security risks, and maximizing data va
+## how are data and applications fusing
+- untraceable: Data and applications are increasingly being integrated in a way that they can work more closely together.
+- untraceable: In  , it is mentioned that applications and ML are currently disjointed systems, but the future trend is towards a fusion where applications will integrate real
+- untraceable: This integration will shorten the time between stages of the data engineering lifecycle, making the process more efficient.
+- untraceable: Additionally,   states that as data feedback loops become shorter, most applications are expected to integrate ML, creating a cycle of ever-smarter applications
+## what comes after the modern data stack
+- untraceable: The live data stack comes after the modern data stack  .
+- untraceable: The live data stack integrates real-time analytics and machine learning into applications, using streaming technologies to cover the full data lifecycle from so
+- untraceable: This shift is seen as the next step beyond the modern data stack, which is focused on cloud-based, modular, and cost-effective data architectures  .
+## how will data engineering titles change
+- untraceable: Data engineering titles will change as the roles between software engineering, data engineering, data science, and ML engineering become more blurred.
+- untraceable: Data engineers will move up the value chain, focusing on higher-level tasks, while software engineers will acquire data engineering skills.
+- untraceable: New roles may emerge, such as a hybrid role between ML engineering and data engineering.
+- untraceable: Not in this book.
+## streaming pipelines and real-time analytics
+- untraceable: Streaming pipelines and real-time analytical databases are key technologies facilitating the transition from batch processing to live data stacks.
+- untraceable: They enable fast ingestion and subsecond queries, allowing for continuous data flow and real-time analytics.
+- untraceable: As streaming technologies mature, batch ingestion is becoming less common, with streaming transformation becoming the norm.
+- untraceable: New data-modeling techniques will emerge, focusing on the systems generating data rather than traditional data warehouses.
+- untraceable: Streaming analytics are increasingly important for serving data, including emitted metrics and operational analytics databases that combine OLAP and stream-proc
+## what is the cloud-scale data os
+- untraceable: The cloud-scale data OS is an operating system-like abstraction for managing data services at a much larger scale than traditional operating systems, running ac
+- untraceable: It aims to improve interoperability and simplify data engineering tasks, much like how modern operating systems provide essential services to applications  .
+- untraceable: This includes standardized data APIs, metadata catalogs, and improved orchestration tools for managing and monitoring data services  .
+- untraceable: The cloud-scale data OS will enhance the ability to build and manage data pipelines and applications more efficiently, similar to how modern mobile operating sy

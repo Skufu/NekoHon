@@ -1,0 +1,66 @@
+# groundedness — battery — 21 asks — model qwen2.5:7b
+# answered: 21 | refused: 0 | sentences: 58 | supported: 12 (20.7%) | mean coverage: 0.289 | fake quote spans: 0
+
+## What does CRUD stand for?
+- untraceable: This pattern represents the four basic operations of persistent storage and is commonly used in programming and databases  .
+## What is data ingestion?
+- untraceable: This process is a crucial part of the data engineering lifecycle and involves designing data pipeline activities to ensure data flows consistently and securely 
+- untraceable: Data ingestion is different from internal data movement within a system, such as copying data from one table to another  .
+- untraceable: It is also distinct from data integration, which combines data from disparate sources into a new dataset  .
+- untraceable: In the context of data pipelines, ingestion is the stage where data engineers begin actively designing these activities  .
+## When is an insert-only table useful?
+- untraceable: An insert-only table is useful when maintaining a current view of data without deleting old records  .
+- untraceable: For instance, in a banking application, the insert-only pattern can be used to present customer address history  .
+- untraceable: Additionally, it can be beneficial in hybrid architectures like the enhanced Lambda architecture used by BigQuery and Apache Druid, where deletes and in-place u
+## Where does storage sit in the data engineering lifecycle?
+- untraceable: Storage sits at the foundation of the data engineering lifecycle, underpinning its major stages—ingestion, transformation, and serving  .
+- untraceable: It is a continuous process that occurs throughout the lifecycle, not just a single stage  .
+- untraceable: The storage stage involves storing data from source systems to serve it for analytics, data science, and other purposes  .
+- untraceable: Knowing the use case and retrieval method is crucial for choosing the right storage solutions  .
+## What do source systems provide to the rest of the lifecycle?
+- untraceable: Source systems provide data to the rest of the data engineering lifecycle.
+- untraceable: They generate data in various ways, such as through traditional application databases or modern IoT swarms  .
+- untraceable: Data engineers need to understand the characteristics of these source systems, including how they generate data, the frequency and velocity of data, and the var
+- untraceable: The data from these systems is then ingested into the lifecycle, often representing significant bottlenecks due to their external control and potential unreliab
+## How does data architecture relate to enterprise architecture?
+- untraceable: This definition highlights that data architecture is integral to the broader context of enterprise architecture, contributing to its overall structure and funct
+## What is the difference between batch and streaming?
+- untraceable: Batch processing involves ingesting data in large chunks, typically on a predetermined time interval or when data reaches a preset size threshold, while streami
+- untraceable: The key difference lies in the timing and manner of data processing: batch is more suited for historical data analysis and less time-sensitive applications, whe
+## What happens to data after it is extracted in ETL?
+- untraceable: After data is extracted in ETL, it can either be transformed before being loaded into a storage destination, or it can be loaded into storage for future transfo
+## What do transformations do in the data engineering lifecycle?
+- untraceable: They ensure data is in a format suitable for reports, analysis, or machine learning  .
+- untraceable: Transformations can include basic tasks like mapping data into correct types and removing bad records, as well as more complex operations like schema transforma
+- untraceable: The goal is to add value and return on investment (ROI) to the business  .
+- untraceable: Transformations can be performed in batch or while streaming in flight, with streaming transformations becoming increasingly popular  .
+## What happens to data after it is extracted in ET?
+- untraceable: After data is extracted in the ETL process, it can either be transformed before being loaded into a storage destination, or it can be loaded into storage for fu
+## what does data engineers need to be pragmatic about
+- untraceable: They should be flexible in adopting new technologies and tools as the data landscape changes rapidly  .
+- untraceable: Additionally, they should be aware of the total cost of ownership, optimizing for time to value and avoiding unexpected costs  .
+## Data engineers need to be pragmatic about?
+- untraceable: Data engineers need to be pragmatic about flexibility and keeping pace with ongoing developments in the field.
+- untraceable: Flexibility is crucial because the data landscape changes rapidly, and investing in long-term hardware can hinder a data engineer's ability to try new technolog
+- untraceable: Additionally, data engineers should focus on the fundamentals while staying current with new technologies to understand what is likely to remain relevant  .
+- untraceable: This approach helps them avoid being overwhelmed by the constant introduction of new paradigms and practices  .
+## MAD data landscape
+- untraceable: The MAD data landscape refers to the complex and rapidly changing environment of technologies related to machine learning (ML), artificial intelligence (AI), an
+- untraceable: This landscape is characterized by the frequent emergence and subsequent decline of technologies, as seen with Hive and Presto  .
+- untraceable: The landscape is difficult to predict, with many technologies failing to gain long-term traction  .
+- untraceable: Not in this book.
+## multicloud methodology disadvantages
+- untraceable: Multicloud methodology has several disadvantages, including increased complexity and data egress costs.
+- untraceable: Companies must manage a variety of services across multiple clouds, which can introduce significant challenges in cross-cloud integration and security  .
+- untraceable: Additionally, multicloud networking can be particularly complicated  .
+## what is MAD data landscape
+- untraceable: The MAD data landscape refers to the complex and rapidly evolving technological environment surrounding data management and analytics.
+- untraceable: This landscape includes various technologies that are often adopted and then quickly replaced due to their success, as seen with Hive and Presto.
+## what is data mesh
+- untraceable: Data mesh is a recent approach to data architecture that addresses the challenges of centralized data platforms, such as data lakes and data warehouses.
+- untraceable: It decentralizes data ownership and management, with each domain team hosting and serving its own datasets in a domain-driven manner  .
+- untraceable: This approach changes how data is served within an organization, with domain teams taking on responsibilities for preparing data for consumption and running the
+## what is an endpoint in streaming ingestion
+- untraceable: An endpoint in streaming ingestion is where the data is pushed directly after it bypasses a backend database.
+- untraceable: This endpoint is typically part of an event-streaming platform, which is used to handle real-time data from sources like IoT sensors or web/mobile applications 
+- untraceable: The endpoint acts as the destination for the data, ensuring it is available to downstream systems in a continuous, real-time fashion  .

@@ -1,7 +1,9 @@
-"""Quote-first answers from retrieved passages. Phase 4. No new routes.
+"""Answers from retrieved passages. Phase 4 (ask) and the answer mode.
 
-The model quotes. This module checks the quote is in the passage.
-A failed check is a refusal. It is never a free answer.
+ask: the model quotes, the quote is checked; a failed check is a refusal.
+answer: the model writes freely from the passages; its [Ch. n] tags become
+citations, quotation marks the passages cannot back are stripped, and the
+quote check demotes from gate to meter (artifacts/groundedness.py).
 """
 
 import difflib
@@ -14,7 +16,7 @@ from captions import caption_seed
 from figures import figures_for
 from fusion import fuse
 from keywords import anchor_words, postings, rare
-from prompt import ANSWER_MODEL, REFUSAL, SYSTEM
+from prompt import ANSWER_MODEL, REFUSAL, SYSTEM, SYSTEM_ANSWER
 from readings import second_reading
 from retrieve import search
 
@@ -32,6 +34,12 @@ QUIZ_INSTRUCTION = (
     "Write one question a person could answer with a quote from the single "
     "passage below. Do not include that quote in the question. "
     "Do not start with [Ch. The question is one or two sentences."
+)
+TAG_PATTERN = re.compile(r"\[Ch\.\s*([^\]]+)\]")
+QUOTE_PATTERN = re.compile(r"[\"“]([^\"“”]+)[\"”]")
+ANSWER_REMINDER = (
+    "Answer the question directly, in your own words. Cite each claim with "
+    "[Ch. N] using the chapter of the passage it came from."
 )
 KEY_MIN_CHARS = 40
 SPAN_MIN_CHARS = 40
@@ -60,6 +68,15 @@ def user_message(question, passages):
         "Passages:\n"
         f"{passages_block(passages)}\n\n"
         f"{FORMAT_REMINDER}"
+    )
+
+
+def answer_user_message(question, passages):
+    return (
+        f"Question: {question}\n\n"
+        "Passages:\n"
+        f"{passages_block(passages)}\n\n"
+        f"{ANSWER_REMINDER}"
     )
 
 
@@ -423,25 +440,39 @@ def _refusal(passages, figures=None):
     }
 
 
-def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL):
+def retrieval_context(index, question, search_fn=None):
+    """The passages the model is shown, after reading, fusion, and seeding.
+
+    Shared by ask and respond so both modes see the same evidence; the
+    groundedness meter (artifacts/groundedness.py) calls this to compare an
+    answer against exactly the passages it was given.
+    """
     search_fn = search_fn or search
-    generate_fn = generate_fn or ollama_generate
     passages = search_fn(index, question, k=PASSAGE_LIMIT)
+    context = {
+        "question": question,
+        "asked": question,
+        "passages": passages,
+        "reading": None,
+        "word_map": {},
+    }
     if not passages:
-        return _refusal([])
+        return context
     word_map = postings(index)
+    context["word_map"] = word_map
     # A word the book does not contain may be a typo. One self-proving reading
     # becomes the question when it scores strictly better, and the answer says
     # which reading it answered. Nothing is repaired silently.
     reading = second_reading(index, question, passages[0]["score"], word_map=word_map)
-    asked = question
     if reading is not None:
-        asked = reading["reading"]
+        context["reading"] = reading
+        context["asked"] = reading["reading"]
         present = any(
             hit["chunk_id"] == reading["chunk"]["chunk_id"] for hit in passages
         )
         if not present:
             passages = [reading["chunk"]] + passages[:-1]
+    asked = context["asked"]
     # Fusion pays one embed plus a full cosine pass. The lexical channel joins
     # only when the question carries a rare book word, the trigger the boost
     # used; other asks do not pay.
@@ -449,15 +480,194 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL):
         passages = fuse(index, asked, passages, word_map)
     # Caption seeding runs last: its measured effect is which chunk leads, and
     # fusion would otherwise be free to demote that lead.
-    passages = caption_seed(index, asked, passages)
-    completion = generate_fn(SYSTEM, user_message(asked, passages), model)
-    anchors = anchor_words(question, word_map)
+    context["passages"] = caption_seed(index, asked, passages)
+    return context
+
+
+def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL):
+    generate_fn = generate_fn or ollama_generate
+    context = retrieval_context(index, question, search_fn)
+    passages = context["passages"]
+    if not passages:
+        return _refusal([])
+    completion = generate_fn(SYSTEM, user_message(context["asked"], passages), model)
+    anchors = anchor_words(question, context["word_map"])
     body = parse_completion(
         completion, passages, index.get("figures") or [], anchors
     )
-    if reading is not None and not body["refused"]:
-        body["answer"] = f'{body["answer"]}\nRead as: "{asked}"'
+    if context["reading"] is not None and not body["refused"]:
+        body["answer"] = f'{body["answer"]}\nRead as: "{context["asked"]}"'
     return body
+
+
+def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL):
+    """Free-generation answer from the retrieved passages.
+
+    No quote enforcement: the model writes, its [Ch. n] tags become the
+    citations, and quotation marks the passages cannot back are stripped
+    (see parse_answered). Groundedness is measured, not enforced.
+    """
+    generate_fn = generate_fn or ollama_generate
+    context = retrieval_context(index, question, search_fn)
+    passages = context["passages"]
+    if not passages:
+        return _refusal([])
+    completion = generate_fn(
+        SYSTEM_ANSWER, answer_user_message(context["asked"], passages), model
+    )
+    body = parse_answered(completion, passages, index.get("figures") or [])
+    if context["reading"] is not None and not body["refused"]:
+        body["answer"] = f'{body["answer"]}\nRead as: "{context["asked"]}"'
+    return body
+
+
+def _free_refusal(text):
+    """True when the model asked to refuse. The first line must be the exact
+    sentence; a refusal that keeps talking is still a refusal, never a free
+    answer."""
+    return (text or "").strip().split("\n", 1)[0].strip() == REFUSAL
+
+
+def _strip_fake_quotes(text, passages):
+    """Quotation marks around words no shown passage contains are dropped.
+
+    The words stay; the marks are a promise the answer cannot keep. A quote
+    that is in a shown passage keeps its marks.
+    """
+    def keep(match):
+        inner = match.group(1)
+        if any(_quote_in_passage(inner, hit.get("text") or "") for hit in passages):
+            return match.group(0)
+        return inner
+    return QUOTE_PATTERN.sub(keep, text)
+
+
+def _tokens(text):
+    """Word set for overlap scoring. Very short words carry little meaning."""
+    return {word for word in _punctuation_plain(text).split() if len(word) > 2}
+
+
+def _original_case(span, text):
+    """The span as it is written in the passage, case and all."""
+    flat = re.sub(r"\s+", " ", text or "")
+    match = re.search(re.escape(span), flat, re.I)
+    return match.group(0) if match else span
+
+
+def _sentence_claims(text):
+    """(claim, chapters) for every sentence carrying [Ch. tags.
+
+    Tags are masked before the sentence split: "Ch." holds a period and would
+    otherwise end a sentence inside the tag. Text accumulates until a tag
+    arrives, so a tag at the start of the next line still cites the sentence
+    before it, and a tags-only fragment merges into the previous claim.
+    """
+    masked = TAG_PATTERN.sub(lambda m: "\x01" + m.group(1) + "\x02", text)
+    claims = []
+    pending = ""
+    for part in re.split(r"(?<=[.!?])\s+", masked):
+        segments = []
+        cursor = 0
+        for match in re.finditer(r"\x01([^\x02]*)\x02", part):
+            segments.append(("text", part[cursor:match.start()]))
+            segments.append(("tag", match.group(1)))
+            cursor = match.end()
+        segments.append(("text", part[cursor:]))
+        for kind, value in segments:
+            if kind == "text":
+                pending = (pending + " " + value).strip()
+                continue
+            chapters = re.findall(r"\d+", value)
+            claim = re.sub(r"\s+", " ", pending).strip()
+            if claim:
+                claims.append([claim, chapters])
+                pending = ""
+            elif claims:
+                claims[-1][1].extend(chapters)
+    return claims
+
+
+def _best_passage(claim, chapters, passages):
+    """The shown passage the tagged sentence most likely used.
+
+    The chapter named in the tag first, word overlap deciding within it; when
+    the named chapter is not among the shown passages, the other passages get
+    one look. A zero-overlap claim gets no citation — never a guess.
+    """
+    tokens = _tokens(claim)
+    if not tokens:
+        return None
+    hints = set(chapters)
+    in_chapter = [hit for hit in passages if str(hit["chapter"]) in hints]
+    pools = [in_chapter, [hit for hit in passages if hit not in in_chapter]]
+    best, best_score = None, 0.0
+    for pool in pools:
+        for hit in pool:
+            overlap = len(tokens & _tokens(hit.get("text") or "")) / len(tokens)
+            if overlap > best_score:
+                best, best_score = hit, overlap
+        if best is not None:
+            break
+    return best if best_score > 0 else None
+
+
+def _evidence_quote(claim, hit):
+    """A passage sentence as the citation's quote.
+
+    The longest copied run when the model copied; else the passage sentence
+    with the most overlap with the claim; else the passage's opening line.
+    """
+    text = hit.get("text") or ""
+    span = longest_copied_span(claim, text)
+    if span:
+        return _original_case(span, text)
+    tokens = _tokens(claim)
+    best, best_score = "", 0.0
+    for sentence in _sentences(text):
+        sentence_tokens = _tokens(sentence)
+        if not sentence_tokens:
+            continue
+        overlap = len(tokens & sentence_tokens) / len(tokens)
+        if overlap > best_score:
+            best, best_score = sentence, overlap
+    if best:
+        return _without_heading(best, hit)
+    return _without_heading(re.sub(r"\s+", " ", text).strip(), hit)
+
+
+def parse_answered(completion, passages, figures=None):
+    """A free answer turned into the contract body.
+
+    The model's prose is kept as written, minus quotation marks the passages
+    cannot back. Citations come from the [Ch. n] tags: each tagged sentence
+    is matched to the shown passage of that chapter with the most word
+    overlap. A sentence that matches nothing is left uncited rather than
+    pinned to a guess, and a hallucination is a measurement, not a refusal.
+    """
+    text = (completion or "").strip()
+    if not text or _free_refusal(text):
+        return _refusal(passages, figures)
+    text = _strip_fake_quotes(text, passages)
+    citations = []
+    for claim, chapters in _sentence_claims(text):
+        hit = _best_passage(claim, chapters, passages)
+        if hit is None:
+            continue
+        if any(item["chunk_id"] == hit["chunk_id"] for item in citations):
+            continue
+        citations.append({
+            "chunk_id": hit["chunk_id"],
+            "chapter": str(hit["chapter"]),
+            "quote": _evidence_quote(claim, hit),
+        })
+    cited = {item["chunk_id"] for item in citations}
+    named = [hit for hit in passages if hit["chunk_id"] in cited]
+    return {
+        "answer": text,
+        "citations": citations,
+        "figures": figures_for(named, figures or []),
+        "refused": False,
+    }
 
 
 def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MODEL):

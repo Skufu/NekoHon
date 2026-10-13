@@ -1,12 +1,15 @@
 """Overnight QA sweep: run question sets through the live server (2026-10-13).
 
 Run: python artifacts/qa-sweep.py <label>   (server must be up on :8000)
+With SWEEP_MODE=answer the same questions run through the free-generation
+mode and coherence means the answer carries the question's rarest book word.
 Writes artifacts/qa-sweep-<label>.{json,log}. The question set: the authored
 set (qa-questions-overnight.json), what-is asks for the 120 rarest book words,
 and what-is asks for up to 60 distinct headings.
 """
 
 import json
+import os
 import re
 import sys
 import time
@@ -16,10 +19,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from answer import _rarest_word
 from keywords import RARE_DF, postings
 
 URL = "http://127.0.0.1:8000/ask"
+MODE = os.environ.get("SWEEP_MODE", "ask")
 label = sys.argv[1] if len(sys.argv) > 1 else "default"
 OUT = ROOT / "artifacts" / f"qa-sweep-{label}.json"
 LOG = ROOT / "artifacts" / f"qa-sweep-{label}.log"
@@ -67,12 +70,26 @@ for question in questions:
 print("questions:", len(unique))
 
 
+def rarest_word(question, word_map):
+    """The question's rarest book word: lowest document frequency, then
+    alphabetical. Empty when no question word is in the book. The answer is
+    coherent when it carries this word (answer mode) or the quote does (ask
+    mode)."""
+    words = set(re.findall(r"[a-z0-9]+", question.lower()))
+    candidates = [
+        (len(word_map[word]), word) for word in words if word_map.get(word)
+    ]
+    if not candidates:
+        return ""
+    return min(candidates)[1]
+
+
 def post(question, timeout=180):
     payload = json.dumps({
         "book_id": "fde",
         "question": question,
         "selection": None,
-        "mode": "ask",
+        "mode": MODE,
     }).encode("utf-8")
     request = urllib.request.Request(
         URL, data=payload, headers={"Content-Type": "application/json"}
@@ -89,12 +106,22 @@ for position, question in enumerate(unique, start=1):
     cite = body["citations"][0]["chunk_id"] if body["citations"] else "-"
     quote = body["citations"][0].get("quote", "") if body["citations"] else ""
     answer = body.get("answer") or ""
-    gloss = next((line for line in answer.splitlines()[1:] if line.strip()), "")
-    guard = _rarest_word(question, word_map)
-    coherent = (not guard) or (
-        not body["refused"]
-        and re.search(rf"\b{re.escape(guard)}\b", quote, re.I) is not None
-    )
+    guard = rarest_word(question, word_map)
+    if MODE == "ask":
+        gloss = next((line for line in answer.splitlines()[1:] if line.strip()), "")
+        coherent = (not guard) or (
+            not body["refused"]
+            and re.search(rf"\b{re.escape(guard)}\b", quote, re.I) is not None
+        )
+    else:
+        # answer mode: the free prose is what is measured; the question's
+        # rarest book word must appear in the answer, not in a quote. A free
+        # answer has no gloss line.
+        gloss = ""
+        coherent = (not guard) or (
+            not body["refused"]
+            and re.search(rf"\b{re.escape(guard)}\b", answer, re.I) is not None
+        )
     rows.append({
         "question": question,
         "refused": body["refused"],
@@ -110,13 +137,16 @@ for position, question in enumerate(unique, start=1):
 
 refused = [row for row in rows if row["refused"]]
 incoherent = [row for row in rows if not row["refused"] and not row["coherent"]]
-glossless = [row for row in rows if not row["refused"] and not row["gloss"]]
+glossless = [
+    row for row in rows
+    if MODE == "ask" and not row["refused"] and not row["gloss"]
+]
 
 lines = [
-    f"# qa sweep — {label} — {len(rows)} asks",
+    f"# qa sweep — {label} — {len(rows)} asks — mode {MODE}",
     f"# refused: {len(refused)} | incoherent: {len(incoherent)} | no gloss: {len(glossless)}",
     "",
-    "## incoherent (quote missing the question's rarest book word)",
+    "## incoherent (answer/quote missing the question's rarest book word)",
 ]
 for row in incoherent:
     lines.append(

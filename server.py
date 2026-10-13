@@ -1,7 +1,9 @@
 """ask-this-book engine. stdlib only; the route shape is locked in README.md.
 
 POST /ask in mode "ask" retrieves from the nomic index and checks the quote.
-explain and quiz are live since Phase 6 and use the same index. No new routes.
+Mode "answer" is free generation from the same passages with a measured
+quote check (artifacts/groundedness.py), not an enforced one. explain and
+quiz are live since Phase 6 and use the same index. No new routes.
 """
 
 import json
@@ -10,14 +12,14 @@ import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from answer import ask, explain, quiz
+from answer import ask, explain, quiz, respond
 from figures import figure_file
 from retrieve import INDEX, load_index
 
 HOST = "127.0.0.1"
 PORT = 8000
 OLLAMA_URL = "http://127.0.0.1:11434/"
-MODES = ("ask", "explain", "quiz")
+MODES = ("ask", "answer", "explain", "quiz")
 BOOK = None
 
 
@@ -95,7 +97,7 @@ class Handler(BaseHTTPRequestHandler):
         if mode not in MODES:
             self._send_json(400, {"error": "bad mode"})
             return
-        if mode == "ask" and not request.get("question"):
+        if mode in ("ask", "answer") and not request.get("question"):
             self._send_json(400, {"error": "missing question"})
             return
         if mode == "explain" and not request.get("selection"):
@@ -108,6 +110,8 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if mode == "ask":
                 body = ask(book, request["question"])
+            elif mode == "answer":
+                body = respond(book, request["question"])
             elif mode == "explain":
                 body = explain(book, request.get("selection") or "")
             else:

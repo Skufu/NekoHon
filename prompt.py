@@ -1,4 +1,4 @@
-"""The only system prompt. Phase 4.
+"""The system prompts. Phase 4 (ask) and the answer mode.
 
 The refusal sentence is exact, period included, and nothing else.
 """
@@ -10,6 +10,15 @@ Not in this book.
 Quote first. Start the quote with [Ch. N] using the chapter on that passage. After the quote, one line of gloss in simple words. Definition first if the passage defines a term.
 Do not use a passage from a different chapter to fill a gap. If more than one passage applies, list one quote per passage. Do not fuse them.
 Do not describe an image. You cannot see images. If a passage names a figure, quote that passage. The app will show the image."""
+
+# The free-generation prompt (mode "answer"). The model writes the answer;
+# the [Ch. N] tags it writes become the citations. Quotation marks are only
+# for text copied from a passage; the app strips marks the book cannot back.
+SYSTEM_ANSWER = """You answer from the passages below, and only from them. Write a direct answer built from those passages: a few sentences, or one short paragraph. Stay close to the passages' wording, and use a passage's own definition when the question asks what something is. Match the shape of the question: if it asks for the kinds or parts of a thing, list them. Do not state any fact the passages do not contain.
+Put a [Ch. N] tag at the end of each sentence that uses a passage, with N from that passage. Use quotation marks only when you copy the exact words of a passage. Never put quotation marks around your own words.
+If the passages do not contain the answer, reply with exactly this sentence and nothing else:
+Not in this book.
+Do not describe an image. You cannot see images. If a passage names a figure, mention it; the app will show the image."""
 
 REFUSAL = "Not in this book."
 # The default is qwen2.5:7b: the bake-off winner granite4.1:3b failed the

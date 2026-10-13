@@ -1,0 +1,2344 @@
+[
+  {
+    "question": "data engineering lifecycle",
+    "asked": "data engineering lifecycle",
+    "refused": false,
+    "citations": [
+      "ch02-002",
+      "ch02-003"
+    ],
+    "sentences": 4,
+    "supported": 0,
+    "mean_coverage": 0.308,
+    "fake_quotes": [],
+    "untraceable": [
+      "The data engineering lifecycle consists of five main stages: Generation, Storage, Ingestion, Transformation, and Serving data  .",
+      "These stages are designed to turn raw data into a useful end product for consumption by analysts, data scientists, and ML engineers.",
+      "The lifecycle can repeat, occur out of order, overlap, or intertwine in various ways  .",
+      "Additionally, there are undercurrents that support these stages: security, data management, DataOps, data architecture, orchestration, and software engineering "
+    ],
+    "seconds": 2.29
+  },
+  {
+    "question": "what is data engineering",
+    "asked": "what is data engineering",
+    "refused": false,
+    "citations": [
+      "ch01-005",
+      "ch01-003"
+    ],
+    "sentences": 5,
+    "supported": 3,
+    "mean_coverage": 0.619,
+    "fake_quotes": [],
+    "untraceable": [
+      "It can be SQL-focused or Big Data-focused, involving the use of SQL or programming languages like Java, Scala, and Python  .",
+      "Data engineering is also seen as a superset of business intelligence and data warehousing, integrating elements from software engineering and operations of big "
+    ],
+    "seconds": 2.83
+  },
+  {
+    "question": "what does a data engineer actually do",
+    "asked": "what does a data engineer actually do",
+    "refused": false,
+    "citations": [
+      "ch01-005",
+      "ch01-024",
+      "ch08-144"
+    ],
+    "sentences": 6,
+    "supported": 4,
+    "mean_coverage": 0.516,
+    "fake_quotes": [],
+    "untraceable": [
+      "A data engineer's role involves getting and preparing data for consumption by data scientists and analysts, as well as maintaining the integrity of the systems ",
+      "They design, build, and maintain the integrity of systems that query and transform data, implementing data models within these systems  ."
+    ],
+    "seconds": 3.56
+  },
+  {
+    "question": "how did the data engineer role evolve",
+    "asked": "how did the data engineer role evolve",
+    "refused": false,
+    "citations": [
+      "ch11-011",
+      "ch11-013"
+    ],
+    "sentences": 5,
+    "supported": 0,
+    "mean_coverage": 0.157,
+    "fake_quotes": [],
+    "untraceable": [
+      "The data engineer role is evolving as tools and practices become more sophisticated and user-friendly.",
+      "Data engineers will spend less time on low-level tasks like managing servers and configuration, and more on higher-level work.",
+      "This shift is similar to how mobile app developers can now focus on building better applications as mobile operating systems have become more advanced.",
+      "Additionally, as data becomes more integral to business processes, new roles are emerging that blend data engineering and machine learning engineering.",
+      "Not in this book."
+    ],
+    "seconds": 2.45
+  },
+  {
+    "question": "data science vs data engineering",
+    "asked": "data science vs data engineering",
+    "refused": false,
+    "citations": [
+      "ch01-021",
+      "ch01-056"
+    ],
+    "sentences": 5,
+    "supported": 0,
+    "mean_coverage": 0.086,
+    "fake_quotes": [],
+    "untraceable": [
+      "Data science and data engineering are distinct but complementary fields.",
+      "Data engineering sits upstream from data science, providing the necessary infrastructure and data for data scientists to work with  .",
+      "Data engineers focus on gathering, cleaning, and processing data, while data scientists concentrate on analysis and machine learning  .",
+      "Data engineers help automate and scale data science work, enabling data scientists to focus more on analytics, experimentation, and machine learning  .",
+      "Both fields are important for building a solid data foundation, with data engineering being crucial for the efficiency and success of data science  ."
+    ],
+    "seconds": 2.37
+  },
+  {
+    "question": "internal facing vs external facing data engineering",
+    "asked": "internal facing vs external facing data engineering",
+    "refused": false,
+    "citations": [
+      "ch01-047",
+      "ch01-046"
+    ],
+    "sentences": 3,
+    "supported": 1,
+    "mean_coverage": 0.374,
+    "fake_quotes": [],
+    "untraceable": [
+      "External-facing data engineering, on the other hand, involves building systems that collect, store, and process transactional and event data from external appli",
+      "External-facing systems often handle larger concurrency loads and require tighter query limits to manage infrastructure impact and security  ."
+    ],
+    "seconds": 2.22
+  },
+  {
+    "question": "what is data maturity",
+    "asked": "what is data maturity",
+    "refused": false,
+    "citations": [
+      "ch01-025"
+    ],
+    "sentences": 3,
+    "supported": 1,
+    "mean_coverage": 0.545,
+    "fake_quotes": [],
+    "untraceable": [
+      "It is not solely dependent on a company's age or revenue, but rather on how data is leveraged as a competitive advantage  .",
+      "Data maturity models, such as Data Management Maturity (DMM), can help understand the types of data challenges a company faces as it grows its data capability  "
+    ],
+    "seconds": 1.96
+  },
+  {
+    "question": "what is the data engineering lifecycle",
+    "asked": "what is the data engineering lifecycle",
+    "refused": false,
+    "citations": [
+      "ch02-002",
+      "ch02-091"
+    ],
+    "sentences": 5,
+    "supported": 1,
+    "mean_coverage": 0.315,
+    "fake_quotes": [],
+    "untraceable": [
+      "The data engineering lifecycle is a subset of the broader data lifecycle, focusing on the stages controlled by data engineers  .",
+      "It comprises five main stages: Generation, Storage, Ingestion, Transformation, and Serving data  .",
+      "These stages aim to turn raw data into a useful end product for analysts, data scientists, and ML engineers  .",
+      "The overarching goals are to produce optimum ROI and reduce costs, reduce risk, and maximize data value and utility  ."
+    ],
+    "seconds": 2.62
+  },
+  {
+    "question": "source systems",
+    "asked": "source systems",
+    "refused": false,
+    "citations": [
+      "ch02-005",
+      "ch05-083"
+    ],
+    "sentences": 6,
+    "supported": 1,
+    "mean_coverage": 0.277,
+    "fake_quotes": [],
+    "untraceable": [
+      "Source systems are the origins of data used in the data engineering lifecycle.",
+      "They can include IoT devices, application message queues, or transactional databases  .",
+      "Common examples include traditional application databases and more recent IoT swarms  .",
+      "Collaboration with source system owners is crucial to avoid breaking pipelines and analytics  .",
+      "The integration between data engineers and source system teams is growing, with examples like reverse ETL and event-streaming platforms  ."
+    ],
+    "seconds": 2.45
+  },
+  {
+    "question": "what is data ingestion",
+    "asked": "what is data ingestion",
+    "refused": false,
+    "citations": [
+      "ch07-002",
+      "ch07-003"
+    ],
+    "sentences": 6,
+    "supported": 3,
+    "mean_coverage": 0.472,
+    "fake_quotes": [],
+    "untraceable": [
+      "This process is a part of the data engineering lifecycle and involves actively designing data pipeline activities  .",
+      "It is also distinct from internal data movement within a system, such as copying data from one table to another  .",
+      "In the context of data pipelines, ingestion is the stage where data engineers begin designing these activities  ."
+    ],
+    "seconds": 2.75
+  },
+  {
+    "question": "what is data management",
+    "asked": "what is data management",
+    "refused": false,
+    "citations": [
+      "ch02-046",
+      "ch02-047"
+    ],
+    "sentences": 5,
+    "supported": 3,
+    "mean_coverage": 0.544,
+    "fake_quotes": [],
+    "untraceable": [
+      "It involves practices such as data governance, master data management, and data quality management  .",
+      "Data management is important as it demonstrates that data is a vital asset to daily operations, similar to financial resources, finished goods, or real estate  "
+    ],
+    "seconds": 3.31
+  },
+  {
+    "question": "what is dataops",
+    "asked": "what is dataops",
+    "refused": false,
+    "citations": [
+      "ch02-067",
+      "ch06-123",
+      "ch09-066",
+      "ch08-153"
+    ],
+    "sentences": 5,
+    "supported": 2,
+    "mean_coverage": 0.466,
+    "fake_quotes": [],
+    "untraceable": [
+      "It borrows from Agile methodology, DevOps, and statistical process control, aiming to improve the release and quality of data products  .",
+      "It involves monitoring data health, data downtime, latency, data quality, data and system security, data and model versions, and uptime to achieve service level",
+      "DataOps also focuses on data observability, ensuring reliability and quality through data and system monitoring, with a recent emphasis on data reliability engi"
+    ],
+    "seconds": 3.26
+  },
+  {
+    "question": "what is orchestration in the data engineering lifecycle",
+    "asked": "what is orchestration in the data engineering lifecycle",
+    "refused": false,
+    "citations": [
+      "ch02-079",
+      "ch09-068",
+      "ch07-096",
+      "ch06-127",
+      "ch05-081"
+    ],
+    "sentences": 6,
+    "supported": 1,
+    "mean_coverage": 0.285,
+    "fake_quotes": [],
+    "untraceable": [
+      "It involves managing and automating complex workflows, ensuring data flows across teams and are made available to consumers at the promised time  .",
+      "Orchestration is crucial for coordinating data processing steps, especially as pipeline complexity grows  .",
+      "It is highly entangled with storage, acting as the \"pump\" for data to flow through pipelines  .",
+      "In terms of ownership, it can be centralized or decentralized, each approach having its own advantages and challenges  .",
+      "Orchestration also involves ensuring correct network access, authentication, and authorization for source systems  ."
+    ],
+    "seconds": 2.84
+  },
+  {
+    "question": "types of metadata",
+    "asked": "types of metadata",
+    "refused": false,
+    "citations": [
+      "ch02-053",
+      "ch02-054"
+    ],
+    "sentences": 4,
+    "supported": 1,
+    "mean_coverage": 0.282,
+    "fake_quotes": [],
+    "untraceable": [
+      "Types of metadata include business metadata and technical metadata.",
+      "Technical metadata describes data created and used by systems, including data models, schema, data lineage, and pipeline workflows  .",
+      "Common types of technical metadata are pipeline metadata, data lineage, and schema  ."
+    ],
+    "seconds": 2.01
+  },
+  {
+    "question": "what is data quality",
+    "asked": "what is data quality",
+    "refused": false,
+    "citations": [
+      "ch02-057",
+      "ch02-059",
+      "ch09-004"
+    ],
+    "sentences": 5,
+    "supported": 2,
+    "mean_coverage": 0.245,
+    "fake_quotes": [],
+    "untraceable": [
+      "It encompasses three main characteristics: factual correctness, completeness, and timeliness  .",
+      "Data quality involves both human and technology problems, requiring robust processes for collecting actionable human feedback and using technology tools to dete",
+      "Ensuring data quality is crucial for building stakeholder trust and realizing the full potential of data in business operations  ."
+    ],
+    "seconds": 2.79
+  },
+  {
+    "question": "what is observabilty",
+    "asked": "what is observability",
+    "refused": false,
+    "citations": [
+      "ch02-074",
+      "ch09-004"
+    ],
+    "sentences": 4,
+    "supported": 0,
+    "mean_coverage": 0.137,
+    "fake_quotes": [],
+    "untraceable": [
+      "Observability is the ability to understand the state of a system, particularly in terms of data, by monitoring and analyzing it.",
+      "It involves making data and data applications visible throughout the data engineering lifecycle, from ingestion to analysis  .",
+      "Observability helps in identifying changes and troubleshooting data issues, ensuring that data is consistently available and up-to-date as expected  .",
+      "Not in this book."
+    ],
+    "seconds": 2.26
+  },
+  {
+    "question": "batch processing remains an extremely popular way to do what",
+    "asked": "batch processing remains an extremely popular way to do what",
+    "refused": false,
+    "citations": [
+      "ch02-019"
+    ],
+    "sentences": 1,
+    "supported": 1,
+    "mean_coverage": 1.0,
+    "fake_quotes": [],
+    "untraceable": [],
+    "seconds": 0.98
+  },
+  {
+    "question": "what are the undercurrents of the data engineering lifecycle",
+    "asked": "what are the undercurrents of the data engineering lifecycle",
+    "refused": false,
+    "citations": [
+      "ch02-003",
+      "ch02-042",
+      "ch02-091"
+    ],
+    "sentences": 3,
+    "supported": 2,
+    "mean_coverage": 0.672,
+    "fake_quotes": [],
+    "untraceable": [
+      "These undercurrents support every aspect of the data engineering lifecycle and are critical for its proper functioning  ."
+    ],
+    "seconds": 1.88
+  },
+  {
+    "question": "what is data architecture",
+    "asked": "what is data architecture",
+    "refused": false,
+    "citations": [
+      "ch03-016",
+      "ch03-013",
+      "ch03-017"
+    ],
+    "sentences": 5,
+    "supported": 3,
+    "mean_coverage": 0.467,
+    "fake_quotes": [],
+    "untraceable": [
+      "Data architecture can be further divided into operational and technical aspects.",
+      "Operational architecture focuses on the functional requirements related to people, processes, and technology, such as business processes, data quality managemen"
+    ],
+    "seconds": 2.58
+  },
+  {
+    "question": "how does data architecture relate to enterprise architecture",
+    "asked": "how does data architecture relate to enterprise architecture",
+    "refused": false,
+    "citations": [
+      "ch03-013",
+      "ch03-016"
+    ],
+    "sentences": 2,
+    "supported": 2,
+    "mean_coverage": 0.677,
+    "fake_quotes": [],
+    "untraceable": [],
+    "seconds": 1.56
+  },
+  {
+    "question": "principles of good data architecture",
+    "asked": "principles of good data architecture",
+    "refused": false,
+    "citations": [
+      "ch03-020",
+      "ch03-018",
+      "ch03-019"
+    ],
+    "sentences": 4,
+    "supported": 1,
+    "mean_coverage": 0.307,
+    "fake_quotes": [],
+    "untraceable": [
+      "Principles of good data architecture include choosing common components wisely, planning for failure, architecting for scalability, building loosely coupled sys",
+      "These principles are designed to ensure flexibility, maintainability, and the ability to evolve in response to changes within the business and new technologies ",
+      "Good data architecture should be a living, breathing entity that is always evolving, rather than a rigid, tightly coupled system  ."
+    ],
+    "seconds": 2.48
+  },
+  {
+    "question": "what is the data mesh",
+    "asked": "what is the data mesh",
+    "refused": false,
+    "citations": [
+      "ch03-099",
+      "ch09-016"
+    ],
+    "sentences": 4,
+    "supported": 2,
+    "mean_coverage": 0.42,
+    "fake_quotes": [],
+    "untraceable": [
+      "The data mesh is a decentralized approach to data architecture that addresses the challenges of monolithic data platforms  .",
+      "In a data mesh, each domain team is responsible for serving data to other teams and potentially running its own dashboards and analytics for self-service  ."
+    ],
+    "seconds": 2.36
+  },
+  {
+    "question": "big ball of mud",
+    "asked": "big ball of mud",
+    "refused": false,
+    "citations": [
+      "ch03-056"
+    ],
+    "sentences": 2,
+    "supported": 0,
+    "mean_coverage": 0.211,
+    "fake_quotes": [],
+    "untraceable": [
+      "A big ball of mud refers to a monolithic architecture that has become overly complex and difficult to manage due to a lack of modularity and high coupling among",
+      "Data teams often let such a monolithic system devolve into a big ball of mud when they ignore solving the growing complexity  ."
+    ],
+    "seconds": 2.5
+  },
+  {
+    "question": "brownfield vs greenfield data projects",
+    "asked": "brownfield vs greenfield data projects",
+    "refused": false,
+    "citations": [
+      "ch03-069",
+      "ch03-067",
+      "ch03-068"
+    ],
+    "sentences": 5,
+    "supported": 0,
+    "mean_coverage": 0.088,
+    "fake_quotes": [],
+    "untraceable": [
+      "Brownfield and greenfield data projects are two types of projects that require different approaches.",
+      "Greenfield projects start with a clean slate, allowing for the use of the latest technologies and tools, but they come with risks of overexuberance and prioriti",
+      "Brownfield projects, on the other hand, involve refactoring and reorganizing an existing architecture, which can be challenging due to the constraints of legacy",
+      "Both types of projects require making reversible, high-ROI decisions  .",
+      "A popular approach for brownfield projects is the strangler pattern, where new systems incrementally replace old components  ."
+    ],
+    "seconds": 2.89
+  },
+  {
+    "question": "togaf defines data architecture as what",
+    "asked": "togaf defines data architecture as what",
+    "refused": false,
+    "citations": [
+      "ch03-014"
+    ],
+    "sentences": 1,
+    "supported": 1,
+    "mean_coverage": 0.897,
+    "fake_quotes": [],
+    "untraceable": [],
+    "seconds": 1.37
+  },
+  {
+    "question": "what does finops help a data team do",
+    "asked": "what does finops help a data team do",
+    "refused": false,
+    "citations": [
+      "ch03-041",
+      "ch03-042"
+    ],
+    "sentences": 4,
+    "supported": 0,
+    "mean_coverage": 0.071,
+    "fake_quotes": [],
+    "untraceable": [
+      "FinOps helps a data team manage budgets, priorities, and efficiency  .",
+      "It involves thinking about cost structures and appropriate resource mixes, such as AWS spot instances  .",
+      "FinOps also includes ongoing spending monitoring and alerts  .",
+      "By embracing FinOps, data teams can ensure that their spending remains within acceptable limits, especially when dealing with public data sharing and excessive "
+    ],
+    "seconds": 2.01
+  },
+  {
+    "question": "why should you plan for failure",
+    "asked": "why should you plan for failure",
+    "refused": false,
+    "citations": [
+      "ch03-047",
+      "ch03-023",
+      "ch04-042"
+    ],
+    "sentences": 5,
+    "supported": 0,
+    "mean_coverage": 0.086,
+    "fake_quotes": [],
+    "untraceable": [
+      "You should plan for failure to ensure that your systems can handle unexpected issues and maintain performance.",
+      "As everything fails given enough time  , you need to design your systems to recover from failures.",
+      "This includes considering reliability, availability, recovery time objective (RTO), and recovery point objective (RPO)  .",
+      "Additionally, planning for failure helps in creating scalable systems that can dynamically adjust to handle varying workloads, ensuring that your services remai",
+      "Having an escape plan for technology lock-in also provides flexibility and a way out if things go wrong  ."
+    ],
+    "seconds": 2.49
+  },
+  {
+    "question": "loosely coupled systems",
+    "asked": "loosely coupled systems",
+    "refused": false,
+    "citations": [
+      "ch03-030",
+      "ch03-032"
+    ],
+    "sentences": 7,
+    "supported": 3,
+    "mean_coverage": 0.374,
+    "fake_quotes": [],
+    "untraceable": [
+      "Loosely coupled systems are characterized by several properties.",
+      "As a result, internal changes to a system component do not require changes in other parts  .",
+      "Additionally, loosely coupled systems enable teams to rapidly evolve and improve their components independently of other teams  .",
+      "Not in this book."
+    ],
+    "seconds": 3.11
+  },
+  {
+    "question": "what is the modern data stack",
+    "asked": "what is the modern data stack",
+    "refused": false,
+    "citations": [
+      "ch03-084",
+      "ch03-085",
+      "ch11-018"
+    ],
+    "sentences": 4,
+    "supported": 1,
+    "mean_coverage": 0.432,
+    "fake_quotes": [],
+    "untraceable": [
+      "The modern data stack (MDS) is a trendy analytics architecture that aims to reduce complexity and increase modularization by using cloud-based, plug-and-play, a",
+      "It is designed to be self-service, agile, and use open source or simple proprietary tools with clear pricing structures  .",
+      "The MDS is evolving and may be replaced by the live data stack, which integrates real-time analytics and machine learning into applications  ."
+    ],
+    "seconds": 2.5
+  },
+  {
+    "question": "architecting for iot",
+    "asked": "architecting for iot",
+    "refused": false,
+    "citations": [
+      "ch03-098",
+      "ch03-094",
+      "ch03-028"
+    ],
+    "sentences": 5,
+    "supported": 0,
+    "mean_coverage": 0.179,
+    "fake_quotes": [],
+    "untraceable": [
+      "Architecting for IoT involves several key principles and concepts.",
+      "First, it is important to understand that IoT architecture is complex and less familiar to many data engineers  .",
+      "An IoT gateway acts as a hub for connecting devices and securely routing them to appropriate destinations on the internet  .",
+      "Additionally, the principle of \"Always Be Architecting\" is crucial, as it emphasizes constant design and adaptation in response to changes  .",
+      "This principle, borrowed from Google Cloud’s Five Principles for Cloud-Native Architecture, highlights that data architects should maintain a target architectur"
+    ],
+    "seconds": 2.55
+  },
+  {
+    "question": "MAD data landscape",
+    "asked": "MAD data landscape",
+    "refused": false,
+    "citations": [
+      "ch04-020",
+      "ch03-099",
+      "ch02-037"
+    ],
+    "sentences": 6,
+    "supported": 0,
+    "mean_coverage": 0.014,
+    "fake_quotes": [],
+    "untraceable": [
+      "The MAD data landscape is complex and dynamic, with many technologies rising and falling in popularity  .",
+      "Technologies like Hive, which were once popular, have declined as newer, improved technologies like Presto emerged  .",
+      "This landscape is characterized by the rapid adoption and subsequent decline of technologies, making it challenging to predict which will succeed  .",
+      "The data mesh, a recent response to monolithic data platforms, aims to decentralize data ownership and architecture, but it is not directly related to the MAD l",
+      "The MAD landscape includes machine learning (ML) as one of its components, which has seen significant growth and integration with data engineering  .",
+      "Not in this book."
+    ],
+    "seconds": 2.5
+  },
+  {
+    "question": "multicloud disadvantages",
+    "asked": "multicloud disadvantages",
+    "refused": false,
+    "citations": [
+      "ch04-037"
+    ],
+    "sentences": 2,
+    "supported": 0,
+    "mean_coverage": 0.281,
+    "fake_quotes": [],
+    "untraceable": [
+      "Multicloud disadvantages include increased complexity, data egress costs, and networking bottlenecks  .",
+      "Companies must manage a variety of services across multiple clouds, and cross-cloud integration and security present significant challenges  ."
+    ],
+    "seconds": 1.41
+  },
+  {
+    "question": "multiclould disadvantages",
+    "asked": "multicloud disadvantages",
+    "refused": false,
+    "citations": [
+      "ch04-037"
+    ],
+    "sentences": 4,
+    "supported": 3,
+    "mean_coverage": 0.539,
+    "fake_quotes": [],
+    "untraceable": [
+      "Multicloud has several disadvantages."
+    ],
+    "seconds": 2.04
+  },
+  {
+    "question": "what is total cost of ownership",
+    "asked": "what is total cost of ownership",
+    "refused": false,
+    "citations": [
+      "ch04-010",
+      "ch04-011"
+    ],
+    "sentences": 6,
+    "supported": 2,
+    "mean_coverage": 0.368,
+    "fake_quotes": [],
+    "untraceable": [
+      "Direct costs can be directly attributed to the initiative, such as salaries and AWS bills  .",
+      "TCO also considers how the costs are accounted for, distinguishing between capital expenses (capex) and operational expenses (opex)  .",
+      "Capex requires an up-front investment, while opex is gradual and spread out over time, often allowing for more flexibility and quicker iteration  .",
+      "Cloud-based services enable pay-as-you-go models, making opex a preferred approach for data engineers  ."
+    ],
+    "seconds": 3.03
+  },
+  {
+    "question": "caveat emptor",
+    "asked": "caveat emptor",
+    "refused": false,
+    "citations": [
+      "ch04-088"
+    ],
+    "sentences": 1,
+    "supported": 0,
+    "mean_coverage": 0.125,
+    "fake_quotes": [],
+    "untraceable": [
+      "Caveat emptor is a Latin phrase meaning \"let the buyer beware.\""
+    ],
+    "seconds": 0.99
+  },
+  {
+    "question": "immutable vs transitory technologies",
+    "asked": "immutable vs transitory technologies",
+    "refused": false,
+    "citations": [
+      "ch04-017",
+      "ch04-020",
+      "ch04-018"
+    ],
+    "sentences": 3,
+    "supported": 0,
+    "mean_coverage": 0.014,
+    "fake_quotes": [],
+    "untraceable": [
+      "Immutable technologies, such as object storage and certain programming languages, are those that are likely to stay relevant for a long time, benefiting from th",
+      "Transitory technologies, on the other hand, come and go quickly, often following a trajectory of hype, rapid growth, and eventual decline  .",
+      "Examples of transitory technologies include various JavaScript frontend frameworks that have emerged and faded over the years  ."
+    ],
+    "seconds": 2.0
+  },
+  {
+    "question": "serverless",
+    "asked": "serverless",
+    "refused": false,
+    "citations": [
+      "ch04-073",
+      "ch04-074",
+      "ch04-081",
+      "ch04-082"
+    ],
+    "sentences": 6,
+    "supported": 1,
+    "mean_coverage": 0.249,
+    "fake_quotes": [],
+    "untraceable": [
+      "It is popular due to cost and convenience, as you only pay when your code is evoked  .",
+      "Serverless has various flavors, such as function as a service (FaaS), and systems like Google Cloud’s BigQuery, which are serverless in nature  .",
+      "Serverless works best for simple, discrete tasks and workloads, and it’s not as suitable for applications with many moving parts or high compute requirements  .",
+      "The payment model for serverless is based on consumption and storage, making it more cost-effective for applications that process data infrequently  .",
+      "However, serverless functions can be expensive when handling a high event rate, and they lack complete operating system abstractions, limiting the runtime image"
+    ],
+    "seconds": 3.27
+  },
+  {
+    "question": "containers",
+    "asked": "containers",
+    "refused": false,
+    "citations": [
+      "ch04-076",
+      "ch04-077"
+    ],
+    "sentences": 5,
+    "supported": 1,
+    "mean_coverage": 0.368,
+    "fake_quotes": [],
+    "untraceable": [
+      "Containers are lightweight virtual machines that package an isolated user space, such as a filesystem and a few processes, allowing many containers to coexist o",
+      "Containers are used in serverless environments and with Kubernetes, a container management system  .",
+      "Container clusters, however, do not offer the same security and isolation as full VMs, and container escape is a risk for multitenancy  .",
+      "Various container platforms add serverless features, running containers as ephemeral units triggered by events  ."
+    ],
+    "seconds": 2.69
+  },
+  {
+    "question": "data engineers need to be pragmatic about what",
+    "asked": "data engineers need to be pragmatic about what",
+    "refused": false,
+    "citations": [
+      "ch04-012"
+    ],
+    "sentences": 2,
+    "supported": 1,
+    "mean_coverage": 0.538,
+    "fake_quotes": [],
+    "untraceable": [
+      "This means recognizing the rapid changes in the data landscape and being open to trying new technologies without investing heavily in long-term hardware that ma"
+    ],
+    "seconds": 1.41
+  },
+  {
+    "question": "crud stands for what",
+    "asked": "crud stands for what",
+    "refused": false,
+    "citations": [
+      "ch05-019"
+    ],
+    "sentences": 1,
+    "supported": 1,
+    "mean_coverage": 0.8,
+    "fake_quotes": [],
+    "untraceable": [],
+    "seconds": 1.04
+  },
+  {
+    "question": "what is an oltp system",
+    "asked": "what is an oltp system",
+    "refused": false,
+    "citations": [
+      "ch05-007"
+    ],
+    "sentences": 3,
+    "supported": 3,
+    "mean_coverage": 0.612,
+    "fake_quotes": [],
+    "untraceable": [],
+    "seconds": 1.98
+  },
+  {
+    "question": "what is acid in database terms",
+    "asked": "what is acid in database terms",
+    "refused": false,
+    "citations": [
+      "ch05-008"
+    ],
+    "sentences": 6,
+    "supported": 0,
+    "mean_coverage": 0.076,
+    "fake_quotes": [],
+    "untraceable": [
+      "In database terms, acid refers to a set of properties that guarantee the reliability of transactions.",
+      "Specifically, acid stands for atomicity, consistency, isolation, and durability  .",
+      "Atomicity ensures that transactions are treated as a single indivisible unit of work.",
+      "Consistency ensures that transactions move the database from one valid state to another.",
+      "Isolation ensures that concurrent transactions do not interfere with each other.",
+      "Durability ensures that once a transaction is committed, it will remain so, even in the event of a failure  ."
+    ],
+    "seconds": 2.34
+  },
+  {
+    "question": "what is change data capture",
+    "asked": "what is change data capture",
+    "refused": false,
+    "citations": [
+      "ch05-013",
+      "ch07-051"
+    ],
+    "sentences": 4,
+    "supported": 2,
+    "mean_coverage": 0.551,
+    "fake_quotes": [],
+    "untraceable": [
+      "CDC involves ingesting changes from a source database system, such as a PostgreSQL database, for analytics purposes  .",
+      "The handling of CDC can vary depending on the database technology, with relational databases often generating an event log stored directly on the database serve"
+    ],
+    "seconds": 2.2
+  },
+  {
+    "question": "types of nosql databases",
+    "asked": "types of nosql databases",
+    "refused": false,
+    "citations": [
+      "ch05-034",
+      "ch05-035"
+    ],
+    "sentences": 3,
+    "supported": 0,
+    "mean_coverage": 0.156,
+    "fake_quotes": [],
+    "untraceable": [
+      "NoSQL databases include several types, such as key-value, document, wide-column, graph, search, and time series databases.",
+      "These types are chosen because they are widely popular and suitable for various use cases.",
+      "Key-value databases retrieve records using a unique key, offering both temporary and durable storage options."
+    ],
+    "seconds": 1.87
+  },
+  {
+    "question": "what is a key-value store",
+    "asked": "what is a key-value store",
+    "refused": false,
+    "citations": [
+      "ch05-035",
+      "ch06-041",
+      "ch06-047",
+      "ch05-036"
+    ],
+    "sentences": 6,
+    "supported": 2,
+    "mean_coverage": 0.248,
+    "fake_quotes": [],
+    "untraceable": [
+      "Key-value stores are scalable and can be used for various applications, from caching session data for web and mobile apps to storing and updating large amounts ",
+      "Object stores, a type of key-value store, are used for immutable data objects, where data can only be written once and must be rewritten if changes are needed  ",
+      "In object stores, objects are referenced by keys, and a bucket acts as a top-level logical container  .",
+      "Document stores, another type of key-value store, store nested objects as documents, which can be thought of as JSON objects, and are retrieved by key  ."
+    ],
+    "seconds": 3.43
+  },
+  {
+    "question": "graph databases",
+    "asked": "graph databases",
+    "refused": false,
+    "citations": [
+      "ch05-041",
+      "ch05-042"
+    ],
+    "sentences": 5,
+    "supported": 1,
+    "mean_coverage": 0.297,
+    "fake_quotes": [],
+    "untraceable": [
+      "They are particularly suited for scenarios where understanding complex traversals between elements is crucial, such as in social media contexts  .",
+      "Unlike document stores, graph databases are optimized for queries based on connectivity between elements  .",
+      "They support rich data models for both nodes and edges and utilize specialized query languages like SPARQL, RDF, GQL, and Cypher  .",
+      "Graph databases can reveal deep insights into human interactions and behavior, making them valuable for data science and machine learning applications  ."
+    ],
+    "seconds": 2.67
+  },
+  {
+    "question": "advantages of insert-only tables",
+    "asked": "advantages of insert-only tables",
+    "refused": false,
+    "citations": [
+      "ch08-107",
+      "ch05-020"
+    ],
+    "sentences": 4,
+    "supported": 1,
+    "mean_coverage": 0.282,
+    "fake_quotes": [],
+    "untraceable": [
+      "Advantages of insert-only tables include maintaining a current view of data by inserting new records without changing or deleting old records  .",
+      "This approach can be useful for applications needing access to history, as it retains history directly in the table  .",
+      "Additionally, it works well for applications like banking where presenting historical data is important  ."
+    ],
+    "seconds": 2.04
+  },
+  {
+    "question": "what is data sharing between organizations",
+    "asked": "what is data sharing between organizations",
+    "refused": false,
+    "citations": [
+      "ch09-046",
+      "ch06-085",
+      "ch05-054",
+      "ch07-077"
+    ],
+    "sentences": 5,
+    "supported": 2,
+    "mean_coverage": 0.357,
+    "fake_quotes": [],
+    "untraceable": [
+      "Data sharing between organizations allows for the exchange of specific data and permissions, facilitating collaboration and serving as a security and access con",
+      "It can be managed through cloud multitenant environments, making interorganizational collaboration easier while presenting new security challenges  .",
+      "Data sharing can also be part of a data marketplace, where data providers can advertise and sell their offerings  ."
+    ],
+    "seconds": 2.56
+  },
+  {
+    "question": "database logs",
+    "asked": "database logs",
+    "refused": false,
+    "citations": [
+      "ch05-018"
+    ],
+    "sentences": 3,
+    "supported": 0,
+    "mean_coverage": 0.25,
+    "fake_quotes": [],
+    "untraceable": [
+      "Database logs are essential for database recoverability and are typically stored as binary files in a specific database-native format  .",
+      "They are crucial for ensuring that even if a server fails, it can recover its state on reboot by completing unfinished work from the logs  .",
+      "Not in this book."
+    ],
+    "seconds": 1.51
+  },
+  {
+    "question": "the four basic operations of persistent storage are what",
+    "asked": "the four basic operations of persistent storage are what",
+    "refused": false,
+    "citations": [
+      "ch05-019"
+    ],
+    "sentences": 1,
+    "supported": 1,
+    "mean_coverage": 0.6,
+    "fake_quotes": [],
+    "untraceable": [],
+    "seconds": 1.06
+  },
+  {
+    "question": "wide-column databases",
+    "asked": "wide-column databases",
+    "refused": false,
+    "citations": [
+      "ch05-040",
+      "ch08-081"
+    ],
+    "sentences": 6,
+    "supported": 2,
+    "mean_coverage": 0.316,
+    "fake_quotes": [],
+    "untraceable": [
+      "These databases support rapid scans of large datasets but lack support for complex queries, requiring data extraction to secondary analytics systems for such ta",
+      "Adding a field in a wide-column database is initially a change to metadata, with new files added as data is written into the new field  .",
+      "Wide tables can have thousands of columns, are usually sparse, and are beneficial for analytics queries due to the absence of joins  .",
+      "Wide denormalized tables are a form of schema evolution where fields are gradually added over time, offering advantages in storage and query performance  ."
+    ],
+    "seconds": 3.48
+  },
+  {
+    "question": "what is object storage",
+    "asked": "what is object storage",
+    "refused": false,
+    "citations": [
+      "ch06-046",
+      "ch06-041",
+      "ch06-043",
+      "ch07-062",
+      "ch06-040"
+    ],
+    "sentences": 5,
+    "supported": 0,
+    "mean_coverage": 0.105,
+    "fake_quotes": [],
+    "untraceable": [
+      "Object storage is a type of storage designed for unstructured data, including files, images, videos, and audio  .",
+      "It is a key-value store for immutable data objects, where objects are written once as a stream of bytes and cannot be changed or appended to without rewriting t",
+      "Object storage is ideal for high-volume web traffic and delivering data to distributed query engines  .",
+      "It is multitenant and scalable, making it suitable for data lakes and cloud data warehouses  .",
+      "Object storage is often referred to as a \"serverless\" service, as engineers do not need to manage the underlying hardware  ."
+    ],
+    "seconds": 2.6
+  },
+  {
+    "question": "what is block storage",
+    "asked": "what is block storage",
+    "refused": false,
+    "citations": [
+      "ch06-032",
+      "ch06-033",
+      "ch06-035",
+      "ch06-037"
+    ],
+    "sentences": 6,
+    "supported": 2,
+    "mean_coverage": 0.523,
+    "fake_quotes": [],
+    "untraceable": [
+      "In cloud environments, virtualized block storage is the standard for VMs, offering high random access performance  .",
+      "Block storage applications include transactional database systems and operating system boot disks on cloud VMs  .",
+      "Cloud virtualized block storage, such as Amazon Elastic Block Store (EBS), provides virtualized block storage devices over a network, offering fine-grained stor",
+      "EBS volumes can be highly scalable, with some classes capable of up to 64 TiB, 256,000 IOPS, and 4,000 MiB/s  ."
+    ],
+    "seconds": 3.29
+  },
+  {
+    "question": "what is a data lake",
+    "asked": "what is a data lake",
+    "refused": false,
+    "citations": [
+      "ch06-074",
+      "ch03-079",
+      "ch06-075"
+    ],
+    "sentences": 3,
+    "supported": 1,
+    "mean_coverage": 0.318,
+    "fake_quotes": [],
+    "untraceable": [
+      "A data lake is a massive store where data is retained in raw, unprocessed form, initially built primarily on Hadoop systems but later migrated to cloud object s",
+      "It was intended to be a democratizing force, liberating businesses to access a vast amount of data, but faced challenges with data management, schema, and delet"
+    ],
+    "seconds": 2.42
+  },
+  {
+    "question": "what is a data warehouse",
+    "asked": "what is a data warehouse",
+    "refused": false,
+    "citations": [
+      "ch03-071",
+      "ch08-058",
+      "ch03-073",
+      "ch06-073"
+    ],
+    "sentences": 6,
+    "supported": 3,
+    "mean_coverage": 0.507,
+    "fake_quotes": [],
+    "untraceable": [
+      "It focuses on a specific subject area, consolidates and normalizes data from disparate sources, and stores data that remains unchanged after storage  .",
+      "Traditionally, data is extracted, transformed, and loaded into the data warehouse using ETL processes  .",
+      "Cloud data warehouses are also a form of data warehouse, often used to organize data into a data lake  ."
+    ],
+    "seconds": 3.13
+  },
+  {
+    "question": "what is a data lakehouse",
+    "asked": "what is a data lakehouse",
+    "refused": false,
+    "citations": [
+      "ch06-075",
+      "ch06-076",
+      "ch03-082"
+    ],
+    "sentences": 6,
+    "supported": 4,
+    "mean_coverage": 0.519,
+    "fake_quotes": [],
+    "untraceable": [
+      "These features include robust table and schema support, managing incremental updates and deletes, and supporting table history and rollback  .",
+      "It supports ACID transactions and can handle both structured and unstructured data  ."
+    ],
+    "seconds": 2.87
+  },
+  {
+    "question": "raid stands for what",
+    "asked": "raid stands for what",
+    "refused": false,
+    "citations": [
+      "ch06-034"
+    ],
+    "sentences": 1,
+    "supported": 1,
+    "mean_coverage": 1.0,
+    "fake_quotes": [],
+    "untraceable": [],
+    "seconds": 0.99
+  },
+  {
+    "question": "hot warm cold data",
+    "asked": "hot warm cold data",
+    "refused": false,
+    "citations": [
+      "ch06-104"
+    ],
+    "sentences": 4,
+    "supported": 0,
+    "mean_coverage": 0.204,
+    "fake_quotes": [],
+    "untraceable": [
+      "Hot, warm, and cold data are categorized based on their access frequency.",
+      "Hot data   is most frequently accessed, often retrieved many times per day or even several times per second, and is stored for fast retrieval.",
+      "Warm data   is accessed semi-regularly, such as once per month, and is cheaper to store than hot data but more expensive to retrieve.",
+      "Cold data   is infrequently accessed, suitable for long-term archival, and is the cheapest to store but more expensive to retrieve."
+    ],
+    "seconds": 2.27
+  },
+  {
+    "question": "what does iops mean",
+    "asked": "what does iops mean",
+    "refused": true,
+    "citations": [
+      "ch02-072",
+      "ch06-123",
+      "ch02-067"
+    ],
+    "sentences": 1,
+    "supported": 0,
+    "mean_coverage": 0.0,
+    "fake_quotes": [],
+    "untraceable": [
+      "Not in this book."
+    ],
+    "seconds": 0.8
+  },
+  {
+    "question": "how does separation of compute and storage help",
+    "asked": "how does separation of compute and storage help",
+    "refused": false,
+    "citations": [
+      "ch06-093",
+      "ch06-072",
+      "ch06-089"
+    ],
+    "sentences": 4,
+    "supported": 0,
+    "mean_coverage": 0.081,
+    "fake_quotes": [],
+    "untraceable": [
+      "Separation of compute and storage can help in several ways.",
+      "First, it allows for more flexibility in scaling and managing resources independently, as data storage can be optimized for long-term retention while compute re",
+      "Additionally, separating compute and storage can lead to cost savings, as storage can be provisioned based on actual data needs, potentially reducing the amount",
+      "This separation also enables the use of different storage technologies optimized for specific use cases, enhancing overall performance and efficiency  ."
+    ],
+    "seconds": 2.21
+  },
+  {
+    "question": "what is data retention",
+    "asked": "what is data retention",
+    "refused": false,
+    "citations": [
+      "ch06-101",
+      "ch02-064"
+    ],
+    "sentences": 5,
+    "supported": 0,
+    "mean_coverage": 0.105,
+    "fake_quotes": [],
+    "untraceable": [
+      "Data retention is the practice of determining how long data should be kept before it can be discarded.",
+      "It involves considering the importance of the data to downstream users and the frequency of its access  .",
+      "Data retention policies are crucial in managing data storage costs and ensuring compliance with privacy and data retention laws such as GDPR and CCPA  .",
+      "The decision on how long to retain data is influenced by factors like storage costs and the need to respect users' rights to have their data forgotten  .",
+      "also notes that data retention can be managed through automatic data lifecycle management practices, moving data to cold storage or deleting it if it's no longe"
+    ],
+    "seconds": 2.58
+  },
+  {
+    "question": "what is a data catalog",
+    "asked": "what is a data catalog",
+    "refused": false,
+    "citations": [
+      "ch06-080",
+      "ch06-084",
+      "ch06-083"
+    ],
+    "sentences": 5,
+    "supported": 4,
+    "mean_coverage": 0.714,
+    "fake_quotes": [],
+    "untraceable": [
+      "Data catalogs provide a central place for people to view their data, queries, and data storage  ."
+    ],
+    "seconds": 2.39
+  },
+  {
+    "question": "schema on read vs schema on write",
+    "asked": "schema on read vs schema on write",
+    "refused": false,
+    "citations": [
+      "ch06-087",
+      "ch06-086"
+    ],
+    "sentences": 4,
+    "supported": 4,
+    "mean_coverage": 0.685,
+    "fake_quotes": [],
+    "untraceable": [],
+    "seconds": 2.27
+  },
+  {
+    "question": "data ingestion is the process of doing what",
+    "asked": "data ingestion is the process of doing what",
+    "refused": false,
+    "citations": [
+      "ch07-002"
+    ],
+    "sentences": 2,
+    "supported": 1,
+    "mean_coverage": 0.579,
+    "fake_quotes": [],
+    "untraceable": [
+      "This involves taking data from source systems and moving it into storage, often as an intermediate step in the data engineering lifecycle."
+    ],
+    "seconds": 1.38
+  },
+  {
+    "question": "etl vs elt",
+    "asked": "etl vs elt",
+    "refused": false,
+    "citations": [
+      "ch03-075",
+      "ch08-094",
+      "ch08-095"
+    ],
+    "sentences": 4,
+    "supported": 0,
+    "mean_coverage": 0.068,
+    "fake_quotes": [],
+    "untraceable": [
+      "ETL and ELT are two methods of data processing.",
+      "ETL involves extracting data from a source, transforming it, and then loading it into a target system, typically a data warehouse.",
+      "ELT, on the other hand, extracts data from a source and loads it into a data warehouse or data lake in its raw form, with the transformation happening later in ",
+      "Both methods are used in data pipelines, but the choice between them can depend on the specific needs of the organization."
+    ],
+    "seconds": 2.36
+  },
+  {
+    "question": "what is a message queue",
+    "asked": "what is a message queue",
+    "refused": false,
+    "citations": [
+      "ch05-060"
+    ],
+    "sentences": 4,
+    "supported": 0,
+    "mean_coverage": 0.353,
+    "fake_quotes": [],
+    "untraceable": [
+      "A message queue is a mechanism for asynchronously sending data between systems using a publish and subscribe model  .",
+      "It allows applications and systems to be decoupled, making them useful in microservices architectures  .",
+      "Message queues buffer messages to handle load spikes and ensure message durability through a distributed architecture with replication  .",
+      "They are critical for decoupled microservices and event-driven architectures, and considerations include frequency of delivery, message ordering, and scalabilit"
+    ],
+    "seconds": 2.09
+  },
+  {
+    "question": "what is an event-streaming platform",
+    "asked": "what is an event-streaming platform",
+    "refused": false,
+    "citations": [
+      "ch05-064",
+      "ch05-058",
+      "ch05-065"
+    ],
+    "sentences": 5,
+    "supported": 1,
+    "mean_coverage": 0.359,
+    "fake_quotes": [],
+    "untraceable": [
+      "An event-streaming platform is a system used to ingest and process data in an ordered log of records, retaining data for a while and allowing messages to be rep",
+      "It differs from a message queue in that it is used for real-time analytics and can be used in the ingestion and transformation stage  .",
+      "These platforms can be used as source systems and for message passing in event-driven applications  .",
+      "In an event-streaming platform, producers stream events to a topic, which can have multiple producers and consumers  ."
+    ],
+    "seconds": 2.75
+  },
+  {
+    "question": "kafka",
+    "asked": "kafka",
+    "refused": false,
+    "citations": [
+      "ch03-086",
+      "ch06-063",
+      "ch07-043",
+      "ch08-033"
+    ],
+    "sentences": 4,
+    "supported": 1,
+    "mean_coverage": 0.485,
+    "fake_quotes": [],
+    "untraceable": [
+      "Kafka is a highly scalable message queue and framework for streaming/real-time analytics, which emerged in the early to mid-2010s  .",
+      "Kafka can be configured for a maximum message size of up to 20 MB  .",
+      "In the Kappa architecture, Kafka is used as a streaming storage system for retrieving and querying historical data  ."
+    ],
+    "seconds": 2.11
+  },
+  {
+    "question": "bounded vs unbounded data",
+    "asked": "bounded vs unbounded data",
+    "refused": false,
+    "citations": [
+      "ch07-007",
+      "ch03-089"
+    ],
+    "sentences": 4,
+    "supported": 0,
+    "mean_coverage": 0.079,
+    "fake_quotes": [],
+    "untraceable": [
+      "Bounded data is data that has been organized or segmented into discrete units, such as a list of grocery items  .",
+      "Unbounded data, on the other hand, refers to data that flows continuously and is not confined to a specific boundary, like real-time event streams  .",
+      "In the context of data processing, bounded data can be thought of as data batches, while unbounded data represents ongoing real-time event streams  .",
+      "Real-time and batch processing can use nearly identical code in the Dataflow model, treating both as event streams, with the key difference being the boundednes"
+    ],
+    "seconds": 2.77
+  },
+  {
+    "question": "push vs pull ingestion",
+    "asked": "push vs pull ingestion",
+    "refused": false,
+    "citations": [
+      "ch02-022",
+      "ch07-029"
+    ],
+    "sentences": 3,
+    "supported": 0,
+    "mean_coverage": 0.066,
+    "fake_quotes": [],
+    "untraceable": [
+      "In the push model, a source system writes data directly to a target, as seen in streaming ingestion where data is pushed to an endpoint  .",
+      "In contrast, the pull model involves a target system retrieving data from a source, exemplified by ETL processes that query a source database for changed rows  ",
+      "The lines between these paradigms can be blurry, and both models can be used in various data ingestion scenarios  ."
+    ],
+    "seconds": 1.93
+  },
+  {
+    "question": "what is a direct database connection",
+    "asked": "what is a direct database connection",
+    "refused": false,
+    "citations": [
+      "ch07-048",
+      "ch07-049"
+    ],
+    "sentences": 5,
+    "supported": 0,
+    "mean_coverage": 0.077,
+    "fake_quotes": [],
+    "untraceable": [
+      "A direct database connection involves querying and reading data from a database over a network connection, typically using standards like ODBC or JDBC  .",
+      "ODBC and JDBC act as translation layers between the client application and the database, allowing data to be pulled for ingestion  .",
+      "JDBC, in particular, provides database driver portability across different JVM languages and frameworks  .",
+      "These connections can be used to ingest data from relational databases, with various enhancements like parallel connections to speed up the process  .",
+      "However, using parallel connections can increase the load on the source database  ."
+    ],
+    "seconds": 2.53
+  },
+  {
+    "question": "why does replay matter for event streams",
+    "asked": "why does replay matter for event streams",
+    "refused": false,
+    "citations": [
+      "ch07-041",
+      "ch05-064"
+    ],
+    "sentences": 2,
+    "supported": 0,
+    "mean_coverage": 0.385,
+    "fake_quotes": [],
+    "untraceable": [
+      "Replay is crucial for event streams because it allows readers to request a range of messages from the history, enabling the reprocessing of data for a specific ",
+      "This capability is particularly useful in event-streaming platforms where data is retained for a while and can be replayed from a past point in time  ."
+    ],
+    "seconds": 1.74
+  },
+  {
+    "question": "what is polling",
+    "asked": "what is polling",
+    "refused": false,
+    "citations": [
+      "ch07-029"
+    ],
+    "sentences": 2,
+    "supported": 2,
+    "mean_coverage": 1.0,
+    "fake_quotes": [],
+    "untraceable": [],
+    "seconds": 1.3
+  },
+  {
+    "question": "what is a data migration",
+    "asked": "what is a data migration",
+    "refused": false,
+    "citations": [
+      "ch07-035",
+      "ch07-036",
+      "ch07-075"
+    ],
+    "sentences": 5,
+    "supported": 3,
+    "mean_coverage": 0.415,
+    "fake_quotes": [],
+    "untraceable": [
+      "It is crucial to consider schema management, as subtle differences between database systems can cause issues  .",
+      "For massive data sizes, physical transfer appliances like Snowmobile can be used to move data more efficiently than over the internet  ."
+    ],
+    "seconds": 2.62
+  },
+  {
+    "question": "stream-to-batch architecture",
+    "asked": "stream-to-batch architecture",
+    "refused": false,
+    "citations": [
+      "ch06-078"
+    ],
+    "sentences": 3,
+    "supported": 0,
+    "mean_coverage": 0.196,
+    "fake_quotes": [],
+    "untraceable": [
+      "The stream-to-batch architecture, similar to the Lambda architecture, processes data from a streaming storage system in both real-time and batch modes.",
+      "Data is written to multiple consumers, including real-time processing systems and batch storage consumers like AWS Kinesis Firehose or BigQuery  .",
+      "This architecture supports seamless querying of both streaming and batch data, providing a current, nearly real-time view of the data  ."
+    ],
+    "seconds": 1.96
+  },
+  {
+    "question": "how do you detect upstream and downstream schema changes",
+    "asked": "how do you detect upstream and downstream schema changes",
+    "refused": false,
+    "citations": [
+      "ch07-026",
+      "ch08-153",
+      "ch07-038"
+    ],
+    "sentences": 4,
+    "supported": 2,
+    "mean_coverage": 0.418,
+    "fake_quotes": [],
+    "untraceable": [
+      "Specifically, you should run data-quality tests on the input and transformed datasets to ensure the data meets expectations  .",
+      "Automation can help detect schema changes, such as adding a new column or changing a column type, but communication is crucial to avoid breaking downstream pipe"
+    ],
+    "seconds": 2.45
+  },
+  {
+    "question": "what is a watermark",
+    "asked": "what is a watermark",
+    "refused": false,
+    "citations": [
+      "ch08-039"
+    ],
+    "sentences": 1,
+    "supported": 1,
+    "mean_coverage": 0.741,
+    "fake_quotes": [],
+    "untraceable": [],
+    "seconds": 1.23
+  },
+  {
+    "question": "watermark",
+    "asked": "watermark",
+    "refused": false,
+    "citations": [
+      "ch08-039"
+    ],
+    "sentences": 1,
+    "supported": 1,
+    "mean_coverage": 0.852,
+    "fake_quotes": [],
+    "untraceable": [],
+    "seconds": 1.22
+  },
+  {
+    "question": "watermak",
+    "asked": "watermark",
+    "refused": false,
+    "citations": [
+      "ch08-039"
+    ],
+    "sentences": 1,
+    "supported": 1,
+    "mean_coverage": 0.92,
+    "fake_quotes": [],
+    "untraceable": [],
+    "seconds": 1.27
+  },
+  {
+    "question": "next codd introduced the idea of what",
+    "asked": "next codd introduced the idea of what",
+    "refused": false,
+    "citations": [
+      "ch08-051"
+    ],
+    "sentences": 1,
+    "supported": 1,
+    "mean_coverage": 1.0,
+    "fake_quotes": [],
+    "untraceable": [],
+    "seconds": 1.0
+  },
+  {
+    "question": "what is normalization",
+    "asked": "what is normalization",
+    "refused": false,
+    "citations": [
+      "ch08-051",
+      "ch08-052",
+      "ch08-056"
+    ],
+    "sentences": 5,
+    "supported": 2,
+    "mean_coverage": 0.365,
+    "fake_quotes": [],
+    "untraceable": [
+      "It typically involves applying normal forms, such as 1NF, 2NF, and 3NF, to ensure that each column contains a single value, and that no partial or transitive de",
+      "The goal is to free the database from undesirable insertion, update, and deletion dependencies, reduce the need for restructuring, make the model more informati",
+      "The degree of normalization depends on the use case, and while denormalization can offer performance advantages, normalization is generally preferred  ."
+    ],
+    "seconds": 3.37
+  },
+  {
+    "question": "normailzation",
+    "asked": "normalization",
+    "refused": false,
+    "citations": [
+      "ch08-051",
+      "ch05-031",
+      "ch08-056"
+    ],
+    "sentences": 9,
+    "supported": 3,
+    "mean_coverage": 0.416,
+    "fake_quotes": [],
+    "untraceable": [
+      "It was introduced by Edgar Codd in the early 1970s and involves applying normal forms to achieve different levels of normalization.",
+      "The first three normal forms are:  1.",
+      "First Normal Form (1NF): Each column is unique and has a single value, with a unique primary key.",
+      "Second Normal Form (2NF): Removes partial dependencies and ensures that each non-key column is fully functionally dependent on the primary key.",
+      "Third Normal Form (3NF): Removes transitive dependencies, ensuring that each non-key column is not dependent on another non-key column.",
+      "The degree of normalization depends on the use case, and while a database is usually considered normalized if it’s in third normal form, denormalization can be "
+    ],
+    "seconds": 4.35
+  },
+  {
+    "question": "what is denormalization",
+    "asked": "what is denormalization",
+    "refused": false,
+    "citations": [
+      "ch08-056",
+      "ch08-083"
+    ],
+    "sentences": 3,
+    "supported": 1,
+    "mean_coverage": 0.216,
+    "fake_quotes": [],
+    "untraceable": [
+      "Denormalization is a practice in database design that involves reducing the benefits of normalization to improve performance, especially in scenarios where data",
+      "It can be seen as the opposite of normalization, where data is repeated across multiple tables to avoid complex joins and improve query performance  ."
+    ],
+    "seconds": 2.49
+  },
+  {
+    "question": "types of joins",
+    "asked": "types of joins",
+    "refused": false,
+    "citations": [
+      "ch08-013",
+      "ch08-093"
+    ],
+    "sentences": 3,
+    "supported": 0,
+    "mean_coverage": 0.099,
+    "fake_quotes": [],
+    "untraceable": [
+      "The types of joins mentioned in the passages include inner, outer, left, and cross joins  .",
+      "Additionally, the passages discuss broadcast joins and shuffle hash joins, which are specific to distributed environments.",
+      "Broadcast joins are typically used when one table is small enough to fit on a single node, while shuffle hash joins are used when neither table fits on a single"
+    ],
+    "seconds": 1.69
+  },
+  {
+    "question": "what is a broadcast join",
+    "asked": "what is a broadcast join",
+    "refused": false,
+    "citations": [
+      "ch08-092"
+    ],
+    "sentences": 3,
+    "supported": 3,
+    "mean_coverage": 0.947,
+    "fake_quotes": [],
+    "untraceable": [],
+    "seconds": 1.69
+  },
+  {
+    "question": "what is a query optimizer",
+    "asked": "what is a query optimizer",
+    "refused": false,
+    "citations": [
+      "ch08-011"
+    ],
+    "sentences": 3,
+    "supported": 0,
+    "mean_coverage": 0.105,
+    "fake_quotes": [],
+    "untraceable": [
+      "A query optimizer is a component that helps in optimizing query performance and minimizing costs by breaking the query into efficient steps.",
+      "Its job is to determine the most efficient way to execute a query, considering factors like joins, indexes, and data scan size  .",
+      "Understanding the functionality of a query optimizer can help in writing more performant queries, although you won't directly work with it  ."
+    ],
+    "seconds": 1.84
+  },
+  {
+    "question": "types of windows in stream processing",
+    "asked": "types of windows in stream processing",
+    "refused": false,
+    "citations": [
+      "ch08-034",
+      "ch08-037",
+      "ch08-035"
+    ],
+    "sentences": 3,
+    "supported": 1,
+    "mean_coverage": 0.394,
+    "fake_quotes": [],
+    "untraceable": [
+      "The types of windows in stream processing include session, fixed-time, and sliding windows.",
+      "A fixed-time window processes all data from a fixed time period, such as every 20 seconds."
+    ],
+    "seconds": 1.7
+  },
+  {
+    "question": "what is a materialized view",
+    "asked": "what is a materialized view",
+    "refused": false,
+    "citations": [
+      "ch08-131",
+      "ch08-133"
+    ],
+    "sentences": 5,
+    "supported": 0,
+    "mean_coverage": 0.084,
+    "fake_quotes": [],
+    "untraceable": [
+      "A materialized view is a database object that precomputes and stores the results of a query, allowing for faster query execution  .",
+      "Unlike nonmaterialized views, which require the query to be run every time a user queries the view, a materialized view saves the results of the query in a tabl",
+      "This precomputed data can be queried directly, providing faster response times  .",
+      "Additionally, materialized views can serve as a query optimization tool, even for queries that do not directly reference them  .",
+      "They can be updated automatically when the source data changes, offering a balance between the performance benefits of a native table and the flexibility of a v"
+    ],
+    "seconds": 2.71
+  },
+  {
+    "question": "what is a star schema",
+    "asked": "what is a star schema",
+    "refused": false,
+    "citations": [
+      "ch08-071",
+      "ch08-065",
+      "ch08-072"
+    ],
+    "sentences": 4,
+    "supported": 1,
+    "mean_coverage": 0.362,
+    "fake_quotes": [],
+    "untraceable": [
+      "A star schema is a data model that consists of a fact table surrounded by necessary dimensions, which speeds up query performance and is easier for business use",
+      "The fact table in a star schema contains factual, quantitative, and event-related data and is append-only  .",
+      "Star schemas can have multiple schemas addressing different facts of the business, and dimensions that are reused across multiple schemas are called conformed d"
+    ],
+    "seconds": 2.28
+  },
+  {
+    "question": "what is a fact table",
+    "asked": "what is a fact table",
+    "refused": false,
+    "citations": [
+      "ch08-065"
+    ],
+    "sentences": 4,
+    "supported": 1,
+    "mean_coverage": 0.248,
+    "fake_quotes": [],
+    "untraceable": [
+      "It is immutable and append-only, with data typically represented as numbers  .",
+      "Fact tables are narrow and long, meaning they have few columns but many rows representing events  .",
+      "Each row in a fact table represents the grain of the data, and fact tables do not reference other fact tables but only dimensions  ."
+    ],
+    "seconds": 2.04
+  },
+  {
+    "question": "what is a dimension table",
+    "asked": "what is a dimension table",
+    "refused": false,
+    "citations": [
+      "ch08-067",
+      "ch08-069"
+    ],
+    "sentences": 5,
+    "supported": 1,
+    "mean_coverage": 0.167,
+    "fake_quotes": [],
+    "untraceable": [
+      "These tables are typically smaller and have a wide and short shape, as opposed to the narrow and long shape of fact tables  .",
+      "Dimension tables can include fields such as date, customer information, and other attributes that describe the events  .",
+      "For example, a date dimension table might include fields like DateKey, Date-ISO, Year, Quarter, Month, and Day-of-week  .",
+      "Additionally, dimension tables can include slowly changing dimensions, such as a Type 2 SCD, which tracks changes in the dimension records by inserting new reco"
+    ],
+    "seconds": 3.19
+  },
+  {
+    "question": "what is data vault modeling",
+    "asked": "what is data vault modeling",
+    "refused": false,
+    "citations": [
+      "ch08-073",
+      "ch08-079"
+    ],
+    "sentences": 5,
+    "supported": 3,
+    "mean_coverage": 0.637,
+    "fake_quotes": [],
+    "untraceable": [
+      "Hubs store business keys, links maintain relationships among business keys, and satellites represent a business key’s attributes and context  .",
+      "Unlike Kimball and Inmon approaches, Data Vault does not represent business logic in facts or highly normalized tables; instead, it loads data directly into a h"
+    ],
+    "seconds": 3.08
+  },
+  {
+    "question": "kimball is on the opposite end of the data modeling spectrum from who",
+    "asked": "kimball is on the opposite end of the data modeling spectrum from who",
+    "refused": false,
+    "citations": [
+      "ch08-064"
+    ],
+    "sentences": 1,
+    "supported": 0,
+    "mean_coverage": 0.2,
+    "fake_quotes": [],
+    "untraceable": [
+      "kimball is on the opposite end of the data modeling spectrum from Inmon  ."
+    ],
+    "seconds": 1.22
+  },
+  {
+    "question": "under the hood, batch processing is what",
+    "asked": "under the hood, batch processing is what",
+    "refused": false,
+    "citations": [
+      "ch07-030",
+      "ch02-018"
+    ],
+    "sentences": 3,
+    "supported": 2,
+    "mean_coverage": 0.514,
+    "fake_quotes": [],
+    "untraceable": [
+      "Batch processing remains a popular way to ingest data for downstream consumption, especially in analytics and machine learning  ."
+    ],
+    "seconds": 1.98
+  },
+  {
+    "question": "data wrangling",
+    "asked": "data wrangling",
+    "refused": false,
+    "citations": [
+      "ch08-115",
+      "ch08-116"
+    ],
+    "sentences": 5,
+    "supported": 0,
+    "mean_coverage": 0.058,
+    "fake_quotes": [],
+    "untraceable": [
+      "Data wrangling is the process of transforming messy, malformed data into clean, useful data  .",
+      "It often involves steps like dealing with mistyped data, splitting text fields, and joining with lookup tables  .",
+      "This process can be time-consuming, but data wrangling tools can help automate some of these tasks  .",
+      "Over time, data wrangling helps identify anomalies and edge cases, preparing data for downstream transformation  .",
+      "Tools for data wrangling are designed to simplify this process, allowing data engineers to focus on more interesting tasks  ."
+    ],
+    "seconds": 2.48
+  },
+  {
+    "question": "how does micro-batch differ from true streaming",
+    "asked": "how does micro-batch differ from true streaming",
+    "refused": false,
+    "citations": [
+      "ch08-141"
+    ],
+    "sentences": 5,
+    "supported": 0,
+    "mean_coverage": 0.066,
+    "fake_quotes": [],
+    "untraceable": [
+      "Micro-batch differs from true streaming in how they handle data processing.",
+      "Micro-batch processes data in small batches, typically ranging from every two minutes to every second, whereas true streaming processes data one event at a time",
+      "Micro-batch can be more efficient in terms of resource allocation and performance when dealing with high-frequency data, as seen in Spark Streaming  .",
+      "True streaming, on the other hand, is designed for low-latency processing but comes with higher overhead  .",
+      "The choice between the two depends on the specific use case, such as the acceptable latency and the frequency of data processing  ."
+    ],
+    "seconds": 2.62
+  },
+  {
+    "question": "slowly changing dimensions",
+    "asked": "slowly changing dimensions",
+    "refused": false,
+    "citations": [
+      "ch08-069"
+    ],
+    "sentences": 5,
+    "supported": 1,
+    "mean_coverage": 0.256,
+    "fake_quotes": [],
+    "untraceable": [
+      "In the example provided, when Matt Housley changed his zip code, a new record was created to reflect the change, while the old record was marked with an end dat",
+      "There are three common types of SCDs: Type 1, Type 2, and Type 3.",
+      "Type 2 SCDs involve inserting a new record when an existing record changes, while Type 3 SCDs create new fields to record the change  .",
+      "Not in this book."
+    ],
+    "seconds": 2.52
+  },
+  {
+    "question": "what is reverse etl",
+    "asked": "what is reverse etl",
+    "refused": false,
+    "citations": [
+      "ch09-055",
+      "ch09-056",
+      "ch09-057"
+    ],
+    "sentences": 6,
+    "supported": 1,
+    "mean_coverage": 0.295,
+    "fake_quotes": [],
+    "untraceable": [
+      "Reverse ETL is a process that involves loading processed data from an OLAP database back into a source system, such as a CRM.",
+      "This practice is increasingly recognized as a formal data engineering responsibility, especially as businesses rely more on SaaS and external platforms  .",
+      "While the term may evolve, the practice of loading data from OLAP systems back into source systems is expected to remain important  .",
+      "Reverse ETL can be used to reduce friction with end users, such as a sales team, by directly updating their systems with relevant data  .",
+      "However, reverse ETL can create feedback loops, so it's important to implement monitoring and guardrails to prevent issues like excessive spending on ads  ."
+    ],
+    "seconds": 3.31
+  },
+  {
+    "question": "what is a feature store",
+    "asked": "what is a feature store",
+    "refused": false,
+    "citations": [
+      "ch02-037"
+    ],
+    "sentences": 2,
+    "supported": 1,
+    "mean_coverage": 0.527,
+    "fake_quotes": [],
+    "untraceable": [
+      "It maintains feature history and versions, supports feature sharing among teams, and provides basic operational and orchestration capabilities, such as backfill"
+    ],
+    "seconds": 1.48
+  },
+  {
+    "question": "what is business intelligence",
+    "asked": "what is business intelligence",
+    "refused": false,
+    "citations": [
+      "ch02-032"
+    ],
+    "sentences": 4,
+    "supported": 3,
+    "mean_coverage": 0.762,
+    "fake_quotes": [],
+    "untraceable": [
+      "As a company grows, it moves from ad hoc data analysis to self-service analytics, allowing business users to access and analyze data themselves."
+    ],
+    "seconds": 2.13
+  },
+  {
+    "question": "what is embedded analytics",
+    "asked": "what is embedded analytics",
+    "refused": false,
+    "citations": [
+      "ch09-027",
+      "ch09-028",
+      "ch02-035"
+    ],
+    "sentences": 4,
+    "supported": 0,
+    "mean_coverage": 0.084,
+    "fake_quotes": [],
+    "untraceable": [
+      "Embedded analytics refers to analytics dashboards embedded within applications, allowing end-users to make real-time decisions based on data  .",
+      "These applications can range from a smart thermostat showing real-time temperature and power consumption metrics to a third-party ecommerce platform providing s",
+      "The key characteristics of embedded analytics include low data latency, fast query performance, and high concurrency to support multiple dashboards and customer",
+      "As the demand for such applications grows, they face unique challenges, such as managing high query rates and ensuring tenant-level security to prevent data lea"
+    ],
+    "seconds": 2.5
+  },
+  {
+    "question": "what is query federation",
+    "asked": "what is query federation",
+    "refused": false,
+    "citations": [
+      "ch09-045",
+      "ch09-044",
+      "ch08-133"
+    ],
+    "sentences": 6,
+    "supported": 0,
+    "mean_coverage": 0.226,
+    "fake_quotes": [],
+    "untraceable": [
+      "Query federation is a technique that allows an OLAP database to select data from external sources, such as object storage or relational databases  .",
+      "It enables ad hoc queries for analyzing data from various systems without setting up complex data pipelines or ETL processes  .",
+      "Federated queries can be used when flexibility in data analysis is needed, and when source data access needs to be tightly controlled  .",
+      "This approach can also provide read-only access to source systems, ensuring that users only access the data they are supposed to  .",
+      "Federated queries can be implemented using distributed query virtualization engines like Trino, Presto, or Starburst  .",
+      "Some OLAP systems can convert federated queries into materialized views, which can offer performance similar to native tables without the need for manual data i"
+    ],
+    "seconds": 3.22
+  },
+  {
+    "question": "how do data scientists use notebooks",
+    "asked": "how do data scientists use notebooks",
+    "refused": false,
+    "citations": [
+      "ch09-050",
+      "ch09-051",
+      "ch09-053"
+    ],
+    "sentences": 5,
+    "supported": 0,
+    "mean_coverage": 0.029,
+    "fake_quotes": [],
+    "untraceable": [
+      "Data scientists use notebooks for various tasks, such as exploring data, engineering features, and training models  .",
+      "They programmatically connect to data sources like APIs, databases, or data lakes using appropriate libraries  .",
+      "Notebooks can be hosted locally or in the cloud, with cloud-based notebooks offering scalable storage and memory  .",
+      "When working with large datasets, data scientists might use distributed execution systems like Dask, Ray, or Spark  .",
+      "Notably, Jupyter Notebook and JupyterLab are popular choices for data scientists  ."
+    ],
+    "seconds": 2.5
+  },
+  {
+    "question": "ways to serve data to consumers",
+    "asked": "ways to serve data to consumers",
+    "refused": false,
+    "citations": [
+      "ch09-035",
+      "ch09-001",
+      "ch07-077"
+    ],
+    "sentences": 3,
+    "supported": 1,
+    "mean_coverage": 0.341,
+    "fake_quotes": [],
+    "untraceable": [
+      "These methods allow data engineers to provide the necessary data to data scientists and ML engineers for their work  .",
+      "Data sharing, in particular, is a common approach where datasets are shared in a read-only fashion, enabling integration with other data but not granting owners"
+    ],
+    "seconds": 1.84
+  },
+  {
+    "question": "why do data definitions matter when serving data",
+    "asked": "why do data definitions matter when serving data",
+    "refused": false,
+    "citations": [
+      "ch09-013"
+    ],
+    "sentences": 4,
+    "supported": 0,
+    "mean_coverage": 0.095,
+    "fake_quotes": [],
+    "untraceable": [
+      "Data definitions matter when serving data because they ensure the correctness and trustworthiness of the data  .",
+      "Proper data definitions and logic are crucial for computing metrics accurately, such as gross sales or customer churn  .",
+      "Without clear and consistent definitions, the meaning of data can vary across departments, leading to potential misunderstandings and errors  .",
+      "Therefore, data definitions and logic must be baked into the data throughout its lifecycle to ensure its utility and reliability  ."
+    ],
+    "seconds": 2.18
+  },
+  {
+    "question": "olap vs oltp",
+    "asked": "olap vs oltp",
+    "refused": false,
+    "citations": [
+      "ch05-011"
+    ],
+    "sentences": 5,
+    "supported": 0,
+    "mean_coverage": 0.013,
+    "fake_quotes": [],
+    "untraceable": [
+      "OLAP and OLTP serve different purposes.",
+      "OLTP systems are designed for transactional workloads, handling high rates of read and write operations on individual records  .",
+      "In contrast, OLAP systems are built for running large analytics queries, often involving scanning large volumes of data  .",
+      "OLAP systems are less efficient for individual record lookups  .",
+      "Both types of systems are important in data management, with OLTP supporting real-time transactions and OLAP enabling scalable analytics  ."
+    ],
+    "seconds": 2.12
+  },
+  {
+    "question": "what is a data product",
+    "asked": "what is a data product",
+    "refused": false,
+    "citations": [
+      "ch09-008",
+      "ch09-009"
+    ],
+    "sentences": 5,
+    "supported": 1,
+    "mean_coverage": 0.351,
+    "fake_quotes": [],
+    "untraceable": [
+      "It is not created in a vacuum but involves a mix of product and business alongside technology, requiring the involvement of key stakeholders such as data analys",
+      "A good data product should have positive feedback loops, where more usage generates more useful data to improve the product  .",
+      "It is important to understand the user's motivation and the outcomes expected by them  .",
+      "Data products are built around sound business logic and metrics, serving either internal or external users, and their success depends on user adoption and trust"
+    ],
+    "seconds": 2.75
+  },
+  {
+    "question": "what is the principle of least privilege",
+    "asked": "what is the principle of least privilege",
+    "refused": false,
+    "citations": [
+      "ch10-010",
+      "ch10-011"
+    ],
+    "sentences": 4,
+    "supported": 2,
+    "mean_coverage": 0.451,
+    "fake_quotes": [],
+    "untraceable": [
+      "This principle applies to both humans and machines, ensuring that they are provided with only the necessary access and permissions for their job, and only for t",
+      "It is crucial for privacy as well, ensuring that sensitive data is accessed only when necessary  ."
+    ],
+    "seconds": 2.77
+  },
+  {
+    "question": "what is zero trust",
+    "asked": "what is zero trust",
+    "refused": false,
+    "citations": [
+      "ch03-035"
+    ],
+    "sentences": 3,
+    "supported": 0,
+    "mean_coverage": 0.042,
+    "fake_quotes": [],
+    "untraceable": [
+      "Zero-trust security is a security model that does not assume any internal network is secure or trustworthy  .",
+      "It requires that all assets, whether inside or outside the network, be treated as untrusted and must be authenticated and authorized before accessing resources ",
+      "This approach is more aligned with cloud-native environments where the notion of a hardened perimeter is less applicable due to the interconnected nature of clo"
+    ],
+    "seconds": 2.08
+  },
+  {
+    "question": "how does encryption at rest differ from encryption in motion",
+    "asked": "how does encryption at rest differ from encryption in motion",
+    "refused": false,
+    "citations": [
+      "ch10-020",
+      "ch07-084",
+      "ch07-090"
+    ],
+    "sentences": 3,
+    "supported": 0,
+    "mean_coverage": 0.053,
+    "fake_quotes": [],
+    "untraceable": [
+      "Encryption at rest protects data when it is stored, such as on a storage device, server, or backup  .",
+      "Encryption in motion, or \"encryption over the wire,\" protects data during transmission between locations  .",
+      "emphasizes that full-disk encryption and server-side encryption are essential for data at rest, while   stresses the importance of encrypting data during transi"
+    ],
+    "seconds": 1.98
+  },
+  {
+    "question": "what is tokenization",
+    "asked": "what is tokenization",
+    "refused": false,
+    "citations": [
+      "ch07-088"
+    ],
+    "sentences": 1,
+    "supported": 0,
+    "mean_coverage": 0.318,
+    "fake_quotes": [],
+    "untraceable": [
+      "Tokenization is a process used to anonymize sensitive identities in model training and analytics, particularly when it is necessary to keep track of sensitive i"
+    ],
+    "seconds": 1.25
+  },
+  {
+    "question": "hashing vs encryption",
+    "asked": "hashing vs encryption",
+    "refused": false,
+    "citations": [
+      "ch07-090"
+    ],
+    "sentences": 5,
+    "supported": 0,
+    "mean_coverage": 0.0,
+    "fake_quotes": [],
+    "untraceable": [
+      "Encryption and hashing serve different purposes.",
+      "Encryption is used to protect data in transit and at rest, ensuring that only authorized parties can access the data.",
+      "It is a security measure that transforms data into a secure format that can only be accessed with the correct decryption key.",
+      "On the other hand, hashing is a one-way function that converts data into a fixed-size string of characters, which is not reversible.",
+      "Hashing is used to verify the integrity of data and to securely store passwords, as it does not reveal the original data."
+    ],
+    "seconds": 2.28
+  },
+  {
+    "question": "what is data masking",
+    "asked": "what is data masking",
+    "refused": false,
+    "citations": [
+      "ch02-044"
+    ],
+    "sentences": 2,
+    "supported": 0,
+    "mean_coverage": 0.033,
+    "fake_quotes": [],
+    "untraceable": [
+      "Data masking is a technique used to protect sensitive data by scrambling or obfuscating the data in a way that allows for the necessary analysis while making it",
+      "This method is part of a broader set of data security measures that also includes encryption, tokenization, and access controls  ."
+    ],
+    "seconds": 1.82
+  },
+  {
+    "question": "what is shared responsibility in the cloud",
+    "asked": "what is shared responsibility in the cloud",
+    "refused": false,
+    "citations": [
+      "ch03-037",
+      "ch10-012"
+    ],
+    "sentences": 4,
+    "supported": 1,
+    "mean_coverage": 0.389,
+    "fake_quotes": [],
+    "untraceable": [
+      "Shared responsibility in the cloud refers to the division of security responsibilities between the cloud provider and the user.",
+      "According to the shared responsibility model, AWS is responsible for the security of the cloud infrastructure, including the hardware and the underlying systems",
+      "This model applies to most cloud providers, where they secure their services according to published specifications, but the user is ultimately responsible for d"
+    ],
+    "seconds": 2.26
+  },
+  {
+    "question": "what does it mean to always be paranoid about security",
+    "asked": "what does it mean to always be paranoid about security",
+    "refused": false,
+    "citations": [
+      "ch10-006"
+    ],
+    "sentences": 4,
+    "supported": 0,
+    "mean_coverage": 0.084,
+    "fake_quotes": [],
+    "untraceable": [
+      "Always being paranoid about security means maintaining a cautious and vigilant mindset, especially when it comes to protecting sensitive credentials and informa",
+      "You should always assume that someone, whether a bot or a human, is trying to infiltrate your data  .",
+      "This involves exercising extreme caution when asked for credentials, and never providing them without getting second opinions and confirming the legitimacy of t",
+      "It also means being the first line of defense for privacy and ethics, raising concerns about sensitive data and ethical handling of information  ."
+    ],
+    "seconds": 2.25
+  },
+  {
+    "question": "what is pii",
+    "asked": "what is pii",
+    "refused": false,
+    "citations": [
+      "ch02-066"
+    ],
+    "sentences": 2,
+    "supported": 0,
+    "mean_coverage": 0.026,
+    "fake_quotes": [],
+    "untraceable": [
+      "PII, or personally identifiable information, is a type of sensitive information that data engineers need to mask in datasets to ensure privacy  .",
+      "Not in this book."
+    ],
+    "seconds": 1.16
+  },
+  {
+    "question": "what is the live data stack",
+    "asked": "what is the live data stack",
+    "refused": false,
+    "citations": [
+      "ch11-016",
+      "ch11-018"
+    ],
+    "sentences": 3,
+    "supported": 0,
+    "mean_coverage": 0.184,
+    "fake_quotes": [],
+    "untraceable": [
+      "The live data stack is a next-generation technology that integrates real-time analytics and machine learning into applications, leveraging streaming technologie",
+      "It covers the entire data lifecycle, from application source systems to data processing and back, and aims to make real-time data application technologies acces",
+      "This stack is seen as a successor to the modern data stack (MDS) and represents a shift from data-warehouse-based analytics to real-time business and applicatio"
+    ],
+    "seconds": 2.22
+  },
+  {
+    "question": "dark matter data",
+    "asked": "dark matter data",
+    "refused": true,
+    "citations": [
+      "ch11-025",
+      "ch03-099",
+      "ch07-022"
+    ],
+    "sentences": 1,
+    "supported": 0,
+    "mean_coverage": 0.0,
+    "fake_quotes": [],
+    "untraceable": [
+      "Not in this book."
+    ],
+    "seconds": 0.85
+  },
+  {
+    "question": "why is the data engineering lifecycle not going away",
+    "asked": "why is the data engineering lifecycle not going away",
+    "refused": false,
+    "citations": [
+      "ch11-003",
+      "ch02-091"
+    ],
+    "sentences": 4,
+    "supported": 2,
+    "mean_coverage": 0.455,
+    "fake_quotes": [],
+    "untraceable": [
+      "Additionally, the data engineering lifecycle provides a framework for organizing the work of data engineering, covering stages like generation, storage, ingesti",
+      "This lifecycle ensures that data engineers can think and act on a higher level, producing optimum ROI and reducing costs, security risks, and maximizing data va"
+    ],
+    "seconds": 2.76
+  },
+  {
+    "question": "how are data and applications fusing",
+    "asked": "how are data and applications using",
+    "refused": false,
+    "citations": [
+      "ch11-024",
+      "ch11-023"
+    ],
+    "sentences": 4,
+    "supported": 0,
+    "mean_coverage": 0.247,
+    "fake_quotes": [],
+    "untraceable": [
+      "Data and applications are increasingly being integrated in a way that they can work more closely together.",
+      "In  , it is mentioned that applications and ML are currently disjointed systems, but the future trend is towards a fusion where applications will integrate real",
+      "This integration will shorten the time between stages of the data engineering lifecycle, making the process more efficient.",
+      "Additionally,   states that as data feedback loops become shorter, most applications are expected to integrate ML, creating a cycle of ever-smarter applications"
+    ],
+    "seconds": 2.6
+  },
+  {
+    "question": "what comes after the modern data stack",
+    "asked": "what comes after the modern data stack",
+    "refused": false,
+    "citations": [
+      "ch11-016",
+      "ch11-018"
+    ],
+    "sentences": 3,
+    "supported": 0,
+    "mean_coverage": 0.23,
+    "fake_quotes": [],
+    "untraceable": [
+      "The live data stack comes after the modern data stack  .",
+      "The live data stack integrates real-time analytics and machine learning into applications, using streaming technologies to cover the full data lifecycle from so",
+      "This shift is seen as the next step beyond the modern data stack, which is focused on cloud-based, modular, and cost-effective data architectures  ."
+    ],
+    "seconds": 1.96
+  },
+  {
+    "question": "how will data engineering titles change",
+    "asked": "how will data engineering titles change",
+    "refused": false,
+    "citations": [
+      "ch11-013",
+      "ch11-003",
+      "ch11-015"
+    ],
+    "sentences": 5,
+    "supported": 1,
+    "mean_coverage": 0.353,
+    "fake_quotes": [],
+    "untraceable": [
+      "Data engineering titles will change as the roles between software engineering, data engineering, data science, and ML engineering become more blurred.",
+      "Data engineers will move up the value chain, focusing on higher-level tasks, while software engineers will acquire data engineering skills.",
+      "New roles may emerge, such as a hybrid role between ML engineering and data engineering.",
+      "Not in this book."
+    ],
+    "seconds": 2.5
+  },
+  {
+    "question": "streaming pipelines and real-time analytics",
+    "asked": "streaming pipelines and real-time analytics",
+    "refused": false,
+    "citations": [
+      "ch11-019",
+      "ch11-020",
+      "ch09-043"
+    ],
+    "sentences": 5,
+    "supported": 0,
+    "mean_coverage": 0.139,
+    "fake_quotes": [],
+    "untraceable": [
+      "Streaming pipelines and real-time analytical databases are key technologies facilitating the transition from batch processing to live data stacks.",
+      "They enable fast ingestion and subsecond queries, allowing for continuous data flow and real-time analytics.",
+      "As streaming technologies mature, batch ingestion is becoming less common, with streaming transformation becoming the norm.",
+      "New data-modeling techniques will emerge, focusing on the systems generating data rather than traditional data warehouses.",
+      "Streaming analytics are increasingly important for serving data, including emitted metrics and operational analytics databases that combine OLAP and stream-proc"
+    ],
+    "seconds": 2.49
+  },
+  {
+    "question": "what is the cloud-scale data os",
+    "asked": "what is the cloud-scale data os",
+    "refused": false,
+    "citations": [
+      "ch11-008",
+      "ch11-007",
+      "ch11-011"
+    ],
+    "sentences": 4,
+    "supported": 0,
+    "mean_coverage": 0.113,
+    "fake_quotes": [],
+    "untraceable": [
+      "The cloud-scale data OS is an operating system-like abstraction for managing data services at a much larger scale than traditional operating systems, running ac",
+      "It aims to improve interoperability and simplify data engineering tasks, much like how modern operating systems provide essential services to applications  .",
+      "This includes standardized data APIs, metadata catalogs, and improved orchestration tools for managing and monitoring data services  .",
+      "The cloud-scale data OS will enhance the ability to build and manage data pipelines and applications more efficiently, similar to how modern mobile operating sy"
+    ],
+    "seconds": 2.84
+  }
+]
