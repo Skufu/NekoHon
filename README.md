@@ -391,3 +391,9 @@ ask-this-book/
 - `artifacts/answer-model-bakeoff-results.md`, `artifacts/eval-v1.*`,
   `artifacts/embedding-audit-2026-10-13.txt` — the deep evidence behind the
   ledger above.
+
+## License
+
+GPL-3.0 — see `LICENSE`. The vendored text-preprocessing tools keep their own
+licenses: the Snowball stemmer ships BSD-3 in
+`vendor/snowballstemmer/COPYING`.
