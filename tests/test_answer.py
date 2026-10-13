@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest import mock
 
 from answer import REFUSAL, _plural, ask, explain, parse_completion, quiz
+from prompt import ANSWER_MODEL
 
 PASSAGES = [
     {
@@ -125,7 +126,7 @@ class AnswerTests(unittest.TestCase):
         self.assertIn("chunk_id=ch05-019", seen["user"])
         self.assertIn("Do not reword it.", seen["user"])
         self.assertFalse(seen["user"].rstrip().endswith(REFUSAL))
-        self.assertEqual(seen["model"], "qwen2.5:7b")
+        self.assertEqual(seen["model"], ANSWER_MODEL)
 
     def test_explain_uses_the_selection_as_the_question(self):
         seen = {}

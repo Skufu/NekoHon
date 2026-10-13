@@ -1,0 +1,6 @@
+model=smallbook cap=300 options={'temperature': 0.1, 'num_predict': 300, 'repeat_penalty': 1.3} repeat=3
+asked='What is a watermark?'
+draw 1:   0.6s chars=  306 done=stop
+draw 2:   0.6s chars=  297 done=stop
+draw 3:   0.5s chars=  282 done=stop
+length-stops (loops): 0/3

@@ -1,55 +1,67 @@
 # Teach the small model — Colab recipe, plain steps (2026-10-13)
 
-You need: Colab Pro, the file `data/finetune/quote-refuse-2026-10-13.train.jsonl`
-(126 cards), and this notebook: `finetune-colab-2026-10-13.ipynb`.
-Total time: ~30-45 minutes, most of it waiting.
+You need: Colab Pro, two files — `data/finetune/quote-refuse-2026-10-13.train-x2.jsonl`
+(167 cards) and `data/finetune/quote-refuse-2026-10-13.train-x1.jsonl`
+(140 cards) — and this notebook: `finetune-colab-2026-10-13.ipynb`.
+Total time: ~60-90 minutes, most of it waiting (two trainings, one session).
 
-What training does in one sentence: we show the A100 your 126 solved cards
-~3-4 times; it nudges a small model's behavior toward "quote this, gloss
+What training does in one sentence: we show the GPU your ~150 solved cards
+~6 times; it nudges a small model's behavior toward "quote this, gloss
 like this, refuse like this" — without retraining the model from scratch
 (that is what "LoRA" means: a small patch, not a new brain).
 
-## v2 update (same day)
+## v4 update (2026-10-13 night)
 
-The first run taught the model to refuse but not to **stop** — it rambled
-quote after quote forever (recorded in `finetune-data-prep-2026-10-13.md`).
-The notebook now carries three fixes: it trains on the model's answers only
-(`train_on_responses_only`), runs 120 steps instead of 60, and has a
-stop-check cell before export.
+The x3 file taught refusals but made the 3B loop on some answers — loops
+measured at temp 0, 0.1, 0.2, 0.3 and with penalties
+(`finetune-loop-eval-2026-10-13.md`) — and the Qwen3-4B variant over-refuses
+on in-book questions, so it is parked. The current notebook:
+- trains **two candidates in one session**, same Qwen2.5-3B base:
+  x2 (167 cards) -> `smallbook_gguf.zip`, x1 (140 cards) ->
+  `smallbook_x1_gguf.zip`, to find the refusal ratio that stops the loops;
+- upload **both** train files when the picker opens (multi-select);
+- trains on the model's answers only (`train_on_responses_only`), 120 steps;
+- prints a STOP-CHECK line after each training — one quote + one gloss
+  line + silence. A "LONG OUTPUT" verdict means tell me before trusting
+  that zip;
+- watches the trainer banner: **"Num examples" must match the card count**
+  (167 / 140). A smaller number means rows were dropped — on 2026-10-13
+  night a fresh Unsloth build defaulted `max_length=1024`, cut the
+  assistant marker off long rows, and silently kept 15/167; the notebook
+  now passes `SFTConfig(max_length=max_seq_length)`.
 
-When you re-run:
-- a new cell prints a sample reply BEFORE exporting. You want: one quoted
-  sentence, one gloss line, then silence. If it keeps writing, do not
-  export — tell me.
-- For the second candidate: change `MODEL_NAME` (try
-  `unsloth/Qwen3-4B-Instruct-2507-bnb-4bit`) and `EXPORT_NAME` (e.g.
-  `smallbook_q3`), then Runtime -> Restart session, and run all cells again.
-  Two zips = a bake-off.
+History: v1 rambled forever (full-text loss). v2/v3 fixed stopping but lost
+refusals; v4 narrows the refusal ratio.
+
+If cell 5 (model B) fails at load: Runtime -> Restart session, re-run cells
+1-3 (upload the file again), then run cell 5 alone.
 
 ## Steps
 
 1. Open https://colab.research.google.com → New notebook.
-2. **Important:** menu Runtime → Change runtime type → select **A100 GPU**.
+2. **Important:** menu Runtime → Change runtime type → **A100** if offered,
+   otherwise **L4** — both fine, High-RAM not needed. T4 also works but is
+   much slower.
 3. File → Upload notebook → pick `artifacts/finetune-colab-2026-10-13.ipynb`.
-4. In the second cell, set `MODEL_NAME`:
-   - Paste the base model your search picked. If you do not have it handy,
-     the cell has a safe default; we can also swap it later — the cards do
-     not change.
+4. The cell with `RUNS` already has the two candidates (Qwen2.5-3B on the
+   x2 file, then the same base on the x1 file). If your search named
+   something better, replace a model line — the cards do not change.
 5. Run the cells top to bottom (each cell has a ▶ button):
-   - install (~2 min), load model (~3 min), attach LoRA (fast),
-   - upload the train file when the cell asks (choose the .train.jsonl —
-     do NOT upload the bench file; that one is the exam and stays here),
-   - train: watch the "loss" numbers in the log. Lower = less wrong. They
-     should slide down over the ~60 steps.
-   - export: makes a small ~2.5 GB file (Q4_K_M) and downloads a zip.
-6. Send me the downloaded zip (or drop it in the repo folder yourself) and
-   say "it is here".
+   - install (~2 min),
+   - upload **both** train files when asked (x2 and x1 — do NOT upload the
+     bench file; that one is the exam and stays here),
+   - **cell 4**: trains run A (x2; ~20 min on A100, ~30-45 min on L4; watch
+     the loss numbers slide down), prints a STOP-CHECK line, then
+     downloads zip 1,
+   - **cell 5**: same for run B (x1) and zip 2, same session — both runs
+     are the same 3B base, only the data differs.
+6. Send me both zips (or drop them in the repo folder yourself) and say
+   "they are here".
 
 ## What I do then (nothing for you)
 
-1. Import the file into Ollama:
-   `echo FROM ./smallbook_gguf/unsloth.Q4_K_M.gguf > Modelfile` then
-   `ollama create smallbook -f Modelfile`.
+1. Import both files into Ollama as `smallbook` and `smallbook_q3` (my
+   job — no commands for you).
 2. Restart the engine on the small model and run the exam we already have:
    the ask battery, the answer battery, the retest corpus, class variance.
 3. Compare against the recorded 7B numbers (all committed). If the small
@@ -60,8 +72,7 @@ When you re-run:
 
 Copy the red text and send it to me; notebook libraries drift, and every
 fix has been quick so far. Two known ones:
-- "no chat template": the base model ships without one; the notebook has a
-  comment marking where to add two lines (Unsloth `get_chat_template`).
+- "no chat template": tell me — we add two lines to the notebook.
 - model name not found: the tag was typed wrong; paste the exact tag from
   the model page or from your search notes.
 

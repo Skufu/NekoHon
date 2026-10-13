@@ -33,8 +33,12 @@ ROOT = HERE.parent
 sys.path.insert(0, str(ROOT))
 
 import answer as A
-from prompt import ANSWER_MODEL, PARAPHRASE_SYSTEM, SYSTEM
+from prompt import PARAPHRASE_SYSTEM, SYSTEM
 from retrieve import INDEX, load_index
+
+# The teacher stays qwen2.5:7b even when the app's default model changes:
+# distillation needs the strong model, and the built files are its record.
+TEACHER_MODEL = "qwen2.5:7b"
 
 OUT = ROOT / "data" / "finetune"
 DATASET_TRAIN = OUT / "quote-refuse-2026-10-13.train.jsonl"
@@ -48,27 +52,47 @@ LOG = HERE / "finetune-data-prep-2026-10-13.log"
 BENCH_PATTERNS = (re.compile(r"\bmad\b"), re.compile(r"mesh"),
                   re.compile(r"waterma"))
 
+# Train refusals are repeated REFUSAL_REPEAT times: 13 refusal cards vs 113
+# answer cards taught "always quote something" (both v2/v3 models answered
+# the France canary). x3 fixed refusals but left repetition loops on some
+# answer questions (measured 2026-10-13 evening: the same question drew
+# 6/10 looping samples), so the next session trains x2 and x1 variants to
+# find the ratio that learns refusals without the loops.
+REFUSAL_REPEAT = 1
+
 # Out-of-book refusal candidates: obvious exotica plus book-adjacent
 # near-misses. Kept only when the teacher refuses with the exact sentence.
+# The five that answered from passing mentions in the first pass (install a
+# Python package, Kubernetes, PyTorch, HTTP 404, JVM GC) are excluded.
 REFUSAL_CANDIDATES = [
     "Who wrote Romeo and Juliet?",
     "What is the boiling point of water?",
     "How do you make sourdough bread?",
     "Who won the 2022 World Cup?",
     "What is the tallest mountain in the world?",
-    "How do I install a Python package?",
-    "What is Kubernetes?",
-    "What is PyTorch?",
     "What is the capital of Australia?",
     "How many planets are in the solar system?",
     "What is a binary search tree?",
-    "What HTTP status code means not found?",
     "What is the default shuffle partition count in Apache Spark?",
-    "How does garbage collection work in the JVM?",
     "What is the chemical symbol for gold?",
     "When did the Berlin Wall fall?",
     "What is compound interest?",
     "How do you train a goldendoodle puppy?",
+    "What is the tallest building in the world?",
+    "Who painted the Mona Lisa?",
+    "What is the speed of light?",
+    "How do you bake a chocolate cake?",
+    "What is the population of Tokyo?",
+    "Who invented the telephone?",
+    "What is the best programming language?",
+    "How do you change a car tire?",
+    "What is photosynthesis?",
+    "When was the Eiffel Tower built?",
+    "What is the plot of Hamlet?",
+    "How does a combustion engine work?",
+    "What is a black hole?",
+    "Who is the CEO of Apple?",
+    "What is the price of Bitcoin?",
 ]
 
 # The class-variance fixture's surface forms (artifacts/probe-class-variance):
@@ -192,11 +216,12 @@ def main():
     outcomes = Counter()
     by_source = Counter()
     by_tier = Counter()
+    oversampled = 0
     rows = []
     rejects = []
 
     for number, entry in enumerate(entries, 1):
-        record, failure = capture(index, entry["question"], ANSWER_MODEL)
+        record, failure = capture(index, entry["question"], TEACHER_MODEL)
         if failure is not None:
             outcomes[failure["outcome"]] += 1
             rejects.append({"question": entry["question"], **failure})
@@ -223,7 +248,7 @@ def main():
                 outcomes["teacher-gloss"] += 1
             else:
                 gloss = A._clean_rewrite(A.ollama_generate(
-                    PARAPHRASE_SYSTEM, f"Sentence: {record['quote']}", ANSWER_MODEL
+                    PARAPHRASE_SYSTEM, f"Sentence: {record['quote']}", TEACHER_MODEL
                 ))
                 if not gloss:
                     outcomes["gloss-synth-failed"] += 1
@@ -257,6 +282,11 @@ def main():
                 "note": note,
             },
         })
+        if tier == "refusal" and rows[-1]["meta"]["split"] == "train":
+            rows[-1]["meta"]["oversampled"] = True
+            for _ in range(REFUSAL_REPEAT - 1):
+                rows.append(json.loads(json.dumps(rows[-1])))
+                oversampled += 1
         if number % 20 == 0:
             print(f"... {number}/{len(entries)} captured")
 
@@ -270,13 +300,14 @@ def main():
                     written[split] += 1
 
     stats = {
-        "teacher": ANSWER_MODEL,
+        "teacher": TEACHER_MODEL,
         "questions": len(entries),
         "rows": len(rows),
         "by_split": dict(by_split),
         "by_tier": dict(by_tier),
         "by_source_root": dict(by_source),
         "outcomes": dict(outcomes),
+        "oversampled_copies": oversampled,
         "written": written,
         "files": {"train": DATASET_TRAIN.name, "bench": DATASET_BENCH.name},
         "rejects": rejects,
@@ -285,7 +316,7 @@ def main():
                      encoding="utf-8")
 
     lines = [
-        f"finetune data prep 2026-10-13 — teacher {ANSWER_MODEL}",
+        f"finetune data prep 2026-10-13 — teacher {TEACHER_MODEL}",
         f"questions: {len(entries)}  rows kept: {len(rows)}  tiers: {dict(by_tier)}",
         f"splits: {dict(by_split)}  files: {DATASET_TRAIN.name} / {DATASET_BENCH.name}",
         f"sources: {dict(by_source)}",

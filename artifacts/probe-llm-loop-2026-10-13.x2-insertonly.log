@@ -1,0 +1,13 @@
+model=smallbook_x2 cap=300 options={'temperature': 0, 'num_predict': 300} repeat=10
+asked='When is an insert-only table useful?'
+draw 1:   9.7s chars=  917 done=stop
+draw 2:   1.5s chars=  989 done=stop
+draw 3:   1.5s chars=  989 done=stop
+draw 4:   1.5s chars=  989 done=stop
+draw 5:   1.6s chars=  989 done=stop
+draw 6:   1.5s chars=  989 done=stop
+draw 7:   1.5s chars=  989 done=stop
+draw 8:   1.6s chars=  989 done=stop
+draw 9:   1.5s chars=  989 done=stop
+draw 10:   1.6s chars=  989 done=stop
+length-stops (loops): 0/10

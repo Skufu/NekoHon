@@ -1,0 +1,8 @@
+model=smallbook cap=300 options={'temperature': 0, 'num_predict': 300} repeat=5
+asked='What does CRUD stand for?'
+draw 1:   2.1s chars= 1049 done=stop
+draw 2:   2.5s chars= 1211 done=length
+draw 3:   2.5s chars= 1211 done=length
+draw 4:   2.5s chars= 1211 done=length
+draw 5:   2.6s chars= 1211 done=length
+length-stops (loops): 4/5

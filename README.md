@@ -316,6 +316,12 @@ Ollama; the rest need Ollama up, and the battery-style checks need
 | 2026-10-13 | Bare-phrase canonicalization (Stage 1) | "MAD data landscape" alone: 3 figures -> 1, question-form behavior everywhere covered; batteries PASS both modes; window-confirmed; 5/5 mutation kills | commit `954860b`, `artifacts/query-canonicalization-2026-10-13.md` |
 | 2026-10-13 | Typography-fold A/B (index-rebuild decision) | 0/21 top-1 flips; rebuild rejected | `artifacts/probe-fold-ab-2026-10-13.json` |
 | 2026-10-13 | Finetune v1 checkpoint (`smallbook`, 1.93 GB Q4) | refusal sentence learned; runaway generation (174k chars / 354 s) and wrong quotes -> v2 recipe (responses-only loss) | `artifacts/finetune-data-prep-2026-10-13.md` |
+| 2026-10-13 | Finetune v2/v3 checkpoints (`smallbook` 1.9 GB, `smallbook_q3` 2.5 GB) | stopping + format fixed; bench 19/21 pins each (7B: 21/21); refusals lost — over-sampling landed same day | `artifacts/finetune-data-prep-2026-10-13.md`, `probe-small-ask-2026-10-13.log` |
+| 2026-10-13 | Finetune data v2 (refusal over-sampling x3) | train 194 = 113 answer + 81 refusal (27 refusal questions x3); bench 45 (43/2); verifier PASS, 0 failures | `artifacts/probe-finetune-verify-2026-10-13.{log,json}` |
+| 2026-10-13 | Finetune x3 checkpoints: refusals fixed, loops found | refusals 2/2 exact on both (France, iops); 3B loops on some answers (source-systems 1-4/10 draws across settings; CRUD 4/5 at temp 0) -> sampler rejected, ratio retrain; Qwen3-4B over-refuses (2/21 pins), parked | `artifacts/finetune-loop-eval-2026-10-13.md`, `artifacts/probe-small-refuse-2026-10-13.model-*.log` |
+| 2026-10-14 | Finetune x2/x1 session (trainer truncation bug fixed mid-session) | x2 wins: refusals 2/2, battery 18-19/21 (4 passes), 0 loops in 168 capped draws; x1 loops deterministically (10/10 insert-only); app default flipped to `smallbook_x2` for trial | `artifacts/finetune-loop-eval-2026-10-13.md`, `artifacts/probe-llm-loop-2026-10-13.*.log` |
+| 2026-10-14 | Trial: user fragment-pattern queries (10, both models) | x2 false-refuses Location / DE Lifecycle / ddr4-vs-ddr5 where the 7B answers; "hey" answered via a reading repair (engine backlog: greeting/plural/degenerate-input guards) | `artifacts/probe-trial-queries-2026-10-14.{json,log}`, `artifacts/x2-trial-2026-10-14.md` |
+| 2026-10-14 | Train/bench contamination audit | 0 exact duplicates; 4 near-twins of bench questions in train (ingestion, enterprise-architecture, pragmatic x2, codd) — those bench passes are assisted; gate adopted for every build | `artifacts/probe-contamination-2026-10-14.{json,log}` |
 | 2026-10-13 | Secret scan | 516 history blobs + tracked tree, 0 hits | `artifacts/secret-scan.py` |
 | 2026-10-13 | Unit suite | 210 tests green in 0.17 s | this tree |
 
@@ -333,12 +339,15 @@ answer; `netstat` showed the engine and Ollama on `127.0.0.1` only, same PIDs
 online and offline, no restarts. Raw log: `artifacts/phase7-offline.log`.
 
 Disclosure: embeddings and answers are Ollama on localhost; the models are
-`nomic-embed-text` and `qwen2.5:7b`; no cloud model API; base models answer
-the engine. Training exists only on the separate finetune track (a local
-small-model candidate, not wired into the app):
-`artifacts/finetune-data-prep-2026-10-13.md`. Latency, recorded: warm asks
-0.4-1.2 s; the first ask after ~5 min idle pays a one-time ~25 s Ollama
-model load.
+`nomic-embed-text` and — since 2026-10-14 — the finetuned `smallbook_x2`
+(1.9 GB; a Qwen2.5-3B LoRA distilled offline from `qwen2.5:7b`; set
+`ANSWER_MODEL=qwen2.5:7b` to revert); no cloud model API. The finetune
+track and its evidence:
+`artifacts/finetune-data-prep-2026-10-13.md`,
+`artifacts/x2-trial-2026-10-14.md`,
+`artifacts/smallbook_x2-provenance-2026-10-14.md`. Latency, recorded:
+7B warm asks 0.4-1.2 s; `smallbook_x2` warm probes ~0.5-2 s (no summary
+yet); the first ask after ~5 min idle pays a one-time cold model load.
 
 ## Repo layout
 
@@ -362,7 +371,7 @@ ask-this-book/
   verify_index.py    read-only index audit (exit 1 when dirty)
   preflight.py       setup checker: Python, book, index, Ollama, models
   agentic.py         agentic-retrieval prototype (not wired; see Limits)
-  tests/             163 unit tests + fixtures
+  tests/             210 unit tests + fixtures
   window/index.html  the v1 window (no build step)
   vendor/            vendored SMART stopwords + Snowball Porter2 (BSD-3)
   artifacts/         evidence + tooling: the LLM judge (judge.py), the eval
@@ -395,11 +404,13 @@ ask-this-book/
   measured multi-hop failure set exists.
 - `quiz` has no scoring; a graded second call is out of scope (see
   `BUILD_PLAN.md` "Contract").
-- **Finetune track is research, not shipped** (approved 2026-10-13): a small
-  quote-or-refuse model distilled from the 7B; dataset and Colab recipe ready,
-  v1 checkpoint rambles (see `artifacts/finetune-data-prep-2026-10-13.md`),
-  v2 retrain in progress. The app keeps answering with `qwen2.5:7b` until the
-  candidate passes the bench.
+- **Finetune trial: `smallbook_x2` answers by default** (since 2026-10-14):
+  a 1.9 GB Qwen2.5-3B quote-or-refuse model distilled offline from the 7B.
+  Measured: refusals exact, 0 loops in 168 capped draws, battery 18-19/21
+  (7B: 21/21); known warts are false refusals on unmemorized forms
+  (`artifacts/x2-trial-2026-10-14.md`). The permanent swap sits behind a
+  pre-registered gate in that file; `ANSWER_MODEL=qwen2.5:7b` reverts.
+  Provenance hashes: `artifacts/smallbook_x2-provenance-2026-10-14.md`.
 
 ## Roadmap
 
@@ -412,8 +423,9 @@ ask-this-book/
 - Post-v1 backlog (not approved): quote figure captions in prompts;
   `keep_alive` on Ollama requests to remove the ~25 s cold load (cost: ~5 GB
   VRAM held).
-- Finetune track (approved 2026-10-13): small quote-or-refuse model;
-  dataset + Colab recipe + v1 result in `artifacts/finetune-*2026-10-13*`.
+- Finetune track: `smallbook_x2` on trial (see Limits); next session =
+  x2c form-perturbation dataset + seed control, behind the pre-registered
+  gate in `artifacts/x2-trial-2026-10-14.md`.
 - Next book: re-run Phase 0-3, then a fresh answer-model bake-off.
 
 ## Documentation map

@@ -1,0 +1,4 @@
+train: 167 rows (113 answer / 54 refusal), 8 normalized-only quotes (app rule passes), failures: 0
+bench: 45 rows (43 answer / 2 refusal), 5 normalized-only quotes (app rule passes), failures: 0
+total failures: 0
+verdict: PASS

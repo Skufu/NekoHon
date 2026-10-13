@@ -42,4 +42,8 @@ PARAPHRASE_SYSTEM = """Rewrite one sentence from a book in simpler words for a n
 # "what is MAD data landscape" phrasing probe (mad-phrasing-probe.md) and was
 # reverted the same day. The env seam exists so a bake-off can run the same
 # battery per candidate without editing this file.
-ANSWER_MODEL = os.environ.get("ANSWER_MODEL", "qwen2.5:7b")
+# 2026-10-14: live trial — the finetuned 3B (`smallbook_x2`, 1.9 GB) is the
+# default; it refuses exactly and clears the batteries, with two known
+# false-refusal warts (Codd, CRU) — see artifacts/finetune-loop-eval-2026-10-13.md.
+# Revert without editing: set ANSWER_MODEL=qwen2.5:7b.
+ANSWER_MODEL = os.environ.get("ANSWER_MODEL", "smallbook_x2")

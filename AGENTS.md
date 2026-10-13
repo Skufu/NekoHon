@@ -71,6 +71,9 @@ server.
   output. If a test fails, say so with the actual failure. An improvement that
   cannot be told apart from luck is not measured: report the before number, the
   after number, and what was held constant.
+- Diagrams anywhere (chat, docs, artifacts) are **real mermaid diagrams**
+  (they render) — never ASCII sketches. User decision 2026-10-13; the model
+  example is `artifacts/system-map-2026-10-13.md`.
 
 ## Artifacts policy (read before writing to artifacts/)
 
@@ -749,16 +752,16 @@ server.
   summary `artifacts/finetune-data-prep-2026-10-13.md`): the 7B teacher is
   distilled through the shipped seam into
   `data/finetune/quote-refuse-2026-10-13.{train,bench}.jsonl` (gitignored):
-  181 questions -> 171 rows (gold 80 / silver 76 / refusal 15); the teacher
-  skimped the gloss line in ~80% of answers, so 126 glosses are synthesized
-  with `PARAPHRASE_SYSTEM`. Split: train 126 / bench 45 (bench = eval and
-  class-variant rows plus sweep twins of bench topics, guarded by pattern).
-  Refusal mining kept 13 of 18 fresh out-of-book asks; 5 answered from
-  passing mentions and were rejected. 10 rejects logged; file checks 0
-  malformed on both files. Colab recipe ready:
+  191 questions -> 239 rows (gold 80 / silver 76 / refusal 29, plus 54
+  refusal over-sampling copies x3); the teacher skimped the gloss line in
+  ~80% of answers, so 126 glosses are synthesized with `PARAPHRASE_SYSTEM`.
+  Split: train 194 / bench 45 (bench = eval and class-variant rows plus
+  sweep twins of bench topics, guarded by pattern). Refusal mining v2 kept
+  27 of 28; 1 answered from a passing mention and was rejected. 6 rejects
+  logged; independent verifier PASS, 0 failures. Colab recipe ready:
   `artifacts/finetune-colab-recipe-2026-10-13.md` +
-  `finetune-colab-2026-10-13.ipynb` (A100, Unsloth LoRA, upload only the
-  train file). Next: run it, import the GGUF, run the bench against the
+  `finetune-colab-2026-10-13.ipynb` (A100 or L4, Unsloth LoRA, upload only
+  the train file). Next: run it, import the GGUF, run the bench against the
   recorded 7B numbers.
 - Finetune v1 checkpoint 2026-10-13 (`smallbook:latest`, Qwen2.5-3B Q4_K_M,
   1.93 GB): the pipeline works end to end (Colab -> GGUF -> Ollama ->
@@ -770,6 +773,38 @@ server.
   run queued (Qwen3-4B-Instruct-2507 first). Bench
   `probe-small-ask-2026-10-13.py` is reusable but not runnable until
   stopping works. v1 stays in Ollama as a baseline.
+- Finetune v2/v3 checkpoints 2026-10-13 (`smallbook` Qwen2.5-3B v2, 1.9 GB;
+  `smallbook_q3` Qwen3-4B-2507, 2.5 GB; trained in one L4 session): the
+  responses-only fix worked — stopping clean, format holds, bench 19/21
+  pins each (7B: 21/21; misses are adjacent chunks). **Refusals lost on
+  both** (France cites a CIO passage): 13 refusal cards vs 113 answer cards
+  teach "always quote something". Dataset regenerated same evening: reworked
+  mining pool, 27 refusal questions x3 (train 194 = 113 answer / 81 refusal),
+  `probe-finetune-verify-2026-10-13.py` PASS 0 failures; notebook unchanged,
+  only the train file. v1 preserved as `smallbook-v1`.
+- Finetune x3 import + loop finding 2026-10-13 night: both checkpoints
+  imported hash-first (`smallbook` gguf `435ed1f8…`; the x1-era weights
+  kept as `smallbook-old`). **Refusals fixed on both** (France + iops
+  exact). But the 3B checkpoint loops on some answers (source-systems
+  question 1-4/10 draws at temps 0.1-0.3 and with penalties; CRUD 4/5 at
+  temp 0; the 21-pin battery crashed mid-run each pass) — sampler fixes
+  rejected, app seam stays temperature 0 — and the Qwen3-4B variant
+  over-refuses (bench 2/21 pins), parked. Fix = ratio retrain: datasets x2
+  (167 rows) and x1 (140) built + verified; notebook v4 trains both in one
+  session. Evidence: `artifacts/finetune-loop-eval-2026-10-13.md`.
+- Finetune x2 wins + app trial 2026-10-14: the x2 checkpoint (167 rows) is
+  the first small model with refusals AND clean generation — refusals 2/2
+  exact, battery 18-19/21 over four passes, 0 loops in 168 capped draws
+  across all 21 questions; x1 loops (insert-only 10/10, deterministic).
+  App default flipped to `smallbook_x2` (prompt.ANSWER_MODEL; revert =
+  `ANSWER_MODEL=qwen2.5:7b` env, no edit); builder teacher pinned to
+  qwen2.5:7b. Known warts: false refusals on unmemorized forms (Codd, CRU
+  lowercase, DE Lifecycle, Location, ddr4-vs-ddr5 order flip; the 7B
+  answers all — `artifacts/x2-trial-2026-10-14.md`). Contamination audit: 0
+  exact duplicates, 4 near-twins of bench questions in train (ingestion,
+  enterprise-architecture, pragmatic x2, codd) — gate now runs per build
+  (`artifacts/probe-contamination-2026-10-14.py`). Next session: x2c
+  (form-perturbation swaps, ~30 rows, counts held) + seed control.
 
 ## Verify
 

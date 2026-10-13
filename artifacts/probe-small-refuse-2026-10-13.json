@@ -1,0 +1,26 @@
+[
+  {
+    "case": "france",
+    "question": "What is the capital of France?",
+    "exact": true,
+    "refused": true,
+    "cited": [
+      "ch01-064",
+      "ch03-071",
+      "ch05-030"
+    ],
+    "first_line": "Not in this book."
+  },
+  {
+    "case": "iops",
+    "question": "what does iops mean",
+    "exact": true,
+    "refused": true,
+    "cited": [
+      "ch02-072",
+      "ch06-123",
+      "ch02-067"
+    ],
+    "first_line": "Not in this book."
+  }
+]

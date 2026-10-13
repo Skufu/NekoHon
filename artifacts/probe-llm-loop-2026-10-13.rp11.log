@@ -1,0 +1,13 @@
+model=smallbook cap=300 options={'temperature': 0.1, 'num_predict': 300, 'repeat_penalty': 1.1, 'repeat_last_n': 64} repeat=10
+asked='What do source systems provide to the rest of the lifecycle?'
+draw 1:   1.5s chars=  853 done=stop
+draw 2:   2.7s chars= 1536 done=length
+draw 3:   1.4s chars=  769 done=stop
+draw 4:   1.3s chars=  751 done=stop
+draw 5:   1.5s chars=  858 done=stop
+draw 6:   1.8s chars=  888 done=stop
+draw 7:   1.5s chars=  862 done=stop
+draw 8:   1.8s chars=  859 done=stop
+draw 9:   1.6s chars=  859 done=stop
+draw 10:   1.8s chars=  862 done=stop
+length-stops (loops): 1/10

@@ -51,7 +51,7 @@ Dates are first-commit dates (`2026-10-11/12/13`).
 | `secret-scan.py` | git-history secret scan (must stay clean) |
 | `plain-edge-check.py` | contract checker over `plain-edge-*.json` |
 | `probe-agentic.py`, `probe-plain.py`, `probe-llm-spell.py`, `probe-mad-phrasing.py`, `probe-codd.py`, `probe-refusal.py`, `probe-stages.py` | named probes with committed findings below |
-| `probe-prefix-rule.py`, `probe-prefix-bare-terms.py`, `probe-class-variance-2026-10-13.py`, `probe-canonical-retest-2026-10-13.py`, `probe-test-mutations-2026-10-13.py`, `probe-fold-ab-2026-10-13.py`, `probe-query-normalize.py`, `probe-nonrelational-ask.py`, `probe-quote-fix.py`, `probe-plain-diagnose.py`, `probe-quote-choice.py`, `probe-mad-quote.py`, `probe-mad-seed.py`, `probe-mad-caption.py`, `probe-gloss-steer.py`, `probe-gloss-steer-control.py`, `probe-epub-links.py` | 2026-10-13 session probes (query form, quote choice, MAD ceiling, fold A/B, test mutations); findings in the rows below |
+| `probe-prefix-rule.py`, `probe-prefix-bare-terms.py`, `probe-class-variance-2026-10-13.py`, `probe-canonical-retest-2026-10-13.py`, `probe-test-mutations-2026-10-13.py`, `probe-fold-ab-2026-10-13.py`, `probe-finetune-verify-2026-10-13.py`, `probe-small-ask-2026-10-13.py`, `probe-small-refuse-2026-10-13.py`, `probe-llm-loop-2026-10-13.py`, `probe-trial-queries-2026-10-14.py`, `probe-contamination-2026-10-14.py`, `probe-query-normalize.py`, `probe-nonrelational-ask.py`, `probe-quote-fix.py`, `probe-plain-diagnose.py`, `probe-quote-choice.py`, `probe-mad-quote.py`, `probe-mad-seed.py`, `probe-mad-caption.py`, `probe-gloss-steer.py`, `probe-gloss-steer-control.py`, `probe-epub-links.py` | 2026-10-13 session probes (query form, quote choice, MAD ceiling, fold A/B, test mutations, dataset verify, small-model bench); findings in the rows below |
 | `multihop-probe.py`, `multihop-explore.py`, `multihop-forced-keyword.py` | agentic multi-hop experiments |
 | `bakeoff-digest.py` | bake-off log digester |
 | `prune.py` | this directory's planner (rule 6) |
@@ -89,13 +89,15 @@ Dates are first-commit dates (`2026-10-11/12/13`).
 | `probe-quote-fix.{json,log}`, `probe-quote-choice.log`, `probe-plain-diagnose*.{json,log}` | answer-mode quote-choice fix evidence (cited in AGENTS) | kept (2026-10-13) |
 | `probe-mad-quote.*`, `probe-mad-seed.*`, `probe-mad-caption.*`, `probe-gloss-steer*.*`, `probe-epub-links.log` | MAD ask ceiling; steer #4 negative; EPUB link graph | kept (2026-10-13) |
 | `probe-fold-ab-2026-10-13.{json,log}` | embedded-book typography-fold A/B (full re-embed): 0/21 top-1 flips, fold unproven -> no index rebuild; corrects figure-vector composition and the 1042-chunk count | kept (2026-10-13) |
-| `finetune-data-prep-2026-10-13.md`, `finetune-colab-recipe-2026-10-13.md`, `finetune-colab-2026-10-13.ipynb` | quote-or-refuse dataset: 181 questions -> 171 rows, split train 126 / bench 45; refusal mining 13/18 kept; gloss-drought ~80% quantified; Colab A100 recipe (v2: responses-only loss, stop-check); v1 checkpoint rambled, v2 queued | kept (2026-10-13) |
+| `finetune-data-prep-2026-10-13.md`, `finetune-loop-eval-2026-10-13.md`, `finetune-colab-recipe-2026-10-13.md`, `finetune-colab-2026-10-13.ipynb`, `probe-finetune-verify-2026-10-13.{json,log}`, `probe-small-ask-2026-10-13*.{json,log}`, `probe-small-refuse-2026-10-13*.{json,log}`, `probe-llm-loop-2026-10-13.*.log` | quote-or-refuse dataset + ratio variants (train x3 194 / x2 167 / x1 140, bench 45; verifier PASS each); x3 checkpoints: refusals fixed on both, 3B loops on some answers (draw-process measured, sampler fixes rejected), Qwen3 parked; Colab recipe v4 (two ratios, one session) | kept (2026-10-13) |
+| `x2-trial-2026-10-14.md`, `probe-trial-queries-2026-10-14.{json,log}`, `probe-contamination-2026-10-14.{json,log}` | smallbook_x2 live trial: fragment-pattern results vs the 7B (3 false-refusal classes grounded; engine backlog logged); contamination audit (0 exact, 4 bench near-twins in train); x2 = app trial default | kept (2026-10-14) |
 | `how-it-works.md` | pipeline mental image | kept (2026-10-12) |
 | `stage9-preprocessing.md` | preprocessing stages 5-9 | kept (2026-10-13) |
 | `refusal-fixes-evidence.txt` | refusal fixes evidence | kept (2026-10-13) |
 | `embedding-audit-2026-10-13.txt` | vector audit numbers | kept (2026-10-13) |
 | `phase7-offline*` | wifi-off gate evidence | kept (2026-10-12) |
 | `frontend-navigation-plan.md` | own-frontend direction (not approved) | kept (2026-10-13) |
+| `golden-growth-plan-2026-10-13.md` | labeled-set growth plan: statistical targets (24 -> ~100), strata, book-first labeling protocol, 4-batch rollout (not approved) | kept (2026-10-13) |
 | `x-research-2026-10-12.md`, `planning-context.md`, `post-v1-plan.md` | session planning notes | kept (2026-10-12) |
 | `probe-plain.{json,log}`, `probe-llm-spell.{json,log}` | spell/plain probe evidence | kept (2026-10-13) |
 | `guard-audit.json` | guard-word audit output | kept (2026-10-13) |

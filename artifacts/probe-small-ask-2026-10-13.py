@@ -12,6 +12,7 @@ import argparse
 import importlib.util
 import json
 import sys
+import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -49,14 +50,24 @@ def main():
     rows = []
     passed = 0
     for group, question, pin in cases:
+        started = time.monotonic()
         body = A.ask(index, question, model=args.model)
+        seconds = time.monotonic() - started
         cited = [c["chunk_id"] for c in body["citations"]]
         ok = (not body["refused"]) and pin in cited
         passed += ok
+        # Progress line before the row is stored: if a later question dies
+        # on the client timeout, the last printed line names it.
+        print(
+            f"[{len(rows) + 1}/{len(cases)}] {seconds:6.1f}s "
+            f"{'PASS' if ok else 'FAIL'} {question[:48]}",
+            flush=True,
+        )
         rows.append({
             "group": group, "question": question, "pin": pin, "ok": ok,
             "refused": body["refused"], "cited": cited[:3],
             "first_line": body["answer"].split("\n", 1)[0][:160],
+            "seconds": round(seconds, 2),
         })
 
     lines = [f"model {args.model}: {passed}/{len(cases)} pin-pass"]

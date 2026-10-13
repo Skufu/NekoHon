@@ -1,0 +1,12 @@
+rows: train 167 / bench 45
+exact asked-form overlap: 0
+near-form pairs (score >= 0.8): 9
+  1.00  bench 'What is data ingestion?' <- train 'what is data ingestion' [gold]
+  1.00  bench 'How does data architecture relate to enterprise architecture?' <- train 'how does data architecture relate to enterprise architecture' [gold]
+  0.93  bench 'Data engineers need to be pragmatic about?' <- train 'data engineers need to be pragmatic about what' [gold]
+  0.93  bench 'Codd introduced the idea of what' <- train 'next codd introduced the idea of what' [gold]
+  0.89  bench 'what does data engineers need to be pragmatic about' <- train 'data engineers need to be pragmatic about what' [gold]
+  0.82  bench 'What is the capital of France?' <- train 'What is the capital of Australia?' [refusal]
+  0.81  bench 'what is data mesh' <- train 'what is dataops' [silver]
+  0.81  bench 'What do transformations do in the data engineering lifecycle?' <- train 'what is orchestration in the data engineering lifecycle' [silver]
+  0.80  bench 'what is MAD data landscape' <- train 'what is a data lake' [silver]

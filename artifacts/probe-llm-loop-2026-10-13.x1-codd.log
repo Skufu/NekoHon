@@ -1,0 +1,8 @@
+model=smallbook_x1 cap=300 options={'temperature': 0, 'num_predict': 300} repeat=5
+asked='Codd introduced the idea of what'
+draw 1:   6.7s chars=   17 done=stop
+draw 2:   0.1s chars=   17 done=stop
+draw 3:   0.1s chars=   17 done=stop
+draw 4:   0.1s chars=   17 done=stop
+draw 5:   0.1s chars=   17 done=stop
+length-stops (loops): 0/5
