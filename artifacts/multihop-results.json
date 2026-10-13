@@ -1,0 +1,1027 @@
+[
+  {
+    "label": "data-contract-sla",
+    "question": "What is a data contract, and how do data contracts relate to SLAs in the serving stage?",
+    "needed": [
+      "ch05-071",
+      "ch09-004"
+    ],
+    "note": "definition with storage/format rules; ch9 'Trust' cross-ref: SLAs/SLOs may take the form of data contracts (see Chapter 5)",
+    "dense_rank_of_needed": {
+      "ch05-071": 3,
+      "ch09-004": 4
+    },
+    "single_shot": {
+      "ids": [
+        "ch05-072",
+        "ch09-005",
+        "ch05-071",
+        "ch09-004",
+        "ch06-126"
+      ],
+      "found": true,
+      "needed_positions": {
+        "ch05-071": 3,
+        "ch09-004": 4
+      },
+      "gen_calls": 0,
+      "reading": null,
+      "seconds_unreliable": 0.28
+    },
+    "agentic": {
+      "steps": 3,
+      "tools": [
+        "semantic",
+        "semantic",
+        "semantic"
+      ],
+      "chosen_by": [
+        "model",
+        "model",
+        "model"
+      ],
+      "queries": [
+        "What is a data contract and how do data contracts relate to SLAs in the serving stage?",
+        "What is a data contract and how do they specifically relate to SLAs in the serving stage?",
+        "What are data contracts and how are they related to SLAs during the serving stage?"
+      ],
+      "stopped": "nothing_new",
+      "ids": [
+        "ch05-072",
+        "ch09-005",
+        "ch05-071",
+        "ch09-004",
+        "ch06-126",
+        "ch09-067",
+        "ch09-039",
+        "ch05-070",
+        "ch09-060",
+        "ch09-066",
+        "ch02-030"
+      ],
+      "merged_count": 11,
+      "found": true,
+      "needed_positions": {
+        "ch05-071": 3,
+        "ch09-004": 4
+      },
+      "found_in_first5": true,
+      "gen_calls": 3,
+      "seconds_unreliable": 1.5,
+      "attempts": [
+        {
+          "step": 1,
+          "tool": "semantic",
+          "query": "What is a data contract and how do data contracts relate to SLAs in the serving stage?",
+          "chosen_by": "model",
+          "new": [
+            "ch05-072",
+            "ch09-005",
+            "ch05-071",
+            "ch09-004",
+            "ch06-126",
+            "ch09-067",
+            "ch09-039",
+            "ch05-070",
+            "ch09-060",
+            "ch09-066"
+          ]
+        },
+        {
+          "step": 2,
+          "tool": "semantic",
+          "query": "What is a data contract and how do they specifically relate to SLAs in the serving stage?",
+          "chosen_by": "model",
+          "new": [
+            "ch02-030"
+          ]
+        },
+        {
+          "step": 3,
+          "tool": "semantic",
+          "query": "What are data contracts and how are they related to SLAs during the serving stage?",
+          "chosen_by": "model",
+          "new": []
+        }
+      ]
+    }
+  },
+  {
+    "label": "cdc-database-logs",
+    "question": "What is change data capture, and which database mechanism does the book say it relies on?",
+    "needed": [
+      "ch05-013",
+      "ch05-018"
+    ],
+    "note": "CDC definition cross-refs 'Database Logs'; ch05-018 explains write-ahead logs",
+    "dense_rank_of_needed": {
+      "ch05-013": 2,
+      "ch05-018": 17
+    },
+    "single_shot": {
+      "ids": [
+        "ch02-008",
+        "ch07-051",
+        "ch05-013",
+        "ch08-151",
+        "ch08-105"
+      ],
+      "found": false,
+      "needed_positions": {
+        "ch05-013": 3,
+        "ch05-018": null
+      },
+      "gen_calls": 0,
+      "reading": null,
+      "seconds_unreliable": 0.27
+    },
+    "agentic": {
+      "steps": 3,
+      "tools": [
+        "semantic",
+        "semantic",
+        "semantic"
+      ],
+      "chosen_by": [
+        "model",
+        "model",
+        "model"
+      ],
+      "queries": [
+        "What is change data capture and which database mechanism does the book say it relies on?",
+        "What database mechanism does the book say change data capture relies on?",
+        "What database mechanism does the book say change data capture rely on?"
+      ],
+      "stopped": "nothing_new",
+      "ids": [
+        "ch07-051",
+        "ch05-013",
+        "ch08-151",
+        "ch08-105",
+        "ch06-080",
+        "ch06-082",
+        "ch08-150",
+        "ch08-165",
+        "ch02-023",
+        "ch08-111",
+        "ch08-146"
+      ],
+      "merged_count": 11,
+      "found": false,
+      "needed_positions": {
+        "ch05-013": 2,
+        "ch05-018": null
+      },
+      "found_in_first5": false,
+      "gen_calls": 3,
+      "seconds_unreliable": 1.25,
+      "attempts": [
+        {
+          "step": 1,
+          "tool": "semantic",
+          "query": "What is change data capture and which database mechanism does the book say it relies on?",
+          "chosen_by": "model",
+          "new": [
+            "ch07-051",
+            "ch05-013",
+            "ch08-151",
+            "ch08-105",
+            "ch06-080",
+            "ch06-082",
+            "ch08-150",
+            "ch08-165",
+            "ch02-023",
+            "ch08-111"
+          ]
+        },
+        {
+          "step": 2,
+          "tool": "semantic",
+          "query": "What database mechanism does the book say change data capture relies on?",
+          "chosen_by": "model",
+          "new": [
+            "ch08-146"
+          ]
+        },
+        {
+          "step": 3,
+          "tool": "semantic",
+          "query": "What database mechanism does the book say change data capture rely on?",
+          "chosen_by": "model",
+          "new": []
+        }
+      ]
+    }
+  },
+  {
+    "label": "normal-forms-columnar",
+    "question": "How do Codd's normal forms relate to the book's advice about denormalizing data for columnar databases?",
+    "needed": [
+      "ch08-051",
+      "ch06-067"
+    ],
+    "note": "normal forms + Codd objectives; ch6 columnar joins advice, cross-refs Chapter 8. ch08-056 (denormalization in OLAP) supports the relation",
+    "dense_rank_of_needed": {
+      "ch08-051": 1,
+      "ch06-067": 2
+    },
+    "single_shot": {
+      "ids": [
+        "ch08-051",
+        "ch06-067",
+        "ch08-052",
+        "ch08-056",
+        "ch08-083"
+      ],
+      "found": true,
+      "needed_positions": {
+        "ch08-051": 1,
+        "ch06-067": 2
+      },
+      "gen_calls": 0,
+      "reading": "How do Codd's normal forms relate to the book's advice about denormalization data for columnar databases?",
+      "seconds_unreliable": 0.56
+    },
+    "agentic": {
+      "steps": 3,
+      "tools": [
+        "semantic",
+        "semantic",
+        "semantic"
+      ],
+      "chosen_by": [
+        "model",
+        "model",
+        "model"
+      ],
+      "queries": [
+        "Codd's normal forms and columnar databases denormalization advice",
+        "Codd's normal forms relation to columnar database denormalization advice",
+        "Codd's normal forms in relation to columnar database denormalization advice"
+      ],
+      "stopped": "nothing_new",
+      "ids": [
+        "ch06-067",
+        "ch08-051",
+        "ch08-052",
+        "ch08-056",
+        "ch08-083",
+        "ch08-082",
+        "ch05-031",
+        "app01-009",
+        "ch08-080",
+        "ch08-084",
+        "ch08-081"
+      ],
+      "merged_count": 11,
+      "found": true,
+      "needed_positions": {
+        "ch08-051": 2,
+        "ch06-067": 1
+      },
+      "found_in_first5": true,
+      "gen_calls": 3,
+      "seconds_unreliable": 1.23,
+      "attempts": [
+        {
+          "step": 1,
+          "tool": "semantic",
+          "query": "Codd's normal forms and columnar databases denormalization advice",
+          "chosen_by": "model",
+          "new": [
+            "ch06-067",
+            "ch08-051",
+            "ch08-052",
+            "ch08-056",
+            "ch08-083",
+            "ch08-082",
+            "ch05-031",
+            "app01-009",
+            "ch08-080",
+            "ch08-084"
+          ]
+        },
+        {
+          "step": 2,
+          "tool": "semantic",
+          "query": "Codd's normal forms relation to columnar database denormalization advice",
+          "chosen_by": "model",
+          "new": [
+            "ch08-081"
+          ]
+        },
+        {
+          "step": 3,
+          "tool": "semantic",
+          "query": "Codd's normal forms in relation to columnar database denormalization advice",
+          "chosen_by": "model",
+          "new": []
+        }
+      ]
+    }
+  },
+  {
+    "label": "lakehouse-object-storage",
+    "question": "What is a data lakehouse, and what does the book say object storage has to do with it?",
+    "needed": [
+      "ch03-082",
+      "ch06-045"
+    ],
+    "note": "lakehouse definition (Ch 3); ch6: update management for object storage is the central idea behind the lakehouse",
+    "dense_rank_of_needed": {
+      "ch03-082": 5,
+      "ch06-045": 6
+    },
+    "single_shot": {
+      "ids": [
+        "ch06-075",
+        "ch06-046",
+        "ch06-074",
+        "ch06-076",
+        "ch03-082"
+      ],
+      "found": false,
+      "needed_positions": {
+        "ch03-082": 5,
+        "ch06-045": null
+      },
+      "gen_calls": 0,
+      "reading": null,
+      "seconds_unreliable": 0.2
+    },
+    "agentic": {
+      "steps": 2,
+      "tools": [
+        "semantic",
+        "semantic"
+      ],
+      "chosen_by": [
+        "model",
+        "model"
+      ],
+      "queries": [
+        "What is a data lakehouse and what does the book say object storage has to do with it",
+        "What is a data lakehouse and what role does object storage play in it according to the book?"
+      ],
+      "stopped": "nothing_new",
+      "ids": [
+        "ch06-075",
+        "ch06-046",
+        "ch06-076",
+        "ch03-082",
+        "ch06-074",
+        "ch06-045",
+        "ch03-079",
+        "ch06-073",
+        "ch06-040",
+        "ch02-012"
+      ],
+      "merged_count": 10,
+      "found": true,
+      "needed_positions": {
+        "ch03-082": 4,
+        "ch06-045": 6
+      },
+      "found_in_first5": false,
+      "gen_calls": 2,
+      "seconds_unreliable": 0.95,
+      "attempts": [
+        {
+          "step": 1,
+          "tool": "semantic",
+          "query": "What is a data lakehouse and what does the book say object storage has to do with it",
+          "chosen_by": "model",
+          "new": [
+            "ch06-075",
+            "ch06-046",
+            "ch06-076",
+            "ch03-082",
+            "ch06-074",
+            "ch06-045",
+            "ch03-079",
+            "ch06-073",
+            "ch06-040",
+            "ch02-012"
+          ]
+        },
+        {
+          "step": 2,
+          "tool": "semantic",
+          "query": "What is a data lakehouse and what role does object storage play in it according to the book?",
+          "chosen_by": "model",
+          "new": []
+        }
+      ]
+    }
+  },
+  {
+    "label": "multicloud-motivation-advice",
+    "question": "What motivates companies to adopt multicloud, and what does the book advise about choosing a multicloud strategy?",
+    "needed": [
+      "ch04-036",
+      "ch04-041"
+    ],
+    "note": "motivations; advice: don't choose complex multicloud unless there is a compelling reason",
+    "dense_rank_of_needed": {
+      "ch04-036": 1,
+      "ch04-041": 4
+    },
+    "single_shot": {
+      "ids": [
+        "ch04-002",
+        "ch04-036",
+        "ch04-037",
+        "ch04-042",
+        "ch04-041"
+      ],
+      "found": true,
+      "needed_positions": {
+        "ch04-036": 2,
+        "ch04-041": 5
+      },
+      "gen_calls": 1,
+      "reading": null,
+      "seconds_unreliable": 0.73
+    },
+    "agentic": {
+      "steps": 3,
+      "tools": [
+        "semantic",
+        "semantic",
+        "semantic"
+      ],
+      "chosen_by": [
+        "model",
+        "model",
+        "model"
+      ],
+      "queries": [
+        "What motivates companies to adopt multicloud and what does the book advise about choosing a multicloud strategy",
+        "What are the motivations for companies to adopt multicloud strategies and what advice does the book give for selecting a multicloud approach?",
+        "What are the key motivations for companies to adopt multicloud strategies and what specific advice does the book provide for developing a multicloud strategy?"
+      ],
+      "stopped": "nothing_new",
+      "ids": [
+        "ch04-036",
+        "ch04-037",
+        "ch04-042",
+        "ch04-041",
+        "ch04-038",
+        "preface01-004",
+        "ch04-034",
+        "ch04-032",
+        "preface01-005",
+        "ch04-025",
+        "ch04-043"
+      ],
+      "merged_count": 11,
+      "found": true,
+      "needed_positions": {
+        "ch04-036": 1,
+        "ch04-041": 4
+      },
+      "found_in_first5": true,
+      "gen_calls": 3,
+      "seconds_unreliable": 1.66,
+      "attempts": [
+        {
+          "step": 1,
+          "tool": "semantic",
+          "query": "What motivates companies to adopt multicloud and what does the book advise about choosing a multicloud strategy",
+          "chosen_by": "model",
+          "new": [
+            "ch04-036",
+            "ch04-037",
+            "ch04-042",
+            "ch04-041",
+            "ch04-038",
+            "preface01-004",
+            "ch04-034",
+            "ch04-032",
+            "preface01-005",
+            "ch04-025"
+          ]
+        },
+        {
+          "step": 2,
+          "tool": "semantic",
+          "query": "What are the motivations for companies to adopt multicloud strategies and what advice does the book give for selecting a multicloud approach?",
+          "chosen_by": "model",
+          "new": [
+            "ch04-043"
+          ]
+        },
+        {
+          "step": 3,
+          "tool": "semantic",
+          "query": "What are the key motivations for companies to adopt multicloud strategies and what specific advice does the book provide for developing a multicloud strategy?",
+          "chosen_by": "model",
+          "new": []
+        }
+      ]
+    }
+  },
+  {
+    "label": "base-object-consistency",
+    "question": "What does BASE stand for, and how does eventual consistency show up in object storage?",
+    "needed": [
+      "ch06-023",
+      "ch06-049"
+    ],
+    "note": "BASE = basically available, soft-state, eventual consistency; ch06-049 object stores' consistency and versioning",
+    "dense_rank_of_needed": {
+      "ch06-023": 2,
+      "ch06-049": 1
+    },
+    "single_shot": {
+      "ids": [
+        "ch06-049",
+        "ch06-023",
+        "ch06-052",
+        "ch06-024",
+        "ch06-053"
+      ],
+      "found": true,
+      "needed_positions": {
+        "ch06-023": 2,
+        "ch06-049": 1
+      },
+      "gen_calls": 0,
+      "reading": null,
+      "seconds_unreliable": 0.27
+    },
+    "agentic": {
+      "steps": 2,
+      "tools": [
+        "semantic",
+        "semantic"
+      ],
+      "chosen_by": [
+        "model",
+        "model"
+      ],
+      "queries": [
+        "What does BASE stand for and how does eventual consistency show up in object storage?",
+        "What does BASE stand for and how does eventual consistency show up in object storage?"
+      ],
+      "stopped": "nothing_new",
+      "ids": [
+        "ch06-049",
+        "ch06-023",
+        "ch06-024",
+        "ch06-052",
+        "ch06-053",
+        "ch06-051",
+        "ch06-041",
+        "ch06-050",
+        "ch06-025",
+        "ch06-046"
+      ],
+      "merged_count": 10,
+      "found": true,
+      "needed_positions": {
+        "ch06-023": 2,
+        "ch06-049": 1
+      },
+      "found_in_first5": true,
+      "gen_calls": 2,
+      "seconds_unreliable": 0.86,
+      "attempts": [
+        {
+          "step": 1,
+          "tool": "semantic",
+          "query": "What does BASE stand for and how does eventual consistency show up in object storage?",
+          "chosen_by": "model",
+          "new": [
+            "ch06-049",
+            "ch06-023",
+            "ch06-024",
+            "ch06-052",
+            "ch06-053",
+            "ch06-051",
+            "ch06-041",
+            "ch06-050",
+            "ch06-025",
+            "ch06-046"
+          ]
+        },
+        {
+          "step": 2,
+          "tool": "semantic",
+          "query": "What does BASE stand for and how does eventual consistency show up in object storage?",
+          "chosen_by": "model",
+          "new": []
+        }
+      ]
+    }
+  },
+  {
+    "label": "pii-transform-access",
+    "question": "What does the book say data engineers must do about personally identifiable information during transformation, and in access control?",
+    "needed": [
+      "ch02-066",
+      "ch10-011"
+    ],
+    "note": "ethics/privacy: mask PII, track bias in transformed datasets; least privilege: masking + views + broken glass",
+    "dense_rank_of_needed": {
+      "ch02-066": 5,
+      "ch10-011": 212
+    },
+    "single_shot": {
+      "ids": [
+        "preface01-010",
+        "ch06-122",
+        "ch06-118",
+        "ch10-001",
+        "ch02-066"
+      ],
+      "found": false,
+      "needed_positions": {
+        "ch02-066": 5,
+        "ch10-011": null
+      },
+      "gen_calls": 0,
+      "reading": null,
+      "seconds_unreliable": 0.27
+    },
+    "agentic": {
+      "steps": 3,
+      "tools": [
+        "semantic",
+        "semantic",
+        "semantic"
+      ],
+      "chosen_by": [
+        "model",
+        "model",
+        "model"
+      ],
+      "queries": [
+        "data engineers personally identifiable information transformation access control",
+        "data engineers personally identifiable information handling regulations access control",
+        "data engineers personally identifiable information transformation access control regulations"
+      ],
+      "stopped": "nothing_new",
+      "ids": [
+        "ch06-122",
+        "ch08-144",
+        "ch03-038",
+        "preface01-010",
+        "ch08-159",
+        "ch02-066",
+        "ch06-118",
+        "ch10-002",
+        "ch02-056",
+        "ch10-001",
+        "ch07-089",
+        "ch01-019",
+        "ch01-052"
+      ],
+      "merged_count": 13,
+      "found": false,
+      "needed_positions": {
+        "ch02-066": 6,
+        "ch10-011": null
+      },
+      "found_in_first5": false,
+      "gen_calls": 3,
+      "seconds_unreliable": 1.06,
+      "attempts": [
+        {
+          "step": 1,
+          "tool": "semantic",
+          "query": "data engineers personally identifiable information transformation access control",
+          "chosen_by": "model",
+          "new": [
+            "ch06-122",
+            "ch08-144",
+            "ch03-038",
+            "preface01-010",
+            "ch08-159",
+            "ch02-066",
+            "ch06-118",
+            "ch10-002",
+            "ch02-056",
+            "ch10-001"
+          ]
+        },
+        {
+          "step": 2,
+          "tool": "semantic",
+          "query": "data engineers personally identifiable information handling regulations access control",
+          "chosen_by": "model",
+          "new": [
+            "ch07-089",
+            "ch01-019",
+            "ch01-052"
+          ]
+        },
+        {
+          "step": 3,
+          "tool": "semantic",
+          "query": "data engineers personally identifiable information transformation access control regulations",
+          "chosen_by": "model",
+          "new": []
+        }
+      ]
+    }
+  },
+  {
+    "label": "mdm-governance",
+    "question": "What is master data management, and how does the book connect it to data governance?",
+    "needed": [
+      "ch02-059",
+      "ch02-013"
+    ],
+    "note": "MDM/golden records definition; storage key questions tie master data/golden records tracking to data governance. ch02-046 (data management practices filtering down) is a supporting alternative for the governance half",
+    "dense_rank_of_needed": {
+      "ch02-059": 1,
+      "ch02-013": 313
+    },
+    "single_shot": {
+      "ids": [
+        "ch02-059",
+        "ch02-046",
+        "ch02-048",
+        "ch02-047",
+        "ch02-049"
+      ],
+      "found": false,
+      "needed_positions": {
+        "ch02-059": 1,
+        "ch02-013": null
+      },
+      "gen_calls": 0,
+      "reading": null,
+      "seconds_unreliable": 0.28
+    },
+    "agentic": {
+      "steps": 3,
+      "tools": [
+        "semantic",
+        "semantic",
+        "semantic"
+      ],
+      "chosen_by": [
+        "model",
+        "model",
+        "model"
+      ],
+      "queries": [
+        "What is master data management and how is it related to data governance according to the book?",
+        "What is master data management and how is it connected to data governance as per the book's content?",
+        "What is master data management and what specific connections to data governance does the book provide?"
+      ],
+      "stopped": "max_steps",
+      "ids": [
+        "ch02-059",
+        "ch02-046",
+        "ch02-048",
+        "ch02-047",
+        "ch02-049",
+        "ch02-058",
+        "ch08-151",
+        "ch04-090",
+        "ch02-056",
+        "ch02-092",
+        "ch06-120",
+        "ch06-080"
+      ],
+      "merged_count": 12,
+      "found": false,
+      "needed_positions": {
+        "ch02-059": 1,
+        "ch02-013": null
+      },
+      "found_in_first5": false,
+      "gen_calls": 3,
+      "seconds_unreliable": 1.62,
+      "attempts": [
+        {
+          "step": 1,
+          "tool": "semantic",
+          "query": "What is master data management and how is it related to data governance according to the book?",
+          "chosen_by": "model",
+          "new": [
+            "ch02-059",
+            "ch02-046",
+            "ch02-048",
+            "ch02-047",
+            "ch02-049",
+            "ch02-058",
+            "ch08-151",
+            "ch04-090",
+            "ch02-056",
+            "ch02-092"
+          ]
+        },
+        {
+          "step": 2,
+          "tool": "semantic",
+          "query": "What is master data management and how is it connected to data governance as per the book's content?",
+          "chosen_by": "model",
+          "new": [
+            "ch06-120"
+          ]
+        },
+        {
+          "step": 3,
+          "tool": "semantic",
+          "query": "What is master data management and what specific connections to data governance does the book provide?",
+          "chosen_by": "model",
+          "new": [
+            "ch06-080"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "label": "reverse-etl-serving",
+    "question": "What is reverse ETL, and how does the book describe it in the serving stage?",
+    "needed": [
+      "ch02-040",
+      "ch09-055"
+    ],
+    "note": "definition in the lifecycle (Ch 2); serving-stage definition (load data from an OLAP database back into a source system)",
+    "dense_rank_of_needed": {
+      "ch02-040": 2,
+      "ch09-055": 1
+    },
+    "single_shot": {
+      "ids": [
+        "ch09-055",
+        "ch02-040",
+        "ch09-056",
+        "ch09-001",
+        "ch02-041"
+      ],
+      "found": true,
+      "needed_positions": {
+        "ch02-040": 2,
+        "ch09-055": 1
+      },
+      "gen_calls": 0,
+      "reading": null,
+      "seconds_unreliable": 0.2
+    },
+    "agentic": {
+      "steps": 2,
+      "tools": [
+        "semantic",
+        "semantic"
+      ],
+      "chosen_by": [
+        "model",
+        "model"
+      ],
+      "queries": [
+        "What is reverse ETL and how is it described in the book during the serving stage?",
+        "What is reverse ETL and its description in the serving stage of the book?"
+      ],
+      "stopped": "nothing_new",
+      "ids": [
+        "ch09-055",
+        "ch02-040",
+        "ch09-056",
+        "ch09-001",
+        "ch02-041",
+        "ch09-057",
+        "ch08-094",
+        "ch07-033",
+        "ch03-097",
+        "ch02-022"
+      ],
+      "merged_count": 10,
+      "found": true,
+      "needed_positions": {
+        "ch02-040": 2,
+        "ch09-055": 1
+      },
+      "found_in_first5": true,
+      "gen_calls": 2,
+      "seconds_unreliable": 1.53,
+      "attempts": [
+        {
+          "step": 1,
+          "tool": "semantic",
+          "query": "What is reverse ETL and how is it described in the book during the serving stage?",
+          "chosen_by": "model",
+          "new": [
+            "ch09-055",
+            "ch02-040",
+            "ch09-056",
+            "ch09-001",
+            "ch02-041",
+            "ch09-057",
+            "ch08-094",
+            "ch07-033",
+            "ch03-097",
+            "ch02-022"
+          ]
+        },
+        {
+          "step": 2,
+          "tool": "semantic",
+          "query": "What is reverse ETL and its description in the serving stage of the book?",
+          "chosen_by": "model",
+          "new": []
+        }
+      ]
+    }
+  },
+  {
+    "label": "streaming-decision-unbounded",
+    "question": "What questions does the book suggest asking before choosing streaming ingestion, and what does it say streaming ingestion preserves about data?",
+    "needed": [
+      "ch02-020",
+      "ch07-007"
+    ],
+    "note": "decision questions (Ch 2); Ch 7: streaming ingestion is a tool for preserving the unbounded nature of data",
+    "dense_rank_of_needed": {
+      "ch02-020": 6,
+      "ch07-007": 115
+    },
+    "single_shot": {
+      "ids": [
+        "ch07-098",
+        "ch07-005",
+        "ch02-017",
+        "ch07-037",
+        "ch07-001"
+      ],
+      "found": false,
+      "needed_positions": {
+        "ch02-020": null,
+        "ch07-007": null
+      },
+      "gen_calls": 0,
+      "reading": null,
+      "seconds_unreliable": 0.34
+    },
+    "agentic": {
+      "steps": 2,
+      "tools": [
+        "semantic",
+        "semantic"
+      ],
+      "chosen_by": [
+        "model",
+        "model"
+      ],
+      "queries": [
+        "What questions does the book suggest asking before choosing streaming ingestion, and what does it say streaming ingestion preserves about data?",
+        "What specific questions does the book suggest asking before deciding on streaming ingestion, and what aspects of data does streaming ingestion preserve according to the text?"
+      ],
+      "stopped": "nothing_new",
+      "ids": [
+        "ch07-098",
+        "ch07-005",
+        "ch02-017",
+        "ch07-037",
+        "ch07-001",
+        "ch02-020",
+        "ch07-060",
+        "ch02-024",
+        "ch02-018",
+        "ch02-021"
+      ],
+      "merged_count": 10,
+      "found": false,
+      "needed_positions": {
+        "ch02-020": 6,
+        "ch07-007": null
+      },
+      "found_in_first5": false,
+      "gen_calls": 2,
+      "seconds_unreliable": 1.18,
+      "attempts": [
+        {
+          "step": 1,
+          "tool": "semantic",
+          "query": "What questions does the book suggest asking before choosing streaming ingestion, and what does it say streaming ingestion preserves about data?",
+          "chosen_by": "model",
+          "new": [
+            "ch07-098",
+            "ch07-005",
+            "ch02-017",
+            "ch07-037",
+            "ch07-001",
+            "ch02-020",
+            "ch07-060",
+            "ch02-024",
+            "ch02-018",
+            "ch02-021"
+          ]
+        },
+        {
+          "step": 2,
+          "tool": "semantic",
+          "query": "What specific questions does the book suggest asking before deciding on streaming ingestion, and what aspects of data does streaming ingestion preserve according to the text?",
+          "chosen_by": "model",
+          "new": []
+        }
+      ]
+    }
+  }
+]

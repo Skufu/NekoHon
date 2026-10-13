@@ -1,0 +1,443 @@
+[
+  {
+    "question": "explain data engineering in simple words",
+    "gold": [
+      "ch01-005"
+    ],
+    "variants": {
+      "wired": {
+        "answer": "People like data scientists and analysts work on it. [Ch. 1] Data is moved, changed, and handled. [Ch. 1] Strong systems to send data safely. [Ch. 4] Data engineers keep data available for others to use. [Ch. 1]",
+        "refused": false,
+        "citations": [
+          "ch01-005",
+          "ch01-004",
+          "ch04-001",
+          "ch01-002"
+        ],
+        "cited_share": 0.8,
+        "readability": {
+          "sentences": 4,
+          "words": 30,
+          "mean_sentence": 7.5,
+          "fk_grade": 7.4,
+          "big_word_share": 0.13
+        },
+        "grounding": {
+          "sentences": 4,
+          "supported": 0,
+          "mean_coverage": 0.0
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "fidelity_raw": "supported",
+        "example": "none",
+        "example_raw": "none",
+        "unmatched_tags": 0,
+        "seconds": 8.78,
+        "gates": {
+          "answered": true,
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": true
+        },
+        "same_shown": true,
+        "reading": null
+      }
+    }
+  },
+  {
+    "question": "explain batch and streaming in simple words",
+    "gold": [
+      "ch02-018",
+      "ch02-019"
+    ],
+    "variants": {
+      "wired": {
+        "answer": "Batch ingestion processes data in large groups at once. [Ch. 2] Tools for sending and handling events. [Ch. 2] A micro-batch runs every two minutes or less. [Ch. 8]",
+        "refused": false,
+        "citations": [
+          "ch02-018",
+          "ch02-019",
+          "ch08-141"
+        ],
+        "cited_share": 0.6,
+        "readability": {
+          "sentences": 3,
+          "words": 24,
+          "mean_sentence": 8.0,
+          "fk_grade": 5.7,
+          "big_word_share": 0.17
+        },
+        "grounding": {
+          "sentences": 3,
+          "supported": 0,
+          "mean_coverage": 0.0
+        },
+        "fake_quotes": [],
+        "fidelity": "unsupported",
+        "fidelity_raw": "unsupported",
+        "example": "example",
+        "example_raw": "example",
+        "unmatched_tags": 0,
+        "seconds": 8.59,
+        "gates": {
+          "answered": true,
+          "no_fake_quotes": true,
+          "book_supported": false,
+          "grade_ok": true
+        },
+        "same_shown": true,
+        "reading": null
+      }
+    }
+  },
+  {
+    "question": "explain data ingestion in simple words",
+    "gold": [
+      "ch07-002"
+    ],
+    "variants": {
+      "wired": {
+        "answer": "Data ingestion moves data from one place to another. [Ch. 7] Make sure data goes smoothly and safely to where it needs to be. [Ch. 7] Data is taken from a source, based on time or data size. [Ch. 7]",
+        "refused": false,
+        "citations": [
+          "ch07-002",
+          "ch07-098",
+          "ch07-030"
+        ],
+        "cited_share": 0.6,
+        "readability": {
+          "sentences": 3,
+          "words": 34,
+          "mean_sentence": 11.3,
+          "fk_grade": 5.8,
+          "big_word_share": 0.09
+        },
+        "grounding": {
+          "sentences": 3,
+          "supported": 1,
+          "mean_coverage": 0.167
+        },
+        "fake_quotes": [],
+        "fidelity": "unsupported",
+        "fidelity_raw": "unsupported",
+        "example": "none",
+        "example_raw": "none",
+        "unmatched_tags": 0,
+        "seconds": 10.95,
+        "gates": {
+          "answered": true,
+          "no_fake_quotes": true,
+          "book_supported": false,
+          "grade_ok": true
+        },
+        "same_shown": true,
+        "reading": null
+      }
+    }
+  },
+  {
+    "question": "explain what a watermark is in simple words",
+    "gold": [
+      "ch08-039"
+    ],
+    "variants": {
+      "wired": {
+        "answer": "A window checks data to see if it is within the time interval. [Ch. 8]",
+        "refused": false,
+        "citations": [
+          "ch08-039"
+        ],
+        "cited_share": 0.2,
+        "readability": {
+          "sentences": 1,
+          "words": 13,
+          "mean_sentence": 13.0,
+          "fk_grade": 5.8,
+          "big_word_share": 0.08
+        },
+        "grounding": {
+          "sentences": 1,
+          "supported": 0,
+          "mean_coverage": 0.0
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "fidelity_raw": "supported",
+        "example": "none",
+        "example_raw": "none",
+        "unmatched_tags": 0,
+        "seconds": 5.54,
+        "gates": {
+          "answered": true,
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": true
+        },
+        "same_shown": true,
+        "reading": null
+      }
+    }
+  },
+  {
+    "question": "explain transformations in simple words",
+    "gold": [
+      "ch02-027"
+    ],
+    "variants": {
+      "wired": {
+        "answer": "Data needs to be changed for use later. [Ch. 2] Now that you know about queries and data modeling, you may wonder if you need transformations. [Ch. 8] You will make pipelines that mix data from many sources and use steps for several outputs. [Ch. 8]",
+        "refused": false,
+        "citations": [
+          "ch02-025",
+          "ch08-088",
+          "ch08-089"
+        ],
+        "cited_share": 0.6,
+        "readability": {
+          "sentences": 3,
+          "words": 40,
+          "mean_sentence": 13.3,
+          "fk_grade": 7.6,
+          "big_word_share": 0.1
+        },
+        "grounding": {
+          "sentences": 3,
+          "supported": 0,
+          "mean_coverage": 0.185
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "fidelity_raw": "supported",
+        "example": "none",
+        "example_raw": "none",
+        "unmatched_tags": 0,
+        "seconds": 7.91,
+        "gates": {
+          "answered": true,
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": true
+        },
+        "same_shown": true,
+        "reading": null
+      }
+    }
+  },
+  {
+    "question": "explain CRUD in simple words",
+    "gold": [
+      "ch05-019"
+    ],
+    "variants": {
+      "wired": {
+        "answer": "The four basic actions: read, write, delete, update. [Ch. 5]",
+        "refused": false,
+        "citations": [
+          "ch05-019"
+        ],
+        "cited_share": 0.2,
+        "readability": {
+          "sentences": 1,
+          "words": 8,
+          "mean_sentence": 8.0,
+          "fk_grade": 5.2,
+          "big_word_share": 0.0
+        },
+        "grounding": {
+          "sentences": 1,
+          "supported": 0,
+          "mean_coverage": 0.0
+        },
+        "fake_quotes": [],
+        "fidelity": "unsupported",
+        "fidelity_raw": "unsupported",
+        "example": "none",
+        "example_raw": "none",
+        "unmatched_tags": 0,
+        "seconds": 6.95,
+        "gates": {
+          "answered": true,
+          "no_fake_quotes": true,
+          "book_supported": false,
+          "grade_ok": true
+        },
+        "same_shown": true,
+        "reading": null
+      }
+    }
+  },
+  {
+    "question": "explain the data mesh in simple words",
+    "gold": [
+      "ch03-099"
+    ],
+    "variants": {
+      "wired": {
+        "answer": "People own data without a central control. [Ch. 3]",
+        "refused": false,
+        "citations": [
+          "ch03-099"
+        ],
+        "cited_share": 0.2,
+        "readability": {
+          "sentences": 1,
+          "words": 7,
+          "mean_sentence": 7.0,
+          "fk_grade": 7.4,
+          "big_word_share": 0.0
+        },
+        "grounding": {
+          "sentences": 1,
+          "supported": 0,
+          "mean_coverage": 0.0
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "fidelity_raw": "supported",
+        "example": "none",
+        "example_raw": "none",
+        "unmatched_tags": 0,
+        "seconds": 5.74,
+        "gates": {
+          "answered": true,
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": true
+        },
+        "same_shown": true,
+        "reading": null
+      }
+    }
+  },
+  {
+    "question": "explain an endpoint in streaming ingestion in simple words",
+    "gold": [
+      "ch02-024"
+    ],
+    "variants": {
+      "wired": {
+        "answer": "With streaming ingestion, data goes straight to an endpoint without a backend database. [Ch. 2]",
+        "refused": false,
+        "citations": [
+          "ch02-024"
+        ],
+        "cited_share": 0.2,
+        "readability": {
+          "sentences": 1,
+          "words": 13,
+          "mean_sentence": 13.0,
+          "fk_grade": 9.4,
+          "big_word_share": 0.15
+        },
+        "grounding": {
+          "sentences": 1,
+          "supported": 0,
+          "mean_coverage": 0.1
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "fidelity_raw": "supported",
+        "example": "none",
+        "example_raw": "none",
+        "unmatched_tags": 0,
+        "seconds": 5.24,
+        "gates": {
+          "answered": true,
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": true
+        },
+        "same_shown": true,
+        "reading": null
+      }
+    }
+  },
+  {
+    "question": "explain when an insert-only table is useful in simple words",
+    "gold": [
+      "ch05-020"
+    ],
+    "variants": {
+      "wired": {
+        "answer": "Insert-only patterns keep data current by adding new records. [Ch. 8] For example, the insert-only pattern suits a banking app showing customer address history. [Ch. 5]",
+        "refused": false,
+        "citations": [
+          "ch08-107",
+          "ch05-020"
+        ],
+        "cited_share": 0.4,
+        "readability": {
+          "sentences": 2,
+          "words": 24,
+          "mean_sentence": 12.0,
+          "fk_grade": 10.2,
+          "big_word_share": 0.12
+        },
+        "grounding": {
+          "sentences": 2,
+          "supported": 0,
+          "mean_coverage": 0.136
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "fidelity_raw": "supported",
+        "example": "example",
+        "example_raw": "example",
+        "unmatched_tags": 0,
+        "seconds": 5.96,
+        "gates": {
+          "answered": true,
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": true
+        },
+        "same_shown": true,
+        "reading": null
+      }
+    }
+  },
+  {
+    "question": "explain the MAD data landscape in simple words",
+    "gold": [
+      "ch04-020"
+    ],
+    "variants": {
+      "wired": {
+        "answer": "Think about the many technologies in Matt Turck's famous ML, AI, and data landscape in Chapter 1. [Ch. 4]",
+        "refused": false,
+        "citations": [
+          "ch04-020"
+        ],
+        "cited_share": 0.2,
+        "readability": {
+          "sentences": 1,
+          "words": 16,
+          "mean_sentence": 16.0,
+          "fk_grade": 9.1,
+          "big_word_share": 0.06
+        },
+        "grounding": {
+          "sentences": 1,
+          "supported": 0,
+          "mean_coverage": 0.2
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "fidelity_raw": "supported",
+        "example": "none",
+        "example_raw": "none",
+        "unmatched_tags": 0,
+        "seconds": 7.04,
+        "gates": {
+          "answered": true,
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": true
+        },
+        "same_shown": true,
+        "reading": null
+      }
+    }
+  }
+]

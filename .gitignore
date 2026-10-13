@@ -3,6 +3,7 @@ books/
 __pycache__/
 data/index.*.json
 artifacts/engine.*.log
+artifacts/server-restart-*.*
 .judge-key
 .env
 .env.*

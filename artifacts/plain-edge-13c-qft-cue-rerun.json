@@ -1,0 +1,1 @@
+{"answer": "For images in the data lake, the schema explains the format, resolution, and hierarchy. [Ch. 6]", "citations": [{"chunk_id": "ch06-086", "chapter": "6", "quote": "For images stored in a data lake, this schema information might explain the image format, resolution, and the way the images fit into a larger hierarchy."}], "figures": [], "refused": false}

@@ -118,9 +118,10 @@ simple words", "eli5", "in plain terms") takes the plain register: the draft
 answer selects the evidence sentences, each is rewritten one-in-one-out into
 simpler words, and each citation keeps the original book sentence. Nothing is
 written from scratch, so the register cannot invent a claim its sentence does
-not carry. The architecture is measured, not asserted
-(`artifacts/eval-plain-v6`: 8/10 under the release judge; the two stable
-misses are sentences whose rewritten form drops the subject).
+not carry. The architecture is measured, not asserted — three draws under the
+release judge scored 8, 6, and 7 of 10, with 5 questions stable-pass and 1
+stable-fail; the rest swings with the rewriter's draw and borderline judge
+calls (`artifacts/plain-register-night-2026-10-13.md`).
 
 ## Quickstart (fresh machine)
 

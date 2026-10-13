@@ -591,6 +591,37 @@ server.
   preserved as `step2-battery-flaked.*`; answer PASS, coherence PASS); 188
   tests green. The known referent-drop failure ("...work on it." when the
   subject is never named) shows in the live check and stands as measured.
+- Wired path measured under Muse 2026-10-13, three draws (`eval-plain-wired-*`,
+  replay `eval-plain-wired-replay-*`): pass 6/10 and 7/10 vs the probe's 8/10
+  — the 8 above was one draw. Diffed per question: 5/10 stable pass, 1/10
+  stable fail (batch/streaming; the rewriter loses meaning), 4/10 flippers;
+  the wiring is not implicated (identical shown passages, `same_shown` true
+  for all 10; rewrites differ draw-to-draw at temperature 0 and one identical
+  answer text got different verdicts). Frozen-prompt probe
+  (`artifacts/judge-stability.py`): three consecutive Muse calls on one
+  borderline item returned supported, supported, unsupported — the release
+  judge is nondeterministic despite `temperature: 0`. Consequence:
+  single-draw scorecards carry +/-1-2 borderline questions of noise; repeat
+  draws before claiming a one-question A/B win. Objective gates stable and
+  green (answered 10/10, fake quotes 0, unmatched tags 0, FK 6.9-7.4, cited
+  share 0.40-0.44). Night report: `plain-register-night-2026-10-13.md`.
+- Plain-register edge probes 2026-10-13 (live HTTP, 20 raw responses
+  `plain-edge-*`, findings `plain-edge-findings.md`, contract checker
+  `plain-edge-check.py` exit 0): all 10 cues route plain; explain/quiz
+  unchanged; figures only from cited passages; cue is a substring test ("not
+  in simple words" routes plain — minor). Two refusal-class failures, both
+  the pre-existing answer-mode seam, not the wiring: cue + out-of-book
+  answers confidently from a junk passage (`refused:false`, 2/2), and the
+  no-cue control prints a preamble before "Not in this book."
+  (`refused:false` per the frozen first-line rule). Open decision for the
+  user: refusal guardrail, or keep free generation model-driven.
+- Agentic multi-hop hunt 2026-10-13 (`multihop-report.md`, agent run,
+  read-only): 10 two-evidence questions. Full-set surfaced: single-shot 6/10,
+  loop 7/10 any-position — but the loop's first five merged passages match
+  single-shot exactly (extras at merge positions 9 and 6). 26 decision calls,
+  all `semantic`; keyword/regex never picked though hand queries reach every
+  missed chunk at rank 1-5 — decision policy, not tool reach. Verdict: no
+  wiring; the next test, if pursued, is a forced tool-diversity policy.
 
 ## Verify
 
@@ -602,8 +633,7 @@ server.
 - Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/step2-battery.py`. Default is qwen2.5:7b (the granite4.1:3b swap was reverted 2026-10-13 — see the bake-off bullet); keep exactly one listener on :8000.
 - Answer mode: `BATTERY_MODE=answer python artifacts/step2-battery.py`; sweeps `SWEEP_MODE=answer python artifacts/qa-sweep.py <label>`; groundedness `python artifacts/groundedness.py --battery --label <name>` or `--label <name>` over `qa-questions-overnight.json` (in-process, no server needed).
 - Agentic prototype (not wired): `python artifacts/probe-agentic.py` (live Ollama, 5 asks).
-- Plain register: `python -m unittest tests.test_plain_register`; scorecard
-  (cloud judge) `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/eval-plain.py --variants paraphrase --label v6`; live route check: `answer` mode with "explain data engineering in simple words".
+- Plain register: `python -m unittest tests.test_plain_register`; scorecard draws (cloud judge) `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/eval-plain.py --variants wired --label wired` (replay with a new label); judge flip probe `python artifacts/judge-stability.py --file eval-plain-v6-openai-muse-spark-1-3-contributor.json --match <question substring> --n 3`; live route check: `answer` mode with "explain data engineering in simple words".
 - Judge backends: default `ollama:granite4.1:8b`; cloud replay, e.g. `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/eval.py --judge-only --label v1`, then `python artifacts/judge-agreement.py eval-v1-ollama-granite4-1-8b eval-v1-openai-muse-spark-1-3-contributor`. `.judge-key` is gitignored; the engine never uses it.
 - Secret scan: `python artifacts/secret-scan.py` (git history + tracked tree; masked output; exit 1 on any hit). Clean 2026-10-13: this repo 516 blobs, 0 hits; `rag-template` 170 blobs, 0 hits.
 

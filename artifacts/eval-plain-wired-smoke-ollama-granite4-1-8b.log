@@ -1,0 +1,5 @@
+# plain scorecard — ollama:granite4.1:8b — 1 questions — variants wired — fk gate <= 11.0, coverage target >= 0.2
+# wired: pass 1/1 | gate fails {'answered': 0, 'no_fake_quotes': 0, 'book_supported': 0, 'grade_ok': 0} | fk 6.8 | words/sentence 7.2 | coverage 0.0 | words 29.0 | cited share 0.8 | example 1/1 | unmatched tags 0 | fake quotes 0 | judge errors 0
+
+## explain data engineering in simple words
+- wired: gates PPPP | fk 6.8 | cov 0.0 | fidelity supported | example example | unmatched 0 | People like data scientists and analysts work on it. [Ch. 1] Data is moved, changed, and handled. [C
