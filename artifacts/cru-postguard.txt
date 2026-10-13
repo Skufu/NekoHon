@@ -1,6 +1,0 @@
-### CRU 1
-{"answer": "[Ch. 5] \"stands for create, read, update, and delete\"\nRead as: \"What does crud stand for?\"", "citations": [{"chunk_id": "ch05-019", "chapter": "5", "quote": "stands for create, read, update, and delete"}], "figures": [], "refused": false}
-### CRU 2
-{"answer": "[Ch. 5] \"stands for create, read, update, and delete\"\nRead as: \"What does crud stand for?\"", "citations": [{"chunk_id": "ch05-019", "chapter": "5", "quote": "stands for create, read, update, and delete"}], "figures": [], "refused": false}
-### CRU 3
-{"answer": "[Ch. 5] \"stands for create, read, update, and delete\"\nRead as: \"What does crud stand for?\"", "citations": [{"chunk_id": "ch05-019", "chapter": "5", "quote": "stands for create, read, update, and delete"}], "figures": [], "refused": false}

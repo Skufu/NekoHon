@@ -72,6 +72,21 @@ server.
   cannot be told apart from luck is not measured: report the before number, the
   after number, and what was held constant.
 
+## Artifacts policy (read before writing to artifacts/)
+
+- Runs write to `artifacts/runs/` (gitignored). Promote a run into
+  `artifacts/` only when a doc or commit names it, and add its row to the
+  index (`artifacts/README.md`) — the index is the gate.
+- New docs and benchmark outputs carry their date in the name:
+  `family-YYYY-MM-DD[-label].ext`.
+- One live twin per family: the latest run plus any run a doc names;
+  superseding a run means deleting the old one in the same commit that
+  supersedes it (numbers folded into the doc first).
+- **Staleness gate:** a benchmark or doc dated two or more days ago is
+  stale. Do not trust its numbers, do not build on it, do not tune code to
+  match it. Re-run it, or ask the user first.
+- Prune before docs commits: `python artifacts/prune.py --plan`.
+
 ## Current state (update this block when a phase lands)
 
 - Done: Phase 0 (book at `books/fde.epub`), 0b (README corrected for this
@@ -673,6 +688,7 @@ server.
 - Plain register: `python -m unittest tests.test_plain_register`; scorecard draws (cloud judge) `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/eval-plain.py --variants wired --label wired` (replay with a new label); judge flip probe `python artifacts/judge-stability.py --file eval-plain-v6-openai-muse-spark-1-3-contributor.json --match <question substring> --n 3`; live route check: `answer` mode with "explain data engineering in simple words".
 - Judge backends: default `ollama:granite4.1:8b`; cloud replay, e.g. `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/eval.py --judge-only --label v1`, then `python artifacts/judge-agreement.py eval-v1-ollama-granite4-1-8b eval-v1-openai-muse-spark-1-3-contributor`. `.judge-key` is gitignored; the engine never uses it.
 - Secret scan: `python artifacts/secret-scan.py` (git history + tracked tree; masked output; exit 1 on any hit). Clean 2026-10-13: this repo 516 blobs, 0 hits; `rag-template` 170 blobs, 0 hits.
+- Artifacts: index + rules `artifacts/README.md`; prune planner `python artifacts/prune.py --plan`.
 
 ## Machine facts (this Windows box)
 

@@ -1,0 +1,126 @@
+"""Artifacts pruner — planner, read-only. Artifact, not engine.
+
+Checks the rules in `artifacts/README.md`:
+
+- unindexed: tracked files under artifacts/ not covered by a name or family
+  row in the README index (rule 4).
+- unreferenced: tracked files no repo doc/code names (candidates only; the
+  index row's reason can still keep them).
+- over-versioned: families holding more than two run files from different
+  dates (rule 3).
+- stale: tracked files whose last commit is older than STALE_DAYS (default
+  2). Stale is a stop sign for agents: re-run, or ask the user (rule 5).
+- missing: README rows whose file names no longer exist.
+
+Run: python artifacts/prune.py [--plan] [--stale-days N]
+Exit code is 0 always — this plans, it does not delete.
+"""
+
+import argparse
+import re
+import subprocess
+import sys
+from collections import defaultdict
+from datetime import date, datetime, timedelta
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent
+
+TEXT_EXTS = (".py", ".md", ".html", ".json", ".txt", ".sh")
+SKIP_PARTS = {"books", "data", "node_modules", ".git"}
+
+
+def tracked_files():
+    out = subprocess.run(
+        ["git", "ls-files", "artifacts"], cwd=ROOT, capture_output=True, text=True
+    ).stdout
+    return sorted(Path(line).name for line in out.split() if line.endswith(tuple(TEXT_EXTS + (".log",))))
+
+
+def last_commit_dates():
+    out = subprocess.run(
+        ["git", "--no-pager", "log", "--format=%x00%ad", "--date=short", "--name-only", "--", "artifacts"],
+        cwd=ROOT, capture_output=True, text=True,
+    ).stdout
+    dates = {}
+    current = None
+    for line in out.splitlines():
+        if line.startswith("\x00"):
+            current = line[1:]
+        elif line.startswith("artifacts/"):
+            name = line.split("/", 1)[1]
+            if name not in dates:
+                dates[name] = current
+    return dates
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Artifacts pruner (plan only).")
+    parser.add_argument("--plan", action="store_true", help="print the plan (the only mode)")
+    parser.add_argument("--stale-days", type=int, default=2)
+    args = parser.parse_args()
+
+    files = tracked_files()
+    dates = last_commit_dates()
+    index_text = (HERE / "README.md").read_text(encoding="utf-8")
+
+    # corpus of references (exclude books/data); self-references never count
+    corpus = {}
+    for path in ROOT.rglob("*"):
+        if (
+            path.is_file()
+            and path.suffix in TEXT_EXTS
+            and not (set(path.parts) & SKIP_PARTS)
+        ):
+            corpus[str(path)] = path.read_text(encoding="utf-8", errors="replace")
+
+    cutoff = date.today() - timedelta(days=args.stale_days)
+    stale, unindexed, unreferenced, over = [], [], [], []
+
+    families = defaultdict(list)
+    for name in files:
+        stem = re.sub(r"-\d{4}-\d{2}-\d{2}", "", name)
+        families[re.split(r"[-.]", stem)[0]].append(name)
+
+        if name not in index_text and not re.split(r"[-.]", name)[0] in index_text:
+            unindexed.append(name)
+
+        others = [
+            Path(h).name
+            for h, t in corpus.items()
+            if Path(h).name != name and name in t
+        ]
+        if not others:
+            unreferenced.append(name)
+
+        stamped = dates.get(name)
+        if stamped:
+            try:
+                if datetime.strptime(stamped, "%Y-%m-%d").date() < cutoff:
+                    stale.append((name, stamped))
+            except ValueError:
+                pass
+
+    for family, members in families.items():
+        runs = [m for m in members if re.search(r"(v\d|run\d|wired|replay|quotealign|flaked)", m)]
+        if len(runs) > 2:
+            over.append((family, len(runs), sorted(runs)))
+
+    print(f"# prune plan — {len(files)} tracked files, stale-days {args.stale_days}")
+    print(f"\n## stale ({len(stale)}) — agents: re-run or ask the user before trusting")
+    for name, stamped in sorted(stale):
+        print(f"- {name} | {stamped}")
+    print(f"\n## unindexed ({len(unindexed)}) — add a README row or delete")
+    for name in sorted(unindexed):
+        print(f"- {name}")
+    print(f"\n## unreferenced ({len(unreferenced)}) — candidates; the index row's reason may keep them")
+    for name in sorted(unreferenced):
+        print(f"- {name}")
+    print(f"\n## over-versioned families ({len(over)}) — keep latest + what a doc names")
+    for family, count, runs in sorted(over):
+        print(f"- {family}: {count} runs -> {runs}")
+
+
+if __name__ == "__main__":
+    main()

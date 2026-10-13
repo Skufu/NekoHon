@@ -4,6 +4,8 @@ __pycache__/
 data/index.*.json
 artifacts/engine.*.log
 artifacts/server-restart-*.*
+artifacts/runs/
+artifacts/scratch/
 .judge-key
 .env
 .env.*
