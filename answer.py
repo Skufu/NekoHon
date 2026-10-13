@@ -120,12 +120,24 @@ def _strip_figure_refs(text):
     return FIGURE_REFERENCE.sub(" ", text or "")
 
 
+def _punctuation_plain(text):
+    return " ".join(re.sub(r"[^\w\s]|_", " ", (text or "").lower()).split())
+
+
 def _quote_in_passage(quote, text):
     if not quote:
         return False
     folded_quote = re.sub(r"\s+", " ", _strip_figure_refs(quote)).lower()
     folded_text = re.sub(r"\s+", " ", _strip_figure_refs(text)).lower()
-    return folded_quote in folded_text
+    if folded_quote in folded_text:
+        return True
+    # Typographic variants are the same sentence: the book writes curly quotes
+    # and interior commas that a copied quote flattens (measured: "data about
+    # data", 2026-10-13). Punctuation is not wording; word order is kept.
+    return (
+        _punctuation_plain(_strip_figure_refs(quote))
+        in _punctuation_plain(_strip_figure_refs(text))
+    )
 
 
 def _fold(text):

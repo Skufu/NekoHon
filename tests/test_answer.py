@@ -333,6 +333,22 @@ class AnswerTests(unittest.TestCase):
         self.assertTrue(body["refused"])
         self.assertEqual(body["answer"], REFUSAL)
 
+    def test_the_metadata_case_resolves(self):
+        passage = {
+            "chunk_id": "ch02-051",
+            "chapter": "2",
+            "text": (
+                "Metadata\nMetadata is “data about data,” and it underpins "
+                "every section of the data engineering lifecycle."
+            ),
+        }
+        body = parse_completion(
+            '[Ch. 2] "Metadata is data about data."',
+            [passage],
+        )
+        self.assertFalse(body["refused"])
+        self.assertEqual(body["citations"][0]["chunk_id"], "ch02-051")
+
     def test_a_short_complete_sentence_quote_is_accepted(self):
         passage = {
             "chunk_id": "ch03-023",
