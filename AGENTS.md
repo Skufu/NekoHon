@@ -633,6 +633,13 @@ server.
   all `semantic`; keyword/regex never picked though hand queries reach every
   missed chunk at rank 1-5 — decision policy, not tool reach. Verdict: no
   wiring; the next test, if pursued, is a forced tool-diversity policy.
+- Forced-keyword follow-up 2026-10-13 (`multihop-forced-keyword.*`): after one
+  semantic step, the next step was forced to keyword; the model's own query
+  reached a missed chunk at rank 2 once (MDM), rank 10 once (PII), half once
+  (streaming: one target rank 2, the other absent), and missed both once (CDC).
+  2 of 4 queries echoed the question verbatim, which keyword search dilutes —
+  the bottleneck is query shape, not tool choice. Still no wiring; a next
+  iteration would be a keyword-query-shaped decision prompt.
 
 ## Verify
 

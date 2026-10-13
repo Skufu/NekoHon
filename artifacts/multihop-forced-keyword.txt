@@ -1,0 +1,31 @@
+answer model qwen2.5:7b | index 1042 chunks
+========================================================================
+Q: What is change data capture, and which database mechanism does the book say it relies on?
+  semantic top-5: ['ch07-051', 'ch05-013', 'ch08-151', 'ch08-105', 'ch06-080']
+  model reply: 'keyword\nWhat is change data capture and which database mechanism does the book say it relies on?'
+  forced keyword query: 'What is change data capture and which database mechanism does the book say it relies on?'
+  keyword top-10: ['ch02-008', 'ch08-087', 'ch04-019', 'ch02-046', 'ch08-024', 'ch08-086', 'ch08-069', 'ch06-023', 'ch07-095', 'ch05-013']
+  target ch05-018: rank None
+  target ch02-023: rank None
+========================================================================
+Q: What does the book say data engineers must do about personally identifiable information during transformation, and in access control?
+  semantic top-5: ['preface01-010', 'ch06-122', 'ch06-118', 'ch10-001', 'ch02-066']
+  model reply: 'keyword\nWhat must data engineers do with personally identifiable information during transformation and access control'
+  forced keyword query: 'What must data engineers do with personally identifiable information during transformation and access control'
+  keyword top-10: ['ch02-066', 'ch07-089', 'ch10-015', 'ch07-074', 'ch10-014', 'ch08-074', 'ch01-002', 'ch05-075', 'preface01-016', 'ch10-011']
+  target ch10-011: rank 10
+========================================================================
+Q: What is master data management, and how does the book connect it to data governance?
+  semantic top-5: ['ch02-059', 'ch02-046', 'ch02-048', 'ch02-047', 'ch02-049']
+  model reply: 'keyword\nWhat is master data management, data governance connection book'
+  forced keyword query: 'What is master data management, data governance connection book'
+  keyword top-10: ['ch02-046', 'ch02-013', 'ch02-058', 'ch02-059', 'ch02-047', 'ch02-050', 'ch03-104', 'ch03-107', 'ch05-075', 'preface01-008']
+  target ch02-013: rank 2
+========================================================================
+Q: What questions does the book suggest asking before choosing streaming ingestion, and what does it say streaming ingestion preserves about data?
+  semantic top-5: ['ch07-098', 'ch07-005', 'ch02-017', 'ch07-037', 'ch07-001']
+  model reply: 'keyword\nWhat questions does the book suggest asking before choosing streaming ingestion, and what does it say streaming ingestion preserves about data?'
+  forced keyword query: 'What questions does the book suggest asking before choosing streaming ingestion, and what does it say streaming ingestion preserves about data?'
+  keyword top-10: ['ch02-017', 'ch02-020', 'ch11-017', 'ch04-007', 'ch08-161', 'ch04-002', 'ch07-005', 'ch08-087', 'ch11-002', 'ch02-012']
+  target ch07-007: rank None
+  target ch02-020: rank 2
