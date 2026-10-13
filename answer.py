@@ -645,11 +645,17 @@ def _sentence_claims(text):
     """(claim, chapters) for every sentence carrying [Ch. tags.
 
     Tags are masked before the sentence split: "Ch." holds a period and would
-    otherwise end a sentence inside the tag. Text accumulates until a tag
-    arrives, so a tag at the start of the next line still cites the sentence
-    before it, and a tags-only fragment merges into the previous claim.
+    otherwise end a sentence inside the tag. The mask clears periods the
+    captured text itself can hold — a two-chapter tag ("[Ch. 2, Ch. 7]")
+    carries a second "Ch.", and a split inside the mask drops the claim
+    entirely (measured 2026-10-13: the endpoint answer lost all citations).
+    Text accumulates until a tag arrives, so a tag at the start of the next
+    line still cites the sentence before it, and a tags-only fragment merges
+    into the previous claim.
     """
-    masked = TAG_PATTERN.sub(lambda m: "\x01" + m.group(1) + "\x02", text)
+    masked = TAG_PATTERN.sub(
+        lambda m: "\x01" + re.sub(r"[.!?]", " ", m.group(1)) + "\x02", text
+    )
     claims = []
     pending = ""
     for part in re.split(r"(?<=[.!?])\s+", masked):
@@ -698,16 +704,34 @@ def _best_passage(claim, chapters, passages):
     return best if best_score > 0 else None
 
 
+def _whole_sentence(span, text, hit):
+    """The passage sentence that holds the span, or "" when none does.
+
+    A copied run can start mid-sentence ("about the movement, manipulation,
+    and management of data"), and a quote that starts lowercase reads as a
+    fragment. The plain register rewrites quotes, so a fragment source
+    becomes a fragment sentence — the subject the run dropped cannot be
+    invented back. The containing sentence restores it.
+    """
+    folded = _fold(span)
+    for sentence in _sentences(text):
+        if folded in _fold(sentence):
+            return _without_heading(sentence, hit)
+    return ""
+
+
 def _evidence_quote(claim, hit):
     """A passage sentence as the citation's quote.
 
     The longest copied run when the model copied; else the passage sentence
     with the most overlap with the claim; else the passage's opening line.
+    A copied run is expanded to the sentence that holds it; the run itself is
+    the fallback when no single sentence does.
     """
     text = hit.get("text") or ""
     span = longest_copied_span(claim, text)
     if span:
-        return _original_case(span, text)
+        return _whole_sentence(span, text, hit) or _original_case(span, text)
     tokens = _tokens(claim)
     best, best_score = "", 0.0
     for sentence in _sentences(text):
@@ -764,12 +788,25 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
     return ask(index, selection.strip(), generate_fn, search_fn, model)
 
 
+# A footnote marker glued to the citing line ("Maxime Beauchemin4") has no
+# sentence-ending punctuation, so whitespace collapse runs the attribution
+# into the next sentence. The split view only: the chunk text is untouched.
+FOOTNOTE_GLUE = re.compile(r"\b[A-Z][a-z]{2,}(\d{1,3})(?=\s+[A-Z][a-z])")
+
+
 def _sentences(text):
     raw = (text or "").strip()
     lines = raw.splitlines()
     if len(lines) > 1 and not lines[0].strip().endswith((".", "?", "!")):
         raw = "\n".join(lines[1:])
-    parts = re.split(r"(?<=[.!?])\s+", re.sub(r"\s+", " ", raw).strip())
+    flat = re.sub(r"\s+", " ", raw).strip()
+    parts = []
+    for run in re.split(r"(?<=[.!?])\s+", flat):
+        cursor = 0
+        for match in FOOTNOTE_GLUE.finditer(run):
+            parts.append(run[cursor:match.end()])
+            cursor = match.end()
+        parts.append(run[cursor:])
     sentences = []
     for part in parts:
         sentence = part.strip()

@@ -118,10 +118,12 @@ simple words", "eli5", "in plain terms") takes the plain register: the draft
 answer selects the evidence sentences, each is rewritten one-in-one-out into
 simpler words, and each citation keeps the original book sentence. Nothing is
 written from scratch, so the register cannot invent a claim its sentence does
-not carry. The architecture is measured, not asserted — three draws under the
-release judge scored 8, 6, and 7 of 10, with 5 questions stable-pass and 1
-stable-fail; the rest swings with the rewriter's draw and borderline judge
-calls (`artifacts/plain-register-night-2026-10-13.md`).
+not carry. The architecture is measured, not asserted: draws under the
+release judge scored 6, 7, 8 before the 2026-10-13 fragment fix and 9, 8
+after it. Citation quotes are always whole book sentences, so a fragment
+source cannot reach the rewriter — that class is fixed structurally, and the
+remaining misses are single-item rewriter errors
+(`artifacts/plain-register-night-2026-10-13.md`, section 8).
 
 ## Quickstart (fresh machine)
 

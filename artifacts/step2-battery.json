@@ -1,7 +1,7 @@
 [
   {
     "question": "What does CRUD stand for?",
-    "seconds": 0.98,
+    "seconds": 1.36,
     "pass": true,
     "notes": [],
     "response": {
@@ -19,7 +19,7 @@
   },
   {
     "question": "What is data ingestion?",
-    "seconds": 0.81,
+    "seconds": 0.96,
     "pass": true,
     "notes": [],
     "response": {
@@ -44,7 +44,7 @@
   },
   {
     "question": "What is a watermark?",
-    "seconds": 0.93,
+    "seconds": 1.29,
     "pass": true,
     "notes": [],
     "response": {
@@ -69,16 +69,16 @@
   },
   {
     "question": "When is an insert-only table useful?",
-    "seconds": 0.71,
+    "seconds": 0.97,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 5] \"The insert-only pattern retains history directly in a table containing data. Rather than updating records, new records get inserted with a timestamp indicating when they were created (Table 5-1). For example, suppose you have a table of customer addresses. Following a CRUD pattern, you would simply update the record if the customer changed their address. With the insert-only pattern, a new address record is inserted with the same customer ID. To read the current customer address by customer ID, you would look up the latest record under that ID.\"",
+      "answer": "[Ch. 5] \"The insert-only pattern retains history directly in a table containing data\"",
       "citations": [
         {
           "chunk_id": "ch05-020",
           "chapter": "5",
-          "quote": "The insert-only pattern retains history directly in a table containing data. Rather than updating records, new records get inserted with a timestamp indicating when they were created (Table 5-1). For example, suppose you have a table of customer addresses. Following a CRUD pattern, you would simply update the record if the customer changed their address. With the insert-only pattern, a new address record is inserted with the same customer ID. To read the current customer address by customer ID, you would look up the latest record under that ID."
+          "quote": "The insert-only pattern retains history directly in a table containing data"
         }
       ],
       "figures": [],
@@ -87,7 +87,7 @@
   },
   {
     "question": "Where does storage sit in the data engineering lifecycle?",
-    "seconds": 0.7,
+    "seconds": 1.14,
     "pass": true,
     "notes": [],
     "response": {
@@ -112,7 +112,7 @@
   },
   {
     "question": "What do source systems provide to the rest of the lifecycle?",
-    "seconds": 0.75,
+    "seconds": 1.12,
     "pass": true,
     "notes": [],
     "response": {
@@ -130,7 +130,7 @@
   },
   {
     "question": "How does data architecture relate to enterprise architecture?",
-    "seconds": 0.91,
+    "seconds": 1.1,
     "pass": true,
     "notes": [],
     "response": {
@@ -148,7 +148,7 @@
   },
   {
     "question": "What is the difference between batch and streaming?",
-    "seconds": 0.97,
+    "seconds": 1.29,
     "pass": true,
     "notes": [],
     "response": {
@@ -166,7 +166,7 @@
   },
   {
     "question": "What happens to data after it is extracted in ETL?",
-    "seconds": 0.92,
+    "seconds": 1.25,
     "pass": true,
     "notes": [],
     "response": {
@@ -184,7 +184,7 @@
   },
   {
     "question": "What do transformations do in the data engineering lifecycle?",
-    "seconds": 0.84,
+    "seconds": 1.08,
     "pass": true,
     "notes": [],
     "response": {
@@ -202,7 +202,7 @@
   },
   {
     "question": "What does CRU stand for?",
-    "seconds": 0.85,
+    "seconds": 1.12,
     "pass": true,
     "notes": [],
     "response": {
@@ -220,7 +220,7 @@
   },
   {
     "question": "What happens to data after it is extracted in ET?",
-    "seconds": 0.87,
+    "seconds": 1.19,
     "pass": true,
     "notes": [],
     "response": {
@@ -238,7 +238,7 @@
   },
   {
     "question": "what is a atermark?",
-    "seconds": 1.18,
+    "seconds": 1.49,
     "pass": true,
     "notes": [],
     "response": {
@@ -263,11 +263,11 @@
   },
   {
     "question": "what does data engineers need to be pragmatic about",
-    "seconds": 0.79,
+    "seconds": 1.15,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"\nBeing flexible with technology choices is important because the data landscape changes quickly.",
+      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"\nBeing flexible with technology choices is important because the data landscape changes rapidly.",
       "citations": [
         {
           "chunk_id": "ch04-012",
@@ -281,7 +281,7 @@
   },
   {
     "question": "Data engineers need to be pragmatic about?",
-    "seconds": 0.75,
+    "seconds": 1.11,
     "pass": true,
     "notes": [],
     "response": {
@@ -299,7 +299,7 @@
   },
   {
     "question": "MAD data landscape",
-    "seconds": 1.08,
+    "seconds": 1.52,
     "pass": true,
     "notes": [],
     "response": {
@@ -324,7 +324,7 @@
   },
   {
     "question": "multicloud methodology disadvantages",
-    "seconds": 0.66,
+    "seconds": 1.06,
     "pass": true,
     "notes": [],
     "response": {
@@ -342,7 +342,7 @@
   },
   {
     "question": "What is the capital of France?",
-    "seconds": 0.56,
+    "seconds": 1.07,
     "pass": true,
     "notes": [],
     "response": {

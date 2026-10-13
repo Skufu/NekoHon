@@ -640,6 +640,25 @@ server.
   2 of 4 queries echoed the question verbatim, which keyword search dilutes —
   the bottleneck is query shape, not tool choice. Still no wiring; a next
   iteration would be a keyword-query-shaped decision prompt.
+- Fragment fix 2026-10-13, after the user's live report ("By scientists,
+  analysts, and others." / "About moving, changing, and handling data."):
+  citation quotes could be mid-sentence copied runs, and the rewriter
+  faithfully kept the fragment shape. Two view-level changes in `answer.py`
+  (chunk text untouched): `_evidence_quote` expands a copied span to the
+  whole passage sentence that holds it (the run stays the fallback), and
+  `_sentences` splits footnote glue ("Maxime Beauchemin4" + next capital) so
+  an attribution cannot run into the next sentence. A third pre-existing bug
+  the battery rerun surfaced: a two-chapter tag ("[Ch. 2, Ch. 7]") carried a
+  second "Ch." inside the sentence-split mask and the claim was dropped —
+  the endpoint answer lost all citations; the mask now clears periods.
+  Measured: Muse draws 9/10 and 8/10 post-fix (6, 7 pre-fix), zero fragment
+  openers in all 20 answers, CRUD now rewrites correct ("create, read,
+  update, delete"; the create->write error is gone), the batch/streaming
+  "in m." truncation gone. Residual: insert-only's Lambda line, one loose
+  ingestion paraphrase, one fk-13.7 draw (naming the book's terms). Live
+  HTTP check on the user's exact questions: subjects preserved. Both
+  batteries PASS; 193 tests green. Files `plain-fix-check-*.json`,
+  `eval-plain-quotealign*`.
 
 ## Verify
 

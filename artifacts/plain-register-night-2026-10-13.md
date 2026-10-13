@@ -182,3 +182,28 @@ that is a product policy call, not a wiring bug — left as-is tonight.
 - Agent A: `multihop-*`. Agent B: `plain-edge-*`, `plain-edge-findings.md`.
 - Probes: `judge-stability.py`, `plain-http-check.json`,
   `plain-http-control.json`, both batteries (incl. `step2-battery-flaked.*`).
+
+## 8. Morning fix — the fragment class, after the live report
+
+The live examples ("By scientists, analysts, and others." / "About moving,
+changing, and handling data.") traced upstream: `_evidence_quote` could
+return a mid-sentence copied run as the citation quote, and the rewriter
+faithfully kept the fragment shape (it cannot invent the dropped subject
+back). Fixes in `answer.py`, view-level, chunk text untouched:
+
+- `_evidence_quote` expands a copied span to the whole passage sentence that
+  holds it (the run stays the fallback when no sentence does).
+- `_sentences` splits footnote glue ("Maxime Beauchemin4" + next capital) so
+  a scraped attribution cannot run into the following sentence.
+- A pre-existing bug the battery rerun surfaced: a two-chapter tag
+  ("[Ch. 2, Ch. 7]") held a second "Ch." inside the sentence-split mask and
+  the claim was dropped wholesale — the endpoint answer lost all citations;
+  the mask now clears periods (pinned by a unit test).
+
+Measured after the fix, Muse draws: **9/10 and 8/10** (6, 7 pre-fix); zero
+fragment openers in all 20 answers; CRUD now rewrites "create, read, update,
+and delete" correctly (the create->write error is gone); the batch/streaming
+"in m." truncation is gone. Residual fails: insert-only's Lambda line, one
+loose ingestion paraphrase, one fk-13.7 draw (naming the book's own terms).
+Batteries PASS in both modes; 193 tests green. Live HTTP checks:
+`plain-fix-check-*.json`.

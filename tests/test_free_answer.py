@@ -109,6 +109,62 @@ class ParseAnsweredTest(unittest.TestCase):
         )
         self.assertEqual(len(body["citations"]), 1)
 
+    def test_two_chapter_tag_still_cites(self):
+        # The mask clears the period in the tag's second "Ch."; a split inside
+        # the mask would drop the claim and empty the citations.
+        body = A.parse_answered(
+            "The endpoint streams data straight past a database [Ch. 2, Ch. 7].",
+            PASSAGES,
+        )
+        self.assertFalse(body["refused"])
+        self.assertEqual([c["chunk_id"] for c in body["citations"]], ["c1-001"])
+
+    def test_mid_sentence_span_expands_to_the_whole_sentence(self):
+        # The copied run starts mid-sentence; the quote is the sentence that
+        # holds it, never the bare run (a lowercase fragment).
+        body = A.parse_answered(
+            "The CDC approach focuses on row-level changes from a database "
+            "so downstream systems stay in sync. [Ch. 1]",
+            PASSAGES,
+        )
+        self.assertEqual(
+            body["citations"][0]["quote"],
+            "Change data capture (CDC) streams row-level changes from a "
+            "database so downstream systems stay in sync.",
+        )
+
+    def test_span_outside_any_sentence_keeps_the_old_run(self):
+        # The only sentence holding the run is under KEY_MIN_CHARS, so the
+        # sentence list drops it; the run itself is the fallback.
+        short = [hit("c9-009", "9", "Sync note\nrow-level changes from a database")]
+        body = A.parse_answered(
+            "The approach focuses on row-level changes from a database here. [Ch. 9]",
+            short,
+        )
+        self.assertIn("row-level changes from a database", body["citations"][0]["quote"])
+
+    def test_footnote_glue_does_not_merge_into_the_next_sentence(self):
+        # "Maxime Beauchemin4" has no sentence end, so the attribution used to
+        # run into the next sentence; the split drops the attribution piece
+        # and the quote is the definition itself.
+        glued = hit(
+            "c1-003",
+            "1",
+            "What Is Data Engineering?\nMaxime Beauchemin4\n\n"
+            "Data engineering is all about the movement, manipulation, and "
+            "management of data. Lewis Gavin5",
+        )
+        quote = A._evidence_quote(
+            "Data engineering deals with the movement, manipulation, and "
+            "management of data.",
+            glued,
+        )
+        self.assertEqual(
+            quote,
+            "Data engineering is all about the movement, manipulation, and "
+            "management of data.",
+        )
+
 
 class RespondTest(unittest.TestCase):
     def _index(self):
@@ -172,6 +228,37 @@ class RespondTest(unittest.TestCase):
         )
         self.assertTrue(body["refused"])
         self.assertEqual(called, [])
+
+    def test_plain_register_rewrites_the_whole_sentence(self):
+        # A citation quote can never be a bare copied run, so the rewriter is
+        # never asked to rewrite a fragment into a fragment.
+        seen = []
+
+        def fake_search(index, question, k=10):
+            return PASSAGES
+
+        def fake_generate(system, user, model):
+            if system == A.PARAPHRASE_SYSTEM:
+                seen.append(user)
+                return "CDC sends changes downstream."
+            return (
+                "The CDC approach focuses on row-level changes from a "
+                "database so downstream systems stay in sync. [Ch. 1]"
+            )
+
+        A.respond(
+            self._index(),
+            "what is CDC in simple words?",
+            generate_fn=fake_generate,
+            search_fn=fake_search,
+        )
+        self.assertEqual(
+            seen,
+            [
+                "Sentence: Change data capture (CDC) streams row-level changes "
+                "from a database so downstream systems stay in sync."
+            ],
+        )
 
 
 class ModeTest(unittest.TestCase):
