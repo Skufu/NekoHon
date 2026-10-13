@@ -17,7 +17,7 @@ from figures import figures_for
 from fusion import fuse
 from keywords import anchor_words, postings, rare
 from prompt import ANSWER_MODEL, REFUSAL, SYSTEM, SYSTEM_ANSWER
-from readings import second_reading
+from readings import llm_second_reading, second_reading
 from retrieve import search
 
 OLLAMA_CHAT = "http://127.0.0.1:11434/api/chat"
@@ -440,12 +440,15 @@ def _refusal(passages, figures=None):
     }
 
 
-def retrieval_context(index, question, search_fn=None):
+def retrieval_context(index, question, search_fn=None, generate_fn=None):
     """The passages the model is shown, after reading, fusion, and seeding.
 
     Shared by ask and respond so both modes see the same evidence; the
     groundedness meter (artifacts/groundedness.py) calls this to compare an
-    answer against exactly the passages it was given.
+    answer against exactly the passages it was given. When a question word is
+    not in the book, the reading repair runs first (difflib, self-proving);
+    the LLM enhancer is the fallback under the same gate, so a typo difflib
+    cannot see still gets one honest attempt.
     """
     search_fn = search_fn or search
     passages = search_fn(index, question, k=PASSAGE_LIMIT)
@@ -464,6 +467,15 @@ def retrieval_context(index, question, search_fn=None):
     # becomes the question when it scores strictly better, and the answer says
     # which reading it answered. Nothing is repaired silently.
     reading = second_reading(index, question, passages[0]["score"], word_map=word_map)
+    if reading is None:
+        # The difflib reading cannot see every typo (measured 2026-10-13:
+        # "normilazation", "ingestoin"); the model proposes and the same
+        # strict-improvement gate decides. A failed call leaves the literal
+        # question standing.
+        reading = llm_second_reading(
+            index, question, passages[0]["score"],
+            generate_fn=generate_fn, word_map=word_map,
+        )
     if reading is not None:
         context["reading"] = reading
         context["asked"] = reading["reading"]
@@ -486,7 +498,7 @@ def retrieval_context(index, question, search_fn=None):
 
 def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL):
     generate_fn = generate_fn or ollama_generate
-    context = retrieval_context(index, question, search_fn)
+    context = retrieval_context(index, question, search_fn, generate_fn)
     passages = context["passages"]
     if not passages:
         return _refusal([])
@@ -508,7 +520,7 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
     (see parse_answered). Groundedness is measured, not enforced.
     """
     generate_fn = generate_fn or ollama_generate
-    context = retrieval_context(index, question, search_fn)
+    context = retrieval_context(index, question, search_fn, generate_fn)
     passages = context["passages"]
     if not passages:
         return _refusal([])

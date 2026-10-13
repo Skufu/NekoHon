@@ -21,6 +21,16 @@ Not in this book.
 Do not describe an image. You cannot see images. If a passage names a figure, mention it; the app will show the image."""
 
 REFUSAL = "Not in this book."
+
+# The spelling enhancer's prompt (readings.llm_second_reading): the fallback
+# for out-of-book question words the difflib reading cannot resolve. The
+# model proposes; the strict-improvement gate decides; a kept correction is
+# always visible in the answer as Read as.
+SPELL_SYSTEM = """Fix any spelling errors in the user-provided book search query below.
+Correct only clear, high-confidence typos. Do not rewrite, add, remove, or reorder words.
+Preserve punctuation and capitalization unless a change is required for a typo fix.
+If there are no spelling errors, or if you're unsure, output the original query unchanged.
+Output only the final query text, nothing else."""
 # The default is qwen2.5:7b: the bake-off winner granite4.1:3b failed the
 # "what is MAD data landscape" phrasing probe (mad-phrasing-probe.md) and was
 # reverted the same day. The env seam exists so a bake-off can run the same

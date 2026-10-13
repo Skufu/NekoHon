@@ -31,13 +31,25 @@ Measured 2026-10-12 (nomic, data/index.json):
 The improvement gate is the safety, not the similarity cutoff: the France
 reading loses, so it cannot inject a passage about franca.
 
+The fallback when the difflib reading finds nothing: `llm_second_reading`,
+a local model's correction under the same strict-improvement gate plus two
+structural guards. Measured 2026-10-13 (`artifacts/probe-llm-spell`): it wins
+the two cases difflib cannot see ("normilazation", "ingestoin" — both kept,
+both hit the pin); the gate discarded its one confident wrong fix ("CRU" ->
+"CRC"); a case-only change ("iops" -> "IOPS") is rejected by the guards
+before embedding, and an expansion cannot pass the token-count guard. The
+generator is injected so tests never call Ollama; a failed call leaves the
+literal question standing.
+
 Stdlib only. The embedder is injected so tests never call Ollama.
 """
 
 import difflib
+import urllib.error
 
 from keywords import postings
 from preprocess import token_spans, tokens
+from prompt import ANSWER_MODEL, SPELL_SYSTEM
 from retrieve import DEFAULT_EMBEDDER, rank_chunks
 
 CUTOFF = 0.85
@@ -112,6 +124,72 @@ def _book_forms(index):
         for token in tokens(chunk.get("text")):
             forms.setdefault(token.lower(), token)
     return forms
+
+
+def _clean_completion(text):
+    """The model's query, unquoted and whitespace-folded."""
+    text = (text or "").strip()
+    if len(text) >= 2 and text[0] == text[-1] and text[0] in "\"'“”":
+        text = text[1:-1].strip()
+    return " ".join(text.split())
+
+
+def llm_second_reading(index, question, literal_top, answer_model=ANSWER_MODEL,
+                       generate_fn=None, embed_model=DEFAULT_EMBEDDER,
+                       embed_fn=None, word_map=None):
+    """{"reading", "chunk", "swaps"} from an LLM correction, or None.
+
+    The fallback for out-of-book words the difflib reading cannot resolve
+    (measured 2026-10-13: "normilazation", "ingestoin" — it keeps both). The
+    model proposes a corrected query; the same proof as second_reading
+    decides: kept only when the corrected query's best dense score strictly
+    beats the literal one. Two structural guards enforce the prompt's own
+    rule instead of trusting it, both from measured failures:
+    - the folded words must actually change: "iops" -> "IOPS" passed the
+      score gate on embedding jitter and is noise, not a fix;
+    - the token count must not change: no additions, removals, or reorders —
+      an expansion cannot slip through, and a same-count wrong fix ("CRU"
+      -> "CRC") still has to survive the score gate.
+    A failed model call is not an error: the literal question stands.
+    """
+    if generate_fn is None:
+        from answer import ollama_generate
+
+        generate_fn = ollama_generate
+    word_map = postings(index) if word_map is None else word_map
+    before = [token.lower() for token in tokens(question or "")]
+    if not word_map or not any(word not in word_map for word in before):
+        return None
+    try:
+        completion = generate_fn(
+            SPELL_SYSTEM, f'User query: "{question}"', answer_model
+        )
+    except (urllib.error.URLError, TimeoutError, RuntimeError):
+        return None
+    corrected = _clean_completion(completion)
+    after = [token.lower() for token in tokens(corrected)]
+    if not corrected or set(after) == set(before) or len(after) != len(before):
+        return None
+    ranked = rank_chunks(index, corrected, embed_model, embed_fn)
+    if not ranked or ranked[0][0] <= literal_top:
+        return None
+    score, chunk = ranked[0]
+    return {
+        "reading": corrected,
+        "chunk": {
+            "score": score,
+            "chunk_id": chunk["chunk_id"],
+            "chapter": chunk["chapter"],
+            "heading": chunk.get("heading", ""),
+            "text": chunk.get("text", ""),
+            "source": chunk.get("source", ""),
+        },
+        "swaps": {
+            typed: fixed
+            for typed, fixed in zip(before, after)
+            if typed != fixed
+        },
+    }
 
 
 def second_reading(index, question, literal_top, model=DEFAULT_EMBEDDER,

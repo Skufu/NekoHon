@@ -3,7 +3,7 @@
 import re
 import unittest
 
-from readings import resolved_reading, second_reading
+from readings import llm_second_reading, resolved_reading, second_reading
 
 
 def fake_embed(texts, model):
@@ -105,6 +105,85 @@ class SecondReadingTests(unittest.TestCase):
         self.assertIsNone(
             second_reading(index, "what is a watermark?", 0.9, embed_fn=refuse)
         )
+
+
+class LlmSecondReadingTests(unittest.TestCase):
+    def test_a_kept_llm_reading_names_itself_and_its_chunk(self):
+        index = make_index()
+        reading = llm_second_reading(
+            index,
+            "what is a waremark?",
+            0.8,
+            generate_fn=lambda system, user, model: "what is a watermark?",
+            embed_fn=fake_embed,
+        )
+        self.assertIsNotNone(reading)
+        self.assertEqual(reading["reading"], "what is a watermark?")
+        self.assertEqual(reading["chunk"]["chunk_id"], "ch08-040")
+        self.assertEqual(reading["swaps"], {"waremark": "watermark"})
+
+    def test_a_case_only_change_is_rejected_without_embedding(self):
+        def refuse_embed(*args, **kwargs):
+            raise AssertionError("must not embed a case-only change")
+
+        index = make_index()
+        reading = llm_second_reading(
+            index,
+            "what does iops mean",
+            0.5,
+            generate_fn=lambda system, user, model: "What does IOPS mean?",
+            embed_fn=refuse_embed,
+            word_map={"what": [0], "does": [0], "mean": [0]},
+        )
+        self.assertIsNone(reading)
+
+    def test_an_expansion_is_rejected(self):
+        index = make_index()
+        reading = llm_second_reading(
+            index,
+            "what is a waremark?",
+            0.1,
+            generate_fn=lambda system, user, model: "what is a watermark used for",
+            embed_fn=fake_embed,
+        )
+        self.assertIsNone(reading)
+
+    def test_no_absent_word_never_calls_the_model(self):
+        def refuse(*args, **kwargs):
+            raise AssertionError("must not call the model")
+
+        index = make_index()
+        reading = llm_second_reading(
+            index,
+            "what is a watermark?",
+            0.5,
+            generate_fn=refuse,
+            embed_fn=fake_embed,
+            word_map={"what": [0], "is": [0], "a": [0], "watermark": [0]},
+        )
+        self.assertIsNone(reading)
+
+    def test_a_reading_that_only_matches_is_dropped(self):
+        index = make_index()
+        reading = llm_second_reading(
+            index,
+            "what is a waremark?",
+            1.0,
+            generate_fn=lambda system, user, model: "what is a watermark?",
+            embed_fn=fake_embed,
+        )
+        self.assertIsNone(reading)
+
+    def test_a_failed_model_call_leaves_the_literal_question(self):
+        def explode(*args, **kwargs):
+            raise RuntimeError("model down")
+
+        index = make_index()
+        reading = llm_second_reading(
+            index, "what is a waremark?", 0.5,
+            generate_fn=explode, embed_fn=fake_embed,
+        )
+        self.assertIsNone(reading)
 
 
 if __name__ == "__main__":
