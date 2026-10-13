@@ -536,16 +536,41 @@ server.
   decision calls; no measured win over the 0.5-1.2 s single-shot ask on
   these five, so wiring waits for a measured multi-hop failure set.
   `artifacts/agentic-design.md`.
+- Cloud judge calibrated 2026-10-13: `muse-spark-1.3-contributor` on the
+  OpenCode Go relay (`/responses` wire, reasoning effort minimal,
+  `x-opencode-session` header auto-generated per process; key from
+  `.judge-key`, gitignored). Replays over the same 24 items: granite
+  reproduced its own verdicts exactly (68/105), agreement granite-vs-Muse
+  86/105 on passage relevance (81.9%; granite over-inclusive in 16 of 19
+  disagreements) and 1/1 on key facts; Muse's precision reading 55/105
+  (0.524). The local judge stays the loop default; the cloud judge is the
+  calibration reference. Files `eval-v1-ollama-granite4-1-8b.*`,
+  `eval-v1-openai-muse-spark-1-3-contributor.*`, `judge-agreement-*.log`.
 - Not started: 8.
+- Embedding hygiene guards landed 2026-10-13 (user-approved; `retrieve.py`,
+  `verify_index.py`): `embed_index` refuses a response vector that is wrong
+  width, non-finite, all-zero, or from a short batch, naming the chunk/figure
+  before anything is stored; `rank_chunks` refuses an empty/non-finite query
+  vector, a query contradicting `embedding_dims`, and a stored vector whose
+  width drifted (chunk id named) — dim drift is a named error instead of every
+  score silently 0.0. `verify_index.py` re-runs the audit read-only
+  (non-finite / zero-norm / width drift / missing), exit 1 when dirty.
+  Measured: pre-guard scan of `data/index.json` (10,528,929 bytes, sha256
+  5478e5e9…) 1153/1153 vectors 768-wide, 0 non-finite, 0 zero-norm, 0 drift,
+  norms 0.99999888-1.00000115 (`artifacts/embedding-audit-2026-10-13.txt`);
+  post-guard `python verify_index.py` clean on the same file, dirty path exits
+  1 naming the chunk; 157 tests green (was 143); live smoke 10/10 top-10 in
+  2.8 s. No re-embed; index bytes untouched.
 
 ## Verify
 
 - `python -m unittest discover -s tests` (must stay green)
+- Index hygiene: `python verify_index.py` (read-only; exits 1 on dirty vectors)
 - Server: `python server.py` -> `GET http://127.0.0.1:8000/health`
 - Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/step2-battery.py`. Default is qwen2.5:7b (the granite4.1:3b swap was reverted 2026-10-13 — see the bake-off bullet); keep exactly one listener on :8000.
 - Answer mode: `BATTERY_MODE=answer python artifacts/step2-battery.py`; sweeps `SWEEP_MODE=answer python artifacts/qa-sweep.py <label>`; groundedness `python artifacts/groundedness.py --battery --label <name>` or `--label <name>` over `qa-questions-overnight.json` (in-process, no server needed).
 - Agentic prototype (not wired): `python artifacts/probe-agentic.py` (live Ollama, 5 asks).
-- Judge backends: default `ollama:granite4.1:8b`; cloud replay `JUDGE_BACKEND=openai JUDGE_MODEL=<m> JUDGE_BASE_URL=<u> JUDGE_API_KEY=<k> python artifacts/eval.py --judge-only --label <base>`, then `python artifacts/judge-agreement.py <base> eval-<base>-<judge-slug>`.
+- Judge backends: default `ollama:granite4.1:8b`; cloud replay, e.g. `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/eval.py --judge-only --label v1`, then `python artifacts/judge-agreement.py eval-v1-ollama-granite4-1-8b eval-v1-openai-muse-spark-1-3-contributor`. `.judge-key` is gitignored; the engine never uses it.
 
 ## Machine facts (this Windows box)
 

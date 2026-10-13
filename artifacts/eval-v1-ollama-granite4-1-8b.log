@@ -1,0 +1,29 @@
+# eval — 24 items — answerer qwen2.5:7b — judge ollama:granite4.1:8b (UNVALIDATED vs human labels)
+# judge-only replay of eval-v1.json; shown passages recomputed identical for 24/24 items
+# recall@10 dense 17/22 | shown recall@5 22/22 | MRR@10 0.708 | gold precision@5 floor 0.2
+# cited share 0.327 | false answers 0/2 | false refusals 1/22
+# key facts: regex 17/19 | judge rescued 1 | still missing 1
+# judged relevance 68/105 (0.648) | judge errors 0
+
+## dense misses (gold not in the dense top-10)
+# Shown-recall recovery of these rows is the reading/fusion/caption work; a row missing from BOTH lists is a true false negative.
+- what is a atermark? | gold ['ch08-039'] | shown ['ch08-039', 'ch03-006', 'ch03-015', 'ch05-030', 'ch03-078'] | recovered=True
+- what does data engineers need to be pragmatic about | gold ['ch04-012'] | shown ['ch04-012', 'ch01-034', 'ch01-036', 'ch01-042', 'ch01-024'] | recovered=True
+- Data engineers need to be pragmatic about? | gold ['ch04-012'] | shown ['ch04-012', 'ch01-034', 'ch01-042', 'ch01-036', 'ch03-038'] | recovered=True
+- MAD data landscape | gold ['ch04-020'] | shown ['ch04-020', 'ch04-019', 'ch03-099', 'ch02-037', 'ch11-018'] | recovered=True
+- what is MAD data landscape | gold ['ch04-020'] | shown ['ch04-020', 'ch03-099', 'ch02-059', 'ch06-080', 'ch04-092'] | recovered=True
+
+## false negatives (expected answer, no gold among the shown 5)
+
+## false refusals
+- dark matter data | gold ['ch11-025']
+
+## false answers (refused expected)
+
+## key-fact misses still missing after the judge
+- dark matter data | key 'dark matter' | answer 'Not in this book.'
+
+## known issues
+- dark matter data | refused=True
+
+## gold judged not relevant (judge vs pin disagreement)

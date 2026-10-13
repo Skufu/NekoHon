@@ -5,14 +5,17 @@ Two backends, one interface, the same one-word verdicts at temperature 0:
 - `ollama` (default): `granite4.1:8b` — cross-family with the answerer
   (qwen2.5:7b), offline, no key, one model swap per eval run.
 - `openai` (opt-in): any provider exposing an OpenAI-compatible
-  `/chat/completions` — OpenAI, Anthropic's compat endpoint, Gemini's
-  compat endpoint, OpenRouter, DeepSeek, Groq, Mistral. Configured with
-  `JUDGE_BASE_URL` (default https://api.openai.com/v1), `JUDGE_MODEL`, and a
-  key from `JUDGE_API_KEY` or `JUDGE_API_KEY_FILE` (a path; the file is
-  gitignored as `.judge-key` when kept in the repo). A frontier judge is the
-  stronger oracle for validating the local one; the default stays offline so
-  routine runs need no key and no network. The engine, the server, and the
-  batteries never use this path.
+  `/chat/completions` or `/responses` wire — OpenAI, Anthropic's compat
+  endpoint, Gemini's compat endpoint, OpenRouter, DeepSeek, Groq, Mistral,
+  and the OpenCode Zen/Go relay (which serves `muse-spark` on `/responses`
+  only, and pins requests with `x-opencode-session`; a random stable session
+  is generated per process unless `JUDGE_OPENCODE_SESSION` is set).
+  Configured with `JUDGE_BASE_URL`, `JUDGE_MODEL`, `JUDGE_WIRE` (`chat`
+  default, `responses`), and a key from `JUDGE_API_KEY` or
+  `JUDGE_API_KEY_FILE` (a path; the file is gitignored as `.judge-key` when
+  kept in the repo). A frontier judge is the stronger oracle for validating
+  the local one; the default stays offline so routine runs need no key and
+  no network. The engine, the server, and the batteries never use this path.
 
 Model identity is recorded in every judged output (`judge_name()`): a judge
 swap without a version pin would silently drift the metric series.
@@ -27,6 +30,7 @@ import re
 import time
 import urllib.error
 import urllib.request
+import uuid
 from pathlib import Path
 
 import answer as A
@@ -36,9 +40,14 @@ JUDGE_MODEL = os.environ.get(
     "JUDGE_MODEL", "granite4.1:8b" if JUDGE_BACKEND == "ollama" else ""
 )
 JUDGE_BASE_URL = os.environ.get("JUDGE_BASE_URL", "https://api.openai.com/v1")
+JUDGE_WIRE = os.environ.get("JUDGE_WIRE", "chat")
+JUDGE_REASONING = os.environ.get("JUDGE_REASONING", "minimal")
+JUDGE_MAX_OUTPUT = int(os.environ.get("JUDGE_MAX_OUTPUT", "2048"))
 PASSAGE_CHARS = 2000  # prompt-size guard, not a quality knob
 ANSWER_CHARS = 2000
 CLOUD_TIMEOUT = 60.0
+CHAT_MAX_TOKENS = 16
+_LAZY_SESSION = {"value": ""}
 
 RELEVANCE_SYSTEM = (
     "You are a strict retrieval judge for a book question-answering system. "
@@ -78,39 +87,89 @@ def _api_key():
     return ""
 
 
-def _cloud_complete(system, user, model, timeout):
-    """One OpenAI-compatible chat call. One retry for transient failures."""
-    if not model:
-        raise RuntimeError("JUDGE_MODEL is required for JUDGE_BACKEND=openai")
+def _cloud_headers():
     key = _api_key()
-    if not key:
-        raise RuntimeError(
-            "set JUDGE_API_KEY or JUDGE_API_KEY_FILE for JUDGE_BACKEND=openai"
-        )
-    payload = {
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {key}",
+        "User-Agent": "ask-this-book-eval/1.0",
+    }
+    session = os.environ.get("JUDGE_OPENCODE_SESSION", "") or _LAZY_SESSION["value"]
+    if not session and "opencode.ai" in JUDGE_BASE_URL:
+        session = str(uuid.uuid4())
+        _LAZY_SESSION["value"] = session
+    if session:
+        headers["x-opencode-session"] = session
+    return headers
+
+
+def _cloud_payload(system, user, model):
+    if JUDGE_WIRE == "responses":
+        payload = {
+            "model": model,
+            "instructions": system,
+            "input": [
+                {
+                    "role": "user",
+                    "content": [{"type": "input_text", "text": user}],
+                }
+            ],
+            "max_output_tokens": JUDGE_MAX_OUTPUT,
+            "temperature": 0,
+        }
+        if JUDGE_REASONING:
+            payload["reasoning"] = {"effort": JUDGE_REASONING}
+        return payload
+    return {
         "model": model,
         "temperature": 0,
-        "max_tokens": 16,
+        "max_tokens": CHAT_MAX_TOKENS,
         "messages": [
             {"role": "system", "content": system},
             {"role": "user", "content": user},
         ],
     }
-    url = JUDGE_BASE_URL.rstrip("/") + "/chat/completions"
+
+
+def _cloud_url():
+    suffix = "/responses" if JUDGE_WIRE == "responses" else "/chat/completions"
+    return JUDGE_BASE_URL.rstrip("/") + suffix
+
+
+def _cloud_text(body):
+    choices = body.get("choices")
+    if isinstance(choices, list):
+        content = (choices or [{}])[0].get("message", {}).get("content")
+        return content if isinstance(content, str) else None
+    parts = []
+    for item in body.get("output") or []:
+        if item.get("type") != "message":
+            continue
+        for piece in item.get("content") or []:
+            if piece.get("type") == "output_text" and isinstance(piece.get("text"), str):
+                parts.append(piece["text"])
+    return "\n".join(parts) if parts else None
+
+
+def _cloud_complete(system, user, model, timeout):
+    """One cloud judge call on the configured wire. One retry for transients."""
+    if not model:
+        raise RuntimeError("JUDGE_MODEL is required for JUDGE_BACKEND=openai")
+    if not _api_key():
+        raise RuntimeError(
+            "set JUDGE_API_KEY or JUDGE_API_KEY_FILE for JUDGE_BACKEND=openai"
+        )
     request = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {key}",
-        },
+        _cloud_url(),
+        data=json.dumps(_cloud_payload(system, user, model)).encode("utf-8"),
+        headers=_cloud_headers(),
     )
     for attempt in (1, 2):
         try:
             with urllib.request.urlopen(request, timeout=timeout) as response:
                 body = json.loads(response.read().decode("utf-8"))
-            content = (body.get("choices") or [{}])[0].get("message", {}).get("content")
-            if not isinstance(content, str) or not content.strip():
+            content = _cloud_text(body)
+            if not content or not content.strip():
                 raise RuntimeError("empty judge completion")
             return content.strip()
         except urllib.error.HTTPError as exc:
