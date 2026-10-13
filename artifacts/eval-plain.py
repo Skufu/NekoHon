@@ -140,21 +140,24 @@ def main():
             key: sum(1 for v in values if not v["gates"][key])
             for key in ("no_fake_quotes", "book_supported", "grade_ok")
         }
-        mean = lambda key, sub: round(  # noqa: E731
-            sum(v[key][sub] for v in values if v[key][sub] is not None)
-            / max(1, sum(1 for v in values if v[key][sub] is not None)), 3
-        )
+        def mean_of(getter):
+            vals = [getter(v) for v in values if getter(v) is not None]
+            return round(sum(vals) / len(vals), 3) if vals else None
+
+        fk = mean_of(lambda v: v["readability"]["fk_grade"])
+        sentence = mean_of(lambda v: v["readability"]["mean_sentence"])
+        coverage = mean_of(lambda v: v["grounding"]["mean_coverage"])
+        words = mean_of(lambda v: v["readability"]["words"])
+        cited_share = mean_of(lambda v: v["cited_share"])
         examples = sum(1 for v in values if v["example"] == "example")
         judge_errors = sum(
             1 for v in values if v["fidelity"] == "judge_error" or v["example"] == "judge_error"
         )
         lines.append(
             f"# {name}: pass {passes}/{len(values)} | gate fails {gate_failures}"
-            f" | fk {mean('readability', 'fk_grade')}"
-            f" | words/sentence {mean('readability', 'mean_sentence')}"
-            f" | coverage {mean('grounding', 'mean_coverage')}"
-            f" | words {mean('readability', 'words')}"
-            f" | cited share {mean('cited_share', 'cited_share')}"
+            f" | fk {fk} | words/sentence {sentence}"
+            f" | coverage {coverage} | words {words}"
+            f" | cited share {cited_share}"
             f" | example {examples}/{len(values)}"
             f" | unmatched tags {sum(v['unmatched_tags'] for v in values)}"
             f" | fake quotes {sum(len(v['fake_quotes']) for v in values)}"

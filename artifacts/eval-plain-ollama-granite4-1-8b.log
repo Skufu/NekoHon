@@ -1,0 +1,34 @@
+# plain scorecard — ollama:granite4.1:8b — 10 questions — fk gate <= 11.0, coverage target >= 0.2
+# current: pass 0/10 | gate fails {'no_fake_quotes': 0, 'book_supported': 1, 'grade_ok': 10} | fk 14.3 | words/sentence 21.46 | coverage 0.241 | words 75.0 | cited share 0.44 | example 7/10 | unmatched tags 0 | fake quotes 0 | judge errors 0
+# plain: pass 4/10 | gate fails {'no_fake_quotes': 0, 'book_supported': 0, 'grade_ok': 6} | fk 11.46 | words/sentence 17.44 | coverage 0.127 | words 63.7 | cited share 0.3 | example 9/10 | unmatched tags 0 | fake quotes 0 | judge errors 0
+
+## explain data engineering in simple words
+- current: gates PPF | fk 17.4 | cov 0.329 | fidelity supported | example example | unmatched 0 | Data engineering involves developing, implementing, and maintaining systems and processes that handl
+- plain: gates PPF | fk 12.6 | cov 0.013 | fidelity supported | example example | unmatched 0 | Data engineering is about moving, managing, and preparing data for use. [Ch. 1] A data engineer's jo
+## explain batch and streaming in simple words
+- current: gates PPF | fk 15.3 | cov 0.117 | fidelity supported | example example | unmatched 0 | Batch processing involves handling data in large chunks, typically on a predetermined schedule or wh
+- plain: gates PPF | fk 13.3 | cov 0.019 | fidelity supported | example example | unmatched 0 | Batch processing involves handling data in large chunks, typically on a predetermined schedule or wh
+## explain data ingestion in simple words
+- current: gates PPF | fk 12.1 | cov 0.34 | fidelity supported | example none | unmatched 0 | Data ingestion is the process of moving data from one place to another, typically from source system
+- plain: gates PPP | fk 10.4 | cov 0.519 | fidelity supported | example example | unmatched 0 | Data ingestion is the process of moving data from one place to another. [Ch. 7] This involves taking
+## explain what a watermark is in simple words
+- current: gates PPF | fk 17.0 | cov 0.741 | fidelity supported | example example | unmatched 0 | A watermark is a threshold used by a window to determine whether data in a window is within the esta
+- plain: gates PPF | fk 11.8 | cov 0.067 | fidelity supported | example none | unmatched 0 | A watermark is a threshold used to determine if data is within a time interval or considered late. [
+## explain transformations in simple words
+- current: gates PPF | fk 14.1 | cov 0.091 | fidelity supported | example example | unmatched 0 | Transformations are processes that manipulate and enhance data to make it useful for downstream use 
+- plain: gates PPF | fk 12.4 | cov 0.133 | fidelity supported | example example | unmatched 0 | Transformations are processes that change data into a more useful form. They help unify and integrat
+## explain CRUD in simple words
+- current: gates PPF | fk 12.5 | cov 0.245 | fidelity supported | example example | unmatched 0 | CRUD stands for create, read, update, and delete, and it represents the four basic operations of per
+- plain: gates PPP | fk 4.5 | cov 0.133 | fidelity supported | example example | unmatched 0 | CRUD stands for create, read, update, and delete [Ch. 5]. It is a pattern used in programming to man
+## explain the data mesh in simple words
+- current: gates PPF | fk 16.8 | cov 0.251 | fidelity supported | example none | unmatched 0 | The data mesh is a decentralized approach to managing data, reversing the traditional centralized da
+- plain: gates PPP | fk 10.7 | cov 0.024 | fidelity supported | example example | unmatched 0 | The data mesh is a way to manage data in a company by breaking it into smaller, more manageable piec
+## explain an endpoint in streaming ingestion in simple words
+- current: gates PPF | fk 12.8 | cov 0.057 | fidelity supported | example example | unmatched 0 | An endpoint in streaming ingestion is where the data is pushed directly after it is produced, bypass
+- plain: gates PPP | fk 10.8 | cov 0.031 | fidelity supported | example example | unmatched 0 | An endpoint in streaming ingestion is where the data is sent after it is collected. In simple terms,
+## explain when an insert-only table is useful in simple words
+- current: gates PPF | fk 13.3 | cov 0.185 | fidelity supported | example example | unmatched 0 | An insert-only table is useful when maintaining a current view of data without deleting old records 
+- plain: gates PPF | fk 12.5 | cov 0.33 | fidelity supported | example example | unmatched 0 | An insert-only table is useful when you want to maintain a current view of data without deleting old
+## explain the MAD data landscape in simple words
+- current: gates PFF | fk 11.7 | cov 0.053 | fidelity unsupported | example none | unmatched 0 | The MAD landscape refers to the complex and ever-changing world of technologies related to machine l
+- plain: gates PPF | fk 15.6 | cov 0.0 | fidelity supported | example example | unmatched 0 | The MAD landscape refers to the complex and ever-changing world of technologies related to machine l

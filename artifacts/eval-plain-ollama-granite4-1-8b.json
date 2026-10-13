@@ -1,0 +1,680 @@
+[
+  {
+    "question": "explain data engineering in simple words",
+    "gold": [
+      "ch01-005"
+    ],
+    "variants": {
+      "current": {
+        "answer": "Data engineering involves developing, implementing, and maintaining systems and processes that handle raw data, transforming it into high-quality, consistent information for use by data scientists, analysts, and other users [Ch. 1]. It encompasses the movement, manipulation, and management of data [Ch. 1], and is crucial for supporting downstream use cases such as analysis and machine learning [Ch. 1]. Data engineers ensure data remains available and usable, setting up and operating the organization’s data infrastructure [Ch. 1]. The core purpose is to design robust and reliable systems to carry data through its lifecycle, serving it according to the needs of end users [Ch. 4].",
+        "citations": [
+          "ch01-005",
+          "ch01-004",
+          "ch01-002",
+          "ch04-001"
+        ],
+        "cited_share": 0.8,
+        "readability": {
+          "sentences": 4,
+          "words": 95,
+          "mean_sentence": 23.8,
+          "fk_grade": 17.4,
+          "big_word_share": 0.27
+        },
+        "grounding": {
+          "sentences": 4,
+          "supported": 1,
+          "mean_coverage": 0.329
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "example": "example",
+        "unmatched_tags": 0,
+        "seconds": 41.97,
+        "gates": {
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": false
+        }
+      },
+      "plain": {
+        "answer": "Data engineering is about moving, managing, and preparing data for use. [Ch. 1] A data engineer's job is to get data from sources, store it properly, and make it ready for analysis or machine learning. [Ch. 1] This involves designing and maintaining systems that handle data throughout its lifecycle. [Ch. 4] Data engineering is crucial for ensuring data is reliable and usable for downstream applications. [Ch. 1]",
+        "citations": [
+          "ch01-002",
+          "ch01-005",
+          "ch04-001"
+        ],
+        "cited_share": 0.6,
+        "readability": {
+          "sentences": 4,
+          "words": 59,
+          "mean_sentence": 14.8,
+          "fk_grade": 12.6,
+          "big_word_share": 0.25
+        },
+        "grounding": {
+          "sentences": 4,
+          "supported": 0,
+          "mean_coverage": 0.013
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "example": "example",
+        "unmatched_tags": 0,
+        "seconds": 34.98,
+        "gates": {
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": false
+        }
+      }
+    }
+  },
+  {
+    "question": "explain batch and streaming in simple words",
+    "gold": [
+      "ch02-018",
+      "ch02-019"
+    ],
+    "variants": {
+      "current": {
+        "answer": "Batch processing involves handling data in large chunks, typically on a predetermined schedule or when a certain amount of data is accumulated [Ch. 2]. Streaming, on the other hand, processes data in real-time or near real-time, continuously feeding data to downstream systems as it is produced [Ch. 2]. While batch processing is still widely used, especially in analytics and machine learning, streaming is becoming more accessible due to advancements in event-streaming and processing platforms [Ch. 2]. Micro-batching is a hybrid approach where batch-oriented frameworks are used to process data in smaller, more frequent batches, typically every two minutes to every second [Ch. 8]. True streaming systems, like Beam and Flink, process data one event at a time, though they may still operate in batches for certain processes [Ch. 8].",
+        "citations": [
+          "ch02-018",
+          "ch02-019",
+          "ch08-141"
+        ],
+        "cited_share": 0.6,
+        "readability": {
+          "sentences": 5,
+          "words": 124,
+          "mean_sentence": 24.8,
+          "fk_grade": 15.3,
+          "big_word_share": 0.2
+        },
+        "grounding": {
+          "sentences": 5,
+          "supported": 0,
+          "mean_coverage": 0.117
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "example": "example",
+        "unmatched_tags": 0,
+        "seconds": 44.54,
+        "gates": {
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": false
+        }
+      },
+      "plain": {
+        "answer": "Batch processing involves handling data in large chunks, typically on a predetermined schedule or when a certain amount of data is collected [Ch. 2]. Streaming, on the other hand, processes data continuously and in real-time as it is produced [Ch. 2]. Batch processing is useful for analytics and machine learning where data is ingested in large batches [Ch. 2]. Streaming is more suitable for applications requiring real-time data processing, like financial transactions or live analytics [Ch. 2].",
+        "citations": [
+          "ch02-018"
+        ],
+        "cited_share": 0.2,
+        "readability": {
+          "sentences": 4,
+          "words": 71,
+          "mean_sentence": 17.8,
+          "fk_grade": 13.3,
+          "big_word_share": 0.28
+        },
+        "grounding": {
+          "sentences": 4,
+          "supported": 0,
+          "mean_coverage": 0.019
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "example": "example",
+        "unmatched_tags": 0,
+        "seconds": 38.4,
+        "gates": {
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": false
+        }
+      }
+    }
+  },
+  {
+    "question": "explain data ingestion in simple words",
+    "gold": [
+      "ch07-002"
+    ],
+    "variants": {
+      "current": {
+        "answer": "Data ingestion is the process of moving data from one place to another, typically from source systems into storage [Ch. 7]. It involves ensuring that data flows consistently and securely to its destination, which can be part of a data pipeline [Ch. 7]. This process can be done in batch, where data is ingested in bulk based on time intervals or the size of accumulated data [Ch. 7]. The exact method can vary widely depending on the needs of the data engineering project [Ch. 7].",
+        "citations": [
+          "ch07-002",
+          "ch07-098",
+          "ch07-030"
+        ],
+        "cited_share": 0.6,
+        "readability": {
+          "sentences": 4,
+          "words": 77,
+          "mean_sentence": 19.2,
+          "fk_grade": 12.1,
+          "big_word_share": 0.19
+        },
+        "grounding": {
+          "sentences": 4,
+          "supported": 1,
+          "mean_coverage": 0.34
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "example": "none",
+        "unmatched_tags": 0,
+        "seconds": 35.53,
+        "gates": {
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": false
+        }
+      },
+      "plain": {
+        "answer": "Data ingestion is the process of moving data from one place to another. [Ch. 7] This involves taking data from a source and storing it in a destination, like moving files from one folder to another. [Ch. 7] The goal is to ensure data flows consistently and securely to its destination. [Ch. 7]",
+        "citations": [
+          "ch07-002",
+          "ch07-098"
+        ],
+        "cited_share": 0.4,
+        "readability": {
+          "sentences": 3,
+          "words": 47,
+          "mean_sentence": 15.7,
+          "fk_grade": 10.4,
+          "big_word_share": 0.17
+        },
+        "grounding": {
+          "sentences": 3,
+          "supported": 2,
+          "mean_coverage": 0.519
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "example": "example",
+        "unmatched_tags": 0,
+        "seconds": 40.75,
+        "gates": {
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": true
+        }
+      }
+    }
+  },
+  {
+    "question": "explain what a watermark is in simple words",
+    "gold": [
+      "ch08-039"
+    ],
+    "variants": {
+      "current": {
+        "answer": "A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it is considered late-arriving data. [Ch. 8]",
+        "citations": [
+          "ch08-039"
+        ],
+        "cited_share": 0.2,
+        "readability": {
+          "sentences": 1,
+          "words": 30,
+          "mean_sentence": 30.0,
+          "fk_grade": 17.0,
+          "big_word_share": 0.2
+        },
+        "grounding": {
+          "sentences": 1,
+          "supported": 1,
+          "mean_coverage": 0.741
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "example": "example",
+        "unmatched_tags": 0,
+        "seconds": 42.26,
+        "gates": {
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": false
+        }
+      },
+      "plain": {
+        "answer": "A watermark is a threshold used to determine if data is within a time interval or considered late. [Ch. 8]",
+        "citations": [
+          "ch08-039"
+        ],
+        "cited_share": 0.2,
+        "readability": {
+          "sentences": 1,
+          "words": 18,
+          "mean_sentence": 18.0,
+          "fk_grade": 11.8,
+          "big_word_share": 0.22
+        },
+        "grounding": {
+          "sentences": 1,
+          "supported": 0,
+          "mean_coverage": 0.067
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "example": "none",
+        "unmatched_tags": 0,
+        "seconds": 33.2,
+        "gates": {
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": false
+        }
+      }
+    }
+  },
+  {
+    "question": "explain transformations in simple words",
+    "gold": [
+      "ch02-027"
+    ],
+    "variants": {
+      "current": {
+        "answer": "Transformations are processes that manipulate and enhance data to make it useful for downstream use cases [Ch. 2]. They differ from queries in that they persist the results for further use, whereas queries retrieve data from sources [Ch. 8]. Transformations can involve complex pipelines combining data from multiple sources and reusing intermediate results, and they are crucial for unifying and integrating data across an organization [Ch. 8]. Transformations help in creating a unified view of data, which is not possible without them [Ch. 8]. They are essential for adding value to data in a scalable and cost-effective manner, as repeatedly running complex queries can be inefficient and impractical [Ch. 8].",
+        "citations": [
+          "ch02-025",
+          "ch08-088",
+          "ch08-089"
+        ],
+        "cited_share": 0.6,
+        "readability": {
+          "sentences": 5,
+          "words": 101,
+          "mean_sentence": 20.2,
+          "fk_grade": 14.1,
+          "big_word_share": 0.21
+        },
+        "grounding": {
+          "sentences": 5,
+          "supported": 0,
+          "mean_coverage": 0.091
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "example": "example",
+        "unmatched_tags": 0,
+        "seconds": 29.93,
+        "gates": {
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": false
+        }
+      },
+      "plain": {
+        "answer": "Transformations are processes that change data into a more useful form. They help unify and integrate data so it can be viewed as a single entity. Transformations are necessary because running the same complex query repeatedly can be inefficient and costly. Instead, you can save the results of a query, making subsequent queries simpler and faster. Transformations can include basic changes like mapping data types and removing bad records, as well as more complex operations like normalization and aggregation. [Ch. 2] [Ch. 8]",
+        "citations": [
+          "ch08-088"
+        ],
+        "cited_share": 0.2,
+        "readability": {
+          "sentences": 5,
+          "words": 79,
+          "mean_sentence": 15.8,
+          "fk_grade": 12.4,
+          "big_word_share": 0.2
+        },
+        "grounding": {
+          "sentences": 5,
+          "supported": 0,
+          "mean_coverage": 0.133
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "example": "example",
+        "unmatched_tags": 0,
+        "seconds": 13.11,
+        "gates": {
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": false
+        }
+      }
+    }
+  },
+  {
+    "question": "explain CRUD in simple words",
+    "gold": [
+      "ch05-019"
+    ],
+    "variants": {
+      "current": {
+        "answer": "CRUD stands for create, read, update, and delete, and it represents the four basic operations of persistent storage [Ch. 5]. In simple terms, CRUD operations allow you to create new data, read existing data, update modified data, and delete data that is no longer needed [Ch. 5]. CRUD is a common pattern used in software applications, particularly in APIs and databases [Ch. 5].",
+        "citations": [
+          "ch05-019"
+        ],
+        "cited_share": 0.2,
+        "readability": {
+          "sentences": 3,
+          "words": 57,
+          "mean_sentence": 19.0,
+          "fk_grade": 12.5,
+          "big_word_share": 0.16
+        },
+        "grounding": {
+          "sentences": 3,
+          "supported": 1,
+          "mean_coverage": 0.245
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "example": "example",
+        "unmatched_tags": 0,
+        "seconds": 76.69,
+        "gates": {
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": false
+        }
+      },
+      "plain": {
+        "answer": "CRUD stands for create, read, update, and delete [Ch. 5]. It is a pattern used in programming to manage data in a database [Ch. 5]. When you use CRUD, you first create data [Ch. 5]. Then, you can read or retrieve that data [Ch. 5]. After that, you can update the data [Ch. 5]. Finally, you can delete the data when it is no longer needed [Ch. 5].",
+        "citations": [
+          "ch05-019"
+        ],
+        "cited_share": 0.2,
+        "readability": {
+          "sentences": 6,
+          "words": 56,
+          "mean_sentence": 9.3,
+          "fk_grade": 4.5,
+          "big_word_share": 0.05
+        },
+        "grounding": {
+          "sentences": 6,
+          "supported": 1,
+          "mean_coverage": 0.133
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "example": "example",
+        "unmatched_tags": 0,
+        "seconds": 52.12,
+        "gates": {
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": true
+        }
+      }
+    }
+  },
+  {
+    "question": "explain the data mesh in simple words",
+    "gold": [
+      "ch03-099"
+    ],
+    "variants": {
+      "current": {
+        "answer": "The data mesh is a decentralized approach to managing data, reversing the traditional centralized data architecture. In a data mesh, each domain team owns and serves its data, making it easily consumable for other teams. This method involves four key components: domain-oriented decentralized data ownership and architecture, data as a product, self-serve data infrastructure as a platform, and federated computational governance. [Ch. 3] [Ch. 9]",
+        "citations": [
+          "ch03-099"
+        ],
+        "cited_share": 0.2,
+        "readability": {
+          "sentences": 3,
+          "words": 63,
+          "mean_sentence": 21.0,
+          "fk_grade": 16.8,
+          "big_word_share": 0.29
+        },
+        "grounding": {
+          "sentences": 3,
+          "supported": 1,
+          "mean_coverage": 0.251
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "example": "none",
+        "unmatched_tags": 0,
+        "seconds": 47.69,
+        "gates": {
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": false
+        }
+      },
+      "plain": {
+        "answer": "The data mesh is a way to manage data in a company by breaking it into smaller, more manageable pieces. Each team in the company owns and serves its own data, rather than having a central team manage all the data. This approach helps to decentralize data ownership and make it easier for teams to share and use data across the organization. [Ch. 3] Teams prepare data for use by other teams and also consume data from other teams to meet their own needs. [Ch. 9] This changes how data is shared and used within the company, making it more accessible and useful for everyone. [Ch. 9]",
+        "citations": [
+          "ch03-099",
+          "ch09-016"
+        ],
+        "cited_share": 0.4,
+        "readability": {
+          "sentences": 5,
+          "words": 101,
+          "mean_sentence": 20.2,
+          "fk_grade": 10.7,
+          "big_word_share": 0.1
+        },
+        "grounding": {
+          "sentences": 5,
+          "supported": 0,
+          "mean_coverage": 0.024
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "example": "example",
+        "unmatched_tags": 0,
+        "seconds": 36.32,
+        "gates": {
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": true
+        }
+      }
+    }
+  },
+  {
+    "question": "explain an endpoint in streaming ingestion in simple words",
+    "gold": [
+      "ch02-024"
+    ],
+    "variants": {
+      "current": {
+        "answer": "An endpoint in streaming ingestion is where the data is pushed directly after it is produced, bypassing a backend database. This endpoint is typically part of an event-streaming platform that buffers the data before it is consumed by downstream systems. [Ch. 2]",
+        "citations": [
+          "ch02-024"
+        ],
+        "cited_share": 0.2,
+        "readability": {
+          "sentences": 2,
+          "words": 41,
+          "mean_sentence": 20.5,
+          "fk_grade": 12.8,
+          "big_word_share": 0.17
+        },
+        "grounding": {
+          "sentences": 2,
+          "supported": 0,
+          "mean_coverage": 0.057
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "example": "example",
+        "unmatched_tags": 0,
+        "seconds": 48.62,
+        "gates": {
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": false
+        }
+      },
+      "plain": {
+        "answer": "An endpoint in streaming ingestion is where the data is sent after it is collected. In simple terms, imagine you have a sensor sending data, like a temperature reading from a smart thermostat. This data is pushed directly to a specific endpoint, which could be a part of an event-streaming platform. For example, in IoT applications, data from sensors is pushed to an endpoint for immediate processing and analysis [Ch. 2].",
+        "citations": [
+          "ch02-024"
+        ],
+        "cited_share": 0.2,
+        "readability": {
+          "sentences": 4,
+          "words": 70,
+          "mean_sentence": 17.5,
+          "fk_grade": 10.8,
+          "big_word_share": 0.17
+        },
+        "grounding": {
+          "sentences": 4,
+          "supported": 0,
+          "mean_coverage": 0.031
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "example": "example",
+        "unmatched_tags": 0,
+        "seconds": 39.83,
+        "gates": {
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": true
+        }
+      }
+    }
+  },
+  {
+    "question": "explain when an insert-only table is useful in simple words",
+    "gold": [
+      "ch05-020"
+    ],
+    "variants": {
+      "current": {
+        "answer": "An insert-only table is useful when maintaining a current view of data without deleting old records [Ch. 8]. For example, in a banking application, it can present customer address history [Ch. 5]. This pattern works well for applications needing access to historical data, as it retains history directly in the table [Ch. 5]. However, it can grow large if data frequently changes, and record lookups can be expensive [Ch. 5]. It is also beneficial in hybrid architectures like the enhanced Lambda architecture used by BigQuery and Apache Druid, where frequent inserts are handled more efficiently [Ch. 8].",
+        "citations": [
+          "ch08-107",
+          "ch05-020",
+          "ch05-021",
+          "ch08-108"
+        ],
+        "cited_share": 0.8,
+        "readability": {
+          "sentences": 5,
+          "words": 88,
+          "mean_sentence": 17.6,
+          "fk_grade": 13.3,
+          "big_word_share": 0.23
+        },
+        "grounding": {
+          "sentences": 5,
+          "supported": 0,
+          "mean_coverage": 0.185
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "example": "example",
+        "unmatched_tags": 0,
+        "seconds": 51.08,
+        "gates": {
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": false
+        }
+      },
+      "plain": {
+        "answer": "An insert-only table is useful when you want to maintain a current view of data without deleting old records [Ch. 8]. This approach can be helpful in applications that need to access historical data, such as a banking application that needs to show a customer's address history [Ch. 5]. However, it can be computationally expensive to find the latest record at query time [Ch. 8].",
+        "citations": [
+          "ch08-107",
+          "ch05-020"
+        ],
+        "cited_share": 0.4,
+        "readability": {
+          "sentences": 3,
+          "words": 60,
+          "mean_sentence": 20.0,
+          "fk_grade": 12.5,
+          "big_word_share": 0.17
+        },
+        "grounding": {
+          "sentences": 3,
+          "supported": 1,
+          "mean_coverage": 0.33
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "example": "example",
+        "unmatched_tags": 0,
+        "seconds": 38.27,
+        "gates": {
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": false
+        }
+      }
+    }
+  },
+  {
+    "question": "explain the MAD data landscape in simple words",
+    "gold": [
+      "ch04-020"
+    ],
+    "variants": {
+      "current": {
+        "answer": "The MAD landscape refers to the complex and ever-changing world of technologies related to machine learning (ML), artificial intelligence (AI), and data. Technologies like Hive, which were once popular, often decline after a few years of rapid adoption due to improvements in other technologies. [Ch. 4]\n\nIn simpler terms, the MAD landscape is a dynamic area where many technologies come and go, with new ones emerging to replace the older ones. [Ch. 4]\n\nNot in this book.",
+        "citations": [
+          "ch04-020"
+        ],
+        "cited_share": 0.2,
+        "readability": {
+          "sentences": 4,
+          "words": 74,
+          "mean_sentence": 18.5,
+          "fk_grade": 11.7,
+          "big_word_share": 0.16
+        },
+        "grounding": {
+          "sentences": 4,
+          "supported": 0,
+          "mean_coverage": 0.053
+        },
+        "fake_quotes": [],
+        "fidelity": "unsupported",
+        "example": "none",
+        "unmatched_tags": 0,
+        "seconds": 44.12,
+        "gates": {
+          "no_fake_quotes": true,
+          "book_supported": false,
+          "grade_ok": false
+        }
+      },
+      "plain": {
+        "answer": "The MAD landscape refers to the complex and ever-changing world of technologies related to machine learning (ML), artificial intelligence (AI), and data. [Ch. 4] Just like Hive, a tool for querying large datasets, was replaced by newer technologies due to its shortcomings, many data technologies follow a similar path of rapid adoption and eventual decline. [Ch. 4] This landscape is challenging to navigate because new technologies often emerge to improve upon existing ones, but they too may fade away. [Ch. 4]",
+        "citations": [
+          "ch04-020"
+        ],
+        "cited_share": 0.2,
+        "readability": {
+          "sentences": 3,
+          "words": 76,
+          "mean_sentence": 25.3,
+          "fk_grade": 15.6,
+          "big_word_share": 0.21
+        },
+        "grounding": {
+          "sentences": 3,
+          "supported": 0,
+          "mean_coverage": 0.0
+        },
+        "fake_quotes": [],
+        "fidelity": "supported",
+        "example": "example",
+        "unmatched_tags": 0,
+        "seconds": 37.65,
+        "gates": {
+          "no_fake_quotes": true,
+          "book_supported": true,
+          "grade_ok": false
+        }
+      }
+    }
+  }
+]
