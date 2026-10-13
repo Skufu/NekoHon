@@ -1,0 +1,29 @@
+{
+  "note": "The labeled evaluation set. Every gold pin here was verified against committed evidence: battery-golden/typo/probe pins from artifacts/demo-questions.md (2026-10-12) and step2-battery.py; coherence pins from the 2026-10-13 answer-mode probes; refusal cases from the sweeps. key_fact is a regex the answer must carry (misses go to the LLM judge for paraphrase). 'known_issue' marks a case that is currently expected to fail. Extend this file to grow the dashboard; nothing else needs editing.",
+  "items": [
+    {"question": "What does CRUD stand for?", "gold_chunks": ["ch05-019"], "key_fact": "create.{0,25}read.{0,25}update.{0,40}delete", "expect": "answer", "source": "battery-golden"},
+    {"question": "What is data ingestion?", "gold_chunks": ["ch07-002"], "key_fact": "moving data from one place to another|move data from one place", "expect": "answer", "source": "battery-golden"},
+    {"question": "What is a watermark?", "gold_chunks": ["ch08-039"], "key_fact": "watermark", "expect": "answer", "source": "battery-golden"},
+    {"question": "When is an insert-only table useful?", "gold_chunks": ["ch05-020"], "key_fact": "insert-only|insert only", "expect": "answer", "source": "battery-golden"},
+    {"question": "Where does storage sit in the data engineering lifecycle?", "gold_chunks": ["ch06-001"], "key_fact": "cornerstone", "expect": "answer", "source": "battery-golden"},
+    {"question": "What do source systems provide to the rest of the lifecycle?", "gold_chunks": ["ch02-005"], "key_fact": null, "expect": "answer", "source": "battery-golden"},
+    {"question": "How does data architecture relate to enterprise architecture?", "gold_chunks": ["ch03-013"], "key_fact": "subset", "expect": "answer", "source": "battery-golden"},
+    {"question": "What is the difference between batch and streaming?", "gold_chunks": ["ch02-019"], "key_fact": null, "expect": "answer", "source": "battery-golden"},
+    {"question": "What happens to data after it is extracted in ETL?", "gold_chunks": ["ch07-033"], "key_fact": "extract", "expect": "answer", "source": "battery-golden"},
+    {"question": "What do transformations do in the data engineering lifecycle?", "gold_chunks": ["ch02-027"], "key_fact": null, "expect": "answer", "source": "battery-golden"},
+    {"question": "What does CRU stand for?", "gold_chunks": ["ch05-019"], "key_fact": "create.{0,25}read.{0,25}update.{0,40}delete", "expect": "answer", "source": "battery-typo"},
+    {"question": "What happens to data after it is extracted in ET?", "gold_chunks": ["ch07-033"], "key_fact": "extract", "expect": "answer", "source": "battery-typo"},
+    {"question": "what is a atermark?", "gold_chunks": ["ch08-039"], "key_fact": "watermark", "expect": "answer", "source": "battery-typo"},
+    {"question": "what does data engineers need to be pragmatic about", "gold_chunks": ["ch04-012"], "key_fact": "pragmatic", "expect": "answer", "source": "battery-probe"},
+    {"question": "Data engineers need to be pragmatic about?", "gold_chunks": ["ch04-012"], "key_fact": "pragmatic", "expect": "answer", "source": "battery-probe"},
+    {"question": "MAD data landscape", "gold_chunks": ["ch04-020"], "key_fact": "\\bmad\\b", "expect": "answer", "source": "battery-probe"},
+    {"question": "multicloud methodology disadvantages", "gold_chunks": ["ch04-037"], "key_fact": "multicloud|dizzying", "expect": "answer", "source": "battery-probe"},
+    {"question": "what is MAD data landscape", "gold_chunks": ["ch04-020"], "key_fact": "\\bmad\\b", "expect": "answer", "source": "battery-probe"},
+    {"question": "what is data mesh", "gold_chunks": ["ch03-099"], "key_fact": "data mesh", "expect": "answer", "source": "coherence"},
+    {"question": "Codd introduced the idea of what", "gold_chunks": ["ch08-051"], "key_fact": "normal form|normalization", "expect": "answer", "source": "coherence"},
+    {"question": "what is an endpoint in streaming ingestion", "gold_chunks": ["ch02-024"], "key_fact": "endpoint", "expect": "answer", "source": "coherence"},
+    {"question": "What is the capital of France?", "gold_chunks": [], "key_fact": null, "expect": "refuse", "source": "refusal"},
+    {"question": "what does iops mean", "gold_chunks": [], "key_fact": null, "expect": "refuse", "source": "refusal"},
+    {"question": "dark matter data", "gold_chunks": ["ch11-025"], "key_fact": "dark matter", "expect": "answer", "source": "refusal", "known_issue": true}
+  ]
+}

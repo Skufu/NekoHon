@@ -1,0 +1,1653 @@
+[
+  {
+    "question": "What does CRUD stand for?",
+    "source": "battery-golden",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch05-019"
+    ],
+    "key_fact": "create.{0,25}read.{0,25}update.{0,40}delete",
+    "dense10": [
+      "ch05-019",
+      "ch05-029",
+      "ch05-021",
+      "ch05-020",
+      "ch01-064",
+      "ch08-005",
+      "ch05-030",
+      "app01-016",
+      "ch06-032",
+      "ch09-052"
+    ],
+    "gold_dense_rank": 1,
+    "mrr": 1.0,
+    "shown": [
+      "ch05-019",
+      "ch05-029",
+      "ch05-021",
+      "ch05-020",
+      "ch01-064"
+    ],
+    "shown_gold_hits": [
+      "ch05-019"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "CRUD stands for create, read, update, and delete [Ch. 5].",
+    "citations": [
+      "ch05-019"
+    ],
+    "cited_share": 0.2,
+    "support": 1,
+    "sentences": 1,
+    "fake_quotes": [],
+    "key_fact_ok": true,
+    "key_fact_judge": null,
+    "relevance": [
+      {
+        "chunk_id": "ch05-019",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch05-029",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch05-021",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch05-020",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch01-064",
+        "verdict": "not_relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 26.28
+  },
+  {
+    "question": "What is data ingestion?",
+    "source": "battery-golden",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch07-002"
+    ],
+    "key_fact": "moving data from one place to another|move data from one place",
+    "dense10": [
+      "ch07-002",
+      "ch07-004",
+      "ch07-098",
+      "ch07-003",
+      "ch02-016",
+      "ch07-030",
+      "ch07-078",
+      "ch07-001",
+      "ch07-081",
+      "ch07-005"
+    ],
+    "gold_dense_rank": 1,
+    "mrr": 1.0,
+    "shown": [
+      "ch07-002",
+      "ch07-004",
+      "ch07-098",
+      "ch07-003",
+      "ch02-016"
+    ],
+    "shown_gold_hits": [
+      "ch07-002"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "Data ingestion is the process of moving data from one place to another, typically from source systems into storage [Ch. 7]. It involves actively designing data pipeline activities and is a crucial part of the data engineering lifecycle [Ch. 7]. Data ingestion is different from data integration, which combines data from disparate sources into a new dataset [Ch. 7]. Data pipelines, which encompass data ingestion, are flexible systems that can include various data movement and processing patterns such as ETL, ELT, and reverse ETL [Ch. 7]. Ingestion is essential for enabling exciting data applications like analytics and machine learning [Ch. 7].",
+    "citations": [
+      "ch07-002",
+      "ch07-003",
+      "ch07-098"
+    ],
+    "cited_share": 0.6,
+    "support": 2,
+    "sentences": 5,
+    "fake_quotes": [],
+    "key_fact_ok": true,
+    "key_fact_judge": null,
+    "relevance": [
+      {
+        "chunk_id": "ch07-002",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch07-004",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch07-098",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch07-003",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch02-016",
+        "verdict": "relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 2.68
+  },
+  {
+    "question": "What is a watermark?",
+    "source": "battery-golden",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch08-039"
+    ],
+    "key_fact": "watermark",
+    "dense10": [
+      "ch08-039",
+      "ch05-019",
+      "ch06-032",
+      "ch06-070",
+      "app01-017",
+      "ch05-052",
+      "ch07-027",
+      "ch06-100",
+      "ch06-016",
+      "ch08-115"
+    ],
+    "gold_dense_rank": 1,
+    "mrr": 1.0,
+    "shown": [
+      "ch08-039",
+      "ch05-019",
+      "ch06-032",
+      "ch06-070",
+      "app01-017"
+    ],
+    "shown_gold_hits": [
+      "ch08-039"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it's considered late-arriving data. [Ch. 8]",
+    "citations": [
+      "ch08-039"
+    ],
+    "cited_share": 0.2,
+    "support": 1,
+    "sentences": 1,
+    "fake_quotes": [],
+    "key_fact_ok": true,
+    "key_fact_judge": null,
+    "relevance": [
+      {
+        "chunk_id": "ch08-039",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch05-019",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch06-032",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch06-070",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "app01-017",
+        "verdict": "not_relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 1.66
+  },
+  {
+    "question": "When is an insert-only table useful?",
+    "source": "battery-golden",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch05-020"
+    ],
+    "key_fact": "insert-only|insert only",
+    "dense10": [
+      "ch08-107",
+      "ch05-021",
+      "ch05-020",
+      "ch08-108",
+      "ch07-034",
+      "ch08-065",
+      "ch08-112",
+      "ch08-109",
+      "ch08-082",
+      "ch08-081"
+    ],
+    "gold_dense_rank": 3,
+    "mrr": 0.333,
+    "shown": [
+      "ch08-107",
+      "ch05-021",
+      "ch05-020",
+      "ch08-108",
+      "ch07-034"
+    ],
+    "shown_gold_hits": [
+      "ch05-020"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "An insert-only table is useful when the application needs access to history, such as in a banking application designed to present customer address history [Ch. 5]. It can also be beneficial in maintaining a current view of data, where new versions of records are inserted without deleting old records, and a query or view can present the current data state by finding the newest record by primary key [Ch. 8]. Additionally, insert-only tables can be used in the enhanced Lambda architecture used by BigQuery and Apache Druid, where deletes and in-place updates can still be expensive [Ch. 8].",
+    "citations": [
+      "ch05-020",
+      "ch08-107",
+      "ch08-108"
+    ],
+    "cited_share": 0.6,
+    "support": 2,
+    "sentences": 3,
+    "fake_quotes": [],
+    "key_fact_ok": true,
+    "key_fact_judge": null,
+    "relevance": [
+      {
+        "chunk_id": "ch08-107",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch05-021",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch05-020",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch08-108",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch07-034",
+        "verdict": "relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 2.57
+  },
+  {
+    "question": "Where does storage sit in the data engineering lifecycle?",
+    "source": "battery-golden",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch06-001"
+    ],
+    "key_fact": "cornerstone",
+    "dense10": [
+      "ch06-001",
+      "ch02-002",
+      "ch06-129",
+      "ch01-006",
+      "ch02-091",
+      "ch06-071",
+      "ch02-003",
+      "ch02-011",
+      "ch06-116",
+      "ch01-037"
+    ],
+    "gold_dense_rank": 1,
+    "mrr": 1.0,
+    "shown": [
+      "ch06-001",
+      "ch02-002",
+      "ch06-129",
+      "ch01-006",
+      "ch02-091"
+    ],
+    "shown_gold_hits": [
+      "ch06-001"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "Storage sits as a foundational stage in the data engineering lifecycle, underpinning the major stages of ingestion, transformation, and serving [Ch. 2]. It is integral throughout the lifecycle, occurring repeatedly as data moves from one stage to another [Ch. 6]. The storage stage ensures that data persists until it is ready for further processing and transmission [Ch. 6].",
+    "citations": [
+      "ch02-002",
+      "ch06-001"
+    ],
+    "cited_share": 0.4,
+    "support": 0,
+    "sentences": 3,
+    "fake_quotes": [],
+    "key_fact_ok": false,
+    "key_fact_judge": "states",
+    "relevance": [
+      {
+        "chunk_id": "ch06-001",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch02-002",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch06-129",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch01-006",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch02-091",
+        "verdict": "relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 2.2
+  },
+  {
+    "question": "What do source systems provide to the rest of the lifecycle?",
+    "source": "battery-golden",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch02-005"
+    ],
+    "key_fact": null,
+    "dense10": [
+      "ch02-005",
+      "ch05-083",
+      "ch05-004",
+      "ch02-016",
+      "ch02-006",
+      "ch05-001",
+      "ch05-073",
+      "ch04-052",
+      "ch02-008",
+      "ch05-026"
+    ],
+    "gold_dense_rank": 1,
+    "mrr": 1.0,
+    "shown": [
+      "ch02-005",
+      "ch05-083",
+      "ch05-004",
+      "ch02-016",
+      "ch02-006"
+    ],
+    "shown_gold_hits": [
+      "ch02-005"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "Source systems provide data to the rest of the data engineering lifecycle [Ch. 2]. This data can come from various sources such as IoT devices, application message queues, or transactional databases [Ch. 2]. The data generated by these systems is crucial for the data ingestion stage, where data engineers gather and process the data [Ch. 2].",
+    "citations": [
+      "ch02-016",
+      "ch02-006"
+    ],
+    "cited_share": 0.4,
+    "support": 0,
+    "sentences": 3,
+    "fake_quotes": [],
+    "key_fact_ok": null,
+    "key_fact_judge": null,
+    "relevance": [
+      {
+        "chunk_id": "ch02-005",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch05-083",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch05-004",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch02-016",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch02-006",
+        "verdict": "relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 1.89
+  },
+  {
+    "question": "How does data architecture relate to enterprise architecture?",
+    "source": "battery-golden",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch03-013"
+    ],
+    "key_fact": "subset",
+    "dense10": [
+      "ch03-013",
+      "ch03-002",
+      "ch03-016",
+      "ch03-102",
+      "ch03-101",
+      "ch03-012",
+      "ch02-078",
+      "ch01-051",
+      "ch03-003",
+      "ch03-017"
+    ],
+    "gold_dense_rank": 1,
+    "mrr": 1.0,
+    "shown": [
+      "ch03-003",
+      "ch03-013",
+      "ch03-002",
+      "ch03-016",
+      "ch03-102"
+    ],
+    "shown_gold_hits": [
+      "ch03-013"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "Data architecture is a subset of enterprise architecture [Ch. 3], inheriting its properties such as processes, strategy, change management, and evaluating trade-offs [Ch. 3]. It focuses on the design of systems to support the evolving data needs of an enterprise, achieved through flexible and reversible decisions [Ch. 3].",
+    "citations": [
+      "ch03-013",
+      "ch03-016"
+    ],
+    "cited_share": 0.4,
+    "support": 2,
+    "sentences": 2,
+    "fake_quotes": [],
+    "key_fact_ok": true,
+    "key_fact_judge": null,
+    "relevance": [
+      {
+        "chunk_id": "ch03-003",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch03-013",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch03-002",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch03-016",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch03-102",
+        "verdict": "not_relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 2.0
+  },
+  {
+    "question": "What is the difference between batch and streaming?",
+    "source": "battery-golden",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch02-019"
+    ],
+    "key_fact": null,
+    "dense10": [
+      "ch02-019",
+      "ch02-018",
+      "ch02-021",
+      "ch03-090",
+      "ch02-020",
+      "ch08-141",
+      "ch08-142",
+      "ch08-143",
+      "ch08-085",
+      "ch07-009"
+    ],
+    "gold_dense_rank": 1,
+    "mrr": 1.0,
+    "shown": [
+      "ch02-019",
+      "ch02-018",
+      "ch02-021",
+      "ch03-090",
+      "ch02-020"
+    ],
+    "shown_gold_hits": [
+      "ch02-019"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "Batch processing involves ingesting data in large chunks, typically on a predetermined time interval or when data reaches a preset size threshold, while streaming ingestion processes data continuously and in real-time or near real-time [Ch. 2]. The key difference lies in the timing and manner of data processing: batch is more suited for historical data analysis and less time-sensitive applications, whereas streaming is ideal for real-time decision-making and applications requiring immediate data processing [Ch. 2].",
+    "citations": [
+      "ch02-018"
+    ],
+    "cited_share": 0.2,
+    "support": 0,
+    "sentences": 2,
+    "fake_quotes": [],
+    "key_fact_ok": null,
+    "key_fact_judge": null,
+    "relevance": [
+      {
+        "chunk_id": "ch02-019",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch02-018",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch02-021",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch03-090",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch02-020",
+        "verdict": "relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 2.38
+  },
+  {
+    "question": "What happens to data after it is extracted in ETL?",
+    "source": "battery-golden",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch07-033"
+    ],
+    "key_fact": "extract",
+    "dense10": [
+      "ch07-033",
+      "ch08-094",
+      "ch08-122",
+      "ch02-022",
+      "ch02-041",
+      "ch03-073",
+      "ch09-055",
+      "ch02-040",
+      "ch09-056",
+      "ch09-001"
+    ],
+    "gold_dense_rank": 1,
+    "mrr": 1.0,
+    "shown": [
+      "ch07-033",
+      "ch08-094",
+      "ch08-122",
+      "ch02-022",
+      "ch02-041"
+    ],
+    "shown_gold_hits": [
+      "ch07-033"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "After data is extracted in ETL, it can either be transformed before being loaded into a storage destination, or it can be loaded into storage for future transformation [Ch. 8]. The transformed data is then typically loaded into a target system, such as a data warehouse, where business analytics can be performed [Ch. 8].",
+    "citations": [
+      "ch08-094"
+    ],
+    "cited_share": 0.2,
+    "support": 1,
+    "sentences": 2,
+    "fake_quotes": [],
+    "key_fact_ok": true,
+    "key_fact_judge": null,
+    "relevance": [
+      {
+        "chunk_id": "ch07-033",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch08-094",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch08-122",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch02-022",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch02-041",
+        "verdict": "not_relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 2.14
+  },
+  {
+    "question": "What do transformations do in the data engineering lifecycle?",
+    "source": "battery-golden",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch02-027"
+    ],
+    "key_fact": null,
+    "dense10": [
+      "ch02-027",
+      "ch02-025",
+      "ch08-161",
+      "ch08-001",
+      "ch02-026",
+      "ch02-002",
+      "ch08-150",
+      "ch01-006",
+      "ch02-091",
+      "ch08-144"
+    ],
+    "gold_dense_rank": 1,
+    "mrr": 1.0,
+    "shown": [
+      "ch02-027",
+      "ch02-025",
+      "ch08-161",
+      "ch08-001",
+      "ch02-026"
+    ],
+    "shown_gold_hits": [
+      "ch02-027"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "Transformations in the data engineering lifecycle change data from its original form into something useful for downstream use cases [Ch. 2]. They prepare data for reports, analysis, and machine learning [Ch. 2]. Transformations can include basic tasks like mapping data into correct types and removing bad records, as well as more complex tasks like schema transformation and normalization [Ch. 2]. They are crucial for adding value and ROI to the business [Ch. 8]. Transformations can be performed in batch or while streaming in flight [Ch. 2]. The cost and return on investment, associated business value, and simplicity of the transformation are key considerations [Ch. 2].",
+    "citations": [
+      "ch02-025",
+      "ch08-161",
+      "ch02-026"
+    ],
+    "cited_share": 0.6,
+    "support": 2,
+    "sentences": 6,
+    "fake_quotes": [],
+    "key_fact_ok": null,
+    "key_fact_judge": null,
+    "relevance": [
+      {
+        "chunk_id": "ch02-027",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch02-025",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch08-161",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch08-001",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch02-026",
+        "verdict": "relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 2.96
+  },
+  {
+    "question": "What does CRU stand for?",
+    "source": "battery-typo",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch05-019"
+    ],
+    "key_fact": "create.{0,25}read.{0,25}update.{0,40}delete",
+    "dense10": [
+      "ch05-019",
+      "ch01-064",
+      "ch01-067",
+      "ch01-065",
+      "ch01-066",
+      "ch05-030",
+      "ch05-029",
+      "ch04-010",
+      "ch05-053",
+      "ch01-068"
+    ],
+    "gold_dense_rank": 1,
+    "mrr": 1.0,
+    "shown": [
+      "ch05-029",
+      "ch05-019",
+      "ch01-064",
+      "ch01-067",
+      "ch01-066"
+    ],
+    "shown_gold_hits": [
+      "ch05-019"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "CRUD stands for create, read, update, and delete [Ch. 5].",
+    "citations": [
+      "ch05-019"
+    ],
+    "cited_share": 0.2,
+    "support": 1,
+    "sentences": 1,
+    "fake_quotes": [],
+    "key_fact_ok": true,
+    "key_fact_judge": null,
+    "relevance": [
+      {
+        "chunk_id": "ch05-029",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch05-019",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch01-064",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch01-067",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch01-066",
+        "verdict": "not_relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 1.75
+  },
+  {
+    "question": "What happens to data after it is extracted in ET?",
+    "source": "battery-typo",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch07-033"
+    ],
+    "key_fact": "extract",
+    "dense10": [
+      "ch07-033",
+      "ch02-022",
+      "ch07-031",
+      "ch02-024",
+      "ch08-094",
+      "ch02-041",
+      "ch02-016",
+      "ch05-021",
+      "ch03-097",
+      "ch03-073"
+    ],
+    "gold_dense_rank": 1,
+    "mrr": 1.0,
+    "shown": [
+      "ch08-120",
+      "ch07-033",
+      "ch02-022",
+      "ch07-031",
+      "ch02-024"
+    ],
+    "shown_gold_hits": [
+      "ch07-033"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "After data is extracted in ETL, it can either be transformed before loading into a storage destination, or loaded into storage for future transformation [Ch. 7].",
+    "citations": [
+      "ch07-033"
+    ],
+    "cited_share": 0.2,
+    "support": 0,
+    "sentences": 1,
+    "fake_quotes": [],
+    "key_fact_ok": true,
+    "key_fact_judge": null,
+    "relevance": [
+      {
+        "chunk_id": "ch08-120",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch07-033",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch02-022",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch07-031",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch02-024",
+        "verdict": "not_relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 1.65
+  },
+  {
+    "question": "what is a atermark?",
+    "source": "battery-typo",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch08-039"
+    ],
+    "key_fact": "watermark",
+    "dense10": [
+      "ch03-006",
+      "ch03-015",
+      "ch05-030",
+      "ch03-078",
+      "ch03-005",
+      "ch07-067",
+      "ch06-032",
+      "app01-007",
+      "ch03-056",
+      "app01-017"
+    ],
+    "gold_dense_rank": null,
+    "mrr": 0.0,
+    "shown": [
+      "ch08-039",
+      "ch03-006",
+      "ch03-015",
+      "ch05-030",
+      "ch03-078"
+    ],
+    "shown_gold_hits": [
+      "ch08-039"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it's considered late [Ch. 8].",
+    "citations": [
+      "ch08-039"
+    ],
+    "cited_share": 0.2,
+    "support": 1,
+    "sentences": 1,
+    "fake_quotes": [],
+    "key_fact_ok": true,
+    "key_fact_judge": null,
+    "relevance": [
+      {
+        "chunk_id": "ch08-039",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch03-006",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch03-015",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch05-030",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch03-078",
+        "verdict": "not_relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 2.17
+  },
+  {
+    "question": "what does data engineers need to be pragmatic about",
+    "source": "battery-probe",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch04-012"
+    ],
+    "key_fact": "pragmatic",
+    "dense10": [
+      "ch01-034",
+      "ch01-036",
+      "ch01-042",
+      "ch01-024",
+      "ch03-038",
+      "ch01-070",
+      "ch01-035",
+      "ch01-049",
+      "ch04-095",
+      "ch06-118"
+    ],
+    "gold_dense_rank": null,
+    "mrr": 0.0,
+    "shown": [
+      "ch04-012",
+      "ch01-034",
+      "ch01-036",
+      "ch01-042",
+      "ch01-024"
+    ],
+    "shown_gold_hits": [
+      "ch04-012"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "Data engineers need to be pragmatic about flexibility [Ch. 4]. They should recognize that the data landscape is changing too quickly to invest in long-term hardware that might become obsolete or limit their ability to try new technologies. [Ch. 4]",
+    "citations": [
+      "ch04-012"
+    ],
+    "cited_share": 0.2,
+    "support": 1,
+    "sentences": 2,
+    "fake_quotes": [],
+    "key_fact_ok": true,
+    "key_fact_judge": null,
+    "relevance": [
+      {
+        "chunk_id": "ch04-012",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch01-034",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch01-036",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch01-042",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch01-024",
+        "verdict": "relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 1.83
+  },
+  {
+    "question": "Data engineers need to be pragmatic about?",
+    "source": "battery-probe",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch04-012"
+    ],
+    "key_fact": "pragmatic",
+    "dense10": [
+      "ch01-034",
+      "ch01-042",
+      "ch01-036",
+      "ch03-038",
+      "ch01-024",
+      "ch01-070",
+      "ch01-035",
+      "ch01-022",
+      "ch01-052",
+      "ch09-071"
+    ],
+    "gold_dense_rank": null,
+    "mrr": 0.0,
+    "shown": [
+      "ch04-012",
+      "ch01-034",
+      "ch01-042",
+      "ch01-036",
+      "ch03-038"
+    ],
+    "shown_gold_hits": [
+      "ch04-012"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "Data engineers need to be pragmatic about flexibility and keeping pace with ongoing developments [Ch. 4]. They should focus on the fundamentals while staying current with new technologies [Ch. 1, Ch. 4]. This pragmatic approach helps them navigate the rapidly changing landscape of data engineering [Ch. 1, Ch. 4].",
+    "citations": [
+      "ch04-012"
+    ],
+    "cited_share": 0.2,
+    "support": 0,
+    "sentences": 3,
+    "fake_quotes": [],
+    "key_fact_ok": true,
+    "key_fact_judge": null,
+    "relevance": [
+      {
+        "chunk_id": "ch04-012",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch01-034",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch01-042",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch01-036",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch03-038",
+        "verdict": "relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 2.14
+  },
+  {
+    "question": "MAD data landscape",
+    "source": "battery-probe",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch04-020"
+    ],
+    "key_fact": "\\bmad\\b",
+    "dense10": [
+      "ch03-099",
+      "ch02-037",
+      "ch11-018",
+      "ch03-084",
+      "ch06-080",
+      "ch01-057",
+      "ch02-059",
+      "ch04-092",
+      "ch03-081",
+      "ch03-079"
+    ],
+    "gold_dense_rank": null,
+    "mrr": 0.0,
+    "shown": [
+      "ch04-020",
+      "ch04-019",
+      "ch03-099",
+      "ch02-037",
+      "ch11-018"
+    ],
+    "shown_gold_hits": [
+      "ch04-020"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "The MAD data landscape is complex and dynamic, with many technologies rising and falling in popularity [Ch. 4]. Technologies like Hive, which were once popular, have declined in relevance [Ch. 4]. The data mesh, a recent response to centralized data platforms, includes decentralization, data as a product, self-serve data infrastructure, and federated computational governance [Ch. 3]. The live data stack, which will likely replace the MDS, integrates real-time analytics and ML into applications [Ch. 11].",
+    "citations": [
+      "ch04-020",
+      "ch04-019",
+      "ch03-099",
+      "ch11-018"
+    ],
+    "cited_share": 0.8,
+    "support": 0,
+    "sentences": 4,
+    "fake_quotes": [],
+    "key_fact_ok": true,
+    "key_fact_judge": null,
+    "relevance": [
+      {
+        "chunk_id": "ch04-020",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch04-019",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch03-099",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch02-037",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch11-018",
+        "verdict": "relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 2.92
+  },
+  {
+    "question": "multicloud methodology disadvantages",
+    "source": "battery-probe",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch04-037"
+    ],
+    "key_fact": "multicloud|dizzying",
+    "dense10": [
+      "ch04-037",
+      "ch04-036",
+      "ch04-038",
+      "ch03-063",
+      "ch03-062",
+      "ch04-042",
+      "ch03-055",
+      "ch04-071",
+      "ch04-066",
+      "ch04-041"
+    ],
+    "gold_dense_rank": 1,
+    "mrr": 1.0,
+    "shown": [
+      "ch04-037",
+      "ch04-036",
+      "ch04-038",
+      "ch03-063",
+      "ch03-062"
+    ],
+    "shown_gold_hits": [
+      "ch04-037"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "A multicloud methodology has several disadvantages, including data egress costs and networking bottlenecks [Ch. 4], significant complexity in managing a variety of services across multiple clouds [Ch. 4], and challenges in cross-cloud integration and security [Ch. 4].",
+    "citations": [
+      "ch04-037"
+    ],
+    "cited_share": 0.2,
+    "support": 0,
+    "sentences": 1,
+    "fake_quotes": [],
+    "key_fact_ok": true,
+    "key_fact_judge": null,
+    "relevance": [
+      {
+        "chunk_id": "ch04-037",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch04-036",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch04-038",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch03-063",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch03-062",
+        "verdict": "not_relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 1.98
+  },
+  {
+    "question": "what is MAD data landscape",
+    "source": "battery-probe",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch04-020"
+    ],
+    "key_fact": "\\bmad\\b",
+    "dense10": [
+      "ch03-099",
+      "ch02-059",
+      "ch06-080",
+      "ch04-092",
+      "ch03-084",
+      "ch02-037",
+      "ch03-015",
+      "ch02-065",
+      "ch03-078",
+      "ch11-018"
+    ],
+    "gold_dense_rank": null,
+    "mrr": 0.0,
+    "shown": [
+      "ch04-020",
+      "ch03-099",
+      "ch02-059",
+      "ch06-080",
+      "ch04-092"
+    ],
+    "shown_gold_hits": [
+      "ch04-020"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "The MAD data landscape, as introduced in Chapter 1, refers to the complex and rapidly changing environment of technologies related to machine learning (ML), artificial intelligence (AI), and data. [Ch. 4]",
+    "citations": [
+      "ch04-020"
+    ],
+    "cited_share": 0.2,
+    "support": 0,
+    "sentences": 1,
+    "fake_quotes": [],
+    "key_fact_ok": true,
+    "key_fact_judge": null,
+    "relevance": [
+      {
+        "chunk_id": "ch04-020",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch03-099",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch02-059",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch06-080",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch04-092",
+        "verdict": "not_relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 1.86
+  },
+  {
+    "question": "what is data mesh",
+    "source": "coherence",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch03-099"
+    ],
+    "key_fact": "data mesh",
+    "dense10": [
+      "ch03-099",
+      "ch09-016",
+      "ch05-055",
+      "ch09-059",
+      "ch03-071",
+      "ch08-046",
+      "ch03-061",
+      "ch09-008",
+      "ch03-060",
+      "ch01-005"
+    ],
+    "gold_dense_rank": 1,
+    "mrr": 1.0,
+    "shown": [
+      "ch03-099",
+      "ch09-016",
+      "ch05-055",
+      "ch09-059",
+      "ch03-071"
+    ],
+    "shown_gold_hits": [
+      "ch03-099"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "Data mesh is a recent approach to data architecture that addresses the challenges of centralized data platforms like data lakes and warehouses. It decentralizes data ownership and management, with each domain team hosting and serving its own datasets in a domain-oriented manner. Key components of data mesh include domain-oriented decentralized data ownership and architecture, data as a product, self-serve data infrastructure as a platform, and federated computational governance. [Ch. 3] [Ch. 9]",
+    "citations": [
+      "ch03-099"
+    ],
+    "cited_share": 0.2,
+    "support": 1,
+    "sentences": 3,
+    "fake_quotes": [],
+    "key_fact_ok": true,
+    "key_fact_judge": null,
+    "relevance": [
+      {
+        "chunk_id": "ch03-099",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch09-016",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch05-055",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch09-059",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch03-071",
+        "verdict": "not_relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 2.1
+  },
+  {
+    "question": "Codd introduced the idea of what",
+    "source": "coherence",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch08-051"
+    ],
+    "key_fact": "normal form|normalization",
+    "dense10": [
+      "ch04-067",
+      "ch03-071",
+      "ch04-052",
+      "ch08-051",
+      "ch02-074",
+      "ch05-030",
+      "ch05-048",
+      "ch08-052",
+      "ch01-008",
+      "ch03-032"
+    ],
+    "gold_dense_rank": 4,
+    "mrr": 0.25,
+    "shown": [
+      "ch04-067",
+      "ch03-071",
+      "ch04-052",
+      "ch08-051",
+      "ch02-074"
+    ],
+    "shown_gold_hits": [
+      "ch08-051"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "Codd introduced the idea of normal forms. [Ch. 8]",
+    "citations": [
+      "ch08-051"
+    ],
+    "cited_share": 0.2,
+    "support": 1,
+    "sentences": 1,
+    "fake_quotes": [],
+    "key_fact_ok": true,
+    "key_fact_judge": null,
+    "relevance": [
+      {
+        "chunk_id": "ch04-067",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch03-071",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch04-052",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch08-051",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch02-074",
+        "verdict": "not_relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 1.53
+  },
+  {
+    "question": "what is an endpoint in streaming ingestion",
+    "source": "coherence",
+    "expect": "answer",
+    "known_issue": false,
+    "gold": [
+      "ch02-024"
+    ],
+    "key_fact": "endpoint",
+    "dense10": [
+      "ch02-024",
+      "ch07-060",
+      "ch07-098",
+      "ch02-018",
+      "ch07-059",
+      "ch07-037",
+      "ch11-020",
+      "ch02-020",
+      "ch02-021",
+      "ch07-016"
+    ],
+    "gold_dense_rank": 1,
+    "mrr": 1.0,
+    "shown": [
+      "ch02-024",
+      "ch07-060",
+      "ch07-098",
+      "ch02-018",
+      "ch07-059"
+    ],
+    "shown_gold_hits": [
+      "ch02-024"
+    ],
+    "gold_precision": 0.2,
+    "refused": false,
+    "answer": "In streaming ingestion, an endpoint is where the data is pushed directly after bypassing a backend database. This endpoint is typically part of an event-streaming platform, to which data is sent in real-time or near real-time [Ch. 2].",
+    "citations": [
+      "ch02-024"
+    ],
+    "cited_share": 0.2,
+    "support": 0,
+    "sentences": 2,
+    "fake_quotes": [],
+    "key_fact_ok": true,
+    "key_fact_judge": null,
+    "relevance": [
+      {
+        "chunk_id": "ch02-024",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch07-060",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch07-098",
+        "verdict": "not_relevant"
+      },
+      {
+        "chunk_id": "ch02-018",
+        "verdict": "relevant"
+      },
+      {
+        "chunk_id": "ch07-059",
+        "verdict": "relevant"
+      }
+    ],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 1.95
+  },
+  {
+    "question": "What is the capital of France?",
+    "source": "refusal",
+    "expect": "refuse",
+    "known_issue": false,
+    "gold": [],
+    "key_fact": null,
+    "dense10": [
+      "ch01-064",
+      "ch03-071",
+      "ch05-030",
+      "ch05-045",
+      "app02-007",
+      "ch03-078",
+      "ch01-066",
+      "preface01-013",
+      "ch06-080",
+      "ch04-052"
+    ],
+    "gold_dense_rank": null,
+    "mrr": 0.0,
+    "shown": [
+      "ch01-064",
+      "ch03-071",
+      "ch05-030",
+      "ch05-045",
+      "app02-007"
+    ],
+    "shown_gold_hits": [],
+    "gold_precision": 0.0,
+    "refused": true,
+    "answer": "Not in this book.",
+    "citations": [
+      "ch01-064",
+      "ch03-071",
+      "ch05-030"
+    ],
+    "cited_share": 0.6,
+    "support": 0,
+    "sentences": 1,
+    "fake_quotes": [],
+    "key_fact_ok": null,
+    "key_fact_judge": null,
+    "relevance": [],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 1.41
+  },
+  {
+    "question": "what does iops mean",
+    "source": "refusal",
+    "expect": "refuse",
+    "known_issue": false,
+    "gold": [],
+    "key_fact": null,
+    "dense10": [
+      "ch06-123",
+      "ch02-067",
+      "ch03-039",
+      "ch02-068",
+      "ch02-070",
+      "ch01-064",
+      "ch06-008",
+      "ch03-097",
+      "ch04-015",
+      "ch05-011"
+    ],
+    "gold_dense_rank": null,
+    "mrr": 0.0,
+    "shown": [
+      "ch02-072",
+      "ch06-123",
+      "ch02-067",
+      "ch03-039",
+      "ch02-068"
+    ],
+    "shown_gold_hits": [],
+    "gold_precision": 0.0,
+    "refused": true,
+    "answer": "Not in this book.",
+    "citations": [
+      "ch02-072",
+      "ch06-123",
+      "ch02-067"
+    ],
+    "cited_share": 0.6,
+    "support": 0,
+    "sentences": 1,
+    "fake_quotes": [],
+    "key_fact_ok": null,
+    "key_fact_judge": null,
+    "relevance": [],
+    "judge_errors": 0,
+    "refusal_ok": true,
+    "seconds": 1.24
+  },
+  {
+    "question": "dark matter data",
+    "source": "refusal",
+    "expect": "answer",
+    "known_issue": true,
+    "gold": [
+      "ch11-025"
+    ],
+    "key_fact": "dark matter",
+    "dense10": [
+      "ch11-025",
+      "ch03-099",
+      "ch07-022",
+      "ch05-045",
+      "ch06-085",
+      "ch02-059",
+      "ch06-080",
+      "ch09-066",
+      "ch02-092",
+      "ch02-058"
+    ],
+    "gold_dense_rank": 1,
+    "mrr": 1.0,
+    "shown": [
+      "ch11-025",
+      "ch03-099",
+      "ch07-022",
+      "ch05-045",
+      "ch06-085"
+    ],
+    "shown_gold_hits": [
+      "ch11-025"
+    ],
+    "gold_precision": 0.2,
+    "refused": true,
+    "answer": "Not in this book.",
+    "citations": [
+      "ch11-025",
+      "ch03-099",
+      "ch07-022"
+    ],
+    "cited_share": 0.6,
+    "support": 0,
+    "sentences": 1,
+    "fake_quotes": [],
+    "key_fact_ok": false,
+    "key_fact_judge": null,
+    "relevance": [],
+    "judge_errors": 0,
+    "refusal_ok": false,
+    "seconds": 1.21
+  }
+]

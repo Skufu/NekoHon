@@ -136,6 +136,7 @@ def measure(index, question, generate_fn, timeout, system):
         "question": question,
         "asked": context["asked"],
         "refused": body["refused"],
+        "answer": body["answer"],
         "citations": [item["chunk_id"] for item in body["citations"]],
         "sentences": len(testable),
         "supported": len(supported),
