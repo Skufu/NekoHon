@@ -7,6 +7,7 @@ separate on purpose (no blended score — the same reason the main eval keeps
 recall and precision apart):
 
 Gates (a question "plain-passes" only when all hold):
+- the answer is not a refusal;
 - zero unbacked quote spans (raw completion);
 - the judge says the answer is book-supported (no claim beyond the passages);
 - Flesch-Kincaid grade <= 11 (the readability bar the register promises).
@@ -20,12 +21,14 @@ Dials (reported, not pass/fail):
 - length.
 
 Run:
-    python artifacts/eval-plain.py [--limit N]              (granite judge)
+    python artifacts/eval-plain.py [--limit N] [--variants current,plain,plain3]
+        [--label v3]                                       (granite judge)
     JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=... \\
         JUDGE_BASE_URL=... JUDGE_API_KEY_FILE=.judge-key \\
-        python artifacts/eval-plain.py                       (Muse judge)
+        python artifacts/eval-plain.py --variants plain,plain3 --label v3
+                                                           (Muse release judge)
 
-Writes artifacts/eval-plain-<judge-slug>.{json,log}.
+Writes artifacts/eval-plain-<label>-<judge-slug>.{json,log}.
 """
 
 import argparse
@@ -60,7 +63,19 @@ def load_probe():
 
 probe = load_probe()
 PLAIN_SYSTEM = probe.PLAIN_SYSTEM
-VARIANTS = (("current", SYSTEM_ANSWER), ("plain", PLAIN_SYSTEM))
+SYSTEMS = {
+    "current": SYSTEM_ANSWER,
+    "plain": PLAIN_SYSTEM,
+    "plain3": probe.PLAIN3_SYSTEM,
+}
+
+
+def selected_variants(spec):
+    names = [name.strip() for name in spec.split(",") if name.strip()]
+    unknown = [name for name in names if name not in SYSTEMS]
+    if unknown:
+        raise SystemExit(f"unknown variants {unknown}; have {sorted(SYSTEMS)}")
+    return [(name, SYSTEMS[name]) for name in names]
 
 
 def slug(name):
@@ -91,6 +106,7 @@ def measure(index, question, system, passages):
     example = J.judge_plain_example(question, passages_text, answer)
     return {
         "answer": answer,
+        "refused": body["refused"],
         "citations": [c["chunk_id"] for c in body["citations"]],
         "cited_share": round(len(body["citations"]) / len(shown), 3) if shown else None,
         "readability": readability,
@@ -101,6 +117,7 @@ def measure(index, question, system, passages):
         "unmatched_tags": unmatched_tags(answer, passages),
         "seconds": round(time.perf_counter() - started, 2),
         "gates": {
+            "answered": not body["refused"],
             "no_fake_quotes": len(fake) == 0,
             "book_supported": fidelity == "supported",
             "grade_ok": readability["fk_grade"] <= FK_GATE,
@@ -111,7 +128,10 @@ def measure(index, question, system, passages):
 def main():
     parser = argparse.ArgumentParser(description="Plain-register scorecard.")
     parser.add_argument("--limit", type=int, default=0)
+    parser.add_argument("--variants", default="current,plain")
+    parser.add_argument("--label", default="")
     args = parser.parse_args()
+    variants = selected_variants(args.variants)
 
     items = json.loads((HERE / "eval-set-plain.json").read_text(encoding="utf-8"))["items"]
     if args.limit:
@@ -123,7 +143,7 @@ def main():
         question = item["question"]
         passages = A.retrieval_context(index, question)["passages"]
         row = {"question": question, "gold": item["gold_chunks"], "variants": {}}
-        for name, system in VARIANTS:
+        for name, system in variants:
             row["variants"][name] = measure(index, question, system, passages)
         rows.append(row)
         print(f"{position:2}/{len(items)} {question}")
@@ -132,13 +152,14 @@ def main():
         return [row["variants"][name] for row in rows]
 
     lines = [f"# plain scorecard — {J.judge_name()} — {len(rows)} questions"
+             f" — variants {','.join(name for name, _ in variants)}"
              f" — fk gate <= {FK_GATE}, coverage target >= {COVERAGE_TARGET}"]
-    for name, _ in VARIANTS:
+    for name, _ in variants:
         values = variant_rows(name)
         passes = sum(1 for v in values if all(v["gates"].values()))
         gate_failures = {
             key: sum(1 for v in values if not v["gates"][key])
-            for key in ("no_fake_quotes", "book_supported", "grade_ok")
+            for key in ("answered", "no_fake_quotes", "book_supported", "grade_ok")
         }
         def mean_of(getter):
             vals = [getter(v) for v in values if getter(v) is not None]
@@ -166,11 +187,11 @@ def main():
     lines.append("")
     for row in rows:
         lines.append(f"## {row['question']}")
-        for name, _ in VARIANTS:
+        for name, _ in variants:
             v = row["variants"][name]
             gates = "".join(
                 "P" if v["gates"][key] else "F"
-                for key in ("no_fake_quotes", "book_supported", "grade_ok")
+                for key in ("answered", "no_fake_quotes", "book_supported", "grade_ok")
             )
             lines.append(
                 f"- {name}: gates {gates}"
@@ -181,7 +202,8 @@ def main():
                 f" | {v['answer'].splitlines()[0][:100]}"
             )
 
-    out = HERE / f"eval-plain-{slug(J.judge_name())}.json"
+    parts = ["eval-plain"] + ([args.label] if args.label else []) + [slug(J.judge_name())]
+    out = HERE / ("-".join(parts) + ".json")
     log = out.with_suffix(".log")
     out.write_text(json.dumps(rows, indent=2, ensure_ascii=False), encoding="utf-8")
     log.write_text("\n".join(lines) + "\n", encoding="utf-8")

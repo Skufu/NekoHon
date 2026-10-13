@@ -49,6 +49,19 @@ PLAIN2_ADDITION = (
 )
 PLAIN2_SYSTEM = SYSTEM_ANSWER + "\n" + PLAIN2_ADDITION
 
+# Variant 3: the scorecard's findings applied — no imagined scenarios (Muse
+# caught "imagine you have..."), and an explicit sentence-length cap because
+# v2 shortened without dropping the grade under the bar.
+PLAIN3_ADDITION = (
+    "The person asked for a simple explanation. Answer only with what the "
+    "passages state: no imagined scenarios, no comparisons, no examples the "
+    "passages do not contain. Write short sentences, under fifteen words "
+    "each, one idea per sentence. Use common words; if a technical term is "
+    "needed, define it in the same sentence. When a passage holds a concrete "
+    "example, use that example."
+)
+PLAIN3_SYSTEM = SYSTEM_ANSWER + "\n" + PLAIN3_ADDITION
+
 QUESTIONS = [
     "explain data engineering in simple words",
     "explain batch and streaming in simple words",
