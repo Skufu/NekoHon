@@ -62,6 +62,16 @@ PLAIN3_ADDITION = (
 )
 PLAIN3_SYSTEM = SYSTEM_ANSWER + "\n" + PLAIN3_ADDITION
 
+# The revise pass: draft with PLAIN3, then one local call edits the draft
+# against the passages. Draft for content, edit for style and honesty — the
+# same verify-and-fix shape as the reading gate and the judge.
+REVISE_SYSTEM = """You edit a draft answer about a book for a newcomer. You see the passages from the book and a draft answer. Rewrite the draft:
+1. Remove any claim the passages do not state. Do not add facts.
+2. Split every sentence longer than fifteen words into shorter sentences.
+3. Use common words; keep technical terms that are necessary.
+4. Keep the [Ch. N] tags. When a passage holds a concrete example and the draft has none, add that example.
+Output only the revised answer, nothing else."""
+
 QUESTIONS = [
     "explain data engineering in simple words",
     "explain batch and streaming in simple words",

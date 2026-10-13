@@ -86,7 +86,21 @@ KEY_FACT_KEYS = [
     ("states", ["states", "yes", "true"]),
 ]
 FIDELITY_KEYS = [
-    ("unsupported", ["unsupported", "not supported", "no", "false"]),
+    (
+        "unsupported",
+        [
+            "unsupported",
+            "not supported",
+            "not in the passage",
+            "not in the passages",
+            "outside the passages",
+            "adds facts",
+            "adds information",
+            "not stated",
+            "no",
+            "false",
+        ],
+    ),
     ("supported", ["supported", "yes", "true"]),
 ]
 EXAMPLE_KEYS = [
@@ -213,19 +227,37 @@ def _complete(system, user, model, timeout):
     return A.ollama_generate(system, user, model, timeout=timeout)
 
 
-def _one_word(system, user, keys, model=None, timeout=None):
-    text = _complete(
-        system,
-        user,
-        model or JUDGE_MODEL,
-        timeout or CLOUD_TIMEOUT,
-    )
-    normalized = re.sub(r"[^a-z]+", " ", text.strip().lower())
+LAST_REPLY = {"text": ""}  # the last raw judge reply, for harness debugging
+
+
+def _match(text, keys):
+    normalized = re.sub(r"[^a-z]+", " ", (text or "").strip().lower())
     for label, phrases in keys:
         for phrase in phrases:
             if re.search(rf"\b{re.escape(phrase)}\b", normalized):
                 return label
-    return "judge_error"
+    return None
+
+
+def _one_word(system, user, keys, model=None, timeout=None):
+    judge_model = model or JUDGE_MODEL
+    judge_timeout = timeout or CLOUD_TIMEOUT
+    reply = _complete(system, user, judge_model, judge_timeout)
+    label = _match(reply, keys)
+    if label is None:
+        # One strict retry: cloud judges do not always echo one of our words
+        # (measured 2026-10-13: 19 of 20 Muse fidelity replies paraphrased
+        # past the key list). The retry fires only on a miss.
+        strict = (
+            system
+            + " Reply with exactly one of: "
+            + ", ".join(name for name, _ in keys)
+            + "."
+        )
+        reply = _complete(strict, user, judge_model, judge_timeout)
+        label = _match(reply, keys)
+    LAST_REPLY["text"] = reply
+    return label or "judge_error"
 
 
 def judge_relevance(question, passage, model=None, timeout=None):

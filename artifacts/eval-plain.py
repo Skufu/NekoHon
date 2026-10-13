@@ -64,9 +64,13 @@ def load_probe():
 probe = load_probe()
 PLAIN_SYSTEM = probe.PLAIN_SYSTEM
 SYSTEMS = {
-    "current": SYSTEM_ANSWER,
-    "plain": PLAIN_SYSTEM,
-    "plain3": probe.PLAIN3_SYSTEM,
+    "current": {"system": SYSTEM_ANSWER},
+    "plain": {"system": PLAIN_SYSTEM},
+    "plain3": {"system": probe.PLAIN3_SYSTEM},
+    "plain3-rv": {
+        "system": probe.PLAIN3_SYSTEM,
+        "revise": probe.REVISE_SYSTEM,
+    },
 }
 
 
@@ -90,11 +94,18 @@ def unmatched_tags(answer, passages):
     return count
 
 
-def measure(index, question, system, passages):
+def measure(index, question, spec, passages):
     started = time.perf_counter()
     completion = A.ollama_generate(
-        system, A.answer_user_message(question, passages), ANSWER_MODEL
+        spec["system"], A.answer_user_message(question, passages), ANSWER_MODEL
     )
+    if spec.get("revise"):
+        passages_text = "\n\n".join(hit.get("text") or "" for hit in passages)
+        revise_user = (
+            f"Question: {question}\n\nPassages:\n{passages_text[:5000]}\n\n"
+            f"Draft answer:\n{completion}"
+        )
+        completion = A.ollama_generate(spec["revise"], revise_user, ANSWER_MODEL)
     body = A.parse_answered(completion, passages, index.get("figures") or [])
     answer = body["answer"]
     shown = [hit["chunk_id"] for hit in passages]
@@ -103,7 +114,9 @@ def measure(index, question, system, passages):
     grounding = probe.grounding(answer, passages)
     fake = G.fake_quotes(completion, passages)
     fidelity = J.judge_book_fidelity(question, passages_text, answer)
+    fidelity_raw = J.LAST_REPLY["text"][:200]
     example = J.judge_plain_example(question, passages_text, answer)
+    example_raw = J.LAST_REPLY["text"][:200]
     return {
         "answer": answer,
         "refused": body["refused"],
@@ -113,7 +126,9 @@ def measure(index, question, system, passages):
         "grounding": grounding,
         "fake_quotes": fake,
         "fidelity": fidelity,
+        "fidelity_raw": fidelity_raw,
         "example": example,
+        "example_raw": example_raw,
         "unmatched_tags": unmatched_tags(answer, passages),
         "seconds": round(time.perf_counter() - started, 2),
         "gates": {
@@ -143,8 +158,8 @@ def main():
         question = item["question"]
         passages = A.retrieval_context(index, question)["passages"]
         row = {"question": question, "gold": item["gold_chunks"], "variants": {}}
-        for name, system in variants:
-            row["variants"][name] = measure(index, question, system, passages)
+        for name, spec in variants:
+            row["variants"][name] = measure(index, question, spec, passages)
         rows.append(row)
         print(f"{position:2}/{len(items)} {question}")
 

@@ -1,0 +1,34 @@
+# plain scorecard — openai:muse-spark-1.3-contributor — 10 questions — variants plain3,plain3-rv — fk gate <= 11.0, coverage target >= 0.2
+# plain3: pass 0/10 | gate fails {'answered': 0, 'no_fake_quotes': 0, 'book_supported': 10, 'grade_ok': 7} | fk 12.15 | words/sentence 15.04 | coverage 0.188 | words 49.9 | cited share 0.36 | example 1/10 | unmatched tags 0 | fake quotes 0 | judge errors 9
+# plain3-rv: pass 0/10 | gate fails {'answered': 0, 'no_fake_quotes': 0, 'book_supported': 10, 'grade_ok': 5} | fk 11.85 | words/sentence 14.0 | coverage 0.189 | words 59.6 | cited share 0.38 | example 3/10 | unmatched tags 0 | fake quotes 0 | judge errors 9
+
+## explain data engineering in simple words
+- plain3: gates PPFF | fk 16.0 | cov 0.387 | fidelity judge_error | example none | unmatched 0 | Data engineering is about moving, manipulating, and managing data [Ch. 1]. It involves developing sy
+- plain3-rv: gates PPFF | fk 13.7 | cov 0.178 | fidelity judge_error | example none | unmatched 0 | Data engineering is about moving, manipulating, and managing data [Ch. 1]. It involves developing, i
+## explain batch and streaming in simple words
+- plain3: gates PPFP | fk 10.2 | cov 0.132 | fidelity judge_error | example none | unmatched 0 | Batch processing involves handling data in large chunks at predetermined intervals or when a preset 
+- plain3-rv: gates PPFP | fk 10.2 | cov 0.128 | fidelity judge_error | example none | unmatched 0 | Batch processing involves handling data in large chunks at predetermined intervals or when a preset 
+## explain data ingestion in simple words
+- plain3: gates PPFP | fk 10.5 | cov 0.354 | fidelity judge_error | example none | unmatched 0 | Data ingestion is the process of moving data from one place to another. [Ch. 7] It involves taking d
+- plain3-rv: gates PPFP | fk 10.5 | cov 0.354 | fidelity judge_error | example none | unmatched 0 | [Ch. 7] Data ingestion is the process of moving data from one place to another. [Ch. 7] It involves 
+## explain what a watermark is in simple words
+- plain3: gates PPFF | fk 13.5 | cov 0.059 | fidelity judge_error | example none | unmatched 0 | A watermark is a threshold used to determine if data is within a time interval or considered late-ar
+- plain3-rv: gates PPFF | fk 13.5 | cov 0.059 | fidelity judge_error | example none | unmatched 0 | A watermark is a threshold used to determine if data is within a time interval or considered late-ar
+## explain transformations in simple words
+- plain3: gates PPFF | fk 11.9 | cov 0.243 | fidelity judge_error | example none | unmatched 0 | Transformations change data into a useful form for downstream use. They unify and integrate data, ma
+- plain3-rv: gates PPFF | fk 11.1 | cov 0.388 | fidelity judge_error | example example | unmatched 0 | Transformations change data into a useful form for downstream use. They unify and integrate data, ma
+## explain CRUD in simple words
+- plain3: gates PPFF | fk 11.8 | cov 0.2 | fidelity judge_error | example none | unmatched 0 | CRUD stands for create, read, update, and delete. [Ch. 5] CRUD is a pattern for basic operations on 
+- plain3-rv: gates PPFP | fk 10.1 | cov 0.114 | fidelity judge_error | example none | unmatched 0 | CRUD stands for create, read, update, and delete. [Ch. 5] 
+## explain the data mesh in simple words
+- plain3: gates PPFF | fk 13.0 | cov 0.083 | fidelity judge_error | example none | unmatched 0 | The data mesh is a decentralized approach to managing data, reversing the traditional centralized mo
+- plain3-rv: gates PPFF | fk 15.2 | cov 0.19 | fidelity judge_error | example none | unmatched 0 | The data mesh is a decentralized approach to managing data, reversing the traditional centralized mo
+## explain an endpoint in streaming ingestion in simple words
+- plain3: gates PPFP | fk 10.7 | cov 0.143 | fidelity unsupported | example none | unmatched 0 | An endpoint in streaming ingestion is where data is pushed directly after being published. [Ch. 2] T
+- plain3-rv: gates PPFP | fk 10.7 | cov 0.143 | fidelity unsupported | example none | unmatched 0 | An endpoint in streaming ingestion is where data is pushed directly after being published. [Ch. 2]
+## explain when an insert-only table is useful in simple words
+- plain3: gates PPFF | fk 11.4 | cov 0.282 | fidelity judge_error | example example | unmatched 0 | An insert-only table is useful for maintaining a current view of data [Ch. 8]. It allows new records
+- plain3-rv: gates PPFP | fk 10.7 | cov 0.26 | fidelity judge_error | example example | unmatched 0 | [Ch. 8] An insert-only table is useful for maintaining a current view of data. It allows new records
+## explain the MAD data landscape in simple words
+- plain3: gates PPFF | fk 12.5 | cov 0.0 | fidelity judge_error | example none | unmatched 0 | The MAD landscape refers to the many technologies related to machine learning, AI, and data. [Ch. 4]
+- plain3-rv: gates PPFF | fk 12.8 | cov 0.071 | fidelity judge_error | example example | unmatched 0 | The MAD landscape refers to the many technologies related to machine learning, AI, and data. [Ch. 4]
