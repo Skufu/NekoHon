@@ -1,0 +1,911 @@
+[
+ {
+  "question": "data engineering lifecycle"
+ },
+ {
+  "question": "what is data engineering"
+ },
+ {
+  "question": "what does a data engineer actually do"
+ },
+ {
+  "question": "how did the data engineer role evolve"
+ },
+ {
+  "question": "data science vs data engineering"
+ },
+ {
+  "question": "internal facing vs external facing data engineering"
+ },
+ {
+  "question": "what is data maturity"
+ },
+ {
+  "question": "what is the data engineering lifecycle"
+ },
+ {
+  "question": "source systems"
+ },
+ {
+  "question": "what is data ingestion"
+ },
+ {
+  "question": "what is data management"
+ },
+ {
+  "question": "what is dataops"
+ },
+ {
+  "question": "what is orchestration in the data engineering lifecycle"
+ },
+ {
+  "question": "types of metadata"
+ },
+ {
+  "question": "what is data quality"
+ },
+ {
+  "question": "what is observabilty"
+ },
+ {
+  "question": "batch processing remains an extremely popular way to do what"
+ },
+ {
+  "question": "what are the undercurrents of the data engineering lifecycle"
+ },
+ {
+  "question": "what is data architecture"
+ },
+ {
+  "question": "how does data architecture relate to enterprise architecture"
+ },
+ {
+  "question": "principles of good data architecture"
+ },
+ {
+  "question": "what is the data mesh"
+ },
+ {
+  "question": "big ball of mud"
+ },
+ {
+  "question": "brownfield vs greenfield data projects"
+ },
+ {
+  "question": "togaf defines data architecture as what"
+ },
+ {
+  "question": "what does finops help a data team do"
+ },
+ {
+  "question": "why should you plan for failure"
+ },
+ {
+  "question": "loosely coupled systems"
+ },
+ {
+  "question": "what is the modern data stack"
+ },
+ {
+  "question": "architecting for iot"
+ },
+ {
+  "question": "MAD data landscape"
+ },
+ {
+  "question": "multicloud disadvantages"
+ },
+ {
+  "question": "multiclould disadvantages"
+ },
+ {
+  "question": "what is total cost of ownership"
+ },
+ {
+  "question": "caveat emptor"
+ },
+ {
+  "question": "immutable vs transitory technologies"
+ },
+ {
+  "question": "serverless"
+ },
+ {
+  "question": "containers"
+ },
+ {
+  "question": "data engineers need to be pragmatic about what"
+ },
+ {
+  "question": "crud stands for what"
+ },
+ {
+  "question": "what is an oltp system"
+ },
+ {
+  "question": "what is acid in database terms"
+ },
+ {
+  "question": "what is change data capture"
+ },
+ {
+  "question": "types of nosql databases"
+ },
+ {
+  "question": "what is a key-value store"
+ },
+ {
+  "question": "graph databases"
+ },
+ {
+  "question": "advantages of insert-only tables"
+ },
+ {
+  "question": "what is data sharing between organizations"
+ },
+ {
+  "question": "database logs"
+ },
+ {
+  "question": "the four basic operations of persistent storage are what"
+ },
+ {
+  "question": "wide-column databases"
+ },
+ {
+  "question": "what is object storage"
+ },
+ {
+  "question": "what is block storage"
+ },
+ {
+  "question": "what is a data lake"
+ },
+ {
+  "question": "what is a data warehouse"
+ },
+ {
+  "question": "what is a data lakehouse"
+ },
+ {
+  "question": "raid stands for what"
+ },
+ {
+  "question": "hot warm cold data"
+ },
+ {
+  "question": "what does iops mean"
+ },
+ {
+  "question": "how does separation of compute and storage help"
+ },
+ {
+  "question": "what is data retention"
+ },
+ {
+  "question": "what is a data catalog"
+ },
+ {
+  "question": "schema on read vs schema on write"
+ },
+ {
+  "question": "data ingestion is the process of doing what"
+ },
+ {
+  "question": "etl vs elt"
+ },
+ {
+  "question": "what is a message queue"
+ },
+ {
+  "question": "what is an event-streaming platform"
+ },
+ {
+  "question": "kafka"
+ },
+ {
+  "question": "bounded vs unbounded data"
+ },
+ {
+  "question": "push vs pull ingestion"
+ },
+ {
+  "question": "what is a direct database connection"
+ },
+ {
+  "question": "why does replay matter for event streams"
+ },
+ {
+  "question": "what is polling"
+ },
+ {
+  "question": "what is a data migration"
+ },
+ {
+  "question": "stream-to-batch architecture"
+ },
+ {
+  "question": "how do you detect upstream and downstream schema changes"
+ },
+ {
+  "question": "what is a watermark"
+ },
+ {
+  "question": "watermark"
+ },
+ {
+  "question": "watermak"
+ },
+ {
+  "question": "next codd introduced the idea of what"
+ },
+ {
+  "question": "what is normalization"
+ },
+ {
+  "question": "normailzation"
+ },
+ {
+  "question": "what is denormalization"
+ },
+ {
+  "question": "types of joins"
+ },
+ {
+  "question": "what is a broadcast join"
+ },
+ {
+  "question": "what is a query optimizer"
+ },
+ {
+  "question": "types of windows in stream processing"
+ },
+ {
+  "question": "what is a materialized view"
+ },
+ {
+  "question": "what is a star schema"
+ },
+ {
+  "question": "what is a fact table"
+ },
+ {
+  "question": "what is a dimension table"
+ },
+ {
+  "question": "what is data vault modeling"
+ },
+ {
+  "question": "kimball is on the opposite end of the data modeling spectrum from who"
+ },
+ {
+  "question": "under the hood, batch processing is what"
+ },
+ {
+  "question": "data wrangling"
+ },
+ {
+  "question": "how does micro-batch differ from true streaming"
+ },
+ {
+  "question": "slowly changing dimensions"
+ },
+ {
+  "question": "what is reverse etl"
+ },
+ {
+  "question": "what is a feature store"
+ },
+ {
+  "question": "what is business intelligence"
+ },
+ {
+  "question": "what is embedded analytics"
+ },
+ {
+  "question": "what is query federation"
+ },
+ {
+  "question": "how do data scientists use notebooks"
+ },
+ {
+  "question": "ways to serve data to consumers"
+ },
+ {
+  "question": "why do data definitions matter when serving data"
+ },
+ {
+  "question": "olap vs oltp"
+ },
+ {
+  "question": "what is a data product"
+ },
+ {
+  "question": "what is the principle of least privilege"
+ },
+ {
+  "question": "what is zero trust"
+ },
+ {
+  "question": "how does encryption at rest differ from encryption in motion"
+ },
+ {
+  "question": "what is tokenization"
+ },
+ {
+  "question": "hashing vs encryption"
+ },
+ {
+  "question": "what is data masking"
+ },
+ {
+  "question": "what is shared responsibility in the cloud"
+ },
+ {
+  "question": "what does it mean to always be paranoid about security"
+ },
+ {
+  "question": "what is pii"
+ },
+ {
+  "question": "what is the live data stack"
+ },
+ {
+  "question": "dark matter data"
+ },
+ {
+  "question": "why is the data engineering lifecycle not going away"
+ },
+ {
+  "question": "how are data and applications fusing"
+ },
+ {
+  "question": "what comes after the modern data stack"
+ },
+ {
+  "question": "how will data engineering titles change"
+ },
+ {
+  "question": "streaming pipelines and real-time analytics"
+ },
+ {
+  "question": "what is the cloud-scale data os"
+ },
+ {
+  "question": "what is aaron"
+ },
+ {
+  "question": "what is aashish"
+ },
+ {
+  "question": "what is abandon"
+ },
+ {
+  "question": "what is abandoned"
+ },
+ {
+  "question": "what is abbreviated"
+ },
+ {
+  "question": "what is abbreviation"
+ },
+ {
+  "question": "what is abc"
+ },
+ {
+  "question": "what is abe"
+ },
+ {
+  "question": "what is abound"
+ },
+ {
+  "question": "what is abraham"
+ },
+ {
+  "question": "what is abramson"
+ },
+ {
+  "question": "what is absorber"
+ },
+ {
+  "question": "what is abundance"
+ },
+ {
+  "question": "what is academia"
+ },
+ {
+  "question": "what is accelerates"
+ },
+ {
+  "question": "what is accelerating"
+ },
+ {
+  "question": "what is accepting"
+ },
+ {
+  "question": "what is accepts"
+ },
+ {
+  "question": "what is accesses"
+ },
+ {
+  "question": "what is accommodated"
+ },
+ {
+  "question": "what is accompanied"
+ },
+ {
+  "question": "what is accountable"
+ },
+ {
+  "question": "what is accounted"
+ },
+ {
+  "question": "what is accumulation"
+ },
+ {
+  "question": "what is accustomed"
+ },
+ {
+  "question": "what is achievable"
+ },
+ {
+  "question": "what is achieving"
+ },
+ {
+  "question": "what is ackerman"
+ },
+ {
+  "question": "what is acknowledgment"
+ },
+ {
+  "question": "what is acolytes"
+ },
+ {
+  "question": "what is acquaint"
+ },
+ {
+  "question": "what is acquired"
+ },
+ {
+  "question": "what is acquisition"
+ },
+ {
+  "question": "what is acquisitions"
+ },
+ {
+  "question": "what is acronym"
+ },
+ {
+  "question": "what is acted"
+ },
+ {
+  "question": "what is actors"
+ },
+ {
+  "question": "what is acyclic"
+ },
+ {
+  "question": "what is adage"
+ },
+ {
+  "question": "what is adapted"
+ },
+ {
+  "question": "what is adaptive"
+ },
+ {
+  "question": "what is addison"
+ },
+ {
+  "question": "what is additions"
+ },
+ {
+  "question": "what is addressable"
+ },
+ {
+  "question": "what is adhering"
+ },
+ {
+  "question": "what is adi"
+ },
+ {
+  "question": "what is adjusted"
+ },
+ {
+  "question": "what is adkins"
+ },
+ {
+  "question": "what is admin"
+ },
+ {
+  "question": "what is administrator"
+ },
+ {
+  "question": "what is admits"
+ },
+ {
+  "question": "what is admittedly"
+ },
+ {
+  "question": "what is adopters"
+ },
+ {
+  "question": "what is adopts"
+ },
+ {
+  "question": "what is advantageous"
+ },
+ {
+  "question": "what is adverse"
+ },
+ {
+  "question": "what is advertises"
+ },
+ {
+  "question": "what is advisable"
+ },
+ {
+  "question": "what is advised"
+ },
+ {
+  "question": "what is advisory"
+ },
+ {
+  "question": "what is advocates"
+ },
+ {
+  "question": "what is aeronautics"
+ },
+ {
+  "question": "what is affairs"
+ },
+ {
+  "question": "what is affiliated"
+ },
+ {
+  "question": "what is afternoon"
+ },
+ {
+  "question": "what is afzaal"
+ },
+ {
+  "question": "what is agencies"
+ },
+ {
+  "question": "what is agency"
+ },
+ {
+  "question": "what is agendas"
+ },
+ {
+  "question": "what is agent"
+ },
+ {
+  "question": "what is aggregator"
+ },
+ {
+  "question": "what is aggressive"
+ },
+ {
+  "question": "what is agonize"
+ },
+ {
+  "question": "what is agrees"
+ },
+ {
+  "question": "what is ahmad"
+ },
+ {
+  "question": "what is aid"
+ },
+ {
+  "question": "what is aimed"
+ },
+ {
+  "question": "what is aiming"
+ },
+ {
+  "question": "what is aircraft"
+ },
+ {
+  "question": "what is airplane"
+ },
+ {
+  "question": "what is akhil"
+ },
+ {
+  "question": "what is aks"
+ },
+ {
+  "question": "what is alarming"
+ },
+ {
+  "question": "what is alessya"
+ },
+ {
+  "question": "what is algebra"
+ },
+ {
+  "question": "what is algolia"
+ },
+ {
+  "question": "what is algorithmic"
+ },
+ {
+  "question": "what is alignment"
+ },
+ {
+  "question": "what is alleviating"
+ },
+ {
+  "question": "what is allocated"
+ },
+ {
+  "question": "what is allocates"
+ },
+ {
+  "question": "what is allocations"
+ },
+ {
+  "question": "what is alter"
+ },
+ {
+  "question": "what is altogether"
+ },
+ {
+  "question": "what is alves"
+ },
+ {
+  "question": "what is amenable"
+ },
+ {
+  "question": "what is american"
+ },
+ {
+  "question": "what is amid"
+ },
+ {
+  "question": "what is amidst"
+ },
+ {
+  "question": "what is amir"
+ },
+ {
+  "question": "what is amounted"
+ },
+ {
+  "question": "what is ample"
+ },
+ {
+  "question": "what is amritha"
+ },
+ {
+  "question": "what is analog"
+ },
+ {
+  "question": "what is analogue"
+ },
+ {
+  "question": "what is ananth"
+ },
+ {
+  "question": "what is ancient"
+ },
+ {
+  "question": "what is andreas"
+ },
+ {
+  "question": "what is andriy"
+ },
+ {
+  "question": "what is anecdotes"
+ },
+ {
+  "question": "what is anemicdomainmodel"
+ },
+ {
+  "question": "what is angle"
+ },
+ {
+  "question": "what is anomalous"
+ },
+ {
+  "question": "what is anonymize"
+ },
+ {
+  "question": "what is anonymized"
+ },
+ {
+  "question": "what is answered"
+ },
+ {
+  "question": "what is answering"
+ },
+ {
+  "question": "what is antecedents"
+ },
+ {
+  "question": "what is anthos"
+ },
+ {
+  "question": "what is antonio"
+ },
+ {
+  "question": "what is Preface"
+ },
+ {
+  "question": "what is What This Book Isn\u2019t"
+ },
+ {
+  "question": "what is What This Book Is About"
+ },
+ {
+  "question": "what is Who Should Read This Book"
+ },
+ {
+  "question": "what is Prerequisites"
+ },
+ {
+  "question": "what is What You\u2019ll Learn and How It Will Improve Your Abilities"
+ },
+ {
+  "question": "what is Navigating This Book"
+ },
+ {
+  "question": "what is Conventions Used in This Book"
+ },
+ {
+  "question": "what is How to Contact Us"
+ },
+ {
+  "question": "what is Acknowledgments"
+ },
+ {
+  "question": "what is Part I. Foundation and Building Blocks"
+ },
+ {
+  "question": "what is Chapter 1. Data Engineering Described"
+ },
+ {
+  "question": "what is What Is Data Engineering?"
+ },
+ {
+  "question": "what is Data Engineering Defined"
+ },
+ {
+  "question": "what is Evolution of the Data Engineer"
+ },
+ {
+  "question": "what is The early 2000s: The birth of contemporary data engineering"
+ },
+ {
+  "question": "what is The 2000s and 2010s: Big data engineering"
+ },
+ {
+  "question": "what is The 2020s: Engineering for the data lifecycle"
+ },
+ {
+  "question": "what is Data Engineering and Data Science"
+ },
+ {
+  "question": "what is Data Engineering Skills and Activities"
+ },
+ {
+  "question": "what is Data Maturity and the Data Engineer"
+ },
+ {
+  "question": "what is Stage 1: Starting with data"
+ },
+ {
+  "question": "what is Stage 2: Scaling with data"
+ },
+ {
+  "question": "what is Stage 3: Leading with data"
+ },
+ {
+  "question": "what is The Background and Skills of a Data Engineer"
+ },
+ {
+  "question": "what is Business Responsibilities"
+ },
+ {
+  "question": "what is Technical Responsibilities"
+ },
+ {
+  "question": "what is The Continuum of Data Engineering Roles, from A to B"
+ },
+ {
+  "question": "what is Data Engineers Inside an Organization"
+ },
+ {
+  "question": "what is Internal-Facing Versus External-Facing Data Engineers"
+ },
+ {
+  "question": "what is Data Engineers and Other Technical Roles"
+ },
+ {
+  "question": "what is Upstream stakeholders"
+ },
+ {
+  "question": "what is Data architects"
+ },
+ {
+  "question": "what is Software engineers"
+ },
+ {
+  "question": "what is DevOps engineers and site-reliability engineers"
+ },
+ {
+  "question": "what is Downstream stakeholders"
+ },
+ {
+  "question": "what is Data scientists"
+ },
+ {
+  "question": "what is Data analysts"
+ },
+ {
+  "question": "what is Machine learning engineers and AI researchers"
+ },
+ {
+  "question": "what is Data Engineers and Business Leadership"
+ },
+ {
+  "question": "what is Data in the C-suite"
+ },
+ {
+  "question": "what is Chief executive officer"
+ },
+ {
+  "question": "what is Chief information officer"
+ },
+ {
+  "question": "what is Chief technology officer"
+ },
+ {
+  "question": "what is Chief data officer"
+ },
+ {
+  "question": "what is Chief analytics officer"
+ },
+ {
+  "question": "what is Chief algorithms officer"
+ },
+ {
+  "question": "what is Data engineers and project managers"
+ },
+ {
+  "question": "what is Data engineers and product managers"
+ },
+ {
+  "question": "what is Data engineers and other management roles"
+ },
+ {
+  "question": "what is Conclusion"
+ },
+ {
+  "question": "what is Additional Resources"
+ },
+ {
+  "question": "what is Chapter 2. The Data Engineering Lifecycle"
+ },
+ {
+  "question": "what is What Is the Data Engineering Lifecycle?"
+ },
+ {
+  "question": "what is The Data Lifecycle Versus the Data Engineering Lifecycle"
+ },
+ {
+  "question": "what is Generation: Source Systems"
+ },
+ {
+  "question": "what is Evaluating source systems: Key engineering considerations"
+ },
+ {
+  "question": "what is Storage"
+ },
+ {
+  "question": "what is Evaluating storage systems: Key engineering considerations"
+ }
+]

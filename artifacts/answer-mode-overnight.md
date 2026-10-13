@@ -62,6 +62,17 @@ the raw completion, before the strip.
   environment...", which is in no shown passage. That is the number to watch
   when the retrieval or the prompt changes; a battery pass does not imply a
   high groundedness score.
+- Sweep set (the 303 sweep questions, extracted from the wired2 run into
+  `qa-sweep-questions.json`): 270 answered, 33 refused, 204/911 sentences
+  supported (22.4%), mean coverage 0.272, 19 unbacked quote spans in the raw
+  completions. The 19 are scare-quotes around the query term in
+  refusal-shaped replies ("does not contain a definition of 'abandon'"),
+  not fabricated passage quotes; the strip removes the marks and keeps the
+  text. Related observation: 20 of the 270 answered rows are
+  paraphrase-refusals ("the passages do not contain ...") — all junk
+  rare-word asks; the exact-sentence rule covers the first line only, so
+  these print as answers (honest text, not the four-word sentence).
+  Files: `groundedness-sweep303.*`.
 
 ## 3. Sweeps — 303 asks each, answer mode
 
@@ -78,9 +89,10 @@ the raw completion, before the strip.
   refusals — the sweep's own design lesson from 2026-10-13 still holds),
   iops (not defined in the book), and "dark matter data" (bare phrasing;
   "what is dark matter data" answers with ch11-025/026 citations — the
-  passages were shown in both). Refusal deltas across runs: acolytes/amir/
+  passages were shown in both). Refusal deltas across runs: acolytes, amir, and
   ananth newly refused (correct), "adhering" flipped to answered — the known
-  temperature-0 flake class, recorded, not explained away.
+  temperature-0 flake class, recorded, not explained away. 20 more answered
+  rows are paraphrase-refusals (see section 2), all junk asks.
 
 ## 4. Preprocessing stages 5-9
 
