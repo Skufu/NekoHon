@@ -18,14 +18,55 @@ Two channels, two needs (the README's keyword/vector split):
   own `.lower()` over the same regex.
 
 `chunk["text"]` is canonical and is never rewritten — it is what gets cited,
-and the quote check compares against it. Both functions here are views over it,
-and neither writes back.
+and the quote check compares against it. Every function here is a view over it
+and none writes back.
+
+The pipeline stages, kept separate on purpose:
+
+- 5 text processing: `normalize()` for the dense view, `fold()` for matching.
+  Both start with NFKC; `fold()` additionally repairs typographic punctuation
+  (NFKC does not touch curly quotes or dashes) and casefolds.
+- 6 punctuation: `tokens()` speak words only; punctuation never becomes a
+  token here, and no stage rewrites `chunk["text"]`.
+- 7 tokenization: `tokens()`/`words()` are the only tokenizer, used by
+  `postings`, `anchor_words`, `rare`, `boost`, and the readings.
+- 8 stop words: `STOPWORDS`, the SMART list, vendored as data in
+  `vendor/stopwords-en.txt` with its source in the file header. A filter for
+  matching views; never a rewrite.
+- 9 stemming: `stem()` and `stemmed_words()`, the standard Snowball English
+  (Porter2) stemmer, vendored in `vendor/snowballstemmer/` (BSD-3-Clause; see
+  its COPYING). Idempotent on the measured word set.
+
+Stages 5-9 are new views. Wiring them into the keyword/anchor path changes
+which words match, so it is proposed in `artifacts/stage9-preprocessing.md`
+and waits for a battery run; `words()` and `normalize()` keep their exact
+behavior until then, because the rare gate rides on the raw df counts.
 """
 
 import re
 import unicodedata
+from pathlib import Path
+
+from vendor.snowballstemmer import stemmer as _make_stemmer
 
 TOKEN = re.compile(r"[A-Za-z]+")
+
+# NFKC maps ﬁ→fi, ①→1, full-width Ａ→A, and no-break space→space, but it does
+# not touch typographic quotes or dashes; those are folded by hand so that a
+# curly apostrophe matches a straight one in the matching view.
+TYPOGRAPHIC = str.maketrans(
+    {"’": "'", "‘": "'", "“": '"', "”": '"', "–": "-", "—": "-"}
+)
+
+STOPWORDS = frozenset(
+    line.strip()
+    for line in (Path(__file__).resolve().parent / "vendor" / "stopwords-en.txt")
+    .read_text(encoding="utf-8")
+    .splitlines()
+    if line.strip() and not line.startswith("#")
+)
+
+_ENGLISH = _make_stemmer("english")
 
 
 def token_spans(text):
@@ -48,6 +89,41 @@ def tokens(text):
 def words(text):
     """The folded tokens of a text. Same function on both sides of the index."""
     return [token.lower() for token in tokens(text)]
+
+
+def fold(text):
+    """The matching fold: NFKC, typographic punctuation to ASCII, casefolded.
+
+    The view for equality-style matching (stopword checks, stem inputs, future
+    keyword maps). `normalize()` is the dense view and keeps case and
+    typography; `chunk["text"]` stays canonical either way.
+    """
+    folded = unicodedata.normalize("NFKC", text or "")
+    return folded.translate(TYPOGRAPHIC).casefold()
+
+
+def stem(word):
+    """The Snowball English (Porter2) stem of one word.
+
+    The standard implementation, vendored under `vendor/snowballstemmer/`
+    (BSD-3-Clause), so the runtime needs no pip and no network. The whole
+    "extract" family lands on one form: stem("extracted") ==
+    stem("extract") == stem("extracting"). Idempotent: stem(stem(w)) ==
+    stem(w) on the measured word set.
+    """
+    return _ENGLISH.stemWord(fold(word))
+
+
+def stemmed_words(text):
+    """The stemmed lexical view: `fold()`, then `words()`, then `stem()`.
+
+    Folding before tokenizing is what lets NFKC reach the tokenizer: a ligature
+    like ﬁ only becomes "fi" if the text is folded first, otherwise the
+    regex sees the ligature as punctuation and strands the "le". A view over
+    chunk text, never a rewrite: the citation and the quote check still read
+    `chunk["text"]`.
+    """
+    return [stem(word) for word in words(fold(text))]
 
 
 def normalize(text):

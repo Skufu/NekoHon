@@ -9,11 +9,14 @@ module no longer swaps anything.
 Anchors: question words rare enough in the book (df <= COVER_DF) that
 finding one in a paragraph makes it answering material. A fixed English
 word list for list questions is not shippable (sampled list words range
-from df=1 to df=77, no natural cutoff); the book's own counts are.
+from df=1 to df=77, no natural cutoff); the book's own counts are. Function
+words are never anchors: the SMART stopword list (see preprocess.STOPWORDS)
+filters them first, so a rare-in-book function word like "actually" cannot
+trigger a paragraph expansion (stage 8 of preprocessing, wired 2026-10-13).
 Stdlib only; no model, no download.
 """
 
-from preprocess import words
+from preprocess import STOPWORDS, words
 
 RARE_DF = 8
 COVER_DF = 80
@@ -32,9 +35,11 @@ def anchor_words(question, word_map, bound=COVER_DF):
     """Question words rare enough in the book to anchor a paragraph.
 
     "disadvantages" (df=4), "pitfalls" (df=3), "characteristics" (df=45)
-    all qualify; function words and book-wide vocabulary do not.
+    all qualify; function words and book-wide vocabulary do not. Stopwords
+    are filtered before the count: their df says how the book talks, not
+    what the question is about.
     """
-    folded = set(words(question))
+    folded = {word for word in words(question) if word not in STOPWORDS}
     return {
         word for word in folded if 0 < len(word_map.get(word, ())) <= bound
     }

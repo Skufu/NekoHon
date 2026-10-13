@@ -2,7 +2,7 @@
 
 import unittest
 
-from keywords import postings, rare
+from keywords import anchor_words, postings, rare
 
 
 def make_index(texts):
@@ -35,6 +35,18 @@ class PostingsTests(unittest.TestCase):
         table = postings(index)
         self.assertEqual(table["alpha"], [0, 2])
         self.assertEqual(table["beta"], [0, 1])
+
+
+class AnchorTests(unittest.TestCase):
+    def test_a_rare_content_word_anchors(self):
+        index = make_index(["the pragmatic lead"] + ["filler words here"] * 9)
+        self.assertEqual(anchor_words("what is pragmatic", postings(index)), {"pragmatic"})
+
+    def test_a_stopword_never_anchors_even_when_rare_in_book(self):
+        # "actually" is rare in this fake book, but it is a stopword: the
+        # question's rare function words must not expand a paragraph.
+        index = make_index(["it actually matters"] + ["filler words here"] * 9)
+        self.assertEqual(anchor_words("what does it actually do", postings(index)), set())
 
 
 if __name__ == "__main__":
