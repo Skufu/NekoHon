@@ -188,8 +188,9 @@ snippet chunk differs, noise).
 - Batteries over HTTP on a fresh server (restarted for the new code): ask
 PASS; answer PASS (golden 10/10, typos, probes, coherence, France).
 - Residual: MAD ask wh-form refusal flake (did not recur this run);
-answer-mode filler variants still diverge (Stage 2/3 territory); `Asked
-as:` not yet seen in the browser window.
+answer-mode filler variants still diverge (Stage 2/3 territory). Window
+check 2026-10-13 (user): the `Asked as:` line and the clean bare-MAD
+answer confirmed live; the watermark ask unchanged.
 
 ## Risks
 

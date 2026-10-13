@@ -67,7 +67,9 @@ ingest.py ......... sentence-boundary chunks (~300 tokens, sentence-aligned
 retrieve.py ....... nomic-embed-text vectors (768d) -> data/index.json;
   |                 pure-Python cosine; top 10 chunks (figures embedded too)
   v
-question ---------> normalize -> dense top-10
+question ---------> canonical form (bare phrase -> "What is X?")
+                      |  then normalize -> dense top-10; when it fires, the
+                      |  answer discloses `Asked as: "..."`
                       |  (A) word not in the book -> second reading: difflib
                       |      first, then a local-model correction under the
                       |      same strict-improvement gate (case-only and
@@ -107,6 +109,11 @@ may still show the nearest misses. A figure attaches only when the answer
 cited a passage that names it (refusal figures are labeled "nearby, not an
 answer"). The answer never describes image pixels — it quotes text; the window
 shows the image.
+
+A bare phrase is asked as its question first (`canonical.py`): "watermark"
+reaches retrieval and the model as "What is watermark?", and the answer
+discloses it as `Asked as: "..."`. Explain is exempt — its highlight is a
+book sentence, not a question.
 
 Honesty is metered, not assumed: `artifacts/groundedness.py` measures how much
 of an answer is supported by the shown passages, and the eval harness
@@ -204,9 +211,9 @@ Ollama; the rest need Ollama up, and the battery-style checks need
    python -m unittest discover -s tests
    ```
 
-   171 tests, green (0.15 s on this box). Covers the contract, ingest and
+   210 tests, green (0.17 s on this box). Covers the contract, ingest and
    chunking, retrieval guards, fusion, readings, the answer checks, figures,
-   and the generalization guard.
+   the form canonicalizer, and the generalization guard.
 
 2. **Index hygiene** — read-only audit of the stored vectors (width,
    non-finite, zero-norm, missing). Exits 1 when dirty.
@@ -305,8 +312,12 @@ Ollama; the rest need Ollama up, and the battery-style checks need
 | 2026-10-13 | Judge calibration | local granite vs cloud Muse agree 86/105 (81.9%); graded scales do not transfer across judges | `artifacts/judge-agreement-*.log` |
 | 2026-10-13 | Typo fallback wired (`readings.llm_second_reading`) | normilazation -> ch08-051, ingestoin -> ch07-002, both disclosed as `Read as:`; CRU keeps the difflib path; France and iops keep exact refusals; battery PASS in both modes | commit `f48910e` |
 | 2026-10-13 | Index hygiene audit | 1153/1153 vectors 768-wide, 0 non-finite / zero / drifted; `verify_index.py` clean | `artifacts/embedding-audit-2026-10-13.txt` |
+| 2026-10-13 | Answer-mode quote choice (`_evidence_quote`) | a stray 41-char copied run no longer outranks a higher-overlap sentence; red->green regression test | commit `954860b` |
+| 2026-10-13 | Bare-phrase canonicalization (Stage 1) | "MAD data landscape" alone: 3 figures -> 1, question-form behavior everywhere covered; batteries PASS both modes; window-confirmed; 5/5 mutation kills | commit `954860b`, `artifacts/query-canonicalization-2026-10-13.md` |
+| 2026-10-13 | Typography-fold A/B (index-rebuild decision) | 0/21 top-1 flips; rebuild rejected | `artifacts/probe-fold-ab-2026-10-13.json` |
+| 2026-10-13 | Finetune v1 checkpoint (`smallbook`, 1.93 GB Q4) | refusal sentence learned; runaway generation (174k chars / 354 s) and wrong quotes -> v2 recipe (responses-only loss) | `artifacts/finetune-data-prep-2026-10-13.md` |
 | 2026-10-13 | Secret scan | 516 history blobs + tracked tree, 0 hits | `artifacts/secret-scan.py` |
-| 2026-10-13 | Unit suite | 171 tests green in 0.15 s (163 before `preflight.py`) | this tree |
+| 2026-10-13 | Unit suite | 210 tests green in 0.17 s | this tree |
 
 Flake note: the local model is not bit-exact across long sequential runs. A
 known cold-run flake (the multicloud probe refusing while citing the correct
@@ -322,9 +333,12 @@ answer; `netstat` showed the engine and Ollama on `127.0.0.1` only, same PIDs
 online and offline, no restarts. Raw log: `artifacts/phase7-offline.log`.
 
 Disclosure: embeddings and answers are Ollama on localhost; the models are
-`nomic-embed-text` and `qwen2.5:7b`; no cloud model API; base models, no
-training. Latency, recorded: warm asks 0.4-1.2 s; the first ask after ~5 min
-idle pays a one-time ~25 s Ollama model load.
+`nomic-embed-text` and `qwen2.5:7b`; no cloud model API; base models answer
+the engine. Training exists only on the separate finetune track (a local
+small-model candidate, not wired into the app):
+`artifacts/finetune-data-prep-2026-10-13.md`. Latency, recorded: warm asks
+0.4-1.2 s; the first ask after ~5 min idle pays a one-time ~25 s Ollama
+model load.
 
 ## Repo layout
 
@@ -381,10 +395,11 @@ ask-this-book/
   measured multi-hop failure set exists.
 - `quiz` has no scoring; a graded second call is out of scope (see
   `BUILD_PLAN.md` "Contract").
-- **Working tree not yet committed** (as of this writing): the embedding
-  hygiene guards (`verify_index.py`, `retrieve.py`, `tests/test_verify_index.py`).
-  Commit before pushing so the code matches this README. `AGENTS.md`'s state
-  block also lags the last two landings (the typo fallback and the guards).
+- **Finetune track is research, not shipped** (approved 2026-10-13): a small
+  quote-or-refuse model distilled from the 7B; dataset and Colab recipe ready,
+  v1 checkpoint rambles (see `artifacts/finetune-data-prep-2026-10-13.md`),
+  v2 retrain in progress. The app keeps answering with `qwen2.5:7b` until the
+  candidate passes the bench.
 
 ## Roadmap
 
@@ -397,6 +412,8 @@ ask-this-book/
 - Post-v1 backlog (not approved): quote figure captions in prompts;
   `keep_alive` on Ollama requests to remove the ~25 s cold load (cost: ~5 GB
   VRAM held).
+- Finetune track (approved 2026-10-13): small quote-or-refuse model;
+  dataset + Colab recipe + v1 result in `artifacts/finetune-*2026-10-13*`.
 - Next book: re-run Phase 0-3, then a fresh answer-model bake-off.
 
 ## Documentation map

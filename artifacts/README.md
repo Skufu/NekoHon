@@ -30,8 +30,7 @@ Untracked files (concurrent writers' scratch, `runs/`, logs) are not indexed;
 their owner decides. Files from the 2026-10-13 query-form session are
 indexed in the rows below (undated probe names predate this index; the row
 date is the date). `mad-ask-ceiling.md` and `query-normalization.md` are
-referenced by `AGENTS.md` and remain uncommitted — the commit decision is
-the user's; the index rows below keep them non-prunable meanwhile.
+referenced by `AGENTS.md` and committed (2026-10-13).
 
 ## Index
 
@@ -57,6 +56,7 @@ Dates are first-commit dates (`2026-10-11/12/13`).
 | `bakeoff-digest.py` | bake-off log digester |
 | `prune.py` | this directory's planner (rule 6) |
 | `guard-audit.py` | guard-word audit (json next to it) |
+| `build-finetune-data-2026-10-13.py` | quote-or-refuse SFT dataset builder (teacher distillation through the shipped seam, mechanical gates) |
 
 ### Datasets
 
@@ -89,6 +89,7 @@ Dates are first-commit dates (`2026-10-11/12/13`).
 | `probe-quote-fix.{json,log}`, `probe-quote-choice.log`, `probe-plain-diagnose*.{json,log}` | answer-mode quote-choice fix evidence (cited in AGENTS) | kept (2026-10-13) |
 | `probe-mad-quote.*`, `probe-mad-seed.*`, `probe-mad-caption.*`, `probe-gloss-steer*.*`, `probe-epub-links.log` | MAD ask ceiling; steer #4 negative; EPUB link graph | kept (2026-10-13) |
 | `probe-fold-ab-2026-10-13.{json,log}` | embedded-book typography-fold A/B (full re-embed): 0/21 top-1 flips, fold unproven -> no index rebuild; corrects figure-vector composition and the 1042-chunk count | kept (2026-10-13) |
+| `finetune-data-prep-2026-10-13.md`, `finetune-colab-recipe-2026-10-13.md`, `finetune-colab-2026-10-13.ipynb` | quote-or-refuse dataset: 181 questions -> 171 rows, split train 126 / bench 45; refusal mining 13/18 kept; gloss-drought ~80% quantified; Colab A100 recipe (v2: responses-only loss, stop-check); v1 checkpoint rambled, v2 queued | kept (2026-10-13) |
 | `how-it-works.md` | pipeline mental image | kept (2026-10-12) |
 | `stage9-preprocessing.md` | preprocessing stages 5-9 | kept (2026-10-13) |
 | `refusal-fixes-evidence.txt` | refusal fixes evidence | kept (2026-10-13) |

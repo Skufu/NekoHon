@@ -1,0 +1,22 @@
+finetune data prep 2026-10-13 — teacher qwen2.5:7b
+questions: 181  rows kept: 171  tiers: {'gold': 80, 'refusal': 15, 'silver': 76}
+splits: {'bench': 45, 'train': 126}  files: quote-refuse-2026-10-13.train.jsonl / quote-refuse-2026-10-13.bench.jsonl
+sources: {'eval': 33, 'class': 8, 'sweep': 117, 'refusal': 13}
+outcomes: {'gloss-synthesized': 126, 'teacher-gloss': 30, 'refusal-kept': 15, 'wrong-chunk': 1, 'teacher-refused': 4, 'answered-when-refusal-expected': 5}
+
+reject samples:
+  {'question': 'explain transformations in simple words', 'asked': 'explain transformations in simple words', 'source': 'eval-plain', 'outcome': 'wrong-chunk:ch02-029', 'cited': ['ch02-029']}
+  {'question': 'multicloud disadvantages', 'asked': 'What is multicloud disadvantages?', 'source': 'sweep-list', 'outcome': 'teacher-refused', 'cited': ['ch04-037', 'ch04-036']}
+  {'question': 'hot warm cold data', 'asked': 'What is hot warm cold data?', 'source': 'sweep-bare', 'outcome': 'teacher-refused', 'cited': ['ch06-102', 'ch06-104']}
+  {'question': 'how does encryption at rest differ from encryption in motion', 'asked': 'how does encryption at rest differ from encryption in motion', 'source': 'sweep-subject-first', 'outcome': 'teacher-refused', 'cited': ['ch07-090', 'ch10-020']}
+  {'question': 'what is tokenization', 'asked': 'what is tokenization', 'source': 'sweep-what-is', 'outcome': 'teacher-refused', 'cited': ['ch07-088', 'ch06-016']}
+  {'question': 'How do I install a Python package?', 'asked': 'How do I install a Python package?', 'source': 'refusal-mined', 'outcome': 'answered-when-refusal-expected', 'cited': ['preface01-006']}
+  {'question': 'What is Kubernetes?', 'asked': 'What is Kubernetes?', 'source': 'refusal-mined', 'outcome': 'answered-when-refusal-expected', 'cited': ['ch04-078', 'ch04-076']}
+  {'question': 'What is PyTorch?', 'asked': 'What is PyTorch?', 'source': 'refusal-mined', 'outcome': 'answered-when-refusal-expected', 'cited': ['ch01-039']}
+  {'question': 'What HTTP status code means not found?', 'asked': 'What HTTP status code means not found?', 'source': 'refusal-mined', 'outcome': 'answered-when-refusal-expected', 'cited': ['ch05-048']}
+  {'question': 'How does garbage collection work in the JVM?', 'asked': 'How does garbage collection work in the JVM?', 'source': 'refusal-mined', 'outcome': 'answered-when-refusal-expected', 'cited': ['ch06-051']}
+
+row samples:
+  [gold] 'What does CRUD stand for?' -> [Ch. 5] "CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage" / CRUD means create, read, update,
+  [gold] 'What is data ingestion?' -> [Ch. 7] "Data ingestion is the process of moving data from one place to another" / Data ingestion moves data from one place to another.
+  [gold] 'What is a watermark?' -> [Ch. 8] "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late" / A watermark checks if data is on time or 

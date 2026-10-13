@@ -740,10 +740,36 @@ server.
   Retest: zero regressions, one intended delta — answer-mode "dark matter
   data" bare refusal becomes a book-backed answer; France refuses both.
   Both batteries PASS over HTTP on a fresh server (ask PASS; answer golden
-  10/10, typos, probes, coherence). Residual: MAD ask wh-form refusal flake
-  (did not recur); answer-mode filler variants still diverge (Stage 2/3);
-  `Asked as:` not seen in the window yet. Plan
+  10/10, typos, probes, coherence). Window check 2026-10-13 (user):
+  `Asked as:` line and the clean bare-MAD answer confirmed live; the
+  watermark ask unchanged. Residual: MAD ask wh-form refusal flake (did not
+  recur); answer-mode filler variants still diverge (Stage 2/3). Plan
   `artifacts/query-canonicalization-2026-10-13.md`.
+- Finetune prep 2026-10-13 (`artifacts/build-finetune-data-2026-10-13.py`,
+  summary `artifacts/finetune-data-prep-2026-10-13.md`): the 7B teacher is
+  distilled through the shipped seam into
+  `data/finetune/quote-refuse-2026-10-13.{train,bench}.jsonl` (gitignored):
+  181 questions -> 171 rows (gold 80 / silver 76 / refusal 15); the teacher
+  skimped the gloss line in ~80% of answers, so 126 glosses are synthesized
+  with `PARAPHRASE_SYSTEM`. Split: train 126 / bench 45 (bench = eval and
+  class-variant rows plus sweep twins of bench topics, guarded by pattern).
+  Refusal mining kept 13 of 18 fresh out-of-book asks; 5 answered from
+  passing mentions and were rejected. 10 rejects logged; file checks 0
+  malformed on both files. Colab recipe ready:
+  `artifacts/finetune-colab-recipe-2026-10-13.md` +
+  `finetune-colab-2026-10-13.ipynb` (A100, Unsloth LoRA, upload only the
+  train file). Next: run it, import the GGUF, run the bench against the
+  recorded 7B numbers.
+- Finetune v1 checkpoint 2026-10-13 (`smallbook:latest`, Qwen2.5-3B Q4_K_M,
+  1.93 GB): the pipeline works end to end (Colab -> GGUF -> Ollama ->
+  engine) and the exact refusal sentence is learned, but the model never
+  stops (one call: 174,181 chars in 354 s, quote after quote) and picks
+  wrong quotes ("What is a watermark?" -> ch06 disks; MAD falsely refused).
+  Diagnosis: v1 trained on the whole text; notebook v2 trains on responses
+  only, 120 steps, with a stop-check cell before export. Second candidate
+  run queued (Qwen3-4B-Instruct-2507 first). Bench
+  `probe-small-ask-2026-10-13.py` is reusable but not runnable until
+  stopping works. v1 stays in Ollama as a baseline.
 
 ## Verify
 
@@ -756,6 +782,10 @@ server.
 - Answer mode: `BATTERY_MODE=answer python artifacts/step2-battery.py`; sweeps `SWEEP_MODE=answer python artifacts/qa-sweep.py <label>`; groundedness `python artifacts/groundedness.py --battery --label <name>` or `--label <name>` over `qa-questions-overnight.json` (in-process, no server needed).
 - Agentic prototype (not wired): `python artifacts/probe-agentic.py` (live Ollama, 5 asks).
 - Plain register: `python -m unittest tests.test_plain_register`; scorecard draws (cloud judge) `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/eval-plain.py --variants wired --label wired` (replay with a new label); judge flip probe `python artifacts/judge-stability.py --file eval-plain-v6-openai-muse-spark-1-3-contributor.json --match <question substring> --n 3`; live route check: `answer` mode with "explain data engineering in simple words".
+- Canonicalization: `python -m unittest tests.test_canonical`; live check:
+  a bare phrase in answer mode ("watermark") answers in question form and the
+  answer ends with `Asked as: "What is watermark?"`; mutation check
+  `python artifacts/probe-test-mutations-2026-10-13.py` (5 breaks, 0 survivors).
 - Judge backends: default `ollama:granite4.1:8b`; cloud replay, e.g. `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/eval.py --judge-only --label v1`, then `python artifacts/judge-agreement.py eval-v1-ollama-granite4-1-8b eval-v1-openai-muse-spark-1-3-contributor`. `.judge-key` is gitignored; the engine never uses it.
 - Secret scan: `python artifacts/secret-scan.py` (git history + tracked tree; masked output; exit 1 on any hit). Clean 2026-10-13: this repo 516 blobs, 0 hits; `rag-template` 170 blobs, 0 hits.
 - Artifacts: index + rules `artifacts/README.md`; prune planner `python artifacts/prune.py --plan`.
