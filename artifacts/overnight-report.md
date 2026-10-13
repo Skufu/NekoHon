@@ -81,3 +81,10 @@ completions captured in-process):
 - The RRF side's late battery run is still untracked (`step2-battery-rrf-late.*`).
 - 91 tests green; battery green on the reverted tree (warm run).
 - Server up on :8000 with the default model on the current code.
+
+Post-report addendum: all three proposals shipped 2026-10-13 — `eb598e1`
+(short complete-sentence quotes), `92e11ad` (tagless verified replies),
+`85f4d80` (typographic folding). Retests and battery in
+`refusal-fixes-evidence.txt` and `step2-battery-refusal-fixes.*`. The sweep's
+"hot warm cold data" case stays refused by design (the model quotes only the
+heading, and a bare heading is not an answer); IOPS stays a retrieval item.

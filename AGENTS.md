@@ -466,11 +466,25 @@ No cloud APIs, no database server, no package installs.
   night and stays out until refined; (b) ~14 sweep refusals are mechanical
   discards of correct model answers (9 short complete-sentence quotes killed by
   the 40-char floor, 3 tagless verbatim replies, 1 typographic-quote mismatch) —
-  proposals in the report, none shipped; (c) the multicloud refusal flake
+  proposals in the report — all three shipped the following morning (see the
+  refusal-acceptance bullet below); (c) the multicloud refusal flake
   recurred on every cold battery run (5 recorded, 4 today), always clearing on
   a warm rerun; (d) sweep design lesson: "what is <rare word>" asks are mostly
   junk — 58 of the 80 refusals were correct refusals of junk, so ask about
   topics. 91 tests green; battery green on the reverted tree.
+- Refusal-acceptance fixes landed 2026-10-13 (all three from the overnight
+  report, one commit each): (1) a complete short sentence may be the quote
+  (`MIN_QUOTE_CHARS=20`, shape not length — "Everything fails, all the
+  time."); (2) a tagless reply is verified like any prose and tagged from the
+  matched passage (`_tagless_citation`); (3) typography folds in the quote
+  check (curly quotes, interior commas — "data about data"). Retests via HTTP:
+  "what is normalization", "crud stands for what", "types of metadata", "why
+  should you plan for failure" all answer now
+  (`artifacts/refusal-fixes-evidence.txt`); "hot warm cold data" stays refused
+  (the model quotes only the heading), IOPS stays refused (retrieval never
+  surfaces it). 97 tests green; battery PASS (`step2-battery-refusal-fixes.*`;
+  one cold-run multicloud flake cleared on warm rerun as always). Commits
+  eb598e1, 92e11ad, 85f4d80.
 - Not started: 8.
 
 ## Verify
