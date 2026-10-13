@@ -1,0 +1,198 @@
+[
+  {
+    "class": "single-typo",
+    "query": "what is a atermark?",
+    "target": "ch08-039",
+    "literal_top": 0.573,
+    "literal_target_rank": null,
+    "reading": {
+      "kept": true,
+      "reading": "what is a watermark?",
+      "top_chunk": "ch08-039",
+      "target_rank": 1
+    },
+    "llm": {
+      "seconds": 14.14,
+      "raw": "\"What is a watermark?\"",
+      "enhanced": "What is a watermark?",
+      "changed": true,
+      "kept": true,
+      "enhanced_top": 0.817,
+      "target_rank": 1
+    }
+  },
+  {
+    "class": "split-word",
+    "query": "wa termark",
+    "target": "ch08-039",
+    "literal_top": 0.498,
+    "literal_target_rank": null,
+    "reading": {
+      "kept": true,
+      "reading": "wa watermark",
+      "top_chunk": "ch08-039",
+      "target_rank": 1
+    },
+    "llm": {
+      "seconds": 0.11,
+      "raw": "\"watermark\"",
+      "enhanced": "watermark",
+      "changed": true,
+      "kept": true,
+      "enhanced_top": 0.79,
+      "target_rank": 1
+    }
+  },
+  {
+    "class": "swap",
+    "query": "what is watermrak",
+    "target": "ch08-039",
+    "literal_top": 0.581,
+    "literal_target_rank": 1,
+    "reading": {
+      "kept": true,
+      "reading": "what is watermark",
+      "top_chunk": "ch08-039",
+      "target_rank": 1
+    },
+    "llm": {
+      "seconds": 0.12,
+      "raw": "\"what is watermark\"",
+      "enhanced": "what is watermark",
+      "changed": true,
+      "kept": true,
+      "enhanced_top": 0.8,
+      "target_rank": 1
+    }
+  },
+  {
+    "class": "acronym",
+    "query": "What does CRU stand for?",
+    "target": "ch05-019",
+    "literal_top": 0.675,
+    "literal_target_rank": 1,
+    "reading": {
+      "kept": true,
+      "reading": "What does crud stand for?",
+      "top_chunk": "ch05-019",
+      "target_rank": 1
+    },
+    "llm": {
+      "seconds": 0.12,
+      "raw": "\"What does CRC stand for?\"",
+      "enhanced": "What does CRC stand for?",
+      "changed": true,
+      "kept": false,
+      "enhanced_top": 0.645,
+      "target_rank": 2
+    }
+  },
+  {
+    "class": "single-typo",
+    "query": "what is normilazation",
+    "target": "ch08-051",
+    "literal_top": 0.728,
+    "literal_target_rank": 1,
+    "reading": {
+      "kept": false
+    },
+    "llm": {
+      "seconds": 0.09,
+      "raw": "\"What is normalization\"",
+      "enhanced": "What is normalization",
+      "changed": true,
+      "kept": true,
+      "enhanced_top": 0.84,
+      "target_rank": 1
+    }
+  },
+  {
+    "class": "single-typo",
+    "query": "what is data ingestoin",
+    "target": "ch07-002",
+    "literal_top": 0.818,
+    "literal_target_rank": 1,
+    "reading": {
+      "kept": false
+    },
+    "llm": {
+      "seconds": 0.11,
+      "raw": "\"what is data ingestion\"",
+      "enhanced": "what is data ingestion",
+      "changed": true,
+      "kept": true,
+      "enhanced_top": 0.87,
+      "target_rank": 1
+    }
+  },
+  {
+    "class": "trap-term",
+    "query": "dark matter data",
+    "target": null,
+    "literal_top": 0.709,
+    "literal_target_rank": null,
+    "reading": {
+      "kept": false
+    },
+    "llm": {
+      "seconds": 0.1,
+      "raw": "\"dark matter data\"",
+      "enhanced": "dark matter data",
+      "changed": false,
+      "kept": false
+    }
+  },
+  {
+    "class": "trap-clean",
+    "query": "what is data mesh",
+    "target": null,
+    "literal_top": 0.81,
+    "literal_target_rank": null,
+    "reading": {
+      "kept": false
+    },
+    "llm": {
+      "seconds": 0.1,
+      "raw": "\"What is Data Mesh\"",
+      "enhanced": "What is Data Mesh",
+      "changed": false,
+      "kept": false
+    }
+  },
+  {
+    "class": "trap-clean",
+    "query": "What is the capital of France?",
+    "target": null,
+    "literal_top": 0.544,
+    "literal_target_rank": null,
+    "reading": {
+      "kept": false
+    },
+    "llm": {
+      "seconds": 0.13,
+      "raw": "What is the capital of France?",
+      "enhanced": "What is the capital of France?",
+      "changed": false,
+      "kept": false
+    }
+  },
+  {
+    "class": "trap-acronym",
+    "query": "what does iops mean",
+    "target": null,
+    "literal_top": 0.593,
+    "literal_target_rank": null,
+    "reading": {
+      "kept": false
+    },
+    "llm": {
+      "seconds": 0.11,
+      "raw": "\"What does IOPS mean?\"",
+      "enhanced": "What does IOPS mean?",
+      "changed": true,
+      "kept": true,
+      "enhanced_top": 0.602,
+      "target_rank": null
+    }
+  }
+]

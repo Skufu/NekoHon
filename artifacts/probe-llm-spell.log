@@ -1,0 +1,15 @@
+# llm spell probe — qwen2.5:7b — 10 cases (6 typo, 4 trap)
+# reading kept 4/6 (target in top-10: 4 of 4)
+# llm changed 6/6 | llm kept by the gate 5/6 (target in top-10: 5 of 5)
+# traps safe (unchanged or gate-discarded): 3/4
+
+- [single-typo] "what is a atermark?" | reading kept -> "what is a watermark?" (ch08-039) | llm: changed -> "What is a watermark?" kept=True (14.14s)
+- [split-word] "wa termark" | reading kept -> "wa watermark" (ch08-039) | llm: changed -> "watermark" kept=True (0.11s)
+- [swap] "what is watermrak" | reading kept -> "what is watermark" (ch08-039) | llm: changed -> "what is watermark" kept=True (0.12s)
+- [acronym] "What does CRU stand for?" | reading kept -> "What does crud stand for?" (ch05-019) | llm: changed -> "What does CRC stand for?" kept=False (0.12s)
+- [single-typo] "what is normilazation" | reading none | llm: changed -> "What is normalization" kept=True (0.09s)
+- [single-typo] "what is data ingestoin" | reading none | llm: changed -> "what is data ingestion" kept=True (0.11s)
+- [trap-term] "dark matter data" | reading none | llm: unchanged (0.1s)
+- [trap-clean] "what is data mesh" | reading none | llm: unchanged (0.1s)
+- [trap-clean] "What is the capital of France?" | reading none | llm: unchanged (0.13s)
+- [trap-acronym] "what does iops mean" | reading none | llm: changed -> "What does IOPS mean?" kept=True (0.11s)
