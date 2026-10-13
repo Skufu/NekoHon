@@ -494,6 +494,44 @@ server.
   surfaces it). 97 tests green; battery PASS (`step2-battery-refusal-fixes.*`;
   one cold-run multicloud flake cleared on warm rerun as always). Commits
   eb598e1, 92e11ad, 85f4d80.
+- Answer mode landed 2026-10-13 (`c9c570c`; user decision: the
+  verbatim-quote core rule is gone): `respond()` generates freely from the
+  retrieved passages, the model's `[Ch. N]` tags become citations matched
+  back to the shown set (chapter first, word overlap decides, zero-overlap
+  claims stay uncited), quotation marks the passages cannot back are
+  stripped, and a refusal is the exact first line only. The quote check
+  demotes from gate to meter (`artifacts/groundedness.py`: sentence 4-gram
+  support). The mode's battery judge is grounded-in-retrieved (pin among the
+  shown passages, citations only from shown ones): strict first-citation pin
+  was 7/10 with three sibling-chunk citations (pins shown in all three),
+  grounded judge 10/10 with the drift kept in the notes. Prompt A/B on 124
+  authored asks: "stay close to the passages' wording" 127/482 sentences
+  supported (26.3%, mean 0.312) vs the open wording 76/496 (15.3%, 0.231),
+  and only the close wording refused iops/dark matter. Batteries PASS both
+  modes; coherence probes PASS (MAD, data mesh, Codd -> the book's own
+  "normal forms", endpoint); window select defaults to answer. 143 tests.
+  Report: `artifacts/answer-mode-overnight.md`.
+- Preprocessing stages 5-9 landed 2026-10-13 (`501a6db`, user lifted the
+  stdlib restriction for this): `fold()` (NFKC + typographic repair), SMART
+  stopwords (vendored), Snowball English Porter2 stemmer (vendored, BSD-3);
+  `normalize()`/`words()`/`tokens()` byte-identical. First wiring measured:
+  stopwords never anchor a paragraph (`keywords.anchor_words`); battery PASS
+  on the wired tree. The stemmed-map wiring (incl. the rare gate) is
+  proposed in `artifacts/stage9-preprocessing.md` section (d) with df
+  evidence ("extract" family 14+4+5+9 -> 29, over RARE_DF=8, gates flip)
+  and a required per-process cache before it ships.
+- Answer-mode sweeps ran 2026-10-13 (303 asks each): refused 31 -> 33 -> 33;
+  the guard-word column's junk fell 18 -> 8 -> 4 as stopwords and the
+  vendored stemmer reached it. Refusal classes: junk rare-word and
+  acknowledgment-name asks (correct refusals), iops (out of book), and
+  "dark matter data" (bare phrasing refuses; "what is dark matter data"
+  answers with ch11-025/026). One temperature-0 flake recorded ("adhering").
+- Agentic retrieval prototype landed 2026-10-13 (`8d51e2c`): semantic/
+  keyword/regex tools, `pick_next_tool()` decides from the attempts so far,
+  not wired into the four routes. Live probe: 5 questions, 3.1 s total, 13
+  decision calls; no measured win over the 0.5-1.2 s single-shot ask on
+  these five, so wiring waits for a measured multi-hop failure set.
+  `artifacts/agentic-design.md`.
 - Not started: 8.
 
 ## Verify
@@ -501,6 +539,8 @@ server.
 - `python -m unittest discover -s tests` (must stay green)
 - Server: `python server.py` -> `GET http://127.0.0.1:8000/health`
 - Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/step2-battery.py`. Default is qwen2.5:7b (the granite4.1:3b swap was reverted 2026-10-13 — see the bake-off bullet); keep exactly one listener on :8000.
+- Answer mode: `BATTERY_MODE=answer python artifacts/step2-battery.py`; sweeps `SWEEP_MODE=answer python artifacts/qa-sweep.py <label>`; groundedness `python artifacts/groundedness.py --battery --label <name>` or `--label <name>` over `qa-questions-overnight.json` (in-process, no server needed).
+- Agentic prototype (not wired): `python artifacts/probe-agentic.py` (live Ollama, 5 asks).
 
 ## Machine facts (this Windows box)
 
