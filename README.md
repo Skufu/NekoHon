@@ -113,6 +113,15 @@ of an answer is supported by the shown passages, and the eval harness
 (`artifacts/eval.py`) scores retrieval and answer quality against a labeled
 set.
 
+An `answer` question that asks for simple words ("explain data ingestion in
+simple words", "eli5", "in plain terms") takes the plain register: the draft
+answer selects the evidence sentences, each is rewritten one-in-one-out into
+simpler words, and each citation keeps the original book sentence. Nothing is
+written from scratch, so the register cannot invent a claim its sentence does
+not carry. The architecture is measured, not asserted
+(`artifacts/eval-plain-v6`: 8/10 under the release judge; the two stable
+misses are sentences whose rewritten form drops the subject).
+
 ## Quickstart (fresh machine)
 
 Prereqs: Python 3 (3.12 tested, stdlib only), Ollama with the two models

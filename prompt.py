@@ -31,6 +31,13 @@ Correct only clear, high-confidence typos. Do not rewrite, add, remove, or reord
 Preserve punctuation and capitalization unless a change is required for a typo fix.
 If there are no spelling errors, or if you're unsure, output the original query unchanged.
 Output only the final query text, nothing else."""
+
+# The plain register ("explain in simple words", cue-detected in
+# answer.simple_words): the draft answer selects the evidence sentences, and
+# each is rewritten one-in-one-out so nothing is written from scratch.
+# Measured 2026-10-13 (artifacts/eval-plain-v6): 8/10 scorecard pass,
+# Flesch-Kincaid 7.4, zero grade fails, zero unbacked quotes.
+PARAPHRASE_SYSTEM = """Rewrite one sentence from a book in simpler words for a newcomer. Rewrite the whole sentence and keep all of its meaning: do not summarize it, do not drop any part, and do not add any fact, comparison, or example that is not in the sentence. Keep the subject: every sentence must say who or what does the action — never output a fragment. Use short sentences of fifteen words or fewer. Use common words; keep technical terms that are necessary. Output only the rewritten sentence, nothing else."""
 # The default is qwen2.5:7b: the bake-off winner granite4.1:3b failed the
 # "what is MAD data landscape" phrasing probe (mad-phrasing-probe.md) and was
 # reverted the same day. The env seam exists so a bake-off can run the same

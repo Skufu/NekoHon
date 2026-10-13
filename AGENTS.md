@@ -572,6 +572,25 @@ server.
   post-guard `python verify_index.py` clean on the same file, dirty path exits
   1 naming the chunk; 157 tests green (was 143); live smoke 10/10 top-10 in
   2.8 s. No re-embed; index bytes untouched.
+- Plain register wired 2026-10-13 (`answer.py`, `prompt.py`,
+  `tests/test_plain_register.py`): an `answer` question carrying a plain-cue
+  phrase (`SIMPLE_CUES`, generic English; no contract change) routes through
+  `_plain_body` — the draft selects evidence sentences, each is rewritten
+  one-in-one-out with `PARAPHRASE_SYSTEM` and keeps its source chunk's tag;
+  citations keep the original book sentences as evidence; rewrites are capped
+  at `PARAPHRASE_LIMIT` (5, a call budget); a draft refusal is the register's
+  refusal; an all-empty rewrite set falls back to the draft. Faithful to the
+  scorecard's measured assembly (`artifacts/eval-plain-v6`: 8/10 under the
+  Muse release judge) with two deliberate strengthenings: empty rewrites fall
+  back to the draft instead of a refusal, and citations come from the draft
+  (book-backed by construction) instead of a re-parse. Wiring check live over
+  HTTP: "explain data engineering in simple words" answers in the register
+  (`artifacts/plain-http-check.json`), "What is the MAD data landscape?"
+  stays ordinary (`artifacts/plain-http-control.json`); both batteries rerun
+  on a fresh server (ask PASS after the known cold-start multicloud flake,
+  preserved as `step2-battery-flaked.*`; answer PASS, coherence PASS); 188
+  tests green. The known referent-drop failure ("...work on it." when the
+  subject is never named) shows in the live check and stands as measured.
 
 ## Verify
 
@@ -583,6 +602,8 @@ server.
 - Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/step2-battery.py`. Default is qwen2.5:7b (the granite4.1:3b swap was reverted 2026-10-13 — see the bake-off bullet); keep exactly one listener on :8000.
 - Answer mode: `BATTERY_MODE=answer python artifacts/step2-battery.py`; sweeps `SWEEP_MODE=answer python artifacts/qa-sweep.py <label>`; groundedness `python artifacts/groundedness.py --battery --label <name>` or `--label <name>` over `qa-questions-overnight.json` (in-process, no server needed).
 - Agentic prototype (not wired): `python artifacts/probe-agentic.py` (live Ollama, 5 asks).
+- Plain register: `python -m unittest tests.test_plain_register`; scorecard
+  (cloud judge) `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/eval-plain.py --variants paraphrase --label v6`; live route check: `answer` mode with "explain data engineering in simple words".
 - Judge backends: default `ollama:granite4.1:8b`; cloud replay, e.g. `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/eval.py --judge-only --label v1`, then `python artifacts/judge-agreement.py eval-v1-ollama-granite4-1-8b eval-v1-openai-muse-spark-1-3-contributor`. `.judge-key` is gitignored; the engine never uses it.
 - Secret scan: `python artifacts/secret-scan.py` (git history + tracked tree; masked output; exit 1 on any hit). Clean 2026-10-13: this repo 516 blobs, 0 hits; `rag-template` 170 blobs, 0 hits.
 

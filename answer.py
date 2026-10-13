@@ -16,12 +16,15 @@ from captions import caption_seed
 from figures import figures_for
 from fusion import fuse
 from keywords import anchor_words, postings, rare
-from prompt import ANSWER_MODEL, REFUSAL, SYSTEM, SYSTEM_ANSWER
+from prompt import ANSWER_MODEL, PARAPHRASE_SYSTEM, REFUSAL, SYSTEM, SYSTEM_ANSWER
 from readings import llm_second_reading, second_reading
 from retrieve import search
 
 OLLAMA_CHAT = "http://127.0.0.1:11434/api/chat"
 PASSAGE_LIMIT = 5
+# Rewrites per plain answer: one call each, a call budget, not a quality knob
+# (measured citations run at 1-3; the scorecard's answers stayed under five).
+PARAPHRASE_LIMIT = 5
 MISS_QUOTE_CHARS = 160
 FIGURE_REFERENCE = re.compile(r"\((?:figure|fig\.)\s*[A-Za-z]?\d+-\d+\)", re.I)
 FORMAT_REMINDER = (
@@ -51,6 +54,29 @@ MIN_QUOTE_CHARS = 20
 # keeps the model's quote instead of the whole paragraph. Chosen for
 # readability; not tuned to any ask.
 PARAGRAPH_CAP = 1200
+
+
+# The plain register's cues. Generic English phrases, not fitted to a test
+# (the scorecard asks carry "in simple words"); cue detection is a product
+# feature, the same class of text as the refusal sentence.
+SIMPLE_CUES = (
+    "in simple words",
+    "in simple terms",
+    "in plain words",
+    "for a beginner",
+    "for beginners",
+    "simply explain",
+    "explain simply",
+    "like i'm five",
+    "eli5",
+    "keep it simple",
+)
+
+
+def simple_words(question):
+    """True when the question asks for the plain register."""
+    folded = (question or "").lower()
+    return any(cue in folded for cue in SIMPLE_CUES)
 
 
 def passages_block(passages):
@@ -517,20 +543,69 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
 
     No quote enforcement: the model writes, its [Ch. n] tags become the
     citations, and quotation marks the passages cannot back are stripped
-    (see parse_answered). Groundedness is measured, not enforced.
+    (see parse_answered). Groundedness is measured, not enforced. A question
+    that asks for simple words routes through the plain register
+    (`_plain_body`): the draft selects evidence sentences and each is
+    rewritten one-in-one-out, so nothing is written from scratch.
     """
     generate_fn = generate_fn or ollama_generate
     context = retrieval_context(index, question, search_fn, generate_fn)
     passages = context["passages"]
     if not passages:
         return _refusal([])
-    completion = generate_fn(
-        SYSTEM_ANSWER, answer_user_message(context["asked"], passages), model
-    )
-    body = parse_answered(completion, passages, index.get("figures") or [])
+    if simple_words(question):
+        body = _plain_body(index, context, generate_fn, model)
+    else:
+        completion = generate_fn(
+            SYSTEM_ANSWER, answer_user_message(context["asked"], passages), model
+        )
+        body = parse_answered(completion, passages, index.get("figures") or [])
     if context["reading"] is not None and not body["refused"]:
         body["answer"] = f'{body["answer"]}\nRead as: "{context["asked"]}"'
     return body
+
+
+def _clean_rewrite(text):
+    """The rewritten sentence: unquoted, list numbering stripped."""
+    text = (text or "").strip()
+    if len(text) >= 2 and text[0] == text[-1] and text[0] in "\"'“”":
+        text = text[1:-1].strip()
+    text = re.sub(r"^\s*\d+[.)]\s*", "", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def _plain_body(index, context, generate_fn, model):
+    """The plain register: draft selects evidence sentences, each is rewritten.
+
+    The draft runs the standard path, so its citations' quotes are passage
+    text by construction; each quote is rewritten one-in-one-out and keeps
+    its source chunk's tag. The citations keep the original book sentences
+    as evidence. A draft refusal is the register's refusal; if every rewrite
+    comes back empty, the draft answer stands rather than a blank.
+    """
+    passages = context["passages"]
+    completion = generate_fn(
+        SYSTEM_ANSWER, answer_user_message(context["asked"], passages), model
+    )
+    draft = parse_answered(completion, passages, index.get("figures") or [])
+    if draft["refused"]:
+        return draft
+    assembled = []
+    for item in draft["citations"][:PARAPHRASE_LIMIT]:
+        rewritten = generate_fn(
+            PARAPHRASE_SYSTEM, f"Sentence: {item['quote']}", model
+        )
+        clean = _clean_rewrite(rewritten)
+        if clean:
+            assembled.append(f"{clean} [Ch. {item['chapter']}]")
+    if not assembled:
+        return draft
+    return {
+        "answer": " ".join(assembled),
+        "citations": draft["citations"],
+        "figures": draft["figures"],
+        "refused": False,
+    }
 
 
 def _free_refusal(text):
