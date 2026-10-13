@@ -1,0 +1,15 @@
+{
+  "note": "Plain-register evaluation set: every question asks for a simple explanation. Gold pins reuse the committed human-verified evidence (demo sheet 2026-10-12, battery, coherence probes). The scorecard lives in artifacts/eval-plain.py; both registers answer the same shown passages per question.",
+  "items": [
+    {"question": "explain data engineering in simple words", "gold_chunks": ["ch01-005"], "source": "coherence"},
+    {"question": "explain batch and streaming in simple words", "gold_chunks": ["ch02-018", "ch02-019"], "source": "battery-golden"},
+    {"question": "explain data ingestion in simple words", "gold_chunks": ["ch07-002"], "source": "battery-golden"},
+    {"question": "explain what a watermark is in simple words", "gold_chunks": ["ch08-039"], "source": "battery-golden"},
+    {"question": "explain transformations in simple words", "gold_chunks": ["ch02-027"], "source": "battery-golden"},
+    {"question": "explain CRUD in simple words", "gold_chunks": ["ch05-019"], "source": "battery-golden"},
+    {"question": "explain the data mesh in simple words", "gold_chunks": ["ch03-099"], "source": "coherence"},
+    {"question": "explain an endpoint in streaming ingestion in simple words", "gold_chunks": ["ch02-024"], "source": "coherence"},
+    {"question": "explain when an insert-only table is useful in simple words", "gold_chunks": ["ch05-020"], "source": "battery-golden"},
+    {"question": "explain the MAD data landscape in simple words", "gold_chunks": ["ch04-020"], "source": "battery-probe"}
+  ]
+}

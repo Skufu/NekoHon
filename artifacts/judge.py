@@ -60,6 +60,20 @@ KEY_FACT_SYSTEM = (
     "word: states, if the answer states the key fact (paraphrase allowed); "
     "missing, if it does not. No other words."
 )
+FIDELITY_SYSTEM = (
+    "You check whether an answer stays inside its source passages. You see a "
+    "question, passages from a book, and a system answer. Reply with exactly "
+    "one word: supported, if every claim in the answer comes from the "
+    "passages; unsupported, if any claim adds facts the passages do not "
+    "state. No other words."
+)
+EXAMPLE_SYSTEM = (
+    "You check whether an answer uses a concrete example from its source "
+    "passages. You see a question, passages from a book, and a system "
+    "answer. Reply with exactly one word: example, if the answer includes a "
+    "concrete example that appears in the passages; none, if it does not. "
+    "No other words."
+)
 
 # Ordered: the negative phrasings are checked before the bare positive word,
 # so "not relevant" cannot match "relevant".
@@ -70,6 +84,14 @@ RELEVANCE_KEYS = [
 KEY_FACT_KEYS = [
     ("missing", ["missing", "not stated", "not mentioned", "no", "false"]),
     ("states", ["states", "yes", "true"]),
+]
+FIDELITY_KEYS = [
+    ("unsupported", ["unsupported", "not supported", "no", "false"]),
+    ("supported", ["supported", "yes", "true"]),
+]
+EXAMPLE_KEYS = [
+    ("none", ["none", "no", "false", "not"]),
+    ("example", ["example", "yes", "true"]),
 ]
 
 
@@ -217,3 +239,21 @@ def judge_key_fact(question, key_fact, answer, model=None, timeout=None):
         f"System answer:\n{answer[:ANSWER_CHARS]}"
     )
     return _one_word(KEY_FACT_SYSTEM, user, KEY_FACT_KEYS, model, timeout)
+
+
+def judge_book_fidelity(question, passages_text, answer, model=None, timeout=None):
+    """supported / unsupported: the answer adds no fact outside the passages."""
+    user = (
+        f"Question: {question}\n\nPassages:\n{passages_text[:4000]}\n\n"
+        f"System answer:\n{answer[:ANSWER_CHARS]}"
+    )
+    return _one_word(FIDELITY_SYSTEM, user, FIDELITY_KEYS, model, timeout)
+
+
+def judge_plain_example(question, passages_text, answer, model=None, timeout=None):
+    """example / none: the answer uses a concrete example from the passages."""
+    user = (
+        f"Question: {question}\n\nPassages:\n{passages_text[:4000]}\n\n"
+        f"System answer:\n{answer[:ANSWER_CHARS]}"
+    )
+    return _one_word(EXAMPLE_SYSTEM, user, EXAMPLE_KEYS, model, timeout)
