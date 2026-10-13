@@ -79,7 +79,8 @@ class AnswerTests(unittest.TestCase):
 
     def test_essay_is_a_refusal(self):
         body = parse_completion(
-            "CRUD stands for create, read, update, and delete.",
+            "CRUD stores data in the cloud and never loses a row. The pattern "
+            "is simple to explain and every engineer knows it well.",
             PASSAGES,
         )
         self.assertTrue(body["refused"])
@@ -273,6 +274,62 @@ class AnswerTests(unittest.TestCase):
 
     def test_a_refusal_stays_a_refusal_with_anchors(self):
         body = parse_completion(REFUSAL, PASSAGES, [], {"disadvantages"})
+        self.assertTrue(body["refused"])
+        self.assertEqual(body["answer"], REFUSAL)
+
+    def test_a_tagless_verbatim_reply_is_verified_and_tagged(self):
+        passage = {
+            "chunk_id": "ch08-051",
+            "chapter": "8",
+            "text": (
+                "Normalization\nNormalization is a database data modeling "
+                "practice that enforces strict control over the relationships "
+                "of tables and columns within a database."
+            ),
+        }
+        body = parse_completion(
+            "Normalization is a database data modeling practice that enforces "
+            "strict control over the relationships of tables and columns "
+            "within a database.",
+            [passage],
+        )
+        self.assertFalse(body["refused"])
+        self.assertEqual(body["citations"][0]["chunk_id"], "ch08-051")
+        self.assertEqual(body["citations"][0]["chapter"], "8")
+        self.assertIn("[Ch. 8]", body["answer"])
+
+    def test_a_tagless_edited_reply_keeps_the_copied_span(self):
+        passage = {
+            "chunk_id": "ch05-019",
+            "chapter": "5",
+            "text": (
+                "CRUD, which stands for create, read, update, and delete, is a "
+                "transactional pattern commonly used in programming."
+            ),
+        }
+        body = parse_completion(
+            "CRUD stands for create, read, update, and delete.",
+            [passage],
+        )
+        self.assertFalse(body["refused"])
+        self.assertEqual(body["citations"][0]["chunk_id"], "ch05-019")
+        self.assertEqual(
+            body["citations"][0]["quote"],
+            "stands for create, read, update, and delete",
+        )
+
+    def test_tagless_junk_is_still_refused(self):
+        body = parse_completion(
+            "I think the answer is somewhere else entirely, honestly.",
+            [{
+                "chunk_id": "ch01-001",
+                "chapter": "1",
+                "text": (
+                    "A source system is the origin of the data used in the "
+                    "data engineering lifecycle."
+                ),
+            }],
+        )
         self.assertTrue(body["refused"])
         self.assertEqual(body["answer"], REFUSAL)
 

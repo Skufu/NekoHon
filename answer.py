@@ -162,6 +162,37 @@ def _span_from_chapter(chapter, completion, passages):
     return best[1], best[0]
 
 
+def _tagless_citation(text, passages):
+    """A verified citation from a reply that forgot the [Ch. tag, or None.
+
+    Whole text verbatim in a shown passage first (case kept), else the longest
+    word-for-word span across the shown passages. No gloss: without the tag
+    there is no marker for where prose ends and the quote begins.
+    """
+    quote = _strip_quotes(text)
+    hit = _matching_passage_anywhere(quote, passages)
+    if hit is not None and (
+        len(quote) >= SPAN_MIN_CHARS or _short_sentence(text, quote)
+    ):
+        return {
+            "chunk_id": hit["chunk_id"],
+            "chapter": str(hit["chapter"]),
+            "quote": quote,
+        }
+    best = ("", None)
+    for hit in passages:
+        span = longest_copied_span(text, hit.get("text") or "")
+        if len(span) > len(best[0]):
+            best = (span, hit)
+    if best[1] is None:
+        return None
+    return {
+        "chunk_id": best[1]["chunk_id"],
+        "chapter": str(best[1]["chapter"]),
+        "quote": best[0],
+    }
+
+
 def _matching_passage(chapter, quote, passages):
     for hit in passages:
         if str(hit["chapter"]) != str(chapter):
@@ -254,38 +285,48 @@ def parse_completion(completion, passages, figures=None, anchors=None):
     text = (completion or "").strip()
     if text == REFUSAL:
         return _refusal(passages, figures)
-    if not text.startswith("[Ch."):
-        return _refusal(passages, figures)
 
     citations = []
     gloss = []
-    for line in text.splitlines():
-        stripped = line.strip()
-        if not stripped:
-            continue
-        match = re.match(r"\[Ch\.\s*([^\]]+)\]\s*(.*)", stripped)
-        if not match:
-            gloss.append(stripped)
-            continue
-        chapter = match.group(1).strip().rstrip(".")
-        rest = match.group(2)
-        quoted = re.search(r"[\"“](.+?)[\"”]", rest)
-        raw = quoted.group(1) if quoted else rest
-        quote = _strip_quotes(raw)
-        if len(quote) < SPAN_MIN_CHARS and not _short_sentence(raw, quote):
-            quote = ""
-        hit = _matching_passage(chapter, quote, passages)
-        if hit is None:
-            hit = _matching_passage_anywhere(quote, passages)
-        if hit is None:
-            hit, quote = _span_from_chapter(chapter, rest or text, passages)
-        if hit is None:
+    if not text.startswith("[Ch."):
+        # The model sometimes writes the book's own sentence and forgets the
+        # tag (measured: "Normalization is a database data modeling practice
+        # ...", 2026-10-13). The verification is the same rule as everywhere:
+        # verbatim in a shown passage, or a long enough word-for-word span;
+        # the tag is rebuilt from the matched passage. Unverified prose is
+        # still a refusal.
+        citation = _tagless_citation(text, passages)
+        if citation is None:
             return _refusal(passages, figures)
-        citations.append({
-            "chunk_id": hit["chunk_id"],
-            "chapter": str(hit["chapter"]),
-            "quote": quote,
-        })
+        citations.append(citation)
+    else:
+        for line in text.splitlines():
+            stripped = line.strip()
+            if not stripped:
+                continue
+            match = re.match(r"\[Ch\.\s*([^\]]+)\]\s*(.*)", stripped)
+            if not match:
+                gloss.append(stripped)
+                continue
+            chapter = match.group(1).strip().rstrip(".")
+            rest = match.group(2)
+            quoted = re.search(r"[\"“](.+?)[\"”]", rest)
+            raw = quoted.group(1) if quoted else rest
+            quote = _strip_quotes(raw)
+            if len(quote) < SPAN_MIN_CHARS and not _short_sentence(raw, quote):
+                quote = ""
+            hit = _matching_passage(chapter, quote, passages)
+            if hit is None:
+                hit = _matching_passage_anywhere(quote, passages)
+            if hit is None:
+                hit, quote = _span_from_chapter(chapter, rest or text, passages)
+            if hit is None:
+                return _refusal(passages, figures)
+            citations.append({
+                "chunk_id": hit["chunk_id"],
+                "chapter": str(hit["chapter"]),
+                "quote": quote,
+            })
     if not citations:
         return _refusal(passages, figures)
     if anchors:
