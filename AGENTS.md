@@ -708,3 +708,11 @@ server.
   pipeline currently feeds only passages.
 - `keep_alive` in the Ollama requests: removes the ~25 s cold-load; warm asks
   are ~1 s (measured). Cost: ~5 GB VRAM held.
+- Frontend + citation navigation (direction recorded 2026-10-13, not
+  approved): the app gets its own reader; `[Ch. N]` becomes a link that
+  jumps to the passage and highlights it. External-reader hand-off dropped;
+  Readest/ReadAny are pattern references; foliate-js is the candidate
+  engine. Plan, locator strategy, and the open renderer decision:
+  `artifacts/frontend-navigation-plan.md`. Needs explicit yes: new
+  read/static routes and citation fields (contract), plus the foliate-js
+  vendoring download (megabyte approval per BUILD_PLAN).

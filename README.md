@@ -388,8 +388,12 @@ ask-this-book/
 
 ## Roadmap
 
-- Phase 8 (optional sequel): Readest as a shell around the same HTTP engine.
-  Not started.
+- Frontend (direction 2026-10-13, not approved): the app gets its own reader;
+  citations become links that jump to the passage and highlight it. The
+  external-reader hand-off is dropped; Readest is pattern inspiration (not a
+  fork), ReadAny is the UX reference, and foliate-js is the candidate
+  rendering engine. Plan, locator strategy, and the open renderer decision:
+  `artifacts/frontend-navigation-plan.md`.
 - Post-v1 backlog (not approved): quote figure captions in prompts;
   `keep_alive` on Ollama requests to remove the ~25 s cold load (cost: ~5 GB
   VRAM held).
@@ -405,6 +409,8 @@ ask-this-book/
   plus what each stage kills and why.
 - `SETUP-MACOS.md` — the macOS walkthrough for testers: native Ollama (not
   Docker), exact commands, and the gotchas worth knowing.
+- `artifacts/frontend-navigation-plan.md` — the recorded direction for the
+  own frontend and citation navigation (not approved; needs a yes).
 - `artifacts/demo-questions.md` — the questions that demo well and the ones
   that refuse, with pins.
 - `artifacts/answer-model-bakeoff-results.md`, `artifacts/eval-v1.*`,

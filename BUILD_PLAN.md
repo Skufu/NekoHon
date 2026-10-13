@@ -405,6 +405,14 @@ training.
 
 Not scheduled until the gate passes.
 
+**Direction update 2026-10-13 (pending the user's explicit approval; the
+clone path below is superseded by this direction):** the recorded direction
+is an own frontend with the reader inside the app — Readest/ReadAny are
+pattern references, not a fork, and citations navigate into that reader.
+Open decision: vanilla window + vendored foliate-js (fits the no-build-step
+rule) vs a React/Vite stack. Full plan:
+`artifacts/frontend-navigation-plan.md`.
+
 Clone Readest on unmetered wifi only. Side panel calls the same `POST /ask`. The engine stays a separate process. AGPL stays on the fork. The engine repo does not become AGPL by being imported into the Tauri app.
 
 If `cargo tauri` is missing, stop. The HTML window remains the product shell. Do not spend a day on the toolchain.
