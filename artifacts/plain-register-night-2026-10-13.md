@@ -137,6 +137,11 @@ index grep.
   keyword or semantic — a decision-policy failure, not tool reach.
 - **Verdict: no wiring justified.** Next test, if pursued: a decision policy
   forced to try keyword/regex, and a merge cut that preserves extras.
+- Follow-up ran the same night (`multihop-forced-keyword.md`): forcing the
+  second step to keyword and using the model's own query reached a missed
+  chunk at rank 2 once, rank 10 once, half once, missed once; 2 of 4 queries
+  echoed the question verbatim. The bottleneck is query shape, not tool
+  choice — a next iteration would be a keyword-query-shaped decision prompt.
 
 ## 5. Plain-register edge probes (separate agent, live HTTP)
 
