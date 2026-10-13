@@ -546,6 +546,14 @@ server.
   (0.524). The local judge stays the loop default; the cloud judge is the
   calibration reference. Files `eval-v1-ollama-granite4-1-8b.*`,
   `eval-v1-openai-muse-spark-1-3-contributor.*`, `judge-agreement-*.log`.
+- Graded-scale A/B 2026-10-13 (`probe-judge-scale.py`, same 105 pairs): a
+  0-3 relevance scale does not transfer across judges. Exact grade agreement
+  granite-vs-Muse 42/105; within +/-1 95/105; every binary mapping of the
+  grades ties or loses to the direct binary agreement (81.9%); each judge's
+  own binary is best explained by a different mapping of its own grades
+  (granite 3,2=relevant 98/105; Muse sits between mappings, 93 vs 87).
+  Binary stays the headline metric; grades stay a within-judge dial, never a
+  cross-model instrument. Files `judge-grade-*`, `judge-scale-*.log`.
 - Not started: 8.
 - Embedding hygiene guards landed 2026-10-13 (user-approved; `retrieve.py`,
   `verify_index.py`): `embed_index` refuses a response vector that is wrong

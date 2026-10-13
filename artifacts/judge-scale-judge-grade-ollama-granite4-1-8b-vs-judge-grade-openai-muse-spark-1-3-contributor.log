@@ -1,0 +1,77 @@
+# graded vs binary — judge-grade-ollama-granite4-1-8b vs judge-grade-openai-muse-spark-1-3-contributor — 105 shared pairs
+# exact grade agreement: 42/105 | within +/-1: 95/105 | judge errors: 0
+# mapped(3,2=rel) agreement: 71/105
+# mapped(3,2,1=rel) agreement: 86/105
+# judge A self-consistency: mapped(3,2=rel) vs own binary 98/105 | mapped(3,2,1=rel) 83/105
+# judge B self-consistency: mapped(3,2=rel) vs own binary 93/105 | mapped(3,2,1=rel) 87/105
+
+## disagreements (exact grades differ)
+- Data engineers need to be pragmatic about? | ch01-034: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- Data engineers need to be pragmatic about? | ch01-036: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=3
+- Data engineers need to be pragmatic about? | ch03-038: judge-grade-ollama-granite4-1-8b=3 judge-grade-openai-muse-spark-1-3-contributor=0
+- How does data architecture relate to enterprise architecture? | ch03-002: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- How does data architecture relate to enterprise architecture? | ch03-003: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=3
+- How does data architecture relate to enterprise architecture? | ch03-016: judge-grade-ollama-granite4-1-8b=1 judge-grade-openai-muse-spark-1-3-contributor=0
+- How does data architecture relate to enterprise architecture? | ch03-102: judge-grade-ollama-granite4-1-8b=1 judge-grade-openai-muse-spark-1-3-contributor=0
+- MAD data landscape | ch02-037: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- MAD data landscape | ch03-099: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- MAD data landscape | ch04-019: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=3
+- MAD data landscape | ch04-020: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=3
+- MAD data landscape | ch11-018: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- What do source systems provide to the rest of the lifecycle? | ch02-005: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=3
+- What do source systems provide to the rest of the lifecycle? | ch02-006: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- What do source systems provide to the rest of the lifecycle? | ch05-004: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- What do source systems provide to the rest of the lifecycle? | ch05-083: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- What do transformations do in the data engineering lifecycle? | ch02-026: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- What do transformations do in the data engineering lifecycle? | ch08-161: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=3
+- What does CRU stand for? | ch01-064: judge-grade-ollama-granite4-1-8b=1 judge-grade-openai-muse-spark-1-3-contributor=0
+- What does CRU stand for? | ch05-019: judge-grade-ollama-granite4-1-8b=3 judge-grade-openai-muse-spark-1-3-contributor=1
+- What does CRU stand for? | ch05-029: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- What does CRUD stand for? | ch01-064: judge-grade-ollama-granite4-1-8b=1 judge-grade-openai-muse-spark-1-3-contributor=0
+- What does CRUD stand for? | ch05-020: judge-grade-ollama-granite4-1-8b=1 judge-grade-openai-muse-spark-1-3-contributor=0
+- What does CRUD stand for? | ch05-021: judge-grade-ollama-granite4-1-8b=1 judge-grade-openai-muse-spark-1-3-contributor=0
+- What does CRUD stand for? | ch05-029: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- What happens to data after it is extracted in ET? | ch02-022: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- What happens to data after it is extracted in ET? | ch07-031: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=0
+- What happens to data after it is extracted in ET? | ch07-033: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=3
+- What happens to data after it is extracted in ET? | ch08-120: judge-grade-ollama-granite4-1-8b=1 judge-grade-openai-muse-spark-1-3-contributor=2
+- What happens to data after it is extracted in ETL? | ch02-022: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- What happens to data after it is extracted in ETL? | ch02-041: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=0
+- What happens to data after it is extracted in ETL? | ch07-033: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=3
+- What happens to data after it is extracted in ETL? | ch08-094: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=3
+- What is a watermark? | ch08-039: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=3
+- What is data ingestion? | ch07-004: judge-grade-ollama-granite4-1-8b=3 judge-grade-openai-muse-spark-1-3-contributor=1
+- What is data ingestion? | ch07-098: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=3
+- What is the difference between batch and streaming? | ch02-020: judge-grade-ollama-granite4-1-8b=3 judge-grade-openai-muse-spark-1-3-contributor=2
+- What is the difference between batch and streaming? | ch03-090: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- When is an insert-only table useful? | ch05-021: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- When is an insert-only table useful? | ch07-034: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- When is an insert-only table useful? | ch08-107: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=3
+- When is an insert-only table useful? | ch08-108: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=0
+- Where does storage sit in the data engineering lifecycle? | ch01-006: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=3
+- Where does storage sit in the data engineering lifecycle? | ch02-091: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=3
+- multicloud methodology disadvantages | ch03-062: judge-grade-ollama-granite4-1-8b=1 judge-grade-openai-muse-spark-1-3-contributor=0
+- multicloud methodology disadvantages | ch03-063: judge-grade-ollama-granite4-1-8b=1 judge-grade-openai-muse-spark-1-3-contributor=0
+- multicloud methodology disadvantages | ch04-038: judge-grade-ollama-granite4-1-8b=1 judge-grade-openai-muse-spark-1-3-contributor=0
+- what does data engineers need to be pragmatic about | ch01-024: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- what does data engineers need to be pragmatic about | ch01-034: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=0
+- what does data engineers need to be pragmatic about | ch01-036: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=3
+- what does data engineers need to be pragmatic about | ch01-042: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=0
+- what is MAD data landscape | ch02-059: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=0
+- what is MAD data landscape | ch03-099: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=0
+- what is MAD data landscape | ch04-092: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- what is MAD data landscape | ch06-080: judge-grade-ollama-granite4-1-8b=1 judge-grade-openai-muse-spark-1-3-contributor=0
+- what is a atermark? | ch08-039: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=3
+- what is an endpoint in streaming ingestion | ch02-018: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- what is an endpoint in streaming ingestion | ch02-024: judge-grade-ollama-granite4-1-8b=3 judge-grade-openai-muse-spark-1-3-contributor=2
+- what is an endpoint in streaming ingestion | ch07-059: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- what is an endpoint in streaming ingestion | ch07-060: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- what is an endpoint in streaming ingestion | ch07-098: judge-grade-ollama-granite4-1-8b=1 judge-grade-openai-muse-spark-1-3-contributor=0
+- what is data mesh | ch05-055: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+- what is data mesh | ch09-059: judge-grade-ollama-granite4-1-8b=2 judge-grade-openai-muse-spark-1-3-contributor=1
+
+## grade cross-tab (rows: judge-grade-ollama-granite4-1-8b -> cols: judge-grade-openai-muse-spark-1-3-contributor)
+- 0: [15, 0, 0, 0, 0]
+- 1: [11, 3, 1, 0, 0]
+- 2: [7, 23, 7, 16, 0]
+- 3: [1, 2, 2, 17, 0]

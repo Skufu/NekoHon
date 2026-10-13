@@ -1,0 +1,527 @@
+[
+  {
+    "question": "What does CRUD stand for?",
+    "chunk_id": "ch05-019",
+    "grade": "3"
+  },
+  {
+    "question": "What does CRUD stand for?",
+    "chunk_id": "ch05-029",
+    "grade": "1"
+  },
+  {
+    "question": "What does CRUD stand for?",
+    "chunk_id": "ch05-021",
+    "grade": "0"
+  },
+  {
+    "question": "What does CRUD stand for?",
+    "chunk_id": "ch05-020",
+    "grade": "0"
+  },
+  {
+    "question": "What does CRUD stand for?",
+    "chunk_id": "ch01-064",
+    "grade": "0"
+  },
+  {
+    "question": "What is data ingestion?",
+    "chunk_id": "ch07-002",
+    "grade": "3"
+  },
+  {
+    "question": "What is data ingestion?",
+    "chunk_id": "ch07-004",
+    "grade": "1"
+  },
+  {
+    "question": "What is data ingestion?",
+    "chunk_id": "ch07-098",
+    "grade": "3"
+  },
+  {
+    "question": "What is data ingestion?",
+    "chunk_id": "ch07-003",
+    "grade": "2"
+  },
+  {
+    "question": "What is data ingestion?",
+    "chunk_id": "ch02-016",
+    "grade": "2"
+  },
+  {
+    "question": "What is a watermark?",
+    "chunk_id": "ch08-039",
+    "grade": "3"
+  },
+  {
+    "question": "What is a watermark?",
+    "chunk_id": "ch05-019",
+    "grade": "0"
+  },
+  {
+    "question": "What is a watermark?",
+    "chunk_id": "ch06-032",
+    "grade": "0"
+  },
+  {
+    "question": "What is a watermark?",
+    "chunk_id": "ch06-070",
+    "grade": "0"
+  },
+  {
+    "question": "What is a watermark?",
+    "chunk_id": "app01-017",
+    "grade": "0"
+  },
+  {
+    "question": "When is an insert-only table useful?",
+    "chunk_id": "ch08-107",
+    "grade": "3"
+  },
+  {
+    "question": "When is an insert-only table useful?",
+    "chunk_id": "ch05-021",
+    "grade": "1"
+  },
+  {
+    "question": "When is an insert-only table useful?",
+    "chunk_id": "ch05-020",
+    "grade": "3"
+  },
+  {
+    "question": "When is an insert-only table useful?",
+    "chunk_id": "ch08-108",
+    "grade": "0"
+  },
+  {
+    "question": "When is an insert-only table useful?",
+    "chunk_id": "ch07-034",
+    "grade": "1"
+  },
+  {
+    "question": "Where does storage sit in the data engineering lifecycle?",
+    "chunk_id": "ch06-001",
+    "grade": "3"
+  },
+  {
+    "question": "Where does storage sit in the data engineering lifecycle?",
+    "chunk_id": "ch02-002",
+    "grade": "3"
+  },
+  {
+    "question": "Where does storage sit in the data engineering lifecycle?",
+    "chunk_id": "ch06-129",
+    "grade": "3"
+  },
+  {
+    "question": "Where does storage sit in the data engineering lifecycle?",
+    "chunk_id": "ch01-006",
+    "grade": "3"
+  },
+  {
+    "question": "Where does storage sit in the data engineering lifecycle?",
+    "chunk_id": "ch02-091",
+    "grade": "3"
+  },
+  {
+    "question": "What do source systems provide to the rest of the lifecycle?",
+    "chunk_id": "ch02-005",
+    "grade": "3"
+  },
+  {
+    "question": "What do source systems provide to the rest of the lifecycle?",
+    "chunk_id": "ch05-083",
+    "grade": "1"
+  },
+  {
+    "question": "What do source systems provide to the rest of the lifecycle?",
+    "chunk_id": "ch05-004",
+    "grade": "1"
+  },
+  {
+    "question": "What do source systems provide to the rest of the lifecycle?",
+    "chunk_id": "ch02-016",
+    "grade": "2"
+  },
+  {
+    "question": "What do source systems provide to the rest of the lifecycle?",
+    "chunk_id": "ch02-006",
+    "grade": "1"
+  },
+  {
+    "question": "How does data architecture relate to enterprise architecture?",
+    "chunk_id": "ch03-003",
+    "grade": "3"
+  },
+  {
+    "question": "How does data architecture relate to enterprise architecture?",
+    "chunk_id": "ch03-013",
+    "grade": "3"
+  },
+  {
+    "question": "How does data architecture relate to enterprise architecture?",
+    "chunk_id": "ch03-002",
+    "grade": "1"
+  },
+  {
+    "question": "How does data architecture relate to enterprise architecture?",
+    "chunk_id": "ch03-016",
+    "grade": "0"
+  },
+  {
+    "question": "How does data architecture relate to enterprise architecture?",
+    "chunk_id": "ch03-102",
+    "grade": "0"
+  },
+  {
+    "question": "What is the difference between batch and streaming?",
+    "chunk_id": "ch02-019",
+    "grade": "2"
+  },
+  {
+    "question": "What is the difference between batch and streaming?",
+    "chunk_id": "ch02-018",
+    "grade": "3"
+  },
+  {
+    "question": "What is the difference between batch and streaming?",
+    "chunk_id": "ch02-021",
+    "grade": "2"
+  },
+  {
+    "question": "What is the difference between batch and streaming?",
+    "chunk_id": "ch03-090",
+    "grade": "1"
+  },
+  {
+    "question": "What is the difference between batch and streaming?",
+    "chunk_id": "ch02-020",
+    "grade": "2"
+  },
+  {
+    "question": "What happens to data after it is extracted in ETL?",
+    "chunk_id": "ch07-033",
+    "grade": "3"
+  },
+  {
+    "question": "What happens to data after it is extracted in ETL?",
+    "chunk_id": "ch08-094",
+    "grade": "3"
+  },
+  {
+    "question": "What happens to data after it is extracted in ETL?",
+    "chunk_id": "ch08-122",
+    "grade": "1"
+  },
+  {
+    "question": "What happens to data after it is extracted in ETL?",
+    "chunk_id": "ch02-022",
+    "grade": "1"
+  },
+  {
+    "question": "What happens to data after it is extracted in ETL?",
+    "chunk_id": "ch02-041",
+    "grade": "0"
+  },
+  {
+    "question": "What do transformations do in the data engineering lifecycle?",
+    "chunk_id": "ch02-027",
+    "grade": "3"
+  },
+  {
+    "question": "What do transformations do in the data engineering lifecycle?",
+    "chunk_id": "ch02-025",
+    "grade": "3"
+  },
+  {
+    "question": "What do transformations do in the data engineering lifecycle?",
+    "chunk_id": "ch08-161",
+    "grade": "3"
+  },
+  {
+    "question": "What do transformations do in the data engineering lifecycle?",
+    "chunk_id": "ch08-001",
+    "grade": "3"
+  },
+  {
+    "question": "What do transformations do in the data engineering lifecycle?",
+    "chunk_id": "ch02-026",
+    "grade": "1"
+  },
+  {
+    "question": "What does CRU stand for?",
+    "chunk_id": "ch05-029",
+    "grade": "1"
+  },
+  {
+    "question": "What does CRU stand for?",
+    "chunk_id": "ch05-019",
+    "grade": "1"
+  },
+  {
+    "question": "What does CRU stand for?",
+    "chunk_id": "ch01-064",
+    "grade": "0"
+  },
+  {
+    "question": "What does CRU stand for?",
+    "chunk_id": "ch01-067",
+    "grade": "0"
+  },
+  {
+    "question": "What does CRU stand for?",
+    "chunk_id": "ch01-066",
+    "grade": "0"
+  },
+  {
+    "question": "What happens to data after it is extracted in ET?",
+    "chunk_id": "ch08-120",
+    "grade": "2"
+  },
+  {
+    "question": "What happens to data after it is extracted in ET?",
+    "chunk_id": "ch07-033",
+    "grade": "3"
+  },
+  {
+    "question": "What happens to data after it is extracted in ET?",
+    "chunk_id": "ch02-022",
+    "grade": "1"
+  },
+  {
+    "question": "What happens to data after it is extracted in ET?",
+    "chunk_id": "ch07-031",
+    "grade": "0"
+  },
+  {
+    "question": "What happens to data after it is extracted in ET?",
+    "chunk_id": "ch02-024",
+    "grade": "1"
+  },
+  {
+    "question": "what is a atermark?",
+    "chunk_id": "ch08-039",
+    "grade": "3"
+  },
+  {
+    "question": "what is a atermark?",
+    "chunk_id": "ch03-006",
+    "grade": "0"
+  },
+  {
+    "question": "what is a atermark?",
+    "chunk_id": "ch03-015",
+    "grade": "0"
+  },
+  {
+    "question": "what is a atermark?",
+    "chunk_id": "ch05-030",
+    "grade": "0"
+  },
+  {
+    "question": "what is a atermark?",
+    "chunk_id": "ch03-078",
+    "grade": "0"
+  },
+  {
+    "question": "what does data engineers need to be pragmatic about",
+    "chunk_id": "ch04-012",
+    "grade": "3"
+  },
+  {
+    "question": "what does data engineers need to be pragmatic about",
+    "chunk_id": "ch01-034",
+    "grade": "0"
+  },
+  {
+    "question": "what does data engineers need to be pragmatic about",
+    "chunk_id": "ch01-036",
+    "grade": "3"
+  },
+  {
+    "question": "what does data engineers need to be pragmatic about",
+    "chunk_id": "ch01-042",
+    "grade": "0"
+  },
+  {
+    "question": "what does data engineers need to be pragmatic about",
+    "chunk_id": "ch01-024",
+    "grade": "1"
+  },
+  {
+    "question": "Data engineers need to be pragmatic about?",
+    "chunk_id": "ch04-012",
+    "grade": "3"
+  },
+  {
+    "question": "Data engineers need to be pragmatic about?",
+    "chunk_id": "ch01-034",
+    "grade": "1"
+  },
+  {
+    "question": "Data engineers need to be pragmatic about?",
+    "chunk_id": "ch01-042",
+    "grade": "2"
+  },
+  {
+    "question": "Data engineers need to be pragmatic about?",
+    "chunk_id": "ch01-036",
+    "grade": "3"
+  },
+  {
+    "question": "Data engineers need to be pragmatic about?",
+    "chunk_id": "ch03-038",
+    "grade": "0"
+  },
+  {
+    "question": "MAD data landscape",
+    "chunk_id": "ch04-020",
+    "grade": "3"
+  },
+  {
+    "question": "MAD data landscape",
+    "chunk_id": "ch04-019",
+    "grade": "3"
+  },
+  {
+    "question": "MAD data landscape",
+    "chunk_id": "ch03-099",
+    "grade": "1"
+  },
+  {
+    "question": "MAD data landscape",
+    "chunk_id": "ch02-037",
+    "grade": "1"
+  },
+  {
+    "question": "MAD data landscape",
+    "chunk_id": "ch11-018",
+    "grade": "1"
+  },
+  {
+    "question": "multicloud methodology disadvantages",
+    "chunk_id": "ch04-037",
+    "grade": "3"
+  },
+  {
+    "question": "multicloud methodology disadvantages",
+    "chunk_id": "ch04-036",
+    "grade": "1"
+  },
+  {
+    "question": "multicloud methodology disadvantages",
+    "chunk_id": "ch04-038",
+    "grade": "0"
+  },
+  {
+    "question": "multicloud methodology disadvantages",
+    "chunk_id": "ch03-063",
+    "grade": "0"
+  },
+  {
+    "question": "multicloud methodology disadvantages",
+    "chunk_id": "ch03-062",
+    "grade": "0"
+  },
+  {
+    "question": "what is MAD data landscape",
+    "chunk_id": "ch04-020",
+    "grade": "2"
+  },
+  {
+    "question": "what is MAD data landscape",
+    "chunk_id": "ch03-099",
+    "grade": "0"
+  },
+  {
+    "question": "what is MAD data landscape",
+    "chunk_id": "ch02-059",
+    "grade": "0"
+  },
+  {
+    "question": "what is MAD data landscape",
+    "chunk_id": "ch06-080",
+    "grade": "0"
+  },
+  {
+    "question": "what is MAD data landscape",
+    "chunk_id": "ch04-092",
+    "grade": "1"
+  },
+  {
+    "question": "what is data mesh",
+    "chunk_id": "ch03-099",
+    "grade": "3"
+  },
+  {
+    "question": "what is data mesh",
+    "chunk_id": "ch09-016",
+    "grade": "3"
+  },
+  {
+    "question": "what is data mesh",
+    "chunk_id": "ch05-055",
+    "grade": "1"
+  },
+  {
+    "question": "what is data mesh",
+    "chunk_id": "ch09-059",
+    "grade": "1"
+  },
+  {
+    "question": "what is data mesh",
+    "chunk_id": "ch03-071",
+    "grade": "0"
+  },
+  {
+    "question": "Codd introduced the idea of what",
+    "chunk_id": "ch04-067",
+    "grade": "0"
+  },
+  {
+    "question": "Codd introduced the idea of what",
+    "chunk_id": "ch03-071",
+    "grade": "0"
+  },
+  {
+    "question": "Codd introduced the idea of what",
+    "chunk_id": "ch04-052",
+    "grade": "0"
+  },
+  {
+    "question": "Codd introduced the idea of what",
+    "chunk_id": "ch08-051",
+    "grade": "3"
+  },
+  {
+    "question": "Codd introduced the idea of what",
+    "chunk_id": "ch02-074",
+    "grade": "0"
+  },
+  {
+    "question": "what is an endpoint in streaming ingestion",
+    "chunk_id": "ch02-024",
+    "grade": "2"
+  },
+  {
+    "question": "what is an endpoint in streaming ingestion",
+    "chunk_id": "ch07-060",
+    "grade": "1"
+  },
+  {
+    "question": "what is an endpoint in streaming ingestion",
+    "chunk_id": "ch07-098",
+    "grade": "0"
+  },
+  {
+    "question": "what is an endpoint in streaming ingestion",
+    "chunk_id": "ch02-018",
+    "grade": "1"
+  },
+  {
+    "question": "what is an endpoint in streaming ingestion",
+    "chunk_id": "ch07-059",
+    "grade": "1"
+  }
+]
