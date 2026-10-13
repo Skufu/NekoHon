@@ -20,7 +20,7 @@ gate (2026-10-12). 171 unit tests green, index audit clean, HTTP battery PASS
 | --- | --- | --- | --- |
 | Embed | `nomic-embed-text:latest` | 274 MB | 768-dim. Won the embedder bake-off: 10/10 vs EmbeddingGemma-2's 9/10. |
 | Answer | `qwen2.5:7b` | 4.7 GB (Q4_K_M) | The default for both answer modes. Temperature 0. |
-| Eval judge | `granite4.1:8b` | 5.3 GB | Eval harness only (`artifacts/`), local and keyless. A cloud judge is opt-in for judge calibration; the engine never uses it. |
+| Eval judge | `granite4.1:8b` | 5.3 GB | The LLM judge (`artifacts/judge.py`), eval harness only: passage relevance, key facts, book fidelity, example use. Local and keyless; a cloud judge is opt-in for calibration; the engine never uses either. |
 
 Also on disk, not defaults: `granite4.1:3b` (eligible small-PC slot and the
 finetune candidate; a trial swap to it was reverted the same day — it answered
@@ -249,10 +249,13 @@ Ollama; the rest need Ollama up, and the battery-style checks need
    python artifacts/groundedness.py --battery --label <name>
    ```
 
-8. **Eval harness + judges** — labeled-set evaluation (dense recall, shown
-   recall, MRR, refusal classes, key facts). Local judge by default; a cloud
-   judge is opt-in for calibration only (key in `.judge-key`, gitignored,
-   never read by the engine):
+8. **Eval harness + LLM judge** — labeled-set evaluation (dense recall, shown
+   recall, MRR, refusal classes, key facts). The LLM judge is
+   `artifacts/judge.py`: one-word verdicts at temperature 0, local
+   `granite4.1:8b` by default (cross-family with the answerer, offline,
+   keyless). A cloud judge (any OpenAI-compatible wire, e.g. the Muse Spark
+   relay) is opt-in for calibration only — key in `.judge-key`, gitignored,
+   never read by the engine. Verdicts are unvalidated against human labels.
 
    ```sh
    python artifacts/eval.py --label v1
@@ -333,7 +336,8 @@ ask-this-book/
   tests/             163 unit tests + fixtures
   window/index.html  the v1 window (no build step)
   vendor/            vendored SMART stopwords + Snowball Porter2 (BSD-3)
-  artifacts/         evidence: battery logs, sweeps, evals, audits, reports
+  artifacts/         evidence + tooling: the LLM judge (judge.py), the eval
+                     harness, battery logs, sweeps, audits, reports
   books/             gitignored: the EPUB (SOURCE.txt records its origin)
   data/              gitignored: index.json + extracted figures/
 ```

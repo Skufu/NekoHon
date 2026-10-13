@@ -93,6 +93,13 @@ fresh `server.py`:
 python3 artifacts/step2-battery.py
 ```
 
+The eval harness (optional) needs one more model — the LLM judge, separate
+from the answer model:
+
+```sh
+ollama pull granite4.1:8b     # 5.3 GB, eval only
+```
+
 Port hygiene: exactly one server may listen on :8000. macOS check:
 `lsof -nP -iTCP:8000 -sTCP:LISTEN`. (Two servers can share :8000 silently —
 see `AGENTS.md`. The Windows equivalents `netstat | findstr` do not apply on
