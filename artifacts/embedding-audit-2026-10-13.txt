@@ -1,0 +1,53 @@
+# Embedding index audit — 2026-10-13
+
+Requested by the embedding-hygiene review: non-finite / zero-norm / dim-drift.
+No repo code runs this scan; this file is the evidence that it was run once,
+against this snapshot.
+
+## Snapshot
+
+- `data/index.json`
+- bytes: 10528929
+- sha256: 5478e5e9de2776c161f7dc007e1a75074ffb11ad7ebd8c20e6445bf69c2b0c8b
+
+## Command (system python 3.12.5, run from the repo root)
+
+    python -c "import json,math,collections; d=json.load(open('data/index.json',encoding='utf-8')); recs=[('chunk',r.get('chunk_id'),r.get('embedding')) for r in d.get('chunks',[])]+[('figure',r.get('figure_id'),r.get('embedding')) for r in d.get('figures',[])]; vs=[(k,i,v) for k,i,v in recs if isinstance(v,list)]; print('embedder',d.get('embedder'),'declared_dims',d.get('embedding_dims')); print('chunks',len(d.get('chunks',[])),'figures',len(d.get('figures',[])),'vectors',len(vs)); print('vector_lengths',dict(collections.Counter(len(v) for _,_,v in vs))); nf=[(i or k) for k,i,v in vs if any(not math.isfinite(x) for x in v)]; print('nonfinite_vectors',len(nf),nf[:5]); zn=[(i or k) for k,i,v in vs if all(x==0.0 for x in v)]; print('zero_vectors',len(zn),zn[:5]); miss=[(i or k) for k,i,v in recs if not isinstance(v,list)]; print('records_without_vectors',len(miss),miss[:10]); dr=[(i or k,len(v)) for k,i,v in vs if d.get('embedding_dims') and len(v)!=d['embedding_dims']]; print('dim_drift',len(dr),dr[:5]); norms=[math.sqrt(sum(x*x for x in v)) for _,_,v in vs]; print('norm_min',min(norms),'norm_max',max(norms))"
+
+## Output
+
+    embedder nomic-embed-text declared_dims 768
+    chunks 1042 figures 111 vectors 1153
+    vector_lengths {768: 1153}
+    nonfinite_vectors 0 []
+    zero_vectors 0 []
+    records_without_vectors 0 []
+    dim_drift 0 []
+    norm_min 0.9999988821608752 norm_max 1.0000011492843397
+
+## Reading
+
+- Clean on all four axes: non-finite, zero-norm, missing vector, dim drift.
+
+## Post-guard re-run (same day, after the hygiene guards landed)
+
+    python verify_index.py
+
+    embedder nomic-embed-text declared_dims 768
+    chunks 1042 figures 111 vectors 1153
+    vector_lengths {768: 1153}
+    missing_vectors 0 []
+    nonfinite_vectors 0 []
+    zero_norm_vectors 0 []
+    dim_drift_vectors 0 []
+    clean
+
+Same numbers as the one-off scan above; no stored byte changed. Dirty-path
+proof: a synthetic index with one NaN vector exits 1 (`nonfinite 1 ['chunk
+c1-001']`). Unit suite after the guards: 157 tests green (was 143). Live smoke
+over `data/index.json` after the guards: 10/10 top-10 in 2.8 s.
+- Vectors are unit length to ~1.2e-6; the deviation is consistent with the
+  6-decimal rounding at store time (`retrieve.py`, `[round(value, 6) ...]`).
+- Written before the guards landed. `verify_index.py` now re-runs this scan
+  (`--index` to point elsewhere); store-side checks in `retrieve.embed_index`
+  refuse non-finite / all-zero / wrong-width vectors before they can be stored.

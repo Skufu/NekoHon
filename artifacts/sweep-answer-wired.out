@@ -1,0 +1,16 @@
+questions: 303
+  25/303
+  50/303
+  75/303
+  100/303
+  125/303
+  150/303
+  175/303
+  200/303
+  225/303
+  250/303
+  275/303
+  300/303
+# qa sweep — answer-wired — 303 asks — mode answer
+# refused: 33 | incoherent: 8 | no gloss: 0
+wrote qa-sweep-answer-wired.json and qa-sweep-answer-wired.log

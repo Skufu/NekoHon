@@ -1,0 +1,21 @@
+# eval — 3 items — answerer qwen2.5:7b — judge ollama:granite4.1:8b (UNVALIDATED vs human labels)
+# judge-only replay of eval-smoke.json; shown passages recomputed identical for 3/3 items
+# recall@10 dense 3/3 | shown recall@5 3/3 | MRR@10 1.000 | gold precision@5 floor 0.2
+# cited share 0.333 | false answers 0/0 | false refusals 0/3
+# key facts: regex 3/3 | judge rescued 0 | still missing 0
+# judged relevance 7/15 (0.467) | judge errors 0
+
+## dense misses (gold not in the dense top-10)
+# Shown-recall recovery of these rows is the reading/fusion/caption work; a row missing from BOTH lists is a true false negative.
+
+## false negatives (expected answer, no gold among the shown 5)
+
+## false refusals
+
+## false answers (refused expected)
+
+## key-fact misses still missing after the judge
+
+## known issues
+
+## gold judged not relevant (judge vs pin disagreement)

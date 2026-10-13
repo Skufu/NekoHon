@@ -1,0 +1,378 @@
+[
+  {
+    "question": "What does CRUD stand for?",
+    "seconds": 0.98,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage. CRUD is the most common pattern for storing application state in a database. A basic tenet of CRUD is that data must be created before being used. After the data has been created, the data can be read and updated. Finally, the data may need to be destroyed. CRUD guarantees these four operations will occur on data, regardless of its storage.\"",
+      "citations": [
+        {
+          "chunk_id": "ch05-019",
+          "chapter": "5",
+          "quote": "CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage. CRUD is the most common pattern for storing application state in a database. A basic tenet of CRUD is that data must be created before being used. After the data has been created, the data can be read and updated. Finally, the data may need to be destroyed. CRUD guarantees these four operations will occur on data, regardless of its storage."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "What is data ingestion?",
+    "seconds": 0.85,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 7] \"Data ingestion is the process of moving data from one place to another\"",
+      "citations": [
+        {
+          "chunk_id": "ch07-002",
+          "chapter": "7",
+          "quote": "Data ingestion is the process of moving data from one place to another"
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-7-2",
+          "chapter": "7",
+          "caption": "Data from system 1 is ingested into system 2",
+          "src": "/figures/figure-7-2"
+        }
+      ],
+      "refused": false
+    }
+  },
+  {
+    "question": "What is a watermark?",
+    "seconds": 0.98,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 8] \"We\u2019ve covered various types of windows and their uses. As discussed in Chapter 7, data is sometimes ingested out of the order from which it originated. A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late. If data arrives that is new to the window but older than the timestamp of the watermark, it is considered to be late-arriving data.\"",
+      "citations": [
+        {
+          "chunk_id": "ch08-039",
+          "chapter": "8",
+          "quote": "We\u2019ve covered various types of windows and their uses. As discussed in Chapter 7, data is sometimes ingested out of the order from which it originated. A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late. If data arrives that is new to the window but older than the timestamp of the watermark, it is considered to be late-arriving data."
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-8-8",
+          "chapter": "8",
+          "caption": "Watermark acting as a threshold for late-arriving data",
+          "src": "/figures/figure-8-8"
+        }
+      ],
+      "refused": false
+    }
+  },
+  {
+    "question": "When is an insert-only table useful?",
+    "seconds": 0.74,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 5] \"The insert-only pattern retains history directly in a table containing data. Rather than updating records, new records get inserted with a timestamp indicating when they were created (Table 5-1). For example, suppose you have a table of customer addresses. Following a CRUD pattern, you would simply update the record if the customer changed their address. With the insert-only pattern, a new address record is inserted with the same customer ID. To read the current customer address by customer ID, you would look up the latest record under that ID.\"",
+      "citations": [
+        {
+          "chunk_id": "ch05-020",
+          "chapter": "5",
+          "quote": "The insert-only pattern retains history directly in a table containing data. Rather than updating records, new records get inserted with a timestamp indicating when they were created (Table 5-1). For example, suppose you have a table of customer addresses. Following a CRUD pattern, you would simply update the record if the customer changed their address. With the insert-only pattern, a new address record is inserted with the same customer ID. To read the current customer address by customer ID, you would look up the latest record under that ID."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "Where does storage sit in the data engineering lifecycle?",
+    "seconds": 0.75,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 6] \"Storage is the cornerstone of the data engineering lifecycle and underlies its major stages\u2014ingestion, transformation, and serving\"",
+      "citations": [
+        {
+          "chunk_id": "ch06-001",
+          "chapter": "6",
+          "quote": "Storage is the cornerstone of the data engineering lifecycle and underlies its major stages\u2014ingestion, transformation, and serving"
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-6-1",
+          "chapter": "6",
+          "caption": "Storage plays a central role in the data engineering lifecycle",
+          "src": "/figures/figure-6-1"
+        }
+      ],
+      "refused": false
+    }
+  },
+  {
+    "question": "What do source systems provide to the rest of the lifecycle?",
+    "seconds": 0.79,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 2] \"A source system is the origin of the data used in the data engineering lifecycle\"",
+      "citations": [
+        {
+          "chunk_id": "ch02-005",
+          "chapter": "2",
+          "quote": "A source system is the origin of the data used in the data engineering lifecycle"
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "How does data architecture relate to enterprise architecture?",
+    "seconds": 0.84,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 3] \"Now that you understand enterprise architecture, let\u2019s dive into data architecture by establishing a working definition that will set the stage for the rest of the book. Data architecture is a subset of enterprise architecture, inheriting its properties: processes, strategy, change management, and evaluating trade-offs. Here are a couple of definitions of data architecture that influence our definition.\"",
+      "citations": [
+        {
+          "chunk_id": "ch03-013",
+          "chapter": "3",
+          "quote": "Now that you understand enterprise architecture, let\u2019s dive into data architecture by establishing a working definition that will set the stage for the rest of the book. Data architecture is a subset of enterprise architecture, inheriting its properties: processes, strategy, change management, and evaluating trade-offs. Here are a couple of definitions of data architecture that influence our definition."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "What is the difference between batch and streaming?",
+    "seconds": 0.99,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 2] \"Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML\"",
+      "citations": [
+        {
+          "chunk_id": "ch02-019",
+          "chapter": "2",
+          "quote": "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML"
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "What happens to data after it is extracted in ETL?",
+    "seconds": 0.88,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation. When loading data, you should be mindful of the type of system you\u2019re loading, the schema of the data, and the performance impact of loading.\"",
+      "citations": [
+        {
+          "chunk_id": "ch07-033",
+          "chapter": "7",
+          "quote": "Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation. When loading data, you should be mindful of the type of system you\u2019re loading, the schema of the data, and the performance impact of loading."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "What do transformations do in the data engineering lifecycle?",
+    "seconds": 0.8,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 2] \"Logically, we treat transformation as a standalone area of the data engineering lifecycle, but the realities of the lifecycle can be much more complicated in practice. Transformation is often entangled in other phases of the lifecycle. Typically, data is transformed in source systems or in flight during ingestion. For example, a source system may add an event timestamp to a record before forwarding it to an ingestion process. Or a record within a streaming pipeline may be \u201cenriched\u201d with additional fields and calculations before it\u2019s sent to a data warehouse. Transformations are ubiquitous in various parts of the lifecycle. Data preparation, data wrangling, and cleaning\u2014these transformative tasks add value for end consumers of data.\"",
+      "citations": [
+        {
+          "chunk_id": "ch02-027",
+          "chapter": "2",
+          "quote": "Logically, we treat transformation as a standalone area of the data engineering lifecycle, but the realities of the lifecycle can be much more complicated in practice. Transformation is often entangled in other phases of the lifecycle. Typically, data is transformed in source systems or in flight during ingestion. For example, a source system may add an event timestamp to a record before forwarding it to an ingestion process. Or a record within a streaming pipeline may be \u201cenriched\u201d with additional fields and calculations before it\u2019s sent to a data warehouse. Transformations are ubiquitous in various parts of the lifecycle. Data preparation, data wrangling, and cleaning\u2014these transformative tasks add value for end consumers of data."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "What does CRU stand for?",
+    "seconds": 0.83,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 5] \"stands for create, read, update, and delete\"\nRead as: \"What does crud stand for?\"",
+      "citations": [
+        {
+          "chunk_id": "ch05-019",
+          "chapter": "5",
+          "quote": "stands for create, read, update, and delete"
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "What happens to data after it is extracted in ET?",
+    "seconds": 0.88,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation. When loading data, you should be mindful of the type of system you\u2019re loading, the schema of the data, and the performance impact of loading.\"",
+      "citations": [
+        {
+          "chunk_id": "ch07-033",
+          "chapter": "7",
+          "quote": "Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation. When loading data, you should be mindful of the type of system you\u2019re loading, the schema of the data, and the performance impact of loading."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "what is a atermark?",
+    "seconds": 1.18,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late\"\nRead as: \"what is a watermark?\"",
+      "citations": [
+        {
+          "chunk_id": "ch08-039",
+          "chapter": "8",
+          "quote": "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late"
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-8-8",
+          "chapter": "8",
+          "caption": "Watermark acting as a threshold for late-arriving data",
+          "src": "/figures/figure-8-8"
+        }
+      ],
+      "refused": false
+    }
+  },
+  {
+    "question": "what does data engineers need to be pragmatic about",
+    "seconds": 0.81,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility. The data landscape is changing too quickly to invest in long-term hardware that inevitably goes stale, can\u2019t easily scale, and potentially hampers a data engineer\u2019s flexibility to try new things. Given the upside for flexibility and low initial costs, we urge data engineers to take an opex-first approach centered on the cloud and flexible, pay-as-you-go technologies.\"\nBeing flexible with technology choices is important because the data landscape changes quickly.",
+      "citations": [
+        {
+          "chunk_id": "ch04-012",
+          "chapter": "4",
+          "quote": "Data engineers need to be pragmatic about flexibility. The data landscape is changing too quickly to invest in long-term hardware that inevitably goes stale, can\u2019t easily scale, and potentially hampers a data engineer\u2019s flexibility to try new things. Given the upside for flexibility and low initial costs, we urge data engineers to take an opex-first approach centered on the cloud and flexible, pay-as-you-go technologies."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "Data engineers need to be pragmatic about?",
+    "seconds": 0.76,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility. The data landscape is changing too quickly to invest in long-term hardware that inevitably goes stale, can\u2019t easily scale, and potentially hampers a data engineer\u2019s flexibility to try new things. Given the upside for flexibility and low initial costs, we urge data engineers to take an opex-first approach centered on the cloud and flexible, pay-as-you-go technologies.\"\nBeing flexible in choosing tools and technologies that can change quickly.",
+      "citations": [
+        {
+          "chunk_id": "ch04-012",
+          "chapter": "4",
+          "quote": "Data engineers need to be pragmatic about flexibility. The data landscape is changing too quickly to invest in long-term hardware that inevitably goes stale, can\u2019t easily scale, and potentially hampers a data engineer\u2019s flexibility to try new things. Given the upside for flexibility and low initial costs, we urge data engineers to take an opex-first approach centered on the cloud and flexible, pay-as-you-go technologies."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "MAD data landscape",
+    "seconds": 1.1,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 4] \"It\u2019s hard. Just consider the number of technologies in Matt Turck\u2019s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1).\"",
+      "citations": [
+        {
+          "chunk_id": "ch04-020",
+          "chapter": "4",
+          "quote": "It\u2019s hard. Just consider the number of technologies in Matt Turck\u2019s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)."
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-4-1",
+          "chapter": "4",
+          "caption": "Matt Turck\u2019s 2021 MAD data landscape",
+          "src": "/figures/figure-4-1"
+        }
+      ],
+      "refused": false
+    }
+  },
+  {
+    "question": "multicloud methodology disadvantages",
+    "seconds": 0.67,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "[Ch. 4] \"A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks are critical. Going multicloud can introduce significant complexity. Companies must now manage a dizzying array of services across several clouds; cross-cloud integration and security present a considerable challenge; multicloud networking can be diabolically complicated.\"",
+      "citations": [
+        {
+          "chunk_id": "ch04-037",
+          "chapter": "4",
+          "quote": "A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks are critical. Going multicloud can introduce significant complexity. Companies must now manage a dizzying array of services across several clouds; cross-cloud integration and security present a considerable challenge; multicloud networking can be diabolically complicated."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "What is the capital of France?",
+    "seconds": 0.41,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "Not in this book.",
+      "citations": [
+        {
+          "chunk_id": "ch01-064",
+          "chapter": "1",
+          "quote": "Chief information officer A chief information officer (CIO) is the senior C-suite executive responsible for information technology within an organization; it is"
+        },
+        {
+          "chunk_id": "ch03-071",
+          "chapter": "3",
+          "quote": "Data Warehouse A data warehouse is a central data hub used for reporting and analysis. Data in a data warehouse is typically highly formatted and structured for"
+        },
+        {
+          "chunk_id": "ch05-030",
+          "chapter": "5",
+          "quote": "Relational databases A relational database management system (RDBMS) is one of the most common application backends. Relational databases were developed at IBM "
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-5-7",
+          "chapter": "5",
+          "caption": "RDBMS stores and retrieves data at a row level",
+          "src": "/figures/figure-5-7"
+        }
+      ],
+      "refused": true
+    }
+  }
+]
