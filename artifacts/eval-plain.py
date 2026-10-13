@@ -47,7 +47,7 @@ sys.path.insert(0, str(HERE))
 import answer as A
 import groundedness as G
 import judge as J
-from prompt import ANSWER_MODEL, SYSTEM_ANSWER
+from prompt import ANSWER_MODEL, REFUSAL, SYSTEM_ANSWER
 from retrieve import INDEX, load_index
 
 FK_GATE = 11.0
@@ -70,6 +70,10 @@ SYSTEMS = {
     "plain3-rv": {
         "system": probe.PLAIN3_SYSTEM,
         "revise": probe.REVISE_SYSTEM,
+    },
+    "paraphrase": {
+        "system": SYSTEM_ANSWER,
+        "paraphrase": probe.PARAPHRASE_SYSTEM,
     },
 }
 
@@ -94,6 +98,14 @@ def unmatched_tags(answer, passages):
     return count
 
 
+def clean_rewrite(text):
+    text = (text or "").strip()
+    if len(text) >= 2 and text[0] == text[-1] and text[0] in "\"'“”":
+        text = text[1:-1].strip()
+    text = re.sub(r"^\s*[\d]+[.)]\s*", "", text)
+    return " ".join(text.split())
+
+
 def measure(index, question, spec, passages):
     started = time.perf_counter()
     completion = A.ollama_generate(
@@ -106,6 +118,26 @@ def measure(index, question, spec, passages):
             f"Draft answer:\n{completion}"
         )
         completion = A.ollama_generate(spec["revise"], revise_user, ANSWER_MODEL)
+    if spec.get("paraphrase"):
+        # The draft supplies verified evidence sentences (passage text by
+        # construction); each is rewritten one-in-one-out and keeps its
+        # source chunk's tag. A draft refusal is the register's refusal.
+        draft = A.parse_answered(completion, passages, index.get("figures") or [])
+        if draft["refused"]:
+            completion = REFUSAL
+        else:
+            assembled = []
+            for citation in draft["citations"][:5]:
+                rewritten = A.ollama_generate(
+                    spec["paraphrase"],
+                    f"Sentence: {citation['quote']}",
+                    ANSWER_MODEL,
+                )
+                if rewritten.strip():
+                    assembled.append(
+                        f"{clean_rewrite(rewritten)} [Ch. {citation['chapter']}]"
+                    )
+            completion = " ".join(assembled) if assembled else REFUSAL
     body = A.parse_answered(completion, passages, index.get("figures") or [])
     answer = body["answer"]
     shown = [hit["chunk_id"] for hit in passages]

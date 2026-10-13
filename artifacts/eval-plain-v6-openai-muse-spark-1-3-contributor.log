@@ -1,0 +1,23 @@
+# plain scorecard — openai:muse-spark-1.3-contributor — 10 questions — variants paraphrase — fk gate <= 11.0, coverage target >= 0.2
+# paraphrase: pass 8/10 | gate fails {'answered': 0, 'no_fake_quotes': 0, 'book_supported': 2, 'grade_ok': 0} | fk 7.43 | words/sentence 10.1 | coverage 0.075 | words 21.9 | cited share 0.42 | example 1/10 | unmatched tags 0 | fake quotes 0 | judge errors 0
+
+## explain data engineering in simple words
+- paraphrase: gates PPFP | fk 6.8 | cov 0.0 | fidelity unsupported | example none | unmatched 0 | People like data scientists and analysts work on it. [Ch. 1] Data is moved, changed, and handled. [C
+## explain batch and streaming in simple words
+- paraphrase: gates PPFP | fk 6.4 | cov 0.0 | fidelity unsupported | example none | unmatched 0 | Batch ingestion processes data in large chunks at once. [Ch. 2] Storage and computing are kept separ
+## explain data ingestion in simple words
+- paraphrase: gates PPPP | fk 5.8 | cov 0.167 | fidelity supported | example none | unmatched 0 | Data ingestion moves data from one place to another. [Ch. 7] Make sure data goes smoothly and safely
+## explain what a watermark is in simple words
+- paraphrase: gates PPPP | fk 5.8 | cov 0.0 | fidelity supported | example none | unmatched 0 | A window checks data to see if it is within the time interval. [Ch. 8]
+## explain transformations in simple words
+- paraphrase: gates PPPP | fk 8.8 | cov 0.185 | fidelity supported | example none | unmatched 0 | Data needs to be changed for use later. [Ch. 2] Now that you know about queries and data modeling, y
+## explain CRUD in simple words
+- paraphrase: gates PPPP | fk 6.4 | cov 0.0 | fidelity supported | example none | unmatched 0 | Shows the four main storage operations. [Ch. 5]
+## explain the data mesh in simple words
+- paraphrase: gates PPPP | fk 6.2 | cov 0.0 | fidelity supported | example none | unmatched 0 | People own data without a central controller. [Ch. 3] Teams prepare data for other teams to use. [Ch
+## explain an endpoint in streaming ingestion in simple words
+- paraphrase: gates PPPP | fk 9.6 | cov 0.143 | fidelity supported | example none | unmatched 0 | Data goes directly to an endpoint without a backend database. [Ch. 2]
+## explain when an insert-only table is useful in simple words
+- paraphrase: gates PPPP | fk 9.1 | cov 0.091 | fidelity supported | example example | unmatched 0 | Insert-only patterns keep data current by adding new records. [Ch. 8] For example, the insert-only p
+## explain the MAD data landscape in simple words
+- paraphrase: gates PPPP | fk 9.4 | cov 0.167 | fidelity supported | example none | unmatched 0 | Think about the many technologies in Matt Turck's depictions we showed in Chapter 1. [Ch. 4]

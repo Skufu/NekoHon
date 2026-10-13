@@ -72,6 +72,11 @@ REVISE_SYSTEM = """You edit a draft answer about a book for a newcomer. You see 
 4. Keep the [Ch. N] tags. When a passage holds a concrete example and the draft has none, add that example.
 Output only the revised answer, nothing else."""
 
+# The sentence-aligned paraphrase register: the draft answer supplies the
+# evidence sentences (passage text by construction); each is rewritten
+# one-in-one-out. Invention has nowhere to go — nothing is written freely.
+PARAPHRASE_SYSTEM = """Rewrite one sentence from a book in simpler words for a newcomer. Rewrite the whole sentence and keep all of its meaning: do not summarize it, do not drop any part, and do not add any fact, comparison, or example that is not in the sentence. Keep the subject: every sentence must say who or what does the action — never output a fragment. Use short sentences of fifteen words or fewer. Use common words; keep technical terms that are necessary. Output only the rewritten sentence, nothing else."""
+
 QUESTIONS = [
     "explain data engineering in simple words",
     "explain batch and streaming in simple words",

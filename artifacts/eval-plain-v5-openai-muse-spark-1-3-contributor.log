@@ -1,0 +1,34 @@
+# plain scorecard — openai:muse-spark-1.3-contributor — 10 questions — variants plain3-rv,paraphrase — fk gate <= 11.0, coverage target >= 0.2
+# plain3-rv: pass 4/10 | gate fails {'answered': 0, 'no_fake_quotes': 0, 'book_supported': 3, 'grade_ok': 3} | fk 11.25 | words/sentence 13.72 | coverage 0.181 | words 63.5 | cited share 0.44 | example 4/10 | unmatched tags 0 | fake quotes 0 | judge errors 0
+# paraphrase: pass 8/10 | gate fails {'answered': 0, 'no_fake_quotes': 0, 'book_supported': 2, 'grade_ok': 0} | fk 6.99 | words/sentence 9.91 | coverage 0.041 | words 20.3 | cited share 0.34 | example 4/10 | unmatched tags 0 | fake quotes 0 | judge errors 0
+
+## explain data engineering in simple words
+- plain3-rv: gates PPPF | fk 15.7 | cov 0.567 | fidelity supported | example none | unmatched 0 | Data engineering is about moving, manipulating, and managing data [Ch. 1]. It involves developing sy
+- paraphrase: gates PPFP | fk 4.7 | cov 0.111 | fidelity unsupported | example none | unmatched 0 | Made by scientists, analysts, and others. [Ch. 1] Handling and dealing with data. [Ch. 1] Use it whe
+## explain batch and streaming in simple words
+- plain3-rv: gates PPFP | fk 10.0 | cov 0.207 | fidelity unsupported | example example | unmatched 0 | Batch processing involves handling data in large chunks at predetermined intervals or when a preset 
+- paraphrase: gates PPFP | fk 7.9 | cov 0.0 | fidelity unsupported | example example | unmatched 0 | Batch ingestion processes data in large groups at once. [Ch. 2] Storage and computing are separate i
+## explain data ingestion in simple words
+- plain3-rv: gates PPPP | fk 10.6 | cov 0.301 | fidelity supported | example example | unmatched 0 | [Ch. 7] Data ingestion is the process of moving data from one place to another. [Ch. 7] It involves 
+- paraphrase: gates PPPP | fk 5.1 | cov 0.0 | fidelity supported | example none | unmatched 0 | Data ingestion means moving data to a new place. [Ch. 7] Make sure data goes smoothly and safely to 
+## explain what a watermark is in simple words
+- plain3-rv: gates PPPF | fk 13.5 | cov 0.059 | fidelity supported | example none | unmatched 0 | A watermark is a threshold used to determine if data is within a time interval or considered late-ar
+- paraphrase: gates PPPP | fk 5.8 | cov 0.0 | fidelity supported | example none | unmatched 0 | A window checks data to see if it's within the time interval. [Ch. 8]
+## explain transformations in simple words
+- plain3-rv: gates PPFP | fk 9.1 | cov 0.052 | fidelity unsupported | example none | unmatched 0 | Transformations change data into a useful form for downstream use. [Ch. 2]
+- paraphrase: gates PPPP | fk 8.3 | cov 0.067 | fidelity supported | example none | unmatched 0 | Data is changed to be useful for other tasks. [Ch. 2] After learning queries and data modeling, you 
+## explain CRUD in simple words
+- plain3-rv: gates PPPP | fk 10.1 | cov 0.114 | fidelity supported | example none | unmatched 0 | CRUD stands for create, read, update, and delete. [Ch. 5] 
+- paraphrase: gates PPPP | fk 4.2 | cov 0.0 | fidelity supported | example none | unmatched 0 | Shows the four main storage operations. [Ch. 5] A query asks to read some records. [Ch. 8]
+## explain the data mesh in simple words
+- plain3-rv: gates PPPP | fk 9.7 | cov 0.083 | fidelity supported | example none | unmatched 0 | The data mesh is a decentralized approach to managing data, reversing the traditional centralized mo
+- paraphrase: gates PPPP | fk 7.6 | cov 0.0 | fidelity supported | example example | unmatched 0 | Other teams' data can be used in your software through analytics or ML. [Ch. 9]
+## explain an endpoint in streaming ingestion in simple words
+- plain3-rv: gates PPFP | fk 10.9 | cov 0.0 | fidelity unsupported | example none | unmatched 0 | An endpoint in streaming ingestion is where data is pushed directly after being published. [Ch. 2]
+- paraphrase: gates PPPP | fk 9.6 | cov 0.143 | fidelity supported | example none | unmatched 0 | Data goes directly to an endpoint without a backend database. [Ch. 2]
+## explain when an insert-only table is useful in simple words
+- plain3-rv: gates PPPP | fk 10.1 | cov 0.359 | fidelity supported | example example | unmatched 0 | [Ch. 8] An insert-only table is useful for maintaining a current view of data. [Ch. 8] It allows new
+- paraphrase: gates PPPP | fk 9.1 | cov 0.091 | fidelity supported | example example | unmatched 0 | Insert-only patterns keep data current by adding new records. [Ch. 8] For example, the insert-only p
+## explain the MAD data landscape in simple words
+- plain3-rv: gates PPPF | fk 12.8 | cov 0.071 | fidelity supported | example example | unmatched 0 | The MAD landscape refers to the many technologies related to machine learning, AI, and data. [Ch. 4]
+- paraphrase: gates PPPP | fk 7.6 | cov 0.0 | fidelity supported | example example | unmatched 0 | Think about all the technologies in Chapter 1's Figure 4-1. [Ch. 4]
