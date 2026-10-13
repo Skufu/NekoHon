@@ -605,6 +605,17 @@ server.
   draws before claiming a one-question A/B win. Objective gates stable and
   green (answered 10/10, fake quotes 0, unmatched tags 0, FK 6.9-7.4, cited
   share 0.40-0.44). Night report: `plain-register-night-2026-10-13.md`.
+- Judge flip-rate map 2026-10-13 (`judge-stability.py --all`, 30 Muse calls,
+  `judge-stability-all-wired.txt`): on the wired texts, 9/10 questions judge
+  stably (6 stable-supported, 3 stable-unsupported, 1 borderline ~50%: data
+  ingestion). This refines the bullet above: the cross-run swing is mostly
+  *which text the rewriter draws*, not judge flips — and the judge stably
+  catches concrete rewriter errors: CRUD's rewrite says "read, write, delete,
+  update" (create dropped, write substituted; 0/3 in both wired draws),
+  insert-only's wired text adds an "improved Lambda architecture" line (0/3),
+  batch/streaming keeps the "in m." truncation. Proposed, not done: a local
+  one-in-one-out check on lists/acronyms/terms to gate rewrites without the
+  cloud judge.
 - Plain-register edge probes 2026-10-13 (live HTTP, 20 raw responses
   `plain-edge-*`, findings `plain-edge-findings.md`, contract checker
   `plain-edge-check.py` exit 0): all 10 cues route plain; explain/quiz

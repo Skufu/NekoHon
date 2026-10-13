@@ -88,6 +88,40 @@ What this means:
   paraphrase is far beyond this noise; the granite-vs-Muse agreement (86/105)
   is large-n. It sharpens the language around all single-draw numbers.
 
+### 3b. Post-script — per-question flip rates refine this section
+
+Ran `judge-stability.py --all --n 3` over all 10 wired answers (30 Muse
+calls; `artifacts/judge-stability-all-wired.txt`). Result on the *wired*
+texts: **9/10 questions judge stably** — 6 stable-supported (data
+engineering, watermark, transformations, data mesh, endpoint, MAD), 3
+stable-unsupported (batch/streaming, CRUD, insert-only), 1 genuinely
+borderline (data ingestion, 2/3).
+
+So the §3 emphasis needs one correction: the dominant cause of the
+6-vs-8-vs-7 swing is *which text the rewriter draws and what it does to it*,
+not the judge flipping. The judge mostly tracks the text faithfully — and it
+stably catches three concrete rewriter errors that are visible in the
+artifacts:
+
+- CRUD, identical in both wired draws: "The four basic actions: read,
+  **write**, delete, update." — the book's expansion is create, read, update,
+  delete; the rewrite drops *create* and substitutes *write*. Stable 0/3
+  unsupported. The one-in-one-out architecture prevents invented claims but
+  not term substitution inside a list.
+- batch/streaming: "...**in m.**" truncation plus "batch **ingestion**" for
+  batch *processing* (see §2's closing experiments).
+- insert-only (wired draw): the drawn text adds "BigQuery and Apache Druid use
+  an improved Lambda architecture." — stable 0/3 unsupported on that text;
+  the replay drew a shorter text on the same question and passed.
+
+And the one true judge-borderline item is data ingestion (about 50/50 across
+six frozen-prompt calls on two texts).
+
+Consequence for the decisions below: the rewriter failure has concrete,
+catchable targets (list/acronym preservation, term swaps, truncation), and a
+cheap local one-in-one-out check could gate rewrites without the cloud judge.
+That is rewriter work, proposed, not done tonight.
+
 ## 4. Agentic multi-hop hunt (separate agent, read-only)
 
 `artifacts/multihop-report.md` (+ `multihop-probe.py`, `multihop-results.json`,

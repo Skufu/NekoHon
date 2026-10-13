@@ -1,0 +1,11 @@
+judge openai:muse-spark-1.3-contributor | file eval-plain-wired-openai-muse-spark-1-3-contributor.json | n 3
+explain data engineering in simple words       wired      supported 3/3 ['supported', 'supported', 'supported']
+explain batch and streaming in simple words    wired      supported 0/3 ['unsupported', 'unsupported', 'unsupported']
+explain data ingestion in simple words         wired      supported 2/3 ['unsupported', 'supported', 'supported']
+explain what a watermark is in simple words    wired      supported 3/3 ['supported', 'supported', 'supported']
+explain transformations in simple words        wired      supported 3/3 ['supported', 'supported', 'supported']
+explain CRUD in simple words                   wired      supported 0/3 ['unsupported', 'unsupported', 'unsupported']
+explain the data mesh in simple words          wired      supported 3/3 ['supported', 'supported', 'supported']
+explain an endpoint in streaming ingestion i   wired      supported 3/3 ['supported', 'supported', 'supported']
+explain when an insert-only table is useful    wired      supported 0/3 ['unsupported', 'unsupported', 'unsupported']
+explain the MAD data landscape in simple wor   wired      supported 3/3 ['supported', 'supported', 'supported']
