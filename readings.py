@@ -33,7 +33,7 @@ reading loses, so it cannot inject a passage about franca.
 
 The fallback when the difflib reading finds nothing: `llm_second_reading`,
 a local model's correction under the same strict-improvement gate plus two
-structural guards. Measured 2026-10-13 (`artifacts/probe-llm-spell`): it wins
+structural guards. Measured 2026-10-13 (`artifacts/evidence/probe-llm-spell/probe-llm-spell`): it wins
 the two cases difflib cannot see ("normilazation", "ingestoin" — both kept,
 both hit the pin); the gate discarded its one confident wrong fix ("CRU" ->
 "CRC"); a case-only change ("iops" -> "IOPS") is rejected by the guards

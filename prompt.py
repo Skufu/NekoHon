@@ -1,4 +1,4 @@
-"""The system prompts. Phase 4 (ask) and the answer mode.
+"""The system prompts.
 
 The refusal sentence is exact, period included, and nothing else.
 """
@@ -35,7 +35,7 @@ Output only the final query text, nothing else."""
 # The plain register ("explain in simple words", cue-detected in
 # answer.simple_words): the draft answer selects the evidence sentences, and
 # each is rewritten one-in-one-out so nothing is written from scratch.
-# Measured 2026-10-13 (artifacts/eval-plain-v6): 8/10 scorecard pass,
+# Measured 2026-10-13 (artifacts/evidence/eval-plain/eval-plain-v6): 8/10 scorecard pass,
 # Flesch-Kincaid 7.4, zero grade fails, zero unbacked quotes.
 PARAPHRASE_SYSTEM = """Rewrite one sentence from a book in simpler words for a newcomer. Rewrite the whole sentence and keep all of its meaning: do not summarize it, do not drop any part, and do not add any fact, comparison, or example that is not in the sentence. Keep the subject: every sentence must say who or what does the action — never output a fragment. Use short sentences of fifteen words or fewer. Use common words; keep technical terms that are necessary. Output only the rewritten sentence, nothing else."""
 # The default is qwen2.5:7b: the bake-off winner granite4.1:3b failed the
@@ -44,6 +44,6 @@ PARAPHRASE_SYSTEM = """Rewrite one sentence from a book in simpler words for a n
 # battery per candidate without editing this file.
 # 2026-10-14: live trial — the finetuned 3B (`smallbook_x2`, 1.9 GB) is the
 # default; it refuses exactly and clears the batteries, with two known
-# false-refusal warts (Codd, CRU) — see artifacts/finetune-loop-eval-2026-10-13.md.
+# false-refusal warts (Codd, CRU) — see artifacts/reports/finetune-loop-eval-2026-10-13.md.
 # Revert without editing: set ANSWER_MODEL=qwen2.5:7b.
 ANSWER_MODEL = os.environ.get("ANSWER_MODEL", "smallbook_x2")

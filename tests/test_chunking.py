@@ -2,7 +2,7 @@
 
 import unittest
 
-from ingest import CHUNK_CHARS, _pieces, _sentences, _sentence_tail
+from ingest import CHUNK_MAX_CHARS, _pieces, _sentences, _sentence_tail
 
 
 class SentenceTests(unittest.TestCase):
@@ -37,14 +37,14 @@ class PieceTests(unittest.TestCase):
         pieces = _pieces(text)
         self.assertGreater(len(pieces), 1)
         for piece in pieces:
-            self.assertLessEqual(len(piece), CHUNK_CHARS)
+            self.assertLessEqual(len(piece), CHUNK_MAX_CHARS)
             self.assertTrue(piece.startswith("This is a sentence"), piece[:60])
 
     def test_a_sentence_longer_than_the_cap_still_makes_progress(self):
-        text = "start " + ("word " * (CHUNK_CHARS // 2 + 200))
+        text = "start " + ("word " * (CHUNK_MAX_CHARS // 2 + 200))
         pieces = _pieces(text)
         self.assertGreater(len(pieces), 1)
-        self.assertTrue(all(len(piece) <= CHUNK_CHARS for piece in pieces))
+        self.assertTrue(all(len(piece) <= CHUNK_MAX_CHARS for piece in pieces))
 
     def test_no_piece_is_empty(self):
         text = ("Short one. " * 200).strip()

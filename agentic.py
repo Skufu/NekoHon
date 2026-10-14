@@ -1,8 +1,8 @@
 """Agentic retrieval prototype: three tools, the model picks the next step.
 
 Not wired into the server -- the four routes stay frozen. This is a prototype
-for a future `mode`; the evidence lives in `artifacts/agentic-design.md`, the
-live probe in `artifacts/probe-agentic.py`, and the offline tests in
+for a future `mode`; the evidence lives in `artifacts/reports/agentic-design.md`, the
+live probe in `artifacts/probes/probe-agentic.py`, and the offline tests in
 `tests/test_agentic.py`.
 
 The loop:

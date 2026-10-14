@@ -1,4 +1,4 @@
-"""Attach a figure when a kept passage names it. Phase 5.
+"""Attach a figure when a kept passage names it.
 
 The answer still must not describe the pixels. This module only names the file.
 """

@@ -2,7 +2,7 @@
 
 Expected stemming values are the vendored Snowball English (Porter2)
 implementation's measured output for published example families; the full
-record is in `artifacts/stage9-preprocessing.md`.
+record is in `artifacts/reports/stage9-preprocessing.md`.
 """
 
 import unittest

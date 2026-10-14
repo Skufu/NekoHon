@@ -29,13 +29,22 @@ ROOT = HERE.parent
 
 TEXT_EXTS = (".py", ".md", ".html", ".json", ".txt", ".sh")
 SKIP_PARTS = {"books", "data", "node_modules", ".git"}
+# The gate itself and dir markers are infrastructure, not evidence.
+SKIP_NAMES = {"README.md", "prune.py", ".gitkeep"}
 
 
 def tracked_files():
     out = subprocess.run(
         ["git", "ls-files", "artifacts"], cwd=ROOT, capture_output=True, text=True
     ).stdout
-    return sorted(Path(line).name for line in out.split() if line.endswith(tuple(TEXT_EXTS + (".log",))))
+    files = []
+    for line in out.splitlines():
+        line = line.strip().replace("\\", "/")
+        if line.endswith(tuple(TEXT_EXTS + (".log",))):
+            rel = line.removeprefix("artifacts/")
+            if Path(rel).name not in SKIP_NAMES:
+                files.append(rel)
+    return sorted(files)
 
 
 def last_commit_dates():
@@ -80,16 +89,19 @@ def main():
 
     families = defaultdict(list)
     for name in files:
-        stem = re.sub(r"-\d{4}-\d{2}-\d{2}", "", name)
+        base = Path(name).name
+        stem = re.sub(r"-\d{4}-\d{2}-\d{2}", "", base)
         families[re.split(r"[-.]", stem)[0]].append(name)
 
-        if name not in index_text and not re.split(r"[-.]", name)[0] in index_text:
+        if name not in index_text and base not in index_text and not re.split(r"[-.]", base)[0] in index_text:
             unindexed.append(name)
 
+        base = Path(name).name
+        self_posix = (ROOT / "artifacts" / name).as_posix()
         others = [
             Path(h).name
             for h, t in corpus.items()
-            if Path(h).name != name and name in t
+            if Path(h).as_posix() != self_posix and (name in t or base in t)
         ]
         if not others:
             unreferenced.append(name)

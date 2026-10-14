@@ -1,4 +1,4 @@
-"""EPUB -> data/index.json + data/figures/. Phase 2. No vectors, no Ollama.
+"""EPUB -> data/index.json + data/figures/. No vectors, no Ollama.
 
 Stdlib only. Records are JSON. Pictures stay files. No pickle.
 """
@@ -17,10 +17,8 @@ BOOK = ROOT / "books" / "fde.epub"
 INDEX = ROOT / "data" / "index.json"
 FIGURES = ROOT / "data" / "figures"
 
-# ~300 tokens and ~40 tokens, since stdlib has no tokenizer.
-# Tuned after the first real run if chunks look wrong.
-CHUNK_CHARS = 1400
-OVERLAP_CHARS = 180
+CHUNK_MAX_CHARS = 1400
+CHUNK_OVERLAP_CHARS = 180
 
 OPF = "{http://www.idpf.org/2007/opf}"
 CONTAINER = "{urn:oasis:names:tc:opendocument:xmlns:container}"
@@ -29,9 +27,9 @@ SKIP_TAGS = {"script", "style", "head"}
 HEADING_TAGS = {"h1", "h2", "h3", "h4"}
 BLOCK_TAGS = {"p", "li", "blockquote", "pre", "h1", "h2", "h3", "h4", "h5"}
 
-# Index and front matter steal search slots. They are not teaching text.
-# Preface, part openers, chapters, and appendices stay.
-SKIP_DOCS = {
+# Non-teaching docs: the index and front matter steal search slots. Preface,
+# part openers, chapters, and appendices stay.
+NON_TEACHING_IDS = {
     "cover",
     "dedication01",
     "titlepage01",
@@ -40,6 +38,19 @@ SKIP_DOCS = {
     "colophon01",
     "colophon02",
 }
+
+# A hidden marker wraps a figure's xref href so the citing-paragraph search can
+# find the figure. Stored text drops it and keeps the link words.
+MARKER = "\x00"
+_MARKER_RE = re.compile(f"{MARKER}[^{MARKER}]*{MARKER}")
+
+
+def _marked(machine_id):
+    return f"{MARKER}{machine_id}{MARKER}"
+
+
+def _unmarked(text):
+    return _MARKER_RE.sub("", text)
 
 
 class ChapterParser(HTMLParser):
@@ -98,10 +109,7 @@ class ChapterParser(HTMLParser):
             self._stack.append(tag)
             return
         if tag == "a" and attr.get("data-type") == "xref":
-            # The href is a machine id. Keep it only as a hidden marker so the
-            # citing-paragraph search can find the figure. Stored chunk text
-            # drops the marker and keeps the link words ("Figure 2-1").
-            self._text.append("\x00" + attr.get("href", "").lstrip("#") + "\x00")
+            self._text.append(_marked(attr.get("href", "").lstrip("#")))
             return
         if tag in BLOCK_TAGS or tag in ("ul", "ol", "dl"):
             self._stack.append(tag)
@@ -224,11 +232,10 @@ def _cites(text):
 
 
 def _visible(text):
-    return re.sub(r"\x00[^\x00]*\x00", "", text).strip()
+    return _unmarked(text).strip()
 
 
 def _stored(text):
-    """Text that gets saved and embedded. No hidden figure ids."""
     return _clean(_visible(text))
 
 
@@ -273,10 +280,10 @@ def _by_words(text):
     pieces = []
     start = 0
     while start < len(text):
-        end = min(start + CHUNK_CHARS, len(text))
+        end = min(start + CHUNK_MAX_CHARS, len(text))
         if end < len(text):
             cut = text.rfind(" ", start, end)
-            if cut > start + CHUNK_CHARS // 2:
+            if cut > start + CHUNK_MAX_CHARS // 2:
                 end = cut
         pieces.append(text[start:end].strip())
         if end >= len(text):
@@ -286,23 +293,19 @@ def _by_words(text):
 
 
 def _pieces(text):
-    """Text as pieces no longer than the cap, cut only at sentence ends.
-
-    A short text is one piece. A long one is packed from its sentences, so a
-    piece can only begin where a sentence begins.
-    """
-    if len(text) <= CHUNK_CHARS:
+    """Text as pieces no longer than the cap, cut only at sentence ends."""
+    if len(text) <= CHUNK_MAX_CHARS:
         return [text]
     pieces = []
     current = ""
     for sentence in _sentences(text):
-        if len(sentence) > CHUNK_CHARS:
+        if len(sentence) > CHUNK_MAX_CHARS:
             if current:
                 pieces.append(current)
                 current = ""
             pieces.extend(_by_words(sentence))
             continue
-        if current and len(current) + len(sentence) + 1 > CHUNK_CHARS:
+        if current and len(current) + len(sentence) + 1 > CHUNK_MAX_CHARS:
             pieces.append(current)
             current = sentence
         else:
@@ -356,7 +359,7 @@ def _section_chunks(heading, body_blocks):
     last_body = ""
     heading = _stored(heading)
     heading_prefix = (heading + "\n") if heading else ""
-    budget = max(CHUNK_CHARS - len(heading_prefix), 200)
+    budget = max(CHUNK_MAX_CHARS - len(heading_prefix), 200)
 
     def flush():
         nonlocal current, current_len, last_body
@@ -378,7 +381,7 @@ def _section_chunks(heading, body_blocks):
             # tail comes from the body, not the chunk: a heading in the
             # overlap would repeat the heading inside the next chunk.
             if chunks:
-                tail = _sentence_tail(last_body, OVERLAP_CHARS)
+                tail = _sentence_tail(last_body, CHUNK_OVERLAP_CHARS)
                 if tail:
                     current = [tail]
                     current_len = len(tail)
@@ -472,7 +475,7 @@ def ingest_epub(epub_path, figures_dir=None, write_images=True):
     with zipfile.ZipFile(epub_path) as zf:
         names = set(zf.namelist())
         for doc_id, path in _spine(zf):
-            if doc_id in SKIP_DOCS or path not in names:
+            if doc_id in NON_TEACHING_IDS or path not in names:
                 continue
             raw = zf.read(path).decode("utf-8")
             parser = ChapterParser()

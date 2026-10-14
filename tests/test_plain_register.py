@@ -5,7 +5,7 @@ the draft selects evidence sentences (its citations' quotes are passage text
 by construction), each is rewritten one-in-one-out, and the citation keeps the
 original book sentence as evidence. Nothing is written from scratch, so the
 register cannot invent — that is the measured architecture
-(artifacts/eval-plain-v6: 8/10 scorecard pass under the release judge).
+(artifacts/evidence/eval-plain/eval-plain-v6: 8/10 scorecard pass under the release judge).
 
 Pins and fixtures live only in this test.
 """

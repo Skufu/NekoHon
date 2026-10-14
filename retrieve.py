@@ -1,4 +1,4 @@
-"""Embed frozen chunks and search them. Phase 3. No chunking changes.
+"""Embed frozen chunks and search them. No chunking changes.
 
 Stdlib only. Vectors live in the JSON index. Cosine is plain Python.
 The embedder is injected so tests never call Ollama.
@@ -21,15 +21,22 @@ GEMMA_EMBEDDER = "embeddinggemma-2:270m-bf16-text"
 TOP_K = 10
 BATCH = 16
 
-# nomic was trained with these. Ollama's Modelfile does not add them.
-NOMIC_DOCUMENT = "search_document: "
-NOMIC_QUERY = "search_query: "
-
-# Hugging Face card for google/embeddinggemma-2, "Task Instruction Prefixes".
-# Web search, not question-answering: these questions retrieve a passage.
-# prompt_name="Document" is only "title: none". A real heading must be written in.
-GEMMA_QUERY = "task: search result | query: "
-GEMMA_TITLE = "title: {title} | text: "
+# The task prefix each model expects, written here because Ollama's Modelfile
+# does not add them. Unknown models fail closed. nomic: from its model card,
+# "search_document: " / "search_query: ". gemma: the Hugging Face card for
+# google/embeddinggemma-2, "Task Instruction Prefixes"; it is web search, not
+# question-answering, and prompt_name="Document" is only "title: none", so a
+# real heading must be written into the text.
+PREFIXES = {
+    DEFAULT_EMBEDDER: {
+        "document": "search_document: ",
+        "query": "search_query: ",
+    },
+    GEMMA_EMBEDDER: {
+        "document": "title: {title} | text: ",
+        "query": "task: search result | query: ",
+    },
+}
 
 
 def cosine(a, b):
@@ -48,11 +55,6 @@ def cosine(a, b):
     return dot / (math.sqrt(norm_a) * math.sqrt(norm_b))
 
 
-def chunk_body(chunk):
-    """Heading is already the first line of text. Do not add it twice."""
-    return chunk.get("text") or ""
-
-
 def figure_body(figure):
     parts = [figure.get("caption") or "", figure.get("referencing_paragraph") or ""]
     return "\n".join(part for part in parts if part).strip()
@@ -61,23 +63,17 @@ def figure_body(figure):
 def format_input(model, kind, text, title=""):
     """kind is 'document' or 'query'. Unknown models fail closed.
 
-    Confirmed 2026-10-11 from the Hugging Face card, not guessed. The text
-    passes through preprocess.normalize first: that is the one seam where the
-    dense channel's view of a text is decided, and both sides use it.
+    The text passes through preprocess.normalize first: that is the one seam
+    where the dense channel's view of a text is decided, and both sides use it.
     """
     text = normalize(text)
-    if model == DEFAULT_EMBEDDER:
-        prefix = NOMIC_DOCUMENT if kind == "document" else NOMIC_QUERY
-        return prefix + text
-    if model == GEMMA_EMBEDDER:
-        if kind == "query":
-            return GEMMA_QUERY + text
-        shown = title.strip() or "none"
-        return GEMMA_TITLE.format(title=shown) + text
-    raise SystemExit(
-        f"no confirmed task prefix for {model}. "
-        "Do not embed it until the prefix is checked."
-    )
+    prefix = PREFIXES.get(model, {}).get(kind)
+    if prefix is None:
+        raise SystemExit(
+            f"no confirmed task prefix for {model}. "
+            "Do not embed it until the prefix is checked."
+        )
+    return prefix.format(title=title.strip() or "none") + text
 
 
 def chunk_title(chunk):

@@ -4,8 +4,6 @@ import unittest
 
 from retrieve import (
     GEMMA_EMBEDDER,
-    NOMIC_DOCUMENT,
-    NOMIC_QUERY,
     cosine,
     document_input,
     embed_index,
@@ -79,7 +77,7 @@ class RetrieveTests(unittest.TestCase):
         first_chunks, first_figures = embed_index(index, embed_fn=recording, dims=DIMS)
         self.assertEqual(first_chunks, 2)
         self.assertEqual(first_figures, 1)
-        self.assertTrue(seen[0].startswith(NOMIC_DOCUMENT))
+        self.assertTrue(seen[0].startswith("search_document: "))
         self.assertIn("Change data capture", " ".join(seen))
         self.assertEqual(len(index["chunks"][0]["embedding"]), DIMS)
         self.assertEqual(index["embedder"], "nomic-embed-text")
@@ -136,7 +134,7 @@ class RetrieveTests(unittest.TestCase):
             "title: Watermarks | text: A watermark is a threshold.",
         )
         nomic = document_input("nomic-embed-text", chunk, "chunk")
-        self.assertTrue(nomic.startswith(NOMIC_DOCUMENT))
+        self.assertTrue(nomic.startswith("search_document: "))
         self.assertIn("Watermarks", nomic)
 
     def test_query_prefix_is_not_the_document_prefix(self):
@@ -149,7 +147,7 @@ class RetrieveTests(unittest.TestCase):
         index = tiny_index()
         embed_index(index, embed_fn=recording, dims=DIMS)
         search(index, "change data capture", embed_fn=recording, k=1)
-        self.assertTrue(seen[-1].startswith(NOMIC_QUERY))
+        self.assertTrue(seen[-1].startswith("search_query: "))
 
     def test_embed_index_refuses_a_non_finite_vector(self):
         def bad_embed(texts, model):

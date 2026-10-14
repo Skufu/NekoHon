@@ -3,6 +3,29 @@
 This directory holds evidence, harnesses, and datasets. It is **not** a dump.
 Read the rules, then the index.
 
+## Where to put what (zones)
+
+New files must land in a zone. The ~260 flat files at this level are
+grandfathered history: they stay until a doc supersedes them. Do not move
+them speculatively — 48 scripts hardcode `ROOT / "artifacts" / <name>`
+and `sys.path` entries pointing at bare `artifacts/`; a move without a
+same-commit code fix breaks the battery.
+
+| Kind | Zone | Naming | Example |
+| --- | --- | --- | --- |
+| Stable runners (reused across sessions) | `artifacts/harnesses/` | stable undated name | `artifacts/harnesses/eval.py` |
+| One-off probes | `artifacts/probes/` | `probe-*-YYYY-MM-DD.py`, outputs beside it | `artifacts/probes/probe-foo-2026-10-15.py` |
+| Datasets, question lists | `artifacts/datasets/` | `family-YYYY-MM-DD[-label].json` | `artifacts/datasets/eval-set-2026-10-15.json` |
+| Findings, decisions, plans | `artifacts/reports/` | `family-YYYY-MM-DD[-label].md` | `artifacts/reports/answer-mode-2026-10-15.md` |
+| Run outputs (json/log/txt) | `artifacts/evidence/<family>/` | dated outputs, one live twin per family (rule 3) | `artifacts/evidence/eval-plain/eval-plain-2026-10-15-v7.json` |
+| Scratch | `artifacts/runs/` or `artifacts/scratch/` | anything; gitignored, never indexed | `artifacts/runs/tmp-2026-10-15.log` |
+
+New scripts resolve paths as `ROOT / "artifacts" / "<zone>" / <name>`
+(not bare `artifacts/`), and any `sys.path` insert points at the zone dir
+(e.g. `ROOT / "artifacts" / "harnesses"`). `prune.py` understands zone
+paths; index rows cover them by full relative path
+(e.g. `probes/probe-foo-2026-10-15.py`).
+
 ## Rules
 
 1. **Scratch vs evidence.** Run outputs go to `artifacts/runs/` (gitignored).
@@ -34,71 +57,72 @@ referenced by `AGENTS.md` and committed (2026-10-13).
 
 ## Index
 
-Dates are first-commit dates (`2026-10-11/12/13`).
+Dates are first-commit dates (`2026-10-11/12/13`). Paths are relative to `artifacts/`.
 
 ### Harnesses (code, in use)
 
 | File | What it is |
 | --- | --- |
-| `eval.py` | labeled-set evaluation (recall/MRR/refusals/key facts/relevance) |
-| `eval-plain.py` | plain-register scorecard (imports `probe-plain.py`) |
-| `step2-battery.py` | the commit-gate battery, both modes |
-| `qa-sweep.py` | bulk sweep runner over `qa-questions-overnight.json` |
-| `groundedness.py` | 4-gram support meter |
-| `judge.py` | LLM judge (ollama default; openai wire opt-in) |
-| `judge-agreement.py`, `probe-judge-scale.py` | judge calibration |
-| `judge-stability.py` | verdict flip-rate probe |
-| `secret-scan.py` | git-history secret scan (must stay clean) |
-| `plain-edge-check.py` | contract checker over `plain-edge-*.json` |
-| `probe-agentic.py`, `probe-plain.py`, `probe-llm-spell.py`, `probe-mad-phrasing.py`, `probe-codd.py`, `probe-refusal.py`, `probe-stages.py` | named probes with committed findings below |
-| `probe-prefix-rule.py`, `probe-prefix-bare-terms.py`, `probe-class-variance-2026-10-13.py`, `probe-canonical-retest-2026-10-13.py`, `probe-test-mutations-2026-10-13.py`, `probe-fold-ab-2026-10-13.py`, `probe-finetune-verify-2026-10-13.py`, `probe-small-ask-2026-10-13.py`, `probe-small-refuse-2026-10-13.py`, `probe-llm-loop-2026-10-13.py`, `probe-trial-queries-2026-10-14.py`, `probe-contamination-2026-10-14.py`, `probe-query-normalize.py`, `probe-nonrelational-ask.py`, `probe-quote-fix.py`, `probe-plain-diagnose.py`, `probe-quote-choice.py`, `probe-mad-quote.py`, `probe-mad-seed.py`, `probe-mad-caption.py`, `probe-gloss-steer.py`, `probe-gloss-steer-control.py`, `probe-epub-links.py` | 2026-10-13 session probes (query form, quote choice, MAD ceiling, fold A/B, test mutations, dataset verify, small-model bench); findings in the rows below |
-| `multihop-probe.py`, `multihop-explore.py`, `multihop-forced-keyword.py` | agentic multi-hop experiments |
-| `bakeoff-digest.py` | bake-off log digester |
+| `harnesses/eval.py` | labeled-set evaluation (recall/MRR/refusals/key facts/relevance) |
+| `harnesses/eval-plain.py` | plain-register scorecard (imports `probe-plain.py`) |
+| `harnesses/step2-battery.py` | the commit-gate battery, both modes |
+| `harnesses/qa-sweep.py` | bulk sweep runner over `datasets/qa-questions-overnight.json` |
+| `harnesses/groundedness.py` | 4-gram support meter |
+| `harnesses/judge.py` | LLM judge (ollama default; openai wire opt-in) |
+| `harnesses/judge-agreement.py`, `probes/probe-judge-scale.py` | judge calibration |
+| `harnesses/judge-stability.py` | verdict flip-rate probe |
+| `harnesses/secret-scan.py` | git-history secret scan (must stay clean) |
+| `harnesses/plain-edge-check.py` | contract checker over `evidence/plain-edge/plain-edge-*.json` |
+| `probes/probe-agentic.py`, `probes/probe-plain.py`, `probes/probe-llm-spell.py`, `probes/probe-mad-phrasing.py`, `probes/probe-codd.py`, `probes/probe-refusal.py`, `probes/probe-stages.py` | named probes with committed findings below |
+| `probes/probe-prefix-rule.py`, `probes/probe-prefix-bare-terms.py`, `probes/probe-class-variance-2026-10-13.py`, `probes/probe-canonical-retest-2026-10-13.py`, `probes/probe-test-mutations-2026-10-13.py`, `probes/probe-fold-ab-2026-10-13.py`, `probes/probe-finetune-verify-2026-10-13.py`, `probes/probe-small-ask-2026-10-13.py`, `probes/probe-small-refuse-2026-10-13.py`, `probes/probe-llm-loop-2026-10-13.py`, `probes/probe-trial-queries-2026-10-14.py`, `probes/probe-contamination-2026-10-14.py`, `probes/probe-query-normalize.py`, `probes/probe-nonrelational-ask.py`, `probes/probe-quote-fix.py`, `probes/probe-plain-diagnose.py`, `probes/probe-quote-choice.py`, `probes/probe-mad-quote.py`, `probes/probe-mad-seed.py`, `probes/probe-mad-caption.py`, `probes/probe-gloss-steer.py`, `probes/probe-gloss-steer-control.py`, `probes/probe-epub-links.py` | 2026-10-13 session probes (query form, quote choice, MAD ceiling, fold A/B, test mutations, dataset verify, small-model bench); findings in the rows below |
+| `probes/multihop-probe.py`, `probes/multihop-explore.py`, `probes/multihop-forced-keyword.py` | agentic multi-hop experiments |
+| `probes/bakeoff-digest.py` | bake-off log digester |
 | `prune.py` | this directory's planner (rule 6) |
-| `guard-audit.py` | guard-word audit (json next to it) |
-| `build-finetune-data-2026-10-13.py` | quote-or-refuse SFT dataset builder (teacher distillation through the shipped seam, mechanical gates) |
+| `harnesses/guard-audit.py` | guard-word audit (json next to it) |
+| `probes/build-finetune-data-2026-10-13.py` | quote-or-refuse SFT dataset builder (teacher distillation through the shipped seam, mechanical gates) |
 
 ### Datasets
 
 | File | What it is |
 | --- | --- |
-| `eval-set.json` | 24 labeled items (22 answer, 2 refuse) |
-| `eval-set-plain.json` | 10 plain-register items |
-| `qa-questions-overnight.json` | 124 sweep questions |
-| `demo-questions.md` | the demo sheet + pins (2026-10-12) |
+| `datasets/eval-set.json` | 24 labeled items (22 answer, 2 refuse) |
+| `datasets/eval-set-plain.json` | 10 plain-register items |
+| `datasets/qa-questions-overnight.json` | 124 sweep questions |
+| `datasets/demo-questions.md` | the demo sheet + pins (2026-10-12) |
 
 ### Evidence — current claims
 
 | Family | What it backs | Status |
 | --- | --- | --- |
-| `answer-model-bakeoff-plan.md`, `answer-model-bakeoff-results.md`, `answer-model-decision.md`, `answer-model-search.md`, `ollama-quote-model-table.md` | model choice (qwen2.5:7b stays); `bakeoff-*` survivors: `bakeoff-granite4.1-3b-v2.{json,log}`, `bakeoff-side-asks.txt`, `bakeoff-side-asks-v2.txt`, `bakeoff-qwen3-4b-instruct-retries.txt`, `bakeoff-qwen3-4b-instruct-cru-retries-v2.txt` | kept (2026-10-11/12) |
-| `step2-battery.{json,log}`, `step2-battery-answer.{json,log}`, `step2-battery-flaked.{json,log}` | latest battery runs + preserved cold-start flake | LIVE |
-| `eval-v1*.{json,log}` | labeled-set baseline + granite/Muse replays (`eval-v1.json` is `probe-judge-scale.py` input) | kept |
-| `eval-plain-*` | register history: baseline (granite/muse), v4/v4b (invalidated-run evidence), v6 (cited in AGENTS), wired/replay/quotealign/quotealign2 (post-wiring draws) | kept |
-| `groundedness-authored*.*`, `groundedness-battery.*`, `groundedness-closephrase.*`, `groundedness-sweep303.*` | groundedness meter numbers in `answer-mode-overnight.md` | kept |
-| `judge-grade-*`, `judge-scale-*.log`, `judge-agreement-*.log` | graded-scale and agreement findings | kept |
-| `agentic-design.md`, `probe-agentic.py` | agentic prototype design + live probe | kept (2026-10-13) |
-| `multihop-*` | agentic no-win evidence + forced-keyword follow-up | kept (2026-10-13) |
-| `plain-edge-*.json` (17), `plain-edge-timing.txt`, `plain-edge-findings.md` | wired-register edge probes; raw responses checked by `plain-edge-check.py` | kept (2026-10-13) |
-| `plain-http-{check,control}.json`, `plain-fix-check-{1,2}.json` | live route checks + fragment-fix outputs | kept (2026-10-13) |
-| `plain-register-night-2026-10-13.md` | the night run report (register draws, judge drift, fixes) | kept (2026-10-13) |
-| `answer-mode-overnight.md` | answer-mode overnight findings | kept (2026-10-13) |
-| `mad-caption-probe.md`, `mad-phrasing-{probe.md,postrevert.txt}`, `mad-ask-ceiling.md` (untracked) | MAD retrieval history | kept (2026-10-12/13) |
-| `query-canonicalization-2026-10-13.md`, `probe-class-variance-2026-10-13.{json,log}` (Stage 1 rerun), `probe-class-variance-2026-10-13-stage0.{json,log}` (baseline), `probe-canonical-retest-2026-10-13.{json,log}`, `probe-test-mutations-2026-10-13.{json,log}` (5 breaks, 0 survivors), `probe-prefix-rule.{json,log}`, `probe-prefix-bare-terms.{json,log}` | canonicalization plan + baselines + retest + test mutation check; R1 landed 2026-10-13 | kept (2026-10-13) |
-| `query-normalization.md`, `probe-nonrelational-ask.*`, `probe-query-normalize.{log,json}` | one-`?` flip evidence: model-side at identical pool order; blanket punctuation strip net 0 (2/23 opposite) | kept (2026-10-13) |
-| `probe-quote-fix.{json,log}`, `probe-quote-choice.log`, `probe-plain-diagnose*.{json,log}` | answer-mode quote-choice fix evidence (cited in AGENTS) | kept (2026-10-13) |
-| `probe-mad-quote.*`, `probe-mad-seed.*`, `probe-mad-caption.*`, `probe-gloss-steer*.*`, `probe-epub-links.log` | MAD ask ceiling; steer #4 negative; EPUB link graph | kept (2026-10-13) |
-| `probe-fold-ab-2026-10-13.{json,log}` | embedded-book typography-fold A/B (full re-embed): 0/21 top-1 flips, fold unproven -> no index rebuild; corrects figure-vector composition and the 1042-chunk count | kept (2026-10-13) |
-| `finetune-data-prep-2026-10-13.md`, `finetune-loop-eval-2026-10-13.md`, `finetune-colab-recipe-2026-10-13.md`, `finetune-colab-2026-10-13.ipynb`, `probe-finetune-verify-2026-10-13.{json,log}`, `probe-small-ask-2026-10-13*.{json,log}`, `probe-small-refuse-2026-10-13*.{json,log}`, `probe-llm-loop-2026-10-13.*.log` | quote-or-refuse dataset + ratio variants (train x3 194 / x2 167 / x1 140, bench 45; verifier PASS each); x3 checkpoints: refusals fixed on both, 3B loops on some answers (draw-process measured, sampler fixes rejected), Qwen3 parked; Colab recipe v4 (two ratios, one session) | kept (2026-10-13) |
-| `x2-trial-2026-10-14.md`, `probe-trial-queries-2026-10-14.{json,log}`, `probe-contamination-2026-10-14.{json,log}` | smallbook_x2 live trial: fragment-pattern results vs the 7B (3 false-refusal classes grounded; engine backlog logged); contamination audit (0 exact, 4 bench near-twins in train); x2 = app trial default | kept (2026-10-14) |
-| `how-it-works.md` | pipeline mental image | kept (2026-10-12) |
-| `stage9-preprocessing.md` | preprocessing stages 5-9 | kept (2026-10-13) |
-| `refusal-fixes-evidence.txt` | refusal fixes evidence | kept (2026-10-13) |
-| `embedding-audit-2026-10-13.txt` | vector audit numbers | kept (2026-10-13) |
-| `phase7-offline*` | wifi-off gate evidence | kept (2026-10-12) |
-| `frontend-navigation-plan.md` | own-frontend direction (not approved) | kept (2026-10-13) |
-| `golden-growth-plan-2026-10-13.md` | labeled-set growth plan: statistical targets (24 -> ~100), strata, book-first labeling protocol, 4-batch rollout (not approved) | kept (2026-10-13) |
-| `x-research-2026-10-12.md`, `planning-context.md`, `post-v1-plan.md` | session planning notes | kept (2026-10-12) |
-| `probe-plain.{json,log}`, `probe-llm-spell.{json,log}` | spell/plain probe evidence | kept (2026-10-13) |
-| `guard-audit.json` | guard-word audit output | kept (2026-10-13) |
-| `judge-stability-all-wired.txt` | per-question flip map | kept (2026-10-13) |
+| `reports/answer-model-bakeoff-plan.md`, `reports/answer-model-bakeoff-results.md`, `reports/answer-model-decision.md`, `reports/answer-model-search.md`, `reports/ollama-quote-model-table.md` | model choice (qwen2.5:7b stays); `evidence/bakeoff/` survivors: `evidence/bakeoff/bakeoff-granite4.1-3b-v2.{json,log}`, `evidence/bakeoff/bakeoff-side-asks.txt`, `evidence/bakeoff/bakeoff-side-asks-v2.txt`, `evidence/bakeoff/bakeoff-qwen3-4b-instruct-retries.txt`, `evidence/bakeoff/bakeoff-qwen3-4b-instruct-cru-retries-v2.txt` | kept (2026-10-11/12) |
+| `evidence/step2-battery/step2-battery.{json,log}`, `evidence/step2-battery/step2-battery-answer.{json,log}`, `evidence/step2-battery/step2-battery-flaked.{json,log}` | latest battery runs + preserved cold-start flake | LIVE |
+| `evidence/eval-v1/eval-v1*.{json,log}` | labeled-set baseline + granite/Muse replays (`eval-v1.json` is `probe-judge-scale.py` input) | kept |
+| `evidence/eval-plain/eval-plain-*` | register history: baseline (granite/muse), v4/v4b (invalidated-run evidence), v6 (cited in AGENTS), wired/replay/quotealign/quotealign2 (post-wiring draws) | kept |
+| `evidence/groundedness/groundedness-authored*.*`, `evidence/groundedness/groundedness-battery.*`, `evidence/groundedness/groundedness-closephrase.*`, `evidence/groundedness/groundedness-sweep303.*` | groundedness meter numbers in `answer-mode-overnight.md` | kept |
+| `evidence/judge-grade/judge-grade-*`, `evidence/judge-scale/judge-scale-*.log`, `evidence/judge-agreement/judge-agreement-*.log` | graded-scale and agreement findings | kept |
+| `reports/agentic-design.md`, `probes/probe-agentic.py` | agentic prototype design + live probe | kept (2026-10-13) |
+| `evidence/multihop/multihop-*` | agentic no-win evidence + forced-keyword follow-up | kept (2026-10-13) |
+| `evidence/plain-edge/plain-edge-*.json` (17), `evidence/plain-edge/plain-edge-timing.txt`, `reports/plain-edge-findings.md` | wired-register edge probes; raw responses checked by `plain-edge-check.py` | kept (2026-10-13) |
+| `evidence/plain-http/plain-http-{check,control}.json`, `evidence/plain-fix-check/plain-fix-check-{1,2}.json` | live route checks + fragment-fix outputs | kept (2026-10-13) |
+| `reports/plain-register-night-2026-10-13.md` | the night run report (register draws, judge drift, fixes) | kept (2026-10-13) |
+| `reports/answer-mode-overnight.md` | answer-mode overnight findings | kept (2026-10-13) |
+| `reports/mad-caption-probe.md`, `reports/mad-phrasing-probe.md`, `evidence/mad-phrasing/mad-phrasing-postrevert.txt`, `reports/mad-ask-ceiling.md` (untracked) | MAD retrieval history | kept (2026-10-12/13) |
+| `reports/query-canonicalization-2026-10-13.md`, `evidence/probe-class-variance/probe-class-variance-2026-10-13.{json,log}` (Stage 1 rerun), `evidence/probe-class-variance/probe-class-variance-2026-10-13-stage0.{json,log}` (baseline), `evidence/probe-canonical-retest/probe-canonical-retest-2026-10-13.{json,log}`, `evidence/probe-test-mutations/probe-test-mutations-2026-10-13.{json,log}` (5 breaks, 0 survivors), `evidence/probe-prefix-rule/probe-prefix-rule.{json,log}`, `evidence/probe-prefix-bare-terms/probe-prefix-bare-terms.{json,log}` | canonicalization plan + baselines + retest + test mutation check; R1 landed 2026-10-13 | kept (2026-10-13) |
+| `reports/query-normalization.md`, `evidence/probe-nonrelational-ask/probe-nonrelational-ask.*`, `evidence/probe-query-normalize/probe-query-normalize.{log,json}` | one-`?` flip evidence: model-side at identical pool order; blanket punctuation strip net 0 (2/23 opposite) | kept (2026-10-13) |
+| `evidence/probe-quote-fix/probe-quote-fix.{json,log}`, `evidence/probe-quote-choice/probe-quote-choice.log`, `evidence/probe-plain-diagnose/probe-plain-diagnose*.{json,log}` | answer-mode quote-choice fix evidence (cited in AGENTS) | kept (2026-10-13) |
+| `evidence/probe-mad-quote/probe-mad-quote.*`, `evidence/probe-mad-seed/probe-mad-seed.*`, `evidence/probe-mad-caption/probe-mad-caption.*`, `evidence/probe-gloss-steer/probe-gloss-steer*.*`, `evidence/probe-epub-links/probe-epub-links.log` | MAD ask ceiling; steer #4 negative; EPUB link graph | kept (2026-10-13) |
+| `evidence/probe-fold-ab/probe-fold-ab-2026-10-13.{json,log}` | embedded-book typography-fold A/B (full re-embed): 0/21 top-1 flips, fold unproven -> no index rebuild; corrects figure-vector composition and the 1042-chunk count | kept (2026-10-13) |
+| `reports/finetune-data-prep-2026-10-13.md`, `reports/finetune-loop-eval-2026-10-13.md`, `reports/finetune-colab-recipe-2026-10-13.md`, `reports/finetune-colab-2026-10-13.ipynb`, `evidence/probe-finetune-verify/probe-finetune-verify-2026-10-13.{json,log}`, `evidence/probe-small-ask/probe-small-ask-2026-10-13*.{json,log}`, `evidence/probe-small-refuse/probe-small-refuse-2026-10-13*.{json,log}`, `evidence/probe-llm-loop/probe-llm-loop-2026-10-13.*.log` | quote-or-refuse dataset + ratio variants (train x3 194 / x2 167 / x1 140, bench 45; verifier PASS each); x3 checkpoints: refusals fixed on both, 3B loops on some answers (draw-process measured, sampler fixes rejected), Qwen3 parked; Colab recipe v4 (two ratios, one session) | kept (2026-10-13) |
+| `reports/x2-trial-2026-10-14.md`, `evidence/probe-trial-queries/probe-trial-queries-2026-10-14.{json,log}`, `evidence/probe-contamination/probe-contamination-2026-10-14.{json,log}` | smallbook_x2 live trial: fragment-pattern results vs the 7B (3 false-refusal classes grounded; engine backlog logged); contamination audit (0 exact, 4 bench near-twins in train); x2 = app trial default | kept (2026-10-14) |
+| `reports/how-it-works.md` | pipeline mental image | kept (2026-10-12) |
+| `system-map-2026-10-13.md` | pipeline map; the mermaid example `AGENTS.md` points at | kept (2026-10-13) |
+| `reports/stage9-preprocessing.md` | preprocessing stages 5-9 | kept (2026-10-13) |
+| `evidence/refusal-fixes-evidence/refusal-fixes-evidence.txt` | refusal fixes evidence | kept (2026-10-13) |
+| `evidence/embedding-audit/embedding-audit-2026-10-13.txt` | vector audit numbers | kept (2026-10-13) |
+| `evidence/phase7-offline/phase7-offline*` | wifi-off gate evidence | kept (2026-10-12) |
+| `reports/frontend-navigation-plan.md` | own-frontend direction (not approved) | kept (2026-10-13) |
+| `reports/golden-growth-plan-2026-10-13.md` | labeled-set growth plan: statistical targets (24 -> ~100), strata, book-first labeling protocol, 4-batch rollout (not approved) | kept (2026-10-13) |
+| `reports/x-research-2026-10-12.md`, `reports/planning-context.md`, `reports/post-v1-plan.md` | session planning notes | kept (2026-10-12) |
+| `evidence/probe-plain/probe-plain.{json,log}`, `evidence/probe-llm-spell/probe-llm-spell.{json,log}` | spell/plain probe evidence | kept (2026-10-13) |
+| `evidence/guard-audit/guard-audit.json` | guard-word audit output | kept (2026-10-13) |
+| `evidence/judge-stability/judge-stability-all-wired.txt` | per-question flip map | kept (2026-10-13) |

@@ -218,7 +218,7 @@ Not in this book.
 Do not describe an image. You cannot see images. If a passage names a figure, mention it; the app will show the image.
 ```
 
-The reply is kept as written, minus quotation marks the shown passages cannot back. Citations come from the model's `[Ch. N]` tags: each tagged sentence is matched to the shown passage of that chapter with the most word overlap, and each citation's quote is passage text; a zero-overlap claim gets no citation. A refusal is the exact sentence on the first line; other prose is never discarded. Groundedness is measured (`artifacts/groundedness.py`: share of answer-sentence 4-grams found in the shown passages), not enforced.
+The reply is kept as written, minus quotation marks the shown passages cannot back. Citations come from the model's `[Ch. N]` tags: each tagged sentence is matched to the shown passage of that chapter with the most word overlap, and each citation's quote is passage text; a zero-overlap claim gets no citation. A refusal is the exact sentence on the first line; other prose is never discarded. Groundedness is measured (`artifacts/harnesses/groundedness.py`: share of answer-sentence 4-grams found in the shown passages), not enforced.
 
 User message is the question, then the top passages as plain text blocks with chapter and chunk id. For `explain`, the selection is the question and the retrieved neighborhood is the passages. For `quiz`, the prompt addition is: write one question a person could answer with a quote from the single best passage. Do not include the quote in that question.
 
@@ -395,7 +395,7 @@ Command, identical online and offline:
 - Offline proof: `curl -s -m 3 -o /dev/null -w "%{http_code}" https://example.com` -> `000`.
 - The same ask while offline: `refused: false`; first line `[Ch. 8] "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late"`; citation `ch08-040`; figure `figure-8-8`.
 - Sockets while offline: `netstat -ano | findstr :8000` -> engine PID 26996; that PID's lines -> `127.0.0.1` only. `netstat -ano | findstr :11434` -> Ollama PID 18996, `127.0.0.1` only. No foreign address.
-- Raw log: `artifacts/phase7-offline.log` and `artifacts/phase7-offline-ask.json`.
+- Raw log: `artifacts/evidence/phase7-offline/phase7-offline.log` and `artifacts/evidence/phase7-offline/phase7-offline-ask.json`.
 
 Disclosure: embeddings and answers are Ollama on localhost; models are
 `nomic-embed-text` and `qwen2.5:7b`; no cloud model API; base models, no
@@ -411,7 +411,7 @@ is an own frontend with the reader inside the app — Readest/ReadAny are
 pattern references, not a fork, and citations navigate into that reader.
 Open decision: vanilla window + vendored foliate-js (fits the no-build-step
 rule) vs a React/Vite stack. Full plan:
-`artifacts/frontend-navigation-plan.md`.
+`artifacts/reports/frontend-navigation-plan.md`.
 
 Clone Readest on unmetered wifi only. Side panel calls the same `POST /ask`. The engine stays a separate process. AGPL stays on the fork. The engine repo does not become AGPL by being imported into the Tauri app.
 

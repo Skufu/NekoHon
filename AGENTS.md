@@ -73,13 +73,21 @@ server.
   after number, and what was held constant.
 - Diagrams anywhere (chat, docs, artifacts) are **real mermaid diagrams**
   (they render) — never ASCII sketches. User decision 2026-10-13; the model
-  example is `artifacts/system-map-2026-10-13.md`.
+  example is `artifacts/reports/system-map-2026-10-13.md`.
 
 ## Artifacts policy (read before writing to artifacts/)
 
 - Runs write to `artifacts/runs/` (gitignored). Promote a run into
   `artifacts/` only when a doc or commit names it, and add its row to the
   index (`artifacts/README.md`) — the index is the gate.
+- Zones (migration landed 2026-10-14; only `prune.py` + `README.md` stay at
+  `artifacts/` top level — never add new flat files): `harnesses/`
+  (reusable runners), `probes/` (dated one-offs), `datasets/` (eval sets,
+  question lists), `reports/` (dated .md findings),
+  `evidence/<family>/` (dated outputs, one live twin), `runs/` + `scratch/`
+  (gitignored scratch). Full table + path snippet: `artifacts/README.md`.
+  History bullets below cite pre-migration flat names; resolve them through
+  the index.
 - New docs and benchmark outputs carry their date in the name:
   `family-YYYY-MM-DD[-label].ext`.
 - One live twin per family: the latest run plus any run a doc names;
@@ -813,16 +821,16 @@ server.
   index, Ollama, models, vector audit; exit 0 when ready to serve)
 - Index hygiene: `python verify_index.py` (read-only; exits 1 on dirty vectors)
 - Server: `python server.py` -> `GET http://127.0.0.1:8000/health`
-- Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/step2-battery.py`. Default is qwen2.5:7b (the granite4.1:3b swap was reverted 2026-10-13 — see the bake-off bullet); keep exactly one listener on :8000.
-- Answer mode: `BATTERY_MODE=answer python artifacts/step2-battery.py`; sweeps `SWEEP_MODE=answer python artifacts/qa-sweep.py <label>`; groundedness `python artifacts/groundedness.py --battery --label <name>` or `--label <name>` over `qa-questions-overnight.json` (in-process, no server needed).
-- Agentic prototype (not wired): `python artifacts/probe-agentic.py` (live Ollama, 5 asks).
-- Plain register: `python -m unittest tests.test_plain_register`; scorecard draws (cloud judge) `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/eval-plain.py --variants wired --label wired` (replay with a new label); judge flip probe `python artifacts/judge-stability.py --file eval-plain-v6-openai-muse-spark-1-3-contributor.json --match <question substring> --n 3`; live route check: `answer` mode with "explain data engineering in simple words".
+- Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/harnesses/step2-battery.py`. Default is qwen2.5:7b (the granite4.1:3b swap was reverted 2026-10-13 — see the bake-off bullet); keep exactly one listener on :8000.
+- Answer mode: `BATTERY_MODE=answer python artifacts/harnesses/step2-battery.py`; sweeps `SWEEP_MODE=answer python artifacts/harnesses/qa-sweep.py <label>`; groundedness `python artifacts/harnesses/groundedness.py --battery --label <name>` or `--label <name>` over `datasets/qa-questions-overnight.json` (in-process, no server needed).
+- Agentic prototype (not wired): `python artifacts/probes/probe-agentic.py` (live Ollama, 5 asks).
+- Plain register: `python -m unittest tests.test_plain_register`; scorecard draws (cloud judge) `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/harnesses/eval-plain.py --variants wired --label wired` (replay with a new label); judge flip probe `python artifacts/harnesses/judge-stability.py --file evidence/eval-plain/eval-plain-v6-openai-muse-spark-1-3-contributor.json --match <question substring> --n 3`; live route check: `answer` mode with "explain data engineering in simple words".
 - Canonicalization: `python -m unittest tests.test_canonical`; live check:
   a bare phrase in answer mode ("watermark") answers in question form and the
   answer ends with `Asked as: "What is watermark?"`; mutation check
-  `python artifacts/probe-test-mutations-2026-10-13.py` (5 breaks, 0 survivors).
-- Judge backends: default `ollama:granite4.1:8b`; cloud replay, e.g. `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/eval.py --judge-only --label v1`, then `python artifacts/judge-agreement.py eval-v1-ollama-granite4-1-8b eval-v1-openai-muse-spark-1-3-contributor`. `.judge-key` is gitignored; the engine never uses it.
-- Secret scan: `python artifacts/secret-scan.py` (git history + tracked tree; masked output; exit 1 on any hit). Clean 2026-10-13: this repo 516 blobs, 0 hits; `rag-template` 170 blobs, 0 hits.
+  `python artifacts/probes/probe-test-mutations-2026-10-13.py` (5 breaks, 0 survivors).
+- Judge backends: default `ollama:granite4.1:8b`; cloud replay, e.g. `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/harnesses/eval.py --judge-only --label v1`, then `python artifacts/harnesses/judge-agreement.py eval-v1-ollama-granite4-1-8b eval-v1-openai-muse-spark-1-3-contributor`. `.judge-key` is gitignored; the engine never uses it.
+- Secret scan: `python artifacts/harnesses/secret-scan.py` (git history + tracked tree; masked output; exit 1 on any hit). Clean 2026-10-13: this repo 516 blobs, 0 hits; `rag-template` 170 blobs, 0 hits.
 - Artifacts: index + rules `artifacts/README.md`; prune planner `python artifacts/prune.py --plan`.
 
 ## Machine facts (this Windows box)
@@ -864,6 +872,6 @@ server.
   jumps to the passage and highlights it. External-reader hand-off dropped;
   Readest/ReadAny are pattern references; foliate-js is the candidate
   engine. Plan, locator strategy, and the open renderer decision:
-  `artifacts/frontend-navigation-plan.md`. Needs explicit yes: new
+  `artifacts/reports/frontend-navigation-plan.md`. Needs explicit yes: new
   read/static routes and citation fields (contract), plus the foliate-js
   vendoring download (megabyte approval per BUILD_PLAN).

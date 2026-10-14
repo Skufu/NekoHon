@@ -38,7 +38,7 @@ The pipeline stages, kept separate on purpose:
   its COPYING). Idempotent on the measured word set.
 
 Stages 5-9 are new views. Wiring them into the keyword/anchor path changes
-which words match, so it is proposed in `artifacts/stage9-preprocessing.md`
+which words match, so it is proposed in `artifacts/reports/stage9-preprocessing.md`
 and waits for a battery run; `words()` and `normalize()` keep their exact
 behavior until then, because the rare gate rides on the raw df counts.
 """

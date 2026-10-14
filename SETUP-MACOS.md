@@ -90,7 +90,7 @@ rare-word probes, and the France refusal staying exact. Needs Ollama plus a
 fresh `server.py`:
 
 ```sh
-python3 artifacts/step2-battery.py
+python3 artifacts/harnesses/step2-battery.py
 ```
 
 The eval harness (optional) needs the LLM judge, separate from the answer
@@ -98,17 +98,17 @@ model. Local default (offline, keyless):
 
 ```sh
 ollama pull granite4.1:8b     # 5.3 GB, eval only
-python3 artifacts/eval.py --label v1
+python3 artifacts/harnesses/eval.py --label v1
 ```
 
 The current eval runs use `muse-spark-1.3-contributor` as the judge (cloud,
 OpenCode Go relay). It needs the org key at `.judge-key` — ask Adrian. Judges
 are swappable by design: if you have a stronger OpenAI-compatible model, use
 it — `judge_name()` records the judge in every output and
-`artifacts/judge-agreement.py` re-calibrates before runs are compared:
+`artifacts/harnesses/judge-agreement.py` re-calibrates before runs are compared:
 
 ```sh
-JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python3 artifacts/eval.py --judge-only --label v1
+JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python3 artifacts/harnesses/eval.py --judge-only --label v1
 ```
 
 Port hygiene: exactly one server may listen on :8000. macOS check:

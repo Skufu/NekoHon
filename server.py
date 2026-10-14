@@ -1,9 +1,9 @@
-"""ask-this-book engine. stdlib only; the route shape is locked in BUILD_PLAN.md.
+"""ask-this-book engine. stdlib only.
 
 POST /ask in mode "ask" retrieves from the nomic index and checks the quote.
 Mode "answer" is free generation from the same passages with a measured
-quote check (artifacts/groundedness.py), not an enforced one. explain and
-quiz are live since Phase 6 and use the same index. No new routes.
+quote check (artifacts/harnesses/groundedness.py), not an enforced one. explain
+and quiz use the same index.
 """
 
 import json

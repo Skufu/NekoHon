@@ -1,9 +1,9 @@
-"""Answers from retrieved passages. Phase 4 (ask) and the answer mode.
+"""Answers from retrieved passages: the ask and answer modes.
 
 ask: the model quotes, the quote is checked; a failed check is a refusal.
 answer: the model writes freely from the passages; its [Ch. n] tags become
 citations, quotation marks the passages cannot back are stripped, and the
-quote check demotes from gate to meter (artifacts/groundedness.py).
+quote check demotes from gate to meter (artifacts/harnesses/groundedness.py).
 """
 
 import difflib
@@ -471,7 +471,7 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None):
     """The passages the model is shown, after reading, fusion, and seeding.
 
     Shared by ask and respond so both modes see the same evidence; the
-    groundedness meter (artifacts/groundedness.py) calls this to compare an
+    groundedness meter (artifacts/harnesses/groundedness.py) calls this to compare an
     answer against exactly the passages it was given. When a question word is
     not in the book, the reading repair runs first (difflib, self-proving);
     the LLM enhancer is the fallback under the same gate, so a typo difflib

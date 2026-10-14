@@ -20,7 +20,7 @@ gate (2026-10-12). 171 unit tests green, index audit clean, HTTP battery PASS
 | --- | --- | --- | --- |
 | Embed | `nomic-embed-text:latest` | 274 MB | 768-dim. Won the embedder bake-off: 10/10 vs EmbeddingGemma-2's 9/10. |
 | Answer | `qwen2.5:7b` | 4.7 GB (Q4_K_M) | The default for both answer modes. Temperature 0. |
-| Eval judge | `granite4.1:8b` local; `muse-spark-1.3-contributor` cloud | 5.3 GB local | The LLM judge (`artifacts/judge.py`): passage relevance, key facts, book fidelity, example use. Local is the offline default; the eval runs currently use Muse Spark 1.3 over the OpenCode Go relay. Any stronger OpenAI-compatible model can be swapped in — `judge_name()` records it and `artifacts/judge-agreement.py` re-calibrates. The engine never uses either. |
+| Eval judge | `granite4.1:8b` local; `muse-spark-1.3-contributor` cloud | 5.3 GB local | The LLM judge (`artifacts/harnesses/judge.py`): passage relevance, key facts, book fidelity, example use. Local is the offline default; the eval runs currently use Muse Spark 1.3 over the OpenCode Go relay. Any stronger OpenAI-compatible model can be swapped in — `judge_name()` records it and `artifacts/harnesses/judge-agreement.py` re-calibrates. The engine never uses either. |
 
 Also on disk, not defaults: `granite4.1:3b` (eligible small-PC slot and the
 finetune candidate; a trial swap to it was reverted the same day — it answered
@@ -115,9 +115,9 @@ reaches retrieval and the model as "What is watermark?", and the answer
 discloses it as `Asked as: "..."`. Explain is exempt — its highlight is a
 book sentence, not a question.
 
-Honesty is metered, not assumed: `artifacts/groundedness.py` measures how much
+Honesty is metered, not assumed: `artifacts/harnesses/groundedness.py` measures how much
 of an answer is supported by the shown passages, and the eval harness
-(`artifacts/eval.py`) scores retrieval and answer quality against a labeled
+(`artifacts/harnesses/eval.py`) scores retrieval and answer quality against a labeled
 set.
 
 An `answer` question that asks for simple words ("explain data ingestion in
@@ -130,7 +130,7 @@ release judge scored 6, 7, 8 before the 2026-10-13 fragment fix and 9, 8
 after it. Citation quotes are always whole book sentences, so a fragment
 source cannot reach the rewriter — that class is fixed structurally, and the
 remaining misses are single-item rewriter errors
-(`artifacts/plain-register-night-2026-10-13.md`, section 8).
+(`artifacts/reports/plain-register-night-2026-10-13.md`, section 8).
 
 ## Quickstart (fresh machine)
 
@@ -238,8 +238,8 @@ Ollama; the rest need Ollama up, and the battery-style checks need
    (`netstat -ano | findstr :8000` — two servers can silently share :8000).
 
    ```sh
-   python artifacts/step2-battery.py
-   BATTERY_MODE=answer python artifacts/step2-battery.py   # answer mode
+   python artifacts/harnesses/step2-battery.py
+   BATTERY_MODE=answer python artifacts/harnesses/step2-battery.py   # answer mode
    ```
 
 5. **Answer-model bake-off** — the same battery per candidate:
@@ -258,43 +258,43 @@ Ollama; the rest need Ollama up, and the battery-style checks need
    JSON):
 
    ```sh
-   SWEEP_MODE=answer python artifacts/qa-sweep.py <label>
+   SWEEP_MODE=answer python artifacts/harnesses/qa-sweep.py <label>
    ```
 
 7. **Groundedness meter** — share of answer sentences supported by the shown
    passages; in-process, no server needed:
 
    ```sh
-   python artifacts/groundedness.py --battery --label <name>
+   python artifacts/harnesses/groundedness.py --battery --label <name>
    ```
 
 8. **Eval harness + LLM judge** — labeled-set evaluation (dense recall, shown
    recall, MRR, refusal classes, key facts). The LLM judge is
-   `artifacts/judge.py`: one-word verdicts at temperature 0. Local
+   `artifacts/harnesses/judge.py`: one-word verdicts at temperature 0. Local
    `granite4.1:8b` (cross-family with the answerer, offline, keyless) is the
    default; the eval runs currently use `muse-spark-1.3-contributor` over the
    OpenCode Go relay (key in `.judge-key`, gitignored, never read by the
    engine). Judges are swappable by design: if a stronger model is available,
-   use it — `judge_name()` records the judge in every output, and
-   `judge-agreement.py` re-calibrates it against the previous one before runs
+   `judge_name()` records the judge in every output, and
+   `harnesses/judge-agreement.py` re-calibrates it against the previous one before runs
    are compared. Verdicts are unvalidated against human labels.
 
    ```sh
-   python artifacts/eval.py --label v1
-   python artifacts/judge-agreement.py <run-a> <run-b>
+   python artifacts/harnesses/eval.py --label v1
+   python artifacts/harnesses/judge-agreement.py <run-a> <run-b>
    ```
 
 9. **Secret scan** — every git blob in history plus the tracked tree, masked
    output, exits 1 on any hit:
 
    ```sh
-   python artifacts/secret-scan.py
+   python artifacts/harnesses/secret-scan.py
    ```
 
 10. **Wifi-off gate** — manual by design: unplug the network, confirm the
     offline probe (`https://example.com` returns `000`), then repeat the same
     `POST /ask` and check `netstat` shows localhost only. Recorded run:
-    `artifacts/phase7-offline.sh`, `artifacts/phase7-offline.log`.
+    `artifacts/probes/phase7-offline.sh`, `artifacts/evidence/phase7-offline/phase7-offline.log`.
 
 ## Measured results ledger
 
@@ -302,27 +302,27 @@ Ollama; the rest need Ollama up, and the battery-style checks need
 | --- | --- | --- | --- |
 | 2026-10-11 | Retrieval smoke (10 questions) | 10/10 top-10 (gate 8/10) | `BUILD_PLAN.md` "Phase 3" |
 | 2026-10-11 | Embedder bake-off | nomic 10/10 stays; EmbeddingGemma-2 9/10 | `BUILD_PLAN.md` "Phase 3b" |
-| 2026-10-12 | Wifi-off gate | unplugged: `example.com` -> `000`; same cited answer; sockets `127.0.0.1` only | `artifacts/phase7-offline.log` |
-| 2026-10-12 | HTTP battery (18 asks) | golden 10/10 answered; typos PASS; probes PASS; France exact refusal | `artifacts/step2-battery.{log,json}` |
-| 2026-10-12 | Answer-model bake-off | qwen3:4b-instruct, granite4.1:3b, granite4.1:8b — none beats qwen2.5:7b; the 3b swap was reverted after the MAD phrasing probe | `artifacts/answer-model-bakeoff-results.md`, `artifacts/mad-phrasing-probe.md` |
+| 2026-10-12 | Wifi-off gate | unplugged: `example.com` -> `000`; same cited answer; sockets `127.0.0.1` only | `artifacts/evidence/phase7-offline/phase7-offline.log` |
+| 2026-10-12 | HTTP battery (18 asks) | golden 10/10 answered; typos PASS; probes PASS; France exact refusal | `artifacts/evidence/step2-battery/step2-battery.{log,json}` |
+| 2026-10-12 | Answer-model bake-off | qwen3:4b-instruct, granite4.1:3b, granite4.1:8b — none beats qwen2.5:7b; the 3b swap was reverted after the MAD phrasing probe | `artifacts/reports/answer-model-bakeoff-results.md`, `artifacts/reports/mad-phrasing-probe.md` |
 | 2026-10-12 | Chunk-boundary audit + fix | mid-sentence chunk starts 373 -> 0; cut ends 25 -> 0; pins re-derived | `tests/test_chunking.py`, `AGENTS.md` state |
-| 2026-10-13 | QA sweep, 303 asks (answer mode) | refusals 31 -> 33 -> 33 as stopwords + vendored stemmer reached the guard; junk refusals 18 -> 8 -> 4 | `artifacts/qa-sweep-answer-*.{log,json}` |
-| 2026-10-13 | Groundedness over the sweep | 204/911 sentences supported (22.4%), mean 0.272; answer-prompt A/B: close wording 26.3% vs open 15.3% | `artifacts/groundedness-*.{log,json}` |
-| 2026-10-13 | Eval harness, 24 labeled items | dense recall@10 17/22; shown recall@5 22/22; MRR@10 0.708; judged relevance 68/105 (unvalidated); cited share 0.327; false answers 0/2; false refusals 1/22 | `artifacts/eval-v1.{log,json}` |
-| 2026-10-13 | Judge calibration | local granite vs cloud Muse agree 86/105 (81.9%); graded scales do not transfer across judges | `artifacts/judge-agreement-*.log` |
+| 2026-10-13 | QA sweep, 303 asks (answer mode) | refusals 31 -> 33 -> 33 as stopwords + vendored stemmer reached the guard; junk refusals 18 -> 8 -> 4 | `artifacts/evidence/qa-sweep/qa-sweep-answer-*.{log,json}` |
+| 2026-10-13 | Groundedness over the sweep | 204/911 sentences supported (22.4%), mean 0.272; answer-prompt A/B: close wording 26.3% vs open 15.3% | `artifacts/evidence/groundedness/groundedness-*.{log,json}` |
+| 2026-10-13 | Eval harness, 24 labeled items | dense recall@10 17/22; shown recall@5 22/22; MRR@10 0.708; judged relevance 68/105 (unvalidated); cited share 0.327; false answers 0/2; false refusals 1/22 | `artifacts/evidence/eval-v1/eval-v1.{log,json}` |
+| 2026-10-13 | Judge calibration | local granite vs cloud Muse agree 86/105 (81.9%); graded scales do not transfer across judges | `artifacts/evidence/judge-agreement/judge-agreement-*.log` |
 | 2026-10-13 | Typo fallback wired (`readings.llm_second_reading`) | normilazation -> ch08-051, ingestoin -> ch07-002, both disclosed as `Read as:`; CRU keeps the difflib path; France and iops keep exact refusals; battery PASS in both modes | commit `f48910e` |
-| 2026-10-13 | Index hygiene audit | 1153/1153 vectors 768-wide, 0 non-finite / zero / drifted; `verify_index.py` clean | `artifacts/embedding-audit-2026-10-13.txt` |
+| 2026-10-13 | Index hygiene audit | 1153/1153 vectors 768-wide, 0 non-finite / zero / drifted; `verify_index.py` clean | `artifacts/evidence/embedding-audit/embedding-audit-2026-10-13.txt` |
 | 2026-10-13 | Answer-mode quote choice (`_evidence_quote`) | a stray 41-char copied run no longer outranks a higher-overlap sentence; red->green regression test | commit `954860b` |
-| 2026-10-13 | Bare-phrase canonicalization (Stage 1) | "MAD data landscape" alone: 3 figures -> 1, question-form behavior everywhere covered; batteries PASS both modes; window-confirmed; 5/5 mutation kills | commit `954860b`, `artifacts/query-canonicalization-2026-10-13.md` |
-| 2026-10-13 | Typography-fold A/B (index-rebuild decision) | 0/21 top-1 flips; rebuild rejected | `artifacts/probe-fold-ab-2026-10-13.json` |
-| 2026-10-13 | Finetune v1 checkpoint (`smallbook`, 1.93 GB Q4) | refusal sentence learned; runaway generation (174k chars / 354 s) and wrong quotes -> v2 recipe (responses-only loss) | `artifacts/finetune-data-prep-2026-10-13.md` |
-| 2026-10-13 | Finetune v2/v3 checkpoints (`smallbook` 1.9 GB, `smallbook_q3` 2.5 GB) | stopping + format fixed; bench 19/21 pins each (7B: 21/21); refusals lost — over-sampling landed same day | `artifacts/finetune-data-prep-2026-10-13.md`, `probe-small-ask-2026-10-13.log` |
-| 2026-10-13 | Finetune data v2 (refusal over-sampling x3) | train 194 = 113 answer + 81 refusal (27 refusal questions x3); bench 45 (43/2); verifier PASS, 0 failures | `artifacts/probe-finetune-verify-2026-10-13.{log,json}` |
-| 2026-10-13 | Finetune x3 checkpoints: refusals fixed, loops found | refusals 2/2 exact on both (France, iops); 3B loops on some answers (source-systems 1-4/10 draws across settings; CRUD 4/5 at temp 0) -> sampler rejected, ratio retrain; Qwen3-4B over-refuses (2/21 pins), parked | `artifacts/finetune-loop-eval-2026-10-13.md`, `artifacts/probe-small-refuse-2026-10-13.model-*.log` |
-| 2026-10-14 | Finetune x2/x1 session (trainer truncation bug fixed mid-session) | x2 wins: refusals 2/2, battery 18-19/21 (4 passes), 0 loops in 168 capped draws; x1 loops deterministically (10/10 insert-only); app default flipped to `smallbook_x2` for trial | `artifacts/finetune-loop-eval-2026-10-13.md`, `artifacts/probe-llm-loop-2026-10-13.*.log` |
-| 2026-10-14 | Trial: user fragment-pattern queries (10, both models) | x2 false-refuses Location / DE Lifecycle / ddr4-vs-ddr5 where the 7B answers; "hey" answered via a reading repair (engine backlog: greeting/plural/degenerate-input guards) | `artifacts/probe-trial-queries-2026-10-14.{json,log}`, `artifacts/x2-trial-2026-10-14.md` |
-| 2026-10-14 | Train/bench contamination audit | 0 exact duplicates; 4 near-twins of bench questions in train (ingestion, enterprise-architecture, pragmatic x2, codd) — those bench passes are assisted; gate adopted for every build | `artifacts/probe-contamination-2026-10-14.{json,log}` |
-| 2026-10-13 | Secret scan | 516 history blobs + tracked tree, 0 hits | `artifacts/secret-scan.py` |
+| 2026-10-13 | Bare-phrase canonicalization (Stage 1) | "MAD data landscape" alone: 3 figures -> 1, question-form behavior everywhere covered; batteries PASS both modes; window-confirmed; 5/5 mutation kills | commit `954860b`, `artifacts/reports/query-canonicalization-2026-10-13.md` |
+| 2026-10-13 | Typography-fold A/B (index-rebuild decision) | 0/21 top-1 flips; rebuild rejected | `artifacts/evidence/probe-fold-ab/probe-fold-ab-2026-10-13.json` |
+| 2026-10-13 | Finetune v1 checkpoint (`smallbook`, 1.93 GB Q4) | refusal sentence learned; runaway generation (174k chars / 354 s) and wrong quotes -> v2 recipe (responses-only loss) | `artifacts/reports/finetune-data-prep-2026-10-13.md` |
+| 2026-10-13 | Finetune v2/v3 checkpoints (`smallbook` 1.9 GB, `smallbook_q3` 2.5 GB) | stopping + format fixed; bench 19/21 pins each (7B: 21/21); refusals lost — over-sampling landed same day | `artifacts/reports/finetune-data-prep-2026-10-13.md`, `evidence/probe-small-ask/probe-small-ask-2026-10-13.log` |
+| 2026-10-13 | Finetune data v2 (refusal over-sampling x3) | train 194 = 113 answer + 81 refusal (27 refusal questions x3); bench 45 (43/2); verifier PASS, 0 failures | `artifacts/evidence/probe-finetune-verify/probe-finetune-verify-2026-10-13.{log,json}` |
+| 2026-10-13 | Finetune x3 checkpoints: refusals fixed, loops found | refusals 2/2 exact on both (France, iops); 3B loops on some answers (source-systems 1-4/10 draws across settings; CRUD 4/5 at temp 0) -> sampler rejected, ratio retrain; Qwen3-4B over-refuses (2/21 pins), parked | `artifacts/reports/finetune-loop-eval-2026-10-13.md`, `artifacts/evidence/probe-small-refuse/probe-small-refuse-2026-10-13.model-*.log` |
+| 2026-10-14 | Finetune x2/x1 session (trainer truncation bug fixed mid-session) | x2 wins: refusals 2/2, battery 18-19/21 (4 passes), 0 loops in 168 capped draws; x1 loops deterministically (10/10 insert-only); app default flipped to `smallbook_x2` for trial | `artifacts/reports/finetune-loop-eval-2026-10-13.md`, `artifacts/evidence/probe-llm-loop/probe-llm-loop-2026-10-13.*.log` |
+| 2026-10-14 | Trial: user fragment-pattern queries (10, both models) | x2 false-refuses Location / DE Lifecycle / ddr4-vs-ddr5 where the 7B answers; "hey" answered via a reading repair (engine backlog: greeting/plural/degenerate-input guards) | `artifacts/evidence/probe-trial-queries/probe-trial-queries-2026-10-14.{json,log}`, `artifacts/reports/x2-trial-2026-10-14.md` |
+| 2026-10-14 | Train/bench contamination audit | 0 exact duplicates; 4 near-twins of bench questions in train (ingestion, enterprise-architecture, pragmatic x2, codd) — those bench passes are assisted; gate adopted for every build | `artifacts/evidence/probe-contamination/probe-contamination-2026-10-14.{json,log}` |
+| 2026-10-13 | Secret scan | 516 history blobs + tracked tree, 0 hits | `artifacts/harnesses/secret-scan.py` |
 | 2026-10-13 | Unit suite | 210 tests green in 0.17 s | this tree |
 
 Flake note: the local model is not bit-exact across long sequential runs. A
@@ -336,16 +336,16 @@ Phase 7 gate, 2026-10-12, wired machine: the Ethernet cable was unplugged for
 the run. The offline probe (`https://example.com`) returned `000`; the same
 watermark `POST /ask` still returned `refused: false` with the same cited
 answer; `netstat` showed the engine and Ollama on `127.0.0.1` only, same PIDs
-online and offline, no restarts. Raw log: `artifacts/phase7-offline.log`.
+online and offline, no restarts. Raw log: `artifacts/evidence/phase7-offline/phase7-offline.log`.
 
 Disclosure: embeddings and answers are Ollama on localhost; the models are
 `nomic-embed-text` and — since 2026-10-14 — the finetuned `smallbook_x2`
 (1.9 GB; a Qwen2.5-3B LoRA distilled offline from `qwen2.5:7b`; set
 `ANSWER_MODEL=qwen2.5:7b` to revert); no cloud model API. The finetune
 track and its evidence:
-`artifacts/finetune-data-prep-2026-10-13.md`,
-`artifacts/x2-trial-2026-10-14.md`,
-`artifacts/smallbook_x2-provenance-2026-10-14.md`. Latency, recorded:
+`artifacts/reports/finetune-data-prep-2026-10-13.md`,
+`artifacts/reports/x2-trial-2026-10-14.md`,
+`artifacts/reports/smallbook_x2-provenance-2026-10-14.md`. Latency, recorded:
 7B warm asks 0.4-1.2 s; `smallbook_x2` warm probes ~0.5-2 s (no summary
 yet); the first ask after ~5 min idle pays a one-time cold model load.
 
@@ -408,9 +408,9 @@ ask-this-book/
   a 1.9 GB Qwen2.5-3B quote-or-refuse model distilled offline from the 7B.
   Measured: refusals exact, 0 loops in 168 capped draws, battery 18-19/21
   (7B: 21/21); known warts are false refusals on unmemorized forms
-  (`artifacts/x2-trial-2026-10-14.md`). The permanent swap sits behind a
+  (`artifacts/reports/x2-trial-2026-10-14.md`). The permanent swap sits behind a
   pre-registered gate in that file; `ANSWER_MODEL=qwen2.5:7b` reverts.
-  Provenance hashes: `artifacts/smallbook_x2-provenance-2026-10-14.md`.
+  Provenance hashes: `artifacts/reports/smallbook_x2-provenance-2026-10-14.md`.
 
 ## Roadmap
 
@@ -418,14 +418,14 @@ ask-this-book/
   citations become links that jump to the passage and highlight it. The
   external-reader hand-off is dropped; Readest is pattern inspiration (not a
   fork), ReadAny is the UX reference, and foliate-js is the candidate
-  rendering engine. Plan, locator strategy, and the open renderer decision:
-  `artifacts/frontend-navigation-plan.md`.
+  engine. Plan, locator strategy, and the open renderer decision:
+  `artifacts/reports/frontend-navigation-plan.md`.
 - Post-v1 backlog (not approved): quote figure captions in prompts;
   `keep_alive` on Ollama requests to remove the ~25 s cold load (cost: ~5 GB
   VRAM held).
 - Finetune track: `smallbook_x2` on trial (see Limits); next session =
   x2c form-perturbation dataset + seed control, behind the pre-registered
-  gate in `artifacts/x2-trial-2026-10-14.md`.
+  gate in `artifacts/reports/x2-trial-2026-10-14.md`.
 - Next book: re-run Phase 0-3, then a fresh answer-model bake-off.
 
 ## Documentation map
@@ -434,16 +434,16 @@ ask-this-book/
   bake-off tables, the wifi-off note. (Previously this file was `README.md`.)
 - `AGENTS.md` — agent entry point: hard rules, machine facts, the dated
   current-state log, and the verify commands.
-- `artifacts/how-it-works.md` — the pipeline as a one-screen mental image,
+- `artifacts/reports/how-it-works.md` — the pipeline as a one-screen mental image,
   plus what each stage kills and why.
 - `SETUP-MACOS.md` — the macOS walkthrough for testers: native Ollama (not
   Docker), exact commands, and the gotchas worth knowing.
-- `artifacts/frontend-navigation-plan.md` — the recorded direction for the
+- `artifacts/reports/frontend-navigation-plan.md` — the recorded direction for the
   own frontend and citation navigation (not approved; needs a yes).
-- `artifacts/demo-questions.md` — the questions that demo well and the ones
+- `artifacts/datasets/demo-questions.md` — the questions that demo well and the ones
   that refuse, with pins.
-- `artifacts/answer-model-bakeoff-results.md`, `artifacts/eval-v1.*`,
-  `artifacts/embedding-audit-2026-10-13.txt` — the deep evidence behind the
+- `artifacts/reports/answer-model-bakeoff-results.md`, `artifacts/evidence/eval-v1/eval-v1.*`,
+  `artifacts/evidence/embedding-audit/embedding-audit-2026-10-13.txt` — the deep evidence behind the
   ledger above.
 
 ## License

@@ -1,4 +1,4 @@
-"""Audit the index's stored vectors. Read-only. Phase 3 hygiene.
+"""Audit the index's stored vectors. Read-only.
 
 Non-finite / all-zero / width-drift / missing vectors, every offender named.
 Exit 0 when clean, exit 1 when dirty. Stdlib only; no model calls.
