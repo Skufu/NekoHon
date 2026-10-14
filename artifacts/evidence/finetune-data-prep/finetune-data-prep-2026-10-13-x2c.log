@@ -1,9 +1,9 @@
 finetune data prep 2026-10-13 — teacher qwen2.5:7b
 questions: 191  rows kept: 212  tiers: {'gold': 79, 'refusal': 29, 'silver': 77}
-perturb swaps applied: 30
+perturb swaps applied: 24
 splits: {'bench': 45, 'train': 167}  files: quote-refuse-2026-10-13.train.jsonl / quote-refuse-2026-10-13.bench.jsonl
 sources: {'eval': 33, 'class': 8, 'sweep': 117, 'refusal': 27}
-outcomes: {'gloss-synthesized': 129, 'teacher-gloss': 27, 'refusal-kept': 29, 'wrong-chunk': 1, 'teacher-refused': 4, 'answered-when-refusal-expected': 1}
+outcomes: {'gloss-synthesized': 128, 'teacher-gloss': 28, 'refusal-kept': 29, 'wrong-chunk': 1, 'teacher-refused': 4, 'answered-when-refusal-expected': 1}
 
 reject samples:
   {'question': 'explain transformations in simple words', 'asked': 'explain transformations in simple words', 'source': 'eval-plain', 'outcome': 'wrong-chunk:ch02-029', 'cited': ['ch02-029']}

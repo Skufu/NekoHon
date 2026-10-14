@@ -1,0 +1,17 @@
+{
+  "train": {
+    "rows": 167,
+    "answer": 113,
+    "refusal": 54,
+    "failures": [],
+    "normalized_only": 10
+  },
+  "bench": {
+    "rows": 45,
+    "answer": 43,
+    "refusal": 2,
+    "failures": [],
+    "normalized_only": 5
+  },
+  "train/bench overlap": 0
+}

@@ -1,0 +1,22 @@
+0/5 loops  What does CRUD stand for?
+0/5 loops  What is data ingestion?
+0/5 loops  What is a watermark?
+0/5 loops  When is an insert-only table useful?
+0/5 loops  Where does storage sit in the data engineering lifecycle?
+0/5 loops  What do source systems provide to the rest of the lifecycle?
+0/5 loops  How does data architecture relate to enterprise architecture
+0/5 loops  What is the difference between batch and streaming?
+0/5 loops  What happens to data after it is extracted in ETL?
+0/5 loops  What do transformations do in the data engineering lifecycle
+0/5 loops  What does CRU stand for?
+0/5 loops  What happens to data after it is extracted in ET?
+0/5 loops  what is a atermark?
+0/5 loops  what does data engineers need to be pragmatic about
+0/5 loops  Data engineers need to be pragmatic about?
+0/5 loops  MAD data landscape
+0/5 loops  multicloud methodology disadvantages
+0/5 loops  what is MAD data landscape
+0/5 loops  what is data mesh
+0/5 loops  Codd introduced the idea of what
+0/5 loops  what is an endpoint in streaming ingestion
+TOTAL loops: 0 out of 105 draws over 21 questions, model qwen2.5:7b

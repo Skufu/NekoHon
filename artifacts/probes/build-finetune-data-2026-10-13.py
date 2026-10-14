@@ -109,7 +109,7 @@ VARIANTS = [
     ("explain data ingestion", "ch07-002"),
 ]
 
-# x2c form-perturbation swaps: ~30 train answer cards get their question
+# x2c form-perturbation swaps: 24 train answer cards get their question
 # string swapped in place for a measured sloppy form (counts and the refusal
 # ratio held). Measured motivation (artifacts/reports/x2-trial-2026-10-14.md): x2
 # refuses the lowercase "What does crud stand for?" while answering the
@@ -119,24 +119,18 @@ VARIANTS = [
 # the perturbed asked form. Keys are exact sweep question strings; every
 # value's canonical_query was checked to differ from the original's form
 # (2026-10-14, data/finetune/_scratch-preflight.py) and to keep every soft
-# pin's chunk in the shown passages. Classes: (a) uppercase/mixed-case
-# acronym or proper-noun tokens inside question-form asks, (b) A-vs-B and
+# pin's chunk in the shown passages. Classes: (a) measured lowercase
+# wh-forms (the wart surface) + case-mix probes, (b) A-vs-B and
 # paired-noun order flips, (c) bare fragment topics.
 PERTURB_SWAPS = {
-    # (a) acronym / proper-noun casing inside a question form
-    "crud stands for what": "CRUD stands for what",
-    "raid stands for what": "RAID stands for what",
-    "what does finops help a data team do":
-        "what does FinOps help a data team do",
-    "togaf defines data architecture as what":
-        "TOGAF defines data architecture as what",
-    "kimball is on the opposite end of the data modeling spectrum from who":
-        "Kimball is on the opposite end of the data modeling spectrum from who",
+    # (a) measured lowercase wh-forms (the x2 wart surface) + case-mix probes.
+    # 2026-10-14 correction (finetune-expert-review P0-1): six unmeasured
+    # uppercase swaps reverted; crud/raid now teach the lowercase wh-form
+    # instead of deleting it; pii/oltp stay as deliberate case-mix probes.
+    "crud stands for what": "what does crud stand for",
+    "raid stands for what": "what does raid stand for",
     "what is pii": "what is PII",
     "what is an oltp system": "what is an OLTP system",
-    "what is acid in database terms": "what is ACID in database terms",
-    "what is reverse etl": "what is reverse ETL",
-    "what is the cloud-scale data os": "what is the cloud-scale data OS",
     # (b) order flips on A-vs-B / paired-noun questions
     "data science vs data engineering": "data engineering vs data science",
     "internal facing vs external facing data engineering":

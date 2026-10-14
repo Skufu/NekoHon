@@ -4,11 +4,11 @@ Investigation only: imports the engine, edits nothing. Each finding reproduces
 with one command; the numbers printed here are the numbers
 `artifacts/engine-edges-2026-10-14.md` cites.
 
-    python artifacts/probe-engine-edges-2026-10-14.py a   # 'hey' -> 'they'
-    python artifacts/probe-engine-edges-2026-10-14.py b   # 'speed of ddr5s'
-    python artifacts/probe-engine-edges-2026-10-14.py c   # 'what is'
-    python artifacts/probe-engine-edges-2026-10-14.py d   # timeout -> HTTP map
-    python artifacts/probe-engine-edges-2026-10-14.py all
+    python artifacts/probes/probe-engine-edges-2026-10-14.py a   # 'hey' -> 'they'
+    python artifacts/probes/probe-engine-edges-2026-10-14.py b   # 'speed of ddr5s'
+    python artifacts/probes/probe-engine-edges-2026-10-14.py c   # 'what is'
+    python artifacts/probes/probe-engine-edges-2026-10-14.py d   # timeout -> HTTP map
+    python artifacts/probes/probe-engine-edges-2026-10-14.py all
 
 `--answer` adds the live respond() for a/b/c (real Ollama, default model).
 Embedding calls to 127.0.0.1:11434 are real; embeddings are deterministic.
@@ -27,7 +27,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
 import answer

@@ -108,11 +108,14 @@ def answer_user_message(question, passages):
 
 
 def ollama_generate(system, user, model=ANSWER_MODEL, url=OLLAMA_CHAT, timeout=120):
+    # num_predict caps runaway generations: a loop becomes a truncated answer
+    # instead of the 120 s client timeout (loop-mechanism-analysis-2026-10-14).
+    # 512 is far above the longest legal reply (answer targets p90 622 chars).
     payload = {
         "model": model,
         "stream": False,
         "think": False,
-        "options": {"temperature": 0},
+        "options": {"temperature": 0, "num_predict": 512},
         "messages": [
             {"role": "system", "content": system},
             {"role": "user", "content": user},

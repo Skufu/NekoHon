@@ -11,6 +11,7 @@ them, note 1). "Not measured" where the record has nothing. Model card:
 | Refusal canary (France, iops, exact sentence) | 2/2 | 2/2 | `probe-small-refuse-2026-10-13.model-smallbook_x2.log`; `probe-small-refuse-2026-10-13.model-qwen2.5-7b.log` |
 | Loop sweep, 300-token cap, temp 0 | 0/168 (21 q x3 + 21 q x5); + 0/25 targeted on the three former loop questions (Codd 0/5, insert-only 0/10, source-systems 0/10) | not measured (note 4) | `probe-llm-loop-2026-10-13.x2-battery-sweep.log`; `.x2-battery-sweep5.log`; `.x2-codd.log`; `.x2-insertonly.log`; `.x2-sourcesystems.log` |
 | Trial, 10 fragment/repro queries (answer mode) | refused 5/10; 3 x2-only warts — Location, DE Lifecycle, ddr4-vs-ddr5 — where the 7B answers in-book | refused 2/10 (warrup, speed of ddr5s); answers the 3 warts; stray `Not in this book.` inside the "what is" answer; meta-answers on Our Advice / speed of ddr5 | `probe-trial-queries-2026-10-14.log`; `x2-trial-2026-10-14.md` |
+| Sealed fragment suite, 10 draws/item (2026-10-14) | fragment 20/40; bare-topic 30/50 (File Formats 10/10 length-stops); order-flip 0/40; trailing-letter 10/30; control 20/20 | fragment 20/40; bare-topic 50/50; order-flip 40/40; trailing-letter 30/30; control 10/20 (violin strings 0/10) | x2: `evidence/probe-fragment/probe-fragment-2026-10-14.model-smallbook_x2.{json,log}`; 7B 10-draw: `.model-qwen2.5-7b.{json,log}` (3-draw twin kept as `.draws3.*`) |
 | Latency, ask-battery `seconds` | median 0.91 s, p90 1.58 s (n=63; min 0.45, max 7.14) | median 1.23 s, p90 1.78 s (n=21; min 0.81, max 2.72) | x2: the three `probe-small-ask-2026-10-13.model-smallbook_x2*.json`; 7B: `probe-small-ask-2026-10-13.model-qwen2.5-7b.json`; method note 3 |
 | Bench, clean subset (derived, note 1) | 16/17 (rec 1); 15/17 (recs 2-3) | 16/17 (preserved run); 17/17 (v3 record) | derived from the ask-battery logs above |
 | Size / quant | 1.9 GB, Q4_K_M, 3.1B params, ctx 32768 | 4.7 GB, Q4_K_M | `smallbook_x2-provenance-2026-10-14.md`; `ollama show smallbook_x2` / `ollama list` (2026-10-14); `finetune-data-prep-2026-10-13.md` |
@@ -35,3 +36,10 @@ Notes:
    0.81 s; rec 1's 7.14 s max is its first ask (warm-up).
 4. No 7B loop-sweep file exists in `artifacts/`; the loop evidence there is
    about the smallbook checkpoints, not the 7B.
+5. Sealed fragment suite, 10 draws/item (both models, 2026-10-14): the 7B
+   was re-run at 10 draws after the audit found the earlier comparison at
+   3 vs 10 draws (P0-2 in `finetune-expert-review-2026-10-14.md`); the etls
+   item is a declared template twin of the corrected x2c crud/raid cards
+   (`SEAL_TEMPLATE_TWINS`, note in `x2-trial-2026-10-14.md`); x2's File
+   Formats 'loops' are 300-cap truncations of coherent prose
+   (`loop-mechanism-analysis-2026-10-14.md`).

@@ -1,0 +1,98 @@
+{
+  "teacher": "qwen2.5:7b",
+  "questions": 191,
+  "perturb_swaps": 30,
+  "rows": 212,
+  "by_split": {
+    "bench": 45,
+    "train": 167
+  },
+  "by_tier": {
+    "gold": 79,
+    "refusal": 29,
+    "silver": 77
+  },
+  "by_source_root": {
+    "eval": 33,
+    "class": 8,
+    "sweep": 117,
+    "refusal": 27
+  },
+  "outcomes": {
+    "gloss-synthesized": 129,
+    "teacher-gloss": 27,
+    "refusal-kept": 29,
+    "wrong-chunk": 1,
+    "teacher-refused": 4,
+    "answered-when-refusal-expected": 1
+  },
+  "oversampled_copies": 27,
+  "written": {
+    "train": 167,
+    "bench": 45
+  },
+  "files": {
+    "train": "quote-refuse-2026-10-13.train.jsonl",
+    "bench": "quote-refuse-2026-10-13.bench.jsonl"
+  },
+  "rejects": [
+    {
+      "question": "explain transformations in simple words",
+      "asked": "explain transformations in simple words",
+      "source": "eval-plain",
+      "outcome": "wrong-chunk:ch02-029",
+      "cited": [
+        "ch02-029"
+      ]
+    },
+    {
+      "question": "multicloud disadvantages",
+      "asked": "What is multicloud disadvantages?",
+      "source": "sweep-list",
+      "outcome": "teacher-refused",
+      "cited": [
+        "ch04-037",
+        "ch04-036"
+      ]
+    },
+    {
+      "question": "hot warm cold data",
+      "asked": "What is hot warm cold data?",
+      "source": "sweep-bare",
+      "outcome": "teacher-refused",
+      "cited": [
+        "ch06-102",
+        "ch06-104"
+      ]
+    },
+    {
+      "question": "how does encryption at rest differ from encryption in motion",
+      "asked": "how does encryption at rest differ from encryption in motion",
+      "source": "sweep-subject-first",
+      "outcome": "teacher-refused",
+      "cited": [
+        "ch07-090",
+        "ch10-020"
+      ]
+    },
+    {
+      "question": "what is tokenization",
+      "asked": "what is tokenization",
+      "source": "sweep-what-is",
+      "outcome": "teacher-refused",
+      "cited": [
+        "ch07-088",
+        "ch06-016"
+      ]
+    },
+    {
+      "question": "What is the best programming language?",
+      "asked": "What is the best programming language?",
+      "source": "refusal-mined",
+      "outcome": "answered-when-refusal-expected",
+      "cited": [
+        "ch01-039"
+      ]
+    }
+  ]
+}

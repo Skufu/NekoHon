@@ -802,7 +802,9 @@ server.
   session. Evidence: `artifacts/finetune-loop-eval-2026-10-13.md`.
 - Finetune x2 wins + app trial 2026-10-14: the x2 checkpoint (167 rows) is
   the first small model with refusals AND clean generation — refusals 2/2
-  exact, battery 18-19/21 over four passes, 0 loops in 168 capped draws
+  exact, battery 18-19/21 across the three recorded passes (a fourth file
+  is field-identical to the third; deduped 2026-10-14), 0 loops in 168 capped
+  draws
   across all 21 questions; x1 loops (insert-only 10/10, deterministic).
   App default flipped to `smallbook_x2` (prompt.ANSWER_MODEL; revert =
   `ANSWER_MODEL=qwen2.5:7b` env, no edit); builder teacher pinned to
@@ -811,8 +813,24 @@ server.
   answers all — `artifacts/x2-trial-2026-10-14.md`). Contamination audit: 0
   exact duplicates, 4 near-twins of bench questions in train (ingestion,
   enterprise-architecture, pragmatic x2, codd) — gate now runs per build
-  (`artifacts/probe-contamination-2026-10-14.py`). Next session: x2c
-  (form-perturbation swaps, ~30 rows, counts held) + seed control.
+  (`artifacts/probe-contamination-2026-10-14.py`). Next session: x2c + the
+  seed control.
+- Finetune pre-run hardening landed 2026-10-14, before any x2c training
+  (review: `artifacts/reports/finetune-expert-review-2026-10-14.md`): the
+  builder's class-(a) swaps corrected — crud/raid now teach the lowercase
+  wh-forms (the measured wart surface), six unmeasured casing swaps
+  reverted, pii/oltp stay case-mix probes; 24 swaps, counts held
+  (167 = 113 + 54). Dataset rebuilt and re-verified PASS
+  (`data/finetune/quote-refuse-2026-10-13.train-x2c.jsonl`, sha256
+  `27a84899…`; bench byte-identical `174afd18…`); contamination 0 exact /
+  11 near pairs (the CRUD battery golden and the CRU typo are now assisted
+  twins, reported separately). Notebook v6 adds the mask/EOS spot-check,
+  token histogram, hard stop-check on an answer + a refusal row, GGUF/zip
+  hashes, LoRA adapter save, and a run-log JSON. `answer.py` sends
+  `num_predict: 512` (a loop becomes a truncated answer, not a 120 s
+  timeout). Gate amended pre-run — equal-draws 7B baseline, seed-control
+  read-out, q8 persist/vanish rule, assisted-item list
+  (`artifacts/reports/x2-trial-2026-10-14.md`).
 
 ## Verify
 
