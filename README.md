@@ -8,9 +8,13 @@ installs, no build step.
 
 Repo: `nekolabs-studio/epub-local` (developed internally as `ask-this-book`).
 
-**Status (2026-10-13):** v1 complete. Phases 0-7 pass, including the wifi-off
-gate (2026-10-12). 171 unit tests green, index audit clean, HTTP battery PASS
-(18 asks). Post-v1 hardening continues; evidence lives in `artifacts/`.
+**Status (2026-10-14):** v1 complete. Phases 0-7 pass, including the wifi-off
+gate (2026-10-12). The answer model is the finetuned `smallbook_x2d` (see
+Models below). 223 unit tests green, index audit clean, HTTP battery PASS. A
+second book was probed end to end the same day — refusals transfer, and a
+chapter-number ingest fix restored its citations
+(`artifacts/reports/second-book-2026-10-14.md`). Post-v1 hardening continues;
+evidence lives in `artifacts/`.
 
 ---
 
@@ -22,13 +26,14 @@ gate (2026-10-12). 171 unit tests green, index audit clean, HTTP battery PASS
 | Answer | `smallbook_x2d` | 1.9 GB | The default for both answer modes since 2026-10-14 (adoption + the `[Ch. ` retry: `artifacts/reports/retry-safety-net-2026-10-14.md`): a Qwen2.5-3B quote-or-refuse LoRA distilled offline from `qwen2.5:7b`. `smallbook_x2` and the teacher stay on disk (1.9 GB / 4.7 GB); `ANSWER_MODEL=qwen2.5:7b` (or `=smallbook_x2`) reverts. Temperature 0. |
 | Eval judge | `granite4.1:8b` local; `muse-spark-1.3-contributor` cloud | 5.3 GB local | The LLM judge (`artifacts/harnesses/judge.py`): passage relevance, key facts, book fidelity, example use. Local is the offline default; the eval runs currently use Muse Spark 1.3 over the OpenCode Go relay. Any stronger OpenAI-compatible model can be swapped in — `judge_name()` records it and `artifacts/harnesses/judge-agreement.py` re-calibrates. The engine never uses either. |
 
-Also on disk, not defaults: `granite4.1:3b` (eligible small-PC slot; a trial
-swap to it was reverted the same day — it answered the "MAD data landscape"
-phrasing with the wrong passage), `qwen3:4b-instruct`
-(failed the MAD gate), `embeddinggemma-2:270m-bf16-text` (losing bake-off
-checkpoint, kept as documented fallback), and `moistral` (do not use). On the
-Mac runner, `llama3.2:3b` and `deepseek-r1:7b` are also on disk; both are
-non-defaults there.
+Also on disk, not defaults: `smallbook_x2d_q8` (3.3 GB, the 8-bit quant of
+the default — one suite spot scored 20/160 vs the q4's 21/160 on the same
+code; different items, no gain measured) and
+`embeddinggemma-2:270m-bf16-text` (losing bake-off checkpoint, kept as
+documented fallback). The bake-off losers (`granite4.1:3b`,
+`qwen3:4b-instruct`) and `moistral` were deleted in the 2026-10-14
+housekeeping. On the Mac runner, `llama3.2:3b` and `deepseek-r1:7b` are also
+on disk; both are non-defaults there.
 
 Typo safety: a question word that does not appear in the book gets a second
 reading — difflib first, then one local qwen correction under the same
@@ -81,7 +86,7 @@ question ---------> canonical form (bare phrase -> "What is X?")
                       |  (C) figure caption outscores the best chunk -> seed
                       |      the chunk that names that figure
                       v
-                    smallbook_x2 (temperature 0)
+                    smallbook_x2d (temperature 0)
                       |  answer: free generation, [Ch. N] tags -> citations,
                       |          quotation marks the passages cannot back are
                       |          stripped
@@ -158,6 +163,11 @@ lives in `SETUP-MACOS.md`.
 `python preflight.py` checks every prerequisite — Python version, the EPUB,
 the index, Ollama, the two models, and the vector audit — and prints the next
 step. It exits 0 only when the machine is ready to serve.
+
+One operational rule: the engine serves the code and model it loaded at
+start. After a model change (`ANSWER_MODEL=...`) or any `*.py` edit, restart
+the server; Ollama's `GET http://127.0.0.1:11434/api/ps` shows the model
+actually loaded.
 
 Machine-checkable equivalent (no browser needed):
 
@@ -329,6 +339,9 @@ Ollama; the rest need Ollama up, and the battery-style checks need
 | 2026-10-14 | Train/bench contamination audit | 0 exact duplicates; 4 near-twins of bench questions in train (ingestion, enterprise-architecture, pragmatic x2, codd) — those bench passes are assisted; gate adopted for every build | `artifacts/evidence/probe-contamination/probe-contamination-2026-10-14.{json,log}` |
 | 2026-10-13 | Secret scan | 516 history blobs + tracked tree, 0 hits | `artifacts/harnesses/secret-scan.py` |
 | 2026-10-13 | Unit suite | 210 tests green in 0.17 s | this tree |
+| 2026-10-14 | x2d adoption + `[Ch. ` retry (user decision) | battery 20/21 x3 (best small-model run), refusals 10/10, 0 loops; the retry lifts the sealed suite x2d 21->111/160 and x2 60->111/160 (x2d 0 loops); gate item 2 still short of the 7B, recorded not hidden | `artifacts/reports/retry-safety-net-2026-10-14.md`, `artifacts/reports/x2d-plan-2026-10-14.md` |
+| 2026-10-14 | Second-book probe + chapter fix | second EPUB (506 chunks): refusals transfer (0 false, controls exact); citations 2/11 tagged pre-fix; `ingest._chapter_number` fix (`chapter-4` -> `4`) + retest: x2 9/11 tagged / 3 PASS, x2d 8/11 / 5 PASS, every tag verbatim | `artifacts/reports/second-book-2026-10-14.md` |
+| 2026-10-14 | Unit suite | 223 tests green (4 new) | this tree |
 
 Flake note: the local model is not bit-exact across long sequential runs. A
 known cold-run flake (the multicloud probe refusing while citing the correct
@@ -432,10 +445,14 @@ ask-this-book/
 - Post-v1 backlog (not approved): quote figure captions in prompts;
   `keep_alive` on Ollama requests to remove the ~25 s cold load (cost: ~5 GB
   VRAM held).
-- Finetune track: `smallbook_x2` stays the default. The x2c session closed
-  2026-10-14 — not adopted (sealed-suite bar vs the 7B; verdict in
-  `artifacts/reports/x2-trial-2026-10-14.md`). Next: `x2d` augmentation.
-- Next book: re-run Phase 0-3, then a fresh answer-model bake-off.
+- Finetune track: `smallbook_x2d` is the default (adopted 2026-10-14; the
+  x2c session closed the same day — not adopted, sealed-suite bar vs the 7B,
+  verdict in `artifacts/reports/x2-trial-2026-10-14.md`). Next data build:
+  `artifacts/datasets/training-list-2026-10-14.md` (5 sealed targets; a sixth
+  list item was engine-side — the chapter-number fix — and is done).
+- Next book: a first portability probe ran end to end 2026-10-14 (refusals
+  transfer; citations after the chapter fix; visible targets only). Full
+  adoption still re-runs Phase 0-3 plus a fresh answer-model bake-off.
 
 ## Documentation map
 

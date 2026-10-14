@@ -946,8 +946,7 @@ Only this list can block work.
   with the full path + ` serve`. `ollama --version` with the server up prints
   `ollama version is 0.40.3`.
 - On disk: `nomic-embed-text:latest` (274 MB, pulled 2026-10-11). Smoke embed
-  returned 768 dims. `moistral:latest` (4.0 GB) is also on disk; do not use it.
-  `smallbook_x2d:latest` (1.9 GB, digest `d0bfa88f6b63`) is the finetuned
+  returned 768 dims. `smallbook_x2d:latest` (1.9 GB, digest `d0bfa88f6b63`) is the finetuned
   answerer and app default since 2026-10-14; `smallbook_x2:latest` (1.9 GB,
   `ba79d37a6067`) and `smallbook_x2d_q8:latest` (3.3 GB, `a8d4b390`) stay on
   disk; `qwen2.5:7b` (4.7 GB, Q4_K_M) is
