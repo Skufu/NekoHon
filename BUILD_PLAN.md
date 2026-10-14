@@ -15,7 +15,7 @@
 
 **Goal:** An offline book companion that answers from the open book, cites the passages it used, and shows the figure those passages point at. Nothing leaves the machine.
 
-**Architecture:** A stdlib Python engine ingests one EPUB into a JSON index, retrieves with the Phase 3b winning embedder (`nomic-embed-text` default), and answers with on-disk `smallbook_x2` (a Qwen2.5-3B finetune distilled from `qwen2.5:7b`; `ANSWER_MODEL=qwen2.5:7b` reverts). The window is one HTML file that calls that engine. Readest is a later shell, not the way the engine gets proven.
+**Architecture:** A stdlib Python engine ingests one EPUB into a JSON index, retrieves with the Phase 3b winning embedder (`nomic-embed-text` default), and answers with on-disk `smallbook_x2d` (a Qwen2.5-3B finetune distilled from `qwen2.5:7b`; `ANSWER_MODEL=qwen2.5:7b` reverts). The window is one HTML file that calls that engine. Readest is a later shell, not the way the engine gets proven.
 
 **Tech Stack:** Python 3 stdlib (one exception for vendored text-preprocessing tools; see `AGENTS.md`). Ollama on `127.0.0.1:11434`. No pip installs. No new model downloads except the approved embedder pulls (see Status). No database server.
 
@@ -25,10 +25,9 @@
 
 The product bet: local inference, cited answers, figures on screen, wifi off.
 
-**Current (2026-10-14):** post-v1. The finetuned `smallbook_x2` is the
-answerer by default. The `x2c` checkpoint closed 2026-10-14 — not adopted
-(gate 2 vs the 7B; `artifacts/reports/x2-trial-2026-10-14.md`); the next
-checkpoint is `x2d` (measured weak classes). See "Post-v1" below.
+**Current (2026-10-14):** post-v1. The finetuned `smallbook_x2d` is the
+answerer by default (adopted 2026-10-14 with the validation-gated `[Ch. ` retry;
+`artifacts/reports/retry-safety-net-2026-10-14.md`). See "Post-v1" below.
 
 Two older drafts in `~/.hermes/cache/scratch/hackathon-plan.md` and `hackathon-plan-full.md` disagree with each other. This file replaces both.
 
@@ -60,8 +59,8 @@ be reopened when the goal calls for it.
 | Job | Model | On disk | Use |
 | --- | --- | --- | --- |
 | Embed | `nomic-embed-text:latest` (274 MB) | yes | retrieval |
-| Answer | `smallbook_x2` (1.9 GB) | yes | default since 2026-10-14; quote, then one line |
-| Teacher / revert | `qwen2.5:7b` (4.7 GB, Q4_K_M) | yes | builds `smallbook_x2`; `ANSWER_MODEL=qwen2.5:7b` reverts |
+| Answer | `smallbook_x2d` (1.9 GB) | yes | default since 2026-10-14; quote, then one line |
+| Teacher / revert | `qwen2.5:7b` (4.7 GB, Q4_K_M) | yes | builds `smallbook_x2d`; `ANSWER_MODEL=qwen2.5:7b` reverts |
 | Weak-machine note | `llama3.2:3b` (2.0 GB) | yes | README fallback only. Not the dev model. |
 | Do not use | `deepseek-r1:7b` | yes | leave it |
 
@@ -441,12 +440,14 @@ v1 answers with the 7B; this track replaces the answerer with a small local
 finetune so the product runs on weaker machines and refuses on-form. It is the
 section that moves — update it as checkpoints land.
 
-- **`smallbook_x2` is the default** (since 2026-10-14): a Qwen2.5-3B
-  quote-or-refuse LoRA distilled offline from `qwen2.5:7b`; 1.9 GB. Revert:
-  `ANSWER_MODEL=qwen2.5:7b`.
-- **Where it stands:** refusals 2/2 exact, battery 18-19/21 across the
-  recorded passes, 0 loops in 168 capped draws; known warts are false refusals
-  on unmemorized forms (`artifacts/reports/x2-trial-2026-10-14.md`).
+- **`smallbook_x2d` is the default** (adopted 2026-10-14): a Qwen2.5-3B
+  quote-or-refuse LoRA distilled offline from `qwen2.5:7b`, plus the
+  validation-gated `[Ch. ` retry; 1.9 GB. Revert: `ANSWER_MODEL=qwen2.5:7b`
+  (or `=smallbook_x2`).
+- **Where it stands:** battery 20/21 x3 (best small-model run), refusals 10/10,
+  0 loops; the retry lifts the sealed suite x2d 21->111/160 and x2 60->111/160
+  (x2d 0 loops); gate item 2 still short of the 7B on bare/order classes
+  (`artifacts/reports/retry-safety-net-2026-10-14.md`).
 - **x2c closed (2026-10-14):** not adopted — gate 2 failed both quants vs
   the 7B on the sealed suite; `smallbook_x2` stays the default. Recorded
   wins: user warts (Location, DE Lifecycle, ddr4-flip) answered; loops

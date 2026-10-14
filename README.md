@@ -36,7 +36,7 @@ housekeeping. On the Mac runner, `llama3.2:3b` and `deepseek-r1:7b` are also
 on disk; both are non-defaults there.
 
 Typo safety: a question word that does not appear in the book gets a second
-reading — difflib first, then one local qwen correction under the same
+reading — difflib first, then one local-model correction under the same
 strict-improvement gate (case-only changes and token-count changes are
 rejected) — and a kept reading is disclosed in the answer as `Read as: "..."`.
 
@@ -139,40 +139,41 @@ remaining misses are single-item rewriter errors
 
 ## Quickstart (fresh machine)
 
-Prereqs: Python 3 (3.12 tested, stdlib only), Ollama, and the EPUB on disk.
-Models: `ollama pull nomic-embed-text` (274 MB, the embedder). The answerer
-`smallbook_x2d` (1.9 GB) is **not** a registry pull — import it from its GGUF
-(`ollama create smallbook_x2d -f <Modelfile>`; same recipe as
-`artifacts/reports/smallbook_x2-rebuild-2026-10-14.md`, x2d run artefacts in
-`artifacts/evidence/x2d-session-2026-10-14/`). `qwen2.5:7b`
-(4.7 GB) is the teacher: needed only to rebuild the answerer or to revert
-(`ANSWER_MODEL=qwen2.5:7b`).
+Prereqs: Python 3.9+ (3.12 tested; stdlib only, no pip dependencies), Ollama (v0.40.3+ running on `127.0.0.1:11434`), and the EPUB on disk.
+
+Models:
+- Embedder: `ollama pull nomic-embed-text` (274 MB).
+- Answerer: The default `smallbook_x2d` (1.9 GB) is an offline LoRA GGUF and is **not** on the public Ollama registry. If you have the GGUF artifact, import it via `ollama create smallbook_x2d -f <Modelfile>`. For a **fresh clone without the custom GGUF**, pull the teacher model `ollama pull qwen2.5:7b` (4.7 GB) and launch with `ANSWER_MODEL=qwen2.5:7b python server.py`.
 
 ```sh
-# 1. Ollama is up (on Windows it is not on PATH; see AGENTS.md machine facts)
-# 2. Book: put the EPUB at books/fde.epub (books/SOURCE.txt shows its origin)
+# 1. Ollama is running (on Windows it is often not on PATH; see AGENTS.md machine facts)
+# 2. Book: put the EPUB at books/fde.epub (books/SOURCE.txt records its origin)
 python ingest.py      # EPUB -> data/index.json + data/figures/ (no vectors yet)
-python retrieve.py    # embeds 1042 chunks + 111 figures via Ollama
-python server.py      # serves the window + API on http://127.0.0.1:8000/
+python retrieve.py    # embeds 1042 chunks + 111 figures via Ollama (~14 s)
+python preflight.py   # verifies Python, EPUB, index, Ollama, models, vectors
+
+# 3. Start the engine (serves window + API on http://127.0.0.1:8000/)
+python server.py      # if smallbook_x2d is imported
+# OR on a fresh clone with qwen2.5:7b:
+ANSWER_MODEL=qwen2.5:7b python server.py
 ```
 
-Then open <http://127.0.0.1:8000/> in a browser. On a Mac the interpreter
-command is `python3`, and a friend-facing walkthrough (install, index, test)
-lives in `SETUP-MACOS.md`.
+Then open <http://127.0.0.1:8000/> in a browser. On macOS the interpreter
+command is `python3`, and a friend-facing walkthrough lives in `SETUP-MACOS.md`.
 
-`python preflight.py` checks every prerequisite — Python version, the EPUB,
-the index, Ollama, the two models, and the vector audit — and prints the next
-step. It exits 0 only when the machine is ready to serve.
-
-One operational rule: the engine serves the code and model it loaded at
-start. After a model change (`ANSWER_MODEL=...`) or any `*.py` edit, restart
-the server; Ollama's `GET http://127.0.0.1:11434/api/ps` shows the model
-actually loaded.
+Operational rules:
+- **Engine reset**: The engine serves the code and model it loaded at start.
+  After a model change (`ANSWER_MODEL=...`) or any `*.py` edit, restart the
+  server; Ollama's `GET http://127.0.0.1:11434/api/ps` shows what is loaded.
+- **Port check**: `server.py` binds to `127.0.0.1:8000`. On Windows, multiple
+  processes can bind to `:8000` without throwing a socket collision error; run
+  `netstat -ano | findstr :8000` to confirm only one listener is active.
 
 Machine-checkable equivalent (no browser needed):
 
 ```sh
 curl -s http://127.0.0.1:8000/health
+# Note: On Windows PowerShell/CMD, escape double-quotes or run via Git Bash:
 curl -s -X POST http://127.0.0.1:8000/ask -H "Content-Type: application/json" \
   -d '{"book_id": "fde", "question": "What is a watermark?", "selection": null, "mode": "ask"}'
 ```
@@ -208,9 +209,12 @@ One route set, frozen:
 | `GET /` | the window |
 
 `POST /ask` request: `{"book_id": "fde", "question": "...", "selection": null, "mode": "answer"}`;
-`mode` is `answer`, `ask`, `explain`, or `quiz`. Bad mode or a missing field
-returns `400 {"error": "short reason"}`. The full shape, including the refusal
-rules, is locked in `BUILD_PLAN.md` ("Contract").
+`mode` is `answer`, `ask`, `explain`, or `quiz`. Validation rules:
+- `ask` and `answer` require `question`; `explain` requires `selection`; `quiz` requires neither.
+- Missing required fields, invalid JSON, or unknown modes return `400 {"error": "..."}` (`bad mode`, `missing question`, `missing selection`, `invalid json`).
+- Server-side runtime errors return `500 {"error": "..."}` (`missing index`, `answer model unavailable`).
+- Returned `answer` strings append operational disclosures when active: `Asked as: "..."` (canonicalization) and `Read as: "..."` (typo second reading).
+- The full contract shape, including refusal rules, is locked in `BUILD_PLAN.md` ("Contract").
 
 ## Testing and automation
 
@@ -226,7 +230,7 @@ Ollama; the rest need Ollama up, and the battery-style checks need
    python -m unittest discover -s tests
    ```
 
-   210 tests, green (0.17 s on this box). Covers the contract, ingest and
+   223 tests, green (0.6 s on this box). Covers the contract, ingest and
    chunking, retrieval guards, fusion, readings, the answer checks, figures,
    the form canonicalizer, and the generalization guard.
 
@@ -247,7 +251,7 @@ Ollama; the rest need Ollama up, and the battery-style checks need
    python retrieve.py --smoke tests/fixtures/questions.json
    ```
 
-4. **HTTP battery** — 18 asks over HTTP in four lines: golden 10/10 answered,
+4. **HTTP battery** — 18 asks over HTTP in `ask` mode (21-22 in default `answer` mode with coherence probes): golden 10/10 answered,
    typo probes, rare-word probes, the France exact refusal. Needs Ollama plus
    a fresh `server.py`; confirm exactly one listener first
    (`netstat -ano | findstr :8000` — two servers can silently share :8000).
@@ -291,7 +295,7 @@ Ollama; the rest need Ollama up, and the battery-style checks need
    OpenCode Go relay (key in `.judge-key`, gitignored, never read by the
    engine). Judges are swappable by design: if a stronger model is available,
    `judge_name()` records the judge in every output, and
-   `harnesses/judge-agreement.py` re-calibrates it against the previous one before runs
+   `artifacts/harnesses/judge-agreement.py` re-calibrates it against the previous one before runs
    are compared. Verdicts are unvalidated against human labels.
 
    ```sh
@@ -331,7 +335,7 @@ Ollama; the rest need Ollama up, and the battery-style checks need
 | 2026-10-13 | Bare-phrase canonicalization (Stage 1) | "MAD data landscape" alone: 3 figures -> 1, question-form behavior everywhere covered; batteries PASS both modes; window-confirmed; 5/5 mutation kills | commit `954860b`, `artifacts/reports/query-canonicalization-2026-10-13.md` |
 | 2026-10-13 | Typography-fold A/B (index-rebuild decision) | 0/21 top-1 flips; rebuild rejected | `artifacts/evidence/probe-fold-ab/probe-fold-ab-2026-10-13.json` |
 | 2026-10-13 | Finetune v1 checkpoint (`smallbook`, 1.93 GB Q4) | refusal sentence learned; runaway generation (174k chars / 354 s) and wrong quotes -> v2 recipe (responses-only loss) | `artifacts/reports/finetune-data-prep-2026-10-13.md` |
-| 2026-10-13 | Finetune v2/v3 checkpoints (`smallbook` 1.9 GB, `smallbook_q3` 2.5 GB) | stopping + format fixed; bench 19/21 pins each (7B: 21/21); refusals lost — over-sampling landed same day | `artifacts/reports/finetune-data-prep-2026-10-13.md`, `evidence/probe-small-ask/probe-small-ask-2026-10-13.log` |
+| 2026-10-13 | Finetune v2/v3 checkpoints (`smallbook` 1.9 GB, `smallbook_q3` 2.5 GB) | stopping + format fixed; bench 19/21 pins each (7B: 21/21); refusals lost — over-sampling landed same day | `artifacts/reports/finetune-data-prep-2026-10-13.md`, `artifacts/evidence/probe-small-ask/probe-small-ask-2026-10-13.log` |
 | 2026-10-13 | Finetune data v2 (refusal over-sampling x3) | train 194 = 113 answer + 81 refusal (27 refusal questions x3); bench 45 (43/2); verifier PASS, 0 failures | `artifacts/evidence/probe-finetune-verify/probe-finetune-verify-2026-10-13.{log,json}` |
 | 2026-10-13 | Finetune x3 checkpoints: refusals fixed, loops found | refusals 2/2 exact on both (France, iops); 3B loops on some answers (source-systems 1-4/10 draws across settings; CRUD 4/5 at temp 0) -> sampler rejected, ratio retrain; Qwen3-4B over-refuses (2/21 pins), parked | `artifacts/reports/finetune-loop-eval-2026-10-13.md`, `artifacts/evidence/probe-small-refuse/probe-small-refuse-2026-10-13.model-*.log` |
 | 2026-10-14 | Finetune x2/x1 session (trainer truncation bug fixed mid-session) | x2 wins: refusals 2/2, battery 18-19/21 (4 passes), 0 loops in 168 capped draws; x1 loops deterministically (10/10 insert-only); app default flipped to `smallbook_x2` for trial | `artifacts/reports/finetune-loop-eval-2026-10-13.md`, `artifacts/evidence/probe-llm-loop/probe-llm-loop-2026-10-13.*.log` |
@@ -373,6 +377,7 @@ yet); the first ask after ~5 min idle pays a one-time cold model load.
 ```
 ask-this-book/
   README.md          this overview
+  GOAL.md            the stable layer: goal + constitution (only this can block work)
   BUILD_PLAN.md      the locked plan: contract, phases 0-8, bake-off tables
   AGENTS.md          hard rules + dated state log + verify commands
   SETUP-MACOS.md     friend-facing Mac walkthrough (install -> test)
@@ -382,6 +387,7 @@ ask-this-book/
   retrieve.py        Ollama embed + pure-Python cosine + embedding guards
   keywords.py        rare-word postings, anchor words, the dense band
   fusion.py          RRF of the lexical candidate into the dense set
+  canonical.py       bare-phrase canonicalizer (bare topic -> "What is X?")
   captions.py        seed the chunk that names a matched figure
   readings.py        the self-proving second reading for out-of-book words
   answer.py          prompt wiring, generation, quote check, citations
@@ -390,7 +396,7 @@ ask-this-book/
   verify_index.py    read-only index audit (exit 1 when dirty)
   preflight.py       setup checker: Python, book, index, Ollama, models
   agentic.py         agentic-retrieval prototype (not wired; see Limits)
-  tests/             210 unit tests + fixtures
+  tests/             223 unit tests + fixtures
   window/index.html  the v1 window (no build step)
   vendor/            vendored SMART stopwords + Snowball Porter2 (BSD-3)
   artifacts/         evidence + tooling: the LLM judge (judge.py), the eval
@@ -456,6 +462,7 @@ ask-this-book/
 
 ## Documentation map
 
+- `GOAL.md` — the goal + constitution: the stable layer (only this doc can block work).
 - `BUILD_PLAN.md` — the locked plan: the contract, phases 0-8, the smoke and
   bake-off tables, the wifi-off note. (Previously this file was `README.md`.)
 - `AGENTS.md` — agent entry point: hard rules, machine facts, the dated

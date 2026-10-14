@@ -247,7 +247,7 @@ def main():
     header = [
         f"# post-v1 step 2 battery + rare-word probe — 2026-10-12; mode {MODE}",
         f"# Server: python server.py on :8000; model {os.environ.get('ANSWER_MODEL', 'qwen2.5:7b')}; index data/index.json",
-        "# (nomic-embed-text, 1065 chunks). PASS is judged against pins from",
+        "# (nomic-embed-text, 1042 chunks). PASS is judged against pins from",
         "# artifacts/datasets/demo-questions.md; typo asks pin ch05-019 / ch07-033 / ch08-039;",
         "# probes pin ch04-012 (pragmatic), ch04-020 (MAD), ch04-037 (multicloud list).",
     ]
