@@ -26,8 +26,9 @@
 The product bet: local inference, cited answers, figures on screen, wifi off.
 
 **Current (2026-10-14):** post-v1. The finetuned `smallbook_x2` is the
-answerer by default; the next checkpoint is `x2c` + the seed control. See
-"Post-v1" below.
+answerer by default. The `x2c` checkpoint closed 2026-10-14 — not adopted
+(gate 2 vs the 7B; `artifacts/reports/x2-trial-2026-10-14.md`); the next
+checkpoint is `x2d` (measured weak classes). See "Post-v1" below.
 
 Two older drafts in `~/.hermes/cache/scratch/hackathon-plan.md` and `hackathon-plan-full.md` disagree with each other. This file replaces both.
 
@@ -446,8 +447,16 @@ section that moves — update it as checkpoints land.
 - **Where it stands:** refusals 2/2 exact, battery 18-19/21 across the
   recorded passes, 0 loops in 168 capped draws; known warts are false refusals
   on unmemorized forms (`artifacts/reports/x2-trial-2026-10-14.md`).
-- **Next:** `x2c` (form-perturbation swaps) + the x2 seed control, behind the
-  pre-registered gate in `x2-trial-2026-10-14.md`.
+- **x2c closed (2026-10-14):** not adopted — gate 2 failed both quants vs
+  the 7B on the sealed suite; `smallbook_x2` stays the default. Recorded
+  wins: user warts (Location, DE Lifecycle, ddr4-flip) answered; loops
+  0/210; Codd fixed data-attributably; the q4→q8 quant effect is large.
+  Seed control diverged (run-variance caveat). Non-adopted models deleted
+  after the record; LoRAs kept (`data/models/*_lora.zip`). Verdict:
+  `x2-trial-2026-10-14.md`.
+- **Next:** `x2d` — systematic augmentation targeting the measured weak
+  classes (uncited bare topics, source-systems/ETL pin misses, insert-only),
+  ~3 forms per topic, pre-registered gate before training.
 - **Recipe / provenance:** `smallbook_x2-rebuild-2026-10-14.md`,
   `smallbook_x2-provenance-2026-10-14.md`, `smallbook_x2-model-card.md`.
 - **Rule kept:** the engine contract does not change — swap the answerer, keep

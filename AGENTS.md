@@ -864,6 +864,14 @@ Only this list can block work.
   timeout). Gate amended pre-run — equal-draws 7B baseline, seed-control
   read-out, q8 persist/vanish rule, assisted-item list
   (`artifacts/reports/x2-trial-2026-10-14.md`).
+- x2c session closed 2026-10-14: **not adopted** — gate 2 failed both quants
+  vs the 7B on the sealed suite; `smallbook_x2` stays the default. Recorded:
+  the user warts (Location, DE Lifecycle, ddr4-flip) are answered; loops
+  0/210; Codd fixed data-attributably; q4→q8 quant effect large (battery
+  18→19, fragment 0/40→20/40). Seed control diverged — single-run
+  comparisons are run-variance-bound. Non-adopted models deleted after the
+  record; LoRAs kept (`data/models/*_lora.zip`). Verdict:
+  `artifacts/reports/x2-trial-2026-10-14.md`. Next: `x2d`.
 
 ## Verify
 

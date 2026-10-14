@@ -427,9 +427,9 @@ ask-this-book/
 - Post-v1 backlog (not approved): quote figure captions in prompts;
   `keep_alive` on Ollama requests to remove the ~25 s cold load (cost: ~5 GB
   VRAM held).
-- Finetune track: `smallbook_x2` on trial (see Limits); next session =
-  x2c form-perturbation dataset + seed control, behind the pre-registered
-  gate in `artifacts/reports/x2-trial-2026-10-14.md`.
+- Finetune track: `smallbook_x2` stays the default. The x2c session closed
+  2026-10-14 — not adopted (sealed-suite bar vs the 7B; verdict in
+  `artifacts/reports/x2-trial-2026-10-14.md`). Next: `x2d` augmentation.
 - Next book: re-run Phase 0-3, then a fresh answer-model bake-off.
 
 ## Documentation map
