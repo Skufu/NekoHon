@@ -4,6 +4,8 @@ ask: the model quotes, the quote is checked; a failed check is a refusal.
 answer: the model writes freely from the passages; its [Ch. n] tags become
 citations, quotation marks the passages cannot back are stripped, and the
 quote check demotes from gate to meter (artifacts/harnesses/groundedness.py).
+An uncited answer gets one `[Ch. ` prefill retry, kept only when a citation
+validates (`_retry_uncited`).
 """
 
 import difflib
@@ -107,19 +109,26 @@ def answer_user_message(question, passages):
     )
 
 
-def ollama_generate(system, user, model=ANSWER_MODEL, url=OLLAMA_CHAT, timeout=120):
+def ollama_generate(system, user, model=ANSWER_MODEL, url=OLLAMA_CHAT, timeout=120,
+                    prefill=""):
     # num_predict caps runaway generations: a loop becomes a truncated answer
     # instead of the 120 s client timeout (loop-mechanism-analysis-2026-10-14).
     # 512 is far above the longest legal reply (answer targets p90 622 chars).
+    messages = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": user},
+    ]
+    if prefill:
+        # Raw continuation: the trailing assistant turn makes the model
+        # continue from the prefill instead of starting a fresh reply (probed
+        # 2026-10-14: "hello" continued as " world"). The caller prepends it.
+        messages.append({"role": "assistant", "content": prefill})
     payload = {
         "model": model,
         "stream": False,
         "think": False,
         "options": {"temperature": 0, "num_predict": 512},
-        "messages": [
-            {"role": "system", "content": system},
-            {"role": "user", "content": user},
-        ],
+        "messages": messages,
     }
     request = urllib.request.Request(
         url,
@@ -546,6 +555,65 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
     return body
 
 
+def _retry_uncited(question, passages, figures, generate_fn, model):
+    """One `[Ch. ` prefill retry for an uncited answer, or None.
+
+    The x2d gap (measured 2026-10-14): on unseen non-canonical forms the
+    model writes uncited prose — it answers, it just drops the tag. The retry
+    asks once more with the assistant turn prefilled `[Ch. ` and is kept only
+    when a citation whose quote is verbatim passage text survives a parse.
+    Two parsers are tried: `parse_answered` for a prose continuation, and
+    `parse_completion` (ask shape) for the tag-first continuation the prefill
+    actually produces — `_sentence_claims` cites text before a tag, so a
+    tag-first reply can only validate through the ask parser. Monotone: every
+    failure path returns None, the original answer stands, and one extra
+    generation is the only cost.
+
+    The review's cost gate was "anchors present"; the sealed suite measured
+    anchor coverage missing half its non-control items (Streaming, batch vs
+    streaming, how do, what about, why does, pipeliness), so the trigger here
+    is uncited + passages present and the verbatim-quote check does the
+    safety work (retry-safety-net-2026-10-14.md has the coverage table).
+    """
+    try:
+        completion = generate_fn(
+            SYSTEM_ANSWER, answer_user_message(question, passages), model,
+            prefill="[Ch. ",
+        )
+    except Exception:
+        # A generator seam without prefill support (or a failed call) keeps
+        # the original answer; the retry may never break the main path.
+        return None
+    if not isinstance(completion, str) or not completion.strip():
+        return None
+    text = (
+        completion
+        if completion.lstrip().startswith("[Ch.")
+        else "[Ch. " + completion
+    )
+    candidates = []
+    try:
+        candidates.append(parse_answered(text, passages, figures))
+    except Exception:
+        pass
+    if text.lstrip().startswith("[Ch."):
+        try:
+            candidates.append(parse_completion(text, passages, figures))
+        except Exception:
+            pass
+    texts = {hit["chunk_id"]: hit.get("text") or "" for hit in passages}
+    for body in candidates:
+        if body["refused"] or not body["citations"]:
+            continue
+        if not all(
+            _quote_in_passage(item["quote"], texts.get(item["chunk_id"], ""))
+            for item in body["citations"]
+        ):
+            continue
+        return body
+    return None
+
+
 def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
             canonical=True):
     """Free-generation answer from the retrieved passages.
@@ -556,7 +624,9 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
     that asks for simple words routes through the plain register
     (`_plain_body`): the draft selects evidence sentences and each is
     rewritten one-in-one-out, so nothing is written from scratch. A bare
-    topic phrase is asked as its question first (canonical_query).
+    topic phrase is asked as its question first (canonical_query). An uncited
+    answer is retried once with a `[Ch. ` prefill and kept only when a
+    citation validates (`_retry_uncited`).
     """
     generate_fn = generate_fn or ollama_generate
     asked_form = canonical_query(question) if canonical else question
@@ -571,6 +641,13 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
             SYSTEM_ANSWER, answer_user_message(context["asked"], passages), model
         )
         body = parse_answered(completion, passages, index.get("figures") or [])
+        if not body["refused"] and not body["citations"]:
+            retry = _retry_uncited(
+                context["asked"], passages, index.get("figures") or [],
+                generate_fn, model,
+            )
+            if retry is not None:
+                body = retry
     if asked_form != question and not body["refused"]:
         body["answer"] = f'{body["answer"]}\nAsked as: "{asked_form}"'
     if context["reading"] is not None and not body["refused"]:

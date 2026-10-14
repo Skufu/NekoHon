@@ -1,0 +1,83 @@
+{
+  "exact": [],
+  "pairs": [
+    {
+      "bench": "What does CRUD stand for?",
+      "train": "what does crud stand for",
+      "score": 1.0,
+      "tier": "gold"
+    },
+    {
+      "bench": "What is data ingestion?",
+      "train": "what is data ingestion",
+      "score": 1.0,
+      "tier": "gold"
+    },
+    {
+      "bench": "How does data architecture relate to enterprise architecture?",
+      "train": "how does data architecture relate to enterprise architecture",
+      "score": 1.0,
+      "tier": "gold"
+    },
+    {
+      "bench": "What do transformations do in the data engineering lifecycle?",
+      "train": "what is orchestration in the data engineering lifecycle",
+      "score": 0.81,
+      "tier": "silver"
+    },
+    {
+      "bench": "What does CRU stand for?",
+      "train": "what does crud stand for",
+      "score": 0.958,
+      "tier": "gold"
+    },
+    {
+      "bench": "what does data engineers need to be pragmatic about",
+      "train": "data engineers need to be pragmatic about what",
+      "score": 0.889,
+      "tier": "gold"
+    },
+    {
+      "bench": "Data engineers need to be pragmatic about?",
+      "train": "data engineers need to be pragmatic about what",
+      "score": 0.932,
+      "tier": "gold"
+    },
+    {
+      "bench": "what is MAD data landscape",
+      "train": "what is a data lake",
+      "score": 0.8,
+      "tier": "silver"
+    },
+    {
+      "bench": "what is data mesh",
+      "train": "what is dataops",
+      "score": 0.812,
+      "tier": "silver"
+    },
+    {
+      "bench": "Codd introduced the idea of what",
+      "train": "next codd introduced the idea of what",
+      "score": 0.928,
+      "tier": "gold"
+    },
+    {
+      "bench": "What is the capital of France?",
+      "train": "What is the capital of Australia?",
+      "score": 0.825,
+      "tier": "refusal"
+    },
+    {
+      "bench": "hey can you tell me about MAD data landscape",
+      "train": "hey can you tell me about a fact table",
+      "score": 0.805,
+      "tier": "gold"
+    },
+    {
+      "bench": "hey can you tell me about data mesh",
+      "train": "hey can you tell me about a fact table",
+      "score": 0.822,
+      "tier": "gold"
+    }
+  ]
+}

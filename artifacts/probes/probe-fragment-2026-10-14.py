@@ -215,17 +215,24 @@ def make_generate(model, calls):
     The reading-repair step sends 'User query: \"...\"'; anything else is the
     main answer call. Records survive a raised error (the call still happened).
     """
-    def generate(system, user, model_override=None, **_ignored):
-        kind = "spell" if user.startswith('User query: "') else "main"
+    def generate(system, user, model_override=None, prefill="", **_ignored):
+        kind = (
+            "retry" if prefill
+            else "spell" if user.startswith('User query: "')
+            else "main"
+        )
+        messages = [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ]
+        if prefill:
+            messages.append({"role": "assistant", "content": prefill})
         payload = {
             "model": model_override or model,
             "stream": False,
             "think": False,
             "options": {"temperature": 0, "num_predict": CAP},
-            "messages": [
-                {"role": "system", "content": system},
-                {"role": "user", "content": user},
-            ],
+            "messages": messages,
         }
         request = urllib.request.Request(
             OLLAMA_CHAT,
@@ -266,6 +273,7 @@ def run_draw(index, item, model):
         "refused": bool(body["refused"]),
         "n_cited": len(citations),
         "cited": [c["chunk_id"] for c in citations][:5],
+        "retries": sum(1 for call in calls if call.get("call") == "retry"),
         "loop": any(call.get("done") == "length" for call in calls),
         "main_done": next(
             (call.get("done") for call in calls if call["call"] == "main"), None

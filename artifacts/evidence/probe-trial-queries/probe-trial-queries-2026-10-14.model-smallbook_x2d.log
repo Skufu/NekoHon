@@ -1,0 +1,20 @@
+[smallbook_x2d] 'what is' refused=False cited=[]
+    A query is a request for information or data from a database or data source. In data engineering and analysis, queries are used to retrieve and manipulate tabular and semistructured data. Queries work on various data types and techniques exist to improve their
+[smallbook_x2d] 'hey' refused=True cited=['preface01-016', 'ch05-030', 'ch05-045']
+    Not in this book.
+[smallbook_x2d] 'warrup' refused=True cited=['ch05-053', 'ch05-030', 'app01-017']
+    Not in this book.
+[smallbook_x2d] 'Location' refused=False cited=[]
+    Location is often used to integrate streaming data across multiple regions for redundancy and proximity to data sources. Regions contain two or more availability zones to ensure resilience and performance. A data warehouse stores organized and formatted data f
+[smallbook_x2d] 'Our Advice' refused=False cited=[]
+    A chief information officer (CIO) is responsible for information technology within an organization, directing the IT organization and setting ongoing policies. They must possess deep knowledge of both information technology and business processes. CIOs often c
+[smallbook_x2d] 'DE Lifecycle' refused=False cited=[]
+    The data engineering lifecycle comprises five stages: generation, storage, ingestion, transformation, and serving data. Asked as: "What is DE Lifecycle?"
+[smallbook_x2d] 'DDR5 vs ddr4' refused=False cited=[]
+    DDR5 is faster than DDR4 in data retrieval latency, offering on the order of 100 ns compared to DDR4's latency. Asked as: "What is DDR5 vs ddr4?"
+[smallbook_x2d] 'ddr4 vs ddr5' refused=False cited=[]
+    DDR4 and DDR5 are different generations of DRAM (Dynamic Random Access Memory) standards. DDR5 offers faster data retrieval latency compared to DDR4, with DDR5 having a data retrieval latency on the order of 100 ns, while DDR4 has a data retrieval latency on t
+[smallbook_x2d] 'speed of ddr5' refused=True cited=['ch06-011', 'ch06-006', 'ch06-008']
+    Not in this book.
+[smallbook_x2d] 'speed of ddr5s' refused=True cited=['ch06-011', 'ch06-006', 'ch06-009']
+    Not in this book.

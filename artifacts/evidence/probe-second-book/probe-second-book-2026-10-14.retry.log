@@ -1,0 +1,138 @@
+# second-book probe 2026-10-14 | book chunks 506 figures 0 | models smallbook_x2, smallbook_x2d, qwen2.5:7b
+
+[smallbook_x2] ptq (in_book) PARTIAL refused=False cited=[] 2.23s
+    q: 'What is post-training quantization?'
+    a: Post-training quantization (PTQ) in Chapter 4 is where you derive quantization parameters from calibration data without touching the model's weights. It's fast (minutes to hours, not days), cheap (no GPU cluster for training), and surprisingly often sufficient
+[smallbook_x2] ste (in_book) PARTIAL refused=False cited=['chapter-5-022'] 1.14s
+    q: 'What is the straight-through estimator?'
+    a: The straight-through estimator (STE) in [Ch. chapter-5] approximates rounding operations by giving them a gradient of 1 during backpropagation. This means that during the backward pass, the STE pretends the rounding didn't happen, and gradients flow through un
+[smallbook_x2] cliff (in_book) PARTIAL refused=False cited=[] 1.61s
+    q: 'What is the accuracy cliff?'
+    a: The accuracy cliff refers to a sudden drop in model accuracy when quantizing from 32-bit floating point (FP32) to lower precision, such as 8-bit (INT8). In PTQ, moving from FP32 to INT8 keeps accuracy at 99.2%, but INT4 drops significantly, below the 5% degrad
+[smallbook_x2] affine (in_book) PASS refused=False cited=['chapter-2-023'] 1.02s
+    q: 'What is the affine mapping in quantization?'
+    a: The affine mapping in quantization is a linear transformation that lets us choose any scale and any offset. This means we can set any desired scale factor S and zero point Z. In other words, the affine quantization mapping in Chapter 2 [Ch. chapter-2] allows u
+[smallbook_x2] zeropoint (in_book) PARTIAL refused=False cited=['chapter-2-074', 'chapter-2-069'] 1.13s
+    q: 'What is the zero point in quantization?'
+    a: In [Ch. chapter-2], in quantization, the zero point in symmetric quantization is 0. In [Ch. chapter-2], for strictly positive data, the zero point in affine quantization is calculated using the formula Z=qmin−(rmin/S). In [Ch. chapter-2], in simulation, the ze
+[smallbook_x2] granular (in_book) PASS refused=False cited=['chapter-2-050'] 1.32s
+    q: 'What is granular error?'
+    a: Granular error occurs when the grid is too coarse. This means that values in the data set fall between grid points, leading to rounding errors. In [Ch. chapter-2], an example of granular error is given where values are rounded to the nearest grid point, result
+[smallbook_x2] gptq (in_book) PARTIAL refused=False cited=[] 1.63s
+    q: 'What is GPTQ?'
+    a: GPTQ quantizes the static parameters of the model, specifically the model's weights, in a column-wise manner. After quantizing a column, the error is distributed to the remaining columns, weighted by the inverse Hessian. This method requires calibration data a
+[smallbook_x2] awq (in_book) PARTIAL refused=False cited=[] 1.78s
+    q: 'What is AWQ?'
+    a: AWQ quantizes static model parameters in a weight-only method, not activations or the KV cache during inference. In AWQ, activations flow through in FP16/BF16, and the KV cache continues to grow with context length and batch size. AWQ requires calibration data
+[smallbook_x2] turboquant (in_book) PARTIAL refused=False cited=[] 3.28s
+    q: 'What is TurboQuant?'
+    a: TurboQuant processes each key or value vector in three steps: in Step 1, it separates the magnitude from the direction by computing the L2 norm and storing it in FP16. In Step 2, it shuffles the coordinates by rotating the vector. In Step 3, it quantizes each 
+[smallbook_x2] kvcache (in_book) PARTIAL refused=False cited=[] 1.45s
+    q: 'What is the KV cache?'
+    a: The KV cache in transformers stores keys (K) and values (V) for previously generated tokens. At each new step, only the K and V for the new token are computed, and they are added to the cache. This reduces memory usage in LLM inference.
+[smallbook_x2] bare-ptq (bare_form) PARTIAL refused=False cited=[] 1.6s
+    q: 'post-training quantization'
+    a: Post-training quantization (PTQ) in Chapter 4 is where you derive quantization parameters from calibration data without touching the model's weights. It's fast (minutes to hours, not days), cheap (no GPU cluster for training), and sufficient surprisingly often
+[smallbook_x2] ctl-watermark (control) PASS refused=True cited=['chapter-7-059', 'chapter-5-013', 'chapter-5-031'] 0.62s
+    q: 'What is a watermark?'
+    a: Not in this book.
+[smallbook_x2] ctl-france (control) PASS refused=True cited=['chapter-4-022', 'chapter-3-018', 'chapter-2-031'] 0.41s
+    q: 'What is the capital of France?'
+    a: Not in this book.
+[smallbook_x2] ctl-lakehouse (control) PASS refused=True cited=['chapter-7-085', 'chapter-6-021', 'chapter-3-094'] 0.64s
+    q: 'What is a data lakehouse?'
+    a: Not in this book.
+[smallbook_x2d] ptq (in_book) PARTIAL refused=False cited=[] 1.42s
+    q: 'What is post-training quantization?'
+    a: Post-training quantization is where you take a trained model, observe its behavior on calibration data, and derive quantization parameters without any gradient-based optimization. It's fast (minutes to hours, not days), it's cheap (no GPU cluster for training)
+[smallbook_x2d] ste (in_book) PARTIAL refused=False cited=[] 1.66s
+    q: 'What is the straight-through estimator?'
+    a: The straight-through estimator (STE) is a workaround introduced by Bengio, Léonard, and Courville in 2013 to handle rounding operations during backpropagation in neural networks. During the backward pass, the STE pretends the rounding operation didn't happen b
+[smallbook_x2d] cliff (in_book) PARTIAL refused=False cited=[] 1.91s
+    q: 'What is the accuracy cliff?'
+    a: The accuracy cliff refers to the sudden drop in model accuracy when moving from higher precision (like FP32) to lower precision quantization (like INT8 or INT4). This is shown in Figure 5.1, which compares the accuracy of ResNet-18 on ImageNette at different b
+[smallbook_x2d] affine (in_book) PARTIAL refused=False cited=[] 1.14s
+    q: 'What is the affine mapping in quantization?'
+    a: The affine mapping in quantization is a linear transformation that lets us choose any scale and any offset. It bridges the gap between the chaotic statistics of neural network tensors and the integer arithmetic of inference hardware.
+[smallbook_x2d] zeropoint (in_book) PARTIAL refused=False cited=[] 1.65s
+    q: 'What is the zero point in quantization?'
+    a: In quantization, the zero point refers to the value that represents the minimum input or output level for a quantized tensor. In symmetric quantization, both weights and activations are centered around zero, so the zero point is naturally zero. For asymmetric 
+[smallbook_x2d] granular (in_book) PARTIAL refused=False cited=[] 1.16s
+    q: 'What is granular error?'
+    a: Granular error occurs when the grid is too coarse, leading to rounding errors when values fall between grid points. The maximum error magnitude for uniform quantization with step size S is bounded by S/2.
+[smallbook_x2d] gptq (in_book) PARTIAL refused=False cited=[] 1.46s
+    q: 'What is GPTQ?'
+    a: GPTQ is a weight-only method that quantizes the static parameters of the model without affecting activations or the KV cache during inference. It uses calibration data to determine how to round weights so that errors cancel rather than accumulate, employing th
+[smallbook_x2d] awq (in_book) PARTIAL refused=False cited=[] 2.04s
+    q: 'What is AWQ?'
+    a: AWQ asks a different question: what if we could prevent the worst errors from happening in the first place? It only measures average activation magnitudes per channel—a low-dimensional statistic that stabilizes quickly, making it relatively robust to corpus ch
+[smallbook_x2d] turboquant (in_book) PASS refused=False cited=['chapter-7-066'] 0.85s
+    q: 'What is TurboQuant?'
+    a: TurboQuant is a data-oblivious method that compresses any vector on arrival by separating magnitude from direction, then applying a random rotation that makes per-coordinate scalar quantization provably near-optimal. [Ch. chapter-7]
+[smallbook_x2d] kvcache (in_book) PARTIAL refused=False cited=[] 1.38s
+    q: 'What is the KV cache?'
+    a: The KV cache is a key-value cache used by transformers to store the K and V tensors for all previously generated tokens to speed up the generation process. It stores the K and V projections for all previous tokens, allowing only the new token's K and V to be c
+[smallbook_x2d] bare-ptq (bare_form) PARTIAL refused=False cited=[] 1.19s
+    q: 'post-training quantization'
+    a: Post-training quantization is where you take a trained model, observe its behavior on calibration data, and derive quantization parameters without any gradient-based optimization. It's fast (minutes to hours, not days), it's cheap (no GPU cluster for training)
+[smallbook_x2d] ctl-watermark (control) PASS refused=True cited=['chapter-7-059', 'chapter-5-013', 'chapter-5-031'] 0.59s
+    q: 'What is a watermark?'
+    a: Not in this book.
+[smallbook_x2d] ctl-france (control) PASS refused=True cited=['chapter-4-022', 'chapter-3-018', 'chapter-2-031'] 0.43s
+    q: 'What is the capital of France?'
+    a: Not in this book.
+[smallbook_x2d] ctl-lakehouse (control) PASS refused=True cited=['chapter-7-085', 'chapter-6-021', 'chapter-3-094'] 0.6s
+    q: 'What is a data lakehouse?'
+    a: Not in this book.
+[qwen2.5:7b] ptq (in_book) PASS refused=False cited=['chapter-4-004'] 18.11s
+    q: 'What is post-training quantization?'
+    a: Post-training quantization (PTQ) is a method where you take a trained model, observe its behavior on calibration data, and derive quantization parameters without any gradient-based optimization [Ch. 4]. It is fast and cheap, and surprisingly often sufficient f
+[qwen2.5:7b] ste (in_book) PASS refused=False cited=['chapter-5-019', 'chapter-5-022'] 3.87s
+    q: 'What is the straight-through estimator?'
+    a: The straight-through estimator (STE) is a workaround for the issue of quantization having zero gradient almost everywhere, which would prevent weight updates in a neural network. During the backward pass, the STE "pretends" the rounding operation didn't happen
+[qwen2.5:7b] cliff (in_book) PASS refused=False cited=['chapter-5-005'] 1.88s
+    q: 'What is the accuracy cliff?'
+    a: The accuracy cliff refers to the point at which quantization accuracy drops significantly as the bit-width is reduced. [Ch. 5] This phenomenon is observed when quantizing a model, such as ResNet-18 on ImageNette, where INT8 PTQ accuracy remains close to the FP
+[qwen2.5:7b] affine (in_book) PASS refused=False cited=['chapter-2-023', 'chapter-2-041'] 2.91s
+    q: 'What is the affine mapping in quantization?'
+    a: Affine mapping in quantization is a linear transformation that allows choosing any scale and any offset, unlike the fixed-point grid which is rigid and constrained to powers of two [Ch. 2]. This mapping is crucial for adapting the grid to the data, bridging th
+[qwen2.5:7b] zeropoint (in_book) PARTIAL refused=False cited=['chapter-2-074', 'chapter-2-069'] 1.77s
+    q: 'What is the zero point in quantization?'
+    a: The zero point in quantization is typically zero when the data is centered at zero, as seen in ReLU activations [Ch. 2]. For data that is not centered at zero, the zero point can be non-zero, calculated as Z = qmin - (rmin/S) [Ch. 2]. This ensures that the int
+[qwen2.5:7b] granular (in_book) PASS refused=False cited=['chapter-2-051', 'chapter-2-050'] 1.77s
+    q: 'What is granular error?'
+    a: Granular error occurs when the grid is too coarse, as described in [Ch. 2]. Specifically, it happens when values land between grid points, leading to bounded rounding errors that are predictable and recoverable [Ch. 2]. These errors are limited to within S/2, 
+[qwen2.5:7b] gptq (in_book) PASS refused=False cited=['chapter-7-042', 'chapter-7-024', 'chapter-7-027'] 2.5s
+    q: 'What is GPTQ?'
+    a: GPTQ is a weight-only quantization method that quantizes the static parameters of a model, not its activations or the KV cache [Ch. 7]. It uses the Hessian matrix to decide how to round each weight, aiming to minimize error accumulation [Ch. 7]. The process in
+[qwen2.5:7b] awq (in_book) PASS refused=False cited=['chapter-7-044', 'chapter-7-064'] 2.88s
+    q: 'What is AWQ?'
+    a: AWQ, or Activation-Aware Weight Protection, is a weight-only quantization method that focuses on preventing quantization errors before they occur, rather than correcting them after [Ch. 7]. It measures average activation magnitudes per channel to identify and 
+[qwen2.5:7b] turboquant (in_book) PARTIAL refused=False cited=['chapter-7-068', 'chapter-7-078', 'chapter-7-069'] 2.74s
+    q: 'What is TurboQuant?'
+    a: TurboQuant is a vector quantization method that processes each key or value vector in three steps [Ch. 7]. It first separates the magnitude from the direction by computing the L2 norm and normalizing the vector [Ch. 7]. Then, it rotates the normalized vector t
+[qwen2.5:7b] kvcache (in_book) PASS refused=False cited=['chapter-3-015', 'chapter-3-017', 'chapter-7-066'] 3.91s
+    q: 'What is the KV cache?'
+    a: The KV cache is a transformer-specific data structure that serves as a memory bottleneck in LLM inference [Ch. 3]. It stores the key (K) and value (V) tensors for all previously generated tokens, allowing the model to avoid recomputing these projections at eac
+[qwen2.5:7b] bare-ptq (bare_form) PASS refused=False cited=['chapter-4-004'] 1.48s
+    q: 'post-training quantization'
+    a: Post-training quantization (PTQ) is a method where you take a trained model, observe its behavior on calibration data, and derive quantization parameters without any gradient-based optimization [Ch. 4]. It is fast and cheap, and surprisingly often sufficient f
+[qwen2.5:7b] ctl-watermark (control) PASS refused=True cited=['chapter-7-059', 'chapter-5-013', 'chapter-5-031'] 6.16s
+    q: 'What is a watermark?'
+    a: Not in this book.
+[qwen2.5:7b] ctl-france (control) FAIL refused=False cited=['chapter-4-022'] 1.03s
+    q: 'What is the capital of France?'
+    a: The capital of France is Paris. [Ch. 4]
+[qwen2.5:7b] ctl-lakehouse (control) PASS refused=True cited=['chapter-7-085', 'chapter-6-021', 'chapter-3-094'] 2.11s
+    q: 'What is a data lakehouse?'
+    a: Not in this book.
+
+summary qwen2.5:7b bare_form: {'PASS': 1, 'PARTIAL': 0, 'FAIL': 0}
+summary qwen2.5:7b control: {'PASS': 2, 'PARTIAL': 0, 'FAIL': 1}
+summary qwen2.5:7b in_book: {'PASS': 8, 'PARTIAL': 2, 'FAIL': 0}
+summary smallbook_x2 bare_form: {'PASS': 0, 'PARTIAL': 1, 'FAIL': 0}
+summary smallbook_x2 control: {'PASS': 3, 'PARTIAL': 0, 'FAIL': 0}
+summary smallbook_x2 in_book: {'PASS': 2, 'PARTIAL': 8, 'FAIL': 0}
+summary smallbook_x2d bare_form: {'PASS': 0, 'PARTIAL': 1, 'FAIL': 0}
+summary smallbook_x2d control: {'PASS': 3, 'PARTIAL': 0, 'FAIL': 0}
+summary smallbook_x2d in_book: {'PASS': 1, 'PARTIAL': 9, 'FAIL': 0}

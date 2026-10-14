@@ -1,0 +1,5678 @@
+{
+  "probe": "probe-fragment-2026-10-14",
+  "sealed": true,
+  "warning": "SEALED — never train on these items; swap-gate suite (x2-trial-2026-10-14.md)",
+  "model": "smallbook_x2d",
+  "mode": "answer",
+  "cap": 300,
+  "draws": 10,
+  "generated": "2026-10-14 21:11:42",
+  "train_files": [
+    "quote-refuse-2026-10-13.train-x1.jsonl",
+    "quote-refuse-2026-10-13.train-x2.jsonl",
+    "quote-refuse-2026-10-13.train-x2c.jsonl",
+    "quote-refuse-2026-10-13.train-x2d.jsonl",
+    "quote-refuse-2026-10-13.train.jsonl"
+  ],
+  "seal_notes": [
+    {
+      "item": "what does etls stand for",
+      "form": "what does etls stand for",
+      "other": "what does crud stand for",
+      "ratio": 0.833,
+      "jaccard": 0.667,
+      "train_files": [
+        "quote-refuse-2026-10-13.train-x2c.jsonl",
+        "quote-refuse-2026-10-13.train-x2d.jsonl"
+      ]
+    },
+    {
+      "item": "what does etls stand for",
+      "form": "what does etls stand for",
+      "other": "what does raid stand for",
+      "ratio": 0.833,
+      "jaccard": 0.667,
+      "train_files": [
+        "quote-refuse-2026-10-13.train-x2c.jsonl",
+        "quote-refuse-2026-10-13.train-x2d.jsonl"
+      ]
+    }
+  ],
+  "visible_ten_report": {
+    "violations": 0,
+    "max_ratio": 0.7,
+    "pair": "'What is howdy?' vs 'what is'"
+  },
+  "items": [
+    {
+      "class": "fragment",
+      "item": "how do",
+      "expect": "answered",
+      "note": "bare wh fragment inside the class's degenerate surface",
+      "canonical": "how do",
+      "max_train_sim": {
+        "ratio": 0.381,
+        "jaccard": 0.0,
+        "closest": "what is dataops"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 0,
+        "answered_cited": 0,
+        "pass_draws": 0,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "FAIL"
+      },
+      "draws": [
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 794,
+              "s": 4.7
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "From the given passages, data is created through various sources like IoT devices, credit card terminals, telescope sensors, and stock trades. The shell is used as an interface to execute commands for data ingestion. The shell can script workflows for software tools. Data sources are often not large, so storing data on a single instance or server works fine. For complex ingestion processes, engineers may use orchestration systems. Web scraping involves automatically extracting data from web pages using HTML elements. Before web scraping, consider if you should scrape or get data from a third party. Be a good citizen and avoid DoS attacks. Queries in databases are executed by compiling SQL code, converting it to bytecode, optimizing the query, and then executing it to produce results.",
+          "seconds": 8.38,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 915,
+              "s": 1.4
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "From the given passages, data is created through various sources like IoT devices, credit card terminals, telescope sensors, and stock trades. The shell is used as an interface to execute commands for data ingestion. The shell can script workflows for software tools. Data sources are often not large, so storing data on a single instance or server works fine. For more complex processes, cloud vendors provide CLI-based tools. Web scraping involves automatically extracting data from web pages using HTML elements. Before web scraping, consider if you should scrape or use third-party data. Be a good citizen and avoid DoS attacks. When executing a query in a database, the database engine compiles the SQL to check for proper semantics and ensure referenced objects exist. The SQL is then converted into bytecode for efficient execution. The query optimizer analyzes the bytecode to execute the query efficiently.",
+          "seconds": 1.62,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 915,
+              "s": 1.4
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "From the given passages, data is created through various sources like IoT devices, credit card terminals, telescope sensors, and stock trades. The shell is used as an interface to execute commands for data ingestion. The shell can script workflows for software tools. Data sources are often not large, so storing data on a single instance or server works fine. For more complex processes, cloud vendors provide CLI-based tools. Web scraping involves automatically extracting data from web pages using HTML elements. Before web scraping, consider if you should scrape or use third-party data. Be a good citizen and avoid DoS attacks. When executing a query in a database, the database engine compiles the SQL to check for proper semantics and ensure referenced objects exist. The SQL is then converted into bytecode for efficient execution. The query optimizer analyzes the bytecode to execute the query efficiently.",
+          "seconds": 1.62,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 915,
+              "s": 1.4
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "From the given passages, data is created through various sources like IoT devices, credit card terminals, telescope sensors, and stock trades. The shell is used as an interface to execute commands for data ingestion. The shell can script workflows for software tools. Data sources are often not large, so storing data on a single instance or server works fine. For more complex processes, cloud vendors provide CLI-based tools. Web scraping involves automatically extracting data from web pages using HTML elements. Before web scraping, consider if you should scrape or use third-party data. Be a good citizen and avoid DoS attacks. When executing a query in a database, the database engine compiles the SQL to check for proper semantics and ensure referenced objects exist. The SQL is then converted into bytecode for efficient execution. The query optimizer analyzes the bytecode to execute the query efficiently.",
+          "seconds": 1.61,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 915,
+              "s": 1.4
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "From the given passages, data is created through various sources like IoT devices, credit card terminals, telescope sensors, and stock trades. The shell is used as an interface to execute commands for data ingestion. The shell can script workflows for software tools. Data sources are often not large, so storing data on a single instance or server works fine. For more complex processes, cloud vendors provide CLI-based tools. Web scraping involves automatically extracting data from web pages using HTML elements. Before web scraping, consider if you should scrape or use third-party data. Be a good citizen and avoid DoS attacks. When executing a query in a database, the database engine compiles the SQL to check for proper semantics and ensure referenced objects exist. The SQL is then converted into bytecode for efficient execution. The query optimizer analyzes the bytecode to execute the query efficiently.",
+          "seconds": 1.62,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 915,
+              "s": 1.4
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "From the given passages, data is created through various sources like IoT devices, credit card terminals, telescope sensors, and stock trades. The shell is used as an interface to execute commands for data ingestion. The shell can script workflows for software tools. Data sources are often not large, so storing data on a single instance or server works fine. For more complex processes, cloud vendors provide CLI-based tools. Web scraping involves automatically extracting data from web pages using HTML elements. Before web scraping, consider if you should scrape or use third-party data. Be a good citizen and avoid DoS attacks. When executing a query in a database, the database engine compiles the SQL to check for proper semantics and ensure referenced objects exist. The SQL is then converted into bytecode for efficient execution. The query optimizer analyzes the bytecode to execute the query efficiently.",
+          "seconds": 1.64,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 915,
+              "s": 1.4
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "From the given passages, data is created through various sources like IoT devices, credit card terminals, telescope sensors, and stock trades. The shell is used as an interface to execute commands for data ingestion. The shell can script workflows for software tools. Data sources are often not large, so storing data on a single instance or server works fine. For more complex processes, cloud vendors provide CLI-based tools. Web scraping involves automatically extracting data from web pages using HTML elements. Before web scraping, consider if you should scrape or use third-party data. Be a good citizen and avoid DoS attacks. When executing a query in a database, the database engine compiles the SQL to check for proper semantics and ensure referenced objects exist. The SQL is then converted into bytecode for efficient execution. The query optimizer analyzes the bytecode to execute the query efficiently.",
+          "seconds": 1.62,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 915,
+              "s": 1.4
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "From the given passages, data is created through various sources like IoT devices, credit card terminals, telescope sensors, and stock trades. The shell is used as an interface to execute commands for data ingestion. The shell can script workflows for software tools. Data sources are often not large, so storing data on a single instance or server works fine. For more complex processes, cloud vendors provide CLI-based tools. Web scraping involves automatically extracting data from web pages using HTML elements. Before web scraping, consider if you should scrape or use third-party data. Be a good citizen and avoid DoS attacks. When executing a query in a database, the database engine compiles the SQL to check for proper semantics and ensure referenced objects exist. The SQL is then converted into bytecode for efficient execution. The query optimizer analyzes the bytecode to execute the query efficiently.",
+          "seconds": 1.66,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 915,
+              "s": 1.5
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "From the given passages, data is created through various sources like IoT devices, credit card terminals, telescope sensors, and stock trades. The shell is used as an interface to execute commands for data ingestion. The shell can script workflows for software tools. Data sources are often not large, so storing data on a single instance or server works fine. For more complex processes, cloud vendors provide CLI-based tools. Web scraping involves automatically extracting data from web pages using HTML elements. Before web scraping, consider if you should scrape or use third-party data. Be a good citizen and avoid DoS attacks. When executing a query in a database, the database engine compiles the SQL to check for proper semantics and ensure referenced objects exist. The SQL is then converted into bytecode for efficient execution. The query optimizer analyzes the bytecode to execute the query efficiently.",
+          "seconds": 1.64,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 915,
+              "s": 1.4
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "From the given passages, data is created through various sources like IoT devices, credit card terminals, telescope sensors, and stock trades. The shell is used as an interface to execute commands for data ingestion. The shell can script workflows for software tools. Data sources are often not large, so storing data on a single instance or server works fine. For more complex processes, cloud vendors provide CLI-based tools. Web scraping involves automatically extracting data from web pages using HTML elements. Before web scraping, consider if you should scrape or use third-party data. Be a good citizen and avoid DoS attacks. When executing a query in a database, the database engine compiles the SQL to check for proper semantics and ensure referenced objects exist. The SQL is then converted into bytecode for efficient execution. The query optimizer analyzes the bytecode to execute the query efficiently.",
+          "seconds": 1.62,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    },
+    {
+      "class": "fragment",
+      "item": "what about",
+      "expect": "answered",
+      "note": "bare wh fragment",
+      "canonical": "what about",
+      "max_train_sim": {
+        "ratio": 0.571,
+        "jaccard": 0.2,
+        "closest": "what is zero trust"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 0,
+        "answered_cited": 10,
+        "pass_draws": 10,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "PASS"
+      },
+      "draws": [
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch08-004"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 84,
+              "s": 0.5
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "A query is a request for data or information from a database or data source. [Ch. 8]",
+          "seconds": 0.7,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch08-004"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 84,
+              "s": 0.2
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "A query is a request for data or information from a database or data source. [Ch. 8]",
+          "seconds": 0.42,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch08-004"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 84,
+              "s": 0.2
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "A query is a request for data or information from a database or data source. [Ch. 8]",
+          "seconds": 0.42,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch08-004"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 84,
+              "s": 0.2
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "A query is a request for data or information from a database or data source. [Ch. 8]",
+          "seconds": 0.42,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch08-004"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 84,
+              "s": 0.2
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "A query is a request for data or information from a database or data source. [Ch. 8]",
+          "seconds": 0.44,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch08-004"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 84,
+              "s": 0.2
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "A query is a request for data or information from a database or data source. [Ch. 8]",
+          "seconds": 0.41,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch08-004"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 84,
+              "s": 0.2
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "A query is a request for data or information from a database or data source. [Ch. 8]",
+          "seconds": 0.44,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch08-004"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 84,
+              "s": 0.2
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "A query is a request for data or information from a database or data source. [Ch. 8]",
+          "seconds": 0.41,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch08-004"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 84,
+              "s": 0.2
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "A query is a request for data or information from a database or data source. [Ch. 8]",
+          "seconds": 0.42,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch08-004"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 84,
+              "s": 0.2
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "A query is a request for data or information from a database or data source. [Ch. 8]",
+          "seconds": 0.44,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    },
+    {
+      "class": "fragment",
+      "item": "explain",
+      "expect": "answered",
+      "note": "bare imperative fragment; 'explain' is a book word (explain plan)",
+      "canonical": "explain",
+      "max_train_sim": {
+        "ratio": 0.778,
+        "jaccard": 0.5,
+        "closest": "explain pii"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 0,
+        "answered_cited": 0,
+        "pass_draws": 0,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "FAIL"
+      },
+      "draws": [
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 444,
+              "s": 1.0
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Schema describes the expected form of the data, including its file format, structure, and organization. It specifies the data types and hierarchy, and indicates how the data is connected to other data through shared keys or relationships. Schema on write requires a schema metastore for relational databases, while schema on read dynamically creates a schema when data is written, using file formats like Parquet or JSON for better performance.",
+          "seconds": 1.38,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 444,
+              "s": 0.7
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Schema describes the expected form of the data, including its file format, structure, and organization. It specifies the data types and hierarchy, and indicates how the data is connected to other data through shared keys or relationships. Schema on write requires a schema metastore for relational databases, while schema on read dynamically creates a schema when data is written, using file formats like Parquet or JSON for better performance.",
+          "seconds": 0.98,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 444,
+              "s": 0.7
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Schema describes the expected form of the data, including its file format, structure, and organization. It specifies the data types and hierarchy, and indicates how the data is connected to other data through shared keys or relationships. Schema on write requires a schema metastore for relational databases, while schema on read dynamically creates a schema when data is written, using file formats like Parquet or JSON for better performance.",
+          "seconds": 1.0,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 444,
+              "s": 0.7
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Schema describes the expected form of the data, including its file format, structure, and organization. It specifies the data types and hierarchy, and indicates how the data is connected to other data through shared keys or relationships. Schema on write requires a schema metastore for relational databases, while schema on read dynamically creates a schema when data is written, using file formats like Parquet or JSON for better performance.",
+          "seconds": 0.98,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 444,
+              "s": 0.7
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Schema describes the expected form of the data, including its file format, structure, and organization. It specifies the data types and hierarchy, and indicates how the data is connected to other data through shared keys or relationships. Schema on write requires a schema metastore for relational databases, while schema on read dynamically creates a schema when data is written, using file formats like Parquet or JSON for better performance.",
+          "seconds": 1.0,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 444,
+              "s": 0.7
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Schema describes the expected form of the data, including its file format, structure, and organization. It specifies the data types and hierarchy, and indicates how the data is connected to other data through shared keys or relationships. Schema on write requires a schema metastore for relational databases, while schema on read dynamically creates a schema when data is written, using file formats like Parquet or JSON for better performance.",
+          "seconds": 0.98,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 444,
+              "s": 0.7
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Schema describes the expected form of the data, including its file format, structure, and organization. It specifies the data types and hierarchy, and indicates how the data is connected to other data through shared keys or relationships. Schema on write requires a schema metastore for relational databases, while schema on read dynamically creates a schema when data is written, using file formats like Parquet or JSON for better performance.",
+          "seconds": 0.98,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 444,
+              "s": 0.7
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Schema describes the expected form of the data, including its file format, structure, and organization. It specifies the data types and hierarchy, and indicates how the data is connected to other data through shared keys or relationships. Schema on write requires a schema metastore for relational databases, while schema on read dynamically creates a schema when data is written, using file formats like Parquet or JSON for better performance.",
+          "seconds": 0.97,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 444,
+              "s": 0.7
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Schema describes the expected form of the data, including its file format, structure, and organization. It specifies the data types and hierarchy, and indicates how the data is connected to other data through shared keys or relationships. Schema on write requires a schema metastore for relational databases, while schema on read dynamically creates a schema when data is written, using file formats like Parquet or JSON for better performance.",
+          "seconds": 1.0,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 444,
+              "s": 0.7
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Schema describes the expected form of the data, including its file format, structure, and organization. It specifies the data types and hierarchy, and indicates how the data is connected to other data through shared keys or relationships. Schema on write requires a schema metastore for relational databases, while schema on read dynamically creates a schema when data is written, using file formats like Parquet or JSON for better performance.",
+          "seconds": 0.98,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    },
+    {
+      "class": "fragment",
+      "item": "why does",
+      "expect": "answered",
+      "note": "bare wh fragment",
+      "canonical": "why does",
+      "max_train_sim": {
+        "ratio": 0.522,
+        "jaccard": 0.0,
+        "closest": "what is dataops"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 10,
+        "answered_cited": 0,
+        "pass_draws": 0,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "FAIL"
+      },
+      "draws": [
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch05-045",
+            "ch09-006",
+            "ch06-019"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.4
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.58,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch05-045",
+            "ch09-006",
+            "ch06-019"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.31,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch05-045",
+            "ch09-006",
+            "ch06-019"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.31,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch05-045",
+            "ch09-006",
+            "ch06-019"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.3,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch05-045",
+            "ch09-006",
+            "ch06-019"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.3,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch05-045",
+            "ch09-006",
+            "ch06-019"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.3,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch05-045",
+            "ch09-006",
+            "ch06-019"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.3,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch05-045",
+            "ch09-006",
+            "ch06-019"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.31,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch05-045",
+            "ch09-006",
+            "ch06-019"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.3,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch05-045",
+            "ch09-006",
+            "ch06-019"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.3,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    },
+    {
+      "class": "greeting",
+      "item": "hi there",
+      "expect": "either",
+      "note": "opener passthrough in canonical.py; same judge both models",
+      "canonical": "hi there",
+      "max_train_sim": {
+        "ratio": 0.609,
+        "jaccard": 0.0,
+        "closest": "the CAP theorem"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 10,
+        "answered_cited": 0,
+        "pass_draws": 0,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "RECORD"
+      },
+      "draws": [
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch01-064",
+            "ch03-071",
+            "ch05-030"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 10,
+              "s": 4.0
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.4
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 4.64,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch01-064",
+            "ch03-071",
+            "ch05-030"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 10,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.89,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch01-064",
+            "ch03-071",
+            "ch05-030"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 10,
+              "s": 0.0
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.44,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch01-064",
+            "ch03-071",
+            "ch05-030"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 10,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.41,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch01-064",
+            "ch03-071",
+            "ch05-030"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 10,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.41,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch01-064",
+            "ch03-071",
+            "ch05-030"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 10,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.52,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch01-064",
+            "ch03-071",
+            "ch05-030"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 10,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.53,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch01-064",
+            "ch03-071",
+            "ch05-030"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 10,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.61,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch01-064",
+            "ch03-071",
+            "ch05-030"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 10,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.48,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch01-064",
+            "ch03-071",
+            "ch05-030"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 10,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.52,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    },
+    {
+      "class": "greeting",
+      "item": "good morning",
+      "expect": "either",
+      "note": "records what canonical_query does to a non-opener greeting",
+      "canonical": "What is good morning?",
+      "max_train_sim": {
+        "ratio": 0.7,
+        "jaccard": 0.333,
+        "closest": "what is data masking"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 10,
+        "answered_cited": 0,
+        "pass_draws": 0,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "RECORD"
+      },
+      "draws": [
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch08-037",
+            "ch03-078",
+            "ch09-008"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 21,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.4
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 1.03,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch08-037",
+            "ch03-078",
+            "ch09-008"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 21,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.61,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch08-037",
+            "ch03-078",
+            "ch09-008"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 21,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.58,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch08-037",
+            "ch03-078",
+            "ch09-008"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 21,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.56,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch08-037",
+            "ch03-078",
+            "ch09-008"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 21,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.61,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch08-037",
+            "ch03-078",
+            "ch09-008"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 21,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.58,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch08-037",
+            "ch03-078",
+            "ch09-008"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 21,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.59,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch08-037",
+            "ch03-078",
+            "ch09-008"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 21,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.56,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch08-037",
+            "ch03-078",
+            "ch09-008"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 21,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.58,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch08-037",
+            "ch03-078",
+            "ch09-008"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 21,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.55,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    },
+    {
+      "class": "greeting",
+      "item": "howdy",
+      "expect": "either",
+      "note": "distinct greeting word, not 'hey'/'warrup'",
+      "canonical": "What is howdy?",
+      "max_train_sim": {
+        "ratio": 0.667,
+        "jaccard": 0.5,
+        "closest": "what is pii"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 10,
+        "answered_cited": 0,
+        "pass_draws": 0,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "RECORD"
+      },
+      "draws": [
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch03-071",
+            "ch09-050",
+            "ch07-049"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 16,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.3
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.75,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch03-071",
+            "ch09-050",
+            "ch07-049"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 16,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.45,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch03-071",
+            "ch09-050",
+            "ch07-049"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 16,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.47,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch03-071",
+            "ch09-050",
+            "ch07-049"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 16,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.45,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch03-071",
+            "ch09-050",
+            "ch07-049"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 16,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.45,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch03-071",
+            "ch09-050",
+            "ch07-049"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 16,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.44,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch03-071",
+            "ch09-050",
+            "ch07-049"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 16,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.44,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch03-071",
+            "ch09-050",
+            "ch07-049"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 16,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.48,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch03-071",
+            "ch09-050",
+            "ch07-049"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 16,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.47,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch03-071",
+            "ch09-050",
+            "ch07-049"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 16,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.45,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    },
+    {
+      "class": "bare-topic",
+      "item": "Time Series",
+      "expect": "answered",
+      "note": "ch05 heading 'Time series'",
+      "canonical": "What is Time Series?",
+      "max_train_sim": {
+        "ratio": 0.703,
+        "jaccard": 0.4,
+        "closest": "What is serverless?"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 0,
+        "answered_cited": 0,
+        "pass_draws": 0,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "FAIL"
+      },
+      "draws": [
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 394,
+              "s": 1.0
+            }
+          ],
+          "asked_as": "What is Time Series?",
+          "read_as": null,
+          "answer": "Time series is a series of values organized by time. For example, stock prices might move as trades are executed throughout the day, or a weather sensor will take atmospheric temperatures every minute. Any events that are recorded over time—either regularly or sporadically—are time-series data. A time-series database is optimized for retrieving and statistical processing of time-series data.\nAsked as: \"What is Time Series?\"",
+          "seconds": 1.25,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 134,
+              "s": 0.2
+            }
+          ],
+          "asked_as": "What is Time Series?",
+          "read_as": null,
+          "answer": "Time series is data recorded over time, such as stock prices moving throughout the day or atmospheric temperatures taken every minute.\nAsked as: \"What is Time Series?\"",
+          "seconds": 0.95,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 134,
+              "s": 0.2
+            }
+          ],
+          "asked_as": "What is Time Series?",
+          "read_as": null,
+          "answer": "Time series is data recorded over time, such as stock prices moving throughout the day or atmospheric temperatures taken every minute.\nAsked as: \"What is Time Series?\"",
+          "seconds": 0.52,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 134,
+              "s": 0.2
+            }
+          ],
+          "asked_as": "What is Time Series?",
+          "read_as": null,
+          "answer": "Time series is data recorded over time, such as stock prices moving throughout the day or atmospheric temperatures taken every minute.\nAsked as: \"What is Time Series?\"",
+          "seconds": 0.72,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 134,
+              "s": 0.2
+            }
+          ],
+          "asked_as": "What is Time Series?",
+          "read_as": null,
+          "answer": "Time series is data recorded over time, such as stock prices moving throughout the day or atmospheric temperatures taken every minute.\nAsked as: \"What is Time Series?\"",
+          "seconds": 0.58,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 134,
+              "s": 0.2
+            }
+          ],
+          "asked_as": "What is Time Series?",
+          "read_as": null,
+          "answer": "Time series is data recorded over time, such as stock prices moving throughout the day or atmospheric temperatures taken every minute.\nAsked as: \"What is Time Series?\"",
+          "seconds": 0.59,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 134,
+              "s": 0.8
+            }
+          ],
+          "asked_as": "What is Time Series?",
+          "read_as": null,
+          "answer": "Time series is data recorded over time, such as stock prices moving throughout the day or atmospheric temperatures taken every minute.\nAsked as: \"What is Time Series?\"",
+          "seconds": 1.44,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 134,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is Time Series?",
+          "read_as": null,
+          "answer": "Time series is data recorded over time, such as stock prices moving throughout the day or atmospheric temperatures taken every minute.\nAsked as: \"What is Time Series?\"",
+          "seconds": 1.34,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 134,
+              "s": 0.3
+            }
+          ],
+          "asked_as": "What is Time Series?",
+          "read_as": null,
+          "answer": "Time series is data recorded over time, such as stock prices moving throughout the day or atmospheric temperatures taken every minute.\nAsked as: \"What is Time Series?\"",
+          "seconds": 1.08,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 134,
+              "s": 0.3
+            }
+          ],
+          "asked_as": "What is Time Series?",
+          "read_as": null,
+          "answer": "Time series is data recorded over time, such as stock prices moving throughout the day or atmospheric temperatures taken every minute.\nAsked as: \"What is Time Series?\"",
+          "seconds": 0.78,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    },
+    {
+      "class": "bare-topic",
+      "item": "File Formats",
+      "expect": "answered",
+      "note": "ch07 'Practical Issues with Common File Formats'",
+      "canonical": "What is File Formats?",
+      "max_train_sim": {
+        "ratio": 0.667,
+        "jaccard": 0.4,
+        "closest": "What is Location?"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 0,
+        "answered_cited": 0,
+        "pass_draws": 0,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "FAIL"
+      },
+      "draws": [
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 116,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is File Formats?",
+          "read_as": null,
+          "answer": "File formats include Excel, CSV, TXT, JSON, and XML. These files can be structured, semistructured, or unstructured.\nAsked as: \"What is File Formats?\"",
+          "seconds": 0.95,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 116,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is File Formats?",
+          "read_as": null,
+          "answer": "File formats include Excel, CSV, TXT, JSON, and XML. These files can be structured, semistructured, or unstructured.\nAsked as: \"What is File Formats?\"",
+          "seconds": 0.69,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 116,
+              "s": 0.3
+            }
+          ],
+          "asked_as": "What is File Formats?",
+          "read_as": null,
+          "answer": "File formats include Excel, CSV, TXT, JSON, and XML. These files can be structured, semistructured, or unstructured.\nAsked as: \"What is File Formats?\"",
+          "seconds": 0.64,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 116,
+              "s": 0.3
+            }
+          ],
+          "asked_as": "What is File Formats?",
+          "read_as": null,
+          "answer": "File formats include Excel, CSV, TXT, JSON, and XML. These files can be structured, semistructured, or unstructured.\nAsked as: \"What is File Formats?\"",
+          "seconds": 0.5,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 116,
+              "s": 0.3
+            }
+          ],
+          "asked_as": "What is File Formats?",
+          "read_as": null,
+          "answer": "File formats include Excel, CSV, TXT, JSON, and XML. These files can be structured, semistructured, or unstructured.\nAsked as: \"What is File Formats?\"",
+          "seconds": 0.52,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 116,
+              "s": 0.3
+            }
+          ],
+          "asked_as": "What is File Formats?",
+          "read_as": null,
+          "answer": "File formats include Excel, CSV, TXT, JSON, and XML. These files can be structured, semistructured, or unstructured.\nAsked as: \"What is File Formats?\"",
+          "seconds": 0.56,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 116,
+              "s": 0.3
+            }
+          ],
+          "asked_as": "What is File Formats?",
+          "read_as": null,
+          "answer": "File formats include Excel, CSV, TXT, JSON, and XML. These files can be structured, semistructured, or unstructured.\nAsked as: \"What is File Formats?\"",
+          "seconds": 0.5,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 116,
+              "s": 0.3
+            }
+          ],
+          "asked_as": "What is File Formats?",
+          "read_as": null,
+          "answer": "File formats include Excel, CSV, TXT, JSON, and XML. These files can be structured, semistructured, or unstructured.\nAsked as: \"What is File Formats?\"",
+          "seconds": 0.5,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 116,
+              "s": 0.3
+            }
+          ],
+          "asked_as": "What is File Formats?",
+          "read_as": null,
+          "answer": "File formats include Excel, CSV, TXT, JSON, and XML. These files can be structured, semistructured, or unstructured.\nAsked as: \"What is File Formats?\"",
+          "seconds": 0.5,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 116,
+              "s": 0.3
+            }
+          ],
+          "asked_as": "What is File Formats?",
+          "read_as": null,
+          "answer": "File formats include Excel, CSV, TXT, JSON, and XML. These files can be structured, semistructured, or unstructured.\nAsked as: \"What is File Formats?\"",
+          "seconds": 0.49,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    },
+    {
+      "class": "bare-topic",
+      "item": "Micro-Batch",
+      "expect": "answered",
+      "note": "ch08 'Micro-batch versus true streaming'",
+      "canonical": "What is Micro-Batch?",
+      "max_train_sim": {
+        "ratio": 0.667,
+        "jaccard": 0.286,
+        "closest": "What is a black hole?"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 0,
+        "answered_cited": 0,
+        "pass_draws": 0,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "FAIL"
+      },
+      "draws": [
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 329,
+              "s": 0.8
+            }
+          ],
+          "asked_as": "What is Micro-Batch?",
+          "read_as": null,
+          "answer": "Micro-batch is a way to process data in small batches, typically every two minutes to every second, by applying batch-oriented frameworks to streaming situations. Micro-batch frameworks like Apache Spark Streaming are designed for this use case and can perform well with appropriate resource allocation at high batch frequencies.\nAsked as: \"What is Micro-Batch?\"",
+          "seconds": 1.01,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 356,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is Micro-Batch?",
+          "read_as": null,
+          "answer": "Micro-batch is a way to process data in small batches, typically every two minutes to every second, by applying micro-batching to batch-oriented frameworks to handle streaming situations. Micro-batch frameworks like Apache Spark Streaming are designed for this use case and can perform well with appropriately allocated resources at high batch frequencies.\nAsked as: \"What is Micro-Batch?\"",
+          "seconds": 0.8,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 356,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is Micro-Batch?",
+          "read_as": null,
+          "answer": "Micro-batch is a way to process data in small batches, typically every two minutes to every second, by applying micro-batching to batch-oriented frameworks to handle streaming situations. Micro-batch frameworks like Apache Spark Streaming are designed for this use case and can perform well with appropriately allocated resources at high batch frequencies.\nAsked as: \"What is Micro-Batch?\"",
+          "seconds": 0.83,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 356,
+              "s": 0.5
+            }
+          ],
+          "asked_as": "What is Micro-Batch?",
+          "read_as": null,
+          "answer": "Micro-batch is a way to process data in small batches, typically every two minutes to every second, by applying micro-batching to batch-oriented frameworks to handle streaming situations. Micro-batch frameworks like Apache Spark Streaming are designed for this use case and can perform well with appropriately allocated resources at high batch frequencies.\nAsked as: \"What is Micro-Batch?\"",
+          "seconds": 0.77,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 356,
+              "s": 0.5
+            }
+          ],
+          "asked_as": "What is Micro-Batch?",
+          "read_as": null,
+          "answer": "Micro-batch is a way to process data in small batches, typically every two minutes to every second, by applying micro-batching to batch-oriented frameworks to handle streaming situations. Micro-batch frameworks like Apache Spark Streaming are designed for this use case and can perform well with appropriately allocated resources at high batch frequencies.\nAsked as: \"What is Micro-Batch?\"",
+          "seconds": 0.78,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 356,
+              "s": 0.5
+            }
+          ],
+          "asked_as": "What is Micro-Batch?",
+          "read_as": null,
+          "answer": "Micro-batch is a way to process data in small batches, typically every two minutes to every second, by applying micro-batching to batch-oriented frameworks to handle streaming situations. Micro-batch frameworks like Apache Spark Streaming are designed for this use case and can perform well with appropriately allocated resources at high batch frequencies.\nAsked as: \"What is Micro-Batch?\"",
+          "seconds": 0.8,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 356,
+              "s": 0.5
+            }
+          ],
+          "asked_as": "What is Micro-Batch?",
+          "read_as": null,
+          "answer": "Micro-batch is a way to process data in small batches, typically every two minutes to every second, by applying micro-batching to batch-oriented frameworks to handle streaming situations. Micro-batch frameworks like Apache Spark Streaming are designed for this use case and can perform well with appropriately allocated resources at high batch frequencies.\nAsked as: \"What is Micro-Batch?\"",
+          "seconds": 0.75,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 356,
+              "s": 0.5
+            }
+          ],
+          "asked_as": "What is Micro-Batch?",
+          "read_as": null,
+          "answer": "Micro-batch is a way to process data in small batches, typically every two minutes to every second, by applying micro-batching to batch-oriented frameworks to handle streaming situations. Micro-batch frameworks like Apache Spark Streaming are designed for this use case and can perform well with appropriately allocated resources at high batch frequencies.\nAsked as: \"What is Micro-Batch?\"",
+          "seconds": 0.77,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 356,
+              "s": 0.5
+            }
+          ],
+          "asked_as": "What is Micro-Batch?",
+          "read_as": null,
+          "answer": "Micro-batch is a way to process data in small batches, typically every two minutes to every second, by applying micro-batching to batch-oriented frameworks to handle streaming situations. Micro-batch frameworks like Apache Spark Streaming are designed for this use case and can perform well with appropriately allocated resources at high batch frequencies.\nAsked as: \"What is Micro-Batch?\"",
+          "seconds": 0.76,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 356,
+              "s": 0.5
+            }
+          ],
+          "asked_as": "What is Micro-Batch?",
+          "read_as": null,
+          "answer": "Micro-batch is a way to process data in small batches, typically every two minutes to every second, by applying micro-batching to batch-oriented frameworks to handle streaming situations. Micro-batch frameworks like Apache Spark Streaming are designed for this use case and can perform well with appropriately allocated resources at high batch frequencies.\nAsked as: \"What is Micro-Batch?\"",
+          "seconds": 0.75,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    },
+    {
+      "class": "bare-topic",
+      "item": "Streaming",
+      "expect": "answered",
+      "note": "ch02 'Streaming' section",
+      "canonical": "What is Streaming?",
+      "max_train_sim": {
+        "ratio": 0.722,
+        "jaccard": 0.4,
+        "closest": "What is star schema?"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 0,
+        "answered_cited": 0,
+        "pass_draws": 0,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "FAIL"
+      },
+      "draws": [
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 248,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is Streaming?",
+          "read_as": null,
+          "answer": "Streaming is about processing data in real-time, often requiring more complex software engineering solutions like joins and windowing. Engineers must write code to apply various windowing methods for calculating metrics such as trailing statistics.\nAsked as: \"What is Streaming?\"",
+          "seconds": 0.83,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 248,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is Streaming?",
+          "read_as": null,
+          "answer": "Streaming is about processing data in real-time, often requiring more complex software engineering solutions like joins and windowing. Engineers must write code to apply various windowing methods for calculating metrics such as trailing statistics.\nAsked as: \"What is Streaming?\"",
+          "seconds": 0.59,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 248,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is Streaming?",
+          "read_as": null,
+          "answer": "Streaming is about processing data in real-time, often requiring more complex software engineering solutions like joins and windowing. Engineers must write code to apply various windowing methods for calculating metrics such as trailing statistics.\nAsked as: \"What is Streaming?\"",
+          "seconds": 0.58,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 248,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is Streaming?",
+          "read_as": null,
+          "answer": "Streaming is about processing data in real-time, often requiring more complex software engineering solutions like joins and windowing. Engineers must write code to apply various windowing methods for calculating metrics such as trailing statistics.\nAsked as: \"What is Streaming?\"",
+          "seconds": 0.59,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 248,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is Streaming?",
+          "read_as": null,
+          "answer": "Streaming is about processing data in real-time, often requiring more complex software engineering solutions like joins and windowing. Engineers must write code to apply various windowing methods for calculating metrics such as trailing statistics.\nAsked as: \"What is Streaming?\"",
+          "seconds": 0.61,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 248,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is Streaming?",
+          "read_as": null,
+          "answer": "Streaming is about processing data in real-time, often requiring more complex software engineering solutions like joins and windowing. Engineers must write code to apply various windowing methods for calculating metrics such as trailing statistics.\nAsked as: \"What is Streaming?\"",
+          "seconds": 0.58,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 248,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is Streaming?",
+          "read_as": null,
+          "answer": "Streaming is about processing data in real-time, often requiring more complex software engineering solutions like joins and windowing. Engineers must write code to apply various windowing methods for calculating metrics such as trailing statistics.\nAsked as: \"What is Streaming?\"",
+          "seconds": 0.59,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 248,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is Streaming?",
+          "read_as": null,
+          "answer": "Streaming is about processing data in real-time, often requiring more complex software engineering solutions like joins and windowing. Engineers must write code to apply various windowing methods for calculating metrics such as trailing statistics.\nAsked as: \"What is Streaming?\"",
+          "seconds": 0.59,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 248,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is Streaming?",
+          "read_as": null,
+          "answer": "Streaming is about processing data in real-time, often requiring more complex software engineering solutions like joins and windowing. Engineers must write code to apply various windowing methods for calculating metrics such as trailing statistics.\nAsked as: \"What is Streaming?\"",
+          "seconds": 0.58,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 248,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is Streaming?",
+          "read_as": null,
+          "answer": "Streaming is about processing data in real-time, often requiring more complex software engineering solutions like joins and windowing. Engineers must write code to apply various windowing methods for calculating metrics such as trailing statistics.\nAsked as: \"What is Streaming?\"",
+          "seconds": 0.59,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    },
+    {
+      "class": "bare-topic",
+      "item": "Event Streams",
+      "expect": "answered",
+      "note": "ch05 'Event-streaming platforms'",
+      "canonical": "What is Event Streams?",
+      "max_train_sim": {
+        "ratio": 0.727,
+        "jaccard": 0.286,
+        "closest": "What is key-value store?"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 0,
+        "answered_cited": 0,
+        "pass_draws": 0,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "FAIL"
+      },
+      "draws": [
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 177,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is Event Streams?",
+          "read_as": null,
+          "answer": "An event-streaming platform is used to ingest and process data in an ordered log of records. It retains data for a while and allows replaying messages from a past point in time.\nAsked as: \"What is Event Streams?\"",
+          "seconds": 0.83,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 177,
+              "s": 0.3
+            }
+          ],
+          "asked_as": "What is Event Streams?",
+          "read_as": null,
+          "answer": "An event-streaming platform is used to ingest and process data in an ordered log of records. It retains data for a while and allows replaying messages from a past point in time.\nAsked as: \"What is Event Streams?\"",
+          "seconds": 0.55,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 177,
+              "s": 0.3
+            }
+          ],
+          "asked_as": "What is Event Streams?",
+          "read_as": null,
+          "answer": "An event-streaming platform is used to ingest and process data in an ordered log of records. It retains data for a while and allows replaying messages from a past point in time.\nAsked as: \"What is Event Streams?\"",
+          "seconds": 0.56,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 177,
+              "s": 0.3
+            }
+          ],
+          "asked_as": "What is Event Streams?",
+          "read_as": null,
+          "answer": "An event-streaming platform is used to ingest and process data in an ordered log of records. It retains data for a while and allows replaying messages from a past point in time.\nAsked as: \"What is Event Streams?\"",
+          "seconds": 0.56,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 177,
+              "s": 0.3
+            }
+          ],
+          "asked_as": "What is Event Streams?",
+          "read_as": null,
+          "answer": "An event-streaming platform is used to ingest and process data in an ordered log of records. It retains data for a while and allows replaying messages from a past point in time.\nAsked as: \"What is Event Streams?\"",
+          "seconds": 0.56,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 177,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is Event Streams?",
+          "read_as": null,
+          "answer": "An event-streaming platform is used to ingest and process data in an ordered log of records. It retains data for a while and allows replaying messages from a past point in time.\nAsked as: \"What is Event Streams?\"",
+          "seconds": 0.58,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 177,
+              "s": 0.3
+            }
+          ],
+          "asked_as": "What is Event Streams?",
+          "read_as": null,
+          "answer": "An event-streaming platform is used to ingest and process data in an ordered log of records. It retains data for a while and allows replaying messages from a past point in time.\nAsked as: \"What is Event Streams?\"",
+          "seconds": 0.56,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 177,
+              "s": 0.3
+            }
+          ],
+          "asked_as": "What is Event Streams?",
+          "read_as": null,
+          "answer": "An event-streaming platform is used to ingest and process data in an ordered log of records. It retains data for a while and allows replaying messages from a past point in time.\nAsked as: \"What is Event Streams?\"",
+          "seconds": 0.56,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 177,
+              "s": 0.3
+            }
+          ],
+          "asked_as": "What is Event Streams?",
+          "read_as": null,
+          "answer": "An event-streaming platform is used to ingest and process data in an ordered log of records. It retains data for a while and allows replaying messages from a past point in time.\nAsked as: \"What is Event Streams?\"",
+          "seconds": 0.56,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 177,
+              "s": 0.3
+            }
+          ],
+          "asked_as": "What is Event Streams?",
+          "read_as": null,
+          "answer": "An event-streaming platform is used to ingest and process data in an ordered log of records. It retains data for a while and allows replaying messages from a past point in time.\nAsked as: \"What is Event Streams?\"",
+          "seconds": 0.56,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    },
+    {
+      "class": "order-flip",
+      "item": "batch vs streaming",
+      "expect": "answered",
+      "note": "pair A, ch02 'Batch versus streaming'",
+      "canonical": "What is batch vs streaming?",
+      "max_train_sim": {
+        "ratio": 0.667,
+        "jaccard": 0.286,
+        "closest": "What is data wrangling?"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 0,
+        "answered_cited": 10,
+        "pass_draws": 10,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "PASS"
+      },
+      "draws": [
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch02-018"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 412,
+              "s": 0.9
+            }
+          ],
+          "asked_as": "What is batch vs streaming?",
+          "read_as": null,
+          "answer": "Batch processing is about ingesting data in large chunks, typically on a predetermined time interval or as data reaches a preset size threshold. Batch ingestion is a one-way door: once data is broken into batches, the latency for downstream consumers is inherently constrained. Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML. [Ch. 2]\nAsked as: \"What is batch vs streaming?\"",
+          "seconds": 1.11,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch02-018"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 412,
+              "s": 0.7
+            }
+          ],
+          "asked_as": "What is batch vs streaming?",
+          "read_as": null,
+          "answer": "Batch processing is about ingesting data in large chunks, typically on a predetermined time interval or as data reaches a preset size threshold. Batch ingestion is a one-way door: once data is broken into batches, the latency for downstream consumers is inherently constrained. Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML. [Ch. 2]\nAsked as: \"What is batch vs streaming?\"",
+          "seconds": 0.88,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch02-018"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 412,
+              "s": 0.7
+            }
+          ],
+          "asked_as": "What is batch vs streaming?",
+          "read_as": null,
+          "answer": "Batch processing is about ingesting data in large chunks, typically on a predetermined time interval or as data reaches a preset size threshold. Batch ingestion is a one-way door: once data is broken into batches, the latency for downstream consumers is inherently constrained. Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML. [Ch. 2]\nAsked as: \"What is batch vs streaming?\"",
+          "seconds": 0.88,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch02-018"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 412,
+              "s": 0.7
+            }
+          ],
+          "asked_as": "What is batch vs streaming?",
+          "read_as": null,
+          "answer": "Batch processing is about ingesting data in large chunks, typically on a predetermined time interval or as data reaches a preset size threshold. Batch ingestion is a one-way door: once data is broken into batches, the latency for downstream consumers is inherently constrained. Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML. [Ch. 2]\nAsked as: \"What is batch vs streaming?\"",
+          "seconds": 0.88,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch02-018"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 412,
+              "s": 0.7
+            }
+          ],
+          "asked_as": "What is batch vs streaming?",
+          "read_as": null,
+          "answer": "Batch processing is about ingesting data in large chunks, typically on a predetermined time interval or as data reaches a preset size threshold. Batch ingestion is a one-way door: once data is broken into batches, the latency for downstream consumers is inherently constrained. Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML. [Ch. 2]\nAsked as: \"What is batch vs streaming?\"",
+          "seconds": 0.86,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch02-018"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 412,
+              "s": 0.7
+            }
+          ],
+          "asked_as": "What is batch vs streaming?",
+          "read_as": null,
+          "answer": "Batch processing is about ingesting data in large chunks, typically on a predetermined time interval or as data reaches a preset size threshold. Batch ingestion is a one-way door: once data is broken into batches, the latency for downstream consumers is inherently constrained. Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML. [Ch. 2]\nAsked as: \"What is batch vs streaming?\"",
+          "seconds": 0.89,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch02-018"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 412,
+              "s": 0.7
+            }
+          ],
+          "asked_as": "What is batch vs streaming?",
+          "read_as": null,
+          "answer": "Batch processing is about ingesting data in large chunks, typically on a predetermined time interval or as data reaches a preset size threshold. Batch ingestion is a one-way door: once data is broken into batches, the latency for downstream consumers is inherently constrained. Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML. [Ch. 2]\nAsked as: \"What is batch vs streaming?\"",
+          "seconds": 0.89,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch02-018"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 412,
+              "s": 0.7
+            }
+          ],
+          "asked_as": "What is batch vs streaming?",
+          "read_as": null,
+          "answer": "Batch processing is about ingesting data in large chunks, typically on a predetermined time interval or as data reaches a preset size threshold. Batch ingestion is a one-way door: once data is broken into batches, the latency for downstream consumers is inherently constrained. Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML. [Ch. 2]\nAsked as: \"What is batch vs streaming?\"",
+          "seconds": 0.91,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch02-018"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 412,
+              "s": 0.7
+            }
+          ],
+          "asked_as": "What is batch vs streaming?",
+          "read_as": null,
+          "answer": "Batch processing is about ingesting data in large chunks, typically on a predetermined time interval or as data reaches a preset size threshold. Batch ingestion is a one-way door: once data is broken into batches, the latency for downstream consumers is inherently constrained. Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML. [Ch. 2]\nAsked as: \"What is batch vs streaming?\"",
+          "seconds": 0.88,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch02-018"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 412,
+              "s": 0.7
+            }
+          ],
+          "asked_as": "What is batch vs streaming?",
+          "read_as": null,
+          "answer": "Batch processing is about ingesting data in large chunks, typically on a predetermined time interval or as data reaches a preset size threshold. Batch ingestion is a one-way door: once data is broken into batches, the latency for downstream consumers is inherently constrained. Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML. [Ch. 2]\nAsked as: \"What is batch vs streaming?\"",
+          "seconds": 0.92,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    },
+    {
+      "class": "order-flip",
+      "item": "streaming vs batch",
+      "expect": "answered",
+      "note": "pair A, flipped order",
+      "canonical": "What is streaming vs batch?",
+      "max_train_sim": {
+        "ratio": 0.696,
+        "jaccard": 0.286,
+        "closest": "What is Serving Data?"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 0,
+        "answered_cited": 0,
+        "pass_draws": 0,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "FAIL"
+      },
+      "draws": [
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 218,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is streaming vs batch?",
+          "read_as": null,
+          "answer": "Streaming is about processing data as it arrives, one piece at a time, without waiting for all data to be collected first. Batch processing, on the other hand, involves collecting all data before processing it at once.\nAsked as: \"What is streaming vs batch?\"",
+          "seconds": 0.81,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 207,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is streaming vs batch?",
+          "read_as": null,
+          "answer": "Streaming is about processing data as it arrives, one piece at a time, without waiting for all data to be collected first. Batch processing, on the other hand, collects all data before processing it at once.\nAsked as: \"What is streaming vs batch?\"",
+          "seconds": 0.59,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 207,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is streaming vs batch?",
+          "read_as": null,
+          "answer": "Streaming is about processing data as it arrives, one piece at a time, without waiting for all data to be collected first. Batch processing, on the other hand, collects all data before processing it at once.\nAsked as: \"What is streaming vs batch?\"",
+          "seconds": 0.66,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 207,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is streaming vs batch?",
+          "read_as": null,
+          "answer": "Streaming is about processing data as it arrives, one piece at a time, without waiting for all data to be collected first. Batch processing, on the other hand, collects all data before processing it at once.\nAsked as: \"What is streaming vs batch?\"",
+          "seconds": 0.59,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 207,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is streaming vs batch?",
+          "read_as": null,
+          "answer": "Streaming is about processing data as it arrives, one piece at a time, without waiting for all data to be collected first. Batch processing, on the other hand, collects all data before processing it at once.\nAsked as: \"What is streaming vs batch?\"",
+          "seconds": 0.64,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 207,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is streaming vs batch?",
+          "read_as": null,
+          "answer": "Streaming is about processing data as it arrives, one piece at a time, without waiting for all data to be collected first. Batch processing, on the other hand, collects all data before processing it at once.\nAsked as: \"What is streaming vs batch?\"",
+          "seconds": 0.58,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 207,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is streaming vs batch?",
+          "read_as": null,
+          "answer": "Streaming is about processing data as it arrives, one piece at a time, without waiting for all data to be collected first. Batch processing, on the other hand, collects all data before processing it at once.\nAsked as: \"What is streaming vs batch?\"",
+          "seconds": 0.59,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 207,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is streaming vs batch?",
+          "read_as": null,
+          "answer": "Streaming is about processing data as it arrives, one piece at a time, without waiting for all data to be collected first. Batch processing, on the other hand, collects all data before processing it at once.\nAsked as: \"What is streaming vs batch?\"",
+          "seconds": 0.61,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 207,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is streaming vs batch?",
+          "read_as": null,
+          "answer": "Streaming is about processing data as it arrives, one piece at a time, without waiting for all data to be collected first. Batch processing, on the other hand, collects all data before processing it at once.\nAsked as: \"What is streaming vs batch?\"",
+          "seconds": 0.61,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 207,
+              "s": 0.4
+            }
+          ],
+          "asked_as": "What is streaming vs batch?",
+          "read_as": null,
+          "answer": "Streaming is about processing data as it arrives, one piece at a time, without waiting for all data to be collected first. Batch processing, on the other hand, collects all data before processing it at once.\nAsked as: \"What is streaming vs batch?\"",
+          "seconds": 0.59,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    },
+    {
+      "class": "order-flip",
+      "item": "column-oriented vs row-oriented",
+      "expect": "answered",
+      "note": "pair B, ch06 'evolution from rows to columns', app01 glossary",
+      "canonical": "What is column-oriented vs row-oriented?",
+      "max_train_sim": {
+        "ratio": 0.625,
+        "jaccard": 0.3,
+        "closest": "What is schema on read vs schema on write?"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 0,
+        "answered_cited": 0,
+        "pass_draws": 0,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "FAIL"
+      },
+      "draws": [
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 381,
+              "s": 0.8
+            }
+          ],
+          "asked_as": "What is column-oriented vs row-oriented?",
+          "read_as": null,
+          "answer": "Column-oriented serialization organizes data by column, storing each column into its own set of files. This allows reading only a subset of fields for analytics applications, reducing the amount of data scanned for queries. Columnar databases pack similar values next to each other, enabling efficient encoding and compression, especially when columns contain many repeated values.\nAsked as: \"What is column-oriented vs row-oriented?\"",
+          "seconds": 1.0,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 381,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is column-oriented vs row-oriented?",
+          "read_as": null,
+          "answer": "Column-oriented serialization organizes data by column, storing each column into its own set of files. This allows reading only a subset of fields for analytics applications, reducing the amount of data scanned for queries. Columnar databases pack similar values next to each other, enabling efficient encoding and compression, especially when columns contain many repeated values.\nAsked as: \"What is column-oriented vs row-oriented?\"",
+          "seconds": 0.78,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 381,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is column-oriented vs row-oriented?",
+          "read_as": null,
+          "answer": "Column-oriented serialization organizes data by column, storing each column into its own set of files. This allows reading only a subset of fields for analytics applications, reducing the amount of data scanned for queries. Columnar databases pack similar values next to each other, enabling efficient encoding and compression, especially when columns contain many repeated values.\nAsked as: \"What is column-oriented vs row-oriented?\"",
+          "seconds": 0.78,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 381,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is column-oriented vs row-oriented?",
+          "read_as": null,
+          "answer": "Column-oriented serialization organizes data by column, storing each column into its own set of files. This allows reading only a subset of fields for analytics applications, reducing the amount of data scanned for queries. Columnar databases pack similar values next to each other, enabling efficient encoding and compression, especially when columns contain many repeated values.\nAsked as: \"What is column-oriented vs row-oriented?\"",
+          "seconds": 0.78,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 381,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is column-oriented vs row-oriented?",
+          "read_as": null,
+          "answer": "Column-oriented serialization organizes data by column, storing each column into its own set of files. This allows reading only a subset of fields for analytics applications, reducing the amount of data scanned for queries. Columnar databases pack similar values next to each other, enabling efficient encoding and compression, especially when columns contain many repeated values.\nAsked as: \"What is column-oriented vs row-oriented?\"",
+          "seconds": 0.8,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 381,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is column-oriented vs row-oriented?",
+          "read_as": null,
+          "answer": "Column-oriented serialization organizes data by column, storing each column into its own set of files. This allows reading only a subset of fields for analytics applications, reducing the amount of data scanned for queries. Columnar databases pack similar values next to each other, enabling efficient encoding and compression, especially when columns contain many repeated values.\nAsked as: \"What is column-oriented vs row-oriented?\"",
+          "seconds": 0.78,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 381,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is column-oriented vs row-oriented?",
+          "read_as": null,
+          "answer": "Column-oriented serialization organizes data by column, storing each column into its own set of files. This allows reading only a subset of fields for analytics applications, reducing the amount of data scanned for queries. Columnar databases pack similar values next to each other, enabling efficient encoding and compression, especially when columns contain many repeated values.\nAsked as: \"What is column-oriented vs row-oriented?\"",
+          "seconds": 0.78,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 381,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is column-oriented vs row-oriented?",
+          "read_as": null,
+          "answer": "Column-oriented serialization organizes data by column, storing each column into its own set of files. This allows reading only a subset of fields for analytics applications, reducing the amount of data scanned for queries. Columnar databases pack similar values next to each other, enabling efficient encoding and compression, especially when columns contain many repeated values.\nAsked as: \"What is column-oriented vs row-oriented?\"",
+          "seconds": 0.78,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 381,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is column-oriented vs row-oriented?",
+          "read_as": null,
+          "answer": "Column-oriented serialization organizes data by column, storing each column into its own set of files. This allows reading only a subset of fields for analytics applications, reducing the amount of data scanned for queries. Columnar databases pack similar values next to each other, enabling efficient encoding and compression, especially when columns contain many repeated values.\nAsked as: \"What is column-oriented vs row-oriented?\"",
+          "seconds": 0.8,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 381,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is column-oriented vs row-oriented?",
+          "read_as": null,
+          "answer": "Column-oriented serialization organizes data by column, storing each column into its own set of files. This allows reading only a subset of fields for analytics applications, reducing the amount of data scanned for queries. Columnar databases pack similar values next to each other, enabling efficient encoding and compression, especially when columns contain many repeated values.\nAsked as: \"What is column-oriented vs row-oriented?\"",
+          "seconds": 0.78,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    },
+    {
+      "class": "order-flip",
+      "item": "row-oriented vs column-oriented",
+      "expect": "answered",
+      "note": "pair B, flipped order",
+      "canonical": "What is row-oriented vs column-oriented?",
+      "max_train_sim": {
+        "ratio": 0.625,
+        "jaccard": 0.3,
+        "closest": "What is schema on read vs schema on write?"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 0,
+        "answered_cited": 0,
+        "pass_draws": 0,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "FAIL"
+      },
+      "draws": [
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 288,
+              "s": 0.7
+            }
+          ],
+          "asked_as": "What is row-oriented vs column-oriented?",
+          "read_as": null,
+          "answer": "Row-oriented and column-oriented are two different ways databases organize data. Row-based serialization organizes data by row, as seen in CSV format. Columnar serialization stores each column into its own set of files, allowing for efficient reading of data from only a subset of fields.\nAsked as: \"What is row-oriented vs column-oriented?\"",
+          "seconds": 0.91,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 288,
+              "s": 0.5
+            }
+          ],
+          "asked_as": "What is row-oriented vs column-oriented?",
+          "read_as": null,
+          "answer": "Row-oriented and column-oriented are two different ways databases organize data. Row-based serialization organizes data by row, as seen in CSV format. Columnar serialization stores each column into its own set of files, allowing for efficient reading of data from only a subset of fields.\nAsked as: \"What is row-oriented vs column-oriented?\"",
+          "seconds": 0.7,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 288,
+              "s": 0.5
+            }
+          ],
+          "asked_as": "What is row-oriented vs column-oriented?",
+          "read_as": null,
+          "answer": "Row-oriented and column-oriented are two different ways databases organize data. Row-based serialization organizes data by row, as seen in CSV format. Columnar serialization stores each column into its own set of files, allowing for efficient reading of data from only a subset of fields.\nAsked as: \"What is row-oriented vs column-oriented?\"",
+          "seconds": 0.7,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 288,
+              "s": 0.5
+            }
+          ],
+          "asked_as": "What is row-oriented vs column-oriented?",
+          "read_as": null,
+          "answer": "Row-oriented and column-oriented are two different ways databases organize data. Row-based serialization organizes data by row, as seen in CSV format. Columnar serialization stores each column into its own set of files, allowing for efficient reading of data from only a subset of fields.\nAsked as: \"What is row-oriented vs column-oriented?\"",
+          "seconds": 0.69,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 288,
+              "s": 0.5
+            }
+          ],
+          "asked_as": "What is row-oriented vs column-oriented?",
+          "read_as": null,
+          "answer": "Row-oriented and column-oriented are two different ways databases organize data. Row-based serialization organizes data by row, as seen in CSV format. Columnar serialization stores each column into its own set of files, allowing for efficient reading of data from only a subset of fields.\nAsked as: \"What is row-oriented vs column-oriented?\"",
+          "seconds": 0.7,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 288,
+              "s": 0.5
+            }
+          ],
+          "asked_as": "What is row-oriented vs column-oriented?",
+          "read_as": null,
+          "answer": "Row-oriented and column-oriented are two different ways databases organize data. Row-based serialization organizes data by row, as seen in CSV format. Columnar serialization stores each column into its own set of files, allowing for efficient reading of data from only a subset of fields.\nAsked as: \"What is row-oriented vs column-oriented?\"",
+          "seconds": 0.7,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 288,
+              "s": 0.5
+            }
+          ],
+          "asked_as": "What is row-oriented vs column-oriented?",
+          "read_as": null,
+          "answer": "Row-oriented and column-oriented are two different ways databases organize data. Row-based serialization organizes data by row, as seen in CSV format. Columnar serialization stores each column into its own set of files, allowing for efficient reading of data from only a subset of fields.\nAsked as: \"What is row-oriented vs column-oriented?\"",
+          "seconds": 0.69,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 288,
+              "s": 0.5
+            }
+          ],
+          "asked_as": "What is row-oriented vs column-oriented?",
+          "read_as": null,
+          "answer": "Row-oriented and column-oriented are two different ways databases organize data. Row-based serialization organizes data by row, as seen in CSV format. Columnar serialization stores each column into its own set of files, allowing for efficient reading of data from only a subset of fields.\nAsked as: \"What is row-oriented vs column-oriented?\"",
+          "seconds": 0.7,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 288,
+              "s": 0.5
+            }
+          ],
+          "asked_as": "What is row-oriented vs column-oriented?",
+          "read_as": null,
+          "answer": "Row-oriented and column-oriented are two different ways databases organize data. Row-based serialization organizes data by row, as seen in CSV format. Columnar serialization stores each column into its own set of files, allowing for efficient reading of data from only a subset of fields.\nAsked as: \"What is row-oriented vs column-oriented?\"",
+          "seconds": 0.69,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 288,
+              "s": 0.5
+            }
+          ],
+          "asked_as": "What is row-oriented vs column-oriented?",
+          "read_as": null,
+          "answer": "Row-oriented and column-oriented are two different ways databases organize data. Row-based serialization organizes data by row, as seen in CSV format. Columnar serialization stores each column into its own set of files, allowing for efficient reading of data from only a subset of fields.\nAsked as: \"What is row-oriented vs column-oriented?\"",
+          "seconds": 0.69,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    },
+    {
+      "class": "trailing-letter",
+      "item": "what does etls stand for",
+      "expect": "answered",
+      "note": "etl+s; ch01 footnote expands ETL",
+      "canonical": "what does etls stand for",
+      "max_train_sim": {
+        "ratio": 0.833,
+        "jaccard": 0.667,
+        "closest": "what does crud stand for"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 0,
+        "answered_cited": 1,
+        "pass_draws": 1,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "FAIL"
+      },
+      "draws": [
+        {
+          "refused": false,
+          "n_cited": 1,
+          "cited": [
+            "ch01-075"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 108,
+              "s": 0.6
+            }
+          ],
+          "asked_as": null,
+          "read_as": "what does etl stand for",
+          "answer": "ETL stands for extract, transform, load. According to [Ch. 1], ETL is a common pattern we cover in the book.\nRead as: \"what does etl stand for\"",
+          "seconds": 1.16,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 40,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": "what does etl stand for",
+          "answer": "ETL stands for extract, transform, load.\nRead as: \"what does etl stand for\"",
+          "seconds": 0.7,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 40,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": "what does etl stand for",
+          "answer": "ETL stands for extract, transform, load.\nRead as: \"what does etl stand for\"",
+          "seconds": 0.69,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 40,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": "what does etl stand for",
+          "answer": "ETL stands for extract, transform, load.\nRead as: \"what does etl stand for\"",
+          "seconds": 0.7,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 40,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": "what does etl stand for",
+          "answer": "ETL stands for extract, transform, load.\nRead as: \"what does etl stand for\"",
+          "seconds": 0.69,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 40,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": "what does etl stand for",
+          "answer": "ETL stands for extract, transform, load.\nRead as: \"what does etl stand for\"",
+          "seconds": 0.7,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 40,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": "what does etl stand for",
+          "answer": "ETL stands for extract, transform, load.\nRead as: \"what does etl stand for\"",
+          "seconds": 0.67,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 40,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": "what does etl stand for",
+          "answer": "ETL stands for extract, transform, load.\nRead as: \"what does etl stand for\"",
+          "seconds": 0.7,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 40,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": "what does etl stand for",
+          "answer": "ETL stands for extract, transform, load.\nRead as: \"what does etl stand for\"",
+          "seconds": 0.67,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 40,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": "what does etl stand for",
+          "answer": "ETL stands for extract, transform, load.\nRead as: \"what does etl stand for\"",
+          "seconds": 0.67,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    },
+    {
+      "class": "trailing-letter",
+      "item": "benefits of data meshs",
+      "expect": "answered",
+      "note": "mesh+s; ch03-099 'Data Mesh'",
+      "canonical": "What is benefits of data meshs?",
+      "max_train_sim": {
+        "ratio": 0.632,
+        "jaccard": 0.3,
+        "closest": "What is greenfield vs brownfield data projects?"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 0,
+        "answered_cited": 0,
+        "pass_draws": 0,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "FAIL"
+      },
+      "draws": [
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 34,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 388,
+              "s": 0.8
+            }
+          ],
+          "asked_as": "What is benefits of data meshs?",
+          "read_as": null,
+          "answer": "The benefits of data mesh include decentralized, peer-to-peer data serving by domain teams, where each team is responsible for preparing data for consumption and potentially running dashboards and analytics for self-service. This changes the details and structure of serving by introducing new aspects like good data for use in various applications and federated computational governance.\nAsked as: \"What is benefits of data meshs?\"",
+          "seconds": 1.41,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 34,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 388,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is benefits of data meshs?",
+          "read_as": null,
+          "answer": "The benefits of data mesh include decentralized, peer-to-peer data serving by domain teams, where each team is responsible for preparing data for consumption and potentially running dashboards and analytics for self-service. This changes the details and structure of serving by introducing new aspects like good data for use in various applications and federated computational governance.\nAsked as: \"What is benefits of data meshs?\"",
+          "seconds": 1.12,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 34,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 388,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is benefits of data meshs?",
+          "read_as": null,
+          "answer": "The benefits of data mesh include decentralized, peer-to-peer data serving by domain teams, where each team is responsible for preparing data for consumption and potentially running dashboards and analytics for self-service. This changes the details and structure of serving by introducing new aspects like good data for use in various applications and federated computational governance.\nAsked as: \"What is benefits of data meshs?\"",
+          "seconds": 1.11,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 34,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 388,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is benefits of data meshs?",
+          "read_as": null,
+          "answer": "The benefits of data mesh include decentralized, peer-to-peer data serving by domain teams, where each team is responsible for preparing data for consumption and potentially running dashboards and analytics for self-service. This changes the details and structure of serving by introducing new aspects like good data for use in various applications and federated computational governance.\nAsked as: \"What is benefits of data meshs?\"",
+          "seconds": 1.19,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 34,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 388,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is benefits of data meshs?",
+          "read_as": null,
+          "answer": "The benefits of data mesh include decentralized, peer-to-peer data serving by domain teams, where each team is responsible for preparing data for consumption and potentially running dashboards and analytics for self-service. This changes the details and structure of serving by introducing new aspects like good data for use in various applications and federated computational governance.\nAsked as: \"What is benefits of data meshs?\"",
+          "seconds": 1.14,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 34,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 388,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is benefits of data meshs?",
+          "read_as": null,
+          "answer": "The benefits of data mesh include decentralized, peer-to-peer data serving by domain teams, where each team is responsible for preparing data for consumption and potentially running dashboards and analytics for self-service. This changes the details and structure of serving by introducing new aspects like good data for use in various applications and federated computational governance.\nAsked as: \"What is benefits of data meshs?\"",
+          "seconds": 1.14,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 34,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 388,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is benefits of data meshs?",
+          "read_as": null,
+          "answer": "The benefits of data mesh include decentralized, peer-to-peer data serving by domain teams, where each team is responsible for preparing data for consumption and potentially running dashboards and analytics for self-service. This changes the details and structure of serving by introducing new aspects like good data for use in various applications and federated computational governance.\nAsked as: \"What is benefits of data meshs?\"",
+          "seconds": 1.12,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 34,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 388,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is benefits of data meshs?",
+          "read_as": null,
+          "answer": "The benefits of data mesh include decentralized, peer-to-peer data serving by domain teams, where each team is responsible for preparing data for consumption and potentially running dashboards and analytics for self-service. This changes the details and structure of serving by introducing new aspects like good data for use in various applications and federated computational governance.\nAsked as: \"What is benefits of data meshs?\"",
+          "seconds": 1.14,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 34,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 388,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is benefits of data meshs?",
+          "read_as": null,
+          "answer": "The benefits of data mesh include decentralized, peer-to-peer data serving by domain teams, where each team is responsible for preparing data for consumption and potentially running dashboards and analytics for self-service. This changes the details and structure of serving by introducing new aspects like good data for use in various applications and federated computational governance.\nAsked as: \"What is benefits of data meshs?\"",
+          "seconds": 1.11,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 34,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 388,
+              "s": 0.6
+            }
+          ],
+          "asked_as": "What is benefits of data meshs?",
+          "read_as": null,
+          "answer": "The benefits of data mesh include decentralized, peer-to-peer data serving by domain teams, where each team is responsible for preparing data for consumption and potentially running dashboards and analytics for self-service. This changes the details and structure of serving by introducing new aspects like good data for use in various applications and federated computational governance.\nAsked as: \"What is benefits of data meshs?\"",
+          "seconds": 1.11,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    },
+    {
+      "class": "trailing-letter",
+      "item": "how do data pipeliness work",
+      "expect": "answered",
+      "note": "pipeliness; ch07 'Data Pipelines'",
+      "canonical": "how do data pipeliness work",
+      "max_train_sim": {
+        "ratio": 0.635,
+        "jaccard": 0.375,
+        "closest": "how do data scientists use notebooks"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 0,
+        "answered_cited": 0,
+        "pass_draws": 0,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "FAIL"
+      },
+      "draws": [
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 472,
+              "s": 0.9
+            }
+          ],
+          "asked_as": null,
+          "read_as": "how do data pipelines work",
+          "answer": "Data pipelines work by moving data through various stages of the data engineering lifecycle using architecture, systems, and processes. They can be traditional ETL systems or cloud-based ones that pull data from multiple sources, combine it, and process it for various tasks like ML model training and performance monitoring. Data engineers use code to declare data tasks and dependencies among them, and an orchestration engine runs these steps using available resources.\nRead as: \"how do data pipelines work\"",
+          "seconds": 1.42,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 470,
+              "s": 0.7
+            }
+          ],
+          "asked_as": null,
+          "read_as": "how do data pipelines work",
+          "answer": "Data pipelines work by moving data through various stages of the data engineering lifecycle using architecture, systems, and processes. They can be traditional ETL systems or cloud-based data pipelines that pull data from multiple sources, combine it, and process it for various tasks like ML model training and deployment. Data engineers use code to declare data tasks and dependencies among them, and an orchestration engine runs these steps using available resources.\nRead as: \"how do data pipelines work\"",
+          "seconds": 1.22,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 470,
+              "s": 0.7
+            }
+          ],
+          "asked_as": null,
+          "read_as": "how do data pipelines work",
+          "answer": "Data pipelines work by moving data through various stages of the data engineering lifecycle using architecture, systems, and processes. They can be traditional ETL systems or cloud-based data pipelines that pull data from multiple sources, combine it, and process it for various tasks like ML model training and deployment. Data engineers use code to declare data tasks and dependencies among them, and an orchestration engine runs these steps using available resources.\nRead as: \"how do data pipelines work\"",
+          "seconds": 1.22,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 470,
+              "s": 0.7
+            }
+          ],
+          "asked_as": null,
+          "read_as": "how do data pipelines work",
+          "answer": "Data pipelines work by moving data through various stages of the data engineering lifecycle using architecture, systems, and processes. They can be traditional ETL systems or cloud-based data pipelines that pull data from multiple sources, combine it, and process it for various tasks like ML model training and deployment. Data engineers use code to declare data tasks and dependencies among them, and an orchestration engine runs these steps using available resources.\nRead as: \"how do data pipelines work\"",
+          "seconds": 1.17,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 470,
+              "s": 0.7
+            }
+          ],
+          "asked_as": null,
+          "read_as": "how do data pipelines work",
+          "answer": "Data pipelines work by moving data through various stages of the data engineering lifecycle using architecture, systems, and processes. They can be traditional ETL systems or cloud-based data pipelines that pull data from multiple sources, combine it, and process it for various tasks like ML model training and deployment. Data engineers use code to declare data tasks and dependencies among them, and an orchestration engine runs these steps using available resources.\nRead as: \"how do data pipelines work\"",
+          "seconds": 1.23,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 470,
+              "s": 0.7
+            }
+          ],
+          "asked_as": null,
+          "read_as": "how do data pipelines work",
+          "answer": "Data pipelines work by moving data through various stages of the data engineering lifecycle using architecture, systems, and processes. They can be traditional ETL systems or cloud-based data pipelines that pull data from multiple sources, combine it, and process it for various tasks like ML model training and deployment. Data engineers use code to declare data tasks and dependencies among them, and an orchestration engine runs these steps using available resources.\nRead as: \"how do data pipelines work\"",
+          "seconds": 1.19,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 470,
+              "s": 0.7
+            }
+          ],
+          "asked_as": null,
+          "read_as": "how do data pipelines work",
+          "answer": "Data pipelines work by moving data through various stages of the data engineering lifecycle using architecture, systems, and processes. They can be traditional ETL systems or cloud-based data pipelines that pull data from multiple sources, combine it, and process it for various tasks like ML model training and deployment. Data engineers use code to declare data tasks and dependencies among them, and an orchestration engine runs these steps using available resources.\nRead as: \"how do data pipelines work\"",
+          "seconds": 1.2,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 470,
+              "s": 0.7
+            }
+          ],
+          "asked_as": null,
+          "read_as": "how do data pipelines work",
+          "answer": "Data pipelines work by moving data through various stages of the data engineering lifecycle using architecture, systems, and processes. They can be traditional ETL systems or cloud-based data pipelines that pull data from multiple sources, combine it, and process it for various tasks like ML model training and deployment. Data engineers use code to declare data tasks and dependencies among them, and an orchestration engine runs these steps using available resources.\nRead as: \"how do data pipelines work\"",
+          "seconds": 1.22,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 470,
+              "s": 0.7
+            }
+          ],
+          "asked_as": null,
+          "read_as": "how do data pipelines work",
+          "answer": "Data pipelines work by moving data through various stages of the data engineering lifecycle using architecture, systems, and processes. They can be traditional ETL systems or cloud-based data pipelines that pull data from multiple sources, combine it, and process it for various tasks like ML model training and deployment. Data engineers use code to declare data tasks and dependencies among them, and an orchestration engine runs these steps using available resources.\nRead as: \"how do data pipelines work\"",
+          "seconds": 1.2,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": false,
+          "n_cited": 0,
+          "cited": [],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 470,
+              "s": 0.7
+            }
+          ],
+          "asked_as": null,
+          "read_as": "how do data pipelines work",
+          "answer": "Data pipelines work by moving data through various stages of the data engineering lifecycle using architecture, systems, and processes. They can be traditional ETL systems or cloud-based data pipelines that pull data from multiple sources, combine it, and process it for various tasks like ML model training and deployment. Data engineers use code to declare data tasks and dependencies among them, and an orchestration engine runs these steps using available resources.\nRead as: \"how do data pipelines work\"",
+          "seconds": 1.2,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    },
+    {
+      "class": "control",
+      "item": "what is the offside rule",
+      "expect": "refused",
+      "note": "explicit out-of-book control; nothing near it in the train forms",
+      "canonical": "what is the offside rule",
+      "max_train_sim": {
+        "ratio": 0.68,
+        "jaccard": 0.375,
+        "closest": "What is the plot of Hamlet?"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 10,
+        "answered_cited": 0,
+        "pass_draws": 10,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "PASS"
+      },
+      "draws": [
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch04-067",
+            "ch10-010",
+            "ch02-043"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 24,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.4
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.84,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch04-067",
+            "ch10-010",
+            "ch02-043"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 26,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.53,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch04-067",
+            "ch10-010",
+            "ch02-043"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 26,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.56,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch04-067",
+            "ch10-010",
+            "ch02-043"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 26,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.56,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch04-067",
+            "ch10-010",
+            "ch02-043"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 26,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.55,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch04-067",
+            "ch10-010",
+            "ch02-043"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 26,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.56,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch04-067",
+            "ch10-010",
+            "ch02-043"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 26,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.55,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch04-067",
+            "ch10-010",
+            "ch02-043"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 26,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.56,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch04-067",
+            "ch10-010",
+            "ch02-043"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 26,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.58,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "ch04-067",
+            "ch10-010",
+            "ch02-043"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 26,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.58,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    },
+    {
+      "class": "control",
+      "item": "how many strings does a violin have",
+      "expect": "refused",
+      "note": "explicit out-of-book control",
+      "canonical": "how many strings does a violin have",
+      "max_train_sim": {
+        "ratio": 0.563,
+        "jaccard": 0.154,
+        "closest": "How many bones are in the human body?"
+      },
+      "agg": {
+        "draws": 10,
+        "refuses": 10,
+        "answered_cited": 0,
+        "pass_draws": 10,
+        "loops": 0,
+        "errors": 0,
+        "verdict": "PASS"
+      },
+      "draws": [
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "app01-018",
+            "ch08-054",
+            "ch08-066"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 35,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.5
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.99,
+          "draw": 1,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "app01-018",
+            "ch08-054",
+            "ch08-066"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 35,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.55,
+          "draw": 2,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "app01-018",
+            "ch08-054",
+            "ch08-066"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 35,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.53,
+          "draw": 3,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "app01-018",
+            "ch08-054",
+            "ch08-066"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 35,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.55,
+          "draw": 4,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "app01-018",
+            "ch08-054",
+            "ch08-066"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 35,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.58,
+          "draw": 5,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "app01-018",
+            "ch08-054",
+            "ch08-066"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 35,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.56,
+          "draw": 6,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "app01-018",
+            "ch08-054",
+            "ch08-066"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 35,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.56,
+          "draw": 7,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "app01-018",
+            "ch08-054",
+            "ch08-066"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 35,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.58,
+          "draw": 8,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "app01-018",
+            "ch08-054",
+            "ch08-066"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 35,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.56,
+          "draw": 9,
+          "retried": false
+        },
+        {
+          "refused": true,
+          "n_cited": 3,
+          "cited": [
+            "app01-018",
+            "ch08-054",
+            "ch08-066"
+          ],
+          "loop": false,
+          "main_done": "stop",
+          "calls": [
+            {
+              "call": "spell",
+              "done": "stop",
+              "chars": 35,
+              "s": 0.1
+            },
+            {
+              "call": "main",
+              "done": "stop",
+              "chars": 17,
+              "s": 0.1
+            }
+          ],
+          "asked_as": null,
+          "read_as": null,
+          "answer": "Not in this book.",
+          "seconds": 0.56,
+          "draw": 10,
+          "retried": false
+        }
+      ]
+    }
+  ],
+  "by_class": {
+    "fragment": {
+      "items": 4,
+      "draws": 40,
+      "pass_draws": 10,
+      "expected_draws": 40,
+      "answered": 0,
+      "refuses_exact": 0,
+      "loops": 0,
+      "errors": 0,
+      "verdicts": [
+        "FAIL",
+        "PASS",
+        "FAIL",
+        "FAIL"
+      ]
+    },
+    "greeting": {
+      "items": 3,
+      "draws": 30,
+      "pass_draws": 0,
+      "expected_draws": 0,
+      "answered": 0,
+      "refuses_exact": 0,
+      "loops": 0,
+      "errors": 0,
+      "verdicts": [
+        "RECORD",
+        "RECORD",
+        "RECORD"
+      ]
+    },
+    "bare-topic": {
+      "items": 5,
+      "draws": 50,
+      "pass_draws": 0,
+      "expected_draws": 50,
+      "answered": 0,
+      "refuses_exact": 0,
+      "loops": 0,
+      "errors": 0,
+      "verdicts": [
+        "FAIL",
+        "FAIL",
+        "FAIL",
+        "FAIL",
+        "FAIL"
+      ]
+    },
+    "order-flip": {
+      "items": 4,
+      "draws": 40,
+      "pass_draws": 10,
+      "expected_draws": 40,
+      "answered": 0,
+      "refuses_exact": 0,
+      "loops": 0,
+      "errors": 0,
+      "verdicts": [
+        "PASS",
+        "FAIL",
+        "FAIL",
+        "FAIL"
+      ]
+    },
+    "trailing-letter": {
+      "items": 3,
+      "draws": 30,
+      "pass_draws": 1,
+      "expected_draws": 30,
+      "answered": 0,
+      "refuses_exact": 0,
+      "loops": 0,
+      "errors": 0,
+      "verdicts": [
+        "FAIL",
+        "FAIL",
+        "FAIL"
+      ]
+    },
+    "control": {
+      "items": 2,
+      "draws": 20,
+      "pass_draws": 20,
+      "expected_draws": 20,
+      "answered": 0,
+      "refuses_exact": 20,
+      "loops": 0,
+      "errors": 0,
+      "verdicts": [
+        "PASS",
+        "PASS"
+      ]
+    }
+  }
+}

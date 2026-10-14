@@ -1,107 +1,15 @@
 [
   {
-    "model": "smallbook_x2",
-    "q": "what is",
-    "refused": false,
-    "cited": [],
-    "answer": "A query in data engineering, data science, and analysis is a fundamental part that asks for information from a dataset. Queries on tabular and semistructured data are commonly handled by data engineers."
-  },
-  {
-    "model": "smallbook_x2",
-    "q": "hey",
-    "refused": false,
-    "cited": [
-      "ch05-030"
-    ],
-    "answer": "A relational database management system (RDBMS) in [Ch. 5] stores data in a table of relations (rows), with each relation containing multiple fields (columns). Columns and fields are referred to interchangeably in this book. Each table has a primary key, a unique field for each row. Read as: \"they\""
-  },
-  {
-    "model": "smallbook_x2",
-    "q": "warrup",
-    "refused": true,
-    "cited": [
-      "ch05-053",
-      "ch05-030",
-      "app01-017"
-    ],
-    "answer": "Not in this book."
-  },
-  {
-    "model": "smallbook_x2",
-    "q": "Location",
-    "refused": true,
-    "cited": [
-      "ch07-046",
-      "app02-005",
-      "ch03-071"
-    ],
-    "answer": "Not in this book."
-  },
-  {
-    "model": "smallbook_x2",
-    "q": "Our Advice",
-    "refused": false,
-    "cited": [],
-    "answer": "A chief information officer (CIO) in an organization is the senior C-suite executive responsible for information technology. CIOs must have deep knowledge of both information technology and business processes. CIOs often collaborate with data engineering leadership in organizations with a well-developed data culture. In organizations not highly mature in data, a CIO typically helps shape its data "
-  },
-  {
-    "model": "smallbook_x2",
-    "q": "DE Lifecycle",
-    "refused": true,
-    "cited": [
-      "ch02-004",
-      "preface01-003",
-      "ch01-006"
-    ],
-    "answer": "Not in this book."
-  },
-  {
-    "model": "smallbook_x2",
-    "q": "DDR5 vs ddr4",
-    "refused": false,
-    "cited": [],
-    "answer": "DDR5 and DDR4 are both types of RAM. DDR5 offers faster data retrieval latency, about 100 ns. Asked as: \"What is DDR5 vs ddr4?\""
-  },
-  {
-    "model": "smallbook_x2",
-    "q": "ddr4 vs ddr5",
-    "refused": true,
-    "cited": [
-      "ch06-011",
-      "ch06-012",
-      "ch06-013"
-    ],
-    "answer": "Not in this book."
-  },
-  {
-    "model": "smallbook_x2",
-    "q": "speed of ddr5",
-    "refused": false,
-    "cited": [],
-    "answer": "DDR5 memory has a data retrieval latency of 100 ns, which is about 1,000 times faster than SSD. Asked as: \"What is speed of ddr5?\""
-  },
-  {
-    "model": "smallbook_x2",
-    "q": "speed of ddr5s",
-    "refused": true,
-    "cited": [
-      "ch06-011",
-      "ch06-006",
-      "ch06-009"
-    ],
-    "answer": "Not in this book."
-  },
-  {
-    "model": "qwen2.5:7b",
+    "model": "smallbook_x2d",
     "q": "what is",
     "refused": false,
     "cited": [
-      "ch05-045"
+      "ch08-004"
     ],
-    "answer": "A time series is a series of values organized by time [Ch. 5]. Not in this book."
+    "answer": "A query is a request to retrieve or modify data in a database or data source. [Ch. 8]"
   },
   {
-    "model": "qwen2.5:7b",
+    "model": "smallbook_x2d",
     "q": "hey",
     "refused": true,
     "cited": [
@@ -112,7 +20,7 @@
     "answer": "Not in this book."
   },
   {
-    "model": "qwen2.5:7b",
+    "model": "smallbook_x2d",
     "q": "warrup",
     "refused": true,
     "cited": [
@@ -123,64 +31,57 @@
     "answer": "Not in this book."
   },
   {
-    "model": "qwen2.5:7b",
+    "model": "smallbook_x2d",
     "q": "Location",
     "refused": false,
-    "cited": [
-      "ch07-046"
-    ],
-    "answer": "Location, as described in [Ch. 7], refers to the physical or virtual place where data is generated or ingested. It is important for optimizing network performance and reducing latency, as data closer to its origin typically benefits from better bandwidth and lower latency. However, the trade-off involves the cost of moving data between regions for analytics, which can be significant due to data eg"
+    "cited": [],
+    "answer": "Location is often used for integrating streaming data from multiple places to enhance redundancy and proximity for better performance and cost management. It involves balancing redundancy and cost when moving data between regions for analytics. Asked as: \"What is Location?\""
   },
   {
-    "model": "qwen2.5:7b",
+    "model": "smallbook_x2d",
     "q": "Our Advice",
     "refused": false,
     "cited": [
-      "ch01-064",
-      "ch01-057",
-      "ch10-008"
+      "ch01-064"
     ],
-    "answer": "Our Advice is not directly addressed in the provided passages. However, the passages do offer advice on roles within an organization, such as the CIO [Ch. 1], data analysts [Ch. 1], and data engineers [Ch. 1]. They also provide guidance on security practices [Ch. 10] and the importance of common components in data engineering [Ch. 3]. Additionally, the passages suggest regular security training an"
+    "answer": "[Ch. 1] \"A chief information officer (CIO) is the senior C-suite executive responsible for information technology within an organization; it is an internal-facing role. A CIO must possess deep knowledge of information technology and business processes—either alone is insufficient. CIOs direct the information technology organization, setting ongoing policies while also defining and executing signif"
   },
   {
-    "model": "qwen2.5:7b",
+    "model": "smallbook_x2d",
     "q": "DE Lifecycle",
     "refused": false,
-    "cited": [
-      "ch02-002",
-      "ch02-003"
-    ],
-    "answer": "The Data Engineering Lifecycle (DE Lifecycle) is a framework that encompasses the stages of turning raw data into a useful end product for consumption by analysts, data scientists, and machine learning engineers. It includes five main stages: Generation, Storage, Ingestion, Transformation, and Serving [Ch. 2]. These stages are underpinned by critical ideas such as security, data management, DataOp"
+    "cited": [],
+    "answer": "The DE Lifecycle is divided into five stages: Generation, Storage, Ingestion, Transformation, and Serving data. Asked as: \"What is DE Lifecycle?\""
   },
   {
-    "model": "qwen2.5:7b",
+    "model": "smallbook_x2d",
     "q": "DDR5 vs ddr4",
     "refused": false,
     "cited": [
       "ch06-011"
     ],
-    "answer": "DDR5 and DDR4 are both types of RAM, used for system memory. DDR5 offers faster data retrieval latency compared to DDR4, with speeds on the order of 100 ns, roughly 1,000 times faster than SSDs [Ch. 6]. Not in this book. Asked as: \"What is DDR5 vs ddr4?\""
+    "answer": "[Ch. 6] \"data retrieval latency on the order of 100 ns,\" Asked as: \"What is DDR5 vs ddr4?\""
   },
   {
-    "model": "qwen2.5:7b",
+    "model": "smallbook_x2d",
     "q": "ddr4 vs ddr5",
     "refused": false,
-    "cited": [
-      "ch06-011"
-    ],
-    "answer": "DDR4 and DDR5 are both types of RAM, with DDR5 being the latest widely used standard for RAM [Ch. 6]. DDR5 offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSDs [Ch. 6]. Asked as: \"What is ddr4 vs ddr5?\""
+    "cited": [],
+    "answer": "DDR4 and DDR5 are different generations of RAM (Random Access Memory). DDR5 offers faster data retrieval latency compared to DDR4, with DDR5 having a data retrieval latency on the order of 100 ns, while DDR4 has a data retrieval latency on the order of 1000 ns. Asked as: \"What is ddr4 vs ddr5?\""
   },
   {
-    "model": "qwen2.5:7b",
+    "model": "smallbook_x2d",
     "q": "speed of ddr5",
-    "refused": false,
+    "refused": true,
     "cited": [
-      "ch06-011"
+      "ch06-011",
+      "ch06-006",
+      "ch06-008"
     ],
-    "answer": "The speed of DDR5 is not explicitly stated in the provided passages. However, it is mentioned that DDR5 offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSDs [Ch. 6]. Asked as: \"What is speed of ddr5?\""
+    "answer": "Not in this book."
   },
   {
-    "model": "qwen2.5:7b",
+    "model": "smallbook_x2d",
     "q": "speed of ddr5s",
     "refused": true,
     "cited": [

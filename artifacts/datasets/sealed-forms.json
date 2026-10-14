@@ -1,0 +1,35 @@
+{
+  "probe": "probe-fragment-2026-10-14.py",
+  "items": [
+    "how do",
+    "what about",
+    "explain",
+    "why does",
+    "hi there",
+    "good morning",
+    "howdy",
+    "Time Series",
+    "File Formats",
+    "Micro-Batch",
+    "Streaming",
+    "Event Streams",
+    "batch vs streaming",
+    "streaming vs batch",
+    "column-oriented vs row-oriented",
+    "row-oriented vs column-oriented",
+    "what does etls stand for",
+    "benefits of data meshs",
+    "how do data pipeliness work",
+    "what is the offside rule",
+    "how many strings does a violin have"
+  ],
+  "items_sha256": "577108cc9a1527e7488fa70da6871bfff440f69ccab83e6c42e9767cec32cc9e",
+  "bench_file": "data/finetune/quote-refuse-2026-10-13.bench.jsonl",
+  "bench_sha256": "174afd18c4dff3ea6e7f95e53806101f35dc3c4d389d7d16f6d7e6a4305172ed",
+  "train_sha256": {
+    "x2": "653503ad257328a02f47ecaec0ab991eae2e952d6210b459e46a28f805cef92c",
+    "x2c": "27a84899ac699f0d970a609721a37ae7b50a311d735f09e45598dbad1bfdd311",
+    "x2d": "567d56901e041cfa6ee0dfa21a214f6f4ec912e4fd2792206523ccfaa8680940"
+  },
+  "note": "Sealed fragment-suite items + exam hashes, recorded 2026-10-14 before the x2d upload; the suite items are never trained."
+}

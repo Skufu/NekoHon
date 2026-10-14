@@ -291,6 +291,88 @@ class RespondTest(unittest.TestCase):
         )
 
 
+    def test_an_uncited_answer_gets_one_prefilled_retry(self):
+        calls = []
+
+        def fake_search(index, question, k=10):
+            return PASSAGES
+
+        def fake_generate(system, user, model, prefill=""):
+            if user.startswith('User query: "'):
+                return "keep in sync"  # the spell probe: not a same-count fix
+            calls.append(prefill)
+            if prefill:
+                return '1] "streams row-level changes from a database"'
+            return "CDC keeps downstream systems in sync."
+
+        body = A.respond(
+            self._index(),
+            "What does CDC do?",
+            generate_fn=fake_generate,
+            search_fn=fake_search,
+        )
+        self.assertFalse(body["refused"])
+        self.assertEqual(calls, ["", "[Ch. "])
+        self.assertEqual([c["chunk_id"] for c in body["citations"]], ["c1-001"])
+        self.assertTrue(body["answer"].startswith("[Ch. 1]"))
+
+    def test_the_retry_is_kept_only_when_a_quote_validates(self):
+        def fake_search(index, question, k=10):
+            return PASSAGES
+
+        def fake_generate(system, user, model, prefill=""):
+            if prefill:
+                return "is complicated."
+            return "CDC keeps downstream systems in sync."
+
+        body = A.respond(
+            self._index(),
+            "What does CDC do?",
+            generate_fn=fake_generate,
+            search_fn=fake_search,
+        )
+        self.assertFalse(body["refused"])
+        self.assertEqual(body["citations"], [])
+        self.assertIn("downstream systems in sync", body["answer"])
+
+    def test_a_refusal_is_not_retried_in_answer_mode(self):
+        calls = []
+
+        def fake_search(index, question, k=10):
+            return PASSAGES
+
+        def fake_generate(system, user, model, prefill=""):
+            if user.startswith('User query: "'):
+                return "what does cdc do?"  # the spell probe: no change
+            calls.append(prefill)
+            return REFUSAL
+
+        body = A.respond(
+            self._index(),
+            "What does CDC do?",
+            generate_fn=fake_generate,
+            search_fn=fake_search,
+        )
+        self.assertTrue(body["refused"])
+        self.assertEqual(calls, [""])
+
+    def test_a_generator_without_prefill_support_keeps_the_answer(self):
+        def fake_search(index, question, k=10):
+            return PASSAGES
+
+        def fake_generate(system, user, model):
+            return "CDC keeps downstream systems in sync."
+
+        body = A.respond(
+            self._index(),
+            "What does CDC do?",
+            generate_fn=fake_generate,
+            search_fn=fake_search,
+        )
+        self.assertFalse(body["refused"])
+        self.assertEqual(body["citations"], [])
+
+
 class ModeTest(unittest.TestCase):
     def test_answer_is_a_known_mode(self):
         self.assertIn("answer", MODES)

@@ -57,3 +57,15 @@ run-variance. Full verdict + gate reading: `x2-trial-2026-10-14.md`.
 Evidence: `evidence/x2c-session-2026-10-14/` and the per-model probe files
 under `evidence/probe-fragment/`, `evidence/probe-small-ask/`,
 `evidence/probe-small-refuse/`, `evidence/probe-llm-loop/`.
+
+## Addendum 2026-10-14 (night) — x2d session
+
+| model | battery (x3) | fragment / bare / order / trailing / control | loops | refusals |
+|---|---|---|---|---|
+| `smallbook_x2d` (q4) | **20/20/20** | 10/40 · 0/50 · 10/40 · 1/30 · 20/20 | 0 | 10/10 |
+| `smallbook_x2d_q8` | 19/19/19 | 0/40 · 10/50 · 0/40 · 10/30 · 20/20 | 0 | (q4 gate) |
+
+Best battery recorded for the small model; the pin-miss targets
+(source-systems, extracted-in-ETL) are fixed on q4; the suite citing
+classes remain under the 7B bar (uncited prose on unseen forms — the
+remaining gap). Full reading: `x2d-plan-2026-10-14.md` Verdict.

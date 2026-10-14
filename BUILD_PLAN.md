@@ -67,7 +67,7 @@ be reopened when the goal calls for it.
 
 On the Windows runner (measured 2026-10-12): `qwen2.5:7b`, `nomic-embed-text:latest`, `embeddinggemma-2:270m-bf16-text`, and `moistral:latest` are on disk. The `llama3.2:3b` and `deepseek-r1:7b` rows are Mac-only so far.
 
-`smallbook_x2` is the current answer model (since 2026-10-14) — a Qwen2.5-3B quote-or-refuse finetune distilled offline from `qwen2.5:7b`. `qwen2.5:7b` is the teacher and the one-flag revert. Any answer-model swap — the 7B back, or a new finetune — has to pass the battery in both modes: ask — quote is a substring, answer starts with `[Ch.`, refusal is exactly `Not in this book.`; answer — citations only from the shown passages and the coherence probes pass. Measure it; do not swap quietly on a hunch.
+`smallbook_x2d` is the current answer model (adopted 2026-10-14; `smallbook_x2` and the 7B stay one env flag away) — a Qwen2.5-3B quote-or-refuse finetune distilled offline from `qwen2.5:7b`. `qwen2.5:7b` is the teacher and the one-flag revert. Any answer-model swap — the 7B back, x2, or a new finetune — has to pass the battery in both modes: ask — quote is a substring, answer starts with `[Ch.`, refusal is exactly `Not in this book.`; answer — citations only from the shown passages and the coherence probes pass. Measure it; do not swap quietly on a hunch.
 
 Changes that invalidate measurements — re-run, don't quietly swap:
 

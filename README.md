@@ -19,7 +19,7 @@ gate (2026-10-12). 171 unit tests green, index audit clean, HTTP battery PASS
 | Job | Model | On disk | Notes |
 | --- | --- | --- | --- |
 | Embed | `nomic-embed-text:latest` | 274 MB | 768-dim. Won the embedder bake-off: 10/10 vs EmbeddingGemma-2's 9/10. |
-| Answer | `smallbook_x2` | 1.9 GB | The default for both answer modes since 2026-10-14: a Qwen2.5-3B quote-or-refuse LoRA distilled offline from `qwen2.5:7b`. The teacher stays on disk (4.7 GB, Q4_K_M); `ANSWER_MODEL=qwen2.5:7b` reverts. Temperature 0. |
+| Answer | `smallbook_x2d` | 1.9 GB | The default for both answer modes since 2026-10-14 (adoption + the `[Ch. ` retry: `artifacts/reports/retry-safety-net-2026-10-14.md`): a Qwen2.5-3B quote-or-refuse LoRA distilled offline from `qwen2.5:7b`. `smallbook_x2` and the teacher stay on disk (1.9 GB / 4.7 GB); `ANSWER_MODEL=qwen2.5:7b` (or `=smallbook_x2`) reverts. Temperature 0. |
 | Eval judge | `granite4.1:8b` local; `muse-spark-1.3-contributor` cloud | 5.3 GB local | The LLM judge (`artifacts/harnesses/judge.py`): passage relevance, key facts, book fidelity, example use. Local is the offline default; the eval runs currently use Muse Spark 1.3 over the OpenCode Go relay. Any stronger OpenAI-compatible model can be swapped in — `judge_name()` records it and `artifacts/harnesses/judge-agreement.py` re-calibrates. The engine never uses either. |
 
 Also on disk, not defaults: `granite4.1:3b` (eligible small-PC slot; a trial
@@ -136,9 +136,10 @@ remaining misses are single-item rewriter errors
 
 Prereqs: Python 3 (3.12 tested, stdlib only), Ollama, and the EPUB on disk.
 Models: `ollama pull nomic-embed-text` (274 MB, the embedder). The answerer
-`smallbook_x2` (1.9 GB) is **not** a registry pull — import it from its GGUF
-(`ollama create smallbook_x2 -f <Modelfile>`; recipe
-`artifacts/reports/smallbook_x2-rebuild-2026-10-14.md`). `qwen2.5:7b`
+`smallbook_x2d` (1.9 GB) is **not** a registry pull — import it from its GGUF
+(`ollama create smallbook_x2d -f <Modelfile>`; same recipe as
+`artifacts/reports/smallbook_x2-rebuild-2026-10-14.md`, x2d run artefacts in
+`artifacts/evidence/x2d-session-2026-10-14/`). `qwen2.5:7b`
 (4.7 GB) is the teacher: needed only to rebuild the answerer or to revert
 (`ANSWER_MODEL=qwen2.5:7b`).
 
@@ -343,14 +344,15 @@ answer; `netstat` showed the engine and Ollama on `127.0.0.1` only, same PIDs
 online and offline, no restarts. Raw log: `artifacts/evidence/phase7-offline/phase7-offline.log`.
 
 Disclosure: embeddings and answers are Ollama on localhost; the models are
-`nomic-embed-text` and — since 2026-10-14 — the finetuned `smallbook_x2`
+`nomic-embed-text` and — since 2026-10-14 — the finetuned `smallbook_x2d`
 (1.9 GB; a Qwen2.5-3B LoRA distilled offline from `qwen2.5:7b`; set
 `ANSWER_MODEL=qwen2.5:7b` to revert); no cloud model API. The finetune
 track and its evidence:
 `artifacts/reports/finetune-data-prep-2026-10-13.md`,
 `artifacts/reports/x2-trial-2026-10-14.md`,
+`artifacts/reports/retry-safety-net-2026-10-14.md`,
 `artifacts/reports/smallbook_x2-provenance-2026-10-14.md`. Latency, recorded:
-7B warm asks 0.4-1.2 s; `smallbook_x2` warm probes ~0.5-2 s (no summary
+7B warm asks 0.4-1.2 s; `smallbook_x2d` warm probes ~0.5-2 s (no summary
 yet); the first ask after ~5 min idle pays a one-time cold model load.
 
 ## Repo layout
@@ -408,13 +410,16 @@ ask-this-book/
   measured multi-hop failure set exists.
 - `quiz` has no scoring; a graded second call is out of scope (see
   `BUILD_PLAN.md` "Contract").
-- **Finetune trial: `smallbook_x2` answers by default** (since 2026-10-14):
-  a 1.9 GB Qwen2.5-3B quote-or-refuse model distilled offline from the 7B.
-  Measured: refusals exact, 0 loops in 168 capped draws, battery 18-19/21
-  (7B: 21/21); known warts are false refusals on unmemorized forms
-  (`artifacts/reports/x2-trial-2026-10-14.md`). The permanent swap sits behind a
-  pre-registered gate in that file; `ANSWER_MODEL=qwen2.5:7b` reverts.
-  Provenance hashes: `artifacts/reports/smallbook_x2-provenance-2026-10-14.md`.
+- **Finetune default: `smallbook_x2d`** (adopted 2026-10-14): a 1.9 GB
+  Qwen2.5-3B quote-or-refuse model distilled offline from the 7B, plus the
+  engine's validation-gated `[Ch. ` retry. Measured: refusals exact, battery
+  20/21 ×3 (best small-model run), 0 suite loops, both ETL pin targets fixed.
+  The pre-registered gate's sealed-suite bar is still unmet on bare-topic /
+  order-flip (bare 41/50, order 20/40 vs the 7B's 50/50, 40/40, pre-retry
+  bar) — recorded, not hidden: `artifacts/reports/retry-safety-net-2026-10-14.md`.
+  Revert: `ANSWER_MODEL=qwen2.5:7b` (or `=smallbook_x2`). Provenance hashes:
+  `artifacts/reports/smallbook_x2-provenance-2026-10-14.md` (x2 lineage; x2d
+  run artefacts in `artifacts/evidence/x2d-session-2026-10-14/`).
 
 ## Roadmap
 

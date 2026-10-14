@@ -872,6 +872,35 @@ Only this list can block work.
   comparisons are run-variance-bound. Non-adopted models deleted after the
   record; LoRAs kept (`data/models/*_lora.zip`). Verdict:
   `artifacts/reports/x2-trial-2026-10-14.md`. Next: `x2d`.
+- Second-book portability probe 2026-10-14 (`reports/second-book-2026-10-14.md`):
+  a second EPUB ("Quantization and Fast Inference", 506 chunks / 0 figures,
+  `data/index.quantbook.json`, `books/quantbook.epub` local only) ran through the
+  unchanged engine. x2 refused zero of 10 in-book questions (the FDE wart class
+  did not reproduce) and refused all 3 controls exactly — but citations did not
+  transfer: 2 of 11 non-control answers carried `[Ch.` tags (both correct); the
+  rest answered from the book uncited. Chapter strings ingest extracts here are
+  `chapter-4`, not `4` — suspected tag-format cause, one-change retest identified.
+  The 7B answered "capital of France" with a fabricated `[Ch. 4]` pin
+  (chapter-4-022 holds that string as a calibration example). Visible targets
+  only; n=1. Evidence: `evidence/probe-second-book/`. Next: chapter-number
+  extraction retest.
+- Retry safety net landed 2026-10-14 (`answer.py`; the x2d verdict's option c):
+  `ollama_generate` gained a `prefill` param (a trailing assistant turn makes
+  Ollama continue; probed first), and `_retry_uncited` retries an uncited
+  answer-mode reply once with `[Ch. `, kept only when a citation validates as
+  verbatim passage text (parse_answered first, parse_completion second — a
+  tag-first reply can only validate through the ask parser). The trigger is
+  uncited + passages, not the review's anchors gate: anchors miss 7 of 16
+  suite items (measured). Suite at 10 draws: x2d 21/160 -> 111/160 (bare
+  0->41/50, trailing 1->30/30, fragment 10->20/40, order 10->20/40, 0 loops);
+  x2 60/160 -> 111/160 but with 20 loops; both still short of pre-retry gate
+  item 2 (x2d: bare/order; x2: order/trailing). The visible-ten uncited three
+  (Location, DE Lifecycle, ddr4-flip) are NOT rescued; the second book is
+  rescued 2/10 (x2) and 1/10 (x2d). 219 tests green (4 new). Decision tables:
+  `artifacts/reports/retry-safety-net-2026-10-14.md`; **user decision
+  2026-10-14: adopt `smallbook_x2d` anyway** (battery/loops/pins weigh the
+  swap; the pre-registered item-2 gap stays recorded), `prompt.ANSWER_MODEL`
+  default flipped, revert seam unchanged.
 
 ## Verify
 
@@ -903,8 +932,10 @@ Only this list can block work.
   `ollama version is 0.40.3`.
 - On disk: `nomic-embed-text:latest` (274 MB, pulled 2026-10-11). Smoke embed
   returned 768 dims. `moistral:latest` (4.0 GB) is also on disk; do not use it.
-  `smallbook_x2:latest` (1.9 GB, digest `ba79d37a6067`) is the finetuned
-  answerer and app default since 2026-10-14; `qwen2.5:7b` (4.7 GB, Q4_K_M) is
+  `smallbook_x2d:latest` (1.9 GB, digest `d0bfa88f6b63`) is the finetuned
+  answerer and app default since 2026-10-14; `smallbook_x2:latest` (1.9 GB,
+  `ba79d37a6067`) and `smallbook_x2d_q8:latest` (3.3 GB, `a8d4b390`) stay on
+  disk; `qwen2.5:7b` (4.7 GB, Q4_K_M) is
   the teacher, on disk since 2026-10-11 after approval (see the Phase 4 bullet). Bake-off pulls 2026-10-12 (9,945 MB approved):
   `qwen3:4b-instruct` (2,497 MB), `granite4.1:3b` (2,100 MB), `granite4.1:8b`
   (5,348 MB).

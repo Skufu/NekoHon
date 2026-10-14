@@ -1,0 +1,88 @@
+[
+  {
+    "model": "smallbook_x2d",
+    "q": "what is",
+    "refused": false,
+    "cited": [],
+    "answer": "A query is a request for information or data from a database or data source. In data engineering and analysis, queries are used to retrieve and manipulate tabular and semistructured data. Queries work on various data types and techniques exist to improve their performance."
+  },
+  {
+    "model": "smallbook_x2d",
+    "q": "hey",
+    "refused": true,
+    "cited": [
+      "preface01-016",
+      "ch05-030",
+      "ch05-045"
+    ],
+    "answer": "Not in this book."
+  },
+  {
+    "model": "smallbook_x2d",
+    "q": "warrup",
+    "refused": true,
+    "cited": [
+      "ch05-053",
+      "ch05-030",
+      "app01-017"
+    ],
+    "answer": "Not in this book."
+  },
+  {
+    "model": "smallbook_x2d",
+    "q": "Location",
+    "refused": false,
+    "cited": [],
+    "answer": "Location is often used to integrate streaming data across multiple regions for redundancy and proximity to data sources. Regions contain two or more availability zones to ensure resilience and performance. A data warehouse stores organized and formatted data for reporting and analysis, while time series data records events over time for analysis. Asked as: \"What is Location?\""
+  },
+  {
+    "model": "smallbook_x2d",
+    "q": "Our Advice",
+    "refused": false,
+    "cited": [],
+    "answer": "A chief information officer (CIO) is responsible for information technology within an organization, directing the IT organization and setting ongoing policies. They must possess deep knowledge of both information technology and business processes. CIOs often collaborate with data engineering leadership in organizations with a well-developed data culture."
+  },
+  {
+    "model": "smallbook_x2d",
+    "q": "DE Lifecycle",
+    "refused": false,
+    "cited": [],
+    "answer": "The data engineering lifecycle comprises five stages: generation, storage, ingestion, transformation, and serving data. Asked as: \"What is DE Lifecycle?\""
+  },
+  {
+    "model": "smallbook_x2d",
+    "q": "DDR5 vs ddr4",
+    "refused": false,
+    "cited": [],
+    "answer": "DDR5 is faster than DDR4 in data retrieval latency, offering on the order of 100 ns compared to DDR4's latency. Asked as: \"What is DDR5 vs ddr4?\""
+  },
+  {
+    "model": "smallbook_x2d",
+    "q": "ddr4 vs ddr5",
+    "refused": false,
+    "cited": [],
+    "answer": "DDR4 and DDR5 are different generations of DRAM (Dynamic Random Access Memory) standards. DDR5 offers faster data retrieval latency compared to DDR4, with DDR5 having a data retrieval latency on the order of 100 ns, while DDR4 has a data retrieval latency on the order of 1000 ns. Asked as: \"What is ddr4 vs ddr5?\""
+  },
+  {
+    "model": "smallbook_x2d",
+    "q": "speed of ddr5",
+    "refused": true,
+    "cited": [
+      "ch06-011",
+      "ch06-006",
+      "ch06-008"
+    ],
+    "answer": "Not in this book."
+  },
+  {
+    "model": "smallbook_x2d",
+    "q": "speed of ddr5s",
+    "refused": true,
+    "cited": [
+      "ch06-011",
+      "ch06-006",
+      "ch06-009"
+    ],
+    "answer": "Not in this book."
+  }
+]

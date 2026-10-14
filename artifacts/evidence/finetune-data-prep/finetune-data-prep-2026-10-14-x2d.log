@@ -1,0 +1,34 @@
+finetune data prep x2d 2026-10-14 — teacher qwen2.5:7b
+inputs: forms=data\finetune\x2d-forms-2026-10-14.json (171 items), refusals=data\finetune\x2d-refusal-candidates.json (27 items)
+source entries as-is (no PERTURB_SWAPS): 191  extras kept: 171  new refusals kept: 27
+questions: 389  rows kept: 373  tiers: {'gold': 151, 'refusal': 56, 'silver': 166}
+splits: {'bench': 45, 'train': 328}  files: quote-refuse-2026-10-13.train-x2d.jsonl / quote-refuse-2026-10-13.bench-x2d.jsonl
+sources: {'eval': 33, 'class': 8, 'sweep': 117, 'refusal': 27, 'x2d': 188}
+outcomes: {'gloss-synthesized': 263, 'teacher-gloss': 54, 'refusal-kept': 56, 'wrong-chunk': 4, 'teacher-refused': 11, 'answered-when-refusal-expected': 1}
+sha256: train 48cdef2c4e77821768fb53f206e1f7560f44e2293e01bb15adc39145c2f3fb7c  bench 36fbf9aeb5cd248691ca707ba30dc12b610dbcc4b746ef54f7f49a03b6660f24
+bench check: built 45 questions vs quote-refuse-2026-10-13.bench.jsonl 45 — set identical True, bytes identical True
+refusal file crosscheck: {'file-completion-matches-capture': 27}
+
+reject samples:
+  {'question': 'explain transformations in simple words', 'asked': 'explain transformations in simple words', 'source': 'eval-plain', 'outcome': 'wrong-chunk:ch02-029', 'cited': ['ch02-029']}
+  {'question': 'multicloud disadvantages', 'asked': 'What is multicloud disadvantages?', 'source': 'sweep-list', 'outcome': 'teacher-refused', 'cited': ['ch04-037', 'ch04-036']}
+  {'question': 'hot warm cold data', 'asked': 'What is hot warm cold data?', 'source': 'sweep-bare', 'outcome': 'teacher-refused', 'cited': ['ch06-102', 'ch06-104']}
+  {'question': 'how does encryption at rest differ from encryption in motion', 'asked': 'how does encryption at rest differ from encryption in motion', 'source': 'sweep-subject-first', 'outcome': 'teacher-refused', 'cited': ['ch07-090', 'ch10-020']}
+  {'question': 'what is tokenization', 'asked': 'what is tokenization', 'source': 'sweep-what-is', 'outcome': 'teacher-refused', 'cited': ['ch07-088', 'ch06-016']}
+  {'question': 'What is the best programming language?', 'asked': 'What is the best programming language?', 'source': 'refusal-mined', 'outcome': 'answered-when-refusal-expected', 'cited': ['ch01-039']}
+  {'question': 'acid in database terms', 'asked': 'What is acid in database terms?', 'source': 'x2d-bare', 'outcome': 'teacher-refused', 'cited': ['ch05-008', 'ch08-021']}
+  {'question': 'what is hot warm cold data', 'asked': 'what is hot warm cold data', 'source': 'x2d-restate', 'outcome': 'teacher-refused', 'cited': ['ch06-102', 'ch06-104']}
+  {'question': 'what is etl vs elt', 'asked': 'what is etl vs elt', 'source': 'x2d-restate', 'outcome': 'teacher-refused', 'cited': ['ch07-033', 'ch08-095']}
+  {'question': 'what is bounded vs unbounded data', 'asked': 'what is bounded vs unbounded data', 'source': 'x2d-restate', 'outcome': 'teacher-refused', 'cited': ['ch07-005', 'ch07-007']}
+  {'question': 'embedded analytics', 'asked': 'What is embedded analytics?', 'source': 'x2d-bare', 'outcome': 'teacher-refused', 'cited': ['ch09-028', 'ch09-027']}
+  {'question': 'explain tokenization', 'asked': 'explain tokenization', 'source': 'x2d-explain', 'outcome': 'teacher-refused', 'cited': ['ch07-088', 'ch07-015']}
+  {'question': 'DE Lifecycle', 'asked': 'What is DE Lifecycle?', 'source': 'x2d-heading', 'outcome': 'wrong-chunk:ch02-004', 'cited': ['ch02-004']}
+  {'question': 'Business Responsibilities', 'asked': 'What is Business Responsibilities?', 'source': 'x2d-heading', 'outcome': 'teacher-refused', 'cited': ['ch01-035', 'ch01-036']}
+  {'question': 'Upstream stakeholders', 'asked': 'What is Upstream stakeholders?', 'source': 'x2d-heading', 'outcome': 'wrong-chunk:ch08-145', 'cited': ['ch08-145']}
+
+row samples:
+  [gold] 'What does CRUD stand for?' -> [Ch. 5] "CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage" / CRUD means create, read, update,
+  [gold] 'What is data ingestion?' -> [Ch. 7] "Data ingestion is the process of moving data from one place to another" / Data ingestion moves data from one place to another.
+  [gold] 'What is a watermark?' -> [Ch. 8] "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late" / A watermark checks if data is on time or 
+
+next: verify + contamination via the canonical-name copy swap (artifacts/reports/x2d-builder-notes-2026-10-14.md)
