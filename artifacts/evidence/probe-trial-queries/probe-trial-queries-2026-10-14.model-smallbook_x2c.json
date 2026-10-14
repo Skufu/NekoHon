@@ -1,0 +1,84 @@
+[
+  {
+    "model": "smallbook_x2c",
+    "q": "what is",
+    "refused": false,
+    "cited": [
+      "ch08-004"
+    ],
+    "answer": "Queries are a fundamental part of data engineering, data science, and analysis. They are a way to ask for specific information or perform operations on data. In this context, queries primarily concern tabular and semistructured data. Data engineers frequently query and transform this type of data. [Ch. 8]"
+  },
+  {
+    "model": "smallbook_x2c",
+    "q": "hey",
+    "refused": false,
+    "cited": [
+      "ch05-030"
+    ],
+    "answer": "A relational database management system (RDBMS) is described in [Ch. 5]. Relational databases store data in tables with rows and columns, where each row has the same schema defined by columns with assigned static types like string or integer. Primary keys uniquely identify each row in the table. Read as: \"they\""
+  },
+  {
+    "model": "smallbook_x2c",
+    "q": "warrup",
+    "refused": true,
+    "cited": [
+      "ch05-053",
+      "ch05-030",
+      "app01-017"
+    ],
+    "answer": "Not in this book."
+  },
+  {
+    "model": "smallbook_x2c",
+    "q": "Location",
+    "refused": false,
+    "cited": [
+      "ch07-046"
+    ],
+    "answer": "Location is a place or area. It is often desirable to integrate streaming across several locations for enhanced redundancy and to consume data close to where it is generated. As a general rule, the closer your ingestion is to where data originates, the better your bandwidth and latency. However, you need to balance this against the costs of moving data between regions to run analytics on a combine"
+  },
+  {
+    "model": "smallbook_x2c",
+    "q": "Our Advice",
+    "refused": false,
+    "cited": [],
+    "answer": "A chief information officer (CIO) is responsible for information technology within an organization. CIOs must possess deep knowledge of both information technology and business processes. They often collaborate with data engineering leadership in organizations with a well-developed data culture. Data analysts work with data engineers to build pipelines for new data sources required by the business"
+  },
+  {
+    "model": "smallbook_x2c",
+    "q": "DE Lifecycle",
+    "refused": false,
+    "cited": [],
+    "answer": "The Data Engineering Lifecycle is divided into five stages: generation, storage, ingestion, transformation, and serving data. Asked as: \"What is DE Lifecycle?\""
+  },
+  {
+    "model": "smallbook_x2c",
+    "q": "DDR5 vs ddr4",
+    "refused": false,
+    "cited": [],
+    "answer": "DDR5 is faster than DDR4. DDR5 offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD. Asked as: \"What is DDR5 vs ddr4?\""
+  },
+  {
+    "model": "smallbook_x2c",
+    "q": "ddr4 vs ddr5",
+    "refused": false,
+    "cited": [],
+    "answer": "DDR4 and DDR5 are both types of RAM (random access memory). DDR5 offers faster data retrieval latency than SSDs, on the order of 100 ns. Asked as: \"What is ddr4 vs ddr5?\""
+  },
+  {
+    "model": "smallbook_x2c",
+    "q": "speed of ddr5",
+    "refused": false,
+    "cited": [
+      "ch06-011"
+    ],
+    "answer": "DDR5 memory has a data retrieval latency on the order of 100 ns, which is roughly 1,000 times faster than SSD. This speed is described in [Ch. 6]. Asked as: \"What is speed of ddr5?\""
+  },
+  {
+    "model": "smallbook_x2c",
+    "q": "speed of ddr5s",
+    "refused": false,
+    "cited": [],
+    "answer": "DDR5s is not mentioned or defined in these passages. Asked as: \"What is speed of ddr5s?\""
+  }
+]

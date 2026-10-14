@@ -19,12 +19,12 @@ gate (2026-10-12). 171 unit tests green, index audit clean, HTTP battery PASS
 | Job | Model | On disk | Notes |
 | --- | --- | --- | --- |
 | Embed | `nomic-embed-text:latest` | 274 MB | 768-dim. Won the embedder bake-off: 10/10 vs EmbeddingGemma-2's 9/10. |
-| Answer | `qwen2.5:7b` | 4.7 GB (Q4_K_M) | The default for both answer modes. Temperature 0. |
+| Answer | `smallbook_x2` | 1.9 GB | The default for both answer modes since 2026-10-14: a Qwen2.5-3B quote-or-refuse LoRA distilled offline from `qwen2.5:7b`. The teacher stays on disk (4.7 GB, Q4_K_M); `ANSWER_MODEL=qwen2.5:7b` reverts. Temperature 0. |
 | Eval judge | `granite4.1:8b` local; `muse-spark-1.3-contributor` cloud | 5.3 GB local | The LLM judge (`artifacts/harnesses/judge.py`): passage relevance, key facts, book fidelity, example use. Local is the offline default; the eval runs currently use Muse Spark 1.3 over the OpenCode Go relay. Any stronger OpenAI-compatible model can be swapped in — `judge_name()` records it and `artifacts/harnesses/judge-agreement.py` re-calibrates. The engine never uses either. |
 
-Also on disk, not defaults: `granite4.1:3b` (eligible small-PC slot and the
-finetune candidate; a trial swap to it was reverted the same day — it answered
-the "MAD data landscape" phrasing with the wrong passage), `qwen3:4b-instruct`
+Also on disk, not defaults: `granite4.1:3b` (eligible small-PC slot; a trial
+swap to it was reverted the same day — it answered the "MAD data landscape"
+phrasing with the wrong passage), `qwen3:4b-instruct`
 (failed the MAD gate), `embeddinggemma-2:270m-bf16-text` (losing bake-off
 checkpoint, kept as documented fallback), and `moistral` (do not use). On the
 Mac runner, `llama3.2:3b` and `deepseek-r1:7b` are also on disk; both are
@@ -81,7 +81,7 @@ question ---------> canonical form (bare phrase -> "What is X?")
                       |  (C) figure caption outscores the best chunk -> seed
                       |      the chunk that names that figure
                       v
-                    qwen2.5:7b (temperature 0)
+                    smallbook_x2 (temperature 0)
                       |  answer: free generation, [Ch. N] tags -> citations,
                       |          quotation marks the passages cannot back are
                       |          stripped
@@ -134,9 +134,13 @@ remaining misses are single-item rewriter errors
 
 ## Quickstart (fresh machine)
 
-Prereqs: Python 3 (3.12 tested, stdlib only), Ollama with the two models
-(`ollama pull nomic-embed-text` — 274 MB — and `ollama pull qwen2.5:7b` —
-4.7 GB), and the EPUB on disk.
+Prereqs: Python 3 (3.12 tested, stdlib only), Ollama, and the EPUB on disk.
+Models: `ollama pull nomic-embed-text` (274 MB, the embedder). The answerer
+`smallbook_x2` (1.9 GB) is **not** a registry pull — import it from its GGUF
+(`ollama create smallbook_x2 -f <Modelfile>`; recipe
+`artifacts/reports/smallbook_x2-rebuild-2026-10-14.md`). `qwen2.5:7b`
+(4.7 GB) is the teacher: needed only to rebuild the answerer or to revert
+(`ANSWER_MODEL=qwen2.5:7b`).
 
 ```sh
 # 1. Ollama is up (on Windows it is not on PATH; see AGENTS.md machine facts)

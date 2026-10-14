@@ -1,5 +1,12 @@
 # Ask This Book — Build Plan
 
+> **Status (2026-10-14): living plan.** This started as the locked v1 build
+> plan (written 2026-10-09). v1 shipped — Phases 0–8 passed 2026-10-12 — and
+> the plan now tracks the post-v1 path. Treat it as a sequence to the goal,
+> not a contract: when this file and a dated report or the code disagree, the
+> code wins — fix the plan. Two or more days old means re-check the numbers
+> (artifacts staleness gate).
+
 > **File note:** this plan lived at `README.md` until the repo was prepped for
 > `nekolabs-studio/epub-local`; the self-references below to "the README" mean
 > this file. The human-facing front page is now `README.md`.
@@ -8,7 +15,7 @@
 
 **Goal:** An offline book companion that answers from the open book, cites the passages it used, and shows the figure those passages point at. Nothing leaves the machine.
 
-**Architecture:** A stdlib Python engine ingests one EPUB into a JSON index, retrieves with the Phase 3b winning embedder (`nomic-embed-text` default), and answers with on-disk `qwen2.5:7b`. The window is one HTML file that calls that engine. Readest is a later shell, not the way the engine gets proven.
+**Architecture:** A stdlib Python engine ingests one EPUB into a JSON index, retrieves with the Phase 3b winning embedder (`nomic-embed-text` default), and answers with on-disk `smallbook_x2` (a Qwen2.5-3B finetune distilled from `qwen2.5:7b`; `ANSWER_MODEL=qwen2.5:7b` reverts). The window is one HTML file that calls that engine. Readest is a later shell, not the way the engine gets proven.
 
 **Tech Stack:** Python 3 stdlib (one exception for vendored text-preprocessing tools; see `AGENTS.md`). Ollama on `127.0.0.1:11434`. No pip installs. No new model downloads except the approved embedder pulls (see Status). No database server.
 
@@ -17,6 +24,10 @@
 ## Status
 
 The product bet: local inference, cited answers, figures on screen, wifi off.
+
+**Current (2026-10-14):** post-v1. The finetuned `smallbook_x2` is the
+answerer by default; the next checkpoint is `x2c` + the seed control. See
+"Post-v1" below.
 
 Two older drafts in `~/.hermes/cache/scratch/hackathon-plan.md` and `hackathon-plan-full.md` disagree with each other. This file replaces both.
 
@@ -30,37 +41,42 @@ One local EPUB. Ask a question. In `answer` mode (the window default) the model 
 
 The engine is the product. The HTML page exists so a person can see the answer, the citations, and the image. Polish is not the work.
 
-## What v1 is not
+## What v1 is not (v1 scope — revisit anytime)
+
+These are scope choices for v1, not properties of the product. Any of them can
+be reopened when the goal calls for it.
 
 - The model looking at image bytes.
 - Fusing anything retrieval did not surface: the `answer` mode may combine only the passages it was shown.
 - Sparring, "argue the other side," or any mode not in the contract.
 - A Readest fork on the critical path.
-- A new embedding model (except the Phase 3b bake-off contenders), a finetune, Laya, Bonsai, or `deepseek-r1:7b` (Mac only so far; wrong job: it rambles past the quote).
+- A new embedding model (except the Phase 3b bake-off contenders), an embedder finetune, Laya, Bonsai, or `deepseek-r1:7b` (Mac only so far; wrong job: it rambles past the quote).
 - A database, a package install (one exception: vendored text-preprocessing tools, see `AGENTS.md`), or a cloud API.
 - Cross-chapter tracing.
 
-## Locked stack (verified on Mac 2026-10-09; Windows runner built out 2026-10-11)
+## Stack (v1 baseline locked 2026-10-09; updated 2026-10-14)
 
 | Job | Model | On disk | Use |
 | --- | --- | --- | --- |
 | Embed | `nomic-embed-text:latest` (274 MB) | yes | retrieval |
-| Answer | `qwen2.5:7b` (4.7 GB) | yes | quote, then one line |
+| Answer | `smallbook_x2` (1.9 GB) | yes | default since 2026-10-14; quote, then one line |
+| Teacher / revert | `qwen2.5:7b` (4.7 GB, Q4_K_M) | yes | builds `smallbook_x2`; `ANSWER_MODEL=qwen2.5:7b` reverts |
 | Weak-machine note | `llama3.2:3b` (2.0 GB) | yes | README fallback only. Not the dev model. |
 | Do not use | `deepseek-r1:7b` | yes | leave it |
 
 On the Windows runner (measured 2026-10-12): `qwen2.5:7b`, `nomic-embed-text:latest`, `embeddinggemma-2:270m-bf16-text`, and `moistral:latest` are on disk. The `llama3.2:3b` and `deepseek-r1:7b` rows are Mac-only so far.
 
-`qwen2.5:7b` is the locked answer model, not a proven best. In `ask` mode the job is a quote check; in `answer` mode it is a grounded free answer. A later swap still has to pass the battery in both modes: ask — quote is a substring, answer starts with `[Ch.`, refusal is exactly `Not in this book.`; answer — citations only from the shown passages and the coherence probes pass.
+`smallbook_x2` is the current answer model (since 2026-10-14) — a Qwen2.5-3B quote-or-refuse finetune distilled offline from `qwen2.5:7b`. `qwen2.5:7b` is the teacher and the one-flag revert. Any answer-model swap — the 7B back, or a new finetune — has to pass the battery in both modes: ask — quote is a substring, answer starts with `[Ch.`, refusal is exactly `Not in this book.`; answer — citations only from the shown passages and the coherence probes pass. Measure it; do not swap quietly on a hunch.
 
-Stop and say so before any of these. Do not do them quietly:
+Changes that invalidate measurements — re-run, don't quietly swap:
 
 - A different nomic quant. This index is from the F16 tag. Q4 or Q8 makes different numbers. Rebuild, rerun the 10 questions. Do not reuse this file.
 - An embedder finetune. New file, new bake-off. Do not overwrite `data/index.json` until it wins.
-- A smaller qwen. The library tag is already Q4_K_M, 4.7GB. A smaller one may fail the quote check more often.
+- An answer-model swap (the 7B back, or a new finetune). Re-run the battery in both modes and the trial-pattern probes; either direction moves pins.
 - A Gemma picture index. Separate file. It cannot mix with nomic numbers.
 
-Ollama is already the server on the Mac; on this Windows box v0.40.3 is installed (see `AGENTS.md`). Restart it only if `ollama list` fails. Embedder pulls are approved (Status). Do not `ollama pull` anything beyond the Phase 3b contenders. Everything else still needs an explicit megabyte number before the transfer: the book, a Readest clone, an Ollama upgrade, and any vision model. An upgrade is not Windows runner setup.
+Ollama is already the server on the Mac; on this Windows box v0.40.3 is installed (see `AGENTS.md`). Restart it only if `ollama list` fails. Embedder pulls are approved (Status). The answerer `smallbook_x2` was built locally — imported from its GGUF, not pulled
+(`artifacts/reports/smallbook_x2-rebuild-2026-10-14.md`). Anything past the Phase 3b contenders still needs an explicit megabyte number before transfer: the book, a Readest clone, an Ollama upgrade, and any vision model.
 
 Run the engine with system `python3`, not the Hermes venv. If imports look insane, the shell leaked `PYTHONPATH` from a Python 3.14 env. Run `env -u PYTHONPATH -u PYTHONHOME python3`. (macOS note — on Windows just use `python`; see `AGENTS.md`.)
 
@@ -247,7 +263,7 @@ Wifi off. Then `POST /ask`. A cited answer still returns.
 
 Confirm the engine process has no established TCP connection except localhost. DevTools on the page only shows that the page is quiet. Ollama is a different process. Do not call a quiet network panel the proof.
 
-README states: embeddings and answers are Ollama on localhost; models used are `qwen2.5:7b` and the Phase 3b winning embedder; no cloud model API; base models, no training.
+README states: embeddings and answers are Ollama on localhost; models are the Phase 3b winning embedder (`nomic-embed-text`) and the answerer `smallbook_x2` (a Qwen2.5-3B finetune of `qwen2.5:7b`, trained offline); no cloud model API. The 7B is kept as the teacher and revert.
 
 ## Roles
 
@@ -397,9 +413,10 @@ Command, identical online and offline:
 - Sockets while offline: `netstat -ano | findstr :8000` -> engine PID 26996; that PID's lines -> `127.0.0.1` only. `netstat -ano | findstr :11434` -> Ollama PID 18996, `127.0.0.1` only. No foreign address.
 - Raw log: `artifacts/evidence/phase7-offline/phase7-offline.log` and `artifacts/evidence/phase7-offline/phase7-offline-ask.json`.
 
-Disclosure: embeddings and answers are Ollama on localhost; models are
-`nomic-embed-text` and `qwen2.5:7b`; no cloud model API; base models, no
-training.
+Disclosure at the gate (2026-10-12): embeddings and answers are Ollama on
+localhost; models were `nomic-embed-text` and `qwen2.5:7b`; no cloud model
+API; base models, no training. Current disclosure (2026-10-14): the answerer
+is the local finetune `smallbook_x2` — see "Proof it is local".
 
 ## Phase 8 — Readest, only after phase 7
 
@@ -417,12 +434,31 @@ Clone Readest on unmetered wifi only. Side panel calls the same `POST /ask`. The
 
 If `cargo tauri` is missing, stop. The HTML window remains the product shell. Do not spend a day on the toolchain.
 
+## Post-v1 — finetuned answerer (2026-10-13 →)
+
+v1 answers with the 7B; this track replaces the answerer with a small local
+finetune so the product runs on weaker machines and refuses on-form. It is the
+section that moves — update it as checkpoints land.
+
+- **`smallbook_x2` is the default** (since 2026-10-14): a Qwen2.5-3B
+  quote-or-refuse LoRA distilled offline from `qwen2.5:7b`; 1.9 GB. Revert:
+  `ANSWER_MODEL=qwen2.5:7b`.
+- **Where it stands:** refusals 2/2 exact, battery 18-19/21 across the
+  recorded passes, 0 loops in 168 capped draws; known warts are false refusals
+  on unmemorized forms (`artifacts/reports/x2-trial-2026-10-14.md`).
+- **Next:** `x2c` (form-perturbation swaps) + the x2 seed control, behind the
+  pre-registered gate in `x2-trial-2026-10-14.md`.
+- **Recipe / provenance:** `smallbook_x2-rebuild-2026-10-14.md`,
+  `smallbook_x2-provenance-2026-10-14.md`, `smallbook_x2-model-card.md`.
+- **Rule kept:** the engine contract does not change — swap the answerer, keep
+  the battery and the pins.
+
 ## Risks
 
 | Risk | What to do |
 | --- | --- |
 | Small embedder misses a technical phrase | Top-10, small chunks, section splits. Then change the question. |
-| 7B writes a essay instead of a quote | Discard the completion. Temperature 0. The format check is the product. |
+| The answer model writes an essay instead of a quote | Discard the completion. Temperature 0. The format check is the product. |
 | Equations or tables split mid-row | Split on sections. Tables stay whole. |
 | Figure demo is an empty caption | Read the stored caption first. Pick a different figure. |
 | Readest eats the week | It is phase 8. The HTML page is the shell. |
@@ -433,6 +469,8 @@ If `cargo tauri` is missing, stop. The HTML window remains the product shell. Do
 
 v1 is done when phases 0 through 7 pass on the book in `books/SOURCE.txt`, the README has the smoke-test hit list and the wifi-off note, and the page can ask, explain a selection, show a figure that has a real citing paragraph, and quiz from one chunk.
 
-**Passed 2026-10-12** (see Phase 7).
+**v1 passed 2026-10-12** (see Phase 7). The plan's job now is the post-v1
+track above; v1 is the floor, not the ceiling.
 
-Phase 8 is a sequel. It is not required for the product to be real.
+Phase 8 (Readest / own reader) is a sequel. It is not required for the product
+to be real.

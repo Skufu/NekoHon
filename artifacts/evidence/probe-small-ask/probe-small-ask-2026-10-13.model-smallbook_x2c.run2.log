@@ -1,0 +1,25 @@
+model smallbook_x2c: 18/21 pin-pass
+PASS [golden   ] What does CRUD stand for?                                pin=ch05-019 cited=['ch05-019'] refused=False
+PASS [golden   ] What is data ingestion?                                  pin=ch07-002 cited=['ch07-002'] refused=False
+PASS [golden   ] What is a watermark?                                     pin=ch08-039 cited=['ch08-039'] refused=False
+FAIL [golden   ] When is an insert-only table useful?                     pin=ch05-020 cited=['ch08-107'] refused=False
+     [Ch. 8] "Insert only inserts new records without changing or deleting old records. Insert-only patterns can be used to maintain a current view of data—for examp
+PASS [golden   ] Where does storage sit in the data engineering lifecycle pin=ch06-001 cited=['ch06-001'] refused=False
+FAIL [golden   ] What do source systems provide to the rest of the lifecy pin=ch02-005 cited=['ch05-004'] refused=False
+     [Ch. 5] "Source systems produce data in various ways"
+PASS [golden   ] How does data architecture relate to enterprise architec pin=ch03-013 cited=['ch03-013'] refused=False
+PASS [golden   ] What is the difference between batch and streaming?      pin=ch02-019 cited=['ch02-019'] refused=False
+FAIL [golden   ] What happens to data after it is extracted in ETL?       pin=ch07-033 cited=['ch07-033', 'ch08-094', 'ch08-122'] refused=True
+     Not in this book.
+PASS [golden   ] What do transformations do in the data engineering lifec pin=ch02-027 cited=['ch02-027'] refused=False
+PASS [typo/probe] What does CRU stand for?                                 pin=ch05-019 cited=['ch05-019'] refused=False
+PASS [typo/probe] What happens to data after it is extracted in ET?        pin=ch07-033 cited=['ch07-033'] refused=False
+PASS [typo/probe] what is a atermark?                                      pin=ch08-039 cited=['ch08-039'] refused=False
+PASS [typo/probe] what does data engineers need to be pragmatic about      pin=ch04-012 cited=['ch04-012'] refused=False
+PASS [typo/probe] Data engineers need to be pragmatic about?               pin=ch04-012 cited=['ch04-012'] refused=False
+PASS [typo/probe] MAD data landscape                                       pin=ch04-020 cited=['ch04-020'] refused=False
+PASS [typo/probe] multicloud methodology disadvantages                     pin=ch04-037 cited=['ch04-037'] refused=False
+PASS [coherence] what is MAD data landscape                               pin=ch04-020 cited=['ch04-020'] refused=False
+PASS [coherence] what is data mesh                                        pin=ch03-099 cited=['ch03-099'] refused=False
+PASS [coherence] Codd introduced the idea of what                         pin=ch08-051 cited=['ch08-051'] refused=False
+PASS [coherence] what is an endpoint in streaming ingestion               pin=ch02-024 cited=['ch02-024'] refused=False

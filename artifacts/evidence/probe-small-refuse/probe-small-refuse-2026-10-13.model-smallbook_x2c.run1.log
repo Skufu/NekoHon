@@ -1,0 +1,5 @@
+model smallbook_x2c: 2/2 exact refusals
+PASS [france] refused=True cited=['ch01-064', 'ch03-071', 'ch05-030']
+     Not in this book.
+PASS [iops  ] refused=True cited=['ch02-072', 'ch06-123', 'ch02-067']
+     Not in this book.

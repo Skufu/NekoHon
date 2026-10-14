@@ -1,0 +1,20 @@
+[smallbook_x2c] 'what is' refused=False cited=['ch08-004']
+    Queries are a fundamental part of data engineering, data science, and analysis. They are a way to ask for specific information or perform operations on data. In this context, queries primarily concern tabular and semistructured data. Data engineers frequently 
+[smallbook_x2c] 'hey' refused=False cited=['ch05-030']
+    A relational database management system (RDBMS) is described in [Ch. 5]. Relational databases store data in tables with rows and columns, where each row has the same schema defined by columns with assigned static types like string or integer. Primary keys uniq
+[smallbook_x2c] 'warrup' refused=True cited=['ch05-053', 'ch05-030', 'app01-017']
+    Not in this book.
+[smallbook_x2c] 'Location' refused=False cited=['ch07-046']
+    Location is a place or area. It is often desirable to integrate streaming across several locations for enhanced redundancy and to consume data close to where it is generated. As a general rule, the closer your ingestion is to where data originates, the better 
+[smallbook_x2c] 'Our Advice' refused=False cited=[]
+    A chief information officer (CIO) is responsible for information technology within an organization. CIOs must possess deep knowledge of both information technology and business processes. They often collaborate with data engineering leadership in organizations
+[smallbook_x2c] 'DE Lifecycle' refused=False cited=[]
+    The Data Engineering Lifecycle is divided into five stages: generation, storage, ingestion, transformation, and serving data. Asked as: "What is DE Lifecycle?"
+[smallbook_x2c] 'DDR5 vs ddr4' refused=False cited=[]
+    DDR5 is faster than DDR4. DDR5 offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD. Asked as: "What is DDR5 vs ddr4?"
+[smallbook_x2c] 'ddr4 vs ddr5' refused=False cited=[]
+    DDR4 and DDR5 are both types of RAM (random access memory). DDR5 offers faster data retrieval latency than SSDs, on the order of 100 ns. Asked as: "What is ddr4 vs ddr5?"
+[smallbook_x2c] 'speed of ddr5' refused=False cited=['ch06-011']
+    DDR5 memory has a data retrieval latency on the order of 100 ns, which is roughly 1,000 times faster than SSD. This speed is described in [Ch. 6]. Asked as: "What is speed of ddr5?"
+[smallbook_x2c] 'speed of ddr5s' refused=False cited=[]
+    DDR5s is not mentioned or defined in these passages. Asked as: "What is speed of ddr5s?"

@@ -1,0 +1,89 @@
+[
+  {
+    "model": "smallbook_x2c_q8",
+    "q": "what is",
+    "refused": false,
+    "cited": [
+      "ch08-004"
+    ],
+    "answer": "A query is a request for specific information or data from a database or data source. In the context of data engineering and analysis, queries are used to retrieve and manipulate tabular and semistructured data. This is described in [Ch. 8]."
+  },
+  {
+    "model": "smallbook_x2c_q8",
+    "q": "hey",
+    "refused": true,
+    "cited": [
+      "preface01-016",
+      "ch05-030",
+      "ch05-045"
+    ],
+    "answer": "Not in this book."
+  },
+  {
+    "model": "smallbook_x2c_q8",
+    "q": "warrup",
+    "refused": true,
+    "cited": [
+      "ch05-053",
+      "ch05-030",
+      "app01-017"
+    ],
+    "answer": "Not in this book."
+  },
+  {
+    "model": "smallbook_x2c_q8",
+    "q": "Location",
+    "refused": false,
+    "cited": [
+      "app02-005",
+      "ch07-046"
+    ],
+    "answer": "Location is a general term often used in the context of streaming data, referring to the place where data is ingested or processed. In the provided passages, location can mean either a physical place (as in \"a collection of two or more availability zones\" [Ch. app02]) or a broader concept of where data is being handled or accessed [Ch. 7]. Asked as: \"What is Location?\""
+  },
+  {
+    "model": "smallbook_x2c_q8",
+    "q": "Our Advice",
+    "refused": false,
+    "cited": [],
+    "answer": "CIOs and data analysts are mentioned. CIOs are responsible for information technology within an organization, while data analysts seek to understand business performance and trends."
+  },
+  {
+    "model": "smallbook_x2c_q8",
+    "q": "DE Lifecycle",
+    "refused": false,
+    "cited": [
+      "ch02-002"
+    ],
+    "answer": "The data engineering lifecycle is divided into five stages: generation, storage, ingestion, transformation, and serving data. [Ch. 2] Asked as: \"What is DE Lifecycle?\""
+  },
+  {
+    "model": "smallbook_x2c_q8",
+    "q": "DDR5 vs ddr4",
+    "refused": false,
+    "cited": [],
+    "answer": "DDR5 is faster than DDR4. DDR5 offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD. Asked as: \"What is DDR5 vs ddr4?\""
+  },
+  {
+    "model": "smallbook_x2c_q8",
+    "q": "ddr4 vs ddr5",
+    "refused": false,
+    "cited": [],
+    "answer": "DDR4 and DDR5 refer to different generations of RAM standards. DDR5 offers faster data retrieval latency than DDR4, around 100 ns compared to DDR4's latency. Asked as: \"What is ddr4 vs ddr5?\""
+  },
+  {
+    "model": "smallbook_x2c_q8",
+    "q": "speed of ddr5",
+    "refused": false,
+    "cited": [
+      "ch06-011"
+    ],
+    "answer": "DDR5 memory has a data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD. [Ch. 6] Asked as: \"What is speed of ddr5?\""
+  },
+  {
+    "model": "smallbook_x2c_q8",
+    "q": "speed of ddr5s",
+    "refused": false,
+    "cited": [],
+    "answer": "DDR5 is the latest widely used standard for RAM. It offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD. Asked as: \"What is speed of ddr5s?\""
+  }
+]

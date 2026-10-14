@@ -1,14 +1,17 @@
 # Setup on a Mac (testing guide)
 
 The engine is Python standard library only — there is nothing to install for
-the app itself. Two external pieces: Python 3 and Ollama with two models
-(5.0 GB of downloads, once). Everything after that runs offline on localhost.
+the app itself. Two external pieces: Python 3 and Ollama with two models —
+`nomic-embed-text` (pulled, 274 MB) and the answerer `smallbook_x2` (1.9 GB,
+imported from its GGUF — see step 2). Everything after that runs offline on
+localhost.
 
 ## 0. What you need
 
-- A Mac (Apple Silicon or Intel), 16 GB RAM recommended — the answer model is
-  4.7 GB on disk and similar in memory; an 8 GB machine will swap. Check
-  yours: `sysctl -n hw.memsize` in bytes (17179869184 = 16 GB).
+- A Mac (Apple Silicon or Intel), 16 GB RAM recommended — the answer model
+  (`smallbook_x2`) is 1.9 GB on disk; the `qwen2.5:7b` teacher, needed only to
+  rebuild it or revert, is 4.7 GB. An 8 GB machine will swap. Check yours:
+  `sysctl -n hw.memsize` in bytes (17179869184 = 16 GB).
 - Python 3.9 or newer: `python3 -V`. The Xcode Command Line Tools `python3`
   qualifies; for parity with the dev box use `brew install python@3.12`.
 - The book (it is not in the repo — the EPUB is copyright). Get the file from
@@ -30,9 +33,13 @@ cd epub-local
 
 ```sh
 brew install --cask ollama        # or download from https://ollama.com/download
-ollama pull nomic-embed-text      # 274 MB
-ollama pull qwen2.5:7b            # 4.7 GB
-ollama list                       # both must appear
+ollama pull nomic-embed-text      # 274 MB — the embedder
+ollama list                       # must appear
+
+# The answerer `smallbook_x2` (1.9 GB) is imported, not pulled. It needs its
+# GGUF first, then: ollama create smallbook_x2 -f <Modelfile>
+# Recipe: artifacts/reports/smallbook_x2-rebuild-2026-10-14.md (`qwen2.5:7b`,
+# the 4.7 GB teacher, is only needed to rebuild it or to revert).
 ```
 
 Native Ollama uses the Mac GPU (Metal). Warm answers take about a second;
@@ -131,7 +138,8 @@ If you still want it, the engine is unchanged and just talks to the container:
 ```sh
 docker run -d --name ollama -p 127.0.0.1:11434:11434 -v ollama:/root/.ollama ollama/ollama
 docker exec -it ollama ollama pull nomic-embed-text
-docker exec -it ollama ollama pull qwen2.5:7b
+# the answerer smallbook_x2 is imported from its GGUF, not pulled:
+# docker exec -it ollama ollama create smallbook_x2 -f <Modelfile>
 ```
 
 Expect CPU-speed answers. Native Ollama is the supported path.

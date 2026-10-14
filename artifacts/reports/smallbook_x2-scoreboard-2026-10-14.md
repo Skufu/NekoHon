@@ -43,3 +43,17 @@ Notes:
    (`SEAL_TEMPLATE_TWINS`, note in `x2-trial-2026-10-14.md`); x2's File
    Formats 'loops' are 300-cap truncations of coherent prose
    (`loop-mechanism-analysis-2026-10-14.md`).
+
+## Addendum 2026-10-14 — x2c session imported and gated
+
+| model | battery (x3) | fragment / bare / order / trailing / control | loops | refusals |
+|---|---|---|---|---|
+| `smallbook_x2c` (q4) | 18/18/18 | 0/40 · 11/50 · 10/40 · 10/30 · 20/20 | 0 | 10/10 |
+| `smallbook_x2c_q8` | 19/19/19 | 20/40 · 10/50 · 19/40 · 20/30 · 20/20 | 0 | 10/10 |
+| `smallbook_x2_seed1234` | 17/16/16 | 0/40 · 10/50 · 0/40 · 0/30 · 20/20 | 0 | 10/10 |
+
+Seed control diverged from x2 (same data): single-run comparisons carry
+run-variance. Full verdict + gate reading: `x2-trial-2026-10-14.md`.
+Evidence: `evidence/x2c-session-2026-10-14/` and the per-model probe files
+under `evidence/probe-fragment/`, `evidence/probe-small-ask/`,
+`evidence/probe-small-refuse/`, `evidence/probe-llm-loop/`.

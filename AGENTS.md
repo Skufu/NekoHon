@@ -1,10 +1,11 @@
 # AGENTS.md — ask-this-book
 
-Agent entry point for this repo. Read this file, then `BUILD_PLAN.md` (the
-full locked build plan; renamed from `README.md` during the `epub-local` repo
-prep — references below to "the README" mean it) and the current phase brief
-in `artifacts/`. The human-facing front page is `README.md` (overview,
-quickstart, tests; this file stays the rules-and-state authority).
+Agent entry point for this repo. Read `GOAL.md` (the goal + constitution, the
+stable layer), then this file, then `BUILD_PLAN.md` (the living build plan;
+renamed from `README.md` during the `epub-local` repo prep — references below
+to "the README" mean it) and the current phase brief in `artifacts/`. The
+human-facing front page is `README.md` (overview, quickstart, tests; this file
+stays the rules-and-state authority).
 
 ## What this is
 
@@ -15,6 +16,26 @@ modes: `answer` (free generation with `[Ch. N]` citations; the window default)
 and `ask` (a checked quote plus a gloss). Cited figures still attach. All
 inference is local Ollama on `127.0.0.1:11434`. No cloud APIs, no database
 server.
+
+## Goal vs plan (read `GOAL.md`)
+
+`GOAL.md` holds the goal and the constitution — the only parts that rarely
+change. `BUILD_PLAN.md` and the dated reports are tactics that expire. Two
+rules follow:
+
+- **Only `GOAL.md` can block work.** A rule in a dated doc never blocks a
+  mean; it is a hypothesis, superseded by a new dated note. Lock the goal, not
+  the method.
+- **Every "stop and say" is a verification gate, not a permission gate.**
+  Change the tactic, then re-run the gates (battery, pins, trial probes). Do
+  not ask permission to replace a means; do not change one without re-running
+  the gates.
+
+**Constitution (short copy of `GOAL.md` — keep in sync):** local only (Ollama
+on localhost; one eval-only cloud-judge exception) · stdlib only (one vendored
+preprocessing exception) · grounded (quotes come from the book; repairs never
+invent text) · refusal is exactly `Not in this book.` · measured, not asserted.
+Only this list can block work.
 
 ## Hard rules (do not break)
 
@@ -49,10 +70,11 @@ server.
   period included, and nothing else. In `answer` mode the model's first line
   must be that exact sentence for a refusal; in `ask` mode a line that starts
   that way and then keeps talking is not a refusal.
-- Chunking (Phase 2) and embedding (Phase 3) stay separate phases. Do not do
-  a later phase's work inside an earlier phase. If the plan looks wrong, say
-  so BEFORE changing anything — honest architect, not a yes-man. Do not reorder
-  or skip a phase unless the human says yes. Silence is not a yes.
+- Phases are a plan, not a contract. If the plan looks wrong, say so — honest
+  architect, not a yes-man. Then change it and re-run the gates (battery,
+  pins). Reordering or skipping a phase to serve the goal is allowed; you owe
+  the repo a re-run and a plan update, not a permission request (see "Goal vs
+  plan").
 - `rag-template/` is read-only reference. Never touch its `.venv`. Do not port
   numpy, pickle, BM25, rerankers, or agentic/multimodal code from it.
 - Do not commit unless the human asks.
@@ -74,6 +96,17 @@ server.
 - Diagrams anywhere (chat, docs, artifacts) are **real mermaid diagrams**
   (they render) — never ASCII sketches. User decision 2026-10-13; the model
   example is `artifacts/reports/system-map-2026-10-13.md`.
+- State over prose: inspect live code variables or data lines (e.g.
+  `len(PERTURB_SWAPS)`) before quoting metrics from markdown reports. Treat
+  documentation, ADRs, status files, and READMEs as unverified claims until the
+  source code agrees.
+- Verify disk state first: check `git status` or inspect target directories
+  before proposing a build action, to avoid proposing work that has already
+  shipped or files already built.
+- Mechanism precision: distinguish between true n-gram repetition loops and
+  boundary continuation length-stops, as their mitigations operate at
+  completely different layers (refusal ratio vs `num_predict`).
+
 
 ## Artifacts policy (read before writing to artifacts/)
 
@@ -839,7 +872,7 @@ server.
   index, Ollama, models, vector audit; exit 0 when ready to serve)
 - Index hygiene: `python verify_index.py` (read-only; exits 1 on dirty vectors)
 - Server: `python server.py` -> `GET http://127.0.0.1:8000/health`
-- Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/harnesses/step2-battery.py`. Default is qwen2.5:7b (the granite4.1:3b swap was reverted 2026-10-13 — see the bake-off bullet); keep exactly one listener on :8000.
+- Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/harnesses/step2-battery.py`. Default is `smallbook_x2` (the 2026-10-14 finetune flip; `ANSWER_MODEL=qwen2.5:7b` reverts — see the x2 bullet); keep exactly one listener on :8000.
 - Answer mode: `BATTERY_MODE=answer python artifacts/harnesses/step2-battery.py`; sweeps `SWEEP_MODE=answer python artifacts/harnesses/qa-sweep.py <label>`; groundedness `python artifacts/harnesses/groundedness.py --battery --label <name>` or `--label <name>` over `datasets/qa-questions-overnight.json` (in-process, no server needed).
 - Agentic prototype (not wired): `python artifacts/probes/probe-agentic.py` (live Ollama, 5 asks).
 - Plain register: `python -m unittest tests.test_plain_register`; scorecard draws (cloud judge) `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/harnesses/eval-plain.py --variants wired --label wired` (replay with a new label); judge flip probe `python artifacts/harnesses/judge-stability.py --file evidence/eval-plain/eval-plain-v6-openai-muse-spark-1-3-contributor.json --match <question substring> --n 3`; live route check: `answer` mode with "explain data engineering in simple words".
@@ -862,8 +895,9 @@ server.
   `ollama version is 0.40.3`.
 - On disk: `nomic-embed-text:latest` (274 MB, pulled 2026-10-11). Smoke embed
   returned 768 dims. `moistral:latest` (4.0 GB) is also on disk; do not use it.
-  `qwen2.5:7b` (4.7 GB, Q4_K_M) is on disk; pulled 2026-10-11 after approval
-  (see the Phase 4 bullet). Bake-off pulls 2026-10-12 (9,945 MB approved):
+  `smallbook_x2:latest` (1.9 GB, digest `ba79d37a6067`) is the finetuned
+  answerer and app default since 2026-10-14; `qwen2.5:7b` (4.7 GB, Q4_K_M) is
+  the teacher, on disk since 2026-10-11 after approval (see the Phase 4 bullet). Bake-off pulls 2026-10-12 (9,945 MB approved):
   `qwen3:4b-instruct` (2,497 MB), `granite4.1:3b` (2,100 MB), `granite4.1:8b`
   (5,348 MB).
 - MLX runtime installed 2026-10-11 from `ollama-windows-amd64-mlx.zip`,

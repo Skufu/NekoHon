@@ -1,0 +1,20 @@
+[smallbook_x2c_q8] 'what is' refused=False cited=['ch08-004']
+    A query is a request for specific information or data from a database or data source. In the context of data engineering and analysis, queries are used to retrieve and manipulate tabular and semistructured data. This is described in [Ch. 8].
+[smallbook_x2c_q8] 'hey' refused=True cited=['preface01-016', 'ch05-030', 'ch05-045']
+    Not in this book.
+[smallbook_x2c_q8] 'warrup' refused=True cited=['ch05-053', 'ch05-030', 'app01-017']
+    Not in this book.
+[smallbook_x2c_q8] 'Location' refused=False cited=['app02-005', 'ch07-046']
+    Location is a general term often used in the context of streaming data, referring to the place where data is ingested or processed. In the provided passages, location can mean either a physical place (as in "a collection of two or more availability zones" [Ch.
+[smallbook_x2c_q8] 'Our Advice' refused=False cited=[]
+    CIOs and data analysts are mentioned. CIOs are responsible for information technology within an organization, while data analysts seek to understand business performance and trends.
+[smallbook_x2c_q8] 'DE Lifecycle' refused=False cited=['ch02-002']
+    The data engineering lifecycle is divided into five stages: generation, storage, ingestion, transformation, and serving data. [Ch. 2] Asked as: "What is DE Lifecycle?"
+[smallbook_x2c_q8] 'DDR5 vs ddr4' refused=False cited=[]
+    DDR5 is faster than DDR4. DDR5 offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD. Asked as: "What is DDR5 vs ddr4?"
+[smallbook_x2c_q8] 'ddr4 vs ddr5' refused=False cited=[]
+    DDR4 and DDR5 refer to different generations of RAM standards. DDR5 offers faster data retrieval latency than DDR4, around 100 ns compared to DDR4's latency. Asked as: "What is ddr4 vs ddr5?"
+[smallbook_x2c_q8] 'speed of ddr5' refused=False cited=['ch06-011']
+    DDR5 memory has a data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD. [Ch. 6] Asked as: "What is speed of ddr5?"
+[smallbook_x2c_q8] 'speed of ddr5s' refused=False cited=[]
+    DDR5 is the latest widely used standard for RAM. It offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD. Asked as: "What is speed of ddr5s?"
