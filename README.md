@@ -434,11 +434,18 @@ ask-this-book/
   engine's validation-gated `[Ch. ` retry. Measured: refusals exact, battery
   20/21 ×3 (best small-model run), 0 suite loops, both ETL pin targets fixed.
   The pre-registered gate's sealed-suite bar is still unmet on bare-topic /
-  order-flip (bare 41/50, order 20/40 vs the 7B's 50/50, 40/40, pre-retry
-  bar) — recorded, not hidden: `artifacts/reports/retry-safety-net-2026-10-14.md`.
+  order-flip (bare 41/50, order 20/40 vs the 7B's 50/50, 40/40; refreshed
+  under the retry 2026-10-14, the 7B holds 140/160 with identical classes, so
+  the bar stands) — recorded, not hidden:
+  `artifacts/reports/retry-safety-net-2026-10-14.md`.
   Revert: `ANSWER_MODEL=qwen2.5:7b` (or `=smallbook_x2`). Provenance hashes:
   `artifacts/reports/smallbook_x2-provenance-2026-10-14.md` (x2 lineage; x2d
   run artefacts in `artifacts/evidence/x2d-session-2026-10-14/`).
+  **Next build (in flight, 2026-10-15):** the same student recipe will
+  distill from a Qwen3.8-27B-class teacher captured on Colab — build-time
+  only; nothing cloud touches the shipped app, and the shipped artifact
+  stays a stock GGUF. Kit: `artifacts/reports/teacher-capture-colab-2026-10-15.ipynb`;
+  review answers: `artifacts/reports/coach-review-response-2026-10-15.md`.
 
 ## Roadmap
 

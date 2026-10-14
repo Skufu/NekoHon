@@ -112,9 +112,41 @@ refusal never retried, generator without prefill support keeps the answer.
   battery (20/21 ×3 vs 18-19), loops (0 vs 20 in the suite), pins (both ETL
   targets fixed), trailing (30 vs 19); x2 leads on bare (50 with loops vs 41)
   and by 1 draw on fragment/order.
-- The 7B bar was recorded pre-retry; the retry would move that bar too
-  (unmeasured). Applying the pre-registered bar post-retry keeps `smallbook_x2`
-  the default; the numbers for a swap or a keep are in the tables above.
+- The 7B bar was recorded pre-retry; refreshed under the retry 2026-10-14
+  (same harness, same code, 10 draws): the bar does not move — 140/160 with
+  per-class scores identical to its pre-retry twin (refresh section below).
+  Applying the pre-registered bar post-retry keeps `smallbook_x2` the default;
+  the numbers for a swap or a keep are in the tables above.
 - Not re-run: x2d q8 suite spot (follow-up), the battery (ask mode, unaffected
   by construction), the second-book index's chapter labelling (separate fix,
   still open from earlier 2026-10-14).
+
+## 7B bar refresh under the retry (2026-10-14, same day)
+
+The decision section above left one measurement open: would the teacher's bar
+move once the retry ran for it too? Measured — it does not.
+
+Run: `python artifacts/probes/probe-fragment-2026-10-14.py --model qwen2.5:7b
+--draws 10` on the retry-era code; the pre-retry twin is preserved as
+`evidence/probe-fragment/probe-fragment-2026-10-14.model-qwen2.5-7b.gate.{json,log}`
+(the plain name now holds the refresh).
+
+| model | fragment | bare | order | trailing | total /160 | controls |
+| --- | --- | --- | --- | --- | --- | --- |
+| qwen2.5:7b, pre-retry | 20/40 | 50/50 | 40/40 | 30/30 | 140 | 10/20 |
+| qwen2.5:7b, post-retry | 20/40 | 50/50 | 40/40 | 30/30 | 140 | 10/20 |
+| smallbook_x2d, post-retry | 20/40 | 41/50 | 20/40 | 30/30 | 111 | 20/20 |
+
+Reads:
+
+- The bar stands: the pre-registered item-2 gap (bare, order) is real, not a
+  stale-twin artifact.
+- The x2d deficit (29 draws) = `how do` (10) + bare `Time Series` (9) + the
+  `column-oriented vs row-oriented` pair both ways (20), minus x2d's
+  `what about` gain (10; the 7B fails it 0/10).
+- Controls invert: x2d refuses 20/20; the 7B leaks on the violin item
+  (`A violin has four strings.` before the refusal, 0/10) — pre-existing,
+  identical in its pre-retry twin.
+- All four teachable deficit items sit on
+  `datasets/training-list-2026-10-14.md`; `why does` (0/10 both) stays a
+  ceiling.

@@ -21,8 +21,11 @@ Classes and expectations:
 - control: out-of-book, must REFUSE exactly ("Not in this book.").
 
 Each draw is one full in-process ask with num_predict=300 capped on every
-generation call (temperature 0). A loop is counted conservatively: any call
-in the draw ending with done_reason == "length". One retry per draw on a
+generation call (temperature 0). Two loop signals per draw: `loop` — any call
+ending with done_reason == "length"; and `repeat5` — the worst word-5-gram
+repetition count in a call's raw completion (added 2026-10-15, external
+review: a recital that repeats a sentence five times and then EOSes ends
+below the cap, so cap-stops alone under-count). One retry per draw on a
 client timeout (Ollama is shared with other jobs right now).
 
 Run:  python artifacts/probes/probe-fragment-2026-10-14.py --model smallbook_x2 --draws 10
@@ -209,6 +212,16 @@ def visible_report():
     return worst[0], worst[1], violations
 
 
+def max_repeat5(text):
+    """Worst repeated word 5-gram count in a completion (0 when none repeat)."""
+    words = re.findall(r"[a-z0-9']+", (text or "").lower())
+    counts = {}
+    for index in range(len(words) - 4):
+        gram = " ".join(words[index:index + 5])
+        counts[gram] = counts.get(gram, 0) + 1
+    return max(counts.values(), default=0)
+
+
 def make_generate(model, calls):
     """generate_fn for answer.respond: capped Ollama chat, records every call.
 
@@ -252,6 +265,7 @@ def make_generate(model, calls):
             "call": kind,
             "done": body.get("done_reason"),
             "chars": len(content) if isinstance(content, str) else 0,
+            "repeat5": max_repeat5(content) if isinstance(content, str) else 0,
             "s": round(time.monotonic() - started, 1),
         })
         if not isinstance(content, str) or not content.strip():
@@ -275,6 +289,7 @@ def run_draw(index, item, model):
         "cited": [c["chunk_id"] for c in citations][:5],
         "retries": sum(1 for call in calls if call.get("call") == "retry"),
         "loop": any(call.get("done") == "length" for call in calls),
+        "repeat5": max((call.get("repeat5") or 0 for call in calls), default=0),
         "main_done": next(
             (call.get("done") for call in calls if call["call"] == "main"), None
         ),
@@ -368,7 +383,8 @@ def main():
             flag = "" if verdict(expect, record) in (True, None) else "  <-- MISS"
             emit(f"  draw {draw}: refused={int(record['refused'])} "
                  f"cited={record['n_cited']} loop={int(record['loop'])} "
-                 f"main={record['main_done']} retried={int(record['retried'])} "
+                 f"rep5={record['repeat5']} main={record['main_done']} "
+                 f"retried={int(record['retried'])} "
                  f"{record['seconds']:5.1f}s | {sample}{flag}")
             draws_out.append(record)
 
@@ -377,6 +393,7 @@ def main():
         answered = sum((not d["refused"]) and d["n_cited"] >= 1 for d in ok_draws)
         pass_draws = sum(verdict(expect, d) is True for d in ok_draws)
         loops = sum(d["loop"] for d in ok_draws)
+        repeats = sum(1 for d in ok_draws if d["repeat5"] >= 3)
         errors = len(draws_out) - len(ok_draws)
         if errors:
             item_verdict = f"ERROR({errors})"
@@ -388,14 +405,15 @@ def main():
             item_verdict = "FAIL"
         if expect == "refused":
             aggs = (f"refuses-exact {pass_draws}/{len(draws_out)}, "
-                    f"loops {loops}/{len(draws_out)}")
+                    f"loops {loops}/{len(draws_out)}, repeats {repeats}")
         elif expect == "either":
             aggs = (f"answered {answered}/{len(draws_out)}, "
-                    f"refused {refused}/{len(draws_out)}, loops {loops}/{len(draws_out)}")
+                    f"refused {refused}/{len(draws_out)}, loops {loops}/{len(draws_out)}, "
+                    f"repeats {repeats}")
         else:
             aggs = (f"refuses {refused}/{len(draws_out)}, "
                     f"answered+cited {answered}/{len(draws_out)}, "
-                    f"loops {loops}/{len(draws_out)}")
+                    f"loops {loops}/{len(draws_out)}, repeats {repeats}")
         emit(f"  => {aggs} -> {item_verdict}")
         items_out.append({
             "class": cls, "item": item, "expect": expect, "note": note,
@@ -405,7 +423,8 @@ def main():
             "agg": {
                 "draws": len(draws_out), "refuses": refused,
                 "answered_cited": answered, "pass_draws": pass_draws,
-                "loops": loops, "errors": errors, "verdict": item_verdict,
+                "loops": loops, "repeats": repeats, "errors": errors,
+                "verdict": item_verdict,
             },
             "draws": draws_out,
         })
@@ -414,13 +433,14 @@ def main():
     for row in items_out:
         bucket = by_class.setdefault(row["class"], {
             "items": 0, "draws": 0, "pass_draws": 0, "expected_draws": 0,
-            "answered": 0, "refuses_exact": 0, "loops": 0, "errors": 0,
-            "verdicts": [],
+            "answered": 0, "refuses_exact": 0, "loops": 0, "repeats": 0,
+            "errors": 0, "verdicts": [],
         })
         bucket["items"] += 1
         agg = row["agg"]
         bucket["draws"] += agg["draws"]
         bucket["loops"] += agg["loops"]
+        bucket["repeats"] += agg["repeats"]
         bucket["errors"] += agg["errors"]
         bucket["verdicts"].append(agg["verdict"])
         if row["expect"] == "either":
@@ -433,7 +453,7 @@ def main():
 
     emit("\n== summary ==")
     emit(f"{'class':15} {'items':>5} {'draws':>5} {'pass/draws':>11} "
-         f"{'loops':>5} {'errors':>6}  verdicts")
+         f"{'loops':>5} {'reps':>5} {'errors':>6}  verdicts")
     for cls, bucket in by_class.items():
         if cls == "greeting":
             pass_col = f"{bucket['answered']}/{bucket['draws']} answ"
@@ -441,7 +461,7 @@ def main():
             pass_col = f"{bucket['pass_draws']}/{bucket['expected_draws']}"
         verdicts = ",".join(bucket["verdicts"])
         emit(f"{cls:15} {bucket['items']:>5} {bucket['draws']:>5} {pass_col:>11} "
-             f"{bucket['loops']:>5} {bucket['errors']:>6}  {verdicts}")
+             f"{bucket['loops']:>5} {bucket['repeats']:>5} {bucket['errors']:>6}  {verdicts}")
 
     label = args.model.replace(":", "-").replace("/", "-")
     stem = f"probe-fragment-2026-10-14.model-{label}"

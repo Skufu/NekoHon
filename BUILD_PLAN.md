@@ -458,6 +458,17 @@ section that moves — update it as checkpoints land.
 - **Next:** `x2d` — systematic augmentation targeting the measured weak
   classes (uncited bare topics, source-systems/ETL pin misses, insert-only),
   ~3 forms per topic, pre-registered gate before training.
+- **Teacher upgrade in flight (2026-10-15, build-time only):** the next
+  student distills from a Qwen3.8-27B-class teacher captured on Colab. State:
+  capture file rebuilt to **515 rows** (328 re-captures + 187 v2-rebalanced
+  forms; 396 cited / 119 refusal; `data/finetune/teacher-capture-2026-10-15.jsonl`,
+  gitignored); kit v3 (`reports/teacher-capture-colab-2026-10-15.ipynb`:
+  Q4_K_XL teacher default, 4-slot serving, behavioral pre-gate, 4-worker
+  capture, resume-by-id, max 250 tokens); finetune notebook derives epochs
+  from the row count (hold ~1968 presentations). External review answered in
+  `reports/coach-review-response-2026-10-15.md`; one owner decision open
+  (half-covered comparisons, e.g. `ddr4 vs ddr5` — cite the covered side vs
+  refuse). Not executed on Colab yet.
 - **Recipe / provenance:** `smallbook_x2-rebuild-2026-10-14.md`,
   `smallbook_x2-provenance-2026-10-14.md`, `smallbook_x2-model-card.md`.
 - **Rule kept:** the engine contract does not change — swap the answerer, keep

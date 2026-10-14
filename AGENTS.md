@@ -910,7 +910,35 @@ Only this list can block work.
   `artifacts/reports/retry-safety-net-2026-10-14.md`; **user decision
   2026-10-14: adopt `smallbook_x2d` anyway** (battery/loops/pins weigh the
   swap; the pre-registered item-2 gap stays recorded), `prompt.ANSWER_MODEL`
-  default flipped, revert seam unchanged.
+  default flipped, revert seam unchanged. Bar refresh under the retry
+  2026-10-14: the 7B is unchanged at 140/160 (bare 50/50, order 40/40;
+  controls 10/20 — its violin leak pre-dates the retry), so item 2 stands;
+  x2d's deficit (29 draws) = `how do` (10) + bare `Time Series` (9) + the
+  column/row order pair (20), minus its `what about` gain (10) — all four
+  teachable items sit on `datasets/training-list-2026-10-14.md`.
+- Teacher upgrade in flight 2026-10-15 (build-time only; shipped models stay
+  stock GGUF): the next student distills from a Qwen3.8-27B-class teacher
+  captured on Colab. Kit: `probes/gen-new-forms-v2-2026-10-15.py` ->
+  `data/finetune/new-forms-v2-2026-10-15.json` (187 forms: deficit cards max
+  3 gold-pinned each, 30 bare topics, 16 order flips, 32 causal rows, 20
+  fragments, 65 refusals) -> `probes/build-teacher-capture-2026-10-15.py` ->
+  **515-row capture file** (328 re-captures + 187 new; 396 cited / 119
+  refusal; gitignored). Notebook v3
+  (`reports/teacher-capture-colab-2026-10-15.ipynb`): Qwen3.8-27B
+  UD-Q4_K_XL default (~16 GB; HF filename verified 2026-10-15; Saluki 2-bit
+  fallback), `-c 16384 --parallel 4 --cache-reuse 256`, behavioral pre-gate
+  (9 probe items + 5 capture rows; hard stops on thinking leaks / empties /
+  cap-hits; ceilings printed, not gated), 4-worker capture at max 250 tokens,
+  resume by row id, Drive copy. External review (sent as
+  `reports/coach-handoff-2026-10-15.md`) answered measured in
+  `reports/coach-review-response-2026-10-15.md`: recapture prefixes 274
+  `[Ch.` + 54 refusal; both column/row directions retrieve the same chunks;
+  7B `what about` = uncited prose, student pass is retry-rescued; x2d Turn-1
+  21/160 vs retry-rescued 90/160 (7B 140/160, 0 rescued). Probe gained the
+  additive `repeat5` loop metric; the finetune notebook derives epochs from
+  the row count (hold ~1968 presentations, checkpoints in-session). Open
+  owner decision: half-covered comparisons (`ddr4 vs ddr5`) — cite the
+  covered side with a boundary gloss, or refuse. Not yet executed on Colab.
 
 ## Verify
 
