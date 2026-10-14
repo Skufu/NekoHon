@@ -5,7 +5,7 @@ import unittest
 import zipfile
 from pathlib import Path
 
-from ingest import ingest_epub
+from ingest import _chapter_number, ingest_epub
 
 CHAPTER = """<?xml version="1.0" encoding="utf-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -128,6 +128,23 @@ class IngestTests(unittest.TestCase):
             tables["section"], "Chapter 7. Ingestion > Batch and streaming"
         )
         self.assertTrue(tables["text"].startswith("Batch and streaming"))
+
+
+class ChapterNumberTests(unittest.TestCase):
+    def test_doc_ids_like_chapter_4_keep_only_the_number(self):
+        # The second book's spine ids are `chapter-4` (measured 2026-10-14):
+        # the prompt tag must read `[Ch. 4]`, not `[Ch. chapter-4]`.
+        self.assertEqual(_chapter_number("chapter-4", ""), "4")
+        self.assertEqual(_chapter_number("chapter-12", ""), "12")
+
+    def test_doc_ids_like_ch07_keep_only_the_number(self):
+        self.assertEqual(_chapter_number("ch07", ""), "7")
+
+    def test_a_doc_id_without_a_number_is_left_alone(self):
+        self.assertEqual(_chapter_number("cover", ""), "cover")
+
+    def test_the_heading_fallback_still_reads_the_label(self):
+        self.assertEqual(_chapter_number("part1", "<h1>Chapter 5. CRUD</h1>"), "5")
 
 
 if __name__ == "__main__":

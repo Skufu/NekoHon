@@ -1,0 +1,648 @@
+[
+  {
+    "model": "smallbook_x2",
+    "id": "ptq",
+    "kind": "in_book",
+    "q": "What is post-training quantization?",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "chapter-4-004"
+    ],
+    "gold": [
+      "chapter-4-004",
+      "chapter-4-005"
+    ],
+    "gold_cited": [
+      "chapter-4-004"
+    ],
+    "quote_verbatim": true,
+    "key_hit": false,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 4.28,
+    "verdict": "PASS",
+    "answer": "[Ch. 4] \"derive quantization parameters without\""
+  },
+  {
+    "model": "smallbook_x2",
+    "id": "ste",
+    "kind": "in_book",
+    "q": "What is the straight-through estimator?",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "chapter-5-022"
+    ],
+    "gold": [
+      "chapter-5-019",
+      "chapter-5-020"
+    ],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "key_hit": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 0.94,
+    "verdict": "PARTIAL",
+    "answer": "The straight-through estimator (STE) in [Ch. 5] estimates gradients through a rounding operation during backpropagation. In forward pass, values are quantized; in backward pass, gradients pass through unchanged. This approximates the true gradient as zero, preserving direction. [Ch. 5]"
+  },
+  {
+    "model": "smallbook_x2",
+    "id": "cliff",
+    "kind": "in_book",
+    "q": "What is the accuracy cliff?",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [],
+    "gold": [
+      "chapter-5-005",
+      "chapter-5-006",
+      "chapter-5-007"
+    ],
+    "gold_cited": [],
+    "quote_verbatim": null,
+    "key_hit": false,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 1.64,
+    "verdict": "PARTIAL",
+    "answer": "The accuracy cliff refers to a sudden drop in model accuracy when quantizing from full precision (e.g., FP32) to lower precision (e.g., INT8 or INT4). This is shown in Figure 5.1, where ResNet-18 on ImageNette's accuracy drops significantly from FP32 to INT8 and even more to INT4."
+  },
+  {
+    "model": "smallbook_x2",
+    "id": "affine",
+    "kind": "in_book",
+    "q": "What is the affine mapping in quantization?",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "chapter-2-023"
+    ],
+    "gold": [
+      "chapter-2-023"
+    ],
+    "gold_cited": [
+      "chapter-2-023"
+    ],
+    "quote_verbatim": true,
+    "key_hit": false,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 0.97,
+    "verdict": "PASS",
+    "answer": "The affine mapping in quantization is a linear transformation that lets us choose any scale and any offset. This means we can set any desired scale factor S and zero-point Z. In other words, the affine quantization mapping in Chapter 2 [Ch. 2] allows us to pick any scale and offset."
+  },
+  {
+    "model": "smallbook_x2",
+    "id": "zeropoint",
+    "kind": "in_book",
+    "q": "What is the zero point in quantization?",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "chapter-2-074",
+      "chapter-2-046",
+      "chapter-2-023"
+    ],
+    "gold": [
+      "chapter-2-036",
+      "chapter-2-037",
+      "chapter-2-038"
+    ],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "key_hit": false,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 4.72,
+    "verdict": "PARTIAL",
+    "answer": "In [Ch. 2], both zero-points are zero in this particular run. Why? The weights are centered at zero, so symmetric quantization naturally has Zw=0. The activations start at zero (ReLU's minimum), and the zero-point nudge sets rmin=0, which yields Zx=qmin−0/S=0. This is not always the case. If the activation distribution were shifted—say, ranging from 2.0 to 12.0—the affine quantizer would compute a"
+  },
+  {
+    "model": "smallbook_x2",
+    "id": "granular",
+    "kind": "in_book",
+    "q": "What is granular error?",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [],
+    "gold": [
+      "chapter-2-049",
+      "chapter-2-050"
+    ],
+    "gold_cited": [],
+    "quote_verbatim": null,
+    "key_hit": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 1.63,
+    "verdict": "PARTIAL",
+    "answer": "Granular error occurs when the grid is too coarse. This means that small changes in the data can lead to large errors in quantization. In uniform quantization with step size S, the maximum error magnitude is bounded. Every value that snaps to the nearest grid point shows granular error, with the worst error being S/2."
+  },
+  {
+    "model": "smallbook_x2",
+    "id": "gptq",
+    "kind": "in_book",
+    "q": "What is GPTQ?",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "chapter-7-042"
+    ],
+    "gold": [
+      "chapter-7-024"
+    ],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "key_hit": false,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 3.62,
+    "verdict": "PARTIAL",
+    "answer": "[Ch. 7] \"the standard default. the data should be representative of the deployment domain, but the method is r\""
+  },
+  {
+    "model": "smallbook_x2",
+    "id": "awq",
+    "kind": "in_book",
+    "q": "What is AWQ?",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "chapter-7-063"
+    ],
+    "gold": [
+      "chapter-7-044"
+    ],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "key_hit": false,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 1.8,
+    "verdict": "PARTIAL",
+    "answer": "[Ch. 7] \"during inference, activations flow through in fp16/bf16, and the kv cache continues to grow with context length and batch size. awq weight compression compounds with kv cache quantization for further savings at serving time\""
+  },
+  {
+    "model": "smallbook_x2",
+    "id": "turboquant",
+    "kind": "in_book",
+    "q": "What is TurboQuant?",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "chapter-7-068"
+    ],
+    "gold": [
+      "chapter-7-066"
+    ],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "key_hit": false,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 3.07,
+    "verdict": "PARTIAL",
+    "answer": "[Ch. 7] \"3=8 entries—eight representative values spaced unevenly across [−1,1], packed densely near zero where most values land. to quantize: find which of the 8 bins the coordinate falls into (binary search) and store the 3-bit index. to dequantize: replace the index with the bin's representative value. the grid is shaped to match the beta distribution rather than spaced uniformly. the codebook i"
+  },
+  {
+    "model": "smallbook_x2",
+    "id": "kvcache",
+    "kind": "in_book",
+    "q": "What is the KV cache?",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "chapter-3-015"
+    ],
+    "gold": [
+      "chapter-1-008",
+      "chapter-3-015",
+      "chapter-3-017"
+    ],
+    "gold_cited": [
+      "chapter-3-015"
+    ],
+    "quote_verbatim": true,
+    "key_hit": false,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 1.54,
+    "verdict": "PASS",
+    "answer": "[Ch. 3] \"previously generated tokens. at each new step,\""
+  },
+  {
+    "model": "smallbook_x2",
+    "id": "bare-ptq",
+    "kind": "bare_form",
+    "q": "post-training quantization",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "chapter-4-004"
+    ],
+    "gold": [
+      "chapter-4-004"
+    ],
+    "gold_cited": [
+      "chapter-4-004"
+    ],
+    "quote_verbatim": true,
+    "key_hit": false,
+    "asked_as": true,
+    "read_as": false,
+    "seconds": 3.38,
+    "verdict": "PASS",
+    "answer": "[Ch. 4] \"derive quantization parameters without\" Asked as: \"What is post-training quantization?\""
+  },
+  {
+    "model": "smallbook_x2",
+    "id": "ctl-watermark",
+    "kind": "control",
+    "q": "What is a watermark?",
+    "refused": true,
+    "refusal_exact": true,
+    "cited": [
+      "chapter-7-059",
+      "chapter-5-013",
+      "chapter-5-031"
+    ],
+    "gold": [],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "key_hit": null,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 2.23,
+    "verdict": "PASS",
+    "answer": "Not in this book."
+  },
+  {
+    "model": "smallbook_x2",
+    "id": "ctl-france",
+    "kind": "control",
+    "q": "What is the capital of France?",
+    "refused": true,
+    "refusal_exact": true,
+    "cited": [
+      "chapter-4-022",
+      "chapter-3-018",
+      "chapter-2-031"
+    ],
+    "gold": [],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "key_hit": null,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 0.44,
+    "verdict": "PASS",
+    "answer": "Not in this book."
+  },
+  {
+    "model": "smallbook_x2",
+    "id": "ctl-lakehouse",
+    "kind": "control",
+    "q": "What is a data lakehouse?",
+    "refused": true,
+    "refusal_exact": true,
+    "cited": [
+      "chapter-7-085",
+      "chapter-6-021",
+      "chapter-3-094"
+    ],
+    "gold": [],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "key_hit": null,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 0.62,
+    "verdict": "PASS",
+    "answer": "Not in this book."
+  },
+  {
+    "model": "smallbook_x2d",
+    "id": "ptq",
+    "kind": "in_book",
+    "q": "What is post-training quantization?",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "chapter-4-004"
+    ],
+    "gold": [
+      "chapter-4-004",
+      "chapter-4-005"
+    ],
+    "gold_cited": [
+      "chapter-4-004"
+    ],
+    "quote_verbatim": true,
+    "key_hit": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 1.49,
+    "verdict": "PASS",
+    "answer": "[Ch. 4] \"where you take a trained model, observe its behavior on calibration data, and derive quantization parameters without any gradient-based optimization\""
+  },
+  {
+    "model": "smallbook_x2d",
+    "id": "ste",
+    "kind": "in_book",
+    "q": "What is the straight-through estimator?",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "chapter-5-022"
+    ],
+    "gold": [
+      "chapter-5-019",
+      "chapter-5-020"
+    ],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "key_hit": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 1.25,
+    "verdict": "PARTIAL",
+    "answer": "[Ch. 5] \"unchanged through the non-differentiable rounding operation\""
+  },
+  {
+    "model": "smallbook_x2d",
+    "id": "cliff",
+    "kind": "in_book",
+    "q": "What is the accuracy cliff?",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [],
+    "gold": [
+      "chapter-5-005",
+      "chapter-5-006",
+      "chapter-5-007"
+    ],
+    "gold_cited": [],
+    "quote_verbatim": null,
+    "key_hit": false,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 1.64,
+    "verdict": "PARTIAL",
+    "answer": "The accuracy cliff refers to the sudden drop in model accuracy when moving from higher precision (like FP32) to lower precision quantization (like INT8 or INT4). This is shown in Figure 5.1, where INT8 is nearly identical to FP32, but INT4 drops significantly below the 5% degradation line."
+  },
+  {
+    "model": "smallbook_x2d",
+    "id": "affine",
+    "kind": "in_book",
+    "q": "What is the affine mapping in quantization?",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "chapter-2-023"
+    ],
+    "gold": [
+      "chapter-2-023"
+    ],
+    "gold_cited": [
+      "chapter-2-023"
+    ],
+    "quote_verbatim": true,
+    "key_hit": false,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 1.2,
+    "verdict": "PASS",
+    "answer": "[Ch. 2] \"it bridges the gap between the chaotic statistics of neural network tensors and the integer arithmetic of inference hardware\""
+  },
+  {
+    "model": "smallbook_x2d",
+    "id": "zeropoint",
+    "kind": "in_book",
+    "q": "What is the zero point in quantization?",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [],
+    "gold": [
+      "chapter-2-036",
+      "chapter-2-037",
+      "chapter-2-038"
+    ],
+    "gold_cited": [],
+    "quote_verbatim": null,
+    "key_hit": false,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 1.68,
+    "verdict": "PARTIAL",
+    "answer": "In quantization, the zero point refers to the value that represents the minimum input or output level for a quantized tensor. In symmetric quantization, both weights and activations are centered around zero, so the zero point is naturally zero. For asymmetric quantization, the zero point is chosen to align the quantized range with the data distribution."
+  },
+  {
+    "model": "smallbook_x2d",
+    "id": "granular",
+    "kind": "in_book",
+    "q": "What is granular error?",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [],
+    "gold": [
+      "chapter-2-049",
+      "chapter-2-050"
+    ],
+    "gold_cited": [],
+    "quote_verbatim": null,
+    "key_hit": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 1.01,
+    "verdict": "PARTIAL",
+    "answer": "Granular error occurs when the grid is too coarse, leading to rounding errors when values fall between grid points. The maximum error magnitude for uniform quantization with step size S is bounded by S/2."
+  },
+  {
+    "model": "smallbook_x2d",
+    "id": "gptq",
+    "kind": "in_book",
+    "q": "What is GPTQ?",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "chapter-7-042"
+    ],
+    "gold": [
+      "chapter-7-024"
+    ],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "key_hit": false,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 1.58,
+    "verdict": "PARTIAL",
+    "answer": "[Ch. 7] \"t quantizes the static parameters of the model\""
+  },
+  {
+    "model": "smallbook_x2d",
+    "id": "awq",
+    "kind": "in_book",
+    "q": "What is AWQ?",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "chapter-7-044"
+    ],
+    "gold": [
+      "chapter-7-044"
+    ],
+    "gold_cited": [
+      "chapter-7-044"
+    ],
+    "quote_verbatim": true,
+    "key_hit": false,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 1.86,
+    "verdict": "PASS",
+    "answer": "[Ch. 7] \"asks a different question: what if we could prevent the worst errors from happening in the first place?\""
+  },
+  {
+    "model": "smallbook_x2d",
+    "id": "turboquant",
+    "kind": "in_book",
+    "q": "What is TurboQuant?",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "chapter-7-066"
+    ],
+    "gold": [
+      "chapter-7-066"
+    ],
+    "gold_cited": [
+      "chapter-7-066"
+    ],
+    "quote_verbatim": true,
+    "key_hit": false,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 0.84,
+    "verdict": "PASS",
+    "answer": "TurboQuant is a data-oblivious method that compresses any vector on arrival by separating magnitude from direction, then applying a random rotation that makes per-coordinate scalar quantization provably near-optimal. [Ch. 7]"
+  },
+  {
+    "model": "smallbook_x2d",
+    "id": "kvcache",
+    "kind": "in_book",
+    "q": "What is the KV cache?",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "chapter-3-015"
+    ],
+    "gold": [
+      "chapter-1-008",
+      "chapter-3-015",
+      "chapter-3-017"
+    ],
+    "gold_cited": [
+      "chapter-3-015"
+    ],
+    "quote_verbatim": true,
+    "key_hit": false,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 1.63,
+    "verdict": "PASS",
+    "answer": "[Ch. 3] \"cache is a transformer-specific data structure that has become the dominant memory bottleneck in llm inference\""
+  },
+  {
+    "model": "smallbook_x2d",
+    "id": "bare-ptq",
+    "kind": "bare_form",
+    "q": "post-training quantization",
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "chapter-4-004"
+    ],
+    "gold": [
+      "chapter-4-004"
+    ],
+    "gold_cited": [
+      "chapter-4-004"
+    ],
+    "quote_verbatim": true,
+    "key_hit": true,
+    "asked_as": true,
+    "read_as": false,
+    "seconds": 1.22,
+    "verdict": "PASS",
+    "answer": "[Ch. 4] \"where you take a trained model, observe its behavior on calibration data, and derive quantization parameters without any gradient-based optimization\" Asked as: \"What is post-training quantization?\""
+  },
+  {
+    "model": "smallbook_x2d",
+    "id": "ctl-watermark",
+    "kind": "control",
+    "q": "What is a watermark?",
+    "refused": true,
+    "refusal_exact": true,
+    "cited": [
+      "chapter-7-059",
+      "chapter-5-013",
+      "chapter-5-031"
+    ],
+    "gold": [],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "key_hit": null,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 0.64,
+    "verdict": "PASS",
+    "answer": "Not in this book."
+  },
+  {
+    "model": "smallbook_x2d",
+    "id": "ctl-france",
+    "kind": "control",
+    "q": "What is the capital of France?",
+    "refused": true,
+    "refusal_exact": true,
+    "cited": [
+      "chapter-4-022",
+      "chapter-3-018",
+      "chapter-2-031"
+    ],
+    "gold": [],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "key_hit": null,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 0.44,
+    "verdict": "PASS",
+    "answer": "Not in this book."
+  },
+  {
+    "model": "smallbook_x2d",
+    "id": "ctl-lakehouse",
+    "kind": "control",
+    "q": "What is a data lakehouse?",
+    "refused": true,
+    "refusal_exact": true,
+    "cited": [
+      "chapter-7-085",
+      "chapter-6-021",
+      "chapter-3-094"
+    ],
+    "gold": [],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "key_hit": null,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 0.68,
+    "verdict": "PASS",
+    "answer": "Not in this book."
+  }
+]

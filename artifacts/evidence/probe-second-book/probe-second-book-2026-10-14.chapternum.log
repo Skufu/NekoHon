@@ -1,0 +1,93 @@
+# second-book probe 2026-10-14 | book chunks 506 figures 0 | models smallbook_x2, smallbook_x2d
+
+[smallbook_x2] ptq (in_book) PASS refused=False cited=['chapter-4-004'] 4.28s
+    q: 'What is post-training quantization?'
+    a: [Ch. 4] "derive quantization parameters without"
+[smallbook_x2] ste (in_book) PARTIAL refused=False cited=['chapter-5-022'] 0.94s
+    q: 'What is the straight-through estimator?'
+    a: The straight-through estimator (STE) in [Ch. 5] estimates gradients through a rounding operation during backpropagation. In forward pass, values are quantized; in backward pass, gradients pass through unchanged. This approximates the true gradient as zero, pre
+[smallbook_x2] cliff (in_book) PARTIAL refused=False cited=[] 1.64s
+    q: 'What is the accuracy cliff?'
+    a: The accuracy cliff refers to a sudden drop in model accuracy when quantizing from full precision (e.g., FP32) to lower precision (e.g., INT8 or INT4). This is shown in Figure 5.1, where ResNet-18 on ImageNette's accuracy drops significantly from FP32 to INT8 a
+[smallbook_x2] affine (in_book) PASS refused=False cited=['chapter-2-023'] 0.97s
+    q: 'What is the affine mapping in quantization?'
+    a: The affine mapping in quantization is a linear transformation that lets us choose any scale and any offset. This means we can set any desired scale factor S and zero-point Z. In other words, the affine quantization mapping in Chapter 2 [Ch. 2] allows us to pic
+[smallbook_x2] zeropoint (in_book) PARTIAL refused=False cited=['chapter-2-074', 'chapter-2-046', 'chapter-2-023'] 4.72s
+    q: 'What is the zero point in quantization?'
+    a: In [Ch. 2], both zero-points are zero in this particular run. Why? The weights are centered at zero, so symmetric quantization naturally has Zw=0. The activations start at zero (ReLU's minimum), and the zero-point nudge sets rmin=0, which yields Zx=qmin−0/S=0.
+[smallbook_x2] granular (in_book) PARTIAL refused=False cited=[] 1.63s
+    q: 'What is granular error?'
+    a: Granular error occurs when the grid is too coarse. This means that small changes in the data can lead to large errors in quantization. In uniform quantization with step size S, the maximum error magnitude is bounded. Every value that snaps to the nearest grid 
+[smallbook_x2] gptq (in_book) PARTIAL refused=False cited=['chapter-7-042'] 3.62s
+    q: 'What is GPTQ?'
+    a: [Ch. 7] "the standard default. the data should be representative of the deployment domain, but the method is r"
+[smallbook_x2] awq (in_book) PARTIAL refused=False cited=['chapter-7-063'] 1.8s
+    q: 'What is AWQ?'
+    a: [Ch. 7] "during inference, activations flow through in fp16/bf16, and the kv cache continues to grow with context length and batch size. awq weight compression compounds with kv cache quantization for further savings at serving time"
+[smallbook_x2] turboquant (in_book) PARTIAL refused=False cited=['chapter-7-068'] 3.07s
+    q: 'What is TurboQuant?'
+    a: [Ch. 7] "3=8 entries—eight representative values spaced unevenly across [−1,1], packed densely near zero where most values land. to quantize: find which of the 8 bins the coordinate falls into (binary search) and store the 3-bit index. to dequantize: replace t
+[smallbook_x2] kvcache (in_book) PASS refused=False cited=['chapter-3-015'] 1.54s
+    q: 'What is the KV cache?'
+    a: [Ch. 3] "previously generated tokens. at each new step,"
+[smallbook_x2] bare-ptq (bare_form) PASS refused=False cited=['chapter-4-004'] 3.38s
+    q: 'post-training quantization'
+    a: [Ch. 4] "derive quantization parameters without" Asked as: "What is post-training quantization?"
+[smallbook_x2] ctl-watermark (control) PASS refused=True cited=['chapter-7-059', 'chapter-5-013', 'chapter-5-031'] 2.23s
+    q: 'What is a watermark?'
+    a: Not in this book.
+[smallbook_x2] ctl-france (control) PASS refused=True cited=['chapter-4-022', 'chapter-3-018', 'chapter-2-031'] 0.44s
+    q: 'What is the capital of France?'
+    a: Not in this book.
+[smallbook_x2] ctl-lakehouse (control) PASS refused=True cited=['chapter-7-085', 'chapter-6-021', 'chapter-3-094'] 0.62s
+    q: 'What is a data lakehouse?'
+    a: Not in this book.
+[smallbook_x2d] ptq (in_book) PASS refused=False cited=['chapter-4-004'] 1.49s
+    q: 'What is post-training quantization?'
+    a: [Ch. 4] "where you take a trained model, observe its behavior on calibration data, and derive quantization parameters without any gradient-based optimization"
+[smallbook_x2d] ste (in_book) PARTIAL refused=False cited=['chapter-5-022'] 1.25s
+    q: 'What is the straight-through estimator?'
+    a: [Ch. 5] "unchanged through the non-differentiable rounding operation"
+[smallbook_x2d] cliff (in_book) PARTIAL refused=False cited=[] 1.64s
+    q: 'What is the accuracy cliff?'
+    a: The accuracy cliff refers to the sudden drop in model accuracy when moving from higher precision (like FP32) to lower precision quantization (like INT8 or INT4). This is shown in Figure 5.1, where INT8 is nearly identical to FP32, but INT4 drops significantly 
+[smallbook_x2d] affine (in_book) PASS refused=False cited=['chapter-2-023'] 1.2s
+    q: 'What is the affine mapping in quantization?'
+    a: [Ch. 2] "it bridges the gap between the chaotic statistics of neural network tensors and the integer arithmetic of inference hardware"
+[smallbook_x2d] zeropoint (in_book) PARTIAL refused=False cited=[] 1.68s
+    q: 'What is the zero point in quantization?'
+    a: In quantization, the zero point refers to the value that represents the minimum input or output level for a quantized tensor. In symmetric quantization, both weights and activations are centered around zero, so the zero point is naturally zero. For asymmetric 
+[smallbook_x2d] granular (in_book) PARTIAL refused=False cited=[] 1.01s
+    q: 'What is granular error?'
+    a: Granular error occurs when the grid is too coarse, leading to rounding errors when values fall between grid points. The maximum error magnitude for uniform quantization with step size S is bounded by S/2.
+[smallbook_x2d] gptq (in_book) PARTIAL refused=False cited=['chapter-7-042'] 1.58s
+    q: 'What is GPTQ?'
+    a: [Ch. 7] "t quantizes the static parameters of the model"
+[smallbook_x2d] awq (in_book) PASS refused=False cited=['chapter-7-044'] 1.86s
+    q: 'What is AWQ?'
+    a: [Ch. 7] "asks a different question: what if we could prevent the worst errors from happening in the first place?"
+[smallbook_x2d] turboquant (in_book) PASS refused=False cited=['chapter-7-066'] 0.84s
+    q: 'What is TurboQuant?'
+    a: TurboQuant is a data-oblivious method that compresses any vector on arrival by separating magnitude from direction, then applying a random rotation that makes per-coordinate scalar quantization provably near-optimal. [Ch. 7]
+[smallbook_x2d] kvcache (in_book) PASS refused=False cited=['chapter-3-015'] 1.63s
+    q: 'What is the KV cache?'
+    a: [Ch. 3] "cache is a transformer-specific data structure that has become the dominant memory bottleneck in llm inference"
+[smallbook_x2d] bare-ptq (bare_form) PASS refused=False cited=['chapter-4-004'] 1.22s
+    q: 'post-training quantization'
+    a: [Ch. 4] "where you take a trained model, observe its behavior on calibration data, and derive quantization parameters without any gradient-based optimization" Asked as: "What is post-training quantization?"
+[smallbook_x2d] ctl-watermark (control) PASS refused=True cited=['chapter-7-059', 'chapter-5-013', 'chapter-5-031'] 0.64s
+    q: 'What is a watermark?'
+    a: Not in this book.
+[smallbook_x2d] ctl-france (control) PASS refused=True cited=['chapter-4-022', 'chapter-3-018', 'chapter-2-031'] 0.44s
+    q: 'What is the capital of France?'
+    a: Not in this book.
+[smallbook_x2d] ctl-lakehouse (control) PASS refused=True cited=['chapter-7-085', 'chapter-6-021', 'chapter-3-094'] 0.68s
+    q: 'What is a data lakehouse?'
+    a: Not in this book.
+
+summary smallbook_x2 bare_form: {'PASS': 1, 'PARTIAL': 0, 'FAIL': 0}
+summary smallbook_x2 control: {'PASS': 3, 'PARTIAL': 0, 'FAIL': 0}
+summary smallbook_x2 in_book: {'PASS': 3, 'PARTIAL': 7, 'FAIL': 0}
+summary smallbook_x2d bare_form: {'PASS': 1, 'PARTIAL': 0, 'FAIL': 0}
+summary smallbook_x2d control: {'PASS': 3, 'PARTIAL': 0, 'FAIL': 0}
+summary smallbook_x2d in_book: {'PASS': 5, 'PARTIAL': 5, 'FAIL': 0}

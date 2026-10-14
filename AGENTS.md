@@ -78,6 +78,13 @@ Only this list can block work.
 - `rag-template/` is read-only reference. Never touch its `.venv`. Do not port
   numpy, pickle, BM25, rerankers, or agentic/multimodal code from it.
 - Do not commit unless the human asks.
+- Reset the engine with the model (user rule 2026-10-14): anytime the answer
+  model changes — a new `ANSWER_MODEL` default, an env seam, a new Ollama tag
+  — and after any `*.py` edit, restart `artifacts/runs/start-engine.bat`
+  before measuring or serving, and check `/api/ps` to confirm the loaded
+  model. A running server keeps the code and model it loaded at start
+  (measured: a 14:46 server served `smallbook_x2`, uncapped and un-retried,
+  through 22:13 while the tree said x2d).
 - Improvements must generalize, not fit this book's test set — the system has
   to hold for other books later. No chunk ids, figure ids, chapter numbers,
   query strings, or book ids in the logic modules (`answer.py`, `canonical.py`,
@@ -877,13 +884,16 @@ Only this list can block work.
   `data/index.quantbook.json`, `books/quantbook.epub` local only) ran through the
   unchanged engine. x2 refused zero of 10 in-book questions (the FDE wart class
   did not reproduce) and refused all 3 controls exactly — but citations did not
-  transfer: 2 of 11 non-control answers carried `[Ch.` tags (both correct); the
-  rest answered from the book uncited. Chapter strings ingest extracts here are
-  `chapter-4`, not `4` — suspected tag-format cause, one-change retest identified.
-  The 7B answered "capital of France" with a fabricated `[Ch. 4]` pin
-  (chapter-4-022 holds that string as a calibration example). Visible targets
-  only; n=1. Evidence: `evidence/probe-second-book/`. Next: chapter-number
-  extraction retest.
+  transfer: 2 of 11 non-control answers carried `[Ch.` tags (both correct).
+  Chapter strings ingested as `chapter-4`, not `4`; same-day one-change retest:
+  `_chapter_number` now keeps only the number (`chapter-4` -> `4`; chunk ids
+  unchanged), index rebuilt — citations transfer: x2 9/11 tagged (was 2/11),
+  in_book 3 PASS / 7 PARTIAL; x2d 8/11 tagged, 5 PASS / 5 PARTIAL (ste and
+  zeropoint PARTIALs partly the pre-drafted gold sets, known-wrong there);
+  controls still 3/3 exact on both, zero refusals; every tag verbatim. 223
+  tests green (4 new). The 7B answered "capital of France" with a fabricated
+  `[Ch. 4]` pin (chapter-4-022 holds that string as a calibration example) —
+  teacher only. Visible targets only; n=1. Evidence: `evidence/probe-second-book/`.
 - Retry safety net landed 2026-10-14 (`answer.py`; the x2d verdict's option c):
   `ollama_generate` gained a `prefill` param (a trailing assistant turn makes
   Ollama continue; probed first), and `_retry_uncited` retries an uncited
@@ -908,8 +918,13 @@ Only this list can block work.
 - Setup readiness: `python preflight.py` (read-only; Python version, book,
   index, Ollama, models, vector audit; exit 0 when ready to serve)
 - Index hygiene: `python verify_index.py` (read-only; exits 1 on dirty vectors)
-- Server: `python server.py` -> `GET http://127.0.0.1:8000/health`
-- Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/harnesses/step2-battery.py`. Default is `smallbook_x2` (the 2026-10-14 finetune flip; `ANSWER_MODEL=qwen2.5:7b` reverts — see the x2 bullet); keep exactly one listener on :8000.
+- Server: `python server.py` -> `GET http://127.0.0.1:8000/health`. A server
+  serves the code and model it loaded at start — restart
+  `artifacts/runs/start-engine.bat` after any `*.py` or `ANSWER_MODEL` change,
+  and check `/api/ps` to see which model is actually loaded (a 14:46 server
+  kept serving `smallbook_x2` with no cap/retry until restarted 22:26,
+  measured 2026-10-14).
+- Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/harnesses/step2-battery.py`. Default is `smallbook_x2d` (the 2026-10-14 x2d adoption; `ANSWER_MODEL=qwen2.5:7b` or `=smallbook_x2` reverts — see the retry bullet); keep exactly one listener on :8000.
 - Answer mode: `BATTERY_MODE=answer python artifacts/harnesses/step2-battery.py`; sweeps `SWEEP_MODE=answer python artifacts/harnesses/qa-sweep.py <label>`; groundedness `python artifacts/harnesses/groundedness.py --battery --label <name>` or `--label <name>` over `datasets/qa-questions-overnight.json` (in-process, no server needed).
 - Agentic prototype (not wired): `python artifacts/probes/probe-agentic.py` (live Ollama, 5 asks).
 - Plain register: `python -m unittest tests.test_plain_register`; scorecard draws (cloud judge) `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/harnesses/eval-plain.py --variants wired --label wired` (replay with a new label); judge flip probe `python artifacts/harnesses/judge-stability.py --file evidence/eval-plain/eval-plain-v6-openai-muse-spark-1-3-contributor.json --match <question substring> --n 3`; live route check: `answer` mode with "explain data engineering in simple words".

@@ -41,6 +41,7 @@ seam at temp 0; ~3 forms per card for the classes above; counts per the x2d
 builder; seal check + contamination probe per build; hold-outs stay sealed
 (`artifacts/datasets/sealed-forms.json`).
 
-A sixth failure recorded today is engine-side, not training: the second
-book's `chapter-N` labelling (`ingest._chapter_number`) — see
-`artifacts/reports/second-book-2026-10-14.md`.
+A sixth failure recorded today was engine-side, not training: the second
+book's `chapter-N` labelling (`ingest._chapter_number`) — fixed same day
+(`chapter-4` -> `4`, index rebuilt, citations transfer; retest in
+`artifacts/reports/second-book-2026-10-14.md`).

@@ -57,7 +57,8 @@ Warm asks: x2 0.8–1.2 s; 7B 1.7–4.5 s (longer answers). Cold first asks:
    - **Hypothesis (recorded, not fixed):** the prompt shows `[Ch. chapter-4]`,
      not `[Ch. 4]` — off-distribution from the tag shape the FDE training
      rows taught. One change to test it: extract the chapter number in
-     ingest, rebuild the index, re-run this probe. One change, one re-run.
+     ingest, rebuild the index, re-run this probe. One change, one re-run —
+     done same day; see the retest section at the end.
 
 3. **The teacher hallucinated on the new book.** "What is the capital of
    France?" -> `The capital of France is Paris. [Ch. 4]` — answered, and the
@@ -82,3 +83,38 @@ Warm asks: x2 0.8–1.2 s; 7B 1.7–4.5 s (longer answers). Cold first asks:
 Caveats: visible targets; n=1 per question; gold sets were grep-drafted
 pre-run and wrong in two known places (ste, zeropoint); the source EPUB is
 not redistributed and stays gitignored with the FDE book.
+
+## One-change retest — the chapter-number fix (same day, 2026-10-14)
+
+The identified one change: `ingest._chapter_number` now keeps only the number
+of `chapter-4`-style spine ids (`ch(?:apter)?[\s_-]*(\d+)`, case-insensitive),
+so the prompt tag reads `[Ch. 4]`; `chunk_id`s are unchanged (`chapter-4-004`,
+the probe's gold ids still apply). Index rebuilt from scratch (506 chunks),
+probe re-run on the same questions through the shipped `answer.respond` path
+(retry included), models `smallbook_x2` (the pre-fix student) and
+`smallbook_x2d` (current default; the 7B was not re-run). Evidence:
+`evidence/probe-second-book/probe-second-book-2026-10-14.chapternum.{json,log}`.
+
+| model | in_book (10) | bare_form | control (3) | non-control answers tagged |
+| --- | --- | --- | --- | --- |
+| smallbook_x2 | 3 PASS / 7 PARTIAL / 0 FAIL | PASS | 3/3 exact | **9/11** (pre-fix: 2/11) |
+| smallbook_x2d | 5 PASS / 5 PARTIAL / 0 FAIL | PASS | 3/3 exact | **8/11** |
+| qwen2.5:7b (pre-fix, for scale) | 8 PASS / 2 PARTIAL | PASS | 2/3 (France answered) | — |
+
+Reads:
+
+1. The tag shape was the majority cause. Same questions, same engine: uncited
+   prose became `[Ch. N]` tags — x2 9 of 11 non-control answers tagged (was
+   2 of 11). Every tag that came is a verbatim quote from a shown passage
+   (`quote_verbatim` true on all 17 tagged rows across both models).
+2. PARTIALs are not all equal. `ste`'s cited passage (chapter-5-022) is the
+   real one — the pre-drafted gold set was wrong there (noted pre-fix);
+   `zeropoint`'s gold set is likewise known-wrong and x2's answer cites three
+   real chapter-2 chunks. Against corrected golds both in_book PASS counts
+   would sit higher; the table keeps the probe's recorded numbers.
+3. Remaining uncited: `cliff` and `granular` (both models), `zeropoint` (x2d
+   only) — the known wart class (free prose, no tag) on unseen content, now
+   rarer. Against the 7B's pre-fix 8/10 the students' 3/5 stay short on this
+   visible ten; it is still not a suite, n=1 per item.
+4. The France hallucination stays a teacher-only record; both students refuse
+   all three controls exactly, no refusals among the in-book ten.

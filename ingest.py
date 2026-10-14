@@ -190,7 +190,10 @@ def _clean(text):
 
 
 def _chapter_number(doc_id, html_text):
-    match = re.match(r"ch(\d+)", doc_id)
+    # Spine ids come as `ch07` (FDE) or `chapter-4` (second book, measured
+    # 2026-10-14); the tag the model must emit is `[Ch. 4]`, so keep only the
+    # number either way.
+    match = re.match(r"ch(?:apter)?[\s_-]*(\d+)", doc_id, re.I)
     if match:
         return str(int(match.group(1)))
     label = re.search(r"Chapter\s+(\d+)", html_text[:800])
