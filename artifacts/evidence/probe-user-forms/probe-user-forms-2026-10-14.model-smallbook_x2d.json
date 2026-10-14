@@ -1,0 +1,717 @@
+[
+  {
+    "id": "stmt-storage",
+    "class": "statement",
+    "role": "target",
+    "expect": "cited",
+    "q": "storage is the cornerstone of the data engineering lifecycle",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch06-001"
+    ],
+    "gold": [
+      "ch06-001"
+    ],
+    "gold_cited": [
+      "ch06-001"
+    ],
+    "quote_verbatim": true,
+    "asked_as": true,
+    "read_as": false,
+    "seconds": 5.16,
+    "verdict": "PASS",
+    "answer": "[Ch. 6] \"underlies its major stages—ingestion, transformation, and serving\" Asked as: \"What is storage is the cornerstone of the data engineering lifecycle?\""
+  },
+  {
+    "id": "stmt-kafka",
+    "class": "statement",
+    "role": "target",
+    "expect": "cited",
+    "q": "kafka is a message queue.",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch07-043"
+    ],
+    "gold": [
+      "ch03-086",
+      "ch05-022"
+    ],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 0.69,
+    "verdict": "PARTIAL",
+    "answer": "Kafka is a message queue that can be configured for a maximum of 20 MB or more. [Ch. 7]"
+  },
+  {
+    "id": "short-tco",
+    "class": "shorthand",
+    "role": "target",
+    "expect": "cited",
+    "q": "tco",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch04-010"
+    ],
+    "gold": [
+      "ch04-010"
+    ],
+    "gold_cited": [
+      "ch04-010"
+    ],
+    "quote_verbatim": true,
+    "asked_as": true,
+    "read_as": false,
+    "seconds": 0.74,
+    "verdict": "PASS",
+    "answer": "TCO is Total cost of ownership. [Ch. 4] Asked as: \"What is tco?\""
+  },
+  {
+    "id": "short-cdc",
+    "class": "shorthand",
+    "role": "target",
+    "expect": "cited",
+    "q": "cdc",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch05-013"
+    ],
+    "gold": [
+      "ch05-013"
+    ],
+    "gold_cited": [
+      "ch05-013"
+    ],
+    "quote_verbatim": true,
+    "asked_as": true,
+    "read_as": false,
+    "seconds": 2.42,
+    "verdict": "PASS",
+    "answer": "[Ch. 5] \"change data capture (cdc) is a method for extracting each change event (insert, update, delete) that occurs in a database. cdc is frequently leveraged to replicate between databases in near real time or create an event stream for downstream processing. cdc is handled differently depending on the database technology. relational databases often generate an event log stored directly on the d"
+  },
+  {
+    "id": "contr-watermark",
+    "class": "contraction",
+    "role": "probe",
+    "expect": "cited",
+    "q": "what's a watermark?",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch08-039"
+    ],
+    "gold": [
+      "ch08-039"
+    ],
+    "gold_cited": [
+      "ch08-039"
+    ],
+    "quote_verbatim": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 0.99,
+    "verdict": "PASS",
+    "answer": "A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late. [Ch. 8]"
+  },
+  {
+    "id": "contr-kafka",
+    "class": "contraction",
+    "role": "target",
+    "expect": "cited",
+    "q": "why's kafka so popular?",
+    "draw": 1,
+    "refused": true,
+    "refusal_exact": true,
+    "cited": [
+      "ch07-043",
+      "ch08-033",
+      "ch11-025"
+    ],
+    "gold": [
+      "ch03-086"
+    ],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 0.55,
+    "verdict": "FAIL",
+    "answer": "Not in this book."
+  },
+  {
+    "id": "poss-watermark",
+    "class": "possessive",
+    "role": "target",
+    "expect": "cited",
+    "q": "watermark's purpose",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch08-039"
+    ],
+    "gold": [
+      "ch08-039"
+    ],
+    "gold_cited": [
+      "ch08-039"
+    ],
+    "quote_verbatim": true,
+    "asked_as": true,
+    "read_as": false,
+    "seconds": 1.43,
+    "verdict": "PASS",
+    "answer": "[Ch. 8] \"A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late. If data arrives that is new to the window but older than the timestamp of the watermark, it is considered to be late-arriving data\" Asked as: \"What is watermark's purpose?\""
+  },
+  {
+    "id": "poss-mesh",
+    "class": "possessive",
+    "role": "target",
+    "expect": "cited",
+    "q": "the data mesh's core idea",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch03-099"
+    ],
+    "gold": [
+      "ch03-099"
+    ],
+    "gold_cited": [
+      "ch03-099"
+    ],
+    "quote_verbatim": true,
+    "asked_as": true,
+    "read_as": false,
+    "seconds": 1.69,
+    "verdict": "PASS",
+    "answer": "[Ch. 3] \"centralized data lakes and data warehouses\" Asked as: \"What is the data mesh's core idea?\""
+  },
+  {
+    "id": "punc-marks",
+    "class": "punctuation",
+    "role": "target",
+    "expect": "cited",
+    "q": "watermark???",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch08-039"
+    ],
+    "gold": [
+      "ch08-039"
+    ],
+    "gold_cited": [
+      "ch08-039"
+    ],
+    "quote_verbatim": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 0.93,
+    "verdict": "PASS",
+    "answer": "A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late. [Ch. 8]"
+  },
+  {
+    "id": "punc-dots",
+    "class": "punctuation",
+    "role": "target",
+    "expect": "cited",
+    "q": "batch processing...",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch02-018"
+    ],
+    "gold": [
+      "ch02-019"
+    ],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 1.22,
+    "verdict": "PARTIAL",
+    "answer": "[Ch. 2] \"Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML\""
+  },
+  {
+    "id": "punc-comma",
+    "class": "punctuation",
+    "role": "probe",
+    "expect": "cited",
+    "q": "what is a watermark,",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch08-039"
+    ],
+    "gold": [
+      "ch08-039"
+    ],
+    "gold_cited": [
+      "ch08-039"
+    ],
+    "quote_verbatim": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 0.99,
+    "verdict": "PASS",
+    "answer": "A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late. [Ch. 8]"
+  },
+  {
+    "id": "deg-space",
+    "class": "degenerate",
+    "role": "probe",
+    "expect": "record",
+    "q": " ",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch05-045"
+    ],
+    "gold": [],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 1.71,
+    "verdict": "RECORD",
+    "answer": "[Ch. 5] \"from iot, event and application logs, ad tech, and fintech, among many other use cases\""
+  },
+  {
+    "id": "deg-symbols",
+    "class": "degenerate",
+    "role": "probe",
+    "expect": "record",
+    "q": "???",
+    "draw": 1,
+    "refused": true,
+    "refusal_exact": true,
+    "cited": [
+      "ch05-045",
+      "ch01-064",
+      "ch05-030"
+    ],
+    "gold": [],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 0.63,
+    "verdict": "RECORD",
+    "answer": "Not in this book."
+  },
+  {
+    "id": "chap6",
+    "class": "chapter",
+    "role": "probe",
+    "expect": "record",
+    "q": "what is chapter 6 about?",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch06-002"
+    ],
+    "gold": [],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 0.98,
+    "verdict": "RECORD",
+    "answer": "[Ch. 6] \"the raw ingredients that compose storage systems, including hard drives, solid state drives, and system memory\""
+  },
+  {
+    "id": "chap8",
+    "class": "chapter",
+    "role": "probe",
+    "expect": "record",
+    "q": "what does chapter 8 cover?",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch08-003"
+    ],
+    "gold": [],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 1.82,
+    "verdict": "RECORD",
+    "answer": "[Ch. 8] \"and queries against file formats such as parquet\""
+  },
+  {
+    "id": "mean-mesh",
+    "class": "meaning-of",
+    "role": "target",
+    "expect": "cited",
+    "q": "meaning of data mesh",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch03-099"
+    ],
+    "gold": [
+      "ch03-099"
+    ],
+    "gold_cited": [
+      "ch03-099"
+    ],
+    "quote_verbatim": true,
+    "asked_as": true,
+    "read_as": false,
+    "seconds": 1.79,
+    "verdict": "PASS",
+    "answer": "[Ch. 3] \"domain-oriented decentralized data ownership and architecture\" Asked as: \"What is meaning of data mesh?\""
+  },
+  {
+    "id": "mean-cdc",
+    "class": "meaning-of",
+    "role": "target",
+    "expect": "cited",
+    "q": "change data capture means what",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch07-051"
+    ],
+    "gold": [
+      "ch05-013"
+    ],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 2.13,
+    "verdict": "PARTIAL",
+    "answer": "[Ch. 7] \"Change data capture (CDC), introduced in Chapter 2, is the process of ingesting changes from a source database system. For example, we might have a source PostgreSQL system that supports an application and periodically or continuously ingests table changes for analytics\""
+  },
+  {
+    "id": "fp-hdfs",
+    "class": "false-premise",
+    "role": "probe",
+    "expect": "record",
+    "q": "why did HDFS shut down?",
+    "draw": 1,
+    "refused": true,
+    "refusal_exact": true,
+    "cited": [
+      "ch03-046",
+      "ch06-062",
+      "ch06-094"
+    ],
+    "gold": [
+      "ch06-062"
+    ],
+    "gold_cited": [
+      "ch06-062"
+    ],
+    "quote_verbatim": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 0.65,
+    "verdict": "RECORD",
+    "answer": "Not in this book."
+  },
+  {
+    "id": "fp-lake",
+    "class": "false-premise",
+    "role": "probe",
+    "expect": "record",
+    "q": "why did the data lake replace the data warehouse?",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch03-080"
+    ],
+    "gold": [],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 1.89,
+    "verdict": "RECORD",
+    "answer": "[Ch. 3] \"basic data management capabilities out of the box,\""
+  },
+  {
+    "id": "cont-gptq",
+    "class": "contamination",
+    "role": "probe",
+    "expect": "refusal",
+    "q": "What is GPTQ?",
+    "draw": 1,
+    "refused": true,
+    "refusal_exact": true,
+    "cited": [
+      "ch01-059",
+      "ch05-053",
+      "app02-008"
+    ],
+    "gold": [],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 0.87,
+    "verdict": "PASS",
+    "answer": "Not in this book."
+  },
+  {
+    "id": "cont-turbo",
+    "class": "contamination",
+    "role": "probe",
+    "expect": "refusal",
+    "q": "What is TurboQuant?",
+    "draw": 1,
+    "refused": true,
+    "refusal_exact": true,
+    "cited": [
+      "app01-010",
+      "ch06-064",
+      "ch05-045"
+    ],
+    "gold": [],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 0.86,
+    "verdict": "PASS",
+    "answer": "Not in this book."
+  },
+  {
+    "id": "cont-ptq",
+    "class": "contamination",
+    "role": "probe",
+    "expect": "refusal",
+    "q": "What is post-training quantization?",
+    "draw": 1,
+    "refused": true,
+    "refusal_exact": true,
+    "cited": [
+      "ch02-021",
+      "ch07-009",
+      "ch08-051"
+    ],
+    "gold": [],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 0.91,
+    "verdict": "PASS",
+    "answer": "Not in this book."
+  },
+  {
+    "id": "vs-lambda",
+    "class": "vs-pair",
+    "role": "target",
+    "expect": "cited",
+    "q": "lambda vs kappa",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [],
+    "gold": [
+      "ch03-088"
+    ],
+    "gold_cited": [],
+    "quote_verbatim": null,
+    "asked_as": true,
+    "read_as": false,
+    "seconds": 1.63,
+    "verdict": "PARTIAL",
+    "answer": "Lambda architecture has a serving layer that aggregates query results from batch and streaming layers. Kappa architecture proposes using a stream-processing platform for all data handling, including ingestion, storage, and serving, to facilitate real-time and batch processing seamlessly. Asked as: \"What is lambda vs kappa?\""
+  },
+  {
+    "id": "vs-eventual",
+    "class": "vs-pair",
+    "role": "target",
+    "expect": "cited",
+    "q": "eventual vs strong consistency",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch06-024"
+    ],
+    "gold": [
+      "ch06-023"
+    ],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "asked_as": true,
+    "read_as": false,
+    "seconds": 1.9,
+    "verdict": "PARTIAL",
+    "answer": "[Ch. 6] \"ensures that writes to any node are first distributed with a consensus and that any reads against the database return consistent values\" Asked as: \"What is eventual vs strong consistency?\""
+  },
+  {
+    "id": "pol-watermark",
+    "class": "polite-combo",
+    "role": "probe",
+    "expect": "cited",
+    "q": "hey can you tell me what a watermark is?",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch08-039"
+    ],
+    "gold": [
+      "ch08-039"
+    ],
+    "gold_cited": [
+      "ch08-039"
+    ],
+    "quote_verbatim": true,
+    "asked_as": false,
+    "read_as": true,
+    "seconds": 1.14,
+    "verdict": "PASS",
+    "answer": "A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it's considered late. [Ch. 8] Read as: \"they can you tell me what a watermark is?\""
+  },
+  {
+    "id": "pol-cdc",
+    "class": "polite-combo",
+    "role": "probe",
+    "expect": "cited",
+    "q": "could you explain change data capture?",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch07-051"
+    ],
+    "gold": [
+      "ch05-013"
+    ],
+    "gold_cited": [],
+    "quote_verbatim": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 2.06,
+    "verdict": "PARTIAL",
+    "answer": "[Ch. 7] \"Change data capture (CDC), introduced in Chapter 2, is the process of ingesting changes from a source database system. For example, we might have a source PostgreSQL system that supports an application and periodically or continuously ingests table changes for analytics\""
+  },
+  {
+    "id": "typo-warehouse",
+    "class": "typo",
+    "role": "probe",
+    "expect": "cited",
+    "q": "warehosue",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch03-071"
+    ],
+    "gold": [
+      "ch03-071"
+    ],
+    "gold_cited": [
+      "ch03-071"
+    ],
+    "quote_verbatim": true,
+    "asked_as": true,
+    "read_as": true,
+    "seconds": 1.69,
+    "verdict": "PASS",
+    "answer": "[Ch. 3] \"A data warehouse is a central data hub used for reporting and analysis. Data in a data warehouse is typically highly formatted and structured for analytics use cases. It’s among the oldest and most well-established data architectures\" Asked as: \"What is warehosue?\" Read as: \"What is warehouse?\""
+  },
+  {
+    "id": "typo-serial",
+    "class": "typo",
+    "role": "probe",
+    "expect": "cited",
+    "q": "serializaton",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch06-016"
+    ],
+    "gold": [
+      "ch06-016"
+    ],
+    "gold_cited": [
+      "ch06-016"
+    ],
+    "quote_verbatim": true,
+    "asked_as": true,
+    "read_as": true,
+    "seconds": 2.72,
+    "verdict": "PASS",
+    "answer": "[Ch. 6] \"Serialization is the process of flattening and packing data into a standard format that a reader will be able to decode. Serialization formats provide a standard of data exchange. We might encode data in a row-based manner as an XML, JSON, or CSV file and pass it to another user who can then decode it using a standard library. A serialization algorithm has logic for handling types, impose"
+  },
+  {
+    "id": "case-mesh",
+    "class": "casing",
+    "role": "target",
+    "expect": "cited",
+    "q": "DATA MESH",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch03-099"
+    ],
+    "gold": [
+      "ch03-099"
+    ],
+    "gold_cited": [
+      "ch03-099"
+    ],
+    "quote_verbatim": true,
+    "asked_as": true,
+    "read_as": false,
+    "seconds": 2.23,
+    "verdict": "PASS",
+    "answer": "[Ch. 3] \"wherein the landscape is divided between operational data and analytical data.24 the data mesh attempts to invert the challenges of centralized data architecture, taking the concepts of domain-driven design (commonly used in software architectures) and applying them to data architecture. because the data mesh has captured much recent attention, you should be aware of it\" Asked as: \"What i"
+  },
+  {
+    "id": "comp-cdc",
+    "class": "compound",
+    "role": "target",
+    "expect": "cited",
+    "q": "what is change data capture and how is it used?",
+    "draw": 1,
+    "refused": false,
+    "refusal_exact": false,
+    "cited": [
+      "ch05-013"
+    ],
+    "gold": [
+      "ch05-013"
+    ],
+    "gold_cited": [
+      "ch05-013"
+    ],
+    "quote_verbatim": true,
+    "asked_as": false,
+    "read_as": false,
+    "seconds": 1.34,
+    "verdict": "PASS",
+    "answer": "Change Data Capture (CDC) is a method for extracting each change event (insert, update, delete) that occurs in a database. CDC is frequently leveraged to replicate between databases in near real time or create an event stream for downstream processing. CDC is handled differently depending on the database technology. Relational databases often generate an event log stored directly on the database s"
+  }
+]

@@ -1,0 +1,96 @@
+# probe-user-forms 2026-10-14 | chunks 1042 | model smallbook_x2d | draws 1 | exploratory, not a gate
+
+[stmt-storage] (statement/target) PASS refused=0 cited=['ch06-001'] gold=['ch06-001'] 5.16s
+    q: 'storage is the cornerstone of the data engineering lifecycle'
+    a: [Ch. 6] "underlies its major stages—ingestion, transformation, and serving" Asked as: "What is storage is the cornerstone of the data engineering lifecycle?"
+[stmt-kafka] (statement/target) PARTIAL refused=0 cited=['ch07-043'] gold=[] 0.69s
+    q: 'kafka is a message queue.'
+    a: Kafka is a message queue that can be configured for a maximum of 20 MB or more. [Ch. 7]
+[short-tco] (shorthand/target) PASS refused=0 cited=['ch04-010'] gold=['ch04-010'] 0.74s
+    q: 'tco'
+    a: TCO is Total cost of ownership. [Ch. 4] Asked as: "What is tco?"
+[short-cdc] (shorthand/target) PASS refused=0 cited=['ch05-013'] gold=['ch05-013'] 2.42s
+    q: 'cdc'
+    a: [Ch. 5] "change data capture (cdc) is a method for extracting each change event (insert, update, delete) that occurs in a database. cdc is frequently leveraged to replicate between databases in near real time or create an event stream for downstream processing
+[contr-watermark] (contraction/probe) PASS refused=0 cited=['ch08-039'] gold=['ch08-039'] 0.99s
+    q: "what's a watermark?"
+    a: A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late. [Ch. 8]
+[contr-kafka] (contraction/target) FAIL refused=1 cited=['ch07-043', 'ch08-033', 'ch11-025'] gold=[] 0.55s
+    q: "why's kafka so popular?"
+    a: Not in this book.
+[poss-watermark] (possessive/target) PASS refused=0 cited=['ch08-039'] gold=['ch08-039'] 1.43s
+    q: "watermark's purpose"
+    a: [Ch. 8] "A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late. If data arrives that is new to the window but older than the timestamp of the watermark, it is c
+[poss-mesh] (possessive/target) PASS refused=0 cited=['ch03-099'] gold=['ch03-099'] 1.69s
+    q: "the data mesh's core idea"
+    a: [Ch. 3] "centralized data lakes and data warehouses" Asked as: "What is the data mesh's core idea?"
+[punc-marks] (punctuation/target) PASS refused=0 cited=['ch08-039'] gold=['ch08-039'] 0.93s
+    q: 'watermark???'
+    a: A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late. [Ch. 8]
+[punc-dots] (punctuation/target) PARTIAL refused=0 cited=['ch02-018'] gold=[] 1.22s
+    q: 'batch processing...'
+    a: [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML"
+[punc-comma] (punctuation/probe) PASS refused=0 cited=['ch08-039'] gold=['ch08-039'] 0.99s
+    q: 'what is a watermark,'
+    a: A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late. [Ch. 8]
+[deg-space] (degenerate/probe) RECORD refused=0 cited=['ch05-045'] gold=[] 1.71s
+    q: ' '
+    a: [Ch. 5] "from iot, event and application logs, ad tech, and fintech, among many other use cases"
+[deg-symbols] (degenerate/probe) RECORD refused=1 cited=['ch05-045', 'ch01-064', 'ch05-030'] gold=[] 0.63s
+    q: '???'
+    a: Not in this book.
+[chap6] (chapter/probe) RECORD refused=0 cited=['ch06-002'] gold=[] 0.98s
+    q: 'what is chapter 6 about?'
+    a: [Ch. 6] "the raw ingredients that compose storage systems, including hard drives, solid state drives, and system memory"
+[chap8] (chapter/probe) RECORD refused=0 cited=['ch08-003'] gold=[] 1.82s
+    q: 'what does chapter 8 cover?'
+    a: [Ch. 8] "and queries against file formats such as parquet"
+[mean-mesh] (meaning-of/target) PASS refused=0 cited=['ch03-099'] gold=['ch03-099'] 1.79s
+    q: 'meaning of data mesh'
+    a: [Ch. 3] "domain-oriented decentralized data ownership and architecture" Asked as: "What is meaning of data mesh?"
+[mean-cdc] (meaning-of/target) PARTIAL refused=0 cited=['ch07-051'] gold=[] 2.13s
+    q: 'change data capture means what'
+    a: [Ch. 7] "Change data capture (CDC), introduced in Chapter 2, is the process of ingesting changes from a source database system. For example, we might have a source PostgreSQL system that supports an application and periodically or continuously ingests table ch
+[fp-hdfs] (false-premise/probe) RECORD refused=1 cited=['ch03-046', 'ch06-062', 'ch06-094'] gold=['ch06-062'] 0.65s
+    q: 'why did HDFS shut down?'
+    a: Not in this book.
+[fp-lake] (false-premise/probe) RECORD refused=0 cited=['ch03-080'] gold=[] 1.89s
+    q: 'why did the data lake replace the data warehouse?'
+    a: [Ch. 3] "basic data management capabilities out of the box,"
+[cont-gptq] (contamination/probe) PASS refused=1 cited=['ch01-059', 'ch05-053', 'app02-008'] gold=[] 0.87s
+    q: 'What is GPTQ?'
+    a: Not in this book.
+[cont-turbo] (contamination/probe) PASS refused=1 cited=['app01-010', 'ch06-064', 'ch05-045'] gold=[] 0.86s
+    q: 'What is TurboQuant?'
+    a: Not in this book.
+[cont-ptq] (contamination/probe) PASS refused=1 cited=['ch02-021', 'ch07-009', 'ch08-051'] gold=[] 0.91s
+    q: 'What is post-training quantization?'
+    a: Not in this book.
+[vs-lambda] (vs-pair/target) PARTIAL refused=0 cited=[] gold=[] 1.63s
+    q: 'lambda vs kappa'
+    a: Lambda architecture has a serving layer that aggregates query results from batch and streaming layers. Kappa architecture proposes using a stream-processing platform for all data handling, including ingestion, storage, and serving, to facilitate real-time and 
+[vs-eventual] (vs-pair/target) PARTIAL refused=0 cited=['ch06-024'] gold=[] 1.9s
+    q: 'eventual vs strong consistency'
+    a: [Ch. 6] "ensures that writes to any node are first distributed with a consensus and that any reads against the database return consistent values" Asked as: "What is eventual vs strong consistency?"
+[pol-watermark] (polite-combo/probe) PASS refused=0 cited=['ch08-039'] gold=['ch08-039'] 1.14s
+    q: 'hey can you tell me what a watermark is?'
+    a: A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it's considered late. [Ch. 8] Read as: "they can you tell me what a watermark is?"
+[pol-cdc] (polite-combo/probe) PARTIAL refused=0 cited=['ch07-051'] gold=[] 2.06s
+    q: 'could you explain change data capture?'
+    a: [Ch. 7] "Change data capture (CDC), introduced in Chapter 2, is the process of ingesting changes from a source database system. For example, we might have a source PostgreSQL system that supports an application and periodically or continuously ingests table ch
+[typo-warehouse] (typo/probe) PASS refused=0 cited=['ch03-071'] gold=['ch03-071'] 1.69s
+    q: 'warehosue'
+    a: [Ch. 3] "A data warehouse is a central data hub used for reporting and analysis. Data in a data warehouse is typically highly formatted and structured for analytics use cases. It’s among the oldest and most well-established data architectures" Asked as: "What 
+[typo-serial] (typo/probe) PASS refused=0 cited=['ch06-016'] gold=['ch06-016'] 2.72s
+    q: 'serializaton'
+    a: [Ch. 6] "Serialization is the process of flattening and packing data into a standard format that a reader will be able to decode. Serialization formats provide a standard of data exchange. We might encode data in a row-based manner as an XML, JSON, or CSV file
+[case-mesh] (casing/target) PASS refused=0 cited=['ch03-099'] gold=['ch03-099'] 2.23s
+    q: 'DATA MESH'
+    a: [Ch. 3] "wherein the landscape is divided between operational data and analytical data.24 the data mesh attempts to invert the challenges of centralized data architecture, taking the concepts of domain-driven design (commonly used in software architectures) an
+[comp-cdc] (compound/target) PASS refused=0 cited=['ch05-013'] gold=['ch05-013'] 1.34s
+    q: 'what is change data capture and how is it used?'
+    a: Change Data Capture (CDC) is a method for extracting each change event (insert, update, delete) that occurs in a database. CDC is frequently leveraged to replicate between databases in near real time or create an event stream for downstream processing. CDC is 
+
+summary cited: {'PASS': 14, 'PARTIAL': 6, 'FAIL': 1}
+summary refusal: {'PASS': 3}
+summary record: {'RECORD': 6}

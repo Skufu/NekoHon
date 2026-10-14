@@ -45,3 +45,15 @@ A sixth failure recorded today was engine-side, not training: the second
 book's `chapter-N` labelling (`ingest._chapter_number`) — fixed same day
 (`chapter-4` -> `4`, index rebuilt, citations transfer; retest in
 `artifacts/reports/second-book-2026-10-14.md`).
+
+First run of the owner-forms probe (2026-10-14, `probe-user-forms-2026-10-14.py`,
+30 items, x2d, 1 draw; evidence `artifacts/evidence/probe-user-forms/`) adds:
+
+- `lambda vs kappa` — x2d answers uncited, the teacher answers cited
+  (ch03-086/ch03-088): teach the cited-answer form (same class as Location /
+  DE Lifecycle / ddr4).
+- `why's kafka so popular?` — BOTH models refuse (the teacher refuses the
+  uncontracted `why is kafka so popular?` too): a 7B ceiling like `why does`;
+  record only, not trainable.
+- Whitespace-only input returns an arbitrary grounded quote on x2d — an
+  engine-side degenerate-input rule (pre-generation), not a training item.
