@@ -1017,3 +1017,14 @@ Only this list can block work.
   `artifacts/reports/frontend-navigation-plan.md`. Needs explicit yes: new
   read/static routes and citation fields (contract), plus the foliate-js
   vendoring download (megabyte approval per BUILD_PLAN).
+- Conversational companion (direction recorded 2026-10-15, not approved):
+  the user wants the companion to eventually hold a conversation, so
+  degenerate input (bare fragments like `how do`) becomes a *conversational*
+  turn (a clarifying question or follow-up) instead of the binary
+  answer-or-refuse. Parked; not this build. If taken up it needs a third
+  response type (clarify), conversation state and a new/extended API contract
+  (`POST /ask` is frozen), multi-turn training and eval data, and a re-think
+  of the sealed suite's fragment class (which currently requires fragments
+  ANSWERED). Until then the refusal sentence keeps one meaning: the book does
+  not cover the thing — never "I did not understand you" (rule recorded
+  2026-10-15 with this direction).

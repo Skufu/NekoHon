@@ -52,6 +52,11 @@ be reopened when the goal calls for it.
 - A Readest fork on the critical path.
 - A new embedding model (except the Phase 3b bake-off contenders), an embedder finetune, Laya, Bonsai, or `deepseek-r1:7b` (Mac only so far; wrong job: it rambles past the quote).
 - A database, a package install (one exception: vendored text-preprocessing tools, see `AGENTS.md`), or a cloud API.
+- Multi-turn conversation, clarifying questions, or any stateful dialogue
+  (direction recorded 2026-10-15, not approved): the companion should
+  eventually hold a conversation, which turns degenerate input (bare
+  fragments like `how do`) into a *conversational* turn instead of the binary
+  answer-or-refuse. Revisit as a post-v1 feature.
 - Cross-chapter tracing.
 
 ## Stack (v1 baseline locked 2026-10-09; updated 2026-10-14)
