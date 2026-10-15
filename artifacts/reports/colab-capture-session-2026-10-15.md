@@ -86,6 +86,28 @@ first slow thing you see. The *first request* then adds a CUDA graph warm-up
 (10-30 s). Rows after that are seconds. So: silence in cell 4 while loading is
 expected; a minute-per-row in cell 5 is failure #2, not a cold start.
 
+## 7. The capture mixed two prompt seams (found in the results)
+
+- **Symptom:** the recapture rows came back quote-first 274/274 (perfect);
+the new-form rows came back as prose with inline tags — 86 of 96 without any
+quoted sentence.
+- **Cause:** the recapture rows re-used the old dataset's prompts, which are
+**ask-shaped** (ask system prompt + "Copy one sentence from a passage. Do not
+reword it."). The new forms were built through `answer.respond` —
+**answer-shaped** ("Answer the question directly, in your own words."). Same
+teacher, two instruction sets, two output styles.
+- **Why it matters:** training targets must be one shape. The `[Ch. ` retry
+prefill and the existing 328-row base both assume quote-first; mixing styles
+on exactly the deficit shapes (bare/causal/flip) undercuts the retry.
+- **Fix:** rebuild the new forms through the ask seam and capture again —
+`probes/build-teacher-capture-ask-2026-10-15.py` ->
+`data/finetune/teacher-capture-ask-2026-10-15.jsonl` (187 rows) -> a short
+second Colab pass (~5 min; weights cached). The first results file is kept
+as evidence; the recapture half is reused as-is.
+- **Lesson (now in the checklist):** before uploading a capture file, verify
+**every** row's user-message tail is the ask reminder and every system prompt
+carries "quote that passage". One seam per capture.
+
 ## Checklist for the next session (paste-block for cell 0)
 
 - [ ] Runtime is A100/L4 (Runtime → Manage sessions).
@@ -95,6 +117,9 @@ expected; a minute-per-row in cell 5 is failure #2, not a cold start.
 - [ ] Files already in `/content`? Comment `_files.upload()` out.
 - [ ] Pre-gate `PASS` before starting the capture; rows every few seconds; if
       a row takes >30 s, stop and run the ladder in §2.
+- [ ] Before uploading a capture file: every row's user tail is the **ask**
+      reminder ("Copy one sentence from a passage...") and every system
+      prompt says "quote that passage" — one seam per capture (§7).
 
 Recorded the same day in `AGENTS.md` (state bullet) and in the notebook's
 cell 0. The capture run itself was in flight when this was written; its
