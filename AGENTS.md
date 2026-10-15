@@ -941,8 +941,13 @@ Only this list can block work.
   covered side with a boundary gloss ("the book does not mention DDR4") —
   the 3 ddr4 capture rows carry the rule in their note. Same-day live test
   (the user's HTML run) caught the current model inventing a DDR4 figure —
-  "1000 ns" is the book's "roughly 1,000 times faster than SSD" garbled;
-  `DDR4` occurs 0 times in the book. Not yet executed on Colab.
+  `1000 ns` is the book's "roughly 1,000 times faster than SSD" garbled;
+  `DDR4` occurs 0 times in the book. Live-session Colab quirks 2026-10-15
+  (baked into the notebook): 8080 is occupied in the Colab VM (serve on
+  8000); the CUDA plugin silently runs on CPU unless `/usr/lib64-nvidia`
+  (`libcuda.so.1`) is on `LD_LIBRARY_PATH` — measured 1.9 tok/s and GPU RAM
+  0.0/40 GB on an idle A100 before the fix, `dlopen OK` after. Capture run
+  pending (first session reached the pre-gate).
 
 ## Verify
 
