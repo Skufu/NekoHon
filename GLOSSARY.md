@@ -6,9 +6,11 @@ authoritative doc is named.
 
 ## Product
 
-- **answer mode** — the app's default: the model writes freely from the shown
-  passages; its `[Ch. N]` tags become citations; quotes the passages cannot
-  back are stripped (`answer.py: respond`).
+- **answer mode** — the app's default: the model answers from the shown
+  passages in the quote-first shape (since the 2026-10-15 alignment it is
+  served the same trained prompt as ask mode); its `[Ch. N]` tags become
+  citations; quotes the passages cannot back are stripped
+  (`answer.py: respond`).
 - **ask mode** — the highlight path: the model must quote one sentence
   verbatim; a failed check is a refusal (`answer.py: ask`).
 - **refusal** — exactly `Not in this book.` It means "the book does not cover

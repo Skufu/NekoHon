@@ -229,15 +229,7 @@ Do not describe an image. You cannot see images. If a passage names a figure, qu
 
 A good `ask` answer must start with `[Ch.`. A refusal must be exactly `Not in this book.` — that sentence, period included, and nothing else. A failed quote check is a refusal.
 
-`answer` — free generation from the retrieved passages (user decision 2026-10-13; the window default). The model writes the answer. System prompt, verbatim, in `prompt.py` (`SYSTEM_ANSWER`):
-
-```
-You answer from the passages below, and only from them. Write a direct answer built from those passages: a few sentences, or one short paragraph. Stay close to the passages' wording, and use a passage's own definition when the question asks what something is. Match the shape of the question: if it asks for the kinds or parts of a thing, list them. Do not state any fact the passages do not contain.
-Put a [Ch. N] tag at the end of each sentence that uses a passage, with N from that passage. Use quotation marks only when you copy the exact words of a passage. Never put quotation marks around your own words.
-If the passages do not contain the answer, reply with exactly this sentence and nothing else:
-Not in this book.
-Do not describe an image. You cannot see images. If a passage names a figure, mention it; the app will show the image.
-```
+`answer` — the window default (user decision 2026-10-13; prompt alignment 2026-10-15). The model answers from the retrieved passages, and it is served the **ask-shaped prompt** — `SYSTEM` ("Quote first...") plus the "Copy one sentence from a passage" reminder — because that is the exact prompt every training row carries. The 2026-10-15 finding: the old `SYSTEM_ANSWER` ("...in your own words") made a less-memorized student paraphrase and lose its citations (x2e 40/160; x2d only survived it by over-memorizing at loss 0.006). Aligning the served prompt lifted the shipped x2d 111 -> 160/160. `SYSTEM_ANSWER` + `answer_user_message` remain for the plain-register draft path.
 
 The reply is kept as written, minus quotation marks the shown passages cannot back. Citations come from the model's `[Ch. N]` tags: each tagged sentence is matched to the shown passage of that chapter with the most word overlap, and each citation's quote is passage text; a zero-overlap claim gets no citation. A refusal is the exact sentence on the first line; other prose is never discarded. Groundedness is measured (`artifacts/harnesses/groundedness.py`: share of answer-sentence 4-grams found in the shown passages), not enforced.
 
@@ -474,7 +466,12 @@ section that moves — update it as checkpoints land.
   `reports/coach-review-response-2026-10-15.md`; owner decision 2026-10-15:
   half-covered comparisons (e.g. `ddr4 vs ddr5`) answer the covered side
   with a boundary gloss — the 3 ddr4 capture rows carry the rule in their
-  note. Not executed on Colab yet.
+  note. **Done 2026-10-15:** trained (A100, loss 0.84 -> 0.035) and gated —
+  the gate exposed an engine prompt mismatch (answer mode served a prompt the
+  student was never trained on; fixed the same day: x2d 160/160, x2e 150/160
+  under the aligned prompt); **x2e not adopted** (ask battery 7/10; false
+  refusals on the visible-ten) — verdict + backlog in
+  `reports/x2e-verdict-2026-10-15.md`.
 - **Recipe / provenance:** `smallbook_x2-rebuild-2026-10-14.md`,
   `smallbook_x2-provenance-2026-10-14.md`, `smallbook_x2-model-card.md`.
 - **Rule kept:** the engine contract does not change — swap the answerer, keep

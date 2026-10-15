@@ -168,7 +168,9 @@ class SeamTest(_SeamBase):
             generate_fn=generate, search_fn=self.search_recorder(), model="m",
         )
         self.assertEqual(self.calls["search"], "What is CDC?")
-        self.assertEqual(self.calls["system"], SYSTEM_ANSWER)
+        # 2026-10-15 prompt alignment: answer mode serves SYSTEM (ask-shaped),
+        # the prompt the student is trained on.
+        self.assertEqual(self.calls["system"], SYSTEM)
         self.assertIn("What is CDC?", self.calls["user"])
         self.assertIn('Asked as: "What is CDC?"', body["answer"])
 

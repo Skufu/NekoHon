@@ -20,9 +20,9 @@
     "quote_verbatim": true,
     "asked_as": true,
     "read_as": false,
-    "seconds": 5.16,
+    "seconds": 1.12,
     "verdict": "PASS",
-    "answer": "[Ch. 6] \"underlies its major stages—ingestion, transformation, and serving\" Asked as: \"What is storage is the cornerstone of the data engineering lifecycle?\""
+    "answer": "[Ch. 6] \"Storage is the cornerstone of the data engineering lifecycle\" Storage is the most important part of data engineering. Asked as: \"What is storage is the cornerstone of the data engineering lifecycle?\""
   },
   {
     "id": "stmt-kafka",
@@ -34,7 +34,7 @@
     "refused": false,
     "refusal_exact": false,
     "cited": [
-      "ch07-043"
+      "ch05-060"
     ],
     "gold": [
       "ch03-086",
@@ -44,9 +44,9 @@
     "quote_verbatim": true,
     "asked_as": false,
     "read_as": false,
-    "seconds": 0.69,
+    "seconds": 1.37,
     "verdict": "PARTIAL",
-    "answer": "Kafka is a message queue that can be configured for a maximum of 20 MB or more. [Ch. 7]"
+    "answer": "[Ch. 5] \"A message queue is a mechanism to asynchronously send data (usually as small individual messages, in the kilobytes) between discrete systems using a publish and subscribe model\" A message queue sends small data between systems using publish and subscribe."
   },
   {
     "id": "short-tco",
@@ -69,9 +69,9 @@
     "quote_verbatim": true,
     "asked_as": true,
     "read_as": false,
-    "seconds": 0.74,
+    "seconds": 1.43,
     "verdict": "PASS",
-    "answer": "TCO is Total cost of ownership. [Ch. 4] Asked as: \"What is tco?\""
+    "answer": "[Ch. 4] \"Total cost of ownership (TCO) is the total estimated cost of an initiative, including the direct and indirect costs of products and services utilized\" TCO includes all costs for products and services, direct and indirect. Asked as: \"What is tco?\""
   },
   {
     "id": "short-cdc",
@@ -83,20 +83,18 @@
     "refused": false,
     "refusal_exact": false,
     "cited": [
-      "ch05-013"
+      "ch07-051"
     ],
     "gold": [
       "ch05-013"
     ],
-    "gold_cited": [
-      "ch05-013"
-    ],
+    "gold_cited": [],
     "quote_verbatim": true,
     "asked_as": true,
     "read_as": false,
-    "seconds": 2.42,
-    "verdict": "PASS",
-    "answer": "[Ch. 5] \"change data capture (cdc) is a method for extracting each change event (insert, update, delete) that occurs in a database. cdc is frequently leveraged to replicate between databases in near real time or create an event stream for downstream processing. cdc is handled differently depending on the database technology. relational databases often generate an event log stored directly on the d"
+    "seconds": 1.08,
+    "verdict": "PARTIAL",
+    "answer": "[Ch. 7] \"Change data capture (CDC), introduced in Chapter 2, is the process of ingesting changes from a source database system\" CDC captures changes from a database. Asked as: \"What is cdc?\""
   },
   {
     "id": "contr-watermark",
@@ -119,9 +117,9 @@
     "quote_verbatim": true,
     "asked_as": false,
     "read_as": false,
-    "seconds": 0.99,
+    "seconds": 1.34,
     "verdict": "PASS",
-    "answer": "A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late. [Ch. 8]"
+    "answer": "[Ch. 8] \"A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late\" A watermark sets a time limit for data inside a window."
   },
   {
     "id": "contr-kafka",
@@ -144,7 +142,7 @@
     "quote_verbatim": true,
     "asked_as": false,
     "read_as": false,
-    "seconds": 0.55,
+    "seconds": 0.51,
     "verdict": "FAIL",
     "answer": "Not in this book."
   },
@@ -169,9 +167,9 @@
     "quote_verbatim": true,
     "asked_as": true,
     "read_as": false,
-    "seconds": 1.43,
+    "seconds": 1.38,
     "verdict": "PASS",
-    "answer": "[Ch. 8] \"A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late. If data arrives that is new to the window but older than the timestamp of the watermark, it is considered to be late-arriving data\" Asked as: \"What is watermark's purpose?\""
+    "answer": "[Ch. 8] \"a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late\" Watermarks set a time limit for data to enter a window. Asked as: \"What is watermark's purpose?\""
   },
   {
     "id": "poss-mesh",
@@ -194,9 +192,9 @@
     "quote_verbatim": true,
     "asked_as": true,
     "read_as": false,
-    "seconds": 1.69,
+    "seconds": 2.64,
     "verdict": "PASS",
-    "answer": "[Ch. 3] \"centralized data lakes and data warehouses\" Asked as: \"What is the data mesh's core idea?\""
+    "answer": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and “the great divide of data,\" The data mesh addresses sprawling platforms like centralized data lakes and divides data between operational and analytical uses. Asked as: \"What is the data mesh's core idea?\""
   },
   {
     "id": "punc-marks",
@@ -219,9 +217,9 @@
     "quote_verbatim": true,
     "asked_as": false,
     "read_as": false,
-    "seconds": 0.93,
+    "seconds": 1.4,
     "verdict": "PASS",
-    "answer": "A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late. [Ch. 8]"
+    "answer": "[Ch. 8] \"a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late\" A watermark sets a time limit for data inside a window."
   },
   {
     "id": "punc-dots",
@@ -242,9 +240,9 @@
     "quote_verbatim": true,
     "asked_as": false,
     "read_as": false,
-    "seconds": 1.22,
+    "seconds": 1.31,
     "verdict": "PARTIAL",
-    "answer": "[Ch. 2] \"Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML\""
+    "answer": "[Ch. 2] \"Batch ingestion is simply a specialized and convenient way of processing this stream in large chunks—for example, handling a full day’s worth of data in a single batch\" Batch ingestion handles large amounts of data at once."
   },
   {
     "id": "punc-comma",
@@ -267,9 +265,9 @@
     "quote_verbatim": true,
     "asked_as": false,
     "read_as": false,
-    "seconds": 0.99,
+    "seconds": 1.39,
     "verdict": "PASS",
-    "answer": "A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late. [Ch. 8]"
+    "answer": "[Ch. 8] \"A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late\" A watermark sets a time limit for data in a window."
   },
   {
     "id": "deg-space",
@@ -288,9 +286,9 @@
     "quote_verbatim": true,
     "asked_as": false,
     "read_as": false,
-    "seconds": 1.71,
+    "seconds": 1.14,
     "verdict": "RECORD",
-    "answer": "[Ch. 5] \"from iot, event and application logs, ad tech, and fintech, among many other use cases\""
+    "answer": "[Ch. 5] \"A time-series database is optimized for retrieving and statistical processing of time-series data\" A time-series database speeds up finding and analyzing time-based data."
   },
   {
     "id": "deg-symbols",
@@ -299,21 +297,19 @@
     "expect": "record",
     "q": "???",
     "draw": 1,
-    "refused": true,
-    "refusal_exact": true,
+    "refused": false,
+    "refusal_exact": false,
     "cited": [
-      "ch05-045",
-      "ch01-064",
-      "ch05-030"
+      "ch05-045"
     ],
     "gold": [],
     "gold_cited": [],
     "quote_verbatim": true,
     "asked_as": false,
     "read_as": false,
-    "seconds": 0.63,
+    "seconds": 1.15,
     "verdict": "RECORD",
-    "answer": "Not in this book."
+    "answer": "[Ch. 5] \"A time-series database is optimized for retrieving and statistical processing of time-series data\" A time-series database speeds up finding and analyzing time-based data."
   },
   {
     "id": "chap6",
@@ -332,9 +328,9 @@
     "quote_verbatim": true,
     "asked_as": false,
     "read_as": false,
-    "seconds": 0.98,
+    "seconds": 2.61,
     "verdict": "RECORD",
-    "answer": "[Ch. 6] \"the raw ingredients that compose storage systems, including hard drives, solid state drives, and system memory\""
+    "answer": "[Ch. 6] \"To understand storage, we’re going to start by studying the raw ingredients that compose storage systems, including hard drives, solid state drives, and system memory (see Figure 6-2). It’s essential to understand the basic characteristics of physical storage technologies to assess the trade-offs inherent in any storage architecture. This section also discusses serialization and compressi"
   },
   {
     "id": "chap8",
@@ -346,16 +342,16 @@
     "refused": false,
     "refusal_exact": false,
     "cited": [
-      "ch08-003"
+      "ch08-001"
     ],
     "gold": [],
     "gold_cited": [],
     "quote_verbatim": true,
     "asked_as": false,
     "read_as": false,
-    "seconds": 1.82,
+    "seconds": 1.02,
     "verdict": "RECORD",
-    "answer": "[Ch. 8] \"and queries against file formats such as parquet\""
+    "answer": "[Ch. 8] \"Chapter 8. Queries, Modeling, and Transformation\" This chapter covers queries, modeling, and transformations to make data useful."
   },
   {
     "id": "mean-mesh",
@@ -378,9 +374,9 @@
     "quote_verbatim": true,
     "asked_as": true,
     "read_as": false,
-    "seconds": 1.79,
+    "seconds": 2.67,
     "verdict": "PASS",
-    "answer": "[Ch. 3] \"domain-oriented decentralized data ownership and architecture\" Asked as: \"What is meaning of data mesh?\""
+    "answer": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and “the great divide of data,\" The data mesh addresses sprawling data platforms and the divide between operational and analytical data. Asked as: \"What is meaning of data mesh?\""
   },
   {
     "id": "mean-cdc",
@@ -401,9 +397,9 @@
     "quote_verbatim": true,
     "asked_as": false,
     "read_as": false,
-    "seconds": 2.13,
+    "seconds": 1.31,
     "verdict": "PARTIAL",
-    "answer": "[Ch. 7] \"Change data capture (CDC), introduced in Chapter 2, is the process of ingesting changes from a source database system. For example, we might have a source PostgreSQL system that supports an application and periodically or continuously ingests table changes for analytics\""
+    "answer": "[Ch. 7] \"Change data capture (CDC), introduced in Chapter 2, is the process of ingesting changes from a source database system\" Change data capture (CDC) in Chapter 2 captures changes from a database."
   },
   {
     "id": "fp-hdfs",
@@ -428,7 +424,7 @@
     "quote_verbatim": true,
     "asked_as": false,
     "read_as": false,
-    "seconds": 0.65,
+    "seconds": 0.7,
     "verdict": "RECORD",
     "answer": "Not in this book."
   },
@@ -449,9 +445,9 @@
     "quote_verbatim": true,
     "asked_as": false,
     "read_as": false,
-    "seconds": 1.89,
+    "seconds": 1.54,
     "verdict": "RECORD",
-    "answer": "[Ch. 3] \"basic data management capabilities out of the box,\""
+    "answer": "[Ch. 3] \"Data lake became a dumping ground; terms such as data swamp, dark data, and WORN were coined as once-promising data projects failed\" Data lakes filled with unwanted data, called data swamps and dark data."
   },
   {
     "id": "cont-gptq",
@@ -472,7 +468,7 @@
     "quote_verbatim": true,
     "asked_as": false,
     "read_as": false,
-    "seconds": 0.87,
+    "seconds": 0.9,
     "verdict": "PASS",
     "answer": "Not in this book."
   },
@@ -495,7 +491,7 @@
     "quote_verbatim": true,
     "asked_as": false,
     "read_as": false,
-    "seconds": 0.86,
+    "seconds": 0.76,
     "verdict": "PASS",
     "answer": "Not in this book."
   },
@@ -518,7 +514,7 @@
     "quote_verbatim": true,
     "asked_as": false,
     "read_as": false,
-    "seconds": 0.91,
+    "seconds": 0.87,
     "verdict": "PASS",
     "answer": "Not in this book."
   },
@@ -531,17 +527,21 @@
     "draw": 1,
     "refused": false,
     "refusal_exact": false,
-    "cited": [],
+    "cited": [
+      "ch03-088"
+    ],
     "gold": [
       "ch03-088"
     ],
-    "gold_cited": [],
-    "quote_verbatim": null,
+    "gold_cited": [
+      "ch03-088"
+    ],
+    "quote_verbatim": true,
     "asked_as": true,
     "read_as": false,
-    "seconds": 1.63,
-    "verdict": "PARTIAL",
-    "answer": "Lambda architecture has a serving layer that aggregates query results from batch and streaming layers. Kappa architecture proposes using a stream-processing platform for all data handling, including ingestion, storage, and serving, to facilitate real-time and batch processing seamlessly. Asked as: \"What is lambda vs kappa?\""
+    "seconds": 1.35,
+    "verdict": "PASS",
+    "answer": "[Ch. 3] \"As a response to the shortcomings of Lambda architecture, Jay Kreps proposed an alternative called Kappa architecture (Figure 3-15)\" Kappa architecture suggests using stream-processing platforms for all data handling. Asked as: \"What is lambda vs kappa?\""
   },
   {
     "id": "vs-eventual",
@@ -562,9 +562,9 @@
     "quote_verbatim": true,
     "asked_as": true,
     "read_as": false,
-    "seconds": 1.9,
+    "seconds": 1.62,
     "verdict": "PARTIAL",
-    "answer": "[Ch. 6] \"ensures that writes to any node are first distributed with a consensus and that any reads against the database return consistent values\" Asked as: \"What is eventual vs strong consistency?\""
+    "answer": "[Ch. 6] \"The state of the transaction is fuzzy, and it’s uncertain whether the transaction is committed or uncommitted. At some point, reading data will return consistent values\" The state of the transaction is unclear, and it's unsure if it was committed or not. Eventually, reading data will give consistent values. Asked as: \"What is eventual vs strong consistency?\""
   },
   {
     "id": "pol-watermark",
@@ -587,9 +587,9 @@
     "quote_verbatim": true,
     "asked_as": false,
     "read_as": true,
-    "seconds": 1.14,
+    "seconds": 1.63,
     "verdict": "PASS",
-    "answer": "A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it's considered late. [Ch. 8] Read as: \"they can you tell me what a watermark is?\""
+    "answer": "[Ch. 8] \"A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late\" A watermark sets a limit for when new data is too old to be included. Read as: \"they can you tell me what a watermark is?\""
   },
   {
     "id": "pol-cdc",
@@ -610,9 +610,9 @@
     "quote_verbatim": true,
     "asked_as": false,
     "read_as": false,
-    "seconds": 2.06,
+    "seconds": 1.2,
     "verdict": "PARTIAL",
-    "answer": "[Ch. 7] \"Change data capture (CDC), introduced in Chapter 2, is the process of ingesting changes from a source database system. For example, we might have a source PostgreSQL system that supports an application and periodically or continuously ingests table changes for analytics\""
+    "answer": "[Ch. 7] \"Change data capture (CDC), introduced in Chapter 2, is the process of ingesting changes from a source database system\" CDC in Chapter 2 captures changes from a database."
   },
   {
     "id": "typo-warehouse",
@@ -635,9 +635,9 @@
     "quote_verbatim": true,
     "asked_as": true,
     "read_as": true,
-    "seconds": 1.69,
+    "seconds": 1.28,
     "verdict": "PASS",
-    "answer": "[Ch. 3] \"A data warehouse is a central data hub used for reporting and analysis. Data in a data warehouse is typically highly formatted and structured for analytics use cases. It’s among the oldest and most well-established data architectures\" Asked as: \"What is warehosue?\" Read as: \"What is warehouse?\""
+    "answer": "[Ch. 3] \"A data warehouse is a central data hub used for reporting and analysis\" A data warehouse stores info for reports and analysis. Asked as: \"What is warehosue?\" Read as: \"What is warehouse?\""
   },
   {
     "id": "typo-serial",
@@ -660,9 +660,9 @@
     "quote_verbatim": true,
     "asked_as": true,
     "read_as": true,
-    "seconds": 2.72,
+    "seconds": 1.37,
     "verdict": "PASS",
-    "answer": "[Ch. 6] \"Serialization is the process of flattening and packing data into a standard format that a reader will be able to decode. Serialization formats provide a standard of data exchange. We might encode data in a row-based manner as an XML, JSON, or CSV file and pass it to another user who can then decode it using a standard library. A serialization algorithm has logic for handling types, impose"
+    "answer": "[Ch. 6] \"Serialization is the process of flattening and packing data into a standard format that a reader will be able to decode\" Serialization converts data into a fixed format for easy reading and writing. Asked as: \"What is serializaton?\" Read as: \"What is serialization?\""
   },
   {
     "id": "case-mesh",
@@ -685,9 +685,9 @@
     "quote_verbatim": true,
     "asked_as": true,
     "read_as": false,
-    "seconds": 2.23,
+    "seconds": 2.3,
     "verdict": "PASS",
-    "answer": "[Ch. 3] \"wherein the landscape is divided between operational data and analytical data.24 the data mesh attempts to invert the challenges of centralized data architecture, taking the concepts of domain-driven design (commonly used in software architectures) and applying them to data architecture. because the data mesh has captured much recent attention, you should be aware of it\" Asked as: \"What i"
+    "answer": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and “the great divide of data,\" The data mesh addresses large, centralized data systems like data lakes and data warehouses. Asked as: \"What is DATA MESH?\""
   },
   {
     "id": "comp-cdc",
@@ -699,19 +699,17 @@
     "refused": false,
     "refusal_exact": false,
     "cited": [
-      "ch05-013"
+      "ch07-051"
     ],
     "gold": [
       "ch05-013"
     ],
-    "gold_cited": [
-      "ch05-013"
-    ],
+    "gold_cited": [],
     "quote_verbatim": true,
     "asked_as": false,
     "read_as": false,
-    "seconds": 1.34,
-    "verdict": "PASS",
-    "answer": "Change Data Capture (CDC) is a method for extracting each change event (insert, update, delete) that occurs in a database. CDC is frequently leveraged to replicate between databases in near real time or create an event stream for downstream processing. CDC is handled differently depending on the database technology. Relational databases often generate an event log stored directly on the database s"
+    "seconds": 1.05,
+    "verdict": "PARTIAL",
+    "answer": "[Ch. 7] \"Change data capture (CDC), introduced in Chapter 2, is the process of ingesting changes from a source database system\" CDC captures changes from a database."
   }
 ]

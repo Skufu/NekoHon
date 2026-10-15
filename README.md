@@ -87,9 +87,9 @@ question ---------> canonical form (bare phrase -> "What is X?")
                       |      the chunk that names that figure
                       v
                     smallbook_x2d (temperature 0)
-                      |  answer: free generation, [Ch. N] tags -> citations,
-                      |          quotation marks the passages cannot back are
-                      |          stripped
+                      |  answer: quote-first (the trained prompt), [Ch. N]
+                      |          tags -> citations, quotation marks the passages
+                      |          cannot back are stripped
                       |  ask:    quote + gloss; the quote check is the gate
                       v
                     post-checks (no model): heading trim, list-question

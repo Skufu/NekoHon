@@ -6,283 +6,283 @@ sealed-note (declared template twin): 'what does etls stand for' form='what does
 visible-ten check: 0 violations; max difflib vs the ten raw queries = 0.700 ('What is howdy?' vs 'what is')
 
 [1/21] fragment 'how do' expect=answered (max train sim r=0.38 j=0.00 vs 'what is dataops')
-  draw 1: refused=0 cited=4 loop=0 main=stop retried=0  24.7s | How data is created and ingested involves understanding the source system and its patterns [Ch. 5]. For RDBMS sources, l
-  draw 2: refused=0 cited=3 loop=0 main=stop retried=0   2.5s | How data is created and ingested involves understanding the source system and its patterns [Ch. 7]. For databases, famil
-  draw 3: refused=0 cited=3 loop=0 main=stop retried=0   2.6s | How data is created and ingested involves understanding the source system and its patterns [Ch. 7]. For databases, famil
-  draw 4: refused=0 cited=3 loop=0 main=stop retried=0   2.6s | How data is created and ingested involves understanding the source system and its patterns [Ch. 7]. For databases, famil
-  draw 5: refused=0 cited=3 loop=0 main=stop retried=0   2.6s | How data is created and ingested involves understanding the source system and its patterns [Ch. 7]. For databases, famil
-  draw 6: refused=0 cited=3 loop=0 main=stop retried=0   2.5s | How data is created and ingested involves understanding the source system and its patterns [Ch. 7]. For databases, famil
-  draw 7: refused=0 cited=3 loop=0 main=stop retried=0   2.5s | How data is created and ingested involves understanding the source system and its patterns [Ch. 7]. For databases, famil
-  draw 8: refused=0 cited=3 loop=0 main=stop retried=0   2.5s | How data is created and ingested involves understanding the source system and its patterns [Ch. 7]. For databases, famil
-  draw 9: refused=0 cited=3 loop=0 main=stop retried=0   2.6s | How data is created and ingested involves understanding the source system and its patterns [Ch. 7]. For databases, famil
-  draw 10: refused=0 cited=3 loop=0 main=stop retried=0   2.5s | How data is created and ingested involves understanding the source system and its patterns [Ch. 7]. For databases, famil
-  => refuses 0/10, answered+cited 10/10, loops 0/10 -> PASS
+  draw 1: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0  23.4s | [Ch. 5] "But in truth, data is everywhere in the world around us"
+  draw 2: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   2.7s | [Ch. 5] "But in truth, data is everywhere in the world around us"
+  draw 3: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 5] "But in truth, data is everywhere in the world around us"
+  draw 4: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 5] "But in truth, data is everywhere in the world around us"
+  draw 5: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 5] "But in truth, data is everywhere in the world around us"
+  draw 6: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.1s | [Ch. 5] "But in truth, data is everywhere in the world around us"
+  draw 7: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.1s | [Ch. 5] "But in truth, data is everywhere in the world around us"
+  draw 8: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.6s | [Ch. 5] "But in truth, data is everywhere in the world around us"
+  draw 9: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.1s | [Ch. 5] "But in truth, data is everywhere in the world around us"
+  draw 10: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 5] "But in truth, data is everywhere in the world around us"
+  => refuses 0/10, answered+cited 10/10, loops 0/10, repeats 0 -> PASS
 
 [2/21] fragment 'what about' expect=answered (max train sim r=0.57 j=0.20 vs 'what is zero trust')
-  draw 1: refused=0 cited=0 loop=0 main=stop retried=0   1.4s | The passages do not contain information about what the question what about refers to. Not in this book.  <-- MISS
-  draw 2: refused=0 cited=0 loop=0 main=stop retried=0   1.0s | The passages do not contain information about what the question what about refers to. Not in this book.  <-- MISS
-  draw 3: refused=0 cited=0 loop=0 main=stop retried=0   1.0s | The passages do not contain information about what the question what about refers to. Not in this book.  <-- MISS
-  draw 4: refused=0 cited=0 loop=0 main=stop retried=0   1.0s | The passages do not contain information about what the question what about refers to. Not in this book.  <-- MISS
-  draw 5: refused=0 cited=0 loop=0 main=stop retried=0   1.0s | The passages do not contain information about what the question what about refers to. Not in this book.  <-- MISS
-  draw 6: refused=0 cited=0 loop=0 main=stop retried=0   1.0s | The passages do not contain information about what the question what about refers to. Not in this book.  <-- MISS
-  draw 7: refused=0 cited=0 loop=0 main=stop retried=0   1.0s | The passages do not contain information about what the question what about refers to. Not in this book.  <-- MISS
-  draw 8: refused=0 cited=0 loop=0 main=stop retried=0   1.0s | The passages do not contain information about what the question what about refers to. Not in this book.  <-- MISS
-  draw 9: refused=0 cited=0 loop=0 main=stop retried=0   1.0s | The passages do not contain information about what the question what about refers to. Not in this book.  <-- MISS
-  draw 10: refused=0 cited=0 loop=0 main=stop retried=0   1.0s | The passages do not contain information about what the question what about refers to. Not in this book.  <-- MISS
-  => refuses 0/10, answered+cited 0/10, loops 0/10 -> FAIL
+  draw 1: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.5s | [Ch. 8] "Queries are a fundamental part of data engineering, data science, and analysis"
+  draw 2: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 8] "Queries are a fundamental part of data engineering, data science, and analysis"
+  draw 3: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.1s | [Ch. 8] "Queries are a fundamental part of data engineering, data science, and analysis"
+  draw 4: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 8] "Queries are a fundamental part of data engineering, data science, and analysis"
+  draw 5: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 8] "Queries are a fundamental part of data engineering, data science, and analysis"
+  draw 6: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.1s | [Ch. 8] "Queries are a fundamental part of data engineering, data science, and analysis"
+  draw 7: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.0s | [Ch. 8] "Queries are a fundamental part of data engineering, data science, and analysis"
+  draw 8: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.1s | [Ch. 8] "Queries are a fundamental part of data engineering, data science, and analysis"
+  draw 9: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.0s | [Ch. 8] "Queries are a fundamental part of data engineering, data science, and analysis"
+  draw 10: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.1s | [Ch. 8] "Queries are a fundamental part of data engineering, data science, and analysis"
+  => refuses 0/10, answered+cited 10/10, loops 0/10, repeats 0 -> PASS
 
 [3/21] fragment 'explain' expect=answered (max train sim r=0.78 j=0.50 vs 'explain pii')
-  draw 1: refused=0 cited=2 loop=0 main=stop retried=0   4.8s | The question "explain" is not fully specified, but it seems to ask for an explanation of a concept or process. Here is a
-  draw 2: refused=0 cited=4 loop=0 main=stop retried=0   3.7s | The question "explain" is not fully specified, but it seems to ask for an explanation of a concept or process. Here is a
-  draw 3: refused=0 cited=4 loop=0 main=stop retried=0   3.7s | The question "explain" is not fully specified, but it seems to ask for an explanation of a concept or process. Here is a
-  draw 4: refused=0 cited=4 loop=0 main=stop retried=0   3.7s | The question "explain" is not fully specified, but it seems to ask for an explanation of a concept or process. Here is a
-  draw 5: refused=0 cited=4 loop=0 main=stop retried=0   3.7s | The question "explain" is not fully specified, but it seems to ask for an explanation of a concept or process. Here is a
-  draw 6: refused=0 cited=4 loop=0 main=stop retried=0   3.8s | The question "explain" is not fully specified, but it seems to ask for an explanation of a concept or process. Here is a
-  draw 7: refused=0 cited=4 loop=0 main=stop retried=0   3.7s | The question "explain" is not fully specified, but it seems to ask for an explanation of a concept or process. Here is a
-  draw 8: refused=0 cited=4 loop=0 main=stop retried=0   3.7s | The question "explain" is not fully specified, but it seems to ask for an explanation of a concept or process. Here is a
-  draw 9: refused=0 cited=4 loop=0 main=stop retried=0   3.7s | The question "explain" is not fully specified, but it seems to ask for an explanation of a concept or process. Here is a
-  draw 10: refused=0 cited=4 loop=0 main=stop retried=0   3.5s | The question "explain" is not fully specified, but it seems to ask for an explanation of a concept or process. Here is a
-  => refuses 0/10, answered+cited 10/10, loops 0/10 -> PASS
+  draw 1: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.7s | [Ch. 6] "Schema can function as a sort of Rosetta stone, instructions that tell us how to read the data"
+  draw 2: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.1s | [Ch. 6] "Schema can function as a sort of Rosetta stone, instructions that tell us how to read the data"
+  draw 3: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.0s | [Ch. 6] "Schema can function as a sort of Rosetta stone, instructions that tell us how to read the data"
+  draw 4: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.0s | [Ch. 6] "Schema can function as a sort of Rosetta stone, instructions that tell us how to read the data"
+  draw 5: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 6] "Schema can function as a sort of Rosetta stone, instructions that tell us how to read the data"
+  draw 6: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.1s | [Ch. 6] "Schema can function as a sort of Rosetta stone, instructions that tell us how to read the data"
+  draw 7: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 6] "Schema can function as a sort of Rosetta stone, instructions that tell us how to read the data"
+  draw 8: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.1s | [Ch. 6] "Schema can function as a sort of Rosetta stone, instructions that tell us how to read the data"
+  draw 9: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.1s | [Ch. 6] "Schema can function as a sort of Rosetta stone, instructions that tell us how to read the data"
+  draw 10: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.1s | [Ch. 6] "Schema can function as a sort of Rosetta stone, instructions that tell us how to read the data"
+  => refuses 0/10, answered+cited 10/10, loops 0/10, repeats 0 -> PASS
 
 [4/21] fragment 'why does' expect=answered (max train sim r=0.52 j=0.00 vs 'what is dataops')
-  draw 1: refused=1 cited=3 loop=0 main=stop retried=0   0.8s | Not in this book.  <-- MISS
-  draw 2: refused=1 cited=3 loop=0 main=stop retried=0   0.4s | Not in this book.  <-- MISS
-  draw 3: refused=1 cited=3 loop=0 main=stop retried=0   0.3s | Not in this book.  <-- MISS
-  draw 4: refused=1 cited=3 loop=0 main=stop retried=0   0.3s | Not in this book.  <-- MISS
-  draw 5: refused=1 cited=3 loop=0 main=stop retried=0   0.4s | Not in this book.  <-- MISS
-  draw 6: refused=1 cited=3 loop=0 main=stop retried=0   0.4s | Not in this book.  <-- MISS
-  draw 7: refused=1 cited=3 loop=0 main=stop retried=0   0.3s | Not in this book.  <-- MISS
-  draw 8: refused=1 cited=3 loop=0 main=stop retried=0   0.4s | Not in this book.  <-- MISS
-  draw 9: refused=1 cited=3 loop=0 main=stop retried=0   0.4s | Not in this book.  <-- MISS
-  draw 10: refused=1 cited=3 loop=0 main=stop retried=0   0.3s | Not in this book.  <-- MISS
-  => refuses 10/10, answered+cited 0/10, loops 0/10 -> FAIL
+  draw 1: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 5] "Time series is a series of values organized by time"
+  draw 2: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.8s | [Ch. 5] "Time series is a series of values organized by time"
+  draw 3: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.8s | [Ch. 5] "Time series is a series of values organized by time"
+  draw 4: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.8s | [Ch. 5] "Time series is a series of values organized by time"
+  draw 5: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.7s | [Ch. 5] "Time series is a series of values organized by time"
+  draw 6: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.7s | [Ch. 5] "Time series is a series of values organized by time"
+  draw 7: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.7s | [Ch. 5] "Time series is a series of values organized by time"
+  draw 8: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.7s | [Ch. 5] "Time series is a series of values organized by time"
+  draw 9: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.7s | [Ch. 5] "Time series is a series of values organized by time"
+  draw 10: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.8s | [Ch. 5] "Time series is a series of values organized by time"
+  => refuses 0/10, answered+cited 10/10, loops 0/10, repeats 0 -> PASS
 
 [5/21] greeting 'hi there' expect=either (max train sim r=0.61 j=0.00 vs 'the CAP theorem')
-  draw 1: refused=1 cited=3 loop=0 main=stop retried=0   6.5s | Not in this book.
-  draw 2: refused=1 cited=3 loop=0 main=stop retried=0   2.1s | Not in this book.
-  draw 3: refused=1 cited=3 loop=0 main=stop retried=0   2.2s | Not in this book.
-  draw 4: refused=1 cited=3 loop=0 main=stop retried=0   2.1s | Not in this book.
-  draw 5: refused=1 cited=3 loop=0 main=stop retried=0   2.3s | Not in this book.
-  draw 6: refused=1 cited=3 loop=0 main=stop retried=0   2.2s | Not in this book.
-  draw 7: refused=1 cited=3 loop=0 main=stop retried=0   2.2s | Not in this book.
-  draw 8: refused=1 cited=3 loop=0 main=stop retried=0   2.2s | Not in this book.
-  draw 9: refused=1 cited=3 loop=0 main=stop retried=0   2.2s | Not in this book.
-  draw 10: refused=1 cited=3 loop=0 main=stop retried=0   2.3s | Not in this book.
-  => answered 0/10, refused 10/10, loops 0/10 -> RECORD
+  draw 1: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   8.1s | [Ch. 1] "A chief information officer (CIO) is the senior C-suite executive responsible for information technology within
+  draw 2: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   3.8s | [Ch. 1] "A chief information officer (CIO) is the senior C-suite executive responsible for information technology within
+  draw 3: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   3.3s | [Ch. 1] "A chief information officer (CIO) is the senior C-suite executive responsible for information technology within
+  draw 4: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   3.2s | [Ch. 1] "A chief information officer (CIO) is the senior C-suite executive responsible for information technology within
+  draw 5: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   2.0s | [Ch. 1] "A chief information officer (CIO) is the senior C-suite executive responsible for information technology within
+  draw 6: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   3.4s | [Ch. 1] "A chief information officer (CIO) is the senior C-suite executive responsible for information technology within
+  draw 7: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   3.5s | [Ch. 1] "A chief information officer (CIO) is the senior C-suite executive responsible for information technology within
+  draw 8: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   3.0s | [Ch. 1] "A chief information officer (CIO) is the senior C-suite executive responsible for information technology within
+  draw 9: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   5.5s | [Ch. 1] "A chief information officer (CIO) is the senior C-suite executive responsible for information technology within
+  draw 10: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   2.8s | [Ch. 1] "A chief information officer (CIO) is the senior C-suite executive responsible for information technology within
+  => answered 10/10, refused 0/10, loops 0/10, repeats 0 -> RECORD
 
 [6/21] greeting 'good morning' expect=either (max train sim r=0.70 j=0.33 vs 'what is data masking')
-  draw 1: refused=1 cited=3 loop=0 main=stop retried=0   2.7s | Not in this book.
-  draw 2: refused=1 cited=3 loop=0 main=stop retried=0   1.9s | Not in this book.
-  draw 3: refused=1 cited=3 loop=0 main=stop retried=0   2.4s | Not in this book.
-  draw 4: refused=1 cited=3 loop=0 main=stop retried=0   2.3s | Not in this book.
-  draw 5: refused=1 cited=3 loop=0 main=stop retried=0   2.3s | Not in this book.
-  draw 6: refused=1 cited=3 loop=0 main=stop retried=0   2.2s | Not in this book.
-  draw 7: refused=1 cited=3 loop=0 main=stop retried=0   2.2s | Not in this book.
-  draw 8: refused=1 cited=3 loop=0 main=stop retried=0   2.3s | Not in this book.
-  draw 9: refused=1 cited=3 loop=0 main=stop retried=0   2.2s | Not in this book.
-  draw 10: refused=1 cited=3 loop=0 main=stop retried=0   2.3s | Not in this book.
-  => answered 0/10, refused 10/10, loops 0/10 -> RECORD
+  draw 1: refused=1 cited=3 loop=0 rep5=0 main=stop retried=0   2.3s | Not in this book.
+  draw 2: refused=1 cited=3 loop=0 rep5=0 main=stop retried=0   2.3s | Not in this book.
+  draw 3: refused=1 cited=3 loop=0 rep5=0 main=stop retried=0   1.8s | Not in this book.
+  draw 4: refused=1 cited=3 loop=0 rep5=0 main=stop retried=0   1.7s | Not in this book.
+  draw 5: refused=1 cited=3 loop=0 rep5=0 main=stop retried=0   1.8s | Not in this book.
+  draw 6: refused=1 cited=3 loop=0 rep5=0 main=stop retried=0   2.2s | Not in this book.
+  draw 7: refused=1 cited=3 loop=0 rep5=0 main=stop retried=0   2.2s | Not in this book.
+  draw 8: refused=1 cited=3 loop=0 rep5=0 main=stop retried=0   1.7s | Not in this book.
+  draw 9: refused=1 cited=3 loop=0 rep5=0 main=stop retried=0   1.7s | Not in this book.
+  draw 10: refused=1 cited=3 loop=0 rep5=0 main=stop retried=0   1.7s | Not in this book.
+  => answered 0/10, refused 10/10, loops 0/10, repeats 0 -> RECORD
 
 [7/21] greeting 'howdy' expect=either (max train sim r=0.67 j=0.50 vs 'what is pii')
-  draw 1: refused=1 cited=3 loop=0 main=stop retried=0   2.8s | Not in this book.
-  draw 2: refused=1 cited=3 loop=0 main=stop retried=0   1.7s | Not in this book.
-  draw 3: refused=1 cited=3 loop=0 main=stop retried=0   2.3s | Not in this book.
-  draw 4: refused=1 cited=3 loop=0 main=stop retried=0   2.2s | Not in this book.
-  draw 5: refused=1 cited=3 loop=0 main=stop retried=0   2.2s | Not in this book.
-  draw 6: refused=1 cited=3 loop=0 main=stop retried=0   2.3s | Not in this book.
-  draw 7: refused=1 cited=3 loop=0 main=stop retried=0   2.2s | Not in this book.
-  draw 8: refused=1 cited=3 loop=0 main=stop retried=0   2.2s | Not in this book.
-  draw 9: refused=1 cited=3 loop=0 main=stop retried=0   2.2s | Not in this book.
-  draw 10: refused=1 cited=3 loop=0 main=stop retried=0   2.2s | Not in this book.
-  => answered 0/10, refused 10/10, loops 0/10 -> RECORD
+  draw 1: refused=1 cited=3 loop=0 rep5=0 main=stop retried=0   2.5s | Not in this book.
+  draw 2: refused=1 cited=3 loop=0 rep5=0 main=stop retried=0   1.6s | Not in this book.
+  draw 3: refused=1 cited=3 loop=0 rep5=0 main=stop retried=0   1.7s | Not in this book.
+  draw 4: refused=1 cited=3 loop=0 rep5=0 main=stop retried=0   1.6s | Not in this book.
+  draw 5: refused=1 cited=3 loop=0 rep5=0 main=stop retried=0   1.6s | Not in this book.
+  draw 6: refused=1 cited=3 loop=0 rep5=0 main=stop retried=0   1.5s | Not in this book.
+  draw 7: refused=1 cited=3 loop=0 rep5=0 main=stop retried=0   1.6s | Not in this book.
+  draw 8: refused=1 cited=3 loop=0 rep5=0 main=stop retried=0   1.6s | Not in this book.
+  draw 9: refused=1 cited=3 loop=0 rep5=0 main=stop retried=0   1.6s | Not in this book.
+  draw 10: refused=1 cited=3 loop=0 rep5=0 main=stop retried=0   1.5s | Not in this book.
+  => answered 0/10, refused 10/10, loops 0/10, repeats 0 -> RECORD
 
 [8/21] bare-topic 'Time Series' expect=answered (max train sim r=0.70 j=0.40 vs 'What is serverless?')
-  draw 1: refused=0 cited=1 loop=0 main=stop retried=0   2.8s | Time Series is a series of values organized by time [Ch. 5]. It involves recording events over time, whether regularly o
-  draw 2: refused=0 cited=1 loop=0 main=stop retried=0   2.3s | Time Series is a series of values organized by time [Ch. 5]. It involves recording events over time, either regularly or
-  draw 3: refused=0 cited=1 loop=0 main=stop retried=0   2.2s | Time Series is a series of values organized by time [Ch. 5]. It involves recording events over time, either regularly or
-  draw 4: refused=0 cited=1 loop=0 main=stop retried=0   2.2s | Time Series is a series of values organized by time [Ch. 5]. It involves recording events over time, either regularly or
-  draw 5: refused=0 cited=1 loop=0 main=stop retried=0   2.2s | Time Series is a series of values organized by time [Ch. 5]. It involves recording events over time, either regularly or
-  draw 6: refused=0 cited=1 loop=0 main=stop retried=0   2.2s | Time Series is a series of values organized by time [Ch. 5]. It involves recording events over time, either regularly or
-  draw 7: refused=0 cited=1 loop=0 main=stop retried=0   2.2s | Time Series is a series of values organized by time [Ch. 5]. It involves recording events over time, either regularly or
-  draw 8: refused=0 cited=1 loop=0 main=stop retried=0   2.2s | Time Series is a series of values organized by time [Ch. 5]. It involves recording events over time, either regularly or
-  draw 9: refused=0 cited=1 loop=0 main=stop retried=0   2.2s | Time Series is a series of values organized by time [Ch. 5]. It involves recording events over time, either regularly or
-  draw 10: refused=0 cited=1 loop=0 main=stop retried=0   2.2s | Time Series is a series of values organized by time [Ch. 5]. It involves recording events over time, either regularly or
-  => refuses 0/10, answered+cited 10/10, loops 0/10 -> PASS
+  draw 1: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   2.1s | [Ch. 5] "A time series is a series of values organized by time" Asked as: "What is Time Series?"
+  draw 2: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.5s | [Ch. 5] "A time series is a series of values organized by time" Asked as: "What is Time Series?"
+  draw 3: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.6s | [Ch. 5] "A time series is a series of values organized by time" Asked as: "What is Time Series?"
+  draw 4: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.4s | [Ch. 5] "A time series is a series of values organized by time" Asked as: "What is Time Series?"
+  draw 5: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.5s | [Ch. 5] "A time series is a series of values organized by time" Asked as: "What is Time Series?"
+  draw 6: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 5] "A time series is a series of values organized by time" Asked as: "What is Time Series?"
+  draw 7: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 5] "A time series is a series of values organized by time" Asked as: "What is Time Series?"
+  draw 8: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 5] "A time series is a series of values organized by time" Asked as: "What is Time Series?"
+  draw 9: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 5] "A time series is a series of values organized by time" Asked as: "What is Time Series?"
+  draw 10: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 5] "A time series is a series of values organized by time" Asked as: "What is Time Series?"
+  => refuses 0/10, answered+cited 10/10, loops 0/10, repeats 0 -> PASS
 
 [9/21] bare-topic 'File Formats' expect=answered (max train sim r=0.67 j=0.40 vs 'What is Location?')
-  draw 1: refused=0 cited=2 loop=0 main=stop retried=0   2.3s | File Formats refer to the structure and organization of data within a file. Common file formats for data engineers inclu
-  draw 2: refused=0 cited=2 loop=0 main=stop retried=0   1.9s | File Formats refer to the structure and organization of data within a file. Common file formats for data engineers inclu
-  draw 3: refused=0 cited=2 loop=0 main=stop retried=0   1.9s | File Formats refer to the structure and organization of data within a file. Common file formats for data engineers inclu
-  draw 4: refused=0 cited=2 loop=0 main=stop retried=0   2.0s | File Formats refer to the structure and organization of data within a file. Common file formats for data engineers inclu
-  draw 5: refused=0 cited=2 loop=0 main=stop retried=0   1.9s | File Formats refer to the structure and organization of data within a file. Common file formats for data engineers inclu
-  draw 6: refused=0 cited=2 loop=0 main=stop retried=0   1.9s | File Formats refer to the structure and organization of data within a file. Common file formats for data engineers inclu
-  draw 7: refused=0 cited=2 loop=0 main=stop retried=0   1.9s | File Formats refer to the structure and organization of data within a file. Common file formats for data engineers inclu
-  draw 8: refused=0 cited=2 loop=0 main=stop retried=0   1.9s | File Formats refer to the structure and organization of data within a file. Common file formats for data engineers inclu
-  draw 9: refused=0 cited=2 loop=0 main=stop retried=0   1.9s | File Formats refer to the structure and organization of data within a file. Common file formats for data engineers inclu
-  draw 10: refused=0 cited=2 loop=0 main=stop retried=0   1.9s | File Formats refer to the structure and organization of data within a file. Common file formats for data engineers inclu
-  => refuses 0/10, answered+cited 10/10, loops 0/10 -> PASS
+  draw 1: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   2.3s | [Ch. 5] "The main types of source file formats you’ll run into as a data engineer—files that originate either manually o
+  draw 2: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.9s | [Ch. 5] "The main types of source file formats you’ll run into as a data engineer—files that originate either manually o
+  draw 3: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.9s | [Ch. 5] "The main types of source file formats you’ll run into as a data engineer—files that originate either manually o
+  draw 4: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.9s | [Ch. 5] "The main types of source file formats you’ll run into as a data engineer—files that originate either manually o
+  draw 5: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.9s | [Ch. 5] "The main types of source file formats you’ll run into as a data engineer—files that originate either manually o
+  draw 6: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.9s | [Ch. 5] "The main types of source file formats you’ll run into as a data engineer—files that originate either manually o
+  draw 7: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.9s | [Ch. 5] "The main types of source file formats you’ll run into as a data engineer—files that originate either manually o
+  draw 8: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   2.0s | [Ch. 5] "The main types of source file formats you’ll run into as a data engineer—files that originate either manually o
+  draw 9: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.9s | [Ch. 5] "The main types of source file formats you’ll run into as a data engineer—files that originate either manually o
+  draw 10: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.9s | [Ch. 5] "The main types of source file formats you’ll run into as a data engineer—files that originate either manually o
+  => refuses 0/10, answered+cited 10/10, loops 0/10, repeats 0 -> PASS
 
 [10/21] bare-topic 'Micro-Batch' expect=answered (max train sim r=0.67 j=0.29 vs 'What is a black hole?')
-  draw 1: refused=0 cited=1 loop=0 main=stop retried=0   1.9s | Micro-batch is a technique that applies batch processing in a streaming scenario. It involves running batches of data ev
-  draw 2: refused=0 cited=1 loop=0 main=stop retried=0   1.8s | Micro-batch is a method of applying batch processing in a streaming scenario. It involves processing data in small batch
-  draw 3: refused=0 cited=1 loop=0 main=stop retried=0   1.7s | Micro-batch is a method of applying batch processing in a streaming scenario. It involves processing data in small batch
-  draw 4: refused=0 cited=1 loop=0 main=stop retried=0   1.7s | Micro-batch is a method of applying batch processing in a streaming scenario. It involves processing data in small batch
-  draw 5: refused=0 cited=1 loop=0 main=stop retried=0   1.7s | Micro-batch is a method of applying batch processing in a streaming scenario. It involves processing data in small batch
-  draw 6: refused=0 cited=1 loop=0 main=stop retried=0   1.7s | Micro-batch is a method of applying batch processing in a streaming scenario. It involves processing data in small batch
-  draw 7: refused=0 cited=1 loop=0 main=stop retried=0   1.8s | Micro-batch is a method of applying batch processing in a streaming scenario. It involves processing data in small batch
-  draw 8: refused=0 cited=1 loop=0 main=stop retried=0   1.7s | Micro-batch is a method of applying batch processing in a streaming scenario. It involves processing data in small batch
-  draw 9: refused=0 cited=1 loop=0 main=stop retried=0   1.7s | Micro-batch is a method of applying batch processing in a streaming scenario. It involves processing data in small batch
-  draw 10: refused=0 cited=1 loop=0 main=stop retried=0   1.7s | Micro-batch is a method of applying batch processing in a streaming scenario. It involves processing data in small batch
-  => refuses 0/10, answered+cited 10/10, loops 0/10 -> PASS
+  draw 1: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.4s | [Ch. 8] "is a way to take a batch-oriented framework and apply it in a streaming situation" Asked as: "What is Micro-Bat
+  draw 2: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.0s | [Ch. 8] "is a way to take a batch-oriented framework and apply it in a streaming situation" Asked as: "What is Micro-Bat
+  draw 3: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.9s | [Ch. 8] "is a way to take a batch-oriented framework and apply it in a streaming situation" Asked as: "What is Micro-Bat
+  draw 4: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.9s | [Ch. 8] "is a way to take a batch-oriented framework and apply it in a streaming situation" Asked as: "What is Micro-Bat
+  draw 5: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.9s | [Ch. 8] "is a way to take a batch-oriented framework and apply it in a streaming situation" Asked as: "What is Micro-Bat
+  draw 6: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.9s | [Ch. 8] "is a way to take a batch-oriented framework and apply it in a streaming situation" Asked as: "What is Micro-Bat
+  draw 7: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.9s | [Ch. 8] "is a way to take a batch-oriented framework and apply it in a streaming situation" Asked as: "What is Micro-Bat
+  draw 8: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.9s | [Ch. 8] "is a way to take a batch-oriented framework and apply it in a streaming situation" Asked as: "What is Micro-Bat
+  draw 9: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.9s | [Ch. 8] "is a way to take a batch-oriented framework and apply it in a streaming situation" Asked as: "What is Micro-Bat
+  draw 10: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.9s | [Ch. 8] "is a way to take a batch-oriented framework and apply it in a streaming situation" Asked as: "What is Micro-Bat
+  => refuses 0/10, answered+cited 10/10, loops 0/10, repeats 0 -> PASS
 
 [11/21] bare-topic 'Streaming' expect=answered (max train sim r=0.72 j=0.40 vs 'What is star schema?')
-  draw 1: refused=0 cited=4 loop=0 main=stop retried=0   2.9s | Streaming data processing involves handling data in real-time, as it is generated, rather than in batches. This approach
-  draw 2: refused=0 cited=4 loop=0 main=stop retried=0   2.4s | Streaming data processing involves handling data in real-time, as it is generated, rather than in batches. This approach
-  draw 3: refused=0 cited=4 loop=0 main=stop retried=0   2.5s | Streaming data processing involves handling data in real-time, as it is generated, rather than in batches. This approach
-  draw 4: refused=0 cited=4 loop=0 main=stop retried=0   2.5s | Streaming data processing involves handling data in real-time, as it is generated, rather than in batches. This approach
-  draw 5: refused=0 cited=4 loop=0 main=stop retried=0   2.6s | Streaming data processing involves handling data in real-time, as it is generated, rather than in batches. This approach
-  draw 6: refused=0 cited=4 loop=0 main=stop retried=0   2.5s | Streaming data processing involves handling data in real-time, as it is generated, rather than in batches. This approach
-  draw 7: refused=0 cited=4 loop=0 main=stop retried=0   2.5s | Streaming data processing involves handling data in real-time, as it is generated, rather than in batches. This approach
-  draw 8: refused=0 cited=4 loop=0 main=stop retried=0   2.5s | Streaming data processing involves handling data in real-time, as it is generated, rather than in batches. This approach
-  draw 9: refused=0 cited=4 loop=0 main=stop retried=0   2.5s | Streaming data processing involves handling data in real-time, as it is generated, rather than in batches. This approach
-  draw 10: refused=0 cited=4 loop=0 main=stop retried=0   2.5s | Streaming data processing involves handling data in real-time, as it is generated, rather than in batches. This approach
-  => refuses 0/10, answered+cited 10/10, loops 0/10 -> PASS
+  draw 1: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.7s | [Ch. 2] "Streaming data processing is inherently more complicated than batch, and the tools and paradigms are arguably l
+  draw 2: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 2] "Streaming data processing is inherently more complicated than batch, and the tools and paradigms are arguably l
+  draw 3: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 2] "Streaming data processing is inherently more complicated than batch, and the tools and paradigms are arguably l
+  draw 4: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 2] "Streaming data processing is inherently more complicated than batch, and the tools and paradigms are arguably l
+  draw 5: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 2] "Streaming data processing is inherently more complicated than batch, and the tools and paradigms are arguably l
+  draw 6: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.4s | [Ch. 2] "Streaming data processing is inherently more complicated than batch, and the tools and paradigms are arguably l
+  draw 7: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.4s | [Ch. 2] "Streaming data processing is inherently more complicated than batch, and the tools and paradigms are arguably l
+  draw 8: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.4s | [Ch. 2] "Streaming data processing is inherently more complicated than batch, and the tools and paradigms are arguably l
+  draw 9: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 2] "Streaming data processing is inherently more complicated than batch, and the tools and paradigms are arguably l
+  draw 10: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.4s | [Ch. 2] "Streaming data processing is inherently more complicated than batch, and the tools and paradigms are arguably l
+  => refuses 0/10, answered+cited 10/10, loops 0/10, repeats 0 -> PASS
 
 [12/21] bare-topic 'Event Streams' expect=answered (max train sim r=0.73 j=0.29 vs 'What is key-value store?')
-  draw 1: refused=0 cited=2 loop=0 main=stop retried=0   2.6s | Event Streams, as described in [Ch. 5], are part of event-streaming platforms that ingest and process data in an ordered
-  draw 2: refused=0 cited=2 loop=0 main=stop retried=0   2.6s | Event Streams, as described in [Ch. 5], are part of event-streaming platforms that ingest and process data in an ordered
-  draw 3: refused=0 cited=2 loop=0 main=stop retried=0   2.6s | Event Streams, as described in [Ch. 5], are part of event-streaming platforms that ingest and process data in an ordered
-  draw 4: refused=0 cited=2 loop=0 main=stop retried=0   2.6s | Event Streams, as described in [Ch. 5], are part of event-streaming platforms that ingest and process data in an ordered
-  draw 5: refused=0 cited=2 loop=0 main=stop retried=0   2.7s | Event Streams, as described in [Ch. 5], are part of event-streaming platforms that ingest and process data in an ordered
-  draw 6: refused=0 cited=2 loop=0 main=stop retried=0   2.7s | Event Streams, as described in [Ch. 5], are part of event-streaming platforms that ingest and process data in an ordered
-  draw 7: refused=0 cited=2 loop=0 main=stop retried=0   2.6s | Event Streams, as described in [Ch. 5], are part of event-streaming platforms that ingest and process data in an ordered
-  draw 8: refused=0 cited=2 loop=0 main=stop retried=0   2.6s | Event Streams, as described in [Ch. 5], are part of event-streaming platforms that ingest and process data in an ordered
-  draw 9: refused=0 cited=2 loop=0 main=stop retried=0   2.6s | Event Streams, as described in [Ch. 5], are part of event-streaming platforms that ingest and process data in an ordered
-  draw 10: refused=0 cited=2 loop=0 main=stop retried=0   2.6s | Event Streams, as described in [Ch. 5], are part of event-streaming platforms that ingest and process data in an ordered
-  => refuses 0/10, answered+cited 10/10, loops 0/10 -> PASS
+  draw 1: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 5] "used to ingest and process data in an ordered log of records" Asked as: "What is Event Streams?"
+  draw 2: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.9s | [Ch. 5] "used to ingest and process data in an ordered log of records" Asked as: "What is Event Streams?"
+  draw 3: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.9s | [Ch. 5] "used to ingest and process data in an ordered log of records" Asked as: "What is Event Streams?"
+  draw 4: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.9s | [Ch. 5] "used to ingest and process data in an ordered log of records" Asked as: "What is Event Streams?"
+  draw 5: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.9s | [Ch. 5] "used to ingest and process data in an ordered log of records" Asked as: "What is Event Streams?"
+  draw 6: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.9s | [Ch. 5] "used to ingest and process data in an ordered log of records" Asked as: "What is Event Streams?"
+  draw 7: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.9s | [Ch. 5] "used to ingest and process data in an ordered log of records" Asked as: "What is Event Streams?"
+  draw 8: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.9s | [Ch. 5] "used to ingest and process data in an ordered log of records" Asked as: "What is Event Streams?"
+  draw 9: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.9s | [Ch. 5] "used to ingest and process data in an ordered log of records" Asked as: "What is Event Streams?"
+  draw 10: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   0.9s | [Ch. 5] "used to ingest and process data in an ordered log of records" Asked as: "What is Event Streams?"
+  => refuses 0/10, answered+cited 10/10, loops 0/10, repeats 0 -> PASS
 
 [13/21] order-flip 'batch vs streaming' expect=answered (max train sim r=0.67 j=0.29 vs 'What is data wrangling?')
-  draw 1: refused=0 cited=4 loop=0 main=stop retried=0   3.2s | Batch vs streaming refers to two different approaches to data processing. Batch processing involves ingesting data in la
-  draw 2: refused=0 cited=4 loop=0 main=stop retried=0   2.6s | Batch vs streaming refers to two different approaches to data processing. Batch processing involves ingesting and proces
-  draw 3: refused=0 cited=4 loop=0 main=stop retried=0   2.6s | Batch vs streaming refers to two different approaches to data processing. Batch processing involves ingesting and proces
-  draw 4: refused=0 cited=4 loop=0 main=stop retried=0   2.6s | Batch vs streaming refers to two different approaches to data processing. Batch processing involves ingesting and proces
-  draw 5: refused=0 cited=4 loop=0 main=stop retried=0   2.6s | Batch vs streaming refers to two different approaches to data processing. Batch processing involves ingesting and proces
-  draw 6: refused=0 cited=4 loop=0 main=stop retried=0   2.6s | Batch vs streaming refers to two different approaches to data processing. Batch processing involves ingesting and proces
-  draw 7: refused=0 cited=4 loop=0 main=stop retried=0   2.6s | Batch vs streaming refers to two different approaches to data processing. Batch processing involves ingesting and proces
-  draw 8: refused=0 cited=4 loop=0 main=stop retried=0   2.6s | Batch vs streaming refers to two different approaches to data processing. Batch processing involves ingesting and proces
-  draw 9: refused=0 cited=4 loop=0 main=stop retried=0   2.6s | Batch vs streaming refers to two different approaches to data processing. Batch processing involves ingesting and proces
-  draw 10: refused=0 cited=4 loop=0 main=stop retried=0   2.6s | Batch vs streaming refers to two different approaches to data processing. Batch processing involves ingesting and proces
-  => refuses 0/10, answered+cited 10/10, loops 0/10 -> PASS
+  draw 1: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.7s | [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an
+  draw 2: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.5s | [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an
+  draw 3: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.5s | [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an
+  draw 4: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.4s | [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an
+  draw 5: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.5s | [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an
+  draw 6: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.5s | [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an
+  draw 7: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.5s | [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an
+  draw 8: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.4s | [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an
+  draw 9: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.4s | [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an
+  draw 10: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.4s | [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an
+  => refuses 0/10, answered+cited 10/10, loops 0/10, repeats 0 -> PASS
 
 [14/21] order-flip 'streaming vs batch' expect=answered (max train sim r=0.70 j=0.29 vs 'What is Serving Data?')
-  draw 1: refused=0 cited=3 loop=0 main=stop retried=0   2.8s | Streaming vs batch refers to two different approaches to data processing. Batch processing involves ingesting and proces
-  draw 2: refused=0 cited=2 loop=0 main=stop retried=0   2.5s | Streaming vs batch refers to two different approaches to data processing. Batch processing involves ingesting and proces
-  draw 3: refused=0 cited=2 loop=0 main=stop retried=0   2.5s | Streaming vs batch refers to two different approaches to data processing. Batch processing involves ingesting and proces
-  draw 4: refused=0 cited=2 loop=0 main=stop retried=0   2.6s | Streaming vs batch refers to two different approaches to data processing. Batch processing involves ingesting and proces
-  draw 5: refused=0 cited=2 loop=0 main=stop retried=0   2.5s | Streaming vs batch refers to two different approaches to data processing. Batch processing involves ingesting and proces
-  draw 6: refused=0 cited=2 loop=0 main=stop retried=0   2.5s | Streaming vs batch refers to two different approaches to data processing. Batch processing involves ingesting and proces
-  draw 7: refused=0 cited=2 loop=0 main=stop retried=0   2.6s | Streaming vs batch refers to two different approaches to data processing. Batch processing involves ingesting and proces
-  draw 8: refused=0 cited=2 loop=0 main=stop retried=0   2.5s | Streaming vs batch refers to two different approaches to data processing. Batch processing involves ingesting and proces
-  draw 9: refused=0 cited=2 loop=0 main=stop retried=0   2.5s | Streaming vs batch refers to two different approaches to data processing. Batch processing involves ingesting and proces
-  draw 10: refused=0 cited=2 loop=0 main=stop retried=0   2.4s | Streaming vs batch refers to two different approaches to data processing. Batch processing involves ingesting and proces
-  => refuses 0/10, answered+cited 10/10, loops 0/10 -> PASS
+  draw 1: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an
+  draw 2: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.4s | [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an
+  draw 3: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.4s | [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an
+  draw 4: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.4s | [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an
+  draw 5: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.4s | [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an
+  draw 6: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.4s | [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an
+  draw 7: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.4s | [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an
+  draw 8: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.5s | [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an
+  draw 9: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.6s | [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an
+  draw 10: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.5s | [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an
+  => refuses 0/10, answered+cited 10/10, loops 0/10, repeats 0 -> PASS
 
 [15/21] order-flip 'column-oriented vs row-oriented' expect=answered (max train sim r=0.62 j=0.30 vs 'What is schema on read vs schema on write?')
-  draw 1: refused=0 cited=3 loop=0 main=stop retried=0   3.0s | Column-oriented and row-oriented storage refer to different ways of organizing data in a database. In row-oriented stora
-  draw 2: refused=0 cited=2 loop=0 main=stop retried=0   2.2s | Column-oriented and row-oriented storage refer to different ways of organizing data in a database. In row-oriented stora
-  draw 3: refused=0 cited=2 loop=0 main=stop retried=0   2.2s | Column-oriented and row-oriented storage refer to different ways of organizing data in a database. In row-oriented stora
-  draw 4: refused=0 cited=2 loop=0 main=stop retried=0   2.1s | Column-oriented and row-oriented storage refer to different ways of organizing data in a database. In row-oriented stora
-  draw 5: refused=0 cited=2 loop=0 main=stop retried=0   2.2s | Column-oriented and row-oriented storage refer to different ways of organizing data in a database. In row-oriented stora
-  draw 6: refused=0 cited=2 loop=0 main=stop retried=0   2.2s | Column-oriented and row-oriented storage refer to different ways of organizing data in a database. In row-oriented stora
-  draw 7: refused=0 cited=2 loop=0 main=stop retried=0   2.2s | Column-oriented and row-oriented storage refer to different ways of organizing data in a database. In row-oriented stora
-  draw 8: refused=0 cited=2 loop=0 main=stop retried=0   2.2s | Column-oriented and row-oriented storage refer to different ways of organizing data in a database. In row-oriented stora
-  draw 9: refused=0 cited=2 loop=0 main=stop retried=0   2.2s | Column-oriented and row-oriented storage refer to different ways of organizing data in a database. In row-oriented stora
-  draw 10: refused=0 cited=2 loop=0 main=stop retried=0   2.2s | Column-oriented and row-oriented storage refer to different ways of organizing data in a database. In row-oriented stora
-  => refuses 0/10, answered+cited 10/10, loops 0/10 -> PASS
+  draw 1: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.6s | [Ch. 6] "Columnar serialization allows a database to scan only the columns required for a particular query, sometimes dr
+  draw 2: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 6] "Columnar serialization allows a database to scan only the columns required for a particular query, sometimes dr
+  draw 3: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 6] "Columnar serialization allows a database to scan only the columns required for a particular query, sometimes dr
+  draw 4: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 6] "Columnar serialization allows a database to scan only the columns required for a particular query, sometimes dr
+  draw 5: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 6] "Columnar serialization allows a database to scan only the columns required for a particular query, sometimes dr
+  draw 6: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 6] "Columnar serialization allows a database to scan only the columns required for a particular query, sometimes dr
+  draw 7: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.4s | [Ch. 6] "Columnar serialization allows a database to scan only the columns required for a particular query, sometimes dr
+  draw 8: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 6] "Columnar serialization allows a database to scan only the columns required for a particular query, sometimes dr
+  draw 9: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 6] "Columnar serialization allows a database to scan only the columns required for a particular query, sometimes dr
+  draw 10: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.4s | [Ch. 6] "Columnar serialization allows a database to scan only the columns required for a particular query, sometimes dr
+  => refuses 0/10, answered+cited 10/10, loops 0/10, repeats 0 -> PASS
 
 [16/21] order-flip 'row-oriented vs column-oriented' expect=answered (max train sim r=0.62 j=0.30 vs 'What is schema on read vs schema on write?')
-  draw 1: refused=0 cited=2 loop=0 main=stop retried=0   2.7s | Row-oriented and column-oriented data organization refer to how data is stored and accessed in databases. In row-oriente
-  draw 2: refused=0 cited=2 loop=0 main=stop retried=0   2.4s | Row-oriented and column-oriented data organization refer to how data is stored and accessed in databases. In row-oriente
-  draw 3: refused=0 cited=2 loop=0 main=stop retried=0   2.4s | Row-oriented and column-oriented data organization refer to how data is stored and accessed in databases. In row-oriente
-  draw 4: refused=0 cited=2 loop=0 main=stop retried=0   2.4s | Row-oriented and column-oriented data organization refer to how data is stored and accessed in databases. In row-oriente
-  draw 5: refused=0 cited=2 loop=0 main=stop retried=0   2.4s | Row-oriented and column-oriented data organization refer to how data is stored and accessed in databases. In row-oriente
-  draw 6: refused=0 cited=2 loop=0 main=stop retried=0   2.4s | Row-oriented and column-oriented data organization refer to how data is stored and accessed in databases. In row-oriente
-  draw 7: refused=0 cited=2 loop=0 main=stop retried=0   2.4s | Row-oriented and column-oriented data organization refer to how data is stored and accessed in databases. In row-oriente
-  draw 8: refused=0 cited=2 loop=0 main=stop retried=0   2.4s | Row-oriented and column-oriented data organization refer to how data is stored and accessed in databases. In row-oriente
-  draw 9: refused=0 cited=2 loop=0 main=stop retried=0   2.4s | Row-oriented and column-oriented data organization refer to how data is stored and accessed in databases. In row-oriente
-  draw 10: refused=0 cited=2 loop=0 main=stop retried=0   2.4s | Row-oriented and column-oriented data organization refer to how data is stored and accessed in databases. In row-oriente
-  => refuses 0/10, answered+cited 10/10, loops 0/10 -> PASS
+  draw 1: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.6s | [Ch. 6] "Columnar serialization allows a database to scan only the columns required for a particular query, sometimes dr
+  draw 2: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 6] "Columnar serialization allows a database to scan only the columns required for a particular query, sometimes dr
+  draw 3: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 6] "Columnar serialization allows a database to scan only the columns required for a particular query, sometimes dr
+  draw 4: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 6] "Columnar serialization allows a database to scan only the columns required for a particular query, sometimes dr
+  draw 5: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 6] "Columnar serialization allows a database to scan only the columns required for a particular query, sometimes dr
+  draw 6: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 6] "Columnar serialization allows a database to scan only the columns required for a particular query, sometimes dr
+  draw 7: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 6] "Columnar serialization allows a database to scan only the columns required for a particular query, sometimes dr
+  draw 8: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 6] "Columnar serialization allows a database to scan only the columns required for a particular query, sometimes dr
+  draw 9: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 6] "Columnar serialization allows a database to scan only the columns required for a particular query, sometimes dr
+  draw 10: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 6] "Columnar serialization allows a database to scan only the columns required for a particular query, sometimes dr
+  => refuses 0/10, answered+cited 10/10, loops 0/10, repeats 0 -> PASS
 
 [17/21] trailing-letter 'what does etls stand for' expect=answered (max train sim r=0.83 j=0.67 vs 'what does crud stand for')
-  draw 1: refused=0 cited=2 loop=0 main=stop retried=0   1.9s | ETL stands for extract, transform, load [Ch. 1]. This pattern involves pulling data from various sources, transforming i
-  draw 2: refused=0 cited=2 loop=0 main=stop retried=0   1.3s | ETL stands for extract, transform, load [Ch. 1]. This pattern involves pulling data from various sources, transforming i
-  draw 3: refused=0 cited=2 loop=0 main=stop retried=0   1.4s | ETL stands for extract, transform, load [Ch. 1]. This pattern involves pulling data from various sources, transforming i
-  draw 4: refused=0 cited=2 loop=0 main=stop retried=0   1.3s | ETL stands for extract, transform, load [Ch. 1]. This pattern involves pulling data from various sources, transforming i
-  draw 5: refused=0 cited=2 loop=0 main=stop retried=0   1.3s | ETL stands for extract, transform, load [Ch. 1]. This pattern involves pulling data from various sources, transforming i
-  draw 6: refused=0 cited=2 loop=0 main=stop retried=0   1.4s | ETL stands for extract, transform, load [Ch. 1]. This pattern involves pulling data from various sources, transforming i
-  draw 7: refused=0 cited=2 loop=0 main=stop retried=0   1.3s | ETL stands for extract, transform, load [Ch. 1]. This pattern involves pulling data from various sources, transforming i
-  draw 8: refused=0 cited=2 loop=0 main=stop retried=0   1.4s | ETL stands for extract, transform, load [Ch. 1]. This pattern involves pulling data from various sources, transforming i
-  draw 9: refused=0 cited=2 loop=0 main=stop retried=0   1.4s | ETL stands for extract, transform, load [Ch. 1]. This pattern involves pulling data from various sources, transforming i
-  draw 10: refused=0 cited=2 loop=0 main=stop retried=0   1.3s | ETL stands for extract, transform, load [Ch. 1]. This pattern involves pulling data from various sources, transforming i
-  => refuses 0/10, answered+cited 10/10, loops 0/10 -> PASS
+  draw 1: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.9s | [Ch. 1] "ETL stands for extract, transform, load, a common pattern we cover in the book" Read as: "what does etl stand f
+  draw 2: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 1] "ETL stands for extract, transform, load, a common pattern we cover in the book" Read as: "what does etl stand f
+  draw 3: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.4s | [Ch. 1] "ETL stands for extract, transform, load, a common pattern we cover in the book" Read as: "what does etl stand f
+  draw 4: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 1] "ETL stands for extract, transform, load, a common pattern we cover in the book" Read as: "what does etl stand f
+  draw 5: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 1] "ETL stands for extract, transform, load, a common pattern we cover in the book" Read as: "what does etl stand f
+  draw 6: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 1] "ETL stands for extract, transform, load, a common pattern we cover in the book" Read as: "what does etl stand f
+  draw 7: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 1] "ETL stands for extract, transform, load, a common pattern we cover in the book" Read as: "what does etl stand f
+  draw 8: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.2s | [Ch. 1] "ETL stands for extract, transform, load, a common pattern we cover in the book" Read as: "what does etl stand f
+  draw 9: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.4s | [Ch. 1] "ETL stands for extract, transform, load, a common pattern we cover in the book" Read as: "what does etl stand f
+  draw 10: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.3s | [Ch. 1] "ETL stands for extract, transform, load, a common pattern we cover in the book" Read as: "what does etl stand f
+  => refuses 0/10, answered+cited 10/10, loops 0/10, repeats 0 -> PASS
 
 [18/21] trailing-letter 'benefits of data meshs' expect=answered (max train sim r=0.63 j=0.30 vs 'What is greenfield vs brownfield data projects?')
-  draw 1: refused=0 cited=2 loop=0 main=stop retried=0   4.6s | The benefits of data mesh include changing the way data is served within an organization, moving from siloed data teams 
-  draw 2: refused=0 cited=2 loop=0 main=stop retried=0   2.9s | The benefits of data mesh include decentralized data ownership and architecture, data as a product, self-serve data infr
-  draw 3: refused=0 cited=2 loop=0 main=stop retried=0   3.6s | The benefits of data mesh include decentralized data ownership and architecture, data as a product, self-serve data infr
-  draw 4: refused=0 cited=2 loop=0 main=stop retried=0   3.5s | The benefits of data mesh include decentralized data ownership and architecture, data as a product, self-serve data infr
-  draw 5: refused=0 cited=2 loop=0 main=stop retried=0   3.1s | The benefits of data mesh include decentralized data ownership and architecture, data as a product, self-serve data infr
-  draw 6: refused=0 cited=2 loop=0 main=stop retried=0   3.5s | The benefits of data mesh include decentralized data ownership and architecture, data as a product, self-serve data infr
-  draw 7: refused=0 cited=2 loop=0 main=stop retried=0   2.9s | The benefits of data mesh include decentralized data ownership and architecture, data as a product, self-serve data infr
-  draw 8: refused=0 cited=2 loop=0 main=stop retried=0   2.9s | The benefits of data mesh include decentralized data ownership and architecture, data as a product, self-serve data infr
-  draw 9: refused=0 cited=2 loop=0 main=stop retried=0   2.9s | The benefits of data mesh include decentralized data ownership and architecture, data as a product, self-serve data infr
-  draw 10: refused=0 cited=2 loop=0 main=stop retried=0   3.5s | The benefits of data mesh include decentralized data ownership and architecture, data as a product, self-serve data infr
-  => refuses 0/10, answered+cited 10/10, loops 0/10 -> PASS
+  draw 1: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   2.8s | [Ch. 9] "Data mesh fundamentally changes the way data is served within an organization" Asked as: "What is benefits of d
+  draw 2: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   3.3s | [Ch. 9] "Data mesh fundamentally changes the way data is served within an organization" Asked as: "What is benefits of d
+  draw 3: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   2.7s | [Ch. 9] "Data mesh fundamentally changes the way data is served within an organization" Asked as: "What is benefits of d
+  draw 4: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   2.9s | [Ch. 9] "Data mesh fundamentally changes the way data is served within an organization" Asked as: "What is benefits of d
+  draw 5: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   2.2s | [Ch. 9] "Data mesh fundamentally changes the way data is served within an organization" Asked as: "What is benefits of d
+  draw 6: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   2.5s | [Ch. 9] "Data mesh fundamentally changes the way data is served within an organization" Asked as: "What is benefits of d
+  draw 7: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   2.3s | [Ch. 9] "Data mesh fundamentally changes the way data is served within an organization" Asked as: "What is benefits of d
+  draw 8: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   2.5s | [Ch. 9] "Data mesh fundamentally changes the way data is served within an organization" Asked as: "What is benefits of d
+  draw 9: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   2.5s | [Ch. 9] "Data mesh fundamentally changes the way data is served within an organization" Asked as: "What is benefits of d
+  draw 10: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   2.5s | [Ch. 9] "Data mesh fundamentally changes the way data is served within an organization" Asked as: "What is benefits of d
+  => refuses 0/10, answered+cited 10/10, loops 0/10, repeats 0 -> PASS
 
 [19/21] trailing-letter 'how do data pipeliness work' expect=answered (max train sim r=0.63 j=0.38 vs 'how do data scientists use notebooks')
-  draw 1: refused=0 cited=3 loop=0 main=stop retried=0   3.4s | Data pipelines work by moving data through the stages of the data engineering lifecycle, from source systems to the fina
-  draw 2: refused=0 cited=3 loop=0 main=stop retried=0   2.6s | Data pipelines work by moving data through the stages of the data engineering lifecycle, from source systems to the fina
-  draw 3: refused=0 cited=3 loop=0 main=stop retried=0   2.5s | Data pipelines work by moving data through the stages of the data engineering lifecycle, from source systems to the fina
-  draw 4: refused=0 cited=3 loop=0 main=stop retried=0   2.6s | Data pipelines work by moving data through the stages of the data engineering lifecycle, from source systems to the fina
-  draw 5: refused=0 cited=3 loop=0 main=stop retried=0   2.5s | Data pipelines work by moving data through the stages of the data engineering lifecycle, from source systems to the fina
-  draw 6: refused=0 cited=3 loop=0 main=stop retried=0   2.6s | Data pipelines work by moving data through the stages of the data engineering lifecycle, from source systems to the fina
-  draw 7: refused=0 cited=3 loop=0 main=stop retried=0   2.6s | Data pipelines work by moving data through the stages of the data engineering lifecycle, from source systems to the fina
-  draw 8: refused=0 cited=3 loop=0 main=stop retried=0   2.6s | Data pipelines work by moving data through the stages of the data engineering lifecycle, from source systems to the fina
-  draw 9: refused=0 cited=3 loop=0 main=stop retried=0   2.6s | Data pipelines work by moving data through the stages of the data engineering lifecycle, from source systems to the fina
-  draw 10: refused=0 cited=3 loop=0 main=stop retried=0   2.6s | Data pipelines work by moving data through the stages of the data engineering lifecycle, from source systems to the fina
-  => refuses 0/10, answered+cited 10/10, loops 0/10 -> PASS
+  draw 1: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   2.1s | [Ch. 7] "A data pipeline is the combination of architecture, systems, and processes that move data through the stages of
+  draw 2: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.8s | [Ch. 7] "A data pipeline is the combination of architecture, systems, and processes that move data through the stages of
+  draw 3: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.8s | [Ch. 7] "A data pipeline is the combination of architecture, systems, and processes that move data through the stages of
+  draw 4: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.9s | [Ch. 7] "A data pipeline is the combination of architecture, systems, and processes that move data through the stages of
+  draw 5: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.8s | [Ch. 7] "A data pipeline is the combination of architecture, systems, and processes that move data through the stages of
+  draw 6: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.8s | [Ch. 7] "A data pipeline is the combination of architecture, systems, and processes that move data through the stages of
+  draw 7: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.8s | [Ch. 7] "A data pipeline is the combination of architecture, systems, and processes that move data through the stages of
+  draw 8: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.9s | [Ch. 7] "A data pipeline is the combination of architecture, systems, and processes that move data through the stages of
+  draw 9: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.8s | [Ch. 7] "A data pipeline is the combination of architecture, systems, and processes that move data through the stages of
+  draw 10: refused=0 cited=1 loop=0 rep5=1 main=stop retried=0   1.9s | [Ch. 7] "A data pipeline is the combination of architecture, systems, and processes that move data through the stages of
+  => refuses 0/10, answered+cited 10/10, loops 0/10, repeats 0 -> PASS
 
 [20/21] control 'what is the offside rule' expect=refused (max train sim r=0.68 j=0.38 vs 'What is the plot of Hamlet?')
-  draw 1: refused=1 cited=3 loop=0 main=stop retried=0   2.1s | Not in this book.
-  draw 2: refused=1 cited=3 loop=0 main=stop retried=0   1.8s | Not in this book.
-  draw 3: refused=1 cited=3 loop=0 main=stop retried=0   2.3s | Not in this book.
-  draw 4: refused=1 cited=3 loop=0 main=stop retried=0   2.2s | Not in this book.
-  draw 5: refused=1 cited=3 loop=0 main=stop retried=0   2.2s | Not in this book.
-  draw 6: refused=1 cited=3 loop=0 main=stop retried=0   2.3s | Not in this book.
-  draw 7: refused=1 cited=3 loop=0 main=stop retried=0   2.2s | Not in this book.
-  draw 8: refused=1 cited=3 loop=0 main=stop retried=0   2.2s | Not in this book.
-  draw 9: refused=1 cited=3 loop=0 main=stop retried=0   2.2s | Not in this book.
-  draw 10: refused=1 cited=3 loop=0 main=stop retried=0   2.1s | Not in this book.
-  => refuses-exact 10/10, loops 0/10 -> PASS
+  draw 1: refused=1 cited=3 loop=0 rep5=1 main=stop retried=0   2.0s | Not in this book.
+  draw 2: refused=1 cited=3 loop=0 rep5=1 main=stop retried=0   1.5s | Not in this book.
+  draw 3: refused=1 cited=3 loop=0 rep5=1 main=stop retried=0   1.5s | Not in this book.
+  draw 4: refused=1 cited=3 loop=0 rep5=1 main=stop retried=0   1.6s | Not in this book.
+  draw 5: refused=1 cited=3 loop=0 rep5=1 main=stop retried=0   1.6s | Not in this book.
+  draw 6: refused=1 cited=3 loop=0 rep5=1 main=stop retried=0   1.6s | Not in this book.
+  draw 7: refused=1 cited=3 loop=0 rep5=1 main=stop retried=0   1.6s | Not in this book.
+  draw 8: refused=1 cited=3 loop=0 rep5=1 main=stop retried=0   1.6s | Not in this book.
+  draw 9: refused=1 cited=3 loop=0 rep5=1 main=stop retried=0   1.5s | Not in this book.
+  draw 10: refused=1 cited=3 loop=0 rep5=1 main=stop retried=0   1.6s | Not in this book.
+  => refuses-exact 10/10, loops 0/10, repeats 0 -> PASS
 
 [21/21] control 'how many strings does a violin have' expect=refused (max train sim r=0.56 j=0.15 vs 'How many bones are in the human body?')
-  draw 1: refused=0 cited=0 loop=0 main=stop retried=0   3.4s | A violin has four strings. Not in this book.  <-- MISS
-  draw 2: refused=0 cited=0 loop=0 main=stop retried=0   2.0s | A violin has four strings. Not in this book.  <-- MISS
-  draw 3: refused=0 cited=0 loop=0 main=stop retried=0   2.4s | A violin has four strings. Not in this book.  <-- MISS
-  draw 4: refused=0 cited=0 loop=0 main=stop retried=0   2.2s | A violin has four strings. Not in this book.  <-- MISS
-  draw 5: refused=0 cited=0 loop=0 main=stop retried=0   2.2s | A violin has four strings. Not in this book.  <-- MISS
-  draw 6: refused=0 cited=0 loop=0 main=stop retried=0   2.3s | A violin has four strings. Not in this book.  <-- MISS
-  draw 7: refused=0 cited=0 loop=0 main=stop retried=0   2.4s | A violin has four strings. Not in this book.  <-- MISS
-  draw 8: refused=0 cited=0 loop=0 main=stop retried=0   2.3s | A violin has four strings. Not in this book.  <-- MISS
-  draw 9: refused=0 cited=0 loop=0 main=stop retried=0   2.2s | A violin has four strings. Not in this book.  <-- MISS
-  draw 10: refused=0 cited=0 loop=0 main=stop retried=0   2.2s | A violin has four strings. Not in this book.  <-- MISS
-  => refuses-exact 0/10, loops 0/10 -> FAIL
+  draw 1: refused=1 cited=3 loop=0 rep5=1 main=stop retried=0   2.2s | Not in this book.
+  draw 2: refused=1 cited=3 loop=0 rep5=1 main=stop retried=0   1.5s | Not in this book.
+  draw 3: refused=1 cited=3 loop=0 rep5=1 main=stop retried=0   1.5s | Not in this book.
+  draw 4: refused=1 cited=3 loop=0 rep5=1 main=stop retried=0   1.6s | Not in this book.
+  draw 5: refused=1 cited=3 loop=0 rep5=1 main=stop retried=0   1.6s | Not in this book.
+  draw 6: refused=1 cited=3 loop=0 rep5=1 main=stop retried=0   1.6s | Not in this book.
+  draw 7: refused=1 cited=3 loop=0 rep5=1 main=stop retried=0   1.6s | Not in this book.
+  draw 8: refused=1 cited=3 loop=0 rep5=1 main=stop retried=0   1.6s | Not in this book.
+  draw 9: refused=1 cited=3 loop=0 rep5=1 main=stop retried=0   1.6s | Not in this book.
+  draw 10: refused=1 cited=3 loop=0 rep5=1 main=stop retried=0   1.6s | Not in this book.
+  => refuses-exact 10/10, loops 0/10, repeats 0 -> PASS
 
 == summary ==
-class           items draws  pass/draws loops errors  verdicts
-fragment            4    40       20/40     0      0  PASS,FAIL,PASS,FAIL
-greeting            3    30   0/30 answ     0      0  RECORD,RECORD,RECORD
-bare-topic          5    50       50/50     0      0  PASS,PASS,PASS,PASS,PASS
-order-flip          4    40       40/40     0      0  PASS,PASS,PASS,PASS
-trailing-letter     3    30       30/30     0      0  PASS,PASS,PASS
-control             2    20       10/20     0      0  PASS,FAIL
+class           items draws  pass/draws loops  reps errors  verdicts
+fragment            4    40       40/40     0     0      0  PASS,PASS,PASS,PASS
+greeting            3    30  10/30 answ     0     0      0  RECORD,RECORD,RECORD
+bare-topic          5    50       50/50     0     0      0  PASS,PASS,PASS,PASS,PASS
+order-flip          4    40       40/40     0     0      0  PASS,PASS,PASS,PASS
+trailing-letter     3    30       30/30     0     0      0  PASS,PASS,PASS
+control             2    20       20/20     0     0      0  PASS,PASS

@@ -1,11 +1,19 @@
 """Answers from retrieved passages: the ask and answer modes.
 
 ask: the model quotes, the quote is checked; a failed check is a refusal.
-answer: the model writes freely from the passages; its [Ch. n] tags become
-citations, quotation marks the passages cannot back are stripped, and the
-quote check demotes from gate to meter (artifacts/harnesses/groundedness.py).
-An uncited answer gets one `[Ch. ` prefill retry, kept only when a citation
-validates (`_retry_uncited`).
+answer: the model answers from the passages in the same quote-first shape
+(SYSTEM + user_message — the exact prompts the student is trained on); its
+[Ch. n] tags become citations, quotation marks the passages cannot back are
+stripped, and the quote check demotes from gate to meter
+(artifacts/harnesses/groundedness.py). An uncited answer gets one `[Ch. `
+prefill retry, kept only when a citation validates (`_retry_uncited`).
+
+Prompt alignment (2026-10-15): answer mode used to send SYSTEM_ANSWER ("a few
+sentences ... in your own words"). The training data has always been
+ask-shaped (quote-first); x2d masked the mismatch by over-memorizing
+(loss 0.006), while x2e followed the served prompt, paraphrased, and failed
+the verbatim check (40/160 vs 111/160, probe-fragment evidence). The default
+path now serves what the model was trained on.
 """
 
 import difflib
@@ -577,7 +585,7 @@ def _retry_uncited(question, passages, figures, generate_fn, model):
     """
     try:
         completion = generate_fn(
-            SYSTEM_ANSWER, answer_user_message(question, passages), model,
+            SYSTEM, user_message(question, passages), model,
             prefill="[Ch. ",
         )
     except Exception:
@@ -618,15 +626,16 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
             canonical=True):
     """Free-generation answer from the retrieved passages.
 
-    No quote enforcement: the model writes, its [Ch. n] tags become the
-    citations, and quotation marks the passages cannot back are stripped
-    (see parse_answered). Groundedness is measured, not enforced. A question
-    that asks for simple words routes through the plain register
-    (`_plain_body`): the draft selects evidence sentences and each is
-    rewritten one-in-one-out, so nothing is written from scratch. A bare
-    topic phrase is asked as its question first (canonical_query). An uncited
-    answer is retried once with a `[Ch. ` prefill and kept only when a
-    citation validates (`_retry_uncited`).
+    No quote enforcement: the model answers, its [Ch. n] tags become the
+    citations, and quotation marks the passages cannot back are stripped (see
+    parse_answered). The prompt is the ask-shaped one (SYSTEM + user_message)
+    because that is what the student is trained on (2026-10-15 alignment; see
+    the module docstring). A question that asks for simple words routes
+    through the plain register (`_plain_body`): the draft selects evidence
+    sentences and each is rewritten one-in-one-out, so nothing is written from
+    scratch. A bare topic phrase is asked as its question first
+    (canonical_query). An uncited answer is retried once with a `[Ch. `
+    prefill and kept only when a citation validates (`_retry_uncited`).
     """
     generate_fn = generate_fn or ollama_generate
     asked_form = canonical_query(question) if canonical else question
@@ -638,7 +647,7 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
         body = _plain_body(index, context, generate_fn, model)
     else:
         completion = generate_fn(
-            SYSTEM_ANSWER, answer_user_message(context["asked"], passages), model
+            SYSTEM, user_message(context["asked"], passages), model
         )
         body = parse_answered(completion, passages, index.get("figures") or [])
         if not body["refused"] and not body["citations"]:

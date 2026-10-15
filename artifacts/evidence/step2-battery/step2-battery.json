@@ -1,11 +1,11 @@
 [
   {
     "question": "What does CRUD stand for?",
-    "seconds": 1.58,
+    "seconds": 0.91,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage\"",
+      "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage\"\nCRUD means create, read, update, delete.",
       "citations": [
         {
           "chunk_id": "ch05-019",
@@ -19,11 +19,11 @@
   },
   {
     "question": "What is data ingestion?",
-    "seconds": 0.6,
+    "seconds": 0.49,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 7] \"Data ingestion is the process of moving data from one place to another\"",
+      "answer": "[Ch. 7] \"Data ingestion is the process of moving data from one place to another\"\nData ingestion moves data from one place to another.",
       "citations": [
         {
           "chunk_id": "ch07-002",
@@ -44,16 +44,16 @@
   },
   {
     "question": "What is a watermark?",
-    "seconds": 1.32,
+    "seconds": 0.75,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late\"",
+      "answer": "[Ch. 8] \"We\u2019ve covered various types of windows and their uses. As discussed in Chapter 7, data is sometimes ingested out of the order from which it originated. A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late. If data arrives that is new to the window but older than the timestamp of the watermark, it is considered to be late-arriving data.\"\nA watermark sets a time limit for data inside a window.",
       "citations": [
         {
           "chunk_id": "ch08-039",
           "chapter": "8",
-          "quote": "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late"
+          "quote": "We\u2019ve covered various types of windows and their uses. As discussed in Chapter 7, data is sometimes ingested out of the order from which it originated. A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late. If data arrives that is new to the window but older than the timestamp of the watermark, it is considered to be late-arriving data."
         }
       ],
       "figures": [
@@ -69,16 +69,18 @@
   },
   {
     "question": "When is an insert-only table useful?",
-    "seconds": 1.04,
-    "pass": true,
-    "notes": [],
+    "seconds": 1.67,
+    "pass": false,
+    "notes": [
+      "chunk ch08-107 != ch05-020"
+    ],
     "response": {
-      "answer": "[Ch. 5] \"The insert-only pattern retains history directly in a table containing data\"",
+      "answer": "[Ch. 8] \"Insert-only inserts new records without changing or deleting old records. Insert-only patterns can be used to maintain a current view of data\u2014for example, if new versions of records are inserted without deleting old records. A query or view can present the current data state by finding the newest record by primary key. Note that columnar databases don\u2019t typically enforce primary keys. The primary key would be a construct used by engineers to maintain a notion of the current state of the table. The downside to this approach is that it can be extremely computationally expensive to find the latest record at query time. Alternatively, we can use a materialized view (covered later in the chapter), an insert-only table that maintains all records, and a truncate-and-reload target table that holds the current state for serving data\"\nInsert-only tables keep old data without deleting it.",
       "citations": [
         {
-          "chunk_id": "ch05-020",
-          "chapter": "5",
-          "quote": "The insert-only pattern retains history directly in a table containing data"
+          "chunk_id": "ch08-107",
+          "chapter": "8",
+          "quote": "Insert-only inserts new records without changing or deleting old records. Insert-only patterns can be used to maintain a current view of data\u2014for example, if new versions of records are inserted without deleting old records. A query or view can present the current data state by finding the newest record by primary key. Note that columnar databases don\u2019t typically enforce primary keys. The primary key would be a construct used by engineers to maintain a notion of the current state of the table. The downside to this approach is that it can be extremely computationally expensive to find the latest record at query time. Alternatively, we can use a materialized view (covered later in the chapter), an insert-only table that maintains all records, and a truncate-and-reload target table that holds the current state for serving data"
         }
       ],
       "figures": [],
@@ -87,16 +89,16 @@
   },
   {
     "question": "Where does storage sit in the data engineering lifecycle?",
-    "seconds": 1.37,
+    "seconds": 1.39,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 6] \"Storage is the cornerstone of the data engineering lifecycle and underlies its major stages\u2014ingestion, transformation, and serving\"",
+      "answer": "[Ch. 6] \"Storage is the cornerstone of the data engineering lifecycle (Figure 6-1) and underlies its major stages\u2014ingestion, transformation, and serving. Data gets stored many times as it moves through the lifecycle. To paraphrase an old saying, it\u2019s storage all the way down. Whether data is needed seconds, minutes, days, months, or years later, it must persist in storage until systems are ready to consume it for further processing and transmission. Knowing the use case of the data and the way you will retrieve it in the future is the first step to choosing the proper storage solutions for your data architecture\"\nStorage is crucial for data engineering, from ingestion to serving.",
       "citations": [
         {
           "chunk_id": "ch06-001",
           "chapter": "6",
-          "quote": "Storage is the cornerstone of the data engineering lifecycle and underlies its major stages\u2014ingestion, transformation, and serving"
+          "quote": "Storage is the cornerstone of the data engineering lifecycle (Figure 6-1) and underlies its major stages\u2014ingestion, transformation, and serving. Data gets stored many times as it moves through the lifecycle. To paraphrase an old saying, it\u2019s storage all the way down. Whether data is needed seconds, minutes, days, months, or years later, it must persist in storage until systems are ready to consume it for further processing and transmission. Knowing the use case of the data and the way you will retrieve it in the future is the first step to choosing the proper storage solutions for your data architecture"
         }
       ],
       "figures": [
@@ -112,11 +114,11 @@
   },
   {
     "question": "What do source systems provide to the rest of the lifecycle?",
-    "seconds": 1.18,
+    "seconds": 0.52,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 2] \"A source system is the origin of the data used in the data engineering lifecycle\"",
+      "answer": "[Ch. 2] \"A source system is the origin of the data used in the data engineering lifecycle\"\nA source system provides the initial data for data engineering projects.",
       "citations": [
         {
           "chunk_id": "ch02-005",
@@ -130,11 +132,11 @@
   },
   {
     "question": "How does data architecture relate to enterprise architecture?",
-    "seconds": 1.11,
+    "seconds": 0.68,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 3] \"Data architecture is a subset of enterprise architecture, inheriting its properties: processes, strategy, change management, and evaluating trade-offs\"",
+      "answer": "[Ch. 3] \"Data architecture is a subset of enterprise architecture, inheriting its properties: processes, strategy, change management, and evaluating trade-offs\"\nData architecture includes processes, strategy, and change management.",
       "citations": [
         {
           "chunk_id": "ch03-013",
@@ -148,11 +150,11 @@
   },
   {
     "question": "What is the difference between batch and streaming?",
-    "seconds": 1.25,
+    "seconds": 0.57,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 2] \"Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML\"",
+      "answer": "[Ch. 2] \"Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML\"\nBatch processing is widely used to input data for analysis and ML.",
       "citations": [
         {
           "chunk_id": "ch02-019",
@@ -166,11 +168,11 @@
   },
   {
     "question": "What happens to data after it is extracted in ETL?",
-    "seconds": 1.22,
+    "seconds": 0.69,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation\"",
+      "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation\"\nData is either transformed first or loaded without immediate transformation.",
       "citations": [
         {
           "chunk_id": "ch07-033",
@@ -184,11 +186,11 @@
   },
   {
     "question": "What do transformations do in the data engineering lifecycle?",
-    "seconds": 1.05,
+    "seconds": 0.51,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 2] \"Logically, we treat transformation as a standalone area of the data engineering lifecycle, but the realities of the lifecycle can be much more complicated in practice. Transformation is often entangled in other phases of the lifecycle. Typically, data is transformed in source systems or in flight during ingestion. For example, a source system may add an event timestamp to a record before forwarding it to an ingestion process. Or a record within a streaming pipeline may be \u201cenriched\u201d with additional fields and calculations before it\u2019s sent to a data warehouse. Transformations are ubiquitous in various parts of the lifecycle. Data preparation, data wrangling, and cleaning\u2014these transformative tasks add value for end consumers of data.\"",
+      "answer": "[Ch. 2] \"Logically, we treat transformation as a standalone area of the data engineering lifecycle, but the realities of the lifecycle can be much more complicated in practice. Transformation is often entangled in other phases of the lifecycle. Typically, data is transformed in source systems or in flight during ingestion. For example, a source system may add an event timestamp to a record before forwarding it to an ingestion process. Or a record within a streaming pipeline may be \u201cenriched\u201d with additional fields and calculations before it\u2019s sent to a data warehouse. Transformations are ubiquitous in various parts of the lifecycle. Data preparation, data wrangling, and cleaning\u2014these transformative tasks add value for end consumers of data.\"\nTransformation is usually mixed with other parts of data engineering.",
       "citations": [
         {
           "chunk_id": "ch02-027",
@@ -202,16 +204,16 @@
   },
   {
     "question": "What does CRU stand for?",
-    "seconds": 1.15,
+    "seconds": 0.91,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 5] \"stands for create, read, update, and delete\"\nRead as: \"What does crud stand for?\"",
+      "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage\"\nCRUD means create, read, update, delete.\nRead as: \"What does crud stand for?\"",
       "citations": [
         {
           "chunk_id": "ch05-019",
           "chapter": "5",
-          "quote": "stands for create, read, update, and delete"
+          "quote": "CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage"
         }
       ],
       "figures": [],
@@ -220,11 +222,11 @@
   },
   {
     "question": "What happens to data after it is extracted in ET?",
-    "seconds": 1.21,
+    "seconds": 0.71,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation\"",
+      "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation\"\nData can be transformed first or directly loaded into storage.",
       "citations": [
         {
           "chunk_id": "ch07-033",
@@ -238,16 +240,16 @@
   },
   {
     "question": "what is a atermark?",
-    "seconds": 1.56,
+    "seconds": 1.0,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late\"\nRead as: \"what is a watermark?\"",
+      "answer": "[Ch. 8] \"is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late\"\nA watermark sets a time limit for data inside a window.\nRead as: \"what is a watermark?\"",
       "citations": [
         {
           "chunk_id": "ch08-039",
           "chapter": "8",
-          "quote": "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late"
+          "quote": "is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late"
         }
       ],
       "figures": [
@@ -263,11 +265,11 @@
   },
   {
     "question": "what does data engineers need to be pragmatic about",
-    "seconds": 1.1,
+    "seconds": 0.53,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"\nBeing flexible with technology choices is important because the data landscape changes quickly.",
+      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"\nBe practical about being flexible.",
       "citations": [
         {
           "chunk_id": "ch04-012",
@@ -281,11 +283,11 @@
   },
   {
     "question": "Data engineers need to be pragmatic about?",
-    "seconds": 1.07,
+    "seconds": 0.48,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"\nBeing flexible in choosing tools and technologies that can change quickly.",
+      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"\nBe practical about being flexible.",
       "citations": [
         {
           "chunk_id": "ch04-012",
@@ -299,16 +301,16 @@
   },
   {
     "question": "MAD data landscape",
-    "seconds": 1.41,
+    "seconds": 0.91,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 4] \"It\u2019s hard. Just consider the number of technologies in Matt Turck\u2019s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)\"\nThe passage suggests that the landscape of ML, AI, and data technologies is complex and constantly changing.\nAsked as: \"What is MAD data landscape?\"",
+      "answer": "[Ch. 4] \"It\u2019s hard. Just consider the number of technologies in Matt turck\u2019s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)\"\nMatt Turck's depictions show many ML, AI, and data technologies.\nAsked as: \"What is MAD data landscape?\"",
       "citations": [
         {
           "chunk_id": "ch04-020",
           "chapter": "4",
-          "quote": "It\u2019s hard. Just consider the number of technologies in Matt Turck\u2019s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)"
+          "quote": "It\u2019s hard. Just consider the number of technologies in Matt turck\u2019s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)"
         }
       ],
       "figures": [
@@ -324,11 +326,11 @@
   },
   {
     "question": "multicloud methodology disadvantages",
-    "seconds": 1.11,
+    "seconds": 0.97,
     "pass": true,
     "notes": [],
     "response": {
-      "answer": "[Ch. 4] \"A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks are critical. Going multicloud can introduce significant complexity. Companies must now manage a dizzying array of services across several clouds; cross-cloud integration and security present a considerable challenge; multicloud networking can be diabolically complicated.\"\nAsked as: \"What is multicloud methodology disadvantages?\"",
+      "answer": "[Ch. 4] \"A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks are critical. Going multicloud can introduce significant complexity. Companies must now manage a dizzying array of services across several clouds; cross-cloud integration and security present a considerable challenge; multicloud networking can be diabolically complicated.\"\nMulticloud can make management very complex.\nAsked as: \"What is multicloud methodology disadvantages?\"",
       "citations": [
         {
           "chunk_id": "ch04-037",
@@ -342,7 +344,7 @@
   },
   {
     "question": "What is the capital of France?",
-    "seconds": 1.16,
+    "seconds": 0.5,
     "pass": true,
     "notes": [],
     "response": {

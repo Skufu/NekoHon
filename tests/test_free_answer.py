@@ -235,7 +235,11 @@ class RespondTest(unittest.TestCase):
         )
         self.assertFalse(body["refused"])
         self.assertIn("Not in this book.", seen["system"])
-        self.assertIn("your own words", seen["system"])
+        # 2026-10-15 prompt alignment: answer mode serves the ask-shaped
+        # prompt (the student is trained on it); it used to ask for "your
+        # own words", which the student followed when not over-memorized.
+        self.assertIn("Quote first.", seen["system"])
+        self.assertIn("Copy one sentence from a passage", seen["user"])
         self.assertIn("chunk_id=c1-001", seen["user"])
         self.assertEqual([c["chunk_id"] for c in body["citations"]], ["c1-001"])
         self.assertIn("[Ch. 1]", body["answer"])

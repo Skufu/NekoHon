@@ -1,12 +1,110 @@
 [
   {
-    "model": "smallbook_x2d",
+    "model": "smallbook_x2e",
     "q": "what is",
     "refused": false,
     "cited": [
       "ch08-004"
     ],
-    "answer": "A query is a request to retrieve or modify data in a database or data source. [Ch. 8]"
+    "answer": "[Ch. 8] \"This section primarily concerns itself with queries on tabular and semistructured data\" Queries are a main tool for looking at organized or partly organized data."
+  },
+  {
+    "model": "smallbook_x2e",
+    "q": "hey",
+    "refused": true,
+    "cited": [
+      "preface01-016",
+      "ch05-030",
+      "ch05-045"
+    ],
+    "answer": "Not in this book."
+  },
+  {
+    "model": "smallbook_x2e",
+    "q": "warrup",
+    "refused": true,
+    "cited": [
+      "ch05-030",
+      "app01-017",
+      "ch05-019"
+    ],
+    "answer": "Not in this book."
+  },
+  {
+    "model": "smallbook_x2e",
+    "q": "Location",
+    "refused": false,
+    "cited": [
+      "ch07-046"
+    ],
+    "answer": "[Ch. 7] \"It is often desirable to integrate streaming across several locations for enhanced redundancy and to consume data close to where it is generated\" Location refers to the place where data is processed or used. Asked as: \"What is Location?\""
+  },
+  {
+    "model": "smallbook_x2e",
+    "q": "Our Advice",
+    "refused": false,
+    "cited": [
+      "ch10-008"
+    ],
+    "answer": "[Ch. 10] \"Instead, pursue the spirit of genuine and habitual security; bake a security mindset into your culture\" This means you should make safety a regular part of your work instead of just checking boxes."
+  },
+  {
+    "model": "smallbook_x2e",
+    "q": "DE Lifecycle",
+    "refused": true,
+    "cited": [
+      "ch02-004",
+      "preface01-003",
+      "ch01-006"
+    ],
+    "answer": "Not in this book."
+  },
+  {
+    "model": "smallbook_x2e",
+    "q": "DDR5 vs ddr4",
+    "refused": false,
+    "cited": [
+      "ch06-011"
+    ],
+    "answer": "[Ch. 6] \"DDR5 memory—the latest widely used standard for RAM—offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD\" DDR5 is the newest common type of fast computer memory that is much quicker than solid-state drives. Asked as: \"What is DDR5 vs ddr4?\""
+  },
+  {
+    "model": "smallbook_x2e",
+    "q": "ddr4 vs ddr5",
+    "refused": true,
+    "cited": [
+      "ch06-011",
+      "ch06-012",
+      "ch06-013"
+    ],
+    "answer": "Not in this book."
+  },
+  {
+    "model": "smallbook_x2e",
+    "q": "speed of ddr5",
+    "refused": false,
+    "cited": [
+      "ch06-011"
+    ],
+    "answer": "[Ch. 6] \"DDR5 memory—the latest widely used standard for RAM—offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD\" DDR5 is the newest common type of fast computer memory. Asked as: \"What is speed of ddr5?\""
+  },
+  {
+    "model": "smallbook_x2e",
+    "q": "speed of ddr5s",
+    "refused": false,
+    "cited": [
+      "ch06-011"
+    ],
+    "answer": "[Ch. 6] \"DDR5 memory—the latest widely used standard for RAM—offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD\" DDR5 is the newest common type of fast computer memory. Asked as: \"What is speed of ddr5s?\""
+  },
+  {
+    "model": "smallbook_x2d",
+    "q": "what is",
+    "refused": false,
+    "cited": [
+      "ch05-045"
+    ],
+    "answer": "[Ch. 5] \"A time series is a series of values organized by time\" A time series has values arranged by time."
   },
   {
     "model": "smallbook_x2d",
@@ -24,9 +122,9 @@
     "q": "warrup",
     "refused": true,
     "cited": [
-      "ch05-053",
       "ch05-030",
-      "app01-017"
+      "app01-017",
+      "ch05-019"
     ],
     "answer": "Not in this book."
   },
@@ -34,24 +132,28 @@
     "model": "smallbook_x2d",
     "q": "Location",
     "refused": false,
-    "cited": [],
-    "answer": "Location is often used for integrating streaming data from multiple places to enhance redundancy and proximity for better performance and cost management. It involves balancing redundancy and cost when moving data between regions for analytics. Asked as: \"What is Location?\""
+    "cited": [
+      "ch07-046"
+    ],
+    "answer": "[Ch. 7] \"It is often desirable to integrate streaming across several locations for enhanced redundancy and to consume data close to where it is generated. As a general rule, the closer your ingestion is to where data originates, the better your bandwidth and latency. However, you need to balance this against the costs of moving data between regions to run analytics on a combined dataset. As always"
   },
   {
     "model": "smallbook_x2d",
     "q": "Our Advice",
     "refused": false,
     "cited": [
-      "ch01-064"
+      "ch10-008"
     ],
-    "answer": "[Ch. 1] \"A chief information officer (CIO) is the senior C-suite executive responsible for information technology within an organization; it is an internal-facing role. A CIO must possess deep knowledge of information technology and business processes—either alone is insufficient. CIOs direct the information technology organization, setting ongoing policies while also defining and executing signif"
+    "answer": "[Ch. 10] \"Security needs to be simple and effective enough to become habitual throughout an organization\" Make security easy and regular, so everyone does it."
   },
   {
     "model": "smallbook_x2d",
     "q": "DE Lifecycle",
     "refused": false,
-    "cited": [],
-    "answer": "The DE Lifecycle is divided into five stages: Generation, Storage, Ingestion, Transformation, and Serving data. Asked as: \"What is DE Lifecycle?\""
+    "cited": [
+      "ch02-002"
+    ],
+    "answer": "[Ch. 2] \"The data engineering lifecycle comprises stages that turn raw data ingredients into a useful end product, ready for consumption by analysts, data scientists, ML engineers, and others\" This describes the process of transforming raw data into usable data for various users. Asked as: \"What is DE Lifecycle?\""
   },
   {
     "model": "smallbook_x2d",
@@ -60,35 +162,33 @@
     "cited": [
       "ch06-011"
     ],
-    "answer": "[Ch. 6] \"data retrieval latency on the order of 100 ns,\" Asked as: \"What is DDR5 vs ddr4?\""
+    "answer": "[Ch. 6] \"DDR5 memory—the latest widely used standard for RAM—offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD\" DDR5 memory retrieves data in about 100 nanoseconds, much faster than SSD. Asked as: \"What is DDR5 vs ddr4?\""
   },
   {
     "model": "smallbook_x2d",
     "q": "ddr4 vs ddr5",
     "refused": false,
-    "cited": [],
-    "answer": "DDR4 and DDR5 are different generations of RAM (Random Access Memory). DDR5 offers faster data retrieval latency compared to DDR4, with DDR5 having a data retrieval latency on the order of 100 ns, while DDR4 has a data retrieval latency on the order of 1000 ns. Asked as: \"What is ddr4 vs ddr5?\""
+    "cited": [
+      "ch06-011"
+    ],
+    "answer": "[Ch. 6] \"DDR5 memory—the latest widely used standard for RAM—offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD\" DDR5 memory retrieves data in about 100 nanoseconds, much faster than SSD. Asked as: \"What is ddr4 vs ddr5?\""
   },
   {
     "model": "smallbook_x2d",
     "q": "speed of ddr5",
-    "refused": true,
+    "refused": false,
     "cited": [
-      "ch06-011",
-      "ch06-006",
-      "ch06-008"
+      "ch06-011"
     ],
-    "answer": "Not in this book."
+    "answer": "[Ch. 6] \"DDR5 memory—the latest widely used standard for RAM—offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD\" DDR5 memory retrieves data in about 100 nanoseconds, much faster than SSD. Asked as: \"What is speed of ddr5?\""
   },
   {
     "model": "smallbook_x2d",
     "q": "speed of ddr5s",
-    "refused": true,
+    "refused": false,
     "cited": [
-      "ch06-011",
-      "ch06-006",
-      "ch06-009"
+      "ch06-011"
     ],
-    "answer": "Not in this book."
+    "answer": "[Ch. 6] \"DDR5 memory—the latest widely used standard for RAM—offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD\" DDR5 memory retrieves data in about 100 nanoseconds, much faster than SSD. Asked as: \"What is speed of ddr5s?\""
   }
 ]

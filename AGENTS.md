@@ -12,8 +12,9 @@ stays the rules-and-state authority).
 An offline book companion. One EPUB ("Fundamentals of Data Engineering",
 `book_id` = `fde`) is ingested into a JSON index, passages are retrieved with a
 local embedder, and questions are answered from the retrieved passages in two
-modes: `answer` (free generation with `[Ch. N]` citations; the window default)
-and `ask` (a checked quote plus a gloss). Cited figures still attach. All
+modes: `answer` (quote-first answers with `[Ch. N]` citations; the window
+default; since the 2026-10-15 alignment it is served the same trained prompt
+as `ask`) and `ask` (a checked quote plus a gloss). Cited figures still attach. All
 inference is local Ollama on `127.0.0.1:11434`. No cloud APIs, no database
 server.
 
@@ -974,7 +975,15 @@ Only this list can block work.
   sha `55a291bc…`; report `reports/x2e-build-2026-10-15.md`; gate
   pre-registered in `reports/x2e-plan-2026-10-15.md`; training notebook
   patched to v8 (EXPECTED 475, export `smallbook_x2e`, epochs derive to 4).
-  Next: train → import → gate. Full runbook + diagnostic ladder:
+  Trained (A100, ~1 h, loss 0.84 -> 0.035, stop-checks sane) and gated
+  2026-10-15: the gate exposed an engine bug — answer mode served a prompt the
+  student was never trained on; fixed (`answer.respond`/`_retry_uncited` now
+  send `SYSTEM` + `user_message`). Under the fix the shipped x2d is
+  **160/160** on the sealed suite (was 111), x2e 150/160, the 7B 160/160,
+  0 loops; **x2e not adopted** (ask-mode battery 7/10 < 8; false refusals on
+  two visible-ten items) — x2d stays the default; x2e + LoRA + run log stay
+  on disk as evidence. Full numbers + backlog:
+  `reports/x2e-verdict-2026-10-15.md`. Full runbook:
   `reports/colab-capture-session-2026-10-15.md`.
 
 ## Verify

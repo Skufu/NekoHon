@@ -1,0 +1,20 @@
+[smallbook_x2d] 'what is' refused=False cited=['ch08-004']
+    A query is a request to retrieve or modify data in a database or data source. [Ch. 8]
+[smallbook_x2d] 'hey' refused=True cited=['preface01-016', 'ch05-030', 'ch05-045']
+    Not in this book.
+[smallbook_x2d] 'warrup' refused=True cited=['ch05-053', 'ch05-030', 'app01-017']
+    Not in this book.
+[smallbook_x2d] 'Location' refused=False cited=[]
+    Location is often used for integrating streaming data from multiple places to enhance redundancy and proximity for better performance and cost management. It involves balancing redundancy and cost when moving data between regions for analytics. Asked as: "What
+[smallbook_x2d] 'Our Advice' refused=False cited=['ch01-064']
+    [Ch. 1] "A chief information officer (CIO) is the senior C-suite executive responsible for information technology within an organization; it is an internal-facing role. A CIO must possess deep knowledge of information technology and business processes—either a
+[smallbook_x2d] 'DE Lifecycle' refused=False cited=[]
+    The DE Lifecycle is divided into five stages: Generation, Storage, Ingestion, Transformation, and Serving data. Asked as: "What is DE Lifecycle?"
+[smallbook_x2d] 'DDR5 vs ddr4' refused=False cited=['ch06-011']
+    [Ch. 6] "data retrieval latency on the order of 100 ns," Asked as: "What is DDR5 vs ddr4?"
+[smallbook_x2d] 'ddr4 vs ddr5' refused=False cited=[]
+    DDR4 and DDR5 are different generations of RAM (Random Access Memory). DDR5 offers faster data retrieval latency compared to DDR4, with DDR5 having a data retrieval latency on the order of 100 ns, while DDR4 has a data retrieval latency on the order of 1000 ns
+[smallbook_x2d] 'speed of ddr5' refused=True cited=['ch06-011', 'ch06-006', 'ch06-008']
+    Not in this book.
+[smallbook_x2d] 'speed of ddr5s' refused=True cited=['ch06-011', 'ch06-006', 'ch06-009']
+    Not in this book.

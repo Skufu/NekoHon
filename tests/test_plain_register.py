@@ -13,7 +13,7 @@ Pins and fixtures live only in this test.
 import unittest
 
 import answer as A
-from prompt import PARAPHRASE_SYSTEM, SYSTEM_ANSWER
+from prompt import PARAPHRASE_SYSTEM, SYSTEM, SYSTEM_ANSWER
 
 REFUSAL = "Not in this book."
 
@@ -128,7 +128,10 @@ class PlainRespondTest(unittest.TestCase):
             calls.append({"system": system, "user": user})
             if system == PARAPHRASE_SYSTEM:
                 return rewrite
-            if system == SYSTEM_ANSWER:
+            # 2026-10-15: the ordinary answer path serves SYSTEM (ask-shaped,
+            # the prompt the student is trained on); the plain register's
+            # draft call still uses SYSTEM_ANSWER.
+            if system in (SYSTEM_ANSWER, SYSTEM):
                 return draft
             return ""
 

@@ -1,0 +1,94 @@
+[
+  {
+    "model": "smallbook_x2d",
+    "q": "what is",
+    "refused": false,
+    "cited": [
+      "ch08-004"
+    ],
+    "answer": "A query is a request to retrieve or modify data in a database or data source. [Ch. 8]"
+  },
+  {
+    "model": "smallbook_x2d",
+    "q": "hey",
+    "refused": true,
+    "cited": [
+      "preface01-016",
+      "ch05-030",
+      "ch05-045"
+    ],
+    "answer": "Not in this book."
+  },
+  {
+    "model": "smallbook_x2d",
+    "q": "warrup",
+    "refused": true,
+    "cited": [
+      "ch05-053",
+      "ch05-030",
+      "app01-017"
+    ],
+    "answer": "Not in this book."
+  },
+  {
+    "model": "smallbook_x2d",
+    "q": "Location",
+    "refused": false,
+    "cited": [],
+    "answer": "Location is often used for integrating streaming data from multiple places to enhance redundancy and proximity for better performance and cost management. It involves balancing redundancy and cost when moving data between regions for analytics. Asked as: \"What is Location?\""
+  },
+  {
+    "model": "smallbook_x2d",
+    "q": "Our Advice",
+    "refused": false,
+    "cited": [
+      "ch01-064"
+    ],
+    "answer": "[Ch. 1] \"A chief information officer (CIO) is the senior C-suite executive responsible for information technology within an organization; it is an internal-facing role. A CIO must possess deep knowledge of information technology and business processes—either alone is insufficient. CIOs direct the information technology organization, setting ongoing policies while also defining and executing signif"
+  },
+  {
+    "model": "smallbook_x2d",
+    "q": "DE Lifecycle",
+    "refused": false,
+    "cited": [],
+    "answer": "The DE Lifecycle is divided into five stages: Generation, Storage, Ingestion, Transformation, and Serving data. Asked as: \"What is DE Lifecycle?\""
+  },
+  {
+    "model": "smallbook_x2d",
+    "q": "DDR5 vs ddr4",
+    "refused": false,
+    "cited": [
+      "ch06-011"
+    ],
+    "answer": "[Ch. 6] \"data retrieval latency on the order of 100 ns,\" Asked as: \"What is DDR5 vs ddr4?\""
+  },
+  {
+    "model": "smallbook_x2d",
+    "q": "ddr4 vs ddr5",
+    "refused": false,
+    "cited": [],
+    "answer": "DDR4 and DDR5 are different generations of RAM (Random Access Memory). DDR5 offers faster data retrieval latency compared to DDR4, with DDR5 having a data retrieval latency on the order of 100 ns, while DDR4 has a data retrieval latency on the order of 1000 ns. Asked as: \"What is ddr4 vs ddr5?\""
+  },
+  {
+    "model": "smallbook_x2d",
+    "q": "speed of ddr5",
+    "refused": true,
+    "cited": [
+      "ch06-011",
+      "ch06-006",
+      "ch06-008"
+    ],
+    "answer": "Not in this book."
+  },
+  {
+    "model": "smallbook_x2d",
+    "q": "speed of ddr5s",
+    "refused": true,
+    "cited": [
+      "ch06-011",
+      "ch06-006",
+      "ch06-009"
+    ],
+    "answer": "Not in this book."
+  }
+]
