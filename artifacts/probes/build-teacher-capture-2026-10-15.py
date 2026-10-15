@@ -42,9 +42,15 @@ def part_b():
     rows = []
     for i, line in enumerate(TRAIN.read_text(encoding="utf-8").splitlines(), 1):
         row = json.loads(line)
-        meta = row.get("meta", {}).get("meta", {})
+        meta = row.get("meta", {})
+        if isinstance(meta.get("meta"), dict):
+            meta = meta["meta"]  # tolerate the nested shape seen in older files
         messages = row["messages"]
         target = messages[2]["content"].strip()
+        q = meta.get("asked") or meta.get("question")
+        if not q:
+            first = (messages[1].get("content") or "").splitlines()[0]
+            q = first[len("Question: "):].strip() if first.startswith("Question: ") else None
         rows.append({
             "id": f"rec-{i:03d}",
             "part": "recapture",
@@ -52,7 +58,7 @@ def part_b():
             "class": "recapture",
             "expect": "refusal" if target.startswith("Not in this book.") else "cited",
             "pin": meta.get("pin"),
-            "q": meta.get("asked") or meta.get("question"),
+            "q": q,
             "system": messages[0]["content"],
             "user": messages[1]["content"],
             "origin": meta.get("source"),
