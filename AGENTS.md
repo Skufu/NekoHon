@@ -17,6 +17,27 @@ and `ask` (a checked quote plus a gloss). Cited figures still attach. All
 inference is local Ollama on `127.0.0.1:11434`. No cloud APIs, no database
 server.
 
+## Where things live
+
+- `GOAL.md` — goal + constitution (stable). `BUILD_PLAN.md` — living plan.
+  `README.md` — human front page. `GLOSSARY.md` — the vocabulary in plain
+  words (read it when a term is unclear).
+- Engine (stdlib only): `server.py` (HTTP + the frozen `POST /ask`),
+  `answer.py` (ask/answer modes, the `[Ch. ` retry), `retrieve.py` (index +
+  search), `ingest.py` (EPUB -> index), `preprocess.py` (+ `vendor/`, the one
+  allowed preprocessing dependency), `canonical.py`, `prompt.py` (model tags
+  + system prompts), `fusion.py`, `keywords.py`, `readings.py`,
+  `captions.py`, `figures.py`, `agentic.py` (prototype, not wired).
+- Checks: `preflight.py` (readiness), `verify_index.py` (index hygiene),
+  `tests/` (`python -m unittest discover -s tests`).
+- `artifacts/` — everything dated and measured: `probes/` (scripts that run
+  things), `reports/` (the why + verdicts), `evidence/` (raw run outputs),
+  `harnesses/` (battery, sweeps, groundedness, judge, secret scan),
+  `datasets/` (bench, sealed suite, training lists). Index + rules:
+  `artifacts/README.md`; rot check: `python artifacts/prune.py --plan`.
+- Gitignored, machine-local: `books/`, `data/` (index, finetune data, model
+  artifacts), `artifacts/runs/` (server logs + start scripts).
+
 ## Goal vs plan (read `GOAL.md`)
 
 `GOAL.md` holds the goal and the constitution — the only parts that rarely
