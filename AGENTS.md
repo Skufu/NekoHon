@@ -936,9 +936,13 @@ Only this list can block work.
   7B `what about` = uncited prose, student pass is retry-rescued; x2d Turn-1
   21/160 vs retry-rescued 90/160 (7B 140/160, 0 rescued). Probe gained the
   additive `repeat5` loop metric; the finetune notebook derives epochs from
-  the row count (hold ~1968 presentations, checkpoints in-session). Open
-  owner decision: half-covered comparisons (`ddr4 vs ddr5`) — cite the
-  covered side with a boundary gloss, or refuse. Not yet executed on Colab.
+  the row count (hold ~1968 presentations, checkpoints in-session). Owner
+  decision 2026-10-15 (half-covered comparisons): `ddr4 vs ddr5` answers the
+  covered side with a boundary gloss ("the book does not mention DDR4") —
+  the 3 ddr4 capture rows carry the rule in their note. Same-day live test
+  (the user's HTML run) caught the current model inventing a DDR4 figure —
+  "1000 ns" is the book's "roughly 1,000 times faster than SSD" garbled;
+  `DDR4` occurs 0 times in the book. Not yet executed on Colab.
 
 ## Verify
 

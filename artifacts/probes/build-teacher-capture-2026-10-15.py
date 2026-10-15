@@ -79,17 +79,26 @@ def part_a(index):
             errors.append((form["question"], "no generate call captured"))
             continue
         last = calls[-1]
+        card = form.get("source_card")
+        note = form.get("note") or ""
+        if card == "ddr4 vs ddr5":
+            # Owner decision 2026-10-15 (half-covered comparison): expect a
+            # cited DDR5 answer (pin ch06-011) whose gloss states the boundary
+            # ("the book does not mention DDR4"). DDR4 occurs 0 times in the
+            # book; the local build rejects/repairs targets that invent it.
+            note = (note + " | owner decision: cited DDR5 side only; gloss must "
+                    "state the book does not mention DDR4").strip(" |")
         rows.append({
             "id": f"new-{i:03d}",
             "part": "new",
-            "card": form.get("source_card"),
+            "card": card,
             "class": form.get("class"),
             "expect": form.get("expect"),
             "pin": form.get("pin"),
             "q": form["question"],
             "system": last["system"],
             "user": last["user"],
-            "note": form.get("note"),
+            "note": note,
         })
     return rows, errors
 

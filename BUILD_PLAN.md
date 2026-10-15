@@ -466,9 +466,10 @@ section that moves — update it as checkpoints land.
   Q4_K_XL teacher default, 4-slot serving, behavioral pre-gate, 4-worker
   capture, resume-by-id, max 250 tokens); finetune notebook derives epochs
   from the row count (hold ~1968 presentations). External review answered in
-  `reports/coach-review-response-2026-10-15.md`; one owner decision open
-  (half-covered comparisons, e.g. `ddr4 vs ddr5` — cite the covered side vs
-  refuse). Not executed on Colab yet.
+  `reports/coach-review-response-2026-10-15.md`; owner decision 2026-10-15:
+  half-covered comparisons (e.g. `ddr4 vs ddr5`) answer the covered side
+  with a boundary gloss — the 3 ddr4 capture rows carry the rule in their
+  note. Not executed on Colab yet.
 - **Recipe / provenance:** `smallbook_x2-rebuild-2026-10-14.md`,
   `smallbook_x2-provenance-2026-10-14.md`, `smallbook_x2-model-card.md`.
 - **Rule kept:** the engine contract does not change — swap the answerer, keep

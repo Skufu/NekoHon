@@ -58,7 +58,7 @@ not a retroactive edit to x2d's recorded verdict.
 | Epochs | the finetune notebook derives epochs from the row count to hold total presentations near x2d's 328×6 = 1968; per-epoch checkpoints saved in-session. |
 | Refusal mix | final-mix target 16–18%; the capture keeps 23.1% (119/515) as evidence and downsamples at build time. |
 | Variant explosion | already cut before this review landed: v2 forms = max 3 gold-pinned forms per deficit card + 30 bare topics + 16 order flips + **32 causal rows** (the review's ceiling-class catch) + 20 fragments + 65 refusals. |
-| ddr4 vs ddr5 | v2 capture expects a **cited DDR5-side** answer (pin ch06-011; DDR4 occurs 0 times in the book) — owner call pending; if ratified, the target gloss states the boundary explicitly; if not, the 3 rows flip to refusal at build time. |
+| ddr4 vs ddr5 | **Owner decision 2026-10-15: cite the covered side + boundary gloss** ("the book does not mention DDR4"). The 3 ddr4 capture rows carry the rule in their note; the local build rejects or repairs targets that invent a DDR4 figure. A live test the same day caught exactly that: the current model turned the book's "roughly 1,000 times faster than SSD" into "DDR4 ... 1000 ns" (the string `1000 ns` occurs 0 times in the book). |
 
 ## Rejected, with reasons
 
