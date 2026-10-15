@@ -1054,6 +1054,13 @@ Only this list can block work.
   `artifacts/reports/frontend-navigation-plan.md`. Needs explicit yes: new
   read/static routes and citation fields (contract), plus the foliate-js
   vendoring download (megabyte approval per BUILD_PLAN).
+- Figure understanding (direction recorded 2026-10-15, not approved): ask
+  about a figure ("explain figure 4.4") and get the figure shown, the book's
+  words about it, and a reading of what it depicts. The plan — and the verdict
+  on the "move the runtime to a VL model" idea (vision belongs at ingest, not
+  at inference) — is `artifacts/reports/figure-understanding-plan-2026-10-15.md`;
+  Phase 0 is figure-number normalization ("4.4" -> "4-4"), independent and
+  cheap.
 - Conversational companion (direction recorded 2026-10-15, not approved):
   the user wants the companion to eventually hold a conversation, so
   degenerate input (bare fragments like `how do`) becomes a *conversational*
