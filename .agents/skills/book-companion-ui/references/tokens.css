@@ -1,0 +1,27 @@
+/* Reference tokens for ask-this-book's window. Copy into :root in window/,
+   then verify: every ink at 4.5:1 on --paper, marks at 3:1. Values marked
+   (proposed) are not in the window yet. */
+:root {
+  --paper: #ffffff;            /* the reading ground; a warm tone is allowed, then re-check every ink */
+  --ink: #1a1a1a;              /* (proposed) body ink, off-black; never #000 */
+  --ink-muted: #666666;        /* today's #refs grey; citations and meta */
+  --accent: #8a6d00;           /* today's .nearby ochre; actions and marks only, not body text */
+  --rule: #e7e2d8;             /* (proposed) the one structural divider (pane split); never decorative */
+  --focus: #8a6d00;            /* visible focus ring on --paper */
+
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
+
+  --font-text: Georgia, "Iowan Old Style", "Times New Roman", serif;  /* no webfonts: offline */
+  --font-ui: system-ui, -apple-system, "Segoe UI", sans-serif;        /* controls only */
+  --size-body: 18px;                     /* 16-20; the reading pane takes the upper half */
+  --size-small: 13px;                    /* citations and meta */
+  --size-large: clamp(24px, 3vw, 32px);  /* chapter/title only; two lines max */
+  --leading-text: 1.55;                  /* 1.45-1.6 */
+  --measure: 68ch;                       /* 45-75 characters */
+
+  --dur-fast: 120ms; --dur-base: 200ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-inout: cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* Every use of --dur-*/--ease-* pairs with a prefers-reduced-motion: reduce
+   block that shows the content immediately. */

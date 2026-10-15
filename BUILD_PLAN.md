@@ -425,7 +425,7 @@ is an own frontend with the reader inside the app — Readest/ReadAny are
 pattern references, not a fork, and citations navigate into that reader.
 Open decision: vanilla window + vendored foliate-js (fits the no-build-step
 rule) vs a React/Vite stack. Full plan:
-`artifacts/reports/frontend-navigation-plan.md`.
+`artifacts/plans/frontend-navigation-plan.md`.
 
 Clone Readest on unmetered wifi only. Side panel calls the same `POST /ask`. The engine stays a separate process. AGPL stays on the fork. The engine repo does not become AGPL by being imported into the Tauri app.
 

@@ -454,7 +454,7 @@ ask-this-book/
   external-reader hand-off is dropped; Readest is pattern inspiration (not a
   fork), ReadAny is the UX reference, and foliate-js is the candidate
   engine. Plan, locator strategy, and the open renderer decision:
-  `artifacts/reports/frontend-navigation-plan.md`.
+  `artifacts/plans/frontend-navigation-plan.md`.
 - Post-v1 backlog (not approved): quote figure captions in prompts;
   `keep_alive` on Ollama requests to remove the ~25 s cold load (cost: ~5 GB
   VRAM held).
@@ -478,7 +478,7 @@ ask-this-book/
   plus what each stage kills and why.
 - `SETUP-MACOS.md` — the macOS walkthrough for testers: native Ollama (not
   Docker), exact commands, and the gotchas worth knowing.
-- `artifacts/reports/frontend-navigation-plan.md` — the recorded direction for the
+- `artifacts/plans/frontend-navigation-plan.md` — the recorded direction for the
   own frontend and citation navigation (not approved; needs a yes).
 - `artifacts/datasets/demo-questions.md` — the questions that demo well and the ones
   that refuse, with pins.

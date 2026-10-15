@@ -36,6 +36,10 @@ server.
   `harnesses/` (battery, sweeps, groundedness, judge, secret scan),
   `datasets/` (bench, sealed suite, training lists). Index + rules:
   `artifacts/README.md`; rot check: `python artifacts/prune.py --plan`.
+- `artifacts/plans/` — forward-looking plans, one file per track with its
+  status (the dated records stay in `artifacts/reports/`).
+- `.agents/skills/` — project-local agent skills; `book-companion-ui/` is the
+  UI/taste skill — load it for any window, reader, or frontend work.
 - Gitignored, machine-local: `books/`, `data/` (index, finetune data, model
   artifacts), `artifacts/runs/` (server logs + start scripts).
 
@@ -985,6 +989,13 @@ Only this list can block work.
   on disk as evidence. Full numbers + backlog:
   `reports/x2e-verdict-2026-10-15.md`. Full runbook:
   `reports/colab-capture-session-2026-10-15.md`.
+- Frontend approved 2026-10-15 (user): the window grows into a reader + chat
+  following Gloss's patterns (answers beside the passage, `[Ch. N]` chips that
+  jump and peek, select-then-type). Plan, phases, and open decisions:
+  `artifacts/plans/frontend-build-plan-2026-10-15.md`; all plans gathered in
+  `artifacts/plans/` (index in its README); UI work loads the project skill
+  `.agents/skills/book-companion-ui/`; stack recommendation is vanilla (no
+  build step). Not started.
 
 ## Verify
 
@@ -1046,19 +1057,11 @@ Only this list can block work.
   pipeline currently feeds only passages.
 - `keep_alive` in the Ollama requests: removes the ~25 s cold-load; warm asks
   are ~1 s (measured). Cost: ~5 GB VRAM held.
-- Frontend + citation navigation (direction recorded 2026-10-13, not
-  approved): the app gets its own reader; `[Ch. N]` becomes a link that
-  jumps to the passage and highlights it. External-reader hand-off dropped;
-  Readest/ReadAny are pattern references; foliate-js is the candidate
-  engine. Plan, locator strategy, and the open renderer decision:
-  `artifacts/reports/frontend-navigation-plan.md`. Needs explicit yes: new
-  read/static routes and citation fields (contract), plus the foliate-js
-  vendoring download (megabyte approval per BUILD_PLAN).
 - Figure understanding (direction recorded 2026-10-15, not approved): ask
   about a figure ("explain figure 4.4") and get the figure shown, the book's
   words about it, and a reading of what it depicts. The plan — and the verdict
   on the "move the runtime to a VL model" idea (vision belongs at ingest, not
-  at inference) — is `artifacts/reports/figure-understanding-plan-2026-10-15.md`;
+  at inference) — is `artifacts/plans/figure-understanding-plan-2026-10-15.md`;
   Phase 0 is figure-number normalization ("4.4" -> "4-4"), independent and
   cheap.
 - Conversational companion (direction recorded 2026-10-15, not approved):
