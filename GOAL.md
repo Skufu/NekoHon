@@ -11,6 +11,13 @@ it used, and shows the figure those passages point at. It runs on weak machines
 — as small a footprint as we can manage — with nothing leaving the machine. It
 should hold for other books, not only this one.
 
+**The reader is the judge.** Retrieval, models, quantization, the contract —
+all means; the person asking is the end. What counts as "good" is what the
+user sees: a true answer, an honest refusal, a citation they can check. An
+answer that reads as broken (a false refusal, an invented fact, a recitation)
+is a failure even when every mechanism underneath is green. When a trade-off
+is unclear, pick the side the reader would want, then measure it.
+
 ## Constitution (non-negotiable)
 
 Only these can block work. Nothing else in the repo can.
