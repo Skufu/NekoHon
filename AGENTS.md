@@ -967,9 +967,15 @@ Only this list can block work.
   (baked into the notebook): 8080 is occupied in the Colab VM (serve on
   8000); the CUDA plugin silently runs on CPU unless `/usr/lib64-nvidia`
   (`libcuda.so.1`) is on `LD_LIBRARY_PATH` — measured 1.9 tok/s and GPU RAM
-  0.0/40 GB on an idle A100 before the fix, `dlopen OK` after. Capture run
-  pending (first session reached the pre-gate). Full runbook + diagnostic
-  ladder: `reports/colab-capture-session-2026-10-15.md`.
+  0.0/40 GB on an idle A100 before the fix, `dlopen OK` after. Capture
+  complete 2026-10-15 (two sessions; the first new-form pass exposed a
+  two-seam mode split — runbook §7 — and was re-run through the ask seam).
+  Build done: **x2e train set = 475 rows (395 cited + 81 refusal at 17.1%)**,
+  sha `55a291bc…`; report `reports/x2e-build-2026-10-15.md`; gate
+  pre-registered in `reports/x2e-plan-2026-10-15.md`; training notebook
+  patched to v8 (EXPECTED 475, export `smallbook_x2e`, epochs derive to 4).
+  Next: train → import → gate. Full runbook + diagnostic ladder:
+  `reports/colab-capture-session-2026-10-15.md`.
 
 ## Verify
 
