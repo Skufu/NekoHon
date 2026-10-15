@@ -108,6 +108,16 @@ as evidence; the recapture half is reused as-is.
 **every** row's user-message tail is the ask reminder and every system prompt
 carries "quote that passage". One seam per capture.
 
+## 8. Weights through the Drive mount are slow to load
+
+With the model symlinked into `/content/drive`, llama-server mmaps the 16 GB
+through the Drive FUSE mount: the serve cell took **7+ minutes** and GPU RAM
+stayed ~0.4 GB while loading. The kit now **copies** the GGUF to local disk in
+cell 3 (~2-5 min, once per session) instead of symlinking — fast loads, and
+no Drive I/O during the capture. If a load still looks stuck: check
+`tail -5 /content/llama-server.log` (Terminal tab runs without queueing) and
+copy the model locally before serving.
+
 ## Checklist for the next session (paste-block for cell 0)
 
 - [ ] Runtime is A100/L4 (Runtime → Manage sessions).
