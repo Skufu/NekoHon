@@ -947,7 +947,8 @@ Only this list can block work.
   8000); the CUDA plugin silently runs on CPU unless `/usr/lib64-nvidia`
   (`libcuda.so.1`) is on `LD_LIBRARY_PATH` — measured 1.9 tok/s and GPU RAM
   0.0/40 GB on an idle A100 before the fix, `dlopen OK` after. Capture run
-  pending (first session reached the pre-gate).
+  pending (first session reached the pre-gate). Full runbook + diagnostic
+  ladder: `reports/colab-capture-session-2026-10-15.md`.
 
 ## Verify
 
