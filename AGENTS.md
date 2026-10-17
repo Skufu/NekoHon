@@ -1093,6 +1093,7 @@ Only this list can block work.
   Dynamic follow-up engine (`answer.py`): `compute_dynamic_followups` extracts entity-centric chips, `_advance_followup_quote` steps to subsequent passage sentences across multi-turn dialogs.
   Open-source model packaging: standalone Ollama Modelfiles (`models/smallbook_x3/Modelfile`, `models/smallbook_x3_mobile/Modelfile`), model setup & verification CLI (`scripts/setup_models.py`), root `README.md` open-source quickstart, and comprehensive `docs/ENGINEERING_AND_BENCHMARKS.md` guide.
   Measured: `python -m unittest discover -s tests`: **348/348 passed** in 1.66s; `npx tsc --noEmit`: **0 errors**; Hard Benchmark 60/60 (100.0%, 0.71s mean latency on `smallbook_x3`); held-out golden highlights 24/24 (100.0%); live HTTP battery **PASS** (`BATTERY_MODE="answer"`, Golden 10/10 answered, 10/10 pass, typos PASS, probes PASS, coherence PASS, France exact refusal PASS); headless Chrome verification (`record.mjs`, 1280x720) verified all 3 multi-turn scenes, drag, resize, minimize, and citation body underline (`polish-and-cards-verified/recording.mp4`, 3187 distinct frames, 0 unindexed artifacts).
+- `nekohon_x3` rename 2026-10-17 (owner direction: rebrand to nekohon): the x3 weights are now distributed and served as `nekohon_x3` / `nekohon_x3_mobile` — same GGUFs, same SHA-256 (`92fb94df…` / `c3d8492f…`), renamed files (`nekohon_x3.Q4_K_M.gguf`, `nekohon_x3_mobile.Q4_K_M.gguf`), renamed committed Modelfiles (`models/nekohon_x3*/Modelfile`), `scripts/setup_models.py` keys/URLs, and `prompt.ANSWER_MODEL` default. Measured 2026-10-17: new Ollama tags created (`nekohon_x3:latest` digest `5a9525f8d0ac`, `nekohon_x3_mobile:latest` digest `89e6798ed288`; the `smallbook_x3*` tags stay registered as aliases), `setup_models.py --status` green, install probes answered, 348/348 tests in 1.68s. Published to Hugging Face 2026-10-17: `https://huggingface.co/Skufu1/nekohon-x3` (public; model card + both GGUFs + both Modelfiles; API-verified siblings, `usedStorage` 2,915,950,848 B). Engine restart pending to serve the new default.
 
 
 
@@ -1109,7 +1110,7 @@ Only this list can block work.
   kept serving `smallbook_x2` with no cap/retry until restarted 22:26,
   measured 2026-10-14). Reader routes live-checked 2026-10-15: `GET /chunks`
   (reader payload) and `stream=1` on `POST /ask` (NDJSON token/reset/final/error).
-- Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/harnesses/step2-battery.py`. Default is `smallbook_x3` (the 2026-10-17 x3 adoption; `ANSWER_MODEL=smallbook_x2g` or `=smallbook_x2d` or `=qwen2.5:7b` reverts); keep exactly one listener on :8000.
+- Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/harnesses/step2-battery.py`. Default is `nekohon_x3` (the 2026-10-17 x3 adoption, renamed from `smallbook_x3` the same day; `ANSWER_MODEL=smallbook_x3` — the alias tag still exists — or `=smallbook_x2g`, `=smallbook_x2d`, `=qwen2.5:7b` reverts); keep exactly one listener on :8000.
 - Answer mode: `BATTERY_MODE=answer python artifacts/harnesses/step2-battery.py`; sweeps `SWEEP_MODE=answer python artifacts/harnesses/qa-sweep.py <label>`; groundedness `python artifacts/harnesses/groundedness.py --battery --label <name>` or `--label <name>` over `datasets/qa-questions-overnight.json` (in-process, no server needed).
 - Agentic prototype (not wired): `python artifacts/probes/probe-agentic.py` (live Ollama, 5 asks).
 - Plain register: `python -m unittest tests.test_plain_register`; scorecard draws (cloud judge) `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/harnesses/eval-plain.py --variants wired --label wired` (replay with a new label); judge flip probe `python artifacts/harnesses/judge-stability.py --file evidence/eval-plain/eval-plain-v6-openai-muse-spark-1-3-contributor.json --match <question substring> --n 3`; live route check: `answer` mode with "explain data engineering in simple words".
@@ -1131,8 +1132,10 @@ Only this list can block work.
   with the full path + ` serve`. `ollama --version` with the server up prints
   `ollama version is 0.40.3`.
 - On disk: `nomic-embed-text:latest` (274 MB, pulled 2026-10-11). Smoke embed
-  returned 768 dims. `smallbook_x3:latest` (1.93 GB (1,840.5 MiB), digest `4d755a3b108d`) is the finetuned
-  answerer and app default since 2026-10-17; `smallbook_x3_mobile:latest` (986 MB (940.4 MiB), digest `d3508a8ff376`)
+  returned 768 dims. `nekohon_x3:latest` (1.93 GB (1,840.5 MiB), digest `5a9525f8d0ac`) is the finetuned
+  answerer and app default since 2026-10-17 (renamed from `smallbook_x3:latest`, digest `4d755a3b108d`,
+  which stays registered as an alias); `nekohon_x3_mobile:latest` (986 MB (940.4 MiB), digest `89e6798ed288`;
+  renamed from `smallbook_x3_mobile:latest`, digest `d3508a8ff376`, kept as an alias)
   is the companion mobile student; `smallbook_x2g:latest` (1.9 GB, digest `db17f64de75a`),
   `smallbook_x2g_mobile:latest` (986 MB, digest `4304159b8936`), `smallbook_x2d:latest` (1.9 GB, digest `d0bfa88f6b63`),
   `smallbook_x2:latest` (1.9 GB, `ba79d37a6067`) and `smallbook_x2d_q8:latest` (3.3 GB, `a8d4b390`) stay on

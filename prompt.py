@@ -67,8 +67,9 @@ ANSWER_GLOSS_SYSTEM = (
     "do not start with 'In this context', 'The passage', or 'The authors state', and never say 'Not in this book.'"
 )
 
-# Live default is smallbook_x3. Revert without editing:
-# ANSWER_MODEL=qwen2.5:7b or ANSWER_MODEL=smallbook_x2.
+# Live default is nekohon_x3 (renamed from smallbook_x3 2026-10-17; the old
+# tag stays registered on this box as an alias). Revert without editing:
+# ANSWER_MODEL=qwen2.5:7b or ANSWER_MODEL=smallbook_x3.
 # Granite was tried and dropped 2026-10-13; that record is in
 # artifacts/reports/, not here.
-ANSWER_MODEL = os.environ.get("ANSWER_MODEL", "smallbook_x3")
+ANSWER_MODEL = os.environ.get("ANSWER_MODEL", "nekohon_x3")

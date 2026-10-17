@@ -15,7 +15,7 @@
 
 **Goal:** An offline book companion that answers from the open book, cites the passages it used, and shows the figure those passages point at. Nothing leaves the machine.
 
-**Architecture:** A stdlib Python engine ingests one EPUB into a JSON index, retrieves with the Phase 3b winning embedder (`nomic-embed-text` default), and answers with on-disk `smallbook_x3` (a Qwen2.5-3B wide-LoRA distilled student; `smallbook_x3_mobile` 1.5B for mobile/edge; `ANSWER_MODEL=qwen2.5:7b` reverts). The frontend is a Next.js app under `web/` (reader + ask panes; see `web/README.md`); `window/index.html` is the legacy no-build window.
+**Architecture:** A stdlib Python engine ingests one EPUB into a JSON index, retrieves with the Phase 3b winning embedder (`nomic-embed-text` default), and answers with on-disk `nekohon_x3` (a Qwen2.5-3B wide-LoRA distilled student, renamed from `smallbook_x3` 2026-10-17; `nekohon_x3_mobile` 1.5B for mobile/edge; `ANSWER_MODEL=qwen2.5:7b` reverts). The frontend is a Next.js app under `web/` (reader + ask panes; see `web/README.md`); `window/index.html` is the legacy no-build window.
 
 **Tech Stack:** Python 3 stdlib (one exception for vendored text-preprocessing tools; see `AGENTS.md`). Ollama on `127.0.0.1:11434`. No pip installs. No database server.
 
@@ -25,7 +25,7 @@
 
 The product bet: local inference, cited answers, figures on screen, wifi off.
 
-**Current (2026-10-17):** post-v1. `smallbook_x3` (3.1B, Q4_K_M, 1.93 GB (1,840.5 MiB)) is adopted as the primary desktop answer model (`prompt.ANSWER_MODEL = "smallbook_x3"`), succeeding `smallbook_x2g` and `smallbook_x2d`. `smallbook_x3_mobile` (1.5B, Q4_K_M, 986 MB (940.4 MiB)) serves edge and resource-constrained environments. All edge cases (alphanumeric acronyms, coreference follow-ups, natural comparison grammar, highlight intent) are resolved. Benchmark status: **60/60** Hard Benchmark, **24/24** Highlight Golden, **22/22** HTTP Battery, **348** unit tests. Report: `artifacts/reports/architecture-and-x3-2026-10-17.md`.
+**Current (2026-10-17):** post-v1. `nekohon_x3` (3.1B, Q4_K_M, 1.93 GB (1,840.5 MiB); renamed from `smallbook_x3` 2026-10-17, same weights) is adopted as the primary desktop answer model (`prompt.ANSWER_MODEL = "nekohon_x3"`), succeeding `smallbook_x2g` and `smallbook_x2d`. `nekohon_x3_mobile` (1.5B, Q4_K_M, 986 MB (940.4 MiB)) serves edge and resource-constrained environments. All edge cases (alphanumeric acronyms, coreference follow-ups, natural comparison grammar, highlight intent) are resolved. Benchmark status: **60/60** Hard Benchmark, **24/24** Highlight Golden, **22/22** HTTP Battery, **348** unit tests. Report: `artifacts/reports/architecture-and-x3-2026-10-17.md`.
 
 Two older drafts in `~/.hermes/cache/scratch/hackathon-plan.md` and `hackathon-plan-full.md` disagree with each other. This file replaces both.
 
@@ -62,15 +62,15 @@ be reopened when the goal calls for it.
 | Job | Model | On disk | Use |
 | --- | --- | --- | --- |
 | Embed | `nomic-embed-text:latest` (274 MB) | yes | retrieval |
-| Answer (desktop default) | `smallbook_x3` (1.93 GB (1,840.5 MiB), Q4_K_M) | yes | desktop default since 2026-10-17; 3.1B quote-or-refuse Wide-LoRA student |
-| Answer (mobile default) | `smallbook_x3_mobile` (986 MB (940.4 MiB), Q4_K_M) | yes | mobile/edge default since 2026-10-17; 1.5B quote-or-refuse Wide-LoRA student |
+| Answer (desktop default) | `nekohon_x3` (1.93 GB (1,840.5 MiB), Q4_K_M) | yes | desktop default since 2026-10-17 (renamed from `smallbook_x3`); 3.1B quote-or-refuse Wide-LoRA student |
+| Answer (mobile default) | `nekohon_x3_mobile` (986 MB (940.4 MiB), Q4_K_M) | yes | mobile/edge default since 2026-10-17 (renamed from `smallbook_x3_mobile`); 1.5B quote-or-refuse Wide-LoRA student |
 | Teacher / revert | `qwen2.5:7b` (4.7 GB, Q4_K_M) | yes | teacher baseline; `ANSWER_MODEL=qwen2.5:7b` reverts |
 | Weak-machine note | `llama3.2:3b` (2.0 GB) | yes | README fallback only. Not the dev model. |
 | Do not use | `deepseek-r1:7b` | yes | leave it |
 
-On the Windows runner (measured 2026-10-17): `smallbook_x3`, `smallbook_x3_mobile`, `qwen2.5:7b`, `nomic-embed-text:latest`, `granite4.1:8b`, and `embeddinggemma-2:270m-bf16-text` are registered in Ollama.
+On the Windows runner (measured 2026-10-17): `nekohon_x3`, `nekohon_x3_mobile` (renamed from `smallbook_x3*`; the old tags stay registered as aliases), `qwen2.5:7b`, `nomic-embed-text:latest`, `granite4.1:8b`, and `embeddinggemma-2:270m-bf16-text` are registered in Ollama.
 
-`smallbook_x3` is the current answer model (adopted 2026-10-17; `smallbook_x3_mobile` and the 7B stay one env flag away) — a Qwen2.5-3B quote-or-refuse finetune distilled from an 844-row 7-layer corpus via Wide-LoRA on Colab A100. Any answer-model swap — the 7B back, mobile, or a new finetune — has to pass the battery in both modes: ask — quote is a substring, answer starts with `[Ch.`, refusal is exactly `Not in this book.`; answer — citations only from the shown passages and the coherence probes pass. Measure it; do not swap quietly on a hunch.
+`nekohon_x3` is the current answer model (adopted 2026-10-17 as `smallbook_x3`, renamed 2026-10-17; `nekohon_x3_mobile` and the 7B stay one env flag away) — a Qwen2.5-3B quote-or-refuse finetune distilled from an 844-row 7-layer corpus via Wide-LoRA on Colab A100. Any answer-model swap — the 7B back, mobile, or a new finetune — has to pass the battery in both modes: ask — quote is a substring, answer starts with `[Ch.`, refusal is exactly `Not in this book.`; answer — citations only from the shown passages and the coherence probes pass. Measure it; do not swap quietly on a hunch.
 
 Changes that invalidate measurements — re-run, don't quietly swap:
 
@@ -105,7 +105,7 @@ ask-this-book/
   answer.py          # prompt wiring, generation, quote check, citations, coherence guard
   prompt.py          # system prompts (ask + answer + gloss) and ANSWER_MODEL
   figures.py         # attach a figure when a cited passage names it
-  models/            # committed portable Modelfiles (smallbook_x3, smallbook_x3_mobile)
+  models/            # committed portable Modelfiles (nekohon_x3, nekohon_x3_mobile)
   scripts/           # setup_models.py (one-command install, verify, release package)
   docs/              # ENGINEERING_AND_BENCHMARKS.md (in-depth contributor guide)
   tests/             # 348 unit tests + fixtures

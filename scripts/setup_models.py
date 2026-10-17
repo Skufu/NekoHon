@@ -23,37 +23,37 @@ import urllib.request
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 MODELS = {
-    "smallbook_x3": {
-        "name": "smallbook_x3",
-        "tag": "smallbook_x3",
-        "tag_full": "smallbook_x3:latest",
+    "nekohon_x3": {
+        "name": "nekohon_x3",
+        "tag": "nekohon_x3",
+        "tag_full": "nekohon_x3:latest",
         "role": "Primary Desktop Answerer (3B Q4_K_M)",
         "base_model": "Qwen/Qwen2.5-3B-Instruct",
-        "gguf_filename": "Qwen2.5-3B-Instruct.Q4_K_M.gguf",
-        "dir": os.path.join(REPO_ROOT, "data", "models", "smallbook_x3"),
-        "committed_modelfile": os.path.join(REPO_ROOT, "models", "smallbook_x3", "Modelfile"),
+        "gguf_filename": "nekohon_x3.Q4_K_M.gguf",
+        "dir": os.path.join(REPO_ROOT, "data", "models", "nekohon_x3"),
+        "committed_modelfile": os.path.join(REPO_ROOT, "models", "nekohon_x3", "Modelfile"),
         "expected_sha256": "92fb94df741b2117b20b8ba8347c4143eb70cfa4ac9237741f6e1527149fd17f",
         "expected_bytes": 1929902656,
-        "size_display": "1.93 GB / 1840.5 MiB (1,929,902,656 bytes)",
-        "ollama_digest": "4d755a3b108d",
-        "hf_url": "https://huggingface.co/Skufu/ask-this-book-smallbook-x3/resolve/main/smallbook_x3/Qwen2.5-3B-Instruct.Q4_K_M.gguf",
-        "env_var_url": "SMALLBOOK_X3_URL",
+        "size_display": "1.93 GB (1,840.5 MiB; 1,929,902,656 bytes)",
+        "ollama_digest": "5a9525f8d0ac",
+        "hf_url": "https://huggingface.co/Skufu1/nekohon-x3/resolve/main/nekohon_x3.Q4_K_M.gguf",
+        "env_var_url": "NEKOHON_X3_URL",
     },
-    "smallbook_x3_mobile": {
-        "name": "smallbook_x3_mobile",
-        "tag": "smallbook_x3_mobile",
-        "tag_full": "smallbook_x3_mobile:latest",
+    "nekohon_x3_mobile": {
+        "name": "nekohon_x3_mobile",
+        "tag": "nekohon_x3_mobile",
+        "tag_full": "nekohon_x3_mobile:latest",
         "role": "Mobile / Edge Resource-Constrained Answerer (1.5B Q4_K_M)",
         "base_model": "Qwen/Qwen2.5-1.5B-Instruct",
-        "gguf_filename": "Qwen2.5-1.5B-Instruct.Q4_K_M.gguf",
-        "dir": os.path.join(REPO_ROOT, "data", "models", "smallbook_x3_mobile"),
-        "committed_modelfile": os.path.join(REPO_ROOT, "models", "smallbook_x3_mobile", "Modelfile"),
+        "gguf_filename": "nekohon_x3_mobile.Q4_K_M.gguf",
+        "dir": os.path.join(REPO_ROOT, "data", "models", "nekohon_x3_mobile"),
+        "committed_modelfile": os.path.join(REPO_ROOT, "models", "nekohon_x3_mobile", "Modelfile"),
         "expected_sha256": "c3d8492fe73114a0c3e7249da6a1646acfafc47bf1b2d2742480874af923dd93",
         "expected_bytes": 986048192,
-        "size_display": "986 MB / 940.4 MiB (986,048,192 bytes)",
-        "ollama_digest": "d3508a8ff376",
-        "hf_url": "https://huggingface.co/Skufu/ask-this-book-smallbook-x3/resolve/main/smallbook_x3_mobile/Qwen2.5-1.5B-Instruct.Q4_K_M.gguf",
-        "env_var_url": "SMALLBOOK_X3_MOBILE_URL",
+        "size_display": "986 MB (940.4 MiB; 986,048,192 bytes)",
+        "ollama_digest": "89e6798ed288",
+        "hf_url": "https://huggingface.co/Skufu1/nekohon-x3/resolve/main/nekohon_x3_mobile.Q4_K_M.gguf",
+        "env_var_url": "NEKOHON_X3_MOBILE_URL",
     },
 }
 
@@ -199,7 +199,7 @@ def import_into_ollama(model_cfg):
         raise RuntimeError("Ollama binary not found on PATH or LOCALAPPDATA. Please ensure Ollama is installed.")
 
     print(f"Importing {model_name} into Ollama via '{ollama_bin} create {model_name} -f Modelfile'...")
-    proc = subprocess.run([ollama_bin, "create", model_name, "-f", "Modelfile"], cwd=model_dir, capture_output=True, text=True)
+    proc = subprocess.run([ollama_bin, "create", model_name, "-f", "Modelfile"], cwd=model_dir, capture_output=True, text=True, encoding="utf-8", errors="replace")
     if proc.returncode != 0:
         raise RuntimeError(f"ollama create failed (exit {proc.returncode}):\n{proc.stderr}\n{proc.stdout}")
 
@@ -306,7 +306,7 @@ def run_install(target="all"):
 
         # 1. Download if missing
         if not os.path.exists(gguf_path) or os.path.getsize(gguf_path) != cfg["expected_bytes"]:
-            download_url = os.environ.get(cfg["env_var_url"]) or os.environ.get("SMALLBOOK_MODEL_URL") or cfg["hf_url"]
+            download_url = os.environ.get(cfg["env_var_url"]) or os.environ.get("NEKOHON_MODEL_URL") or os.environ.get("SMALLBOOK_MODEL_URL") or cfg["hf_url"]
             print(f"GGUF artifact not found locally. Initiating download for {name} ({cfg['size_display']})...")
             download_file(download_url, gguf_path, expected_bytes=cfg["expected_bytes"])
 
@@ -350,7 +350,7 @@ def run_package_release():
         "manifest_version": "1.0.0",
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "repo": "https://github.com/Skufu/ask-this-book",
-        "huggingface_repo": "https://huggingface.co/Skufu/ask-this-book-smallbook-x3",
+        "huggingface_repo": "https://huggingface.co/Skufu1/nekohon-x3",
         "models": {},
         "lora_archives": {},
         "instructions": {
@@ -360,15 +360,15 @@ def run_package_release():
                 "# 2. Log in with your write token",
                 "huggingface-cli login",
                 "# 3. Upload model artifacts to repository",
-                "huggingface-cli upload Skufu/ask-this-book-smallbook-x3 data/models/smallbook_x3/Qwen2.5-3B-Instruct.Q4_K_M.gguf smallbook_x3/Qwen2.5-3B-Instruct.Q4_K_M.gguf",
-                "huggingface-cli upload Skufu/ask-this-book-smallbook-x3 data/models/smallbook_x3_mobile/Qwen2.5-1.5B-Instruct.Q4_K_M.gguf smallbook_x3_mobile/Qwen2.5-1.5B-Instruct.Q4_K_M.gguf",
+                "huggingface-cli upload Skufu1/nekohon-x3 data/models/nekohon_x3/nekohon_x3.Q4_K_M.gguf nekohon_x3.Q4_K_M.gguf",
+                "huggingface-cli upload Skufu1/nekohon-x3 data/models/nekohon_x3_mobile/nekohon_x3_mobile.Q4_K_M.gguf nekohon_x3_mobile.Q4_K_M.gguf",
             ],
             "github_release_upload": [
                 "# 1. Create a GitHub release tag",
-                "gh release create v1.0.0-x3 --title 'smallbook_x3 & smallbook_x3_mobile Models' --notes 'Official weights for ask-this-book'",
+                "gh release create nekohon-x3-v1 --title 'nekohon_x3 & nekohon_x3_mobile Models' --notes 'Official weights for ask-this-book (nekohon_x3)'",
                 "# 2. Upload GGUF assets",
-                "gh release upload v1.0.0-x3 data/models/smallbook_x3/Qwen2.5-3B-Instruct.Q4_K_M.gguf",
-                "gh release upload v1.0.0-x3 data/models/smallbook_x3_mobile/Qwen2.5-1.5B-Instruct.Q4_K_M.gguf",
+                "gh release upload nekohon-x3-v1 data/models/nekohon_x3/nekohon_x3.Q4_K_M.gguf",
+                "gh release upload nekohon-x3-v1 data/models/nekohon_x3_mobile/nekohon_x3_mobile.Q4_K_M.gguf",
             ],
             "end_user_install": "python scripts/setup_models.py --install",
         },
@@ -423,7 +423,7 @@ def main():
     group.add_argument("--status", action="store_true", help="Check local GGUF artifacts, SHA256 hashes, and Ollama status")
     group.add_argument("--install", action="store_true", help="Download missing models and import into local Ollama")
     group.add_argument("--package-release", action="store_true", help="Generate release manifest (data/models/release-manifest.json)")
-    parser.add_argument("--model", choices=["all", "smallbook_x3", "smallbook_x3_mobile"], default="all", help="Target model")
+    parser.add_argument("--model", choices=["all", "nekohon_x3", "nekohon_x3_mobile"], default="all", help="Target model")
 
     args = parser.parse_args()
 

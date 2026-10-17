@@ -29,7 +29,7 @@ flowchart TD
     subgraph Generation["3. Intent & Grounded Generation (intent.py & answer.py)"]
         Context --> Intent["Highlight Intent Classifier<br/>(CONCEPT, FRAGMENT, MULTI, QUESTION)"]
         Intent --> Prompt["Aligned ChatML System Prompt<br/>(prompt.py)"]
-        Prompt --> Ollama["Local Student Model<br/>(smallbook_x3 3B / smallbook_x3_mobile 1.5B)"]
+        Prompt --> Ollama["Local Student Model<br/>(nekohon_x3 3B / nekohon_x3_mobile 1.5B)"]
         Ollama --> Coherence{"_is_coherent_gloss Validation<br/>(Repetition & Loop Guard)"}
         Coherence -->|Passed| FinalAnswer["[Ch. N] Cited Answer + Gloss"]
         Coherence -->|Failed| GroundedSyn["_synthesize_grounded_gloss<br/>(Direct Sentence Extraction)"]
@@ -219,7 +219,7 @@ python -m unittest discover -s tests
 
 ### 4.2 60-Item Hard Benchmark ([`artifacts/harnesses/hard-bench.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/artifacts/harnesses/hard-bench.py))
 ```sh
-python artifacts/harnesses/hard-bench.py smallbook_x3
+python artifacts/harnesses/hard-bench.py nekohon_x3
 ```
 Evaluates 6 stress categories (10 items each = 60 items):
 1. `multi_turn`: Pronominal coreference follow-ups (`"What are its downsides?"`) and out-of-book follow-up refusals.
@@ -228,11 +228,11 @@ Evaluates 6 stress categories (10 items each = 60 items):
 4. `adversarial_injection`: Prompt injection attacks and plausible out-of-book technical lures.
 5. `hard_explain_anti_boilerplate`: Contextual explain requests verified for verbatim citation and zero robotic boilerplate (`"in this context"`, `"this sentence refers to"`).
 6. `zero_shot_unseen_book`: Completely unseen 8-chunk networking textbook corpus (TCP, BGP, TLS 1.3, Raft).
-- **Target**: **60/60 (100%)** on both `smallbook_x3` and `smallbook_x3_mobile`.
+- **Target**: **60/60 (100%)** on both `nekohon_x3` and `nekohon_x3_mobile`.
 
 ### 4.3 24-Item Held-Out Highlight Evaluation ([`artifacts/probes/probe-highlight-2026-10-16.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/artifacts/probes/probe-highlight-2026-10-16.py))
 ```sh
-python artifacts/probes/probe-highlight-2026-10-16.py smallbook_x3
+python artifacts/probes/probe-highlight-2026-10-16.py nekohon_x3
 ```
 - Measures verbatim quote citation, correct pinned chunk matching, and anti-boilerplate adherence across 24 held-out reader highlights.
 - **Target**: **24/24 (100%) PASS** rated `nYYY`.
@@ -313,7 +313,7 @@ After training completes:
 model.save_pretrained_gguf("smallbook_x3", tokenizer, quantization_method="q4_k_m")
 ```
 
-Download the resulting GGUF files into `data/models/smallbook_x3/` and `data/models/smallbook_x3_mobile/`, then run:
+Download the resulting GGUF files into `data/models/nekohon_x3/` and `data/models/nekohon_x3_mobile/` (the 2026-10-17 run exported under the working name `smallbook_x3`; the distribution was renamed to `nekohon_x3` the same day, bytes and SHA-256 unchanged), then run:
 ```sh
 python scripts/setup_models.py --install
 python scripts/setup_models.py --package-release

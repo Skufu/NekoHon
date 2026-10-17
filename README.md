@@ -1,6 +1,6 @@
 # Ask This Book (`ask-this-book`)
 
-An offline, local-first book companion pairing a Gloss-inspired marginalia reader ([`web/`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/web), Next.js) with a zero-dependency Python stdlib RAG & Highlight Intent Engine ([`server.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/server.py), [`answer.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/answer.py), [`intent.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/intent.py), [`retrieve.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/retrieve.py)) and purpose-distilled local models (`smallbook_x3` 3B for desktop, `smallbook_x3_mobile` 1.5B for mobile/edge).
+An offline, local-first book companion pairing a Gloss-inspired marginalia reader ([`web/`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/web), Next.js) with a zero-dependency Python stdlib RAG & Highlight Intent Engine ([`server.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/server.py), [`answer.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/answer.py), [`intent.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/intent.py), [`retrieve.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/retrieve.py)) and purpose-distilled local models (`nekohon_x3` 3B for desktop, `nekohon_x3_mobile` 1.5B for mobile/edge).
 
 Retrieval, intent resolution, and answer generation run strictly on local Ollama on `127.0.0.1:11434` — no cloud APIs, no database servers, no pip dependencies, and zero telemetry.
 
@@ -30,8 +30,8 @@ flowchart TD
 
     subgraph LocalOllama["Offline Ollama Runtime (127.0.0.1:11434)"]
         Embedder["nomic-embed-text<br/>(768d, 274 MB)"]
-        Model3B["smallbook_x3 (3B Q4_K_M)<br/>Desktop Default (1.93 GB)"]
-        Model15B["smallbook_x3_mobile (1.5B Q4_K_M)<br/>Edge / Mobile Default (986 MB)"]
+        Model3B["nekohon_x3 (3B Q4_K_M)<br/>Desktop Default (1.93 GB)"]
+        Model15B["nekohon_x3_mobile (1.5B Q4_K_M)<br/>Edge / Mobile Default (986 MB)"]
     end
 
     Card -->|POST /ask stream=1| Router
@@ -73,16 +73,16 @@ flowchart TD
 
 ## Model Lineup & Download Table
 
-All `smallbook` models are purpose-distilled quote-or-refuse students trained on an 844-row 7-layer corpus using Wide-LoRA (r=32, alpha=64) on an A100 GPU and exported directly to 4-bit GGUFs.
+All `nekohon` models (renamed from the `smallbook_x3` line on 2026-10-17; identical weights and hashes) are purpose-distilled quote-or-refuse students trained on an 844-row 7-layer corpus using Wide-LoRA ($r=32, \alpha=64$) on an A100 GPU and exported directly to 4-bit GGUFs.
 
 | Model | Parameters | Quantization | Disk Size | SHA-256 Digest | Role & Hardware | Benchmark Scores |
 | --- | :---: | :---: | :---: | --- | --- | :---: |
-| **`smallbook_x3`** | **3.1B** | **Q4_K_M** | **1.93 GB (1,840.5 MiB)** | `92fb94df741b2117b20b8ba8347c4143...` | **Primary Desktop Default**<br/>(8GB+ RAM / 4GB+ VRAM) | **60/60** Hard Bench<br/>**24/24** Highlights<br/>**22/22** HTTP Battery |
-| **`smallbook_x3_mobile`** | **1.5B** | **Q4_K_M** | **986 MB (940.4 MiB)** | `c3d8492fe73114a0c3e7249da6a1646a...` | **Mobile / Edge Default**<br/>(4GB RAM / 2GB VRAM) | **60/60** Hard Bench<br/>**24/24** Highlights<br/>**22/22** HTTP Battery |
+| **`nekohon_x3`** | **3.1B** | **Q4_K_M** | **1.93 GB (1,840.5 MiB)** | `92fb94df741b2117b20b8ba8347c4143...` | **Primary Desktop Default**<br/>(8GB+ RAM / 4GB+ VRAM) | **60/60** Hard Bench<br/>**24/24** Highlights<br/>**22/22** HTTP Battery |
+| **`nekohon_x3_mobile`** | **1.5B** | **Q4_K_M** | **986 MB (940.4 MiB)** | `c3d8492fe73114a0c3e7249da6a1646a...` | **Mobile / Edge Default**<br/>(4GB RAM / 2GB VRAM) | **60/60** Hard Bench<br/>**24/24** Highlights<br/>**22/22** HTTP Battery |
 | `qwen2.5:7b` | 7.6B | Q4_K_M | 4.7 GB | `845dbda0ea48ed749caafd9e6037047a...` | Reference Base Teacher<br/>(`ANSWER_MODEL=qwen2.5:7b`) | Baseline comparison |
 | `nomic-embed-text` | 137M | F16 | 274 MB | `0a109f422b47e3a30ba2b10eca18548e...` | Local 768-dim Embedder<br/>(`ollama pull nomic-embed-text`) | 10/10 retrieval smoke |
 
-Portable, committed Modelfiles are tracked under [`models/smallbook_x3/Modelfile`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/models/smallbook_x3/Modelfile) and [`models/smallbook_x3_mobile/Modelfile`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/models/smallbook_x3_mobile/Modelfile).
+Portable, committed Modelfiles are tracked under [`models/nekohon_x3/Modelfile`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/models/nekohon_x3/Modelfile) and [`models/nekohon_x3_mobile/Modelfile`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/models/nekohon_x3_mobile/Modelfile).
 
 ---
 
@@ -99,7 +99,7 @@ Install the distilled models and embedder in one command:
 # 1. Pull the embedder
 ollama pull nomic-embed-text
 
-# 2. Automatically verify, download, and register smallbook_x3 into Ollama
+# 2. Automatically verify, download, and register nekohon_x3 into Ollama
 python scripts/setup_models.py --install
 
 # 3. Check model and runtime health
@@ -170,10 +170,10 @@ python -m unittest discover -s tests
 python verify_index.py
 
 # 3. 60-Item Hard Benchmark (Stress tests coreference, acronyms, comparisons, traps)
-python artifacts/harnesses/hard-bench.py smallbook_x3
+python artifacts/harnesses/hard-bench.py nekohon_x3
 
 # 4. 24-Item Held-Out Highlight Evaluation
-python artifacts/probes/probe-highlight-2026-10-16.py smallbook_x3
+python artifacts/probes/probe-highlight-2026-10-16.py nekohon_x3
 
 # 5. End-to-End HTTP Battery (22 live queries against running engine)
 python artifacts/harnesses/step2-battery.py
