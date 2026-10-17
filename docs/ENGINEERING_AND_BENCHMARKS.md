@@ -8,7 +8,7 @@ flowchart TD
         EPUB["Raw EPUB File<br/>(books/fde.epub)"] --> Spine["OPF Spine & Container Parse"]
         Spine --> Packer["Sentence-Boundary Chunker<br/>(CHUNK_MAX_CHARS = 1400, OVERLAP = 180)"]
         Spine --> FigExt["Figure & Caption Extractor"]
-        Packer --> Chunks["1042 Chunks<br/>(0/967 mid-sentence starts)"]
+        Packer --> Chunks["1,042 Chunks<br/>(0/1,042 mid-sentence starts)"]
         FigExt --> Figures["111 Extracted PNGs + Captions"]
         Chunks --> Index["data/index.json"]
         Figures --> Index
@@ -68,7 +68,11 @@ Standard chunking approaches that split text on fixed character lengths (`text[:
          overlap_sents.insert(0, s)
          acc_len += len(s)
      ```
-4. **Measured Outcome**: In the ingested *Fundamentals of Data Engineering* index (`data/index.json`), exactly **0 out of 967 text chunks begin mid-sentence** and **0 end without terminating punctuation**.
+4. **Measured Outcome**: In the ingested *Fundamentals of Data Engineering* index (`data/index.json`):
+   - **`1,042` total chunks** (`1,025` prose chunks + `17` chunks containing HTML table text).
+   - **`0 / 1,042` (`0.0%`) mid-sentence starts**.
+   - **`983 / 1,042` (`94.34%`) ending with terminal punctuation** (`.`, `!`, `?`, quotes); the remaining `59` chunks (`5.66%`) are section headings, colon list lead-ins (`include the following:`), URLs, or bibliographic entries.
+   - **`111` extracted figure records** in `data/index.json` (`110` unique figures referenced across `118` chunk-level figure attachments in `GET /chunks`, plus `1` unreferenced appendix image `fig-app02-1`).
 
 ### 1.3 Figure & Caption Extraction
 - For each chapter, all `<img>` tags are resolved against the EPUB zip container.
@@ -82,11 +86,16 @@ To index a new book for the companion:
 1. Place the EPUB file at `books/<book_id>.epub`.
 2. Update or verify `books/SOURCE.txt` with the book's metadata.
 3. Run the ingest and embedding scripts:
-   ```sh
-   python ingest.py --epub books/my_book.epub --book-id my_book
-   python retrieve.py --book-id my_book
-   python verify_index.py
-   ```
+   - **Default FDE run**:
+     ```sh
+     python ingest.py && python retrieve.py && python verify_index.py
+     ```
+   - **Custom book run** (using exact `argparse` flags `--epub`, `--book-id`, `--index`, `--figures-dir`):
+     ```sh
+     python ingest.py --epub books/my_book.epub --book-id my_book --index data/index.my_book.json
+     python retrieve.py --book-id my_book
+     python verify_index.py --book-id my_book
+     ```
 4. The system is book-agnostic: [`tests/test_generalization.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/tests/test_generalization.py) enforces that no book-specific titles, chunk IDs, or query strings exist in engine logic modules.
 
 ---
@@ -139,14 +148,14 @@ This guarantees exact posting matches for `"s3"`, `"3nf"`, `"sha256"`, and `"ddr
   ```
 
 ### 2.3 Lexical Inverted Index & The Dense Safety Band ([`keywords.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/keywords.py))
-Dense embedding models frequently underperform on rare keyword matches (e.g. rare technical terms like `"pragmatic"` with document frequency $\le 8$).
+Dense embedding models frequently underperform on rare keyword matches (e.g. rare technical terms like `"pragmatic"` with document frequency <= 8).
 - [`keywords.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/keywords.py) maintains in-memory postings for low-document-frequency terms.
 - **The Dense 20% Safety Band (The France Canary)**:
   A naive BM25/IDF boost promotes irrelevant chunks if an out-of-book query happens to match an incidental word (e.g., `"capital"` in *"What is the capital of France?"* matching an economics mention).
   To prevent false answers, a lexical candidate is **only** admitted if its dense retrieval score places it within the top 20% of the corpus ranking. Out-of-book queries sit in the dense tail (rank > 600) and are strictly rejected.
 
 ### 2.4 Reciprocal Rank Fusion ([`fusion.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/fusion.py))
-When a rare-word lexical candidate clears the dense band, it is fused with the dense candidates using Reciprocal Rank Fusion ($K = 60$):
+When a rare-word lexical candidate clears the dense band, it is fused with the dense candidates using Reciprocal Rank Fusion (K = 60):
 ```text
 RRF_score(d) = (1.0 / (60 + dense_rank(d))) + (1.0 / (60 + lexical_rank(d)))
 ```
@@ -164,13 +173,13 @@ When a query word is absent from the book corpus (e.g. `"atermark"` or `"normila
 ## 3. Highlight Intent Engine & Grounded Answer Generation
 
 ### 3.1 Intent Taxonomy ([`intent.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/intent.py))
-When readers highlight text in [`web/`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/web), their selections range from single acronyms to full paragraphs. [`intent.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/intent.py) runs deterministic classification in $< 1\text{ ms}$:
+When readers highlight text in [`web/`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/web), their selections range from single acronyms to full paragraphs. [`intent.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/intent.py) runs deterministic classification in < 1 ms:
 
 | Intent Class | Criteria | Example Selection | Resolution Action |
 | --- | --- | --- | --- |
 | `CONCEPT_TERM` | 1–4 words, title-case or acronym | `"Cloud Economics"` | Strips meta-prefixes (`"A Detour on..."`), locates substantive definitional anchor sentence. |
 | `VAGUE_FRAGMENT` | Incomplete clause without explicit subject | `"is a perfectly reasonable strategy"` | `extract_enclosing_subject` walks the enclosing sentence to find the grammatical subject (`"lift and shift"`). |
-| `MULTI_SENTENCE_PASSAGE` | Contains sentence terminators or $> 200$ chars | Two full paragraphs on IOPS bottlenecks | Identifies core thesis sentence across clauses. |
+| `MULTI_SENTENCE_PASSAGE` | Contains sentence terminators or > 200 chars | Two full paragraphs on IOPS bottlenecks | Identifies core thesis sentence across clauses. |
 | `AUTHOR_QUESTION` | Ends with `?` or starts with interrogative | `"How is this possible?"` | Treats the question as a reader inquiry and retrieves the author's answer. |
 
 ### 3.2 Coherence Verification & Anti-Loop Guard ([`answer.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/answer.py))
@@ -195,7 +204,7 @@ Every PR must pass all quality gates before merge. Run these commands from the r
 
 ```mermaid
 flowchart LR
-    Unit["1. Unit Suite<br/>(334 tests, 1.6s)"] --> Hard["2. Hard Benchmark<br/>(60 items, 100%)"]
+    Unit["1. Unit Suite<br/>(348 unit tests, 1.6s)"] --> Hard["2. Hard Benchmark<br/>(60 items, 100%)"]
     Hard --> High["3. Highlight Golden<br/>(24 items, 100%)"]
     High --> Batt["4. HTTP Battery<br/>(22 items, 100%)"]
     Batt --> PR["PR Approved &amp; Merged"]
@@ -205,7 +214,7 @@ flowchart LR
 ```sh
 python -m unittest discover -s tests
 ```
-- **Scope**: 334 tests executing in ~1.6 seconds.
+- **Scope**: 348 unit tests executing in ~1.6 seconds.
 - **Coverage**: Contract validation, sentence-boundary chunk packing, hybrid RRF fusion, typo second readings, figure attachment integrity, and [`tests/test_generalization.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/tests/test_generalization.py) (fails if any book-specific IDs or titles leak into logic modules).
 
 ### 4.2 60-Item Hard Benchmark ([`artifacts/harnesses/hard-bench.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/artifacts/harnesses/hard-bench.py))
@@ -294,8 +303,8 @@ model = FastLanguageModel.get_peft_model(
 - **Optimizer**: AdamW 8-bit (`lr = 0.0002`, cosine learning rate schedule, 10 warmup steps).
 - **Sequence Length**: 4096 tokens (max observed token length 1951, 0 truncated).
 - **Loss Trajectory**:
-  - `smallbook_x3` (3B): $1.0937 \to \mathbf{0.0403}$ in 393.8s.
-  - `smallbook_x3_mobile` (1.5B): $1.0937 \to \mathbf{0.0499}$ in 292.6s.
+  - `smallbook_x3` (3B): 1.0937 → 0.0403 in 393.8s.
+  - `smallbook_x3_mobile` (1.5B): 1.0937 → 0.0499 in 292.6s.
 
 ### 5.3 GGUF Export & Ollama Registration
 After training completes:

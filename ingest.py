@@ -3,6 +3,7 @@
 Stdlib only. Records are JSON. Pictures stay files. No pickle.
 """
 
+import argparse
 import json
 import re
 import zipfile
@@ -470,7 +471,7 @@ def _label_in_text(label, text):
     return match.group(1) in _visible(text)
 
 
-def ingest_epub(epub_path, figures_dir=None, write_images=True):
+def ingest_epub(epub_path=BOOK, figures_dir=FIGURES, write_images=True, book_id="fde"):
     """Return the index dict. Write images when figures_dir is set."""
     epub_path = Path(epub_path)
     chunks = []
@@ -545,24 +546,49 @@ def ingest_epub(epub_path, figures_dir=None, write_images=True):
             if number in by_number
         })
     return {
-        "book_id": "fde",
+        "book_id": book_id,
         "chunks": chunks,
         "figures": figures,
     }
 
 
 def main():
-    if not BOOK.is_file():
-        raise SystemExit(f"missing book: {BOOK}")
-    if FIGURES.is_dir():
-        for old in FIGURES.iterdir():
+    parser = argparse.ArgumentParser(description="Ingest EPUB into JSON index and extracted figure files.")
+    parser.add_argument("--epub", default=str(BOOK), help="Path to input EPUB file (default: books/fde.epub)")
+    parser.add_argument("--book-id", default=None, help="Book ID (default: fde, or stem of --epub)")
+    parser.add_argument("--index", default=None, help="Path to output index JSON")
+    parser.add_argument("--figures-dir", default=str(FIGURES), help="Directory to extract figures to")
+    args = parser.parse_args()
+
+    epub_path = Path(args.epub)
+    if not epub_path.is_file():
+        raise SystemExit(f"missing book: {epub_path}")
+
+    if args.book_id:
+        book_id = args.book_id
+    elif str(epub_path.resolve()) != str(BOOK.resolve()):
+        book_id = epub_path.stem
+    else:
+        book_id = "fde"
+
+    if args.index:
+        index_path = Path(args.index)
+    elif book_id != "fde":
+        index_path = ROOT / "data" / f"index.{book_id}.json"
+    else:
+        index_path = INDEX
+
+    figures_dir = Path(args.figures_dir)
+    if figures_dir.is_dir():
+        for old in figures_dir.iterdir():
             if old.is_file():
                 old.unlink()
-    FIGURES.mkdir(parents=True, exist_ok=True)
-    index = ingest_epub(BOOK, FIGURES, write_images=True)
-    INDEX.parent.mkdir(parents=True, exist_ok=True)
-    INDEX.write_text(json.dumps(index, indent=2), encoding="utf-8")
-    reloaded = json.loads(INDEX.read_text(encoding="utf-8"))
+    figures_dir.mkdir(parents=True, exist_ok=True)
+
+    index = ingest_epub(epub_path, figures_dir, write_images=True, book_id=book_id)
+    index_path.parent.mkdir(parents=True, exist_ok=True)
+    index_path.write_text(json.dumps(index, indent=2), encoding="utf-8")
+    reloaded = json.loads(index_path.read_text(encoding="utf-8"))
     captions = [f["caption"] for f in reloaded["figures"] if f["caption"]][:3]
     print(f"chunks {len(reloaded['chunks'])}")
     print(f"figures {len(reloaded['figures'])}")

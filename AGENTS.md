@@ -1064,8 +1064,8 @@ Only this list can block work.
   (`quote-refuse-2026-10-17.train-x3.jsonl`, 844 rows = 707 cited [683 system + 24 explain_gloss] + 137 refusals = 16.23% share;
   0 seal violations, 0 ufffd, SHA256 `fd06f9818114837b89b1f4d090cce5d9676cc13707fc8dd73c6fe1b98984a697`).
   Trained Wide-LoRA (`r=32, lora_alpha=64`, 3 epochs, 318 steps, lr 0.0002 cosine) on Colab A100:
-  desktop student `smallbook_x3` (3B, Q4_K_M 1.93 GB, digest `4d755a3b108d`, loss `1.0937 -> 0.0403`) and
-  mobile student `smallbook_x3_mobile` (1.5B, Q4_K_M 986 MB, digest `d3508a8ff376`, loss `1.0937 -> 0.0499`).
+  desktop student `smallbook_x3` (3B, Q4_K_M 1.93 GB (1,840.5 MiB), digest `4d755a3b108d`, loss `1.0937 -> 0.0403`) and
+  mobile student `smallbook_x3_mobile` (1.5B, Q4_K_M 986 MB (940.4 MiB), digest `d3508a8ff376`, loss `1.0937 -> 0.0499`).
   Engine upgraded with alphanumeric tokenization (`preprocess.TOKEN` preserving `s3`, `1nf`, `2nf`, `3nf`, `ddr4`, `ddr5`, `iops`),
   natural comparison grammar (`canonical.COMPARATOR`, `answer.COMPARISON_PATTERNS`), multi-turn pronoun coreference resolution
   (`_extract_subject_from_history`), sequential chunk continuation (`_rank_seq_chunks`), half-covered explicit negative disclosure
@@ -1092,7 +1092,7 @@ Only this list can block work.
   Collapsible quote drawer & citation jumps (`web/components/AnswerView.tsx`, `web/components/Reader.tsx`): expandable `.source-pill` / `.source-popover` drawer, animated rubric underline (`mark.cite-mark`), and smooth cubic-bezier scrolling.
   Dynamic follow-up engine (`answer.py`): `compute_dynamic_followups` extracts entity-centric chips, `_advance_followup_quote` steps to subsequent passage sentences across multi-turn dialogs.
   Open-source model packaging: standalone Ollama Modelfiles (`models/smallbook_x3/Modelfile`, `models/smallbook_x3_mobile/Modelfile`), model setup & verification CLI (`scripts/setup_models.py`), root `README.md` open-source quickstart, and comprehensive `docs/ENGINEERING_AND_BENCHMARKS.md` guide.
-  Measured: `python -m unittest discover -s tests`: **345/345 passed** in 1.66s; `npx tsc --noEmit`: **0 errors**; Hard Benchmark 60/60 (100.0%, 0.71s mean latency on `smallbook_x3`); held-out golden highlights 24/24 (100.0%); live HTTP battery **PASS** (`BATTERY_MODE="answer"`, Golden 10/10 answered, 10/10 pass, typos PASS, probes PASS, coherence PASS, France exact refusal PASS); headless Chrome verification (`record.mjs`, 1280x720) verified all 3 multi-turn scenes, drag, resize, minimize, and citation body underline (`polish-and-cards-verified/recording.mp4`, 3187 distinct frames, 0 unindexed artifacts).
+  Measured: `python -m unittest discover -s tests`: **348/348 passed** in 1.66s; `npx tsc --noEmit`: **0 errors**; Hard Benchmark 60/60 (100.0%, 0.71s mean latency on `smallbook_x3`); held-out golden highlights 24/24 (100.0%); live HTTP battery **PASS** (`BATTERY_MODE="answer"`, Golden 10/10 answered, 10/10 pass, typos PASS, probes PASS, coherence PASS, France exact refusal PASS); headless Chrome verification (`record.mjs`, 1280x720) verified all 3 multi-turn scenes, drag, resize, minimize, and citation body underline (`polish-and-cards-verified/recording.mp4`, 3187 distinct frames, 0 unindexed artifacts).
 
 
 
@@ -1131,8 +1131,8 @@ Only this list can block work.
   with the full path + ` serve`. `ollama --version` with the server up prints
   `ollama version is 0.40.3`.
 - On disk: `nomic-embed-text:latest` (274 MB, pulled 2026-10-11). Smoke embed
-  returned 768 dims. `smallbook_x3:latest` (1.93 GB, digest `4d755a3b108d`) is the finetuned
-  answerer and app default since 2026-10-17; `smallbook_x3_mobile:latest` (986 MB, digest `d3508a8ff376`)
+  returned 768 dims. `smallbook_x3:latest` (1.93 GB (1,840.5 MiB), digest `4d755a3b108d`) is the finetuned
+  answerer and app default since 2026-10-17; `smallbook_x3_mobile:latest` (986 MB (940.4 MiB), digest `d3508a8ff376`)
   is the companion mobile student; `smallbook_x2g:latest` (1.9 GB, digest `db17f64de75a`),
   `smallbook_x2g_mobile:latest` (986 MB, digest `4304159b8936`), `smallbook_x2d:latest` (1.9 GB, digest `d0bfa88f6b63`),
   `smallbook_x2:latest` (1.9 GB, `ba79d37a6067`) and `smallbook_x2d_q8:latest` (3.3 GB, `a8d4b390`) stay on

@@ -378,12 +378,14 @@ def compute_dynamic_followups(
         slot1 = "What are the specific reasons?"
     else:
         for t in candidate_terms:
-            q_cand = f"How does {t} relate to this?"
+            is_plural = (t.endswith("s") and not t.lower().endswith(("ss", "us", "is", "as", "os", "ics"))) or t in ("SSDs", "HDDs", "CPUs", "GPUs", "VMs", "DAGs", "APIs")
+            aux = "do" if is_plural else "does"
+            q_cand = f"How {aux} {t} relate to this?"
             if len(q_cand) <= 42:
                 slot1 = q_cand
                 used_term = t
                 break
-            q_cand = f"What is {t}?"
+            q_cand = f"What is {t}?" if not is_plural else f"What are {t}?"
             if len(q_cand) <= 42:
                 slot1 = q_cand
                 used_term = t

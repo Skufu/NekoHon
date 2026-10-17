@@ -72,20 +72,22 @@ route-handler proxy would buffer the NDJSON stream.
 - `components/MarginCard.tsx` — stacked margin card for `selection` (`explain` /
   `ask`), `whole` (`answer` / `ask`), and connected `quiz` (`Show the key` toggle,
   revealed key sentence underlined in book text, quiz-specific chips `"Another quiz question"`
-  and `"Explain the answer"`), header pointer dragging (`dragOffset`), width toggle between compact
-  320px and wide 440px (`customWidth`), minimize to 26px `.gloss-node-indicator` margin pills,
+  and `"Explain the answer"`), header pointer dragging (`dragOffset`), 2D width+height resize handles
+  (compact 320px, wide 440px, or freeform drag resize), unified `.gloss-card.is-minimized` morph animation
+  to 26px `.gloss-node-indicator` margin pills, collapsible multi-turn accordion for prior turns,
   streaming shimmer + 60fps fluid token pacer updates, `<AnswerView>` rendering,
   clickable quote snippets (`.gloss-quote-snippet`, `.answer-quote`) triggering 520ms
   smooth scroll and animated rubric underline (`mark.cite-mark`), dynamic follow-up suggestion chips,
   and inline `"Ask a follow-up…"` multi-turn input (`history`) with guaranteed 1–2 sentence explanation gloss.
-- `components/AnswerView.tsx` — reader-first gloss + italic evidence quote +
-  collapsible `.source-pill` / `.source-popover` drawer, clickable `Ch. N` / `Preface` chips
-  (triggering 520ms cubic-bezier smooth citation scroll and animated rubric underline on `mark.cite-mark`),
-  `Read as:` disclosure, exact `Not in this book.` refusal + `nearest misses:`, attached figures with
-  `nearby, not an answer`, and suppression of duplicate `"Quiz"` labels and duplicate top blockquotes on key reveal.
+- `components/AnswerView.tsx` — reader-first gloss + italic evidence quote with `+ Source quote · Ch. N`
+  single pill with downward liquid grid unfold, `"← Back to previous spot"` return banner,
+  clickable `Ch. N` / `Preface` chips (triggering 520ms cubic-bezier smooth citation scroll and animated rubric
+  underline on `mark.cite-mark`), `Read as:` disclosure, exact `Not in this book.` refusal + `nearest misses:`,
+  attached figures with `nearby, not an answer`, and suppression of duplicate `"Quiz"` labels and duplicate
+  top blockquotes on key reveal.
 - `components/Composer.tsx` — sticky bottom floating whole-book bar (`/` or
-  `Ctrl+K` to focus), bounded opaque floating popover menu (`.composer-suggestions`,
-  max 3 filtered questions `18..62` chars), dynamic chapter rhetorical question
+  `Ctrl+K` to focus) with hover-reveal bottom Composer dock, bounded opaque floating popover menu
+  (`.composer-suggestions`, max 3 filtered questions `18..62` chars), dynamic chapter rhetorical question
   autocomplete for incomplete prefixes (e.g. `"what are the"`), `Answer` / `Quote first`
   mode chip, active-chunk connected `Quiz` trigger, and viewport closest-chunk anchoring.
 - `lib/anchor.ts` — heading offset encoding (`start <= -100`, `isHeadingOffset`,
@@ -97,7 +99,7 @@ route-handler proxy would buffer the NDJSON stream.
   multi-layer paragraph splitter (`splitParagraphSegments`), and `formatChapter`.
 - `lib/store.ts` — zustand state machine (`useAsk`): `glosses[]`,
   `highlights[]`, `theme`, `pen`, `marker`, `readSize`, per-card streaming with
-  60fps fluid token streaming pacer (`pacerTimer`, ~16ms tick, 1–4 char/tick pacing, smooth Call 2
+  60fps fluid token streaming pacer (`pacerTimer`, ~16ms tick, 2–8 chars per ~16ms tick pacing, smooth Call 2
   gloss streaming on `onFinal`), full context forwarding (`chunkId`, `endChunkId`, `selection`, `heading`),
   preemptive stream abort (`inFlightMap`), and `startTurnStream` excluding the active `(glossId, turnId)`
   from being prematurely stopped.

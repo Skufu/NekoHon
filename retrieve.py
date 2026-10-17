@@ -321,18 +321,32 @@ def chunks_payload(index):
 def main():
     parser = argparse.ArgumentParser(description="Embed or search the frozen book index.")
     parser.add_argument("--index", default=str(INDEX))
+    parser.add_argument(
+        "--book-id",
+        default=None,
+        help="Book ID; resolves index to data/index.<book_id>.json if --index is not set and data/index.<book_id>.json exists, else data/index.json",
+    )
     parser.add_argument("--embedder", default=DEFAULT_EMBEDDER)
     parser.add_argument("--smoke", default="")
     parser.add_argument("--k", type=int, default=TOP_K)
     args = parser.parse_args()
-    index_path = Path(args.index)
+
+    if args.book_id is not None and args.index == str(INDEX):
+        book_index = ROOT / "data" / f"index.{args.book_id}.json"
+        if book_index.exists():
+            index_path = book_index
+        else:
+            index_path = INDEX
+    else:
+        index_path = Path(args.index)
+
     if args.embedder != DEFAULT_EMBEDDER and index_path.resolve() == INDEX.resolve():
         raise SystemExit(
             f"{args.embedder} must not write data/index.json. "
             "Pass --index data/index.<model>.json."
         )
     if not index_path.is_file():
-        if not args.smoke and INDEX.is_file():
+        if not args.smoke and INDEX.is_file() and index_path != INDEX and args.book_id is None:
             base = load_index(INDEX)
             if base.get("embedder") not in (None, args.embedder):
                 for record in base.get("chunks", []) + base.get("figures", []):
@@ -342,8 +356,22 @@ def main():
             save_index(index_path, base)
             print(f"copied frozen chunks to {index_path.name}")
         else:
+            if args.book_id is not None:
+                raise FileNotFoundError(
+                    f"missing index: {index_path}. "
+                    f"Run 'python ingest.py --epub books/{args.book_id}.epub --book-id {args.book_id}' first."
+                )
             raise SystemExit(f"missing index: {index_path}")
     index = load_index(index_path)
+    if args.book_id is not None:
+        idx_book = index.get("book_id")
+        if idx_book and idx_book != args.book_id:
+            raise FileNotFoundError(
+                f"Index {index_path} has book_id '{idx_book}', expected '{args.book_id}'. "
+                f"Run 'python ingest.py --epub books/{args.book_id}.epub --book-id {args.book_id}' first."
+            )
+        if not idx_book:
+            index["book_id"] = args.book_id
     if args.smoke:
         question_path = Path(args.smoke)
         if not question_path.is_file():

@@ -66,6 +66,7 @@ export type GlossItem = {
   minimized?: boolean;
   dragOffset?: { x: number; y: number };
   customWidth?: number;
+  customHeight?: number;
 };
 
 type InFlightTurn = {
@@ -119,6 +120,10 @@ type AskStore = {
   toggleMinimizeGloss: (id: string) => void;
   setGlossDragOffset: (id: string, offset: { x: number; y: number }) => void;
   setGlossWidth: (id: string, width: number) => void;
+  setGlossHeight: (id: string, height: number | undefined) => void;
+  removeTurn: (glossId: string, turnId: string) => void;
+  returnSpot: { scrollY: number; label: string } | null;
+  clearReturnSpot: () => void;
 
   // Actions
   askSelection: (
@@ -201,6 +206,25 @@ function historyPayload(
 ): { question: string; answer: string }[] | undefined {
   if (thread.length === 0) return undefined;
   return thread.slice(-2).map(({ question, answer }) => ({ question, answer }));
+}
+
+function isSelfContainedNewTopic(question: string): boolean {
+  const q = question.trim();
+  const lower = q.toLowerCase();
+  const startsWithDef = /^(?:what is|what are|define|who is)\b/i.test(q);
+  if (!startsWithDef) return false;
+  if (
+    /^(?:what are the (?:specific )?reasons|what are the (?:cost )?trade-offs|what is the reason|what is the trade-off)\b/i.test(
+      q
+    )
+  ) {
+    return false;
+  }
+  const deictic = /\b(?:this|that|it|its|they|them|their|these|those|here)\b/i;
+  if (deictic.test(lower)) {
+    return false;
+  }
+  return true;
 }
 
 export const useAsk = create<AskStore>((set, get) => {
@@ -770,6 +794,26 @@ export const useAsk = create<AskStore>((set, get) => {
       }));
     },
 
+    setGlossHeight: (id, height) => {
+      set((state) => ({
+        glosses: state.glosses.map((g) =>
+          g.id === id ? { ...g, customHeight: height } : g
+        ),
+      }));
+    },
+
+    removeTurn: (glossId, turnId) => {
+      set((state) => ({
+        glosses: state.glosses.map((g) => {
+          if (g.id !== glossId) return g;
+          return {
+            ...g,
+            turns: g.turns.filter((t) => t.id !== turnId),
+          };
+        }),
+      }));
+    },
+
     // Actions
     askSelection: (
       question,
@@ -996,12 +1040,17 @@ export const useAsk = create<AskStore>((set, get) => {
 
       syncActiveTurn(nextGlosses, glossId);
 
+      const isNewTopic =
+        targetGloss.kind === "whole" || isSelfContainedNewTopic(q);
+
       const payload = {
         mode: turnMode,
         question: q,
-        chunk_id: lastCitedChunkId || targetGloss.chunkId || undefined,
-        end_chunk_id: targetGloss.endChunkId || undefined,
-        heading: targetGloss.heading || undefined,
+        chunk_id: isNewTopic
+          ? undefined
+          : lastCitedChunkId || targetGloss.chunkId || undefined,
+        end_chunk_id: isNewTopic ? undefined : targetGloss.endChunkId || undefined,
+        heading: isNewTopic ? undefined : targetGloss.heading || undefined,
         ...(history.length > 0 ? { history } : {}),
       };
 
@@ -1021,6 +1070,8 @@ export const useAsk = create<AskStore>((set, get) => {
     latency: null,
     highlight: null,
     highlightNote: "",
+    returnSpot: null,
+    clearReturnSpot: () => set({ returnSpot: null }),
     anchor: null,
     anchored: false,
     marginRoom: false,
@@ -1034,8 +1085,18 @@ export const useAsk = create<AskStore>((set, get) => {
     clearHighlight: () => set({ highlight: null, highlightNote: "", anchor: null }),
     clearThread: () => set({ thread: [] }),
 
-    showCitation: (citation) =>
+    showCitation: (citation) => {
+      let returnSpot: { scrollY: number; label: string } | null = null;
+      if (typeof window !== "undefined") {
+        const currentY = window.scrollY;
+        const activeGloss = get().glosses.find((g) => g.id === get().activeGlossId);
+        const originChap = activeGloss?.chapter
+          ? `Ch. ${activeGloss.chapter.replace(/^ch/i, "")}`
+          : "previous spot";
+        returnSpot = { scrollY: currentY, label: originChap };
+      }
       set({
+        returnSpot,
         highlight: {
           chunkId: citation.chunk_id,
           chapter: citation.chapter,
@@ -1044,7 +1105,8 @@ export const useAsk = create<AskStore>((set, get) => {
           nonce: citation.nonce ?? Date.now(),
         },
         highlightNote: "",
-      }),
+      });
+    },
 
     stop: () => {
       get().stopGloss();

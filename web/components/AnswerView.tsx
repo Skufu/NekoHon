@@ -104,42 +104,46 @@ function SourceQuoteSection({
             e.stopPropagation();
             setOpen((v) => !v);
           }}
-          title={open ? "Hide source quote" : "Expand source quote"}
+          title={open ? "Hide source quote" : `Expand source quote · ${chLabel}`}
           aria-expanded={open}
         >
           <span className="source-pill-icon">{open ? "\u2212" : "+"}</span>
-          <span className="source-pill-label">Source quote</span>
-        </button>
-
-        <button
-          type="button"
-          className="source-jump-btn"
-          onClick={jump}
-          title="Jump to this passage in the book"
-        >
-          <span>{chLabel}</span>
-          <span className="source-jump-arrow" aria-hidden="true">{"\u2192"}</span>
+          <span className="source-pill-label">Source quote · {chLabel}</span>
         </button>
       </div>
 
-      {open && (
-        <div className="source-popover">
-          <blockquote className="source-popover-text">
-            “{quote}”
-          </blockquote>
-          <div className="source-popover-actions">
-            <button
-              type="button"
-              className="source-jump-btn"
+      <div className={`source-popover-wrapper ${open ? "is-open" : ""}`} aria-hidden={!open}>
+        <div className="source-popover-inner">
+          <div className="source-popover">
+            <blockquote
+              className="source-popover-text"
               onClick={jump}
-              title="Jump to this passage in the book"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  jump(e);
+                }
+              }}
+              title={`Jump to passage in ${chLabel}`}
             >
-              <span>Jump to passage in {chLabel}</span>
-              <span className="source-jump-arrow" aria-hidden="true">{"\u2192"}</span>
-            </button>
+              “{quote}”
+            </blockquote>
+            <div className="source-popover-actions">
+              <button
+                type="button"
+                className="source-jump-btn"
+                onClick={jump}
+                title={`Jump to passage in ${chLabel}`}
+              >
+                <span>Jump to passage in {chLabel}</span>
+                <span className="source-jump-arrow" aria-hidden="true">{"\u2192"}</span>
+              </button>
+            </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -16,7 +16,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 4] \"Plenty of great modular services are available to choose from in either case.\"\nGreat means high quality and suitability for the specific needs, ensuring effective integration and performance in the context.",
    "error": null,
-   "seconds": 0.4,
+   "seconds": 0.2,
    "id": "ch04-051:great",
    "asked": "What is great in Build Versus Buy?"
   },
@@ -25,9 +25,9 @@
    "pin_cited": true,
    "quote_verbatim_in_pin": true,
    "word_in_quoted_span": true,
-   "answer": "[Ch. 9] \"This inevitably leads to the business not performing to its fullest potential with data and data teams losing credibility (and possibly being dissolved).\"\nPotential is the maximum achievable ability or outcome that data can deliver when fully trusted and reliable.",
+   "answer": "[Ch. 9] \"This inevitably leads to the business not performing to its fullest potential with data and data teams losing credibility (and possibly being dissolved).\"\nPotential is the maximum achievable performance or value that can be realized given optimal conditions and resources.",
    "error": null,
-   "seconds": 0.4,
+   "seconds": 0.2,
    "id": "ch09-003:potential",
    "asked": "What is potential in Trust?"
   },
@@ -36,9 +36,9 @@
    "pin_cited": true,
    "quote_verbatim_in_pin": true,
    "word_in_quoted_span": true,
-   "answer": "[Ch. 8] \"The requirements of 2NF, plus each table contains only relevant fields related to its primary key and has no transitive dependencies.\"\nRequirements are the structural rules that tables must follow to avoid repeating data and maintain integrity. 1nf eliminates redundant duplicate fields by decomposing relations into structured tables.",
+   "answer": "[Ch. 8] \"The requirements of 2NF, plus each table contains only relevant fields related to its primary key and has no transitive dependencies.\"\nRequirements are the structural rules that tables must follow to avoid repeating data and maintain integrity. 1NF eliminates redundant duplicate fields by decomposing relations into structured tables.",
    "error": null,
-   "seconds": 0.5,
+   "seconds": 0.3,
    "id": "ch08-052:requirements",
    "asked": "What is requirements in Normalization?"
   },
@@ -47,9 +47,9 @@
    "pin_cited": true,
    "quote_verbatim_in_pin": true,
    "word_in_quoted_span": true,
-   "answer": "[Ch. 8] \"A database commit is a change within a database, such as creating, updating, or deleting a record, table, or other database objects.\"\nCreating means saving new records, tables, or objects into a database, which is crucial for maintaining current state records.",
+   "answer": "[Ch. 8] \"A database commit is a change within a database, such as creating, updating, or deleting a record, table, or other database objects.\"\nCreating records, tables, or indexes in a database establishes new persistent state that persists across application crashes and database restarts.",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.2,
    "id": "ch08-020:creating",
    "asked": "What is creating in Know how your database handles commits?"
   },
@@ -60,7 +60,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 7] \"Generally, options in the space allow users to set a target and source, ingest in various ways (e.g., CDC, replication, truncate and reload), set permissions and credentials, configure an update frequency, and begin syncing data.\"\nA set is a well-defined collection of unique objects called elements or members.",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.2,
    "id": "ch07-061:set",
    "asked": "What is set in Managed Data Connectors?"
   },
@@ -69,9 +69,9 @@
    "pin_cited": true,
    "quote_verbatim_in_pin": true,
    "word_in_quoted_span": true,
-   "answer": "[Ch. 2] \"Now, a new batch of open source competitors (including Prefect, Dagster, and Metaflow) has sprung up to fix perceived limitations of Airflow, providing better metadata handling, portability, and dependency management.\"\nSource' is the initial origin of data or work, highlighting its importance as the starting point for analysis or development.",
+   "answer": "[Ch. 2] \"Now, a new batch of open source competitors (including Prefect, Dagster, and Metaflow) has sprung up to fix perceived limitations of Airflow, providing better metadata handling, portability, and dependency management.\"\n[ch. 2] \"many data engineers are heavily involved in developing open source frameworks.",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.7,
    "id": "ch02-085:source",
    "asked": "What is source in Development of open source frameworks?"
   },
@@ -82,7 +82,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 7] \"On the other hand, nothing is free; using parallel connections also increases the load on the source database.\"\nLoad is the workload placed on database servers by concurrent connections and parallel queries.",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.2,
    "id": "ch07-049:load",
    "asked": "What is load in Direct Database Connection?"
   },
@@ -91,9 +91,9 @@
    "pin_cited": true,
    "quote_verbatim_in_pin": true,
    "word_in_quoted_span": true,
-   "answer": "[Ch. 8] \"A key is used to redistribute data across the cluster; once again, a spill to disk occurs as the data is written to each node.\"\nA node is a cluster computing unit responsible for processing data locally before redistributing results.",
+   "answer": "[Ch. 8] \"A key is used to redistribute data across the cluster; once again, a spill to disk occurs as the data is written to each node.\"\nA node is a cluster computing unit responsible for executing data processing tasks independently.",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.2,
    "id": "ch08-119:node",
    "asked": "What is node in Example: Data transformation in Spark?"
   },
@@ -102,9 +102,9 @@
    "pin_cited": true,
    "quote_verbatim_in_pin": true,
    "word_in_quoted_span": true,
-   "answer": "[Ch. 8] \"To fully take advantage of a data stream, we must adapt query patterns that reflect its real-time nature.\"\nAdapting query patterns to reflect real-time data streams allows systems to process events as they arrive, leveraging low-latency database caches, and reducing reliance on primary databases for analytical queries.",
+   "answer": "[Ch. 8] \"To fully take advantage of a data stream, we must adapt query patterns that reflect its real-time nature.\"\nAdapting query patterns to reflect real-time data streams allows systems to process events as they arrive, maximizing up-to-ness and efficiency.",
    "error": null,
-   "seconds": 0.4,
+   "seconds": 0.3,
    "id": "ch08-029:advantage",
    "asked": "What is advantage in Queries on Streaming Data?"
   },
@@ -115,7 +115,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 6] \"No hard and fast rules indicate how often warm data is accessed, but it’s less than hot data and more than cold data.\"\n[ch. 6] \"warm data is accessed semi-regularly, say, once per month.",
    "error": null,
-   "seconds": 0.8,
+   "seconds": 0.7,
    "id": "ch06-104:accessed",
    "asked": "What is accessed in Warm data?"
   },
@@ -124,9 +124,9 @@
    "pin_cited": true,
    "quote_verbatim_in_pin": true,
    "word_in_quoted_span": true,
-   "answer": "[Ch. 2] \"There are many things to consider when assessing source systems, including how the system handles ingestion, state, and data generation.\"\nState is the current lag as a again, ensuring consistent data integrity across all system interactions. data engineers must monitor and maintain state to prevent corruption.",
+   "answer": "[Ch. 2] \"There are many things to consider when assessing source systems, including how the system handles ingestion, state, and data generation.\"\nState is the current lag as part in, ensuring data integrity and consistency across all system states. data engineers must verify and maintain stateful records.",
    "error": null,
-   "seconds": 0.4,
+   "seconds": 0.3,
    "id": "ch02-007:state",
    "asked": "What is state in Evaluating source systems: Key engineering considerations?"
   },
@@ -137,7 +137,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 6] \"Just as code version control allows developers to track down commits that cause bugs, data version control can aid ML engineers in tracking changes that lead to model performance degradation.\"\nPerformance measures how well a model or system meets its intended goals under specific conditions.",
    "error": null,
-   "seconds": 0.2,
+   "seconds": 0.3,
    "id": "ch06-121:performance",
    "asked": "What is performance in Data versioning in object storage?"
   },
@@ -148,7 +148,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 5] \"6 Martin Fowler, “How to Move Beyond a Monolithic Data Lake to a Distributed Data Mesh,” MartinFowler.com, May 20, 2019, https://oreil.ly/TEdJF.\"\nA monolithic architecture builds a single, centralized data layer that lacks flexibility and scalability.",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.2,
    "id": "ch05-086:monolithic",
    "asked": "What is monolithic in Additional Resources?"
   },
@@ -170,7 +170,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 1] \"In organizations in stage 3 of data maturity, a data engineer will continue building on prior stages, plus they will do the following:\"\nStage 3 signifies organizational mastery where data drives strategic decisions confidently.",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.2,
    "id": "ch01-031:stage",
    "asked": "What is stage in Stage 3: Leading with data?"
   },
@@ -181,7 +181,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 6] \"GDPR and other privacy regulations have significantly impacted storage system design.\"\nDesigning storage systems requires considering compliance requirements like GDPR, which guides architectural choices to ensure data security and privacy.",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.2,
    "id": "ch06-122:design",
    "asked": "What is design in Privacy?"
   },
@@ -203,7 +203,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 1] \"A CTO owns the key technological strategy and architectures for external-facing applications, such as mobile, web apps, and IoT—all critical data sources for data engineers.\"\nData are the foundational records that drive operational decisions and strategic planning across all organizational units.",
    "error": null,
-   "seconds": 0.2,
+   "seconds": 0.3,
    "id": "ch01-065:data",
    "asked": "What is data in Chief technology officer?"
   },
@@ -225,7 +225,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 6] \"Unlike other undercurrents for which data might be in motion (ingestion) or queried and transformed, the undercurrents for storage differ because storage is so ubiquitous.\"\nQueried' is the process of retrieving data from storage systems using structured queries, which is crucial for downstream analytical and operational data consumption.",
    "error": null,
-   "seconds": 0.4,
+   "seconds": 0.3,
    "id": "ch06-117:queried",
    "asked": "What is queried in Undercurrents?"
   },
@@ -234,9 +234,9 @@
    "pin_cited": true,
    "quote_verbatim_in_pin": true,
    "word_in_quoted_span": true,
-   "answer": "[Ch. 9] \"The technologies used for reports and ad hoc analysis are similar to dashboards but may include Excel, Python, R-based notebooks, SQL queries, and much more.\"\nDashboards present interactive visual interfaces that allow users to explore data models and generate reports dynamically.",
+   "answer": "[Ch. 9] \"The technologies used for reports and ad hoc analysis are similar to dashboards but may include Excel, Python, R-based notebooks, SQL queries, and much more.\"\nDashboards present interactive visual interfaces that allow users to explore data models and generate reports without writing complex SQL queries.",
    "error": null,
-   "seconds": 0.4,
+   "seconds": 0.2,
    "id": "ch09-021:dashboards",
    "asked": "What is dashboards in Business Analytics?"
   },
@@ -247,7 +247,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 3] \"25 Zhamak Dehghani, “How to Move Beyond a Monolithic Data Lake to a Distributed Data Mesh,” MartinFowler.com, May 20, 2019, https://oreil.ly/SqMe8.\"\nData means distributed architecture over monolithic storage solutions.",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.1,
    "id": "ch03-108:data",
    "asked": "What is data in Additional Resources?"
   },
@@ -258,7 +258,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 3] \"It’s touted as the most widely used architecture framework today.\"\nWidely' means being used by many people or organizations, highlighting its general acceptance and practical utility across diverse industries.",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.2,
    "id": "ch03-004:widely",
    "asked": "What is widely in TOGAF’s definition?"
   },
@@ -267,9 +267,9 @@
    "pin_cited": true,
    "quote_verbatim_in_pin": true,
    "word_in_quoted_span": true,
-   "answer": "[Ch. 6] \"You’ll use strong consistency when you can tolerate higher query latency and require correct data every time you read from the database.\"\nTime is a continuous, measurable sequence of events ordered by when they occurred.",
+   "answer": "[Ch. 6] \"You’ll use strong consistency when you can tolerate higher query latency and require correct data every time you read from the database.\"\nTime is a continuous, measurable sequence of events ordered by the past, present, and future.",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.2,
    "id": "ch06-025:time",
    "asked": "What is time in Eventual Versus Strong Consistency?"
   }

@@ -8,14 +8,14 @@ Retrieval, intent resolution, and answer generation run strictly on local Ollama
 flowchart TD
     subgraph UI["Reader Interface (web/ Next.js on :3100)"]
         Reader["Book Prose Viewport<br/>(EPUB Section Chunks)"]
-        Lens["Selection Lens<br/>(Explain, Ask, Copy, 5 Highlights)"]
+        Lens["Selection Lens<br/>(Explain, Ask, Copy, 4 Highlights)"]
         Card["Movable Margin Cards<br/>(26px Nodes, Follow-Up Pills)"]
         Reader --> Lens
         Lens --> Card
     end
 
     subgraph Engine["Local Engine (server.py on :8000)"]
-        Router["HTTP Router & SSE Pacer<br/>(POST /ask, GET /chunks)"]
+        Router["HTTP & NDJSON Stream Router<br/>(POST /ask, GET /chunks)"]
         IntentEng["Highlight Intent Engine<br/>(intent.py &lt; 1ms)"]
         Canon["Canonical Query Normalizer<br/>(canonical.py)"]
         HybridRet["Hybrid Dense + RRF Retrieval<br/>(retrieve.py & keywords.py)"]
@@ -30,8 +30,8 @@ flowchart TD
 
     subgraph LocalOllama["Offline Ollama Runtime (127.0.0.1:11434)"]
         Embedder["nomic-embed-text<br/>(768d, 274 MB)"]
-        Model3B["smallbook_x3 (3B Q4_K_M)<br/>Desktop Default (1.89 GB)"]
-        Model15B["smallbook_x3_mobile (1.5B Q4_K_M)<br/>Edge / Mobile Default (965 MB)"]
+        Model3B["smallbook_x3 (3B Q4_K_M)<br/>Desktop Default (1.93 GB)"]
+        Model15B["smallbook_x3_mobile (1.5B Q4_K_M)<br/>Edge / Mobile Default (986 MB)"]
     end
 
     Card -->|POST /ask stream=1| Router
@@ -47,7 +47,7 @@ flowchart TD
 
 1. **Inline Text & Heading Selection Lens**:
    - Immediate floating action lens upon selecting text or structural headings.
-   - Quick actions: `Explain` (contextual gloss), `Ask` (focused inquiry), `Copy`, and 5 monochromatic highlighter swatches (yellow, blue, green, pink, purple).
+   - Quick actions: `Explain` (contextual gloss), `Ask` (focused inquiry), `Copy`, and 4 highlighter swatches (yellow, green, blue, pink).
    - Negative-offset encoding allows clean selection of section headings (`<h2>Cloud</h2>`) without confusing them with body text.
 
 2. **Gloss Marginalia & Movable Margin Cards**:
@@ -66,19 +66,19 @@ flowchart TD
 
 5. **Robust Retrieval & Coreference Resolution**:
    - Alphanumeric tokenization preserves technical identifiers (`S3`, `3NF`, `DDR4`, `DDR5`).
-   - Reciprocal Rank Fusion (RRF, $K=60$) combines dense embeddings with rare-word lexical postings inside a dense 20% safety band.
+   - Reciprocal Rank Fusion (RRF, K = 60) combines dense embeddings with rare-word lexical postings inside a dense 20% safety band.
    - Multi-turn conversation threads resolve pronominal coreferences (`"What are its downsides?"`) across margin card turns.
 
 ---
 
 ## Model Lineup & Download Table
 
-All `smallbook` models are purpose-distilled quote-or-refuse students trained on an 844-row 7-layer corpus using Wide-LoRA ($r=32, \alpha=64$) on an A100 GPU and exported directly to 4-bit GGUFs.
+All `smallbook` models are purpose-distilled quote-or-refuse students trained on an 844-row 7-layer corpus using Wide-LoRA (r=32, alpha=64) on an A100 GPU and exported directly to 4-bit GGUFs.
 
 | Model | Parameters | Quantization | Disk Size | SHA-256 Digest | Role & Hardware | Benchmark Scores |
 | --- | :---: | :---: | :---: | --- | --- | :---: |
-| **`smallbook_x3`** | **3.1B** | **Q4_K_M** | **1.89 GB** | `92fb94df741b2117b20b8ba8347c4143...` | **Primary Desktop Default**<br/>(8GB+ RAM / 4GB+ VRAM) | **60/60** Hard Bench<br/>**24/24** Highlights<br/>**22/22** HTTP Battery |
-| **`smallbook_x3_mobile`** | **1.5B** | **Q4_K_M** | **965 MB** | `c3d8492fe73114a0c3e7249da6a1646a...` | **Mobile / Edge Default**<br/>(4GB RAM / 2GB VRAM) | **60/60** Hard Bench<br/>**24/24** Highlights<br/>**22/22** HTTP Battery |
+| **`smallbook_x3`** | **3.1B** | **Q4_K_M** | **1.93 GB (1,840.5 MiB)** | `92fb94df741b2117b20b8ba8347c4143...` | **Primary Desktop Default**<br/>(8GB+ RAM / 4GB+ VRAM) | **60/60** Hard Bench<br/>**24/24** Highlights<br/>**22/22** HTTP Battery |
+| **`smallbook_x3_mobile`** | **1.5B** | **Q4_K_M** | **986 MB (940.4 MiB)** | `c3d8492fe73114a0c3e7249da6a1646a...` | **Mobile / Edge Default**<br/>(4GB RAM / 2GB VRAM) | **60/60** Hard Bench<br/>**24/24** Highlights<br/>**22/22** HTTP Battery |
 | `qwen2.5:7b` | 7.6B | Q4_K_M | 4.7 GB | `845dbda0ea48ed749caafd9e6037047a...` | Reference Base Teacher<br/>(`ANSWER_MODEL=qwen2.5:7b`) | Baseline comparison |
 | `nomic-embed-text` | 137M | F16 | 274 MB | `0a109f422b47e3a30ba2b10eca18548e...` | Local 768-dim Embedder<br/>(`ollama pull nomic-embed-text`) | 10/10 retrieval smoke |
 
@@ -90,7 +90,7 @@ Portable, committed Modelfiles are tracked under [`models/smallbook_x3/Modelfile
 
 ### 1. Prerequisites
 - **Python 3.9+** (tested on 3.12; stdlib only, no pip packages).
-- **Node.js 18+** & npm (for the Next.js reader frontend).
+- **Node.js 22+** & npm (for the Next.js reader frontend).
 - **Ollama** running locally on `http://127.0.0.1:11434`.
 
 ### 2. Model Setup
@@ -110,9 +110,10 @@ python scripts/setup_models.py --status
 
 ### 3. Book Ingestion & Verification
 ```sh
-# Place your EPUB at books/fde.epub (recorded in books/SOURCE.txt)
+# Default FDE run (or customize with --epub, --book-id, --index)
 python ingest.py      # EPUB -> sentence-boundary chunks in data/index.json + extracted figures
 python retrieve.py    # Embeds chunks & figures into local vector index (~14 s)
+python verify_index.py # Audits index vector hygiene and dimension alignment
 python preflight.py   # Verifies Python, EPUB, index hygiene, models, and Ollama connectivity
 ```
 
@@ -141,8 +142,8 @@ The engine exposes a strictly typed, frozen HTTP contract:
 
 | Route | Method | Description | Payload / Response |
 | --- | :---: | --- | --- |
-| `/ask` | `POST` | Core RAG & Intent endpoint. Supports `stream=1` (NDJSON frames). | Request: `{"book_id": "fde", "question": "...", "selection": null, "mode": "answer"}`<br/>Response: `{"answer": "...", "citations": [...], "figures": [...], "refused": false}` |
-| `/chunks` | `GET` | Reader payload: chunks in reading sequence, section headings, and figure cards. | Response: `{"chunks": [...], "headings": [...], "figures": [...]}` |
+| `/ask` | `POST` | Core RAG & Intent endpoint. Supports `stream=1` (NDJSON frames). | Request: `{"question": "...", "mode": "answer", "selection": null, "chunk_id": null, "end_chunk_id": null, "heading": "", "history": [], "stream": false}` (extra keys like `"book_id"` are accepted for contract compatibility).<br/>Response: `{"answer": "...", "citations": [...], "figures": [...], "refused": false, "followups": [...]}` |
+| `/chunks` | `GET` | Reader payload: chunks in reading sequence with inline headings and figures. | Response: `{"book_id": "fde", "chunks": [{"chunk_id", "chapter", "heading", "section", "source", "text", "figures": [...]}]}` (heading, section, and figures are attached directly on each chunk object). |
 | `/health` | `GET` | Healthcheck probing engine and local Ollama daemon. | Response: `{"ok": true, "ollama": true}` |
 | `/figures/{id}` | `GET` | Serves extracted book figure image bytes. | Raw PNG/JPEG image bytes |
 | `/` | `GET` | Serves legacy no-build HTML companion window ([`window/index.html`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/window/index.html)). | Static HTML |
@@ -153,7 +154,7 @@ The engine exposes a strictly typed, frozen HTTP contract:
 - `explain`: Contextual selection explanation powered by [`intent.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/intent.py).
 - `quiz`: Returns a question and key sentence from the active chunk.
 
-*Honesty Canary:* If a question cannot be answered from the book (e.g. *"What is the capital of France?"*), the engine returns `refused: true` and the answer string is strictly `Not in this book.`
+*Refusal Contract & Canary:* When a refusal occurs (either retrieval returns no evidence or the model's first line is Not in this book.), the contract guarantees `refused: true` and `answer: "Not in this book."` (with nearest-miss citations retained). Out-of-book refusal behavior is verified against the "What is the capital of France?" canary in the HTTP battery and the 10 adversarial traps in hard-bench.py.
 
 ---
 
@@ -162,7 +163,7 @@ The engine exposes a strictly typed, frozen HTTP contract:
 Run all checks from the repo root:
 
 ```sh
-# 1. Fast Unit Suite (334 tests, 0 network, ~1.5s)
+# 1. Fast Unit Suite (348 unit tests, 0 network, ~1.5s)
 python -m unittest discover -s tests
 
 # 2. Read-Only Index Vector Hygiene Audit
@@ -200,8 +201,8 @@ For contributors looking to ingest custom EPUBs, understand the hybrid retrieval
 👉 **Read the comprehensive guide: [`docs/ENGINEERING_AND_BENCHMARKS.md`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/docs/ENGINEERING_AND_BENCHMARKS.md)**
 
 It covers:
-- EPUB ingestion and sentence-boundary packing (`CHUNK_MAX_CHARS = 1400`, `0/967` mid-sentence starts).
-- Alphanumeric tokenization and RRF fusion mathematics ($K=60$).
+- EPUB ingestion and sentence-boundary packing (`CHUNK_MAX_CHARS = 1400`, 1,042 total chunks with `0 / 1,042` (`0.0%`) mid-sentence starts, `983 / 1,042` (`94.34%`) terminal punctuation).
+- Alphanumeric tokenization and RRF fusion mathematics (K = 60).
 - Semantic intent taxonomy (`CONCEPT_TERM`, `VAGUE_FRAGMENT`, `MULTI_SENTENCE_PASSAGE`, `AUTHOR_QUESTION`).
 - Distillation mechanics of the 844-row 7-layer dataset and Unsloth Wide-LoRA recipes.
 

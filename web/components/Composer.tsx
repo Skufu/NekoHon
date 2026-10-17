@@ -65,7 +65,10 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
 
   const [draft, setDraft] = useState("");
   const [focused, setFocused] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const isRevealed = Boolean(isHovered || focused || draft.trim().length > 0);
 
   // Global keyboard shortcuts: / or Ctrl+K / Cmd+K
   useEffect(() => {
@@ -144,7 +147,23 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
   };
 
   return (
-    <div className="composer-dock">
+    <div
+      className={`composer-dock ${isRevealed ? "is-revealed" : ""}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <button
+        type="button"
+        className="composer-peek-tab"
+        onClick={() => inputRef.current?.focus()}
+        aria-label="Ask whole book"
+        title="Ask whole book (/ to focus)"
+      >
+        <span className="composer-peek-label">Ask whole book</span>
+        <span className="composer-peek-dot">·</span>
+        <kbd className="composer-peek-kbd">/</kbd>
+      </button>
+
       {/* Suggestion pills fan above the composer when focused or typing */}
       {focused && activeSuggestions.length > 0 && (
         <div className="composer-suggestions">

@@ -885,6 +885,49 @@ def _without_heading(quote, passage):
     return rest
 
 
+CANONICAL_ACRONYMS = {
+    "ddr5": "DDR5", "ddr4": "DDR4", "ddr3": "DDR3",
+    "ssds": "SSDs", "ssd": "SSD", "ram": "RAM", "sram": "SRAM", "dram": "DRAM",
+    "nvme": "NVMe", "hdd": "HDD", "hdds": "HDDs", "iops": "IOPS",
+    "cpu": "CPU", "cpus": "CPUs", "gpu": "GPU", "gpus": "GPUs",
+    "vms": "VMs", "vm": "VM", "aws": "AWS", "gcp": "GCP",
+    "s3": "S3", "ec2": "EC2", "emr": "EMR", "rds": "RDS",
+    "sql": "SQL", "nosql": "NoSQL", "newsql": "NewSQL",
+    "oltp": "OLTP", "olap": "OLAP", "htap": "HTAP",
+    "etl": "ETL", "elt": "ELT", "cdc": "CDC",
+    "dag": "DAG", "dags": "DAGs", "api": "API", "apis": "APIs",
+    "sla": "SLA", "slas": "SLAs", "slo": "SLO", "slos": "SLOs", "sli": "SLI",
+    "crud": "CRUD", "acid": "ACID", "base": None,  # skip common English word 'base'
+    "json": "JSON", "csv": "CSV", "xml": "XML", "yaml": "YAML",
+    "http": "HTTP", "https": "HTTPS", "tcp": "TCP", "udp": "UDP",
+    "tls": "TLS", "dns": "DNS", "bgp": "BGP", "iot": "IoT",
+    "3nf": "3NF", "2nf": "2NF", "1nf": "1NF", "bcnf": "BCNF",
+    "fifo": "FIFO", "lifo": "LIFO", "rbac": "RBAC", "iam": "IAM",
+    "pii": "PII", "gdpr": "GDPR", "hipaa": "HIPAA", "ccpa": "CCPA",
+    "roi": "ROI", "tco": "TCO", "capex": "CapEx", "opex": "OpEx",
+    "cicd": "CI/CD", "ci/cd": "CI/CD", "sdk": "SDK", "cli": "CLI",
+}
+
+_CANONICAL_ACRONYM_MAP = {k: v for k, v in CANONICAL_ACRONYMS.items() if v}
+_ACRONYM_SORTED_KEYS = sorted(_CANONICAL_ACRONYM_MAP.keys(), key=len, reverse=True)
+_ACRONYM_PATTERN = re.compile(
+    r"\b(" + "|".join(re.escape(k) for k in _ACRONYM_SORTED_KEYS) + r")\b",
+    re.IGNORECASE,
+)
+
+
+def fix_acronym_casing(text: str) -> str:
+    """Normalize casing of common technical acronyms (e.g. Ddr5 -> DDR5, Ssds -> SSDs)."""
+    if not text:
+        return text
+
+    def _sub(m):
+        raw = m.group(0).lower()
+        return _CANONICAL_ACRONYM_MAP.get(raw, m.group(0))
+
+    return _ACRONYM_PATTERN.sub(_sub, text)
+
+
 def _clean_boilerplate_gloss(gloss, selection=""):
     """Clean robotic boilerplate or formulaic crutches from a gloss."""
     if not gloss:
@@ -911,7 +954,7 @@ def _clean_boilerplate_gloss(gloss, selection=""):
     text = " ".join(text.split()).strip("\"'“”")
     if text:
         text = text[0].upper() + text[1:]
-    return text
+    return fix_acronym_casing(text)
 
 
 def _is_coherent_gloss(gloss: str, quote: str = "") -> bool:
@@ -1119,6 +1162,84 @@ def _extract_subject_from_history(history):
                         return cand
 
     return _extract_subject_from_query(clean_history[0].get("question") or "")
+
+
+DEICTIC_REF_RE = re.compile(
+    r"\b(it|its|this|that|these|those|they|them|their|there|such|same|former|latter|above|previous|prior)\b",
+    re.IGNORECASE,
+)
+
+GENERIC_FACETS_RE = re.compile(
+    r"\b(reason|reasons|stage|stages|type|types|trade-off|trade-offs|tradeoff|tradeoffs|"
+    r"downside|downsides|limitation|limitations|risk|risks|pitfall|pitfalls|"
+    r"bottleneck|bottlenecks|cost|costs|example|examples|chapter|created|invented|"
+    r"coined|warn|handle|overhead)\b",
+    re.IGNORECASE,
+)
+
+EXPLICIT_CONCEPT_RE = re.compile(
+    r"^(?:what\s+(?:is|are|was|were)\s+|define\s+|explain\s+|tell\s+me\s+about\s+|how\s+(?:does|do|did|can|could)\s+.+?\s+work\??)",
+    re.IGNORECASE,
+)
+
+
+def _has_deictic_reference(question: str) -> bool:
+    """Check if question contains any deictic pronouns or backward references."""
+    return bool(DEICTIC_REF_RE.search(question or ""))
+
+
+def _is_topic_shift_followup(question: str, history: list, selection: str = "") -> bool:
+    """True when question is a self-contained topic shift rather than an in-topic follow-up.
+
+    Book-agnostic: verifies absence of deictic references/generic follow-up stems,
+    and requires non-overlapping content words between question and conversation history.
+    """
+    if not history or selection:
+        return False
+    clean_history = [
+        h for h in (history or [])
+        if isinstance(h, dict) and (h.get("question") or h.get("answer"))
+    ]
+    if not clean_history:
+        return False
+    if (
+        is_deictic_question(question)
+        or is_incomplete_stem(question)
+        or _is_generic_followup(question)
+        or _has_deictic_reference(question)
+        or bool(GENERIC_FACETS_RE.search(question))
+    ):
+        return False
+
+    q_subjects = [
+        w.lower() for w in words(question)
+        if w.lower() not in STOPWORDS and w.lower() not in FRAMING_WORDS and len(w) >= 3
+    ]
+    if not q_subjects:
+        return False
+
+    history_subject = _extract_subject_from_history(clean_history)
+    hist_words = set(words((history_subject or "").lower()))
+
+    last_turn = clean_history[-1]
+    last_q = (last_turn.get("question") or "").strip()
+    last_sub = _extract_subject_from_query(last_q) if last_q else ""
+    if last_sub:
+        hist_words.update(words(last_sub.lower()))
+
+    hist_content_words = {
+        w for w in hist_words
+        if w not in STOPWORDS and w not in FRAMING_WORDS and len(w) >= 3
+    }
+    overlap = set(q_subjects) & hist_content_words
+    if overlap:
+        return False
+
+    is_concept = bool(EXPLICIT_CONCEPT_RE.match(question.strip()))
+    if is_concept or (q_subjects and not overlap):
+        return True
+
+    return False
 
 
 def parse_completion(completion, passages, figures=None, anchors=None, question=""):
@@ -1505,7 +1626,7 @@ def _prioritize_phrase_matches(passages, question):
 
 
 def retrieval_context(index, question, search_fn=None, generate_fn=None,
-                      pin_chunk=None, end_chunk_id=None, history=None):
+                      pin_chunk=None, end_chunk_id=None, history=None, selection=""):
     """The passages the model is shown, after reading, fusion, and seeding.
 
     Shared by ask and respond so both modes see the same evidence; the
@@ -1515,9 +1636,11 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
     the LLM enhancer is the fallback under the same gate, so a typo difflib
     cannot see still gets one honest attempt.
     """
+    topic_shift = _is_topic_shift_followup(question, history, selection)
+    effective_pin = None if (topic_shift and not selection) else pin_chunk
     search_fn = search_fn or search
     passages = search_fn(index, question, k=PASSAGE_LIMIT)
-    passages = _pin_chunk(index, passages, pin_chunk, end_chunk_id=end_chunk_id)
+    passages = _pin_chunk(index, passages, effective_pin, end_chunk_id=end_chunk_id)
 
     context = {
         "question": question,
@@ -1567,11 +1690,11 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
         h for h in (history or [])
         if isinstance(h, dict) and (h.get("question") or h.get("answer"))
     ]
-    if clean_history:
+    if clean_history and not topic_shift:
         chunks = index.get("chunks") or []
         target_idx = None
-        if pin_chunk:
-            p_id = pin_chunk.get("chunk_id") if isinstance(pin_chunk, dict) else pin_chunk
+        if effective_pin:
+            p_id = effective_pin.get("chunk_id") if isinstance(effective_pin, dict) else effective_pin
             if p_id:
                 for i, c in enumerate(chunks):
                     if c.get("chunk_id") == p_id:
@@ -1619,9 +1742,9 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
                 passages = injected + [p for p in passages if p.get("chunk_id") not in injected_ids]
                 passages = passages[:PASSAGE_LIMIT]
 
-    if pin_chunk:
+    if effective_pin:
         chunks = index.get("chunks") or []
-        p_id = pin_chunk.get("chunk_id") if isinstance(pin_chunk, dict) else pin_chunk
+        p_id = effective_pin.get("chunk_id") if isinstance(effective_pin, dict) else effective_pin
         p_obj = next((c for c in chunks if c.get("chunk_id") == p_id), None)
         if p_obj:
             try:
@@ -1643,8 +1766,8 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
             except ValueError:
                 pass
 
-    if pin_chunk or end_chunk_id:
-        passages = _pin_chunk(index, passages, pin_chunk, end_chunk_id=end_chunk_id)
+    if effective_pin or end_chunk_id:
+        passages = _pin_chunk(index, passages, effective_pin, end_chunk_id=end_chunk_id)
     context["passages"] = passages
     return context
 
@@ -1890,7 +2013,7 @@ def _synthesize_grounded_gloss(selection, quote, pin_chunk_obj, neighbors, gener
                         continue
                     cleaned_cand = _clean_boilerplate_gloss(ln, selection)
                     if _is_coherent_gloss(cleaned_cand, quote):
-                        return cleaned_cand
+                        return fix_acronym_casing(cleaned_cand)
         except Exception:
             pass
 
@@ -1901,9 +2024,9 @@ def _synthesize_grounded_gloss(selection, quote, pin_chunk_obj, neighbors, gener
             if m:
                 after_text = quote[m.end():].strip().rstrip(".?!")
             if after_text:
-                return f"The highlighted phrase refers to {subject}, explaining that it is {selection.lstrip()} {after_text}."
-            return f"The highlighted phrase refers to {subject} as {selection} in this section."
-        return f"The highlighted phrase characterizes the approach described in this sentence: {quote[:100]}."
+                return fix_acronym_casing(f"The highlighted phrase refers to {subject}, explaining that it is {selection.lstrip()} {after_text}.")
+            return fix_acronym_casing(f"The highlighted phrase refers to {subject} as {selection} in this section.")
+        return fix_acronym_casing(f"The highlighted phrase characterizes the approach described in this sentence: {quote[:100]}.")
 
     if intent_type == INTENT_CONCEPT_TERM:
         substantive = []
@@ -1918,11 +2041,11 @@ def _synthesize_grounded_gloss(selection, quote, pin_chunk_obj, neighbors, gener
         if substantive:
             first_sub = substantive[0]
             if first_sub.lower().startswith("to understand"):
-                return first_sub
+                return fix_acronym_casing(first_sub)
             if len(substantive) >= 2 and substantive[0] != substantive[1]:
-                return f"{substantive[0]} {substantive[1]}"
-            return substantive[0]
-        return f"{core_concept} refers to the technical and operational model described in this section."
+                return fix_acronym_casing(f"{substantive[0]} {substantive[1]}")
+            return fix_acronym_casing(substantive[0])
+        return fix_acronym_casing(f"{core_concept} refers to the technical and operational model described in this section.")
 
     if intent_type == INTENT_MULTI_SENTENCE:
         sents = split_sentences(selection)
@@ -1931,12 +2054,13 @@ def _synthesize_grounded_gloss(selection, quote, pin_chunk_obj, neighbors, gener
             cand = non_examples[0]
             if len(non_examples) > 1 and len(cand) + len(non_examples[-1]) < 250:
                 cand = f"{cand} {non_examples[-1]}"
-            return f"This passage explains that {cand[0].lower() + cand[1:]}"
-        return "This passage analyzes the trade-offs and operational constraints between storage, capacity, and resource limits."
+            cand_lead = (cand[0].lower() + cand[1:]) if len(cand) > 1 and not cand[1].isupper() else cand
+            return fix_acronym_casing(f"This passage explains that {cand_lead}")
+        return fix_acronym_casing("This passage analyzes the trade-offs and operational constraints between storage, capacity, and resource limits.")
 
     if quote:
-        return f"The authors explain {selection} in this section: {quote[:120]}."
-    return f"The authors discuss {selection} in this section."
+        return fix_acronym_casing(f"The authors explain {selection} in this section: {quote[:120]}.")
+    return fix_acronym_casing(f"The authors discuss {selection} in this section.")
 
 
 def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_question=""):
@@ -2083,8 +2207,9 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
     ]
 
     new_gloss = ""
+    topic_shift = _is_topic_shift_followup(question, history, selection)
 
-    if clean_history:
+    if clean_history and not topic_shift:
         last_turn = clean_history[-1]
         prior_a = (last_turn.get("answer") or "").strip()
         m_q = re.search(r"\[Ch\.\s*[^\]]+\]\s*[\"“](.+?)[\"”]", prior_a)
@@ -2198,15 +2323,17 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
     is_live = (generate_fn is None) or bool(getattr(generate_fn, "_is_live", False))
     generate_fn = generate_fn or ollama_generate
     history = sanitize_history(history)
+    topic_shift = _is_topic_shift_followup(question, history, selection)
+    effective_pin = None if (topic_shift and not selection) else pin_chunk
     resolved_question = _resolve_contextual_query(
-        index, question, pin_chunk=pin_chunk, selection=selection,
+        index, question, pin_chunk=effective_pin, selection=selection,
         heading=heading, history=history,
     )
     asked_form = canonical_query(resolved_question) if canonical else resolved_question
     history_subject = _extract_subject_from_history(history)
     context = retrieval_context(
-        index, asked_form, search_fn, generate_fn, pin_chunk=pin_chunk,
-        end_chunk_id=end_chunk_id, history=history,
+        index, asked_form, search_fn, generate_fn, pin_chunk=effective_pin,
+        end_chunk_id=end_chunk_id, history=history, selection=selection,
     )
     passages = context["passages"]
     if not passages:
@@ -2244,13 +2371,13 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
     body = _expand_list(body, resolved_question, asked_form, passages)
 
     SIMPLIFY_RE = re.compile(r"\b(simpler\s+words|simplify|break\s+this\s+down|explain\s+this|what\s+does\s+this\s+mean|in\s+simple\s+words)\b", re.I)
-    if clean_history and pin_chunk and SIMPLIFY_RE.search(question):
+    if clean_history and effective_pin and SIMPLIFY_RE.search(question):
         pin_chunk_obj = None
-        if isinstance(pin_chunk, dict):
-            pin_chunk_obj = pin_chunk
-        elif isinstance(pin_chunk, str):
+        if isinstance(effective_pin, dict):
+            pin_chunk_obj = effective_pin
+        elif isinstance(effective_pin, str):
             pin_chunk_obj = next(
-                (c for c in (index.get("chunks") or []) if c.get("chunk_id") == pin_chunk),
+                (c for c in (index.get("chunks") or []) if c.get("chunk_id") == effective_pin),
                 None,
             )
         if pin_chunk_obj is not None:
@@ -2274,17 +2401,17 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
                 body["answer"] = f'[Ch. {chap}] "{chosen_quote}"'
                 body["figures"] = figures_for([pin_chunk_obj], index.get("figures") or [])
 
-    if clean_history and not SIMPLIFY_RE.search(question):
+    if clean_history and not SIMPLIFY_RE.search(question) and not topic_shift:
         prior_turn = clean_history[-1]
         prior_a = (prior_turn.get("answer") or "").strip()
         m_q = re.search(r"\[Ch\.\s*[^\]]+\]\s*[\"“](.+?)[\"”]", prior_a)
         prior_quote = m_q.group(1).strip() if m_q else ""
         target_chunk_obj = None
-        if pin_chunk:
-            if isinstance(pin_chunk, dict):
-                target_chunk_obj = pin_chunk
-            elif isinstance(pin_chunk, str):
-                target_chunk_obj = next((c for c in (index.get("chunks") or []) if c.get("chunk_id") == pin_chunk), None)
+        if effective_pin:
+            if isinstance(effective_pin, dict):
+                target_chunk_obj = effective_pin
+            elif isinstance(effective_pin, str):
+                target_chunk_obj = next((c for c in (index.get("chunks") or []) if c.get("chunk_id") == effective_pin), None)
         if target_chunk_obj is None and passages:
             target_chunk_obj = passages[0]
         if target_chunk_obj is not None:
@@ -2337,7 +2464,7 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
                     body["answer"] = f'[Ch. {chap}] "{anchor_quote}"'
                     body["figures"] = figures_for([pin_chunk_obj], index.get("figures") or [])
 
-    if clean_history and (resolved_question != question) and not body.get("refused"):
+    if clean_history and (resolved_question != question) and not body.get("refused") and not topic_shift:
         if re.search(r"\b(which\s+chapter|where\s+in\s+the\s+book)\b", question, re.I):
             first_q = body["citations"][0].get("quote", "") if body.get("citations") else ""
             if not re.search(r"\bchapter\s+\d+\b", first_q, re.I):
@@ -2605,22 +2732,24 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
         h for h in (history or [])
         if isinstance(h, dict) and (h.get("question") or h.get("answer"))
     ]
+    topic_shift = _is_topic_shift_followup(question, history, selection)
+    effective_pin = None if (topic_shift and not selection) else pin_chunk
     resolved_question = _resolve_contextual_query(
-        index, question, pin_chunk=pin_chunk, selection=selection,
+        index, question, pin_chunk=effective_pin, selection=selection,
         heading=heading, history=history,
     )
     history_subject = _extract_subject_from_history(history)
     asked_form = canonical_query(resolved_question) if canonical else resolved_question
     context = retrieval_context(
-        index, asked_form, search_fn, generate_fn, pin_chunk=pin_chunk,
-        end_chunk_id=end_chunk_id, history=history,
+        index, asked_form, search_fn, generate_fn, pin_chunk=effective_pin,
+        end_chunk_id=end_chunk_id, history=history, selection=selection,
     )
     passages = context["passages"]
     if not passages:
         return _refusal([])
     anchors = anchor_words(asked_form, context["word_map"])
     figures = index.get("figures") or []
-    if simple_words(asked_form) and not (clean_history and pin_chunk and SIMPLIFY_RE.search(question)):
+    if simple_words(asked_form) and not (clean_history and effective_pin and SIMPLIFY_RE.search(question)):
         body = _plain_body(index, context, generate_fn, model)
         body = _half_covered(body, resolved_question, asked_form, passages, figures)
     else:
@@ -2656,13 +2785,13 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
                     body = retry
     body = _expand_list(body, resolved_question, asked_form, passages)
 
-    if clean_history and pin_chunk and SIMPLIFY_RE.search(question):
+    if clean_history and effective_pin and SIMPLIFY_RE.search(question):
         pin_chunk_obj = None
-        if isinstance(pin_chunk, dict):
-            pin_chunk_obj = pin_chunk
-        elif isinstance(pin_chunk, str):
+        if isinstance(effective_pin, dict):
+            pin_chunk_obj = effective_pin
+        elif isinstance(effective_pin, str):
             pin_chunk_obj = next(
-                (c for c in (index.get("chunks") or []) if c.get("chunk_id") == pin_chunk),
+                (c for c in (index.get("chunks") or []) if c.get("chunk_id") == effective_pin),
                 None,
             )
         if pin_chunk_obj is not None:
@@ -2686,17 +2815,17 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
                 body["answer"] = f'[Ch. {chap}] "{chosen_quote}"'
                 body["figures"] = figures_for([pin_chunk_obj], index.get("figures") or [])
 
-    if clean_history and not SIMPLIFY_RE.search(question):
+    if clean_history and not SIMPLIFY_RE.search(question) and not topic_shift:
         prior_turn = clean_history[-1]
         prior_a = (prior_turn.get("answer") or "").strip()
         m_q = re.search(r"\[Ch\.\s*[^\]]+\]\s*[\"“](.+?)[\"”]", prior_a)
         prior_quote = m_q.group(1).strip() if m_q else ""
         target_chunk_obj = None
-        if pin_chunk:
-            if isinstance(pin_chunk, dict):
-                target_chunk_obj = pin_chunk
-            elif isinstance(pin_chunk, str):
-                target_chunk_obj = next((c for c in (index.get("chunks") or []) if c.get("chunk_id") == pin_chunk), None)
+        if effective_pin:
+            if isinstance(effective_pin, dict):
+                target_chunk_obj = effective_pin
+            elif isinstance(effective_pin, str):
+                target_chunk_obj = next((c for c in (index.get("chunks") or []) if c.get("chunk_id") == effective_pin), None)
         if target_chunk_obj is None and passages:
             target_chunk_obj = passages[0]
         if target_chunk_obj is not None:
@@ -2749,7 +2878,7 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
                     body["answer"] = f'[Ch. {chap}] "{anchor_quote}"'
                     body["figures"] = figures_for([pin_chunk_obj], index.get("figures") or [])
 
-    if clean_history and (resolved_question != question) and not body.get("refused"):
+    if clean_history and (resolved_question != question) and not body.get("refused") and not topic_shift:
         if re.search(r"\b(which\s+chapter|where\s+in\s+the\s+book)\b", question, re.I):
             first_q = body["citations"][0].get("quote", "") if body.get("citations") else ""
             if not re.search(r"\bchapter\s+\d+\b", first_q, re.I):

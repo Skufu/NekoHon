@@ -25,7 +25,7 @@
 
 The product bet: local inference, cited answers, figures on screen, wifi off.
 
-**Current (2026-10-17):** post-v1. `smallbook_x3` (3.1B, Q4_K_M, 1.89 GB) is adopted as the primary desktop answer model (`prompt.ANSWER_MODEL = "smallbook_x3"`), succeeding `smallbook_x2g` and `smallbook_x2d`. `smallbook_x3_mobile` (1.5B, Q4_K_M, 965 MB) serves edge and resource-constrained environments. All edge cases (alphanumeric acronyms, coreference follow-ups, natural comparison grammar, highlight intent) are resolved. Benchmark status: **60/60** Hard Benchmark, **24/24** Highlight Golden, **22/22** HTTP Battery, **334/334** unit tests. Report: `artifacts/reports/architecture-and-x3-2026-10-17.md`.
+**Current (2026-10-17):** post-v1. `smallbook_x3` (3.1B, Q4_K_M, 1.93 GB (1,840.5 MiB)) is adopted as the primary desktop answer model (`prompt.ANSWER_MODEL = "smallbook_x3"`), succeeding `smallbook_x2g` and `smallbook_x2d`. `smallbook_x3_mobile` (1.5B, Q4_K_M, 986 MB (940.4 MiB)) serves edge and resource-constrained environments. All edge cases (alphanumeric acronyms, coreference follow-ups, natural comparison grammar, highlight intent) are resolved. Benchmark status: **60/60** Hard Benchmark, **24/24** Highlight Golden, **22/22** HTTP Battery, **348** unit tests. Report: `artifacts/reports/architecture-and-x3-2026-10-17.md`.
 
 Two older drafts in `~/.hermes/cache/scratch/hackathon-plan.md` and `hackathon-plan-full.md` disagree with each other. This file replaces both.
 
@@ -62,8 +62,8 @@ be reopened when the goal calls for it.
 | Job | Model | On disk | Use |
 | --- | --- | --- | --- |
 | Embed | `nomic-embed-text:latest` (274 MB) | yes | retrieval |
-| Answer (desktop default) | `smallbook_x3` (1.89 GB, Q4_K_M) | yes | desktop default since 2026-10-17; 3.1B quote-or-refuse Wide-LoRA student |
-| Answer (mobile default) | `smallbook_x3_mobile` (965 MB, Q4_K_M) | yes | mobile/edge default since 2026-10-17; 1.5B quote-or-refuse Wide-LoRA student |
+| Answer (desktop default) | `smallbook_x3` (1.93 GB (1,840.5 MiB), Q4_K_M) | yes | desktop default since 2026-10-17; 3.1B quote-or-refuse Wide-LoRA student |
+| Answer (mobile default) | `smallbook_x3_mobile` (986 MB (940.4 MiB), Q4_K_M) | yes | mobile/edge default since 2026-10-17; 1.5B quote-or-refuse Wide-LoRA student |
 | Teacher / revert | `qwen2.5:7b` (4.7 GB, Q4_K_M) | yes | teacher baseline; `ANSWER_MODEL=qwen2.5:7b` reverts |
 | Weak-machine note | `llama3.2:3b` (2.0 GB) | yes | README fallback only. Not the dev model. |
 | Do not use | `deepseek-r1:7b` | yes | leave it |
@@ -108,7 +108,7 @@ ask-this-book/
   models/            # committed portable Modelfiles (smallbook_x3, smallbook_x3_mobile)
   scripts/           # setup_models.py (one-command install, verify, release package)
   docs/              # ENGINEERING_AND_BENCHMARKS.md (in-depth contributor guide)
-  tests/             # 334 unit tests + fixtures
+  tests/             # 348 unit tests + fixtures
     test_contract.py  test_ingest.py  test_retrieve.py  test_answer.py
     test_figures.py   test_keywords.py  test_captions.py  test_readings.py
     test_preprocess.py  test_chunking.py  test_generalization.py
@@ -445,15 +445,15 @@ section that moves — update it as checkpoints land.
 
 - **`smallbook_x3` is adopted as desktop default** (2026-10-17; report
   `artifacts/reports/architecture-and-x3-2026-10-17.md`): a Qwen2.5-3B Wide-LoRA
-  ($r=32, \alpha=64$) student trained on an 844-row 7-layer distillation corpus
+  (r=32, alpha=64) student trained on an 844-row 7-layer distillation corpus
   (707 cited, 137 refusals = 16.23% refusal share) on Colab A100 (loss
-  $1.0937 \to 0.0403$ in 393.8s); 1.89 GB Q4_K_M GGUF (SHA-256 `92fb94df...`).
+  1.0937 → 0.0403 in 393.8s); 1.93 GB (1,840.5 MiB) Q4_K_M GGUF (SHA-256 `92fb94df...`).
   Delivers **60/60 (100%)** on the 60-Item Hard Benchmark, **24/24 (100%)** on
   Held-Out Highlights, and **22/22 (100%)** on the HTTP Battery at 0.77s mean
   latency.
 - **`smallbook_x3_mobile` is adopted as mobile/edge default** (2026-10-17):
   a Qwen2.5-1.5B companion student trained on the same 844-row corpus
-  (loss $1.0937 \to 0.0499$ in 292.6s); 965 MB Q4_K_M GGUF (SHA-256 `c3d8492f...`).
+  (loss 1.0937 → 0.0499 in 292.6s); 986 MB (940.4 MiB) Q4_K_M GGUF (SHA-256 `c3d8492f...`).
   Achieves 100% parity across all verification gates (**60/60** Hard Bench,
   **24/24** Highlights, **22/22** Battery) at 0.58s mean latency.
 - **`smallbook_x2d` historical note:** adopted 2026-10-14, succeeded by `x3` on

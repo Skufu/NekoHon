@@ -6,6 +6,7 @@ from answer import (
     _advance_followup_quote,
     _clean_boilerplate_gloss,
     _is_coherent_gloss,
+    fix_acronym_casing,
 )
 from intent import (
     INTENT_AUTHOR_QUESTION,
@@ -353,6 +354,34 @@ class AdvanceFollowupQuoteTests(unittest.TestCase):
             followup_question="Can you explain this in simpler words?",
         )
         self.assertIsNone(adv, "Simplification request must bypass citation advancing")
+
+    def test_dynamic_followups_plural_grammar(self):
+        chunk = {
+            "chunk_id": "c5",
+            "chapter": "6",
+            "heading": "Storage Systems",
+            "text": (
+                "Storage Systems\n"
+                "SSDs deliver high random access performance compared to traditional rotating disks. "
+                "Understanding these performance trade-offs is critical."
+            ),
+        }
+        followups = compute_dynamic_followups(chunk, neighbors=[], mode="ask")
+        # Check that any question mentioning SSDs uses 'How do SSDs' and never 'How does SSDs'
+        for q in followups:
+            if "SSDs" in q:
+                self.assertNotIn("How does SSDs", q)
+                if q.startswith("How"):
+                    self.assertIn("How do SSDs relate to this?", q)
+
+    def test_clean_boilerplate_gloss_normalizes_acronyms(self):
+        raw = "ddr5 is fast and ssds are nonvolatile."
+        cleaned = _clean_boilerplate_gloss(raw)
+        self.assertEqual(cleaned, "DDR5 is fast and SSDs are nonvolatile.")
+
+        self.assertEqual(fix_acronym_casing("Ssds and Hdds"), "SSDs and HDDs")
+        self.assertEqual(fix_acronym_casing("Ddr5 ram"), "DDR5 RAM")
+        self.assertEqual(fix_acronym_casing("ci/cd pipeline"), "CI/CD pipeline")
 
 
 if __name__ == "__main__":

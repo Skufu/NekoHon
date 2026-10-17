@@ -1008,6 +1008,92 @@ class PinChunkAndCrossChunkTests(unittest.TestCase):
         for pill in body["followups"]:
             self.assertLessEqual(len(pill), 45)
 
+    def test_topic_shift_4_turn_sequence(self):
+        chunk_ddr5 = {
+            "chunk_id": "ch06-005",
+            "chapter": "6",
+            "heading": "DDR5",
+            "text": (
+                "DDR5\n"
+                "DDR5 synchronous dynamic random-access memory provides high-bandwidth data transfers."
+            ),
+        }
+        chunk_ssd = {
+            "chunk_id": "ch06-009",
+            "chapter": "6",
+            "heading": "Solid-State Drive",
+            "text": (
+                "Solid-State Drive\n"
+                "Solid-state drives store data as charges in flash memory cells. "
+                "SSDs eliminate mechanical latency."
+            ),
+        }
+        chunk_disk = {
+            "chunk_id": "ch06-008",
+            "chapter": "6",
+            "heading": "Magnetic Disk Drive",
+            "text": (
+                "Magnetic Disk Drive\n"
+                "Hard drives are competitive with SSDs for sequential access but slower for random access lookups."
+            ),
+        }
+        chunk_ram = {
+            "chunk_id": "ch06-011",
+            "chapter": "6",
+            "heading": "Random Access Memory",
+            "text": (
+                "Random Access Memory\n"
+                "Random access memory provides fast, volatile primary storage for active compute operations."
+            ),
+        }
+        index = {
+            "chunks": [chunk_ddr5, chunk_disk, chunk_ssd, chunk_ram],
+            "figures": [],
+        }
+
+        history = [
+            {
+                "question": "What is ddr5",
+                "answer": '[Ch. 6] "DDR5 synchronous dynamic random-access memory provides high-bandwidth data transfers."',
+            },
+            {
+                "question": "how fast is it",
+                "answer": '[Ch. 6] "DDR5 synchronous dynamic random-access memory provides high-bandwidth data transfers."\nIt offers double the bandwidth of DDR4.',
+            },
+            {
+                "question": "What is Solid-State Drive?",
+                "answer": '[Ch. 6] "Solid-state drives store data as charges in flash memory cells."\nSSDs provide persistent flash storage.',
+            },
+        ]
+
+        def search_fn(idx, q, k=5):
+            q_low = q.lower()
+            if "random access memory" in q_low or "ram" in q_low:
+                return [chunk_ram, chunk_ssd, chunk_disk, chunk_ddr5]
+            if "solid-state" in q_low or "ssd" in q_low:
+                return [chunk_ssd, chunk_disk, chunk_ram, chunk_ddr5]
+            return [chunk_ddr5, chunk_ram, chunk_ssd, chunk_disk]
+
+        def generate_fn(sys, usr, m):
+            return '[Ch. 6] "Random access memory provides fast, volatile primary storage for active compute operations."\nRAM provides temporary working memory for the processor.'
+
+        turn4 = ask(
+            index,
+            "What is Random Access Memory?",
+            generate_fn=generate_fn,
+            search_fn=search_fn,
+            pin_chunk="ch06-009",
+            history=history,
+        )
+
+        self.assertFalse(turn4["refused"])
+        self.assertEqual(len(turn4["citations"]), 1)
+        self.assertEqual(turn4["citations"][0]["chunk_id"], "ch06-011")
+        self.assertIn("Random access memory provides fast", turn4["citations"][0]["quote"])
+        self.assertNotIn("Solid-state drives", turn4["answer"])
+        self.assertNotIn("ch06-009", [c["chunk_id"] for c in turn4["citations"]])
+        self.assertIn("RAM", turn4["answer"])
+
 
 if __name__ == "__main__":
     unittest.main()

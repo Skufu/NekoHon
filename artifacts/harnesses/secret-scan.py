@@ -29,7 +29,7 @@ from pathlib import Path
 
 KEY_FIELD = re.compile(r"key|token|secret|auth|password|passwd", re.I)
 PATTERNS = [
-    ("sk", re.compile(r"sk-[A-Za-z0-9_-]{16,}")),
+    ("sk", re.compile(r"(?<![A-Za-z0-9])sk-[A-Za-z0-9_-]{16,}")),
     ("github", re.compile(r"gh[pousr]_[A-Za-z0-9]{20,}")),
     ("github_pat", re.compile(r"github_pat_[A-Za-z0-9_]{20,}")),
     ("google", re.compile(r"AIza[0-9A-Za-z_-]{30,}")),

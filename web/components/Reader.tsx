@@ -55,6 +55,28 @@ function easeOut(t: number) {
   return ((ay * x + by) * x + cy) * x;
 }
 
+function animateScrollTo(targetY: number, ms = 520) {
+  if (typeof window === "undefined") return;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) {
+    window.scrollTo({ top: targetY, behavior: "instant" });
+    return;
+  }
+  const from = window.scrollY;
+  const distance = targetY - from;
+  const started = performance.now();
+  const ease = (t: number) =>
+    t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const step = (now: number) => {
+    const t = Math.min(1, (now - started) / ms);
+    window.scrollTo({ top: from + distance * ease(t), behavior: "instant" });
+    if (t < 1) {
+      requestAnimationFrame(step);
+    }
+  };
+  requestAnimationFrame(step);
+}
+
 function scrollingBox(start: Element): Element {
   let node: Element | null = start.parentElement;
   while (node) {
@@ -131,6 +153,8 @@ export default function Reader({
   const highlight = useAsk((s) => s.highlight);
   const clearHighlight = useAsk((s) => s.clearHighlight);
   const setActiveGloss = useAsk((s) => s.setActiveGloss);
+  const returnSpot = useAsk((s) => s.returnSpot);
+  const clearReturnSpot = useAsk((s) => s.clearReturnSpot);
 
   const readerRef = useRef<HTMLElement | null>(null);
   const textRef = useRef<HTMLDivElement | null>(null);
@@ -360,7 +384,7 @@ export default function Reader({
       onPointerDown={(event) => {
         if (
           (event.target as HTMLElement).closest(
-            "mark, .gloss-card, .lens, .gloss-sheet, .composer-dock, .topbar, button"
+            "mark, .gloss-card, .lens, .gloss-sheet, .composer-dock, .topbar, button, .return-spot-banner"
           )
         ) {
           return;
@@ -378,6 +402,33 @@ export default function Reader({
         chapters={chapters}
         onJumpChunk={scrollToChunk}
       />
+
+      {/* Return spot floating pill banner */}
+      {returnSpot && (
+        <aside className="return-spot-banner" role="status" aria-label="Return to reading position">
+          <button
+            type="button"
+            className="return-spot-pill"
+            onClick={() => {
+              animateScrollTo(returnSpot.scrollY, 520);
+              clearReturnSpot();
+            }}
+            title={`Back to ${returnSpot.label}`}
+          >
+            <span className="return-spot-arrow" aria-hidden="true">←</span>
+            <span className="return-spot-label">Back to {returnSpot.label}</span>
+          </button>
+          <button
+            type="button"
+            className="return-spot-close"
+            onClick={() => clearReturnSpot()}
+            title="Dismiss return button"
+            aria-label="Dismiss return button"
+          >
+            ×
+          </button>
+        </aside>
+      )}
 
       {/* Reader Grid */}
       <div className="reader-grid">

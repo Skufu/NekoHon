@@ -7,6 +7,7 @@ Exit 0 when clean, exit 1 when dirty. Stdlib only; no model calls.
 import argparse
 import math
 from collections import Counter
+from pathlib import Path
 
 from retrieve import INDEX, load_index
 
@@ -80,8 +81,19 @@ def main():
         description="Audit the index's stored vectors. Read-only."
     )
     parser.add_argument("--index", default=str(INDEX))
+    parser.add_argument("--book-id", default=None, help="Book ID to audit")
     args = parser.parse_args()
-    report = audit(load_index(args.index))
+
+    if args.book_id is not None and args.index == str(INDEX):
+        book_index = INDEX.parent / f"index.{args.book_id}.json"
+        if book_index.exists():
+            index_path = book_index
+        else:
+            index_path = INDEX
+    else:
+        index_path = Path(args.index)
+
+    report = audit(load_index(index_path))
     print(f"embedder {report['embedder']} declared_dims {report['declared_dims']}")
     print(
         f"chunks {report['chunks']} figures {report['figures']} "
