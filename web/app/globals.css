@@ -1254,6 +1254,140 @@ mark {
   }
 }
 
+.gloss-resize-handle {
+  position: absolute;
+  left: -4px;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: ew-resize;
+  z-index: 15;
+  touch-action: none;
+}
+
+.gloss-node-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 26px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-raised);
+  border: 1px solid var(--rule);
+  border-left: 2.5px solid var(--rubric);
+  border-radius: 0 6px 6px 0;
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    transform 0.42s var(--ease-out),
+    background-color 0.18s,
+    border-color 0.18s,
+    box-shadow var(--dur-fast);
+  will-change: transform;
+  z-index: 10;
+}
+
+.gloss-node-indicator.unplaced {
+  transition: none !important;
+}
+
+.gloss-node-indicator:hover,
+.gloss-node-indicator.is-hover {
+  border-color: var(--rule-strong);
+  background: var(--rubric-wash);
+  box-shadow: var(--shadow-pop);
+  z-index: 25;
+}
+
+.gloss-node-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--rubric);
+  flex-shrink: 0;
+}
+
+.gloss-node-badge {
+  flex-shrink: 0;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--rubric);
+  line-height: 1;
+}
+
+.gloss-node-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  color: var(--ink-3);
+  min-width: 0;
+  flex: 1;
+  line-height: 1;
+}
+
+.gloss-node-expand {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-3);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.gloss-node-indicator:hover .gloss-node-expand {
+  color: var(--rubric);
+}
+
+.card-passage-ref {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 4px 8px;
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-left: 2.5px solid var(--rubric);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.card-passage-ref:hover {
+  background: var(--rubric-wash);
+  border-color: var(--rule-strong);
+}
+
+.card-passage-quote {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+}
+
+.card-passage-jump {
+  flex-shrink: 0;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--rubric);
+  background: var(--rubric-wash);
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
 .gloss-card {
   position: absolute;
   left: 0;
@@ -1331,6 +1465,13 @@ mark {
   gap: 8px;
   font-size: 12px;
   line-height: 1;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.gloss-card-header:active {
+  cursor: grabbing;
 }
 
 .gloss-card-title {
@@ -1490,6 +1631,22 @@ mark {
   50% {
     opacity: 0.15;
   }
+}
+
+@keyframes token-draw {
+  from {
+    opacity: 0.15;
+    transform: translateY(1.5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stream-token {
+  display: inline;
+  animation: token-draw 160ms var(--ease-out) forwards;
 }
 
 .turn-status-row {
@@ -2180,6 +2337,101 @@ mark.key {
   text-decoration: underline;
 }
 
+.source-quote-wrap {
+  margin: 4px 0 8px;
+}
+
+.source-pill-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.source-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--rule);
+  background: var(--bg-raised);
+  color: var(--ink-3);
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.source-pill:hover,
+.source-pill.is-open {
+  background: var(--rubric-wash);
+  color: var(--ink);
+  border-color: var(--rubric-line);
+}
+
+.source-pill-icon {
+  font-size: 12px;
+  line-height: 1;
+  color: var(--rubric);
+}
+
+.source-pill-label {
+  line-height: 1;
+}
+
+.source-jump-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--rubric);
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.source-jump-btn:hover {
+  background: var(--rubric-wash);
+  border-color: var(--rubric);
+}
+
+.source-jump-arrow {
+  font-size: 11px;
+  line-height: 1;
+}
+
+.source-popover {
+  margin-top: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--rubric);
+  background: var(--bg);
+  box-shadow: var(--shadow-card);
+  animation: fade-up 0.18s var(--ease-out) both;
+}
+
+.source-popover-text {
+  margin: 0 0 6px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.source-popover-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .answer-figure {
   margin: 8px 0;
 }
@@ -2239,7 +2491,8 @@ mark.key {
     animation: none;
     transition: none;
   }
-  .gloss-card {
+  .gloss-card,
+  .gloss-node-indicator {
     transition: none;
   }
   .gloss-leader path {
@@ -2254,6 +2507,10 @@ mark.key {
   }
   .caret,
   .stream-cursor {
+    animation: none;
+  }
+  .stream-token,
+  .source-popover {
     animation: none;
   }
   .writing > span,

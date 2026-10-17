@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 import { formatChapter } from "@/lib/anchor";
 import { splitAnswer } from "@/lib/answer";
 import { engineUrl, type AnswerBody, type Citation } from "@/lib/engine";
@@ -72,6 +72,78 @@ export function splitAskAnswer(answer: string): AskAnswerSplit {
   };
 }
 
+function SourceQuoteSection({
+  quote,
+  citation,
+  onJump,
+}: {
+  quote: string;
+  citation: Citation;
+  onJump: (citation: Citation) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const chLabel = formatChapter(citation.chapter);
+
+  const jump = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation();
+    onJump({
+      chunk_id: citation.chunk_id,
+      chapter: citation.chapter,
+      quote: citation.quote || quote,
+      nonce: Date.now(),
+    } as Citation);
+  };
+
+  return (
+    <div className="source-quote-wrap">
+      <div className="source-pill-row">
+        <button
+          type="button"
+          className={`source-pill ${open ? "is-open" : ""}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpen((v) => !v);
+          }}
+          title={open ? "Hide source quote" : "Expand source quote"}
+          aria-expanded={open}
+        >
+          <span className="source-pill-icon">{open ? "\u2212" : "+"}</span>
+          <span className="source-pill-label">Source quote</span>
+        </button>
+
+        <button
+          type="button"
+          className="source-jump-btn"
+          onClick={jump}
+          title="Jump to this passage in the book"
+        >
+          <span>{chLabel}</span>
+          <span className="source-jump-arrow" aria-hidden="true">{"\u2192"}</span>
+        </button>
+      </div>
+
+      {open && (
+        <div className="source-popover">
+          <blockquote className="source-popover-text">
+            “{quote}”
+          </blockquote>
+          <div className="source-popover-actions">
+            <button
+              type="button"
+              className="source-jump-btn"
+              onClick={jump}
+              title="Jump to this passage in the book"
+            >
+              <span>Jump to passage in {chLabel}</span>
+              <span className="source-jump-arrow" aria-hidden="true">{"\u2192"}</span>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AnswerView({
   body,
   onChip,
@@ -122,7 +194,10 @@ export default function AnswerView({
                 <button
                   type="button"
                   className="chip"
-                  onClick={() => handleChip(item.citation)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleChip(item.citation);
+                  }}
                 >
                   {chipLabel(item.citation, indexOf(item.citation), numbered)}
                 </button>
@@ -130,37 +205,12 @@ export default function AnswerView({
             );
           }
           return (
-            <p
-              className="answer-quote"
+            <SourceQuoteSection
               key={index}
-              role="button"
-              tabIndex={0}
-              onClick={() =>
-                handleChip({
-                  chunk_id: item.citation.chunk_id,
-                  chapter: item.citation.chapter,
-                  quote: item.citation.quote,
-                  nonce: Date.now(),
-                } as Citation)
-              }
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  handleChip({
-                    chunk_id: item.citation.chunk_id,
-                    chapter: item.citation.chapter,
-                    quote: item.citation.quote,
-                    nonce: Date.now(),
-                  } as Citation);
-                }
-              }}
-              title="Show this passage in the book"
-            >
-              <span className="answer-quote-text">“{item.text}”</span>{" "}
-              <span className="chip">
-                {chipLabel(item.citation, indexOf(item.citation), numbered)}
-              </span>
-            </p>
+              quote={item.text}
+              citation={item.citation}
+              onJump={handleChip}
+            />
           );
         })
       ) : (
@@ -174,42 +224,17 @@ export default function AnswerView({
                 </p>
               ) : null}
               {parsed.quote ? (
-                <p
-                  className="answer-quote"
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => {
-                    const c = body.citations[0];
-                    if (c) {
-                      handleChip({
-                        chunk_id: c.chunk_id,
-                        chapter: c.chapter,
-                        quote: c.quote || parsed.quote || "",
-                        nonce: Date.now(),
-                      } as Citation);
+                <SourceQuoteSection
+                  quote={parsed.quote}
+                  citation={
+                    body.citations[0] || {
+                      chunk_id: "",
+                      chapter: parsed.chapter || "Book",
+                      quote: parsed.quote,
                     }
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      const c = body.citations[0];
-                      if (c) {
-                        handleChip({
-                          chunk_id: c.chunk_id,
-                          chapter: c.chapter,
-                          quote: c.quote || parsed.quote || "",
-                          nonce: Date.now(),
-                        } as Citation);
-                      }
-                    }
-                  }}
-                  title="Show this passage in the book"
-                >
-                  <span className="answer-quote-text">“{parsed.quote}”</span>
-                  {parsed.chapter ? (
-                    <span className="chip">Ch. {formatChapter(parsed.chapter)}</span>
-                  ) : null}
-                </p>
+                  }
+                  onJump={handleChip}
+                />
               ) : (
                 !parsed.gloss ? (
                   <p className="answer">
@@ -240,7 +265,10 @@ export default function AnswerView({
                           ? citation.quote.slice(0, 140)
                           : `Jump to Ch. ${citation.chapter}`
                       }
-                      onClick={() => handleChip(citation)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleChip(citation);
+                      }}
                     >
                       {chipLabel(citation, index + 1, numbered)}
                     </button>

@@ -4,49 +4,49 @@
 # artifacts/datasets/demo-questions.md; typo asks pin ch05-019 / ch07-033 / ch08-039;
 # probes pin ch04-012 (pragmatic), ch04-020 (MAD), ch04-037 (multicloud list).
 # answer mode: pin must appear among the citations; coherence probes pin ch04-020, ch03-099, ch08-051, ch02-024 and require the subject word.
-PASS   1.62s refused=0 ch05-019 What does CRUD stand for?
+PASS   1.69s refused=0 ch05-019 What does CRUD stand for?
      pinned chunk cited
-PASS   1.34s refused=0 ch07-002 What is data ingestion?
+PASS   1.36s refused=0 ch07-002 What is data ingestion?
      pinned chunk cited
-PASS   1.37s refused=0 ch08-039 What is a watermark?
+PASS   1.40s refused=0 ch08-039 What is a watermark?
      pinned chunk cited
-PASS   1.58s refused=0 ch08-107 When is an insert-only table useful?
+PASS   1.62s refused=0 ch08-107 When is an insert-only table useful?
      pinned chunk shown, not cited (cites ['ch08-107'])
-PASS   1.53s refused=0 ch06-001 Where does storage sit in the data engineering lifecycle?
+PASS   1.59s refused=0 ch06-001 Where does storage sit in the data engineering lifecycle?
      pinned chunk cited
-PASS   1.00s refused=0 ch02-005 What do source systems provide to the rest of the lifecycle?
+PASS   1.04s refused=0 ch02-005 What do source systems provide to the rest of the lifecycle?
      pinned chunk cited
-PASS   1.11s refused=0 ch03-013 How does data architecture relate to enterprise architecture?
+PASS   1.15s refused=0 ch03-013 How does data architecture relate to enterprise architecture?
      pinned chunk cited
-PASS   1.17s refused=0 ch02-019 What is the difference between batch and streaming?
+PASS   1.23s refused=0 ch02-019 What is the difference between batch and streaming?
      pinned chunk cited
-PASS   1.33s refused=0 ch07-033 What happens to data after it is extracted in ETL?
+PASS   1.37s refused=0 ch07-033 What happens to data after it is extracted in ETL?
      pinned chunk cited
-PASS   0.84s refused=0 ch02-027 What do transformations do in the data engineering lifecycle?
+PASS   0.85s refused=0 ch02-027 What do transformations do in the data engineering lifecycle?
      pinned chunk cited
-PASS   2.04s refused=0 ch05-029 What does CRU stand for?
+PASS   2.02s refused=0 ch05-029 What does CRU stand for?
      pinned chunk shown, not cited (cites ['ch05-029']); phrase not in answer: 'stands for create, read, update, and delete'
-PASS   1.53s refused=0 ch08-120 What happens to data after it is extracted in ET?
+PASS   1.57s refused=0 ch08-120 What happens to data after it is extracted in ET?
      pinned chunk shown, not cited (cites ['ch08-120']); phrase not in answer: 'once data is extracted'
-PASS   1.53s refused=0 ch08-039 what is a atermark?
+PASS   1.56s refused=0 ch08-039 what is a atermark?
      pinned chunk cited
-PASS   0.97s refused=0 ch04-012 what does data engineers need to be pragmatic about
+PASS   0.92s refused=0 ch04-012 what does data engineers need to be pragmatic about
      pinned chunk cited
 PASS   0.96s refused=0 ch04-012 Data engineers need to be pragmatic about?
      pinned chunk cited
-PASS   1.88s refused=0 ch04-020 MAD data landscape
+PASS   1.87s refused=0 ch04-020 MAD data landscape
      pinned chunk cited
-PASS   0.97s refused=0 ch04-037 multicloud methodology disadvantages
+PASS   0.92s refused=0 ch04-037 multicloud methodology disadvantages
      pinned chunk cited
-PASS   1.91s refused=0 ch04-020 what is MAD data landscape
+PASS   1.92s refused=0 ch04-020 what is MAD data landscape
      pinned chunk cited
-PASS   1.46s refused=0 ch03-099 what is data mesh
+PASS   1.50s refused=0 ch03-099 what is data mesh
      pinned chunk cited
-PASS   1.13s refused=0 ch08-051 Codd introduced the idea of what
+PASS   1.16s refused=0 ch08-051 Codd introduced the idea of what
      pinned chunk cited
-PASS   1.43s refused=0 ch02-024 what is an endpoint in streaming ingestion
+PASS   1.41s refused=0 ch02-024 what is an endpoint in streaming ingestion
      pinned chunk cited
-PASS   0.89s refused=1 ch01-064 What is the capital of France?
+PASS   0.83s refused=1 ch01-064 What is the capital of France?
 golden: 10/10 answered, 10/10 pass (bar 8)
 typos: PASS
 probes: PASS

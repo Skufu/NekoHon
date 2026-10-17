@@ -135,8 +135,9 @@ export default function Margin({
         anchorY = targetRect.top - marginColRect.top + targetRect.height / 2;
       }
 
+      const isCardMin = Boolean(g.minimized);
       const cardEl = cards.current.get(g.id);
-      const h = cardEl?.offsetHeight ?? 80;
+      const h = isCardMin ? 28 : (cardEl?.offsetHeight ?? 80);
 
       items.push({
         id: g.id,
@@ -144,7 +145,7 @@ export default function Margin({
         anchorY,
         h,
         created: g.createdAt,
-        mini: false,
+        mini: isCardMin,
       });
     }
 
@@ -160,18 +161,24 @@ export default function Margin({
       );
     };
 
-    // Mark mini for crowded items that are not active and not streaming
+    // Mark mini for crowded items or explicitly minimized cards that are not active and not streaming
     const mini: Record<string, boolean> = {};
     items.forEach((it, i) => {
+      const g = glossMap.get(it.id);
+      const explicitlyMin = Boolean(g?.minimized);
       const near = (j: number) =>
         j >= 0 &&
         j < items.length &&
         Math.abs(items[j].desired - it.desired) < CROWD;
 
       it.mini =
-        it.id !== activeGlossId &&
-        !isStreaming(it) &&
-        (near(i - 1) || near(i + 1));
+        explicitlyMin ||
+        (it.id !== activeGlossId &&
+          !isStreaming(it) &&
+          (near(i - 1) || near(i + 1)));
+      if (it.mini) {
+        it.h = 28;
+      }
       mini[it.id] = it.mini;
     });
 

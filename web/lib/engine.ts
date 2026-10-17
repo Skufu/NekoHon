@@ -25,6 +25,7 @@ export type AnswerBody = {
   figures: FigureCard[];
   refused: boolean;
   error?: string;
+  followups?: string[];
 };
 
 export type ChunksPayload = { book_id: string; chunks: Chunk[] };

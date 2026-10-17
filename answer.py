@@ -35,6 +35,7 @@ from intent import (
     META_TRANSITION_RE,
     analyze_intent,
     classify_intent,
+    compute_dynamic_followups,
     extract_core_concept,
     extract_enclosing_subject,
     select_substantive_anchor_sentence,
@@ -1027,7 +1028,17 @@ def _clean_selection_text(sel: str) -> str:
 GENERIC_FOLLOWUP_RE = re.compile(
     r"^\s*(?:why\s+does\s+this\s+matter|explain\s+(?:in\s+)?simpler\s+words|simpler\s+words|"
     r"break\s+this\s+down|what\s+are\s+(?:the|its)\s+trade-?offs|what\s+are\s+trade-?offs|"
-    r"trade-?offs|why\s+matter|tell\s+me\s+more|elaborate|simplify|how\s+does\s+this\s+work)\s*\??\s*$",
+    r"trade-?offs|why\s+matter|tell\s+me\s+more|elaborate|simplify|how\s+does\s+this\s+work|"
+    r"what\s+are\s+(?:the\s+)?specific\s+reasons|what\s+(?:are\s+the\s+)?reasons|"
+    r"what\s+example\s+(?:do\s+the\s+authors\s+give|is\s+given)|"
+    r"what\s+problem\s+does\s+this\s+solve|"
+    r"what\s+are\s+the\s+risks(?:\s+or\s+pitfalls)?|"
+    r"what\s+are\s+the\s+(?:main\s+stages|key\s+types|key\s+characteristics|specific\s+ways)|"
+    r"what\s+are\s+the\s+(?:cost\s+trade-?offs|main\s+bottlenecks|main\s+limitations)|"
+    r"how\s+does\s+.+?\s+relate\s+to\s+this|"
+    r"how\s+does\s+this\s+compare\s+to\s+.+?|"
+    r"what\s+is\s+the\s+role\s+of\s+.+?|"
+    r"what\s+are\s+the\s+risks\s+of\s+.+?)\s*\??\s*$",
     re.IGNORECASE,
 )
 
@@ -1396,6 +1407,7 @@ def _refusal(passages, figures=None):
         "citations": misses,
         "figures": figures_for(passages[:3], figures or []),
         "refused": True,
+        "followups": [],
     }
 
 
@@ -1427,6 +1439,14 @@ def _rank_seq_chunks(seq_chunks, question, history_subject=None):
         for cw in content_words:
             if cw in text:
                 score += 2
+        if re.search(r"\b(reason|reasons|why|stages|types|ways|characteristics)\b", q_lower):
+            for term in ("reason", "reasons", "first,", "second,", "third,", "because", "due to", "stages", "types"):
+                if term in text:
+                    score += 15
+        if re.search(r"\b(example|examples|instance)\b", q_lower):
+            for term in ("for example", "for instance", "such as", "consider", "example", "examples"):
+                if term in text:
+                    score += 15
         if re.search(r"\b(downside|downsides|disadvantage|disadvantages|drawback|drawbacks|con|cons|trade-off|trade-offs|tradeoff|tradeoffs|challenge|challenges|risk|risks)\b", q_lower):
             for term in ("disadvantage", "disadvantages", "downside", "downsides", "drawback", "drawbacks", "complexity", "bottleneck", "bottlenecks", "overhead", "costs", "trade-off", "trade-offs"):
                 if term in text:
@@ -1548,14 +1568,22 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
         if isinstance(h, dict) and (h.get("question") or h.get("answer"))
     ]
     if clean_history:
+        chunks = index.get("chunks") or []
+        target_idx = None
+        if pin_chunk:
+            p_id = pin_chunk.get("chunk_id") if isinstance(pin_chunk, dict) else pin_chunk
+            if p_id:
+                for i, c in enumerate(chunks):
+                    if c.get("chunk_id") == p_id:
+                        target_idx = i
+                        break
+
         last_turn = clean_history[-1]
         last_ans = last_turn.get("answer") or ""
         m = re.search(r"\[Ch\.\s*([^\]]+)\]\s*[\"“](.+?)[\"”]", last_ans)
-        if m:
+        if target_idx is None and m:
             prior_chap = m.group(1).strip().rstrip(".")
             prior_quote = m.group(2).strip()
-            chunks = index.get("chunks") or []
-            target_idx = None
             snippet = prior_quote[:50].lower()
             for i, c in enumerate(chunks):
                 if str(c.get("chapter")) == prior_chap and snippet in (c.get("text") or "").lower():
@@ -1566,30 +1594,30 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
                     if snippet in (c.get("text") or "").lower():
                         target_idx = i
                         break
-            if target_idx is not None:
-                cand_offsets = (0, 1, -1, 2)
-                seq_chunks = []
-                for offset in cand_offsets:
-                    cand_idx = target_idx + offset
-                    if 0 <= cand_idx < len(chunks):
-                        cand = chunks[cand_idx]
-                        if str(cand.get("chapter")) == str(chunks[target_idx].get("chapter")):
-                            if cand not in seq_chunks:
-                                seq_chunks.append(cand)
-                if seq_chunks:
-                    history_subject = _extract_subject_from_history(clean_history)
-                    ranked_seq = _rank_seq_chunks(seq_chunks, question, history_subject)
-                    p0_s = passages[0].get("score") if passages else 1.0
-                    base_score = float(p0_s) if p0_s is not None else 1.0
-                    injected = []
-                    for idx_offset, c in enumerate(ranked_seq):
-                        c_dict = dict(c)
-                        c_s = c.get("score")
-                        c_dict["score"] = float(c_s) if c_s is not None else (base_score - 0.001 * (idx_offset + 1))
-                        injected.append(c_dict)
-                    injected_ids = {c["chunk_id"] for c in injected}
-                    passages = injected + [p for p in passages if p.get("chunk_id") not in injected_ids]
-                    passages = passages[:PASSAGE_LIMIT]
+        if target_idx is not None:
+            cand_offsets = (0, 1, -1, 2)
+            seq_chunks = []
+            for offset in cand_offsets:
+                cand_idx = target_idx + offset
+                if 0 <= cand_idx < len(chunks):
+                    cand = chunks[cand_idx]
+                    if str(cand.get("chapter")) == str(chunks[target_idx].get("chapter")):
+                        if cand not in seq_chunks:
+                            seq_chunks.append(cand)
+            if seq_chunks:
+                history_subject = _extract_subject_from_history(clean_history)
+                ranked_seq = _rank_seq_chunks(seq_chunks, question, history_subject)
+                p0_s = passages[0].get("score") if passages else 1.0
+                base_score = float(p0_s) if p0_s is not None else 1.0
+                injected = []
+                for idx_offset, c in enumerate(ranked_seq):
+                    c_dict = dict(c)
+                    c_s = c.get("score")
+                    c_dict["score"] = float(c_s) if c_s is not None else (base_score - 0.001 * (idx_offset + 1))
+                    injected.append(c_dict)
+                injected_ids = {c["chunk_id"] for c in injected}
+                passages = injected + [p for p in passages if p.get("chunk_id") not in injected_ids]
+                passages = passages[:PASSAGE_LIMIT]
 
     if pin_chunk:
         chunks = index.get("chunks") or []
@@ -1599,14 +1627,19 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
             try:
                 p_idx = chunks.index(p_obj)
                 p_neighbors = []
-                if p_idx > 0 and chunks[p_idx - 1].get("chapter") == p_obj.get("chapter"):
-                    p_neighbors.append(chunks[p_idx - 1])
                 if p_idx + 1 < len(chunks) and chunks[p_idx + 1].get("chapter") == p_obj.get("chapter"):
                     p_neighbors.append(chunks[p_idx + 1])
-                p_curr_ids = {p.get("chunk_id") for p in passages}
-                for n in p_neighbors:
-                    if n.get("chunk_id") not in p_curr_ids:
-                        passages.append(n)
+                if p_idx > 0 and chunks[p_idx - 1].get("chapter") == p_obj.get("chapter"):
+                    p_neighbors.append(chunks[p_idx - 1])
+                if clean_history:
+                    p_n_ids = {n.get("chunk_id") for n in p_neighbors}
+                    passages = [p for p in passages if p.get("chunk_id") not in p_n_ids]
+                    passages = p_neighbors + passages
+                else:
+                    p_curr_ids = {p.get("chunk_id") for p in passages}
+                    for n in p_neighbors:
+                        if n.get("chunk_id") not in p_curr_ids:
+                            passages.append(n)
             except ValueError:
                 pass
 
@@ -1906,6 +1939,110 @@ def _synthesize_grounded_gloss(selection, quote, pin_chunk_obj, neighbors, gener
     return f"The authors discuss {selection} in this section."
 
 
+def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_question=""):
+    """Select the sentence in chunk_obj or neighbors that answers the follow-up question,
+    advancing past prior_quote when Turn 1 cited a lead-in sentence.
+    """
+    if not chunk_obj or not followup_question:
+        return None
+
+    if re.search(r"\b(simpler\s+words|simplify|break\s+this\s+down|in\s+simple\s+words)\b", followup_question, re.I):
+        return None
+
+    pool = [chunk_obj]
+    if neighbors:
+        for n in neighbors:
+            if n and n != chunk_obj and n not in pool:
+                pool.append(n)
+
+    q_low = followup_question.lower()
+    q_tokens = [
+        w.lower() for w in words(q_low)
+        if w.lower() not in STOPWORDS and w.lower() not in FRAMING_WORDS and len(w) >= 3
+    ]
+
+    norm_prior = re.sub(r"[\s\"'“”]+", " ", prior_quote or "").strip().lower()
+
+    scored_cands = []
+    for c in pool:
+        c_text = c.get("text") or ""
+        c_head = c.get("heading") or ""
+        sents = _candidate_sentences(c_text, c_head)
+        for i, s in enumerate(sents):
+            s_clean = s.strip()
+            if len(s_clean) < 30:
+                continue
+            norm_s = re.sub(r"[\s\"'“”]+", " ", s_clean).strip().lower()
+            if norm_prior and (norm_s == norm_prior or norm_s in norm_prior or (len(norm_prior) >= 40 and norm_prior in norm_s)):
+                continue
+            if META_TRANSITION_RE.search(s_clean):
+                continue
+
+            s_low = s_clean.lower()
+            score = 0
+
+            # A) Reasons / Specifics / Steps / Types / Stages / Ways
+            if re.search(r"\b(specific\s+reasons|reasons|reason|why|main\s+stages|stages|key\s+types|types|characteristics|ways)\b", q_low):
+                if s_low.startswith(("first,", "first ", "1.", "one reason")):
+                    score += 35
+                elif s_low.startswith(("second,", "second ", "2.", "third,", "third ", "another reason")):
+                    score += 25
+                elif any(w in s_low for w in ("first,", "second,", "third,", "because", "due to")):
+                    score += 20
+                if norm_prior and norm_prior in c_text.lower():
+                    m_pos = c_text.lower().find(norm_prior)
+                    s_pos = c_text.lower().find(norm_s)
+                    if m_pos != -1 and s_pos > m_pos and s_pos - (m_pos + len(norm_prior)) < 400:
+                        score += 15
+
+            # B) Concrete Examples
+            if re.search(r"\b(example|examples|instance|illustrate)\b", q_low):
+                if s_low.startswith(("for instance", "for example", "consider", "such as")):
+                    score += 35
+                elif any(m in s_low for m in ("for instance", "for example", "such as")):
+                    score += 25
+                elif "example" in s_low or "examples" in s_low:
+                    score += 15
+
+            # C) Risks / Pitfalls / Bottlenecks / Costs / Trade-offs / Ossification / Cliff
+            if re.search(r"\b(risk|risks|pitfall|pitfalls|bottleneck|bottlenecks|cost|costs|expensive|trade-off|trade-offs|limitation|limitations|downside|downsides|ossification|cliff|mistake|failure)\b", q_low):
+                for kw in ("ossification", "cliff", "bottleneck", "bottlenecks", "cost", "costs", "expensive", "risk", "risks", "pitfall", "pitfalls", "trade-off", "trade-offs", "limitation", "limitations", "downside", "downsides"):
+                    if kw in q_low and kw in s_low:
+                        score += 30
+                    elif kw in s_low:
+                        score += 10
+
+            # D) Term / Concept extraction from followup_question
+            for t in q_tokens:
+                if t in s_low:
+                    score += 5
+
+            # Bias towards primary chunk
+            if c == chunk_obj:
+                score += 2
+
+            if score > 0:
+                # Check for 2-sentence combination if first sentence is short (e.g. "First, ...")
+                adv_quote = s_clean
+                if s_low.startswith(("first,", "second,")) and i + 1 < len(sents):
+                    next_s = sents[i + 1].strip()
+                    if len(next_s) >= 20 and not next_s.lower().startswith(("second,", "third,", "finally,")):
+                        combined = f"{s_clean} {next_s}"
+                        if len(combined) <= 250 and _quote_in_passage(combined, c_text):
+                            adv_quote = combined
+                scored_cands.append((score, -i, adv_quote, c))
+
+    if not scored_cands:
+        return None
+
+    scored_cands.sort(key=lambda item: (item[0], item[1]), reverse=True)
+    best_cand = scored_cands[0]
+    if best_cand[0] >= 10:
+        return best_cand[2]
+
+    return None
+
+
 def _ensure_answer_gloss(index, body, question, passages, is_live=False,
                          history=None, selection="", heading="", model=ANSWER_MODEL,
                          generate_fn=None):
@@ -1948,21 +2085,58 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
     new_gloss = ""
 
     if clean_history:
-        if is_live:
-            prompt = _followup_gloss_user_message(clean_history, question, quote, chunk_obj, neighbors)
-            try:
-                raw = generate_fn(FOLLOWUP_GLOSS_SYSTEM, prompt, model)
-            except Exception:
-                raw = ""
-            new_gloss = _clean_boilerplate_gloss(raw, question)
-            if new_gloss.startswith("[Ch.") and "\n" in new_gloss:
-                new_gloss = new_gloss.split("\n", 1)[1].strip()
-            new_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", new_gloss).strip().strip("\"'“”")
-        if not new_gloss or not _is_coherent_gloss(new_gloss, quote):
-            cands = [s for s in _candidate_sentences(chunk_obj.get("text") or "", chunk_obj.get("heading") or "")
-                     if s != quote and len(s) >= 40 and not META_TRANSITION_RE.search(s)]
-            if cands:
-                new_gloss = cands[0]
+        last_turn = clean_history[-1]
+        prior_a = (last_turn.get("answer") or "").strip()
+        m_q = re.search(r"\[Ch\.\s*[^\]]+\]\s*[\"“](.+?)[\"”]", prior_a)
+        prior_quote = m_q.group(1).strip() if m_q else ""
+        norm_prior = re.sub(r"[\s\"'“”]+", " ", prior_quote or "").strip().lower()
+        norm_curr = re.sub(r"[\s\"'“”]+", " ", quote or "").strip().lower()
+        quote_repeated = bool(
+            norm_prior and norm_curr and (
+                norm_curr == norm_prior
+                or norm_curr in norm_prior
+                or (len(norm_prior) >= 40 and norm_prior in norm_curr)
+            )
+        )
+        if quote_repeated:
+            adv_quote = _advance_followup_quote(chunk_obj, neighbors, prior_quote, question)
+            if adv_quote and adv_quote != quote:
+                adv_chunk = chunk_obj
+                if not _quote_in_passage(adv_quote, chunk_obj.get("text", "")):
+                    for n in (neighbors or []):
+                        if n and _quote_in_passage(adv_quote, n.get("text", "")):
+                            adv_chunk = n
+                            break
+                quote = adv_quote
+                first_cite["quote"] = adv_quote
+                first_cite["chunk_id"] = adv_chunk.get("chunk_id")
+                first_cite["chapter"] = str(adv_chunk.get("chapter", first_cite.get("chapter", "")))
+                first_line = f'[Ch. {first_cite["chapter"]}] "{quote}"'
+
+        need_followup_gloss = (
+            quote_repeated
+            or not gloss_line
+            or _gloss_repeats_quote(gloss_line, quote)
+            or not _is_coherent_gloss(gloss_line, quote)
+        )
+        if not need_followup_gloss:
+            new_gloss = gloss_line
+        else:
+            if is_live:
+                prompt = _followup_gloss_user_message(clean_history, question, quote, chunk_obj, neighbors)
+                try:
+                    raw = generate_fn(FOLLOWUP_GLOSS_SYSTEM, prompt, model)
+                except Exception:
+                    raw = ""
+                new_gloss = _clean_boilerplate_gloss(raw, question)
+                if new_gloss.startswith("[Ch.") and "\n" in new_gloss:
+                    new_gloss = new_gloss.split("\n", 1)[1].strip()
+                new_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", new_gloss).strip().strip("\"'“”")
+            if not new_gloss or not _is_coherent_gloss(new_gloss, quote):
+                cands = [s for s in _candidate_sentences(chunk_obj.get("text") or "", chunk_obj.get("heading") or "")
+                         if s != quote and len(s) >= 40 and not META_TRANSITION_RE.search(s)]
+                if cands:
+                    new_gloss = cands[0]
 
     elif selection:
         clean_sel = _clean_selection_text(selection)
@@ -2100,6 +2274,41 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
                 body["answer"] = f'[Ch. {chap}] "{chosen_quote}"'
                 body["figures"] = figures_for([pin_chunk_obj], index.get("figures") or [])
 
+    if clean_history and not SIMPLIFY_RE.search(question):
+        prior_turn = clean_history[-1]
+        prior_a = (prior_turn.get("answer") or "").strip()
+        m_q = re.search(r"\[Ch\.\s*[^\]]+\]\s*[\"“](.+?)[\"”]", prior_a)
+        prior_quote = m_q.group(1).strip() if m_q else ""
+        target_chunk_obj = None
+        if pin_chunk:
+            if isinstance(pin_chunk, dict):
+                target_chunk_obj = pin_chunk
+            elif isinstance(pin_chunk, str):
+                target_chunk_obj = next((c for c in (index.get("chunks") or []) if c.get("chunk_id") == pin_chunk), None)
+        if target_chunk_obj is None and passages:
+            target_chunk_obj = passages[0]
+        if target_chunk_obj is not None:
+            adv_quote = _advance_followup_quote(target_chunk_obj, passages[1:3] if len(passages) > 1 else [], prior_quote, question)
+            if adv_quote:
+                first_cite = body["citations"][0] if (not body.get("refused") and body.get("citations")) else None
+                cite_quote = first_cite.get("quote", "") if first_cite else ""
+                if body.get("refused") or cite_quote == prior_quote:
+                    adv_chunk = target_chunk_obj
+                    if not _quote_in_passage(adv_quote, target_chunk_obj.get("text", "")):
+                        for p in passages[1:3]:
+                            if _quote_in_passage(adv_quote, p.get("text", "")):
+                                adv_chunk = p
+                                break
+                    chap = str(adv_chunk.get("chapter", ""))
+                    body["refused"] = False
+                    body["citations"] = [{
+                        "chunk_id": adv_chunk.get("chunk_id"),
+                        "chapter": chap,
+                        "quote": adv_quote,
+                    }]
+                    body["answer"] = f'[Ch. {chap}] "{adv_quote}"'
+                    body["figures"] = figures_for([adv_chunk], index.get("figures") or [])
+
     if selection and pin_chunk:
         pin_chunk_obj = None
         if isinstance(pin_chunk, dict):
@@ -2216,6 +2425,15 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
             history=history, selection=selection, heading=heading, model=model,
             generate_fn=generate_fn,
         )
+        first_cite_id = body["citations"][0].get("chunk_id") if body.get("citations") else None
+        lead_chunk = next((c for c in passages if c.get("chunk_id") == first_cite_id), passages[0]) if passages else {}
+        lead_neighbors = [p for p in passages if p != lead_chunk and str(p.get("chapter")) == str(lead_chunk.get("chapter"))]
+        body["followups"] = compute_dynamic_followups(
+            lead_chunk, lead_neighbors, selection=selection,
+            question=resolved_question or question, answer_text=body.get("answer", ""), mode="ask",
+        )
+    else:
+        body["followups"] = []
 
     return body
 
@@ -2468,6 +2686,41 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
                 body["answer"] = f'[Ch. {chap}] "{chosen_quote}"'
                 body["figures"] = figures_for([pin_chunk_obj], index.get("figures") or [])
 
+    if clean_history and not SIMPLIFY_RE.search(question):
+        prior_turn = clean_history[-1]
+        prior_a = (prior_turn.get("answer") or "").strip()
+        m_q = re.search(r"\[Ch\.\s*[^\]]+\]\s*[\"“](.+?)[\"”]", prior_a)
+        prior_quote = m_q.group(1).strip() if m_q else ""
+        target_chunk_obj = None
+        if pin_chunk:
+            if isinstance(pin_chunk, dict):
+                target_chunk_obj = pin_chunk
+            elif isinstance(pin_chunk, str):
+                target_chunk_obj = next((c for c in (index.get("chunks") or []) if c.get("chunk_id") == pin_chunk), None)
+        if target_chunk_obj is None and passages:
+            target_chunk_obj = passages[0]
+        if target_chunk_obj is not None:
+            adv_quote = _advance_followup_quote(target_chunk_obj, passages[1:3] if len(passages) > 1 else [], prior_quote, question)
+            if adv_quote:
+                first_cite = body["citations"][0] if (not body.get("refused") and body.get("citations")) else None
+                cite_quote = first_cite.get("quote", "") if first_cite else ""
+                if body.get("refused") or cite_quote == prior_quote:
+                    adv_chunk = target_chunk_obj
+                    if not _quote_in_passage(adv_quote, target_chunk_obj.get("text", "")):
+                        for p in passages[1:3]:
+                            if _quote_in_passage(adv_quote, p.get("text", "")):
+                                adv_chunk = p
+                                break
+                    chap = str(adv_chunk.get("chapter", ""))
+                    body["refused"] = False
+                    body["citations"] = [{
+                        "chunk_id": adv_chunk.get("chunk_id"),
+                        "chapter": chap,
+                        "quote": adv_quote,
+                    }]
+                    body["answer"] = f'[Ch. {chap}] "{adv_quote}"'
+                    body["figures"] = figures_for([adv_chunk], index.get("figures") or [])
+
     if selection and pin_chunk:
         pin_chunk_obj = None
         if isinstance(pin_chunk, dict):
@@ -2584,6 +2837,15 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
             history=history, selection=selection, heading=heading, model=model,
             generate_fn=generate_fn,
         )
+        first_cite_id = body["citations"][0].get("chunk_id") if body.get("citations") else None
+        lead_chunk = next((c for c in passages if c.get("chunk_id") == first_cite_id), passages[0]) if passages else {}
+        lead_neighbors = [p for p in passages if p != lead_chunk and str(p.get("chapter")) == str(lead_chunk.get("chapter"))]
+        body["followups"] = compute_dynamic_followups(
+            lead_chunk, lead_neighbors, selection=selection,
+            question=resolved_question or question, answer_text=body.get("answer", ""), mode="answer",
+        )
+    else:
+        body["followups"] = []
 
     return body
 
@@ -3122,13 +3384,6 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
     if pin_chunk_obj is not None:
         anchor_quote = intent_info.get("anchor_sentence") or _anchor_sentence_for_selection(pin_chunk_obj, selection)
         chosen_chunk = intent_info.get("chosen_chunk") or pin_chunk_obj
-        if sec_chunk_obj is None and chunk_id:
-            try:
-                idx = [c.get("chunk_id") for c in chunks].index(chunk_id)
-                if idx + 1 < len(chunks):
-                    sec_chunk_obj = chunks[idx + 1]
-            except ValueError:
-                pass
 
         if anchor_quote is None or (sec_chunk_obj and selection.lower() not in (pin_chunk_obj.get("text") or "").lower()):
             if sec_chunk_obj:
@@ -3138,6 +3393,19 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
                     quote2 = q2
                 if sec_chunk_obj not in neighbors and sec_chunk_obj != pin_chunk_obj:
                     neighbors.append(sec_chunk_obj)
+
+        if anchor_quote:
+            if not _quote_in_passage(anchor_quote, chosen_chunk.get("text") or ""):
+                found_chunk = None
+                if _quote_in_passage(anchor_quote, pin_chunk_obj.get("text") or ""):
+                    found_chunk = pin_chunk_obj
+                else:
+                    for n in neighbors:
+                        if n and _quote_in_passage(anchor_quote, n.get("text") or ""):
+                            found_chunk = n
+                            break
+                if found_chunk:
+                    chosen_chunk = found_chunk
 
         if is_live and anchor_quote:
             quote = anchor_quote
@@ -3185,6 +3453,10 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
                 "refused": False,
                 "citations": citations,
                 "figures": figures,
+                "followups": compute_dynamic_followups(
+                    chosen_chunk, neighbors, selection=selection,
+                    question=selection, answer_text=answer_text, mode="explain"
+                ),
             }
 
     question = highlight_query(selection, heading)
@@ -3222,6 +3494,13 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
                 if not _is_coherent_gloss(cleaned_second, anchor_quote):
                     cleaned_second = _synthesize_grounded_gloss(selection, anchor_quote, chosen_chunk, neighbors, generate_fn, model)
                 body["answer"] = f"{answer_lines[0]}\n{cleaned_second}"
+            if not body.get("refused"):
+                body["followups"] = compute_dynamic_followups(
+                    chosen_chunk, neighbors, selection=selection,
+                    question=selection, answer_text=body.get("answer", ""), mode="explain"
+                )
+            else:
+                body["followups"] = []
             return body
 
         quote = anchor_quote
@@ -3233,6 +3512,18 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
                     (not valid_sents or cand_quote in valid_sents) and
                     len(cand_quote) >= 40):
                 quote = cand_quote
+
+        if quote and not _quote_in_passage(quote, chosen_chunk.get("text") or ""):
+            found_chunk = None
+            if _quote_in_passage(quote, pin_chunk_obj.get("text") or ""):
+                found_chunk = pin_chunk_obj
+            else:
+                for n in neighbors:
+                    if n and _quote_in_passage(quote, n.get("text") or ""):
+                        found_chunk = n
+                        break
+            if found_chunk:
+                chosen_chunk = found_chunk
 
         quote_for_prompt = f"{quote} {quote2}" if quote2 else quote
         gloss_prompt = _explain_gloss_user_message(selection, quote_for_prompt, chosen_chunk, neighbors)
@@ -3278,8 +3569,19 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
             "refused": False,
             "citations": citations,
             "figures": figures,
+            "followups": compute_dynamic_followups(
+                chosen_chunk, neighbors, selection=selection,
+                question=selection, answer_text=answer_text, mode="explain"
+            ),
         }
 
+    if not body.get("refused"):
+        body["followups"] = compute_dynamic_followups(
+            chosen_chunk, neighbors, selection=selection,
+            question=selection, answer_text=body.get("answer", ""), mode="explain"
+        )
+    else:
+        body["followups"] = []
     return body
 
 
@@ -3438,6 +3740,15 @@ def quiz(index, generate_fn=None, model=ANSWER_MODEL, rng=None, chunk=None,
     if _quote_in_passage(key, completion) or key.lower() in completion.lower():
         return _refusal([chunk], index.get("figures") or [])
 
+    quiz_neighbors = []
+    if chunk in chunks:
+        try:
+            idx = chunks.index(chunk)
+            if idx + 1 < len(chunks):
+                quiz_neighbors.append(chunks[idx + 1])
+        except ValueError:
+            pass
+
     return {
         "answer": completion,
         "citations": [{
@@ -3447,4 +3758,7 @@ def quiz(index, generate_fn=None, model=ANSWER_MODEL, rng=None, chunk=None,
         }],
         "figures": figures_for([chunk], index.get("figures") or []),
         "refused": False,
+        "followups": compute_dynamic_followups(
+            chunk, neighbors=quiz_neighbors, question=completion, answer_text=key, mode="quiz"
+        ),
     }

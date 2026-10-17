@@ -902,6 +902,112 @@ class PinChunkAndCrossChunkTests(unittest.TestCase):
         self.assertEqual(len(sents), 1)
         self.assertTrue(sents[0].startswith("Data architecture describes"))
 
+    def test_explain_single_chunk_selection_no_unprompted_cross_chunk(self):
+        index = {
+            "chunks": [
+                {
+                    "chunk_id": "c1",
+                    "chapter": "4",
+                    "heading": "Cloud Storage",
+                    "text": (
+                        "Cloud Storage\n"
+                        "Cloud storage systems provide virtually infinite capacity with tiered access patterns. "
+                        "Object storage separates storage from compute."
+                    ),
+                },
+                {
+                    "chunk_id": "c2",
+                    "chapter": "4",
+                    "heading": "Block Storage",
+                    "text": (
+                        "Block Storage\n"
+                        "Block storage volumes mount directly to compute instances for low latency IOPS."
+                    ),
+                },
+            ],
+            "figures": [],
+        }
+        selection = "virtually infinite capacity"
+        body = explain(
+            index,
+            selection,
+            generate_fn=lambda sys, usr, m: "Cloud storage provides tiered object storage without server management.",
+            search_fn=lambda idx, q, k=5: idx["chunks"],
+            chunk_id="c1",
+            end_chunk_id=None,
+        )
+        self.assertFalse(body["refused"])
+        self.assertEqual(len(body["citations"]), 1)
+        self.assertEqual(body["citations"][0]["chunk_id"], "c1")
+        self.assertIn(body["citations"][0]["quote"], index["chunks"][0]["text"])
+        self.assertNotIn("Block storage", body["citations"][0]["quote"])
+        self.assertIn("followups", body)
+        self.assertIsInstance(body["followups"], list)
+
+    def test_multiturn_followup_citation_advancement(self):
+        chunk = {
+            "chunk_id": "c1",
+            "chapter": "2",
+            "heading": "Ingestion Patterns",
+            "text": (
+                "Ingestion Patterns\n"
+                "Streaming ingestion is essential for two reasons. "
+                "First, incoming event data loses value rapidly over time. "
+                "Second, real-time alert systems depend on immediate message delivery."
+            ),
+        }
+        index = {"chunks": [chunk], "figures": []}
+
+        def gen_turn1(sys, usr, m):
+            return '[Ch. 2] "Streaming ingestion is essential for two reasons."\nStreaming processes data continuously.'
+
+        turn1_body = ask(
+            index, "What is streaming ingestion?", generate_fn=gen_turn1,
+            search_fn=lambda idx, q, k=5: [chunk], pin_chunk="c1",
+        )
+        self.assertFalse(turn1_body["refused"])
+        self.assertEqual(turn1_body["citations"][0]["quote"], "Streaming ingestion is essential for two reasons")
+
+        def gen_turn2(sys, usr, m):
+            return '[Ch. 2] "Streaming ingestion is essential for two reasons."\nEvents lose value quickly and alerts need real-time messages.'
+
+        history = [
+            {"question": "What is streaming ingestion?", "answer": turn1_body["answer"]},
+        ]
+        turn2_body = ask(
+            index, "What are the specific reasons?", generate_fn=gen_turn2,
+            search_fn=lambda idx, q, k=5: [chunk], pin_chunk="c1",
+            history=history,
+        )
+        self.assertFalse(turn2_body["refused"])
+        adv_quote = turn2_body["citations"][0]["quote"]
+        self.assertNotEqual(adv_quote, "Streaming ingestion is essential for two reasons")
+        self.assertTrue(adv_quote.startswith("First,"), f"Expected 'First, ...', got {adv_quote!r}")
+
+    def test_quiz_returns_dynamic_followups(self):
+        chunk = {
+            "chunk_id": "c1",
+            "chapter": "3",
+            "heading": "Data Architecture",
+            "text": (
+                "Data Architecture\n"
+                "Data architecture describes the structure of data and how it flows through systems. "
+                "Understanding these flows is essential for scalability."
+            ),
+        }
+        index = {"chunks": [chunk], "figures": []}
+        body = quiz(
+            index,
+            generate_fn=lambda sys, usr, m: "What describes the structure and flow of data through systems?",
+            chunk=chunk,
+        )
+        self.assertFalse(body["refused"])
+        self.assertIn("followups", body)
+        self.assertIsInstance(body["followups"], list)
+        self.assertLessEqual(len(body["followups"]), 3)
+        for pill in body["followups"]:
+            self.assertLessEqual(len(pill), 45)
+
 
 if __name__ == "__main__":
     unittest.main()

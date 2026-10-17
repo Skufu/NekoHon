@@ -2,7 +2,11 @@
 
 import unittest
 
-from answer import _clean_boilerplate_gloss, _is_coherent_gloss
+from answer import (
+    _advance_followup_quote,
+    _clean_boilerplate_gloss,
+    _is_coherent_gloss,
+)
 from intent import (
     INTENT_AUTHOR_QUESTION,
     INTENT_CONCEPT_TERM,
@@ -10,6 +14,7 @@ from intent import (
     INTENT_VAGUE_FRAGMENT,
     analyze_intent,
     classify_intent,
+    compute_dynamic_followups,
     extract_core_concept,
     extract_enclosing_subject,
     select_substantive_anchor_sentence,
@@ -171,6 +176,183 @@ class AntiGibberishCoherenceTests(unittest.TestCase):
         raw_in_passage = "In this passage, cloud providers charge for bandwidth and IOPs."
         cleaned_in = _clean_boilerplate_gloss(raw_in_passage, selection="IOPS")
         self.assertFalse(cleaned_in.lower().startswith("in this passage"))
+
+
+class DynamicFollowupPillTests(unittest.TestCase):
+    def test_compute_dynamic_followups_basic_constraints(self):
+        chunk = {
+            "chunk_id": "c1",
+            "chapter": "4",
+            "heading": "Cloud Economics",
+            "text": (
+                "Cloud Economics\n"
+                "Understanding cloud native systems is essential for two reasons. "
+                "First, modern systems require rapid iteration. "
+                "Second, resource pricing varies dynamically. "
+                "Limits on IOPS and storage bandwidth represent severe bottlenecks for high-throughput applications."
+            ),
+        }
+        followups = compute_dynamic_followups(chunk, neighbors=[], mode="explain")
+        self.assertIsInstance(followups, list)
+        self.assertLessEqual(len(followups), 3)
+        self.assertEqual(len(set(followups)), len(followups), "Followups must be unique")
+        for pill in followups:
+            self.assertLessEqual(len(pill), 45, f"Pill too long: {pill!r}")
+            self.assertTrue(pill.endswith("?") or pill.lower().startswith("explain"), f"Pill should be a question or explanation request: {pill!r}")
+        # Slot 1 should recognize "essential for two reasons"
+        self.assertIn("What are the specific reasons?", followups)
+        # Slot 2 should recognize pricing/bottlenecks/trade-offs
+        self.assertTrue(any(kw in followups[1].lower() for kw in ("trade-offs", "bottlenecks", "risks")))
+
+    def test_compute_dynamic_followups_term_extraction_and_neighbors(self):
+        chunk = {
+            "chunk_id": "c1",
+            "chapter": "5",
+            "heading": "Storage Systems",
+            "text": (
+                "Storage Systems\n"
+                "Distributed storage models often encounter significant trade-offs between consistency and latency. "
+                "An event streaming engine such as (Apache Beam) provides unified stream processing."
+            ),
+        }
+        neighbor = {
+            "chunk_id": "c2",
+            "chapter": "5",
+            "heading": "Dataflow Engine",
+            "text": "Dataflow Engine\nDataflow execution coordinates parallel workers.",
+        }
+        followups = compute_dynamic_followups(chunk, neighbors=[neighbor], mode="explain")
+        self.assertLessEqual(len(followups), 3)
+        self.assertEqual(len(set(followups)), len(followups))
+        for pill in followups:
+            self.assertLessEqual(len(pill), 45)
+        joined = " ".join(followups)
+        self.assertTrue("trade-offs" in joined.lower() or "apache beam" in joined.lower() or "dataflow" in joined.lower())
+
+    def test_compute_dynamic_followups_author_question_capture(self):
+        chunk = {
+            "chunk_id": "c3",
+            "chapter": "6",
+            "heading": "Query Engines",
+            "text": (
+                "Query Engines\n"
+                "How is this possible? "
+                "A vectorized query engine processes arrays of column values simultaneously to maximize CPU cache locality. "
+                "However, hardware costs can become prohibitive."
+            ),
+        }
+        followups = compute_dynamic_followups(chunk, neighbors=[], mode="explain")
+        self.assertIn("How is this possible?", followups)
+        for pill in followups:
+            self.assertLessEqual(len(pill), 45)
+
+    def test_compute_dynamic_followups_deduplication_and_cap(self):
+        chunk = {
+            "chunk_id": "c4",
+            "chapter": "7",
+            "heading": "Pipeline Resiliency",
+            "text": (
+                "Pipeline Resiliency\n"
+                "Data engineers must evaluate the key trade-offs in distributed computing. "
+                "There are several stages in the pipeline. "
+                "What are the key trade-offs? "
+                "What are the main stages?"
+            ),
+        }
+        followups = compute_dynamic_followups(chunk, neighbors=[], mode="explain")
+        self.assertLessEqual(len(followups), 3)
+        self.assertEqual(len(set(followups)), len(followups))
+
+
+class AdvanceFollowupQuoteTests(unittest.TestCase):
+    def test_advance_reasons_skips_lead_in(self):
+        chunk = {
+            "chunk_id": "c1",
+            "chapter": "1",
+            "heading": "Why Cloud Architecture",
+            "text": (
+                "Why Cloud Architecture\n"
+                "Understanding cloud economics is essential for two reasons. "
+                "First, resource pricing directly dictates architecture choices. "
+                "Second, unmonitored deployments can lead to unexpected cost overruns."
+            ),
+        }
+        prior_quote = "Understanding cloud economics is essential for two reasons."
+        adv = _advance_followup_quote(
+            chunk,
+            neighbors=[],
+            prior_quote=prior_quote,
+            followup_question="What are the specific reasons?",
+        )
+        self.assertIsNotNone(adv)
+        self.assertNotEqual(adv, prior_quote)
+        self.assertTrue(adv.startswith("First,"), f"Expected 'First, ...', got {adv!r}")
+
+    def test_advance_example_skips_definition(self):
+        chunk = {
+            "chunk_id": "c2",
+            "chapter": "2",
+            "heading": "Bottlenecks",
+            "text": (
+                "Bottlenecks\n"
+                "Any of these limits is a potential bottleneck for a cloud provider. "
+                "For instance, the cloud provider might have a disk storing 3 TB of data but hitting maximum IOPS. "
+                "This creates an imbalance across resources."
+            ),
+        }
+        prior_quote = "Any of these limits is a potential bottleneck for a cloud provider."
+        adv = _advance_followup_quote(
+            chunk,
+            neighbors=[],
+            prior_quote=prior_quote,
+            followup_question="Can you give an example of this?",
+        )
+        self.assertIsNotNone(adv)
+        self.assertNotEqual(adv, prior_quote)
+        self.assertTrue(adv.startswith("For instance,"), f"Expected 'For instance, ...', got {adv!r}")
+
+    def test_advance_risk_skips_intro(self):
+        chunk = {
+            "chunk_id": "c3",
+            "chapter": "3",
+            "heading": "Migration",
+            "text": (
+                "Migration\n"
+                "Moving on-premises servers to cloud VMs is a common first step. "
+                "The main risk of this approach is that organizational patterns ossify without modern tooling. "
+                "Careful planning is required to avoid this trap."
+            ),
+        }
+        prior_quote = "Moving on-premises servers to cloud VMs is a common first step."
+        adv = _advance_followup_quote(
+            chunk,
+            neighbors=[],
+            prior_quote=prior_quote,
+            followup_question="What are the risks or pitfalls?",
+        )
+        self.assertIsNotNone(adv)
+        self.assertNotEqual(adv, prior_quote)
+        self.assertIn("main risk", adv)
+
+    def test_advance_bypasses_on_simplification(self):
+        chunk = {
+            "chunk_id": "c4",
+            "chapter": "4",
+            "heading": "Technical Concept",
+            "text": (
+                "Technical Concept\n"
+                "Vectorized execution processes data arrays in register space. "
+                "This optimizes cache lines and reduces branch mispredictions."
+            ),
+        }
+        prior_quote = "Vectorized execution processes data arrays in register space."
+        adv = _advance_followup_quote(
+            chunk,
+            neighbors=[],
+            prior_quote=prior_quote,
+            followup_question="Can you explain this in simpler words?",
+        )
+        self.assertIsNone(adv, "Simplification request must bypass citation advancing")
 
 
 if __name__ == "__main__":

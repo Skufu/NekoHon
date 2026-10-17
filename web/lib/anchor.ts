@@ -607,6 +607,69 @@ export function findQuoteSpanForRole(
   return null;
 }
 
+function findWordOverlapSpan(
+  rawText: string,
+  quote: string,
+  nearOffset?: number
+): [number, number] | null {
+  const rawQuoteWords = quote.toLowerCase().match(/[a-z0-9]+/g);
+  if (!rawQuoteWords || rawQuoteWords.length === 0) return null;
+  const contentWords = rawQuoteWords.filter((w) => w.length >= 3);
+  const targetWords = contentWords.length >= 3 ? contentWords : rawQuoteWords;
+  if (targetWords.length === 0) return null;
+
+  const targetSet = new Set(targetWords);
+
+  const textWords: { word: string; start: number; end: number }[] = [];
+  const wordRegex = /[a-z0-9]+/gi;
+  let m: RegExpExecArray | null;
+  while ((m = wordRegex.exec(rawText)) !== null) {
+    textWords.push({
+      word: m[0].toLowerCase(),
+      start: m.index,
+      end: m.index + m[0].length,
+    });
+  }
+
+  if (textWords.length === 0) return null;
+
+  const windowLen = Math.max(3, rawQuoteWords.length);
+  const minMatches = Math.max(2, Math.ceil(targetWords.length * 0.7));
+
+  let bestSpan: [number, number] | null = null;
+  let bestScore = 0;
+  let bestDistance = Infinity;
+
+  for (let i = 0; i <= textWords.length - Math.min(textWords.length, windowLen); i++) {
+    const endIdx = Math.min(textWords.length - 1, i + windowLen - 1);
+    const windowSlice = textWords.slice(i, endIdx + 1);
+
+    let matches = 0;
+    const seen = new Set<string>();
+    for (const tw of windowSlice) {
+      if (targetSet.has(tw.word) && !seen.has(tw.word)) {
+        seen.add(tw.word);
+        matches++;
+      }
+    }
+
+    if (matches >= minMatches) {
+      const score = matches / targetWords.length;
+      const startChar = windowSlice[0].start;
+      const endChar = windowSlice[windowSlice.length - 1].end;
+      const distance = nearOffset != null ? Math.abs(startChar - nearOffset) : startChar;
+
+      if (score > bestScore || (score === bestScore && distance < bestDistance)) {
+        bestScore = score;
+        bestDistance = distance;
+        bestSpan = [startChar, endChar];
+      }
+    }
+  }
+
+  return bestSpan;
+}
+
 /**
  * Uses quotePattern(quote) from ./quote to find all matches in rawText,
  * returning [start, end] of the match closest to nearOffset (or first match if nearOffset == null).
@@ -641,12 +704,14 @@ export function findQuoteSpan(
 
   const pattern = quotePattern(quote);
   const hits: { index: number; length: number }[] = [];
-  for (const match of rawText.matchAll(new RegExp(pattern.source, "g"))) {
+  for (const match of rawText.matchAll(new RegExp(pattern.source, "gi"))) {
     if (match.index !== undefined) {
       hits.push({ index: match.index, length: match[0].length });
     }
   }
-  if (!hits.length) return null;
+  if (!hits.length) {
+    return findWordOverlapSpan(rawText, quote, nearOffset);
+  }
 
   if (nearOffset == null) {
     if (hits.length > 1) {

@@ -27,7 +27,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 9] \"This inevitably leads to the business not performing to its fullest potential with data and data teams losing credibility (and possibly being dissolved).\"\nPotential is the maximum achievable ability or outcome that data can deliver when fully trusted and reliable.",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.4,
    "id": "ch09-003:potential",
    "asked": "What is potential in Trust?"
   },
@@ -115,7 +115,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 6] \"No hard and fast rules indicate how often warm data is accessed, but it’s less than hot data and more than cold data.\"\n[ch. 6] \"warm data is accessed semi-regularly, say, once per month.",
    "error": null,
-   "seconds": 0.7,
+   "seconds": 0.8,
    "id": "ch06-104:accessed",
    "asked": "What is accessed in Warm data?"
   },
@@ -170,7 +170,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 1] \"In organizations in stage 3 of data maturity, a data engineer will continue building on prior stages, plus they will do the following:\"\nStage 3 signifies organizational mastery where data drives strategic decisions confidently.",
    "error": null,
-   "seconds": 0.2,
+   "seconds": 0.3,
    "id": "ch01-031:stage",
    "asked": "What is stage in Stage 3: Leading with data?"
   },
@@ -181,7 +181,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 6] \"GDPR and other privacy regulations have significantly impacted storage system design.\"\nDesigning storage systems requires considering compliance requirements like GDPR, which guides architectural choices to ensure data security and privacy.",
    "error": null,
-   "seconds": 0.2,
+   "seconds": 0.3,
    "id": "ch06-122:design",
    "asked": "What is design in Privacy?"
   },
@@ -192,7 +192,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 5] \"Individual log entries can be written to a messaging system such as Kafka or Pulsar for real-time applications.\"\nNow' events are recorded precisely when they occur, allowing real-time processing to react instantly.",
    "error": null,
-   "seconds": 0.2,
+   "seconds": 0.3,
    "id": "ch05-017:time",
    "asked": "What is time in Log latency: Batch or real time?"
   },
@@ -214,7 +214,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 8] \"However, we’ve recently seen the emergence of tools that support this capability.\"\nTools allow databases to execute complex queries on behalf of users without needing direct SQL execution, enabling more flexible and performant data consumption.",
    "error": null,
-   "seconds": 0.4,
+   "seconds": 0.3,
    "id": "ch08-132:tools",
    "asked": "What is tools in Composable materialized views?"
   },
@@ -236,7 +236,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 9] \"The technologies used for reports and ad hoc analysis are similar to dashboards but may include Excel, Python, R-based notebooks, SQL queries, and much more.\"\nDashboards present interactive visual interfaces that allow users to explore data models and generate reports dynamically.",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.4,
    "id": "ch09-021:dashboards",
    "asked": "What is dashboards in Business Analytics?"
   },

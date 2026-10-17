@@ -677,19 +677,13 @@ const ChunkBlock = memo(function ChunkBlock({
 
     let citationRange: [number, number] | null = null;
     if (focus && quote) {
-      const isHeading =
-        at != null
-          ? isHeadingOffset(at)
-          : Boolean(findQuoteSpan(hText, quote));
-      if (isHeading) {
-        const decodedAt =
-          at != null && isHeadingOffset(at)
-            ? decodeHeadingOffset(at)
-            : undefined;
-        const span = findQuoteSpan(hText, quote, decodedAt);
-        if (span) {
-          citationRange = [span[0], span[1]];
-        }
+      const decodedAt =
+        at != null && isHeadingOffset(at)
+          ? decodeHeadingOffset(at)
+          : undefined;
+      const span = findQuoteSpan(hText, quote, decodedAt);
+      if (span) {
+        citationRange = [span[0], span[1]];
       }
     }
 
@@ -750,8 +744,12 @@ const ChunkBlock = memo(function ChunkBlock({
         );
 
       let citationRange: [number, number] | null = null;
-      if (focus && quote && (at == null || !isHeadingOffset(at))) {
-        const cHit = findQuoteSpan(joinedText, quote, at);
+      if (focus && quote) {
+        const cHit = findQuoteSpan(
+          joinedText,
+          quote,
+          isHeadingOffset(at) ? undefined : at
+        );
         if (cHit) {
           citationRange = [cHit[0], cHit[1]];
         }

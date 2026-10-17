@@ -1,6 +1,6 @@
 # Ask This Book — Build Plan
 
-> **Status (2026-10-14): living plan.** This started as the locked v1 build
+> **Status (2026-10-17): living plan.** This started as the locked v1 build
 > plan (written 2026-10-09). v1 shipped — Phases 0–8 passed 2026-10-12 — and
 > the plan now tracks the post-v1 path. Treat it as a sequence to the goal,
 > not a contract: when this file and a dated report or the code disagree, the
@@ -15,9 +15,9 @@
 
 **Goal:** An offline book companion that answers from the open book, cites the passages it used, and shows the figure those passages point at. Nothing leaves the machine.
 
-**Architecture:** A stdlib Python engine ingests one EPUB into a JSON index, retrieves with the Phase 3b winning embedder (`nomic-embed-text` default), and answers with on-disk `smallbook_x2d` (a Qwen2.5-3B finetune distilled from `qwen2.5:7b`; `ANSWER_MODEL=qwen2.5:7b` reverts). The frontend is a Next.js app under `web/` (reader + ask panes; the 2026-10-15 exception — see `web/README.md`); `window/index.html` is the v1 window and keeps the quiz/explain modes until the reader covers them. Readest is a later shell, not the way the engine gets proven.
+**Architecture:** A stdlib Python engine ingests one EPUB into a JSON index, retrieves with the Phase 3b winning embedder (`nomic-embed-text` default), and answers with on-disk `smallbook_x3` (a Qwen2.5-3B wide-LoRA distilled student; `smallbook_x3_mobile` 1.5B for mobile/edge; `ANSWER_MODEL=qwen2.5:7b` reverts). The frontend is a Next.js app under `web/` (reader + ask panes; see `web/README.md`); `window/index.html` is the legacy no-build window.
 
-**Tech Stack:** Python 3 stdlib (one exception for vendored text-preprocessing tools; see `AGENTS.md`). Ollama on `127.0.0.1:11434`. No pip installs. No new model downloads except the approved embedder pulls (see Status). No database server.
+**Tech Stack:** Python 3 stdlib (one exception for vendored text-preprocessing tools; see `AGENTS.md`). Ollama on `127.0.0.1:11434`. No pip installs. No database server.
 
 ---
 
@@ -25,9 +25,7 @@
 
 The product bet: local inference, cited answers, figures on screen, wifi off.
 
-**Current (2026-10-14):** post-v1. The finetuned `smallbook_x2d` is the
-answerer by default (adopted 2026-10-14 with the validation-gated `[Ch. ` retry;
-`artifacts/reports/retry-safety-net-2026-10-14.md`). See "Post-v1" below.
+**Current (2026-10-17):** post-v1. `smallbook_x3` (3.1B, Q4_K_M, 1.89 GB) is adopted as the primary desktop answer model (`prompt.ANSWER_MODEL = "smallbook_x3"`), succeeding `smallbook_x2g` and `smallbook_x2d`. `smallbook_x3_mobile` (1.5B, Q4_K_M, 965 MB) serves edge and resource-constrained environments. All edge cases (alphanumeric acronyms, coreference follow-ups, natural comparison grammar, highlight intent) are resolved. Benchmark status: **60/60** Hard Benchmark, **24/24** Highlight Golden, **22/22** HTTP Battery, **334/334** unit tests. Report: `artifacts/reports/architecture-and-x3-2026-10-17.md`.
 
 Two older drafts in `~/.hermes/cache/scratch/hackathon-plan.md` and `hackathon-plan-full.md` disagree with each other. This file replaces both.
 
@@ -59,19 +57,20 @@ be reopened when the goal calls for it.
   answer-or-refuse. Revisit as a post-v1 feature.
 - Cross-chapter tracing.
 
-## Stack (v1 baseline locked 2026-10-09; updated 2026-10-14)
+## Stack (v1 baseline locked 2026-10-09; updated 2026-10-17)
 
 | Job | Model | On disk | Use |
 | --- | --- | --- | --- |
 | Embed | `nomic-embed-text:latest` (274 MB) | yes | retrieval |
-| Answer | `smallbook_x2d` (1.9 GB) | yes | default since 2026-10-14; quote, then one line |
-| Teacher / revert | `qwen2.5:7b` (4.7 GB, Q4_K_M) | yes | builds `smallbook_x2d`; `ANSWER_MODEL=qwen2.5:7b` reverts |
+| Answer (desktop default) | `smallbook_x3` (1.89 GB, Q4_K_M) | yes | desktop default since 2026-10-17; 3.1B quote-or-refuse Wide-LoRA student |
+| Answer (mobile default) | `smallbook_x3_mobile` (965 MB, Q4_K_M) | yes | mobile/edge default since 2026-10-17; 1.5B quote-or-refuse Wide-LoRA student |
+| Teacher / revert | `qwen2.5:7b` (4.7 GB, Q4_K_M) | yes | teacher baseline; `ANSWER_MODEL=qwen2.5:7b` reverts |
 | Weak-machine note | `llama3.2:3b` (2.0 GB) | yes | README fallback only. Not the dev model. |
 | Do not use | `deepseek-r1:7b` | yes | leave it |
 
-On the Windows runner (measured 2026-10-12): `qwen2.5:7b`, `nomic-embed-text:latest`, `embeddinggemma-2:270m-bf16-text`, and `moistral:latest` are on disk. The `llama3.2:3b` and `deepseek-r1:7b` rows are Mac-only so far.
+On the Windows runner (measured 2026-10-17): `smallbook_x3`, `smallbook_x3_mobile`, `qwen2.5:7b`, `nomic-embed-text:latest`, `granite4.1:8b`, and `embeddinggemma-2:270m-bf16-text` are registered in Ollama.
 
-`smallbook_x2d` is the current answer model (adopted 2026-10-14; `smallbook_x2` and the 7B stay one env flag away) — a Qwen2.5-3B quote-or-refuse finetune distilled offline from `qwen2.5:7b`. `qwen2.5:7b` is the teacher and the one-flag revert. Any answer-model swap — the 7B back, x2, or a new finetune — has to pass the battery in both modes: ask — quote is a substring, answer starts with `[Ch.`, refusal is exactly `Not in this book.`; answer — citations only from the shown passages and the coherence probes pass. Measure it; do not swap quietly on a hunch.
+`smallbook_x3` is the current answer model (adopted 2026-10-17; `smallbook_x3_mobile` and the 7B stay one env flag away) — a Qwen2.5-3B quote-or-refuse finetune distilled from an 844-row 7-layer corpus via Wide-LoRA on Colab A100. Any answer-model swap — the 7B back, mobile, or a new finetune — has to pass the battery in both modes: ask — quote is a substring, answer starts with `[Ch.`, refusal is exactly `Not in this book.`; answer — citations only from the shown passages and the coherence probes pass. Measure it; do not swap quietly on a hunch.
 
 Changes that invalidate measurements — re-run, don't quietly swap:
 
@@ -80,8 +79,7 @@ Changes that invalidate measurements — re-run, don't quietly swap:
 - An answer-model swap (the 7B back, or a new finetune). Re-run the battery in both modes and the trial-pattern probes; either direction moves pins.
 - A Gemma picture index. Separate file. It cannot mix with nomic numbers.
 
-Ollama is already the server on the Mac; on this Windows box v0.40.3 is installed (see `AGENTS.md`). Restart it only if `ollama list` fails. Embedder pulls are approved (Status). The answerer `smallbook_x2` was built locally — imported from its GGUF, not pulled
-(`artifacts/reports/smallbook_x2-rebuild-2026-10-14.md`). Anything past the Phase 3b contenders still needs an explicit megabyte number before transfer: the book, a Readest clone, an Ollama upgrade, and any vision model.
+Ollama is already the server on the Mac; on this Windows box v0.40.3 is installed (see `AGENTS.md`). Restart it only if `ollama list` fails. Setup utility: `python scripts/setup_models.py --install`.
 
 Run the engine with system `python3`, not the Hermes venv. If imports look insane, the shell leaked `PYTHONPATH` from a Python 3.14 env. Run `env -u PYTHONPATH -u PYTHONHOME python3`. (macOS note — on Windows just use `python`; see `AGENTS.md`.)
 
@@ -91,29 +89,36 @@ Create: `~/workspace/github.com/Skufu/ask-this-book`
 
 ```
 ask-this-book/
-  BUILD_PLAN.md      # this plan (was README.md)
-  AGENTS.md          # entry point, hard rules, current state
-  server.py          # stdlib HTTP; four routes
-  ingest.py          # epub zip → chunks (+ provenance) and figure records
-  preprocess.py      # the one text seam: tokens/words, the dense view
+  README.md          # human front page, quickstart, lineup table
+  BUILD_PLAN.md      # this living plan
+  AGENTS.md          # entry point, hard rules, dated current state
+  server.py          # stdlib HTTP; routes: POST /ask, GET /chunks, /figures, /health, /
+  intent.py          # sub-millisecond Highlight Intent Engine (CONCEPT, FRAGMENT, MULTI, QUESTION)
+  ingest.py          # epub zip → sentence-boundary chunks (+ provenance) and figure records
+  preprocess.py      # the one text seam: alphanumeric tokens/words, NFKC normalization
   retrieve.py        # ollama embed + pure-python cosine
   keywords.py        # rare-word postings, the dense band, anchor words
+  fusion.py          # RRF (K=60) of the lexical candidate into the dense set
+  canonical.py       # bare-phrase canonicalizer (bare topic -> "What is X?")
   captions.py        # seed the chunk that names a matched figure
-  readings.py        # the self-proving second reading for out-of-book words
-  answer.py          # prompt, ollama generate, the quote check
-  prompt.py          # the only system prompt
+  readings.py        # self-proving second reading for out-of-book words
+  answer.py          # prompt wiring, generation, quote check, citations, coherence guard
+  prompt.py          # system prompts (ask + answer + gloss) and ANSWER_MODEL
   figures.py         # attach a figure when a cited passage names it
-  tests/
+  models/            # committed portable Modelfiles (smallbook_x3, smallbook_x3_mobile)
+  scripts/           # setup_models.py (one-command install, verify, release package)
+  docs/              # ENGINEERING_AND_BENCHMARKS.md (in-depth contributor guide)
+  tests/             # 334 unit tests + fixtures
     test_contract.py  test_ingest.py  test_retrieve.py  test_answer.py
     test_figures.py   test_keywords.py  test_captions.py  test_readings.py
     test_preprocess.py  test_chunking.py  test_generalization.py
     fixtures/ask_response.json
     fixtures/questions.json
-  window/index.html  # the v1 window
-  web/               # the Next.js frontend (reader + ask); see web/README.md
-  artifacts/         # phase briefs, model notes, gate logs
-  data/              # gitignored: index + extracted images
-  books/             # gitignored: the epub, or a one-line path file
+  window/index.html  # legacy v1 window (no build step)
+  web/               # Next.js frontend (reader + margin cards + lens); see web/README.md
+  artifacts/         # evidence, harnesses (hard-bench, step2-battery), reports, datasets
+  data/              # gitignored: index.json, models/, extracted figures/
+  books/             # gitignored: the epub (books/SOURCE.txt records origin)
   .gitignore         # data/, books/, __pycache__/, per-model indexes
 ```
 
@@ -438,14 +443,21 @@ v1 answers with the 7B; this track replaces the answerer with a small local
 finetune so the product runs on weaker machines and refuses on-form. It is the
 section that moves — update it as checkpoints land.
 
-- **`smallbook_x2d` is the default** (adopted 2026-10-14): a Qwen2.5-3B
-  quote-or-refuse LoRA distilled offline from `qwen2.5:7b`, plus the
-  validation-gated `[Ch. ` retry; 1.9 GB. Revert: `ANSWER_MODEL=qwen2.5:7b`
-  (or `=smallbook_x2`).
-- **Where it stands:** battery 20/21 x3 (best small-model run), refusals 10/10,
-  0 loops; the retry lifts the sealed suite x2d 21->111/160 and x2 60->111/160
-  (x2d 0 loops); gate item 2 still short of the 7B on bare/order classes
-  (`artifacts/reports/retry-safety-net-2026-10-14.md`).
+- **`smallbook_x3` is adopted as desktop default** (2026-10-17; report
+  `artifacts/reports/architecture-and-x3-2026-10-17.md`): a Qwen2.5-3B Wide-LoRA
+  ($r=32, \alpha=64$) student trained on an 844-row 7-layer distillation corpus
+  (707 cited, 137 refusals = 16.23% refusal share) on Colab A100 (loss
+  $1.0937 \to 0.0403$ in 393.8s); 1.89 GB Q4_K_M GGUF (SHA-256 `92fb94df...`).
+  Delivers **60/60 (100%)** on the 60-Item Hard Benchmark, **24/24 (100%)** on
+  Held-Out Highlights, and **22/22 (100%)** on the HTTP Battery at 0.77s mean
+  latency.
+- **`smallbook_x3_mobile` is adopted as mobile/edge default** (2026-10-17):
+  a Qwen2.5-1.5B companion student trained on the same 844-row corpus
+  (loss $1.0937 \to 0.0499$ in 292.6s); 965 MB Q4_K_M GGUF (SHA-256 `c3d8492f...`).
+  Achieves 100% parity across all verification gates (**60/60** Hard Bench,
+  **24/24** Highlights, **22/22** Battery) at 0.58s mean latency.
+- **`smallbook_x2d` historical note:** adopted 2026-10-14, succeeded by `x3` on
+  2026-10-17. Prior benchmarks preserved in `artifacts/reports/retry-safety-net-2026-10-14.md`.
 - **x2c closed (2026-10-14):** not adopted — gate 2 failed both quants vs
   the 7B on the sealed suite; `smallbook_x2` stays the default. Recorded
   wins: user warts (Location, DE Lifecycle, ddr4-flip) answered; loops

@@ -63,6 +63,9 @@ export type GlossItem = {
   at?: number;
   createdAt: number;
   turns: GlossTurn[];
+  minimized?: boolean;
+  dragOffset?: { x: number; y: number };
+  customWidth?: number;
 };
 
 type InFlightTurn = {
@@ -113,6 +116,9 @@ type AskStore = {
   removeGloss: (id: string) => void;
   toggleQuizKey: (glossId: string, turnId?: string) => void;
   stopGloss: (glossId?: string) => void;
+  toggleMinimizeGloss: (id: string) => void;
+  setGlossDragOffset: (id: string, offset: { x: number; y: number }) => void;
+  setGlossWidth: (id: string, width: number) => void;
 
   // Actions
   askSelection: (
@@ -226,14 +232,16 @@ export const useAsk = create<AskStore>((set, get) => {
           : null,
       anchored: activeGloss ? activeGloss.kind === "selection" : false,
       highlight:
-        activeGloss && activeGloss.kind === "selection"
-          ? {
-              chunkId: activeGloss.chunkId,
-              chapter: activeGloss.chapter,
-              quote: activeGloss.quote,
-              at: activeGloss.at,
-            }
-          : get().highlight,
+        activeGlossId === get().activeGlossId && get().highlight?.nonce
+          ? get().highlight
+          : activeGloss && activeGloss.kind === "selection"
+            ? {
+                chunkId: activeGloss.chunkId,
+                chapter: activeGloss.chapter,
+                quote: activeGloss.quote,
+                at: activeGloss.at,
+              }
+            : get().highlight,
     });
   }
 
@@ -314,13 +322,11 @@ export const useAsk = create<AskStore>((set, get) => {
     const pacerStep = () => {
       if (displayedText.length < targetText.length) {
         const remaining = targetText.slice(displayedText.length);
-        let step = Math.min(remaining.length, 4);
-        if (remaining.length > 4) {
-          const boundary = remaining.slice(3, 10).search(/[\s\n.,!?;:)]/);
-          if (boundary !== -1) {
-            step = 3 + boundary + 1;
-          }
-        }
+        const backlog = targetText.length - displayedText.length;
+        const step = Math.min(
+          remaining.length,
+          Math.max(2, Math.min(8, Math.ceil(backlog / 8)))
+        );
         displayedText += remaining.slice(0, step);
 
         set((state) => {
@@ -421,7 +427,7 @@ export const useAsk = create<AskStore>((set, get) => {
 
     const ensurePacerRunning = () => {
       if (flight.pacerTimer === null) {
-        flight.pacerTimer = setInterval(pacerStep, 18);
+        flight.pacerTimer = setInterval(pacerStep, 16);
       }
     };
 
@@ -461,8 +467,15 @@ export const useAsk = create<AskStore>((set, get) => {
         },
         onFinal: (body) => {
           finalResult = body;
-          if (body.answer && targetText.length === 0 && !body.refused && payload.mode !== "quiz") {
-            targetText = body.answer;
+          if (body.answer && !body.refused && payload.mode !== "quiz") {
+            if (targetText.length === 0) {
+              targetText = body.answer;
+            } else if (
+              body.answer.startsWith(targetText.trimEnd()) &&
+              body.answer.length > targetText.length
+            ) {
+              targetText = body.answer;
+            }
           }
           ensurePacerRunning();
         },
@@ -670,7 +683,14 @@ export const useAsk = create<AskStore>((set, get) => {
     hoveredGlossId: null,
 
     setActiveGloss: (id) => {
-      syncActiveTurn(get().glosses, id);
+      if (id) {
+        const next = get().glosses.map((g) =>
+          g.id === id ? { ...g, minimized: false } : g
+        );
+        syncActiveTurn(next, id);
+      } else {
+        syncActiveTurn(get().glosses, null);
+      }
     },
 
     setHoveredGloss: (id) => {
@@ -726,6 +746,30 @@ export const useAsk = create<AskStore>((set, get) => {
       }
     },
 
+    toggleMinimizeGloss: (id) => {
+      set((state) => ({
+        glosses: state.glosses.map((g) =>
+          g.id === id ? { ...g, minimized: !g.minimized } : g
+        ),
+      }));
+    },
+
+    setGlossDragOffset: (id, offset) => {
+      set((state) => ({
+        glosses: state.glosses.map((g) =>
+          g.id === id ? { ...g, dragOffset: offset } : g
+        ),
+      }));
+    },
+
+    setGlossWidth: (id, width) => {
+      set((state) => ({
+        glosses: state.glosses.map((g) =>
+          g.id === id ? { ...g, customWidth: width } : g
+        ),
+      }));
+    },
+
     // Actions
     askSelection: (
       question,
@@ -772,7 +816,11 @@ export const useAsk = create<AskStore>((set, get) => {
         turns: [turn],
       };
 
-      const nextGlosses = [...get().glosses, item];
+      const prevGlosses = get().glosses.map((g) => ({
+        ...g,
+        minimized: true,
+      }));
+      const nextGlosses = [...prevGlosses, item];
       syncActiveTurn(nextGlosses, glossId);
 
       const payload = isTyped
@@ -836,7 +884,11 @@ export const useAsk = create<AskStore>((set, get) => {
         turns: [turn],
       };
 
-      const nextGlosses = [...state.glosses, item];
+      const prevGlosses = state.glosses.map((g) => ({
+        ...g,
+        minimized: true,
+      }));
+      const nextGlosses = [...prevGlosses, item];
       syncActiveTurn(nextGlosses, glossId);
 
       const history = historyPayload(state.thread);
@@ -881,7 +933,11 @@ export const useAsk = create<AskStore>((set, get) => {
         turns: [turn],
       };
 
-      const nextGlosses = [...get().glosses, item];
+      const prevGlosses = get().glosses.map((g) => ({
+        ...g,
+        minimized: true,
+      }));
+      const nextGlosses = [...prevGlosses, item];
       syncActiveTurn(nextGlosses, glossId);
 
       startTurnStream(glossId, turnId, {
