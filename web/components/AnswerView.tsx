@@ -83,13 +83,14 @@ function SourceQuoteSection({
 }) {
   const [open, setOpen] = useState(false);
   const chLabel = formatChapter(citation.chapter);
+  const cleanQuote = quote.replace(/^["'“”‘’]+|["'“”‘’]+$/g, "").trim();
 
   const jump = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
     onJump({
       chunk_id: citation.chunk_id,
       chapter: citation.chapter,
-      quote: citation.quote || quote,
+      quote: citation.quote || cleanQuote,
       nonce: Date.now(),
     } as Citation);
   };
@@ -128,7 +129,7 @@ function SourceQuoteSection({
               }}
               title={`Jump to passage in ${chLabel}`}
             >
-              “{quote}”
+              “{cleanQuote}”
             </blockquote>
             <div className="source-popover-actions">
               <button
@@ -161,6 +162,7 @@ export default function AnswerView({
   selection?: string;
   anchorQuote?: string;
 }) {
+  const [hiddenFigures, setHiddenFigures] = useState<Record<string, boolean>>({});
   const storeShowCitation = useAsk((s) => s.showCitation);
   const handleChip = onChip ?? storeShowCitation;
   const activeEngine = engine ?? engineUrl();
@@ -290,23 +292,62 @@ export default function AnswerView({
         </p>
       ) : null}
 
-      {body.figures.map((figure) => (
-        <figure key={figure.id} className="answer-figure">
-          <img
-            src={`${activeEngine}${figure.src}`}
-            alt={figure.caption || figure.id}
-            width={figure.width}
-            height={figure.height}
-            loading="lazy"
-            className="answer-figure-img"
-          />
-          {figure.caption ? (
-            <figcaption className="answer-figure-caption">
-              {figure.caption}
-            </figcaption>
-          ) : null}
-        </figure>
-      ))}
+      {body.figures.map((figure) => {
+        const isHidden = Boolean(hiddenFigures[figure.id]);
+        const figureLabel = figure.caption
+          ? figure.caption
+          : `Figure ${figure.id.replace(/^figure-/, "")}`;
+
+        return (
+          <div key={figure.id} className="figure-container">
+            <div className="figure-toggle-row">
+              <button
+                type="button"
+                className="figure-toggle-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setHiddenFigures((prev) => ({
+                    ...prev,
+                    [figure.id]: !prev[figure.id],
+                  }));
+                }}
+                aria-expanded={!isHidden}
+                title={isHidden ? "Show figure" : "Hide figure"}
+              >
+                <span className="figure-toggle-icon" aria-hidden="true">
+                  {isHidden ? "▸" : "▾"}
+                </span>
+                <span className="figure-toggle-label">
+                  {isHidden ? `Show figure · ${figureLabel}` : "Hide figure"}
+                </span>
+              </button>
+            </div>
+            <div
+              className={`figure-collapse-wrap ${
+                isHidden ? "is-collapsed" : "is-open"
+              }`}
+            >
+              <div className="figure-collapse-inner">
+                <figure className="answer-figure">
+                  <img
+                    src={`${activeEngine}${figure.src}`}
+                    alt={figure.caption || figure.id}
+                    width={figure.width}
+                    height={figure.height}
+                    loading="lazy"
+                    className="answer-figure-img"
+                  />
+                  {figure.caption ? (
+                    <figcaption className="answer-figure-caption">
+                      {figure.caption}
+                    </figcaption>
+                  ) : null}
+                </figure>
+              </div>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

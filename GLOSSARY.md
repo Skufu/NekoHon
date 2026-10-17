@@ -50,6 +50,27 @@ authoritative doc is named.
   characters are the quote's own words).
 - **the panes** — the frontend's two columns: the book (reader) and the ask
   box; the Next.js app under `web/` — `web/README.md`.
+- **Highlight Intent Engine** (`intent.py`) — sub-millisecond offline classifier
+  categorizing text selections into `CONCEPT_TERM`, `VAGUE_FRAGMENT`,
+  `MULTI_SENTENCE_PASSAGE`, or `AUTHOR_QUESTION` to route intent and dynamically
+  synthesize context-aware follow-up chips.
+- **Passing-Mention Grounding** — detection mechanism in `intent.py` ensuring
+  that when a technical term is only mentioned in passing within a selected
+  block, the engine grounds definitions and follow-ups in the book's core
+  expository passages rather than incidental fragments.
+- **Bidirectional Quote-Gloss Alignment** — quote-gloss ranking in `answer.py`
+  ensuring that cited excerpts and explanatory glosses align mutually with the
+  question's entity and semantic focus, filtering incoherent drafts and
+  normalizing casing.
+- **Direct-DOM Margin Physics** — 60/120fps direct DOM manipulation using
+  `requestAnimationFrame` for drag, 2D resize, and viewport clamping of reader
+  margin cards, bypassing React state overhead during motion.
+- **Live SVG Leader Line** — dynamic cubic-bezier connector rendered in SVG
+  (`updateLeaderLineDOM`) visually tethering the reader highlight marker to its
+  corresponding margin card in real time.
+- **Figure Deduplication** — reader state mechanism that suppresses redundant
+  figure attachments across consecutive turns in a conversation thread,
+  offering collapsible toggles instead of repeating identical diagrams.
 
 ## Models and training
 
@@ -72,6 +93,13 @@ authoritative doc is named.
   "presentations" = rows x epochs (the budget held at ~1968).
 - **LoRA** — the small trainable adapter used to finetune; the app loads the
   merged GGUF.
+- **nekohon_x3** (alias `smallbook_x3`) — 3.1B parameter Qwen2.5-based distilled
+  student model (1.93 GB Q4_K_M GGUF), trained via Wide-LoRA (r=32, alpha=64) on
+  an 844-row 7-layer corpus; delivers 100% on the 60-item Hard Benchmark and
+  24/24 on golden highlights as the desktop engine default.
+- **nekohon_x3_mobile** — 1.5B parameter edge companion student model (986 MB
+  Q4_K_M GGUF), trained on the same 844-row distillation corpus; delivers 100%
+  parity across all gates with 0.58s mean latency for low-resource environments.
 
 ## Testing
 

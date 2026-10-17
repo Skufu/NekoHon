@@ -30,7 +30,7 @@ server.
   + system prompts), `fusion.py`, `keywords.py`, `readings.py`,
   `captions.py`, `figures.py`, `agentic.py` (prototype, not wired).
 - Checks: `preflight.py` (readiness), `verify_index.py` (index hygiene),
-  `tests/` (`python -m unittest discover -s tests`).
+  `tests/` (`python -m unittest discover -s tests`, including `test_query_understanding.py` and `test_generalization.py`).
 - `artifacts/` — everything dated and measured: `probes/` (scripts that run
   things), `reports/` (the why + verdicts), `evidence/` (raw run outputs),
   `harnesses/` (battery, sweeps, groundedness, judge, secret scan),
@@ -136,7 +136,10 @@ Only this list can block work.
   `captions.py`, `figures.py`, `keywords.py`, `preprocess.py`, `prompt.py`,
   `readings.py`, `retrieve.py`).
   Pins and ids belong in tests, the battery, and docstrings.
-  `tests/test_generalization.py` enforces the literal part. Thresholds are the
+  `tests/test_generalization.py` enforces the literal part.
+  `tests/test_query_understanding.py` enforces that query understanding,
+  canonicalization, intent classification, passing-mention grounding, and
+  coreference resolution remain strictly book-agnostic. Thresholds are the
   subtler half: a constant is fitted if its stated reason is which known test it
   keeps green (e.g. `RARE_DF = 8` justified by "keeps 'capital' out"), not if it
   falls out of a rule that survives a different book. Say so when you see one.
@@ -1095,8 +1098,7 @@ Only this list can block work.
   Measured: `python -m unittest discover -s tests`: **348/348 passed** in 1.66s; `npx tsc --noEmit`: **0 errors**; Hard Benchmark 60/60 (100.0%, 0.71s mean latency on `smallbook_x3`); held-out golden highlights 24/24 (100.0%); live HTTP battery **PASS** (`BATTERY_MODE="answer"`, Golden 10/10 answered, 10/10 pass, typos PASS, probes PASS, coherence PASS, France exact refusal PASS); headless Chrome verification (`record.mjs`, 1280x720) verified all 3 multi-turn scenes, drag, resize, minimize, and citation body underline (`polish-and-cards-verified/recording.mp4`, 3187 distinct frames, 0 unindexed artifacts).
 - `nekohon_x3` rename 2026-10-17 (owner direction: rebrand to nekohon): the x3 weights are now distributed and served as `nekohon_x3` / `nekohon_x3_mobile` — same GGUFs, same SHA-256 (`92fb94df…` / `c3d8492f…`), renamed files (`nekohon_x3.Q4_K_M.gguf`, `nekohon_x3_mobile.Q4_K_M.gguf`), renamed committed Modelfiles (`models/nekohon_x3*/Modelfile`), `scripts/setup_models.py` keys/URLs, and `prompt.ANSWER_MODEL` default. Measured 2026-10-17: new Ollama tags created (`nekohon_x3:latest` digest `5a9525f8d0ac`, `nekohon_x3_mobile:latest` digest `89e6798ed288`; the `smallbook_x3*` tags stay registered as aliases), `setup_models.py --status` green, install probes answered, 348/348 tests in 1.68s. Published to Hugging Face 2026-10-17: `https://huggingface.co/Skufu1/nekohon-x3` (public; model card + both GGUFs + both Modelfiles; API-verified siblings, `usedStorage` 2,915,950,848 B). Engine restart pending to serve the new default.
 - Prompt leakage sanitization and dynamic follow-up filtering landed 2026-10-17: sanitized prompt leakage instructions in `answer.py` (`_clean_boilerplate_gloss`, `_is_coherent_gloss`, and removed negative imperatives from `_explain_gloss_user_message`); updated `intent.py` (`CORE_PREFIX_RE` with chapter/section/part regex, stripped heading line from `chunk_text` and neighbor text, `DISCARD_OPENERS`, number range filtering, and `_is_redundant_followup` guards); measured 356/356 unit tests green in 1.65s; fluid-drag-and-stages verification recording passed with 0 prompt leakage and 0 bad pills (`fluid-drag-and-stages-verified/fluid-drag-and-stages-verified.mp4`).
-
-
+- Passing-mention overlap guard, figure suppression, and minimized card verification landed 2026-10-17: added passing-mention content-word overlap guard in `answer.py` (`_synthesize_grounded_gloss`, `explain`) and smooth connector fallback; restricted followup entity alignment to active histories with entity in chunk text; measured 370/370 unit tests green across 21 test files in 1.74s, 24/24 highlight golden (100%), 22/22 HTTP battery PASS; verified headless Chrome recording (`intent-figures-minimized-verified.mp4` / `.gif`) with 0 duplicated figures across turns, uppercase ML casing, clean typographic quotes, and working minimize-to-pill bar with × remove.
 
 ## Verify
 
@@ -1115,7 +1117,7 @@ Only this list can block work.
 - Answer mode: `BATTERY_MODE=answer python artifacts/harnesses/step2-battery.py`; sweeps `SWEEP_MODE=answer python artifacts/harnesses/qa-sweep.py <label>`; groundedness `python artifacts/harnesses/groundedness.py --battery --label <name>` or `--label <name>` over `datasets/qa-questions-overnight.json` (in-process, no server needed).
 - Agentic prototype (not wired): `python artifacts/probes/probe-agentic.py` (live Ollama, 5 asks).
 - Plain register: `python -m unittest tests.test_plain_register`; scorecard draws (cloud judge) `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/harnesses/eval-plain.py --variants wired --label wired` (replay with a new label); judge flip probe `python artifacts/harnesses/judge-stability.py --file evidence/eval-plain/eval-plain-v6-openai-muse-spark-1-3-contributor.json --match <question substring> --n 3`; live route check: `answer` mode with "explain data engineering in simple words".
-- Canonicalization: `python -m unittest tests.test_canonical`; live check:
+- Canonicalization & Query Understanding: `python -m unittest tests.test_canonical tests.test_query_understanding`; live check:
   a bare phrase in answer mode ("watermark") answers in question form and the
   answer ends with `Asked as: "What is watermark?"`; mutation check
   `python artifacts/probes/probe-test-mutations-2026-10-13.py` (5 breaks, 0 survivors).

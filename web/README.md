@@ -26,6 +26,101 @@ stdlib Python.
 
 Both `:3100` and `:3200` are CORS-allowlisted on the engine (`server.py`).
 
+## End-to-End Subsystem Architecture
+
+The frontend client coordinates with the Python engine across all five architectural subsystems:
+
+```mermaid
+flowchart TD
+    subgraph Subsystem1["1. EPUB Ingestion Pipeline (ingest.py)"]
+        EPUB["Raw EPUB File<br/>(books/fde.epub)"] --> Spine["OPF Spine & Container Parse"]
+        Spine --> Packer["Sentence-Boundary Chunker<br/>(CHUNK_MAX_CHARS = 1400, OVERLAP = 180)"]
+        Spine --> FigExt["Figure & Caption Extractor"]
+        Packer --> Chunks["1,042 Chunks<br/>(0/1,042 mid-sentence starts)"]
+        FigExt --> Figures["111 Extracted PNGs + Captions"]
+        Chunks --> Index["data/index.json"]
+        Figures --> Index
+    end
+
+    subgraph Subsystem2["2. Hybrid Retrieval & RRF (preprocess.py, retrieve.py, keywords.py, fusion.py, readings.py)"]
+        Query["User Query / Selection"] --> Pre["Alphanumeric Normalization<br/>(tokens: S3, 3NF, DDR5)"]
+        Pre --> Cache{"_EMBED_CACHE<br/>Hit?"}
+        Cache -->|Miss| Dense["Dense Vector Search<br/>(nomic-embed-text, 768d)"]
+        Cache -->|Hit| Dense
+        Pre --> Lexical["Lexical Rare-Word Postings<br/>(BM25 / IDF scoring)"]
+        Dense --> Band{"Dense Top 20% Band<br/>(France Refusal Canary)"}
+        Lexical --> Band
+        Band -->|Admitted| RRF["Reciprocal Rank Fusion<br/>(K = 60)"]
+        Band -->|Rejected| DenseOnly["Dense Top-10"]
+        RRF --> Context["Ranked Top-5 Passages"]
+        DenseOnly --> Context
+        Pre -.-> Readings["Self-Proving Typo Readings<br/>(readings.py difflib 0.85)"]
+    end
+
+    subgraph Subsystem3["3. Highlight Intent & Follow-Up Engine (intent.py)"]
+        Context --> Classifier["Sub-ms Intent Classifier<br/>(&lt; 1ms)"]
+        Classifier --> Intents["Classes: CONCEPT_TERM, VAGUE_FRAGMENT,<br/>MULTI_SENTENCE_PASSAGE, AUTHOR_QUESTION"]
+        Intents --> Mention["Passing-Mention Detection<br/>(Anchor Grounding)"]
+        Mention --> FollowupGen["Dynamic Follow-Up Generator<br/>(compute_dynamic_followups)"]
+    end
+
+    subgraph Subsystem4["4. Bidirectional Quote-Gloss Ranking & Grounded Generation (answer.py, prompt.py, figures.py)"]
+        Mention --> Prompt["Aligned ChatML System Prompt<br/>(prompt.py)"]
+        Prompt --> Ollama["Local Student Model<br/>(nekohon_x3 3B / nekohon_x3_mobile 1.5B)"]
+        Ollama --> Coherence{"_is_coherent_gloss Validation<br/>(Repetition & Loop Guard)"}
+        Coherence -->|Passed| QuoteRank["Bidirectional Quote-Gloss Ranking<br/>(Query-Entity Alignment)"]
+        Coherence -->|Failed| Fallback["_synthesize_grounded_gloss<br/>(Grounded Sentence Extraction)"]
+        QuoteRank --> ListSyn["List-Item Synthesis & Acronym Casing"]
+        Fallback --> ListSyn
+        ListSyn --> FigAttach["Scoped Figure Attachment<br/>(figures.py)"]
+    end
+
+    subgraph Subsystem5["5. Direct-DOM Physics & Liquid Reader UX (web/ Next.js)"]
+        FigAttach --> Stream["NDJSON Token Stream<br/>(POST /ask stream=1)"]
+        Stream --> Pacer["Word-Boundary Streaming Pacer<br/>(~50 words/sec)"]
+        Pacer --> Card["MarginCard Component<br/>(Movable, 2D Resizable)"]
+        Card --> Physics["Direct-DOM rAF Physics (60/120fps)<br/>(Drag, Resize, Clamping)"]
+        Physics --> Leader["Live SVG Leader Line<br/>(updateLeaderLineDOM)"]
+        Card --> Dedupe["Cross-Turn Figure Deduplication<br/>(Collapsible Toggle)"]
+        Card --> Mini["Minimized 26px Node Pills<br/>(One-Click Dismiss)"]
+        Card --> Jump["520ms Cubic-Bezier Citation Jump<br/>(mark.cite-mark & Return Banner)"]
+    end
+```
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Reader as Reader / UI
+    participant Web as web/ (Next.js)
+    participant Srv as server.py (Engine)
+    participant Intent as intent.py
+    participant Pre as preprocess.py
+    participant Ret as retrieve.py & keywords.py
+    participant Fuse as fusion.py (RRF)
+    participant Ans as answer.py
+    participant Ollama as Ollama (nekohon_x3)
+    participant Figs as figures.py
+
+    Reader->>Web: Select text or type query
+    Web->>Srv: POST /ask {question, selection, mode, stream=1}
+    Srv->>Intent: Classify selection (< 1ms)
+    Intent-->>Srv: Intent class + enclosing subject / passing mention
+    Srv->>Pre: Alphanumeric tokenization (preserve S3, 3NF, DDR5)
+    Pre->>Ret: Query vector (_EMBED_CACHE check) + rare postings
+    Ret->>Fuse: Dense candidates (768d) + Top 20% dense safety band + lexical candidates
+    Fuse->>Fuse: Reciprocal Rank Fusion (K = 60)
+    Fuse-->>Ans: Top-5 fused passages
+    Ans->>Ollama: ChatML prompt with passages + question
+    Ollama-->>Ans: Generated token stream
+    Ans->>Ans: Validate _is_coherent_gloss & bidirectional quote alignment
+    Ans->>Figs: Attach scoped figure if explicitly referenced
+    Ans-->>Srv: Validated [Ch. N] citation, gloss, figures
+    Srv-->>Web: NDJSON streaming frames (token, reset, final)
+    Web->>Web: Word-boundary pacer (~50 words/s) & updateLeaderLineDOM (SVG curve)
+    Reader->>Web: Click citation chip [Ch. N]
+    Web->>Reader: 520ms cubic-bezier jump to cite-mark + return banner
+```
+
 ## What it calls (the engine contract)
 
 | Call | Used for |

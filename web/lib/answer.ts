@@ -88,7 +88,10 @@ export function splitAnswer(body: AnswerBody): AnswerSplit {
     items.push({
       kind: "quote",
       citation: match.citation,
-      text: text.slice(match.start, match.end),
+      text: text
+        .slice(match.start, match.end)
+        .replace(/^["'“”‘’]+|["'“”‘’]+$/g, "")
+        .trim(),
     });
   });
   items.push(...disclosures);

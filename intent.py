@@ -252,12 +252,38 @@ def analyze_intent(selection: str, heading: str = "", chunk: dict = None, neighb
             matched = [s for s in cands if selection.strip().lower() in s.lower()]
             anchor_sentence = matched[0] if matched else selection.strip()
 
+    is_passing_mention = False
+    if chunk and intent_type == INTENT_CONCEPT_TERM:
+        head_str = (heading or (chunk.get("heading") if chunk else "") or "").strip()
+        sel_str = (selection or "").strip()
+        is_heading_match = bool(
+            head_str and (sel_str.lower() in head_str.lower() or head_str.lower() in sel_str.lower())
+        )
+        is_defined_in_sentence = False
+        if anchor_sentence:
+            c_low = (core_concept or sel_str).strip().lower()
+            a_low = anchor_sentence.lower()
+            def_pred_pat = (
+                r"\b" + re.escape(c_low)
+                + r"(?:s|\b)?(?:\s+\([^)]+\))?\s+(?:is|are|refers to|means|defined as|takes|allows|consists of)\b"
+            )
+            if re.search(def_pred_pat, a_low):
+                is_defined_in_sentence = True
+            else:
+                clean_a = INTRO_ADVERBIAL_RE.sub("", anchor_sentence).strip()
+                clean_a = re.sub(r"^(?:the|a|an)\s+", "", clean_a, flags=re.I).strip()
+                if clean_a.lower().startswith(c_low):
+                    if re.search(r"^(?:" + re.escape(c_low) + r")(?:s|\b)?\s+(?:is|are|was|were|refers|means|defines|defined|takes|allows|consists)\b", clean_a.lower()):
+                        is_defined_in_sentence = True
+        is_passing_mention = bool(not is_heading_match and head_str and not is_defined_in_sentence)
+
     return {
         "intent_type": intent_type,
         "core_concept": core_concept,
         "subject": subject,
         "anchor_sentence": anchor_sentence,
         "chosen_chunk": chosen_chunk,
+        "is_passing_mention": is_passing_mention,
     }
 
 
@@ -276,6 +302,53 @@ def _is_redundant_followup(cand_q: str, clean_q: str, clean_sel: str = "") -> bo
         return False
     overlap = len(c_stems & q_stems) / len(c_stems)
     return overlap >= 0.6
+
+
+def _is_example_or_tool_mention(term: str, text: str) -> bool:
+    """True if term appears in a sentence with example, tool, platform, or vendor cues."""
+    if not term or not text:
+        return False
+    t_low = term.lower()
+    EXAMPLE_TOOL_CUES = (
+        "for example", "for instance", "such as", "like ", "example",
+        "vendors", "products", "platforms", "platform", "upload", "push",
+        "calculate", "using", "destination", "tool", "tools",
+    )
+    sents = split_sentences(text)
+    for idx, s in enumerate(sents):
+        s_low = s.lower()
+        if t_low in s_low:
+            if any(cue in s_low for cue in EXAMPLE_TOOL_CUES):
+                return True
+            for adj_idx in (idx - 1, idx + 1):
+                if 0 <= adj_idx < len(sents):
+                    adj_low = sents[adj_idx].lower()
+                    if any(cue in adj_low for cue in ("for example", "for instance", "such as", "everyday use case", "use case", "example")):
+                        return True
+    return False
+
+
+def _has_contrast_in_passage(term: str, text: str) -> bool:
+    """True if term appears in a sentence (or adjacent sentence) containing contrast markers."""
+    if not term or not text:
+        return False
+    t_low = term.lower()
+    CONTRAST_MARKERS = (
+        "versus", "vs.", "vs", "unlike", "differ", "difference",
+        "in contrast", "compared to", "rather than", "instead of",
+    )
+    sents = split_sentences(text)
+    for idx, s in enumerate(sents):
+        s_low = s.lower()
+        if t_low in s_low:
+            if any(m in s_low for m in CONTRAST_MARKERS):
+                return True
+            for adj_idx in (idx - 1, idx + 1):
+                if 0 <= adj_idx < len(sents):
+                    adj_low = sents[adj_idx].lower()
+                    if any(m in adj_low for m in CONTRAST_MARKERS):
+                        return True
+    return False
 
 
 def compute_dynamic_followups(
@@ -408,6 +481,7 @@ def compute_dynamic_followups(
     DROP_OPENERS = frozenset({
         "in", "on", "at", "for", "to", "with", "by", "the", "a", "an", "this",
         "that", "these", "those", "we", "our", "you", "here", "as", "such",
+        "unlike", "against", "between",
     })
     for t in raw_terms:
         t_clean = re.sub(r"\s+", " ", t).strip(" \t\r\n—–-,:;\"'“”()[]")
@@ -416,7 +490,7 @@ def compute_dynamic_followups(
             continue
         if t_words and t_words[0].lower() in DISCARD_OPENERS:
             continue
-        if t_words and t_words[0].lower() in DROP_OPENERS and len(t_words) > 1:
+        while t_words and t_words[0].lower() in DROP_OPENERS and len(t_words) > 1:
             t_clean = re.sub(r"\s+", " ", " ".join(t_words[1:])).strip(" \t\r\n—–-,:;\"'“”()[]")
             t_words = t_clean.split()
         if not t_clean or len(t_clean) < 2:
@@ -455,8 +529,25 @@ def compute_dynamic_followups(
         slot1 = "What are the key characteristics?"
     elif re.search(r"\b(several\s+ways|ways\s+to)\b", lead_low) and "way" not in clean_q.lower():
         slot1 = "What are the specific ways?"
+    elif "antipattern" in chunk_low and "antipattern" not in exclude_text:
+        slot1 = "Why was this viewed as an antipattern?"
+    elif "overlap" in chunk_low and "overlap" not in exclude_text:
+        slot1 = "What fields overlap here?"
+    elif ("manual" in chunk_low or "primitive" in chunk_low) and "manual" not in exclude_text and "primitive" not in exclude_text:
+        slot1 = "What manual process does this replace?"
     else:
         for t in candidate_terms:
+            if _is_example_or_tool_mention(t, chunk_text):
+                q_cand = f"What is the role of {t}?"
+                if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
+                    slot1 = q_cand
+                    used_term = t
+                    break
+                q_cand = f"How is {t} used here?"
+                if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
+                    slot1 = q_cand
+                    used_term = t
+                    break
             is_plural = (t.endswith("s") and not t.lower().endswith(("ss", "us", "is", "as", "os", "ics"))) or t in ("SSDs", "HDDs", "CPUs", "GPUs", "VMs", "DAGs", "APIs")
             aux = "do" if is_plural else "does"
             q_cand = f"How {aux} {t} relate to this?"
@@ -495,19 +586,38 @@ def compute_dynamic_followups(
         slot2 = "What are the risks or pitfalls?"
     elif any(w in chunk_low for w in ("trade-off", "trade-offs", "tradeoffs")):
         slot2 = "What are the key trade-offs?"
+    elif "antipattern" in chunk_low and "antipattern" not in exclude_text and not slot1.startswith("Why was this viewed"):
+        slot2 = "Why was this viewed as an antipattern?"
+    elif "overlap" in chunk_low and not slot1.startswith("What fields overlap"):
+        slot2 = "What fields overlap here?"
+    elif ("manual" in chunk_low or "primitive" in chunk_low) and not slot1.startswith("What manual process"):
+        slot2 = "What manual process does this replace?"
     else:
         for t2 in candidate_terms:
             if t2 != used_term:
-                q_cand = f"How does this compare to {t2}?"
-                if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
-                    slot2 = q_cand
-                    used_term = t2
-                    break
-                q_cand = f"What is the role of {t2}?"
-                if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
-                    slot2 = q_cand
-                    used_term = t2
-                    break
+                if _has_contrast_in_passage(t2, chunk_text):
+                    q_cand = f"How does this compare to {t2}?"
+                    if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
+                        slot2 = q_cand
+                        used_term = t2
+                        break
+                elif _is_example_or_tool_mention(t2, chunk_text):
+                    q_cand = f"What is the role of {t2}?"
+                    if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
+                        slot2 = q_cand
+                        used_term = t2
+                        break
+                    q_cand = f"How is {t2} used here?"
+                    if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
+                        slot2 = q_cand
+                        used_term = t2
+                        break
+                else:
+                    q_cand = f"What is the role of {t2}?"
+                    if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
+                        slot2 = q_cand
+                        used_term = t2
+                        break
         if not slot2:
             slot2 = "What problem does this solve?"
 
@@ -516,29 +626,40 @@ def compute_dynamic_followups(
     if author_q and author_q.lower() not in (slot1.lower(), slot2.lower()):
         slot3 = author_q
 
+    # Prefer concrete passage-grounded questions if passage has use case or example markers:
+    if not slot3:
+        if "everyday use case" in chunk_low or "use cases" in chunk_low or "use case" in chunk_low:
+            slot3 = "What are the main use cases?"
+        elif any(marker in chunk_low for marker in ("for instance", "for example", "consider", "such as", "examples of")):
+            slot3 = "What example do the authors give?"
+
     if not slot3 and neighbors:
         for n in neighbors:
-            if n and str(n.get("chapter")) == str(chunk.get("chapter")):
-                n_head = (n.get("heading") or "").strip()
-                if n_head and n_head.lower() != chunk_heading.lower() and n_head.lower() not in exclude_text:
-                    clean_next = extract_core_concept(n_head)
-                    if (
-                        clean_next
-                        and len(clean_next) <= 28
-                        and clean_next.lower() not in STRUCTURAL_HEADINGS
-                        and not _is_redundant_followup(clean_next, clean_q, clean_sel)
-                    ):
-                        is_plural = clean_next.endswith("s") and not clean_next.lower().endswith(("ss", "us", "is", "as", "os", "ics"))
-                        q_cand = f"What is {clean_next}?" if not is_plural else f"What are {clean_next}?"
-                        if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
-                            slot3 = q_cand
-                            break
+            if not n or str(n.get("chapter")) != str(chunk.get("chapter")):
+                continue
+            # Forward neighbor check: only inspect n if it is forward of chunk
+            cid_n = str(n.get("chunk_id", ""))
+            cid_cur = str(chunk.get("chunk_id", ""))
+            if cid_n and cid_cur and cid_n <= cid_cur:
+                continue
+            n_head = (n.get("heading") or "").strip()
+            if n_head and n_head.lower() != chunk_heading.lower() and n_head.lower() not in exclude_text:
+                clean_next = extract_core_concept(n_head)
+                if (
+                    clean_next
+                    and len(clean_next) <= 28
+                    and clean_next.lower() not in STRUCTURAL_HEADINGS
+                    and clean_next.lower() not in chunk_low
+                    and not _is_redundant_followup(clean_next, clean_q, clean_sel)
+                ):
+                    is_plural = clean_next.endswith("s") and not clean_next.lower().endswith(("ss", "us", "is", "as", "os", "ics"))
+                    q_cand = f"What is {clean_next}?" if not is_plural else f"What are {clean_next}?"
+                    if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
+                        slot3 = q_cand
+                        break
 
     if not slot3:
-        if any(marker in chunk_low for marker in ("for instance", "for example", "consider", "such as", "examples of")):
-            slot3 = "What example do the authors give?"
-        else:
-            slot3 = "Explain this in simpler words"
+        slot3 = "Explain this in simpler words"
 
     # Assemble, deduplicate, and enforce <= 42 chars
     followups = []

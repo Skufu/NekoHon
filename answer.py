@@ -25,7 +25,7 @@ import urllib.request
 
 from canonical import STEM_WORDS, canonical_query, is_deictic_question, is_incomplete_stem
 from captions import caption_seed
-from figures import figures_for
+from figures import cited_numbers, figures_for, number_from_id
 from fusion import fuse
 from intent import (
     INTENT_AUTHOR_QUESTION,
@@ -915,6 +915,12 @@ CANONICAL_ACRONYMS = {
     "pii": "PII", "gdpr": "GDPR", "hipaa": "HIPAA", "ccpa": "CCPA",
     "roi": "ROI", "tco": "TCO", "capex": "CapEx", "opex": "OpEx",
     "cicd": "CI/CD", "ci/cd": "CI/CD", "sdk": "SDK", "cli": "CLI",
+    "ml": "ML", "ai": "AI", "bi": "BI", "crm": "CRM", "crms": "CRMs", "cdp": "CDP", "cdps": "CDPs",
+    "erp": "ERP", "erps": "ERPs", "saas": "SaaS", "paas": "PaaS", "iaas": "IaaS",
+    "dbms": "DBMS", "rdbms": "RDBMS", "mpp": "MPP", "eda": "EDA",
+    "mlops": "MLOps", "dataops": "DataOps", "finops": "FinOps", "devops": "DevOps",
+    "llvm": "LLVM", "ssa": "SSA", "bwa": "BWA", "fastq": "FASTQ", "crispr": "CRISPR",
+    "rna": "RNA", "dna": "DNA",
 }
 
 _CANONICAL_ACRONYM_MAP = {k: v for k, v in CANONICAL_ACRONYMS.items() if v}
@@ -935,6 +941,97 @@ def fix_acronym_casing(text: str) -> str:
         return _CANONICAL_ACRONYM_MAP.get(raw, m.group(0))
 
     return _ACRONYM_PATTERN.sub(_sub, text)
+
+
+def _extract_query_entities(q: str, heading: str = "") -> list[str]:
+    """Extract specific multi-word entities, acronyms, or non-framing proper nouns from query."""
+    if not q:
+        return []
+    normalized_q = fix_acronym_casing(q)
+    entities = []
+    QUESTION_STARTERS = frozenset({
+        "what", "why", "how", "when", "where", "who", "which",
+        "is", "are", "was", "were", "do", "does", "did",
+        "can", "could", "should", "would", "will", "explain",
+        "describe", "define", "chapter", "section", "figure",
+        "regarding", "about", "compare", "contrast", "differentiate",
+        "distinguish", "versus", "vs",
+    })
+    # 1. Multi-word capitalized phrases: "Google Ads", "Microsoft Excel"
+    for m in re.finditer(r"\b([A-Z][a-zA-Z0-9]+(?:\s+[A-Z][a-zA-Z0-9]+)+)\b", normalized_q):
+        val = m.group(1).strip()
+        parts = val.split()
+        while parts and parts[0].lower() in QUESTION_STARTERS:
+            parts = parts[1:]
+        if len(parts) >= 2:
+            val = " ".join(parts)
+            if val.lower() not in STOPWORDS:
+                entities.append(val)
+        elif len(parts) == 1 and parts[0].lower() not in STOPWORDS and parts[0].lower() not in QUESTION_STARTERS:
+            entities.append(parts[0])
+    # 2. Acronyms (e.g. ML, ETL, CRM, CDP, API)
+    for m in re.finditer(r"\b([A-Z]{2,10}s?)\b", normalized_q):
+        val = m.group(1).strip()
+        if val.lower() not in STOPWORDS and val not in entities:
+            entities.append(val)
+    # 3. Capitalized single words or technical terms (not starters/stopwords)
+    words_list = normalized_q.split()
+    for w in words_list:
+        w_clean = re.sub(r"^[^\w]+|[^\w]+$", "", w)
+        if (
+            w_clean
+            and w_clean[0].isupper()
+            and w_clean.lower() not in STOPWORDS
+            and w_clean.lower() not in FRAMING_WORDS
+            and w_clean.lower() not in QUESTION_STARTERS
+        ):
+            if not any(w_clean in ent for ent in entities):
+                entities.append(w_clean)
+    # Filter out entities that are completely inside heading
+    head_low = heading.lower() if heading else ""
+    return [e for e in entities if not head_low or e.lower() not in head_low]
+
+
+def _should_include_chunk_figures(chunk, selection, quote, all_figures):
+    """Determine whether a chunk's figures should attach to an explain selection."""
+    if not chunk:
+        return False
+    # 1) cited_numbers(quote) is non-empty
+    if cited_numbers(quote):
+        return True
+    # 2) selection in heading or heading in selection
+    heading = (chunk.get("heading") or "").strip().lower()
+    sel_low = (selection or "").strip().lower()
+    if heading and sel_low and (sel_low in heading or heading in sel_low):
+        return True
+    # 3) Any figure in chunk has a caption sharing content words with selection or quote
+    chunk_fig_nums = cited_numbers(chunk.get("text") or "")
+    if chunk_fig_nums and all_figures:
+        sel_quote_words = {
+            w.lower() for w in words(f"{selection} {quote}")
+            if len(w) >= 3 and w.lower() not in STOPWORDS
+        }
+        for fig in all_figures:
+            num = number_from_id(fig.get("id"))
+            if num and num in chunk_fig_nums:
+                caption = fig.get("caption") or ""
+                cap_words = {
+                    w.lower() for w in words(caption)
+                    if len(w) >= 3 and w.lower() not in STOPWORDS
+                }
+                if sel_quote_words & cap_words:
+                    return True
+    return False
+
+
+def _has_content_word_overlap(s1: str, s2: str, exclude: str = "") -> bool:
+    """True if s1 and s2 share at least one non-stopword content word outside exclude."""
+    if not s1 or not s2:
+        return False
+    ex_words = {w.lower() for w in words(exclude)} if exclude else set()
+    w1 = {w.lower() for w in words(s1) if len(w) >= 3 and w.lower() not in STOPWORDS and w.lower() not in ex_words}
+    w2 = {w.lower() for w in words(s2) if len(w) >= 3 and w.lower() not in STOPWORDS and w.lower() not in ex_words}
+    return bool(w1 & w2)
 
 
 def _clean_boilerplate_gloss(gloss, selection=""):
@@ -1022,7 +1119,7 @@ def _is_coherent_gloss(gloss: str, quote: str = "", question: str = "") -> bool:
     ):
         return False
     # Prompt leakage non-answers:
-    if re.search(r"\b(?:do\s+not|don't|never)\s+(?:say|use|repeat|mention|start\s+with|include|write|output)\b", text, re.IGNORECASE):
+    if not text.lower().startswith("the passages do not mention") and re.search(r"\b(?:do\s+not|don't|never)\s+(?:say|use|repeat|mention|start\s+with|include|write|output)\b", text, re.IGNORECASE):
         return False
     # List enumeration questions check
     if question and _list_ask(question, question):
@@ -1364,19 +1461,22 @@ def parse_completion(completion, passages, figures=None, anchors=None, question=
     # Fully-covered comparison alignment: if query compares two concepts, cite the passage
     # and sentence mentioning both sides when present.
     sides = _comparison_sides(question)
-    if sides and len(passages) >= 2:
-        tokens_left = _side_tokens(sides[0])
-        tokens_right = _side_tokens(sides[1])
-        if tokens_left and tokens_right:
+    if sides and len(passages) >= 1:
+        PRONOUNS = frozenset({"this", "it", "that", "they", "these", "those"})
+        left_is_pronoun = sides[0].lower() in PRONOUNS
+        right_is_pronoun = sides[1].lower() in PRONOUNS
+        tokens_left = [] if left_is_pronoun else _side_tokens(sides[0])
+        tokens_right = [] if right_is_pronoun else _side_tokens(sides[1])
+        if (tokens_left or left_is_pronoun) and (tokens_right or right_is_pronoun):
             dual_hit = None
             dual_sentence = None
             best_contrast_score = -1
             for p in passages:
                 p_text = p.get("text") or ""
                 p_low = p_text.lower()
-                hl = all(re.search(rf"\b{re.escape(stem(t))}\w*\b", p_low) for t in tokens_left)
-                hr = all(re.search(rf"\b{re.escape(stem(t))}\w*\b", p_low) for t in tokens_right)
-                if hl and hr:
+                hl = True if left_is_pronoun else all(re.search(rf"\b{re.escape(stem(t))}\w*\b", p_low) for t in tokens_left)
+                hr = True if right_is_pronoun else all(re.search(rf"\b{re.escape(stem(t))}\w*\b", p_low) for t in tokens_right)
+                if hl and hr and (not left_is_pronoun or hr) and (not right_is_pronoun or hl):
                     c_score = 1
                     for marker in ("unlike", "versus", "vs.", "vs", "difference between", "differ from", "differ", "compared to", "in contrast"):
                         if marker in p_low:
@@ -1386,13 +1486,24 @@ def parse_completion(completion, passages, figures=None, anchors=None, question=
                         c_score -= 10
                     if c_score > best_contrast_score:
                         s_best = None
-                        for s in _sentences(p_text):
+                        sents = _candidate_sentences(p_text, p.get("heading") or "")
+                        for i, s in enumerate(sents):
                             s_low = s.lower()
-                            in_left = any(re.search(rf"\b{re.escape(stem(t))}\w*\b", s_low) for t in tokens_left)
-                            in_right = any(re.search(rf"\b{re.escape(stem(t))}\w*\b", s_low) for t in tokens_right)
+                            in_left = True if left_is_pronoun else any(re.search(rf"\b{re.escape(stem(t))}\w*\b", s_low) for t in tokens_left)
+                            in_right = True if right_is_pronoun else any(re.search(rf"\b{re.escape(stem(t))}\w*\b", s_low) for t in tokens_right)
                             if in_left and in_right:
                                 if len(s) >= SPAN_MIN_CHARS:
-                                    s_best = _without_heading(s, p)
+                                    s_cand = _without_heading(s, p)
+                                    if len(s_cand) < 100:
+                                        if i > 0:
+                                            prev_s = _without_heading(sents[i - 1], p)
+                                            if len(prev_s) + 1 + len(s_cand) <= PARAGRAPH_CAP and _quote_in_passage(f"{prev_s} {s_cand}", p_text):
+                                                s_cand = f"{prev_s} {s_cand}"
+                                        elif i + 1 < len(sents):
+                                            next_s = _without_heading(sents[i + 1], p)
+                                            if len(s_cand) + 1 + len(next_s) <= PARAGRAPH_CAP and _quote_in_passage(f"{s_cand} {next_s}", p_text):
+                                                s_cand = f"{s_cand} {next_s}"
+                                    s_best = s_cand
                                     break
                             elif (in_left or in_right) and any(m in s_low for m in ("unlike", "difference", "versus", "differ")):
                                 if len(s) >= SPAN_MIN_CHARS and not s_best:
@@ -1405,8 +1516,8 @@ def parse_completion(completion, passages, figures=None, anchors=None, question=
                             dual_sentence = s_best
             if dual_hit and dual_sentence:
                 cur_quote = citations[0]["quote"].lower() if citations else ""
-                cur_has_left = any(re.search(rf"\b{re.escape(stem(t))}\w*\b", cur_quote) for t in tokens_left)
-                cur_has_right = any(re.search(rf"\b{re.escape(stem(t))}\w*\b", cur_quote) for t in tokens_right)
+                cur_has_left = True if left_is_pronoun else any(re.search(rf"\b{re.escape(stem(t))}\w*\b", cur_quote) for t in tokens_left)
+                cur_has_right = True if right_is_pronoun else any(re.search(rf"\b{re.escape(stem(t))}\w*\b", cur_quote) for t in tokens_right)
                 if not (cur_has_left and cur_has_right) or dual_hit["chunk_id"] != citations[0]["chunk_id"]:
                     citations = [{
                         "chunk_id": dual_hit["chunk_id"],
@@ -1517,6 +1628,55 @@ def _align_citation_to_query_concepts(body, question, passages):
                                 "figures": figures_for([p], body.get("figures") or []),
                                 "refused": False,
                             }
+
+    cur_hit = next((p for p in passages if p.get("chunk_id") == cur_chunk_id), passages[0] if passages else None)
+    cur_quote = citations[0].get("quote", "")
+    target_entities = _extract_query_entities(question, (cur_hit.get("heading") or "") if cur_hit else "")
+
+    if target_entities:
+        for ent in target_entities:
+            ent_low = ent.lower()
+            if ent_low not in cur_quote.lower():
+                search_pool = [cur_hit] if cur_hit else []
+                for p in passages:
+                    if p not in search_pool:
+                        search_pool.append(p)
+                found_match = None
+                for hit in search_pool:
+                    h_text = hit.get("text") or ""
+                    if ent_low in h_text.lower():
+                        sents = _candidate_sentences(h_text, hit.get("heading") or "")
+                        for i, s in enumerate(sents):
+                            s_clean = _without_heading(s, hit)
+                            if ent_low in s_clean.lower() and len(s_clean) >= SPAN_MIN_CHARS:
+                                cand_span = s_clean
+                                if len(cand_span) < 100:
+                                    if i > 0:
+                                        prev_s = _without_heading(sents[i - 1], hit)
+                                        if len(prev_s) + 1 + len(cand_span) <= PARAGRAPH_CAP and _quote_in_passage(f"{prev_s} {cand_span}", h_text):
+                                            cand_span = f"{prev_s} {cand_span}"
+                                    elif i + 1 < len(sents):
+                                        next_s = _without_heading(sents[i + 1], hit)
+                                        if len(cand_span) + 1 + len(next_s) <= PARAGRAPH_CAP and _quote_in_passage(f"{cand_span} {next_s}", h_text):
+                                            cand_span = f"{cand_span} {next_s}"
+                                found_match = (hit, cand_span)
+                                break
+                    if found_match:
+                        break
+                if found_match:
+                    hit_match, span_match = found_match
+                    citations[0]["quote"] = span_match
+                    citations[0]["chunk_id"] = hit_match["chunk_id"]
+                    citations[0]["chapter"] = str(hit_match["chapter"])
+                    lines = (body.get("answer") or "").splitlines()
+                    new_first = f'[Ch. {citations[0]["chapter"]}] "{span_match}"'
+                    if lines:
+                        lines[0] = new_first
+                        body["answer"] = "\n".join(lines)
+                    else:
+                        body["answer"] = new_first
+                    cur_quote = span_match
+                    break
 
     tokens = re.findall(r"\b[a-zA-Z0-9_-]+\b", question.lower())
     phrases = []
@@ -2049,7 +2209,10 @@ def _synthesize_grounded_gloss(selection, quote, pin_chunk_obj, neighbors, gener
     subject = intent_info.get("subject") or (extract_enclosing_subject(quote, selection) if quote else "")
 
     if intent_type == INTENT_CONCEPT_TERM:
-        q_synth = f"What is {core_concept}?"
+        if intent_info.get("is_passing_mention"):
+            q_synth = f"How does {core_concept} relate to {heading or 'this topic'} based strictly on this passage?"
+        else:
+            q_synth = f"What is {core_concept}?"
     elif intent_type == INTENT_VAGUE_FRAGMENT:
         q_synth = f"Why is {subject} described as {selection}?" if subject else f"What does {selection} mean?"
     elif intent_type == INTENT_MULTI_SENTENCE:
@@ -2072,7 +2235,10 @@ def _synthesize_grounded_gloss(selection, quote, pin_chunk_obj, neighbors, gener
                     if ln.startswith("[Ch.") or ln.startswith('"') or ln.startswith("“"):
                         continue
                     cleaned_cand = _clean_boilerplate_gloss(ln, selection)
-                    if _is_coherent_gloss(cleaned_cand, quote):
+                    if _is_coherent_gloss(cleaned_cand, quote) and (
+                        not intent_info.get("is_passing_mention")
+                        or _has_content_word_overlap(cleaned_cand, quote, exclude=selection)
+                    ):
                         return fix_acronym_casing(cleaned_cand)
         except Exception:
             pass
@@ -2089,6 +2255,12 @@ def _synthesize_grounded_gloss(selection, quote, pin_chunk_obj, neighbors, gener
         return fix_acronym_casing(f"The highlighted phrase characterizes the approach described in this sentence: {quote[:100]}.")
 
     if intent_type == INTENT_CONCEPT_TERM:
+        if intent_info.get("is_passing_mention"):
+            q_clean = quote.strip().rstrip(".?!") if quote else ""
+            if q_clean:
+                lead = (q_clean[0].lower() + q_clean[1:]) if (len(q_clean) > 1 and not q_clean[1].isupper()) else q_clean
+                return fix_acronym_casing(f"In {heading or 'this section'}, {core_concept} connects to this topic—{lead}.")
+            return fix_acronym_casing(f"{core_concept} relates to {heading or 'this topic'} as described in this section.")
         substantive = []
         for cand_c in context_passages:
             if not cand_c:
@@ -2144,6 +2316,7 @@ def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_
         w.lower() for w in words(q_low)
         if w.lower() not in STOPWORDS and w.lower() not in FRAMING_WORDS and len(w) >= 3
     ]
+    query_entities = _extract_query_entities(followup_question, chunk_obj.get("heading", ""))
 
     norm_prior = re.sub(r"[\s\"'“”]+", " ", prior_quote or "").strip().lower()
 
@@ -2201,19 +2374,37 @@ def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_
                 if t in s_low:
                     score += 5
 
+            # E) Exact matches of specific query entities / proper nouns (+30 per entity word)
+            if query_entities:
+                for ent in query_entities:
+                    if ent.lower() in s_low:
+                        score += 30 * len(ent.split())
+
             # Bias towards primary chunk
             if c == chunk_obj:
                 score += 2
 
             if score > 0:
                 # Check for 2-sentence combination if first sentence is short (e.g. "First, ...")
+                # or continuation (e.g. "Advertising platforms are another...")
                 adv_quote = s_clean
-                if s_low.startswith(("first,", "second,")) and i + 1 < len(sents):
-                    next_s = sents[i + 1].strip()
-                    if len(next_s) >= 20 and not next_s.lower().startswith(("second,", "third,", "finally,")):
-                        combined = f"{s_clean} {next_s}"
-                        if len(combined) <= 250 and _quote_in_passage(combined, c_text):
-                            adv_quote = combined
+                is_short_or_continuation = (
+                    s_low.startswith(("first,", "second,", "for example", "for instance", "advertising platforms are another"))
+                    or len(s_clean) < 100
+                )
+                if is_short_or_continuation:
+                    if i + 1 < len(sents):
+                        next_s = sents[i + 1].strip()
+                        if len(next_s) >= 20 and not next_s.lower().startswith(("second,", "third,", "finally,")):
+                            combined = f"{s_clean} {next_s}"
+                            if len(combined) <= PARAGRAPH_CAP and _quote_in_passage(combined, c_text):
+                                adv_quote = combined
+                    elif i > 0:
+                        prev_s = sents[i - 1].strip()
+                        if len(prev_s) >= 20:
+                            combined = f"{prev_s} {s_clean}"
+                            if len(combined) <= PARAGRAPH_CAP and _quote_in_passage(combined, c_text):
+                                adv_quote = combined
                 scored_cands.append((score, -i, adv_quote, c))
 
     if not scored_cands:
@@ -2302,7 +2493,7 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
 
     first_cite = body["citations"][0]
     quote = first_cite.get("quote") or ""
-    if not quote:
+    if not quote or "The passages do not mention" in (body.get("answer") or ""):
         return body
 
     ans = (body.get("answer") or "").strip()
@@ -2330,6 +2521,15 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
         if isinstance(h, dict) and (h.get("question") or h.get("answer"))
     ]
 
+    target_entities = _extract_query_entities(question, heading or chunk_obj.get("heading", "")) if clean_history else []
+    quote_missing_query_entity = bool(
+        clean_history
+        and target_entities
+        and not any(ent.lower() in quote.lower() for ent in target_entities)
+        and any(ent.lower() in (chunk_obj.get("text", "")).lower() for ent in target_entities)
+    )
+    gloss_missing_query_entity = bool(target_entities and gloss_line and not any(ent.lower() in gloss_line.lower() for ent in target_entities))
+
     new_gloss = ""
     topic_shift = _is_topic_shift_followup(question, history, selection)
 
@@ -2347,8 +2547,8 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
                 or (len(norm_prior) >= 40 and norm_prior in norm_curr)
             )
         )
-        if quote_repeated:
-            adv_quote = _advance_followup_quote(chunk_obj, neighbors, prior_quote, question)
+        if quote_repeated or quote_missing_query_entity:
+            adv_quote = _advance_followup_quote(chunk_obj, neighbors, prior_quote if quote_repeated else "", question)
             if adv_quote and adv_quote != quote:
                 adv_chunk = chunk_obj
                 if not _quote_in_passage(adv_quote, chunk_obj.get("text", "")):
@@ -2361,9 +2561,12 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
                 first_cite["chunk_id"] = adv_chunk.get("chunk_id")
                 first_cite["chapter"] = str(adv_chunk.get("chapter", first_cite.get("chapter", "")))
                 first_line = f'[Ch. {first_cite["chapter"]}] "{quote}"'
+                quote_missing_query_entity = bool(target_entities and not any(ent.lower() in quote.lower() for ent in target_entities))
 
         need_followup_gloss = (
             quote_repeated
+            or quote_missing_query_entity
+            or gloss_missing_query_entity
             or not gloss_line
             or _gloss_repeats_quote(gloss_line, quote)
             or not _is_coherent_gloss(gloss_line, quote, question=question)
@@ -2391,6 +2594,16 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
                          if s != quote and len(s) >= 40 and not META_TRANSITION_RE.search(s) and _is_coherent_gloss(s, quote, question=question)]
                 if cands:
                     new_gloss = cands[0]
+            if target_entities and any(ent.lower() in quote.lower() for ent in target_entities) and not any(ent.lower() in (new_gloss or "").lower() for ent in target_entities):
+                sents = split_sentences(quote)
+                matching_s = next((s for s in sents if any(ent.lower() in s.lower() for ent in target_entities)), quote)
+                matching_s = re.sub(r"^(?:for example|for instance|in addition|specifically),?\s*", "", matching_s, flags=re.I).strip()
+                ent_name = target_entities[0]
+                sec_heading = heading or chunk_obj.get("heading", "")
+                if sec_heading:
+                    new_gloss = fix_acronym_casing(f"In {sec_heading}, {ent_name} connects to this topic: {matching_s}")
+                else:
+                    new_gloss = fix_acronym_casing(f"{ent_name} connects to this topic: {matching_s}")
 
     elif selection:
         clean_sel = _clean_selection_text(selection)
@@ -2680,7 +2893,7 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
     if context["reading"] is not None and not body["refused"]:
         body["answer"] = f'{body["answer"]}\nRead as: "{context["asked"]}"'
 
-    if not body.get("refused"):
+    if not body.get("refused") and not simple_words(asked_form):
         body = _ensure_answer_gloss(
             index, body, resolved_question, passages, is_live=is_live,
             history=history, selection=selection, heading=heading, model=model,
@@ -3094,7 +3307,7 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
     if context["reading"] is not None and not body["refused"]:
         body["answer"] = f'{body["answer"]}\nRead as: "{context["asked"]}"'
 
-    if not body.get("refused"):
+    if not body.get("refused") and not simple_words(asked_form):
         body = _ensure_answer_gloss(
             index, body, resolved_question, passages, is_live=is_live,
             history=history, selection=selection, heading=heading, model=model,
@@ -3492,7 +3705,8 @@ def _anchor_sentence_for_selection(chunk, selection):
 
 def _explain_gloss_user_message(selection, quote, pin_chunk, neighbors=None):
     heading = (pin_chunk.get("heading") or "") if pin_chunk else ""
-    intent_type = classify_intent(selection, heading, pin_chunk)
+    intent_info = analyze_intent(selection, heading, pin_chunk, neighbors) if pin_chunk else {}
+    intent_type = intent_info.get("intent_type") or classify_intent(selection, heading, pin_chunk)
 
     if intent_type == INTENT_MULTI_SENTENCE:
         parts = [
@@ -3506,7 +3720,20 @@ def _explain_gloss_user_message(selection, quote, pin_chunk, neighbors=None):
         return "\n\n".join(parts)
 
     if intent_type == INTENT_CONCEPT_TERM:
-        core_concept = extract_core_concept(selection, heading)
+        core_concept = intent_info.get("core_concept") or extract_core_concept(selection, heading)
+        if intent_info.get("is_passing_mention"):
+            parts = [
+                f"Core concept: {core_concept}",
+                f"Sentence mentioning concept: {quote}",
+            ]
+            if heading:
+                parts.append(f"Section heading: {heading}")
+            if pin_chunk and pin_chunk.get("text"):
+                parts.append(f"Section context:\n{pin_chunk['text']}")
+            parts.append(
+                f"Explain in 1 to 2 plain, direct sentences how '{core_concept}' relates to {heading or 'this topic'} and what the cited sentence says about it based strictly on this passage."
+            )
+            return "\n\n".join(parts)
         parts = [
             f"Core concept to define: {core_concept}",
             f"Sentence mentioning concept: {quote}",
@@ -3683,7 +3910,10 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
             cleaned_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", cleaned_gloss).strip()
             cleaned_gloss = cleaned_gloss.strip("\"'“”")
             cleaned_gloss = _clean_boilerplate_gloss(cleaned_gloss, selection)
-            if not _is_coherent_gloss(cleaned_gloss, quote_for_prompt):
+            if not _is_coherent_gloss(cleaned_gloss, quote_for_prompt) or (
+                intent_info.get("is_passing_mention")
+                and not _has_content_word_overlap(cleaned_gloss, quote_for_prompt, exclude=selection)
+            ):
                 cleaned_gloss = _synthesize_grounded_gloss(selection, quote_for_prompt, chosen_chunk, neighbors, generate_fn, model)
 
             chapter = str(chosen_chunk.get("chapter", ""))
@@ -3705,9 +3935,12 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
             else:
                 answer_text = f'[Ch. {chapter}] "{quote}"\n{cleaned_gloss}'
 
-            figures_pool = [chosen_chunk]
-            if sec_chunk_obj and quote2:
-                figures_pool.append(sec_chunk_obj)
+            if _should_include_chunk_figures(chosen_chunk, selection, quote, index.get("figures") or []):
+                figures_pool = [chosen_chunk]
+                if sec_chunk_obj and quote2:
+                    figures_pool.append(sec_chunk_obj)
+            else:
+                figures_pool = [{"text": f"{selection} {quote} {quote2 or ''}"}]
             figures = figures_for(figures_pool, index.get("figures") or [])
             return {
                 "answer": answer_text,
@@ -3821,9 +4054,12 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
         else:
             answer_text = f'[Ch. {chapter}] "{quote}"\n{cleaned_gloss}'
 
-        figures_pool = [chosen_chunk]
-        if sec_chunk_obj and quote2:
-            figures_pool.append(sec_chunk_obj)
+        if _should_include_chunk_figures(chosen_chunk, selection, quote, index.get("figures") or []):
+            figures_pool = [chosen_chunk]
+            if sec_chunk_obj and quote2:
+                figures_pool.append(sec_chunk_obj)
+        else:
+            figures_pool = [{"text": f"{selection} {quote} {quote2 or ''}"}]
         figures = figures_for(figures_pool, index.get("figures") or [])
         return {
             "answer": answer_text,

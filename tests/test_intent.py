@@ -13,6 +13,8 @@ from intent import (
     INTENT_CONCEPT_TERM,
     INTENT_MULTI_SENTENCE,
     INTENT_VAGUE_FRAGMENT,
+    _has_contrast_in_passage,
+    _is_example_or_tool_mention,
     analyze_intent,
     classify_intent,
     compute_dynamic_followups,
@@ -459,5 +461,88 @@ class AdvanceFollowupQuoteTests(unittest.TestCase):
             self.assertNotEqual(q.lower(), "what is ingestion?")
 
 
+
+class QueryUnderstandingAndIntentTests(unittest.TestCase):
+    def test_is_example_or_tool_mention(self):
+        text1 = "Reverse ETL pushes transformed data back into operational systems such as Google Ads and Salesforce."
+        self.assertTrue(_is_example_or_tool_mention("Google Ads", text1))
+        self.assertTrue(_is_example_or_tool_mention("Salesforce", text1))
+
+        text2 = "For instance, tools like Snowflake and BigQuery provide auto-scaling compute."
+        self.assertTrue(_is_example_or_tool_mention("Snowflake", text2))
+        self.assertTrue(_is_example_or_tool_mention("BigQuery", text2))
+
+        text3 = "Batch processing runs on a schedule while stream processing handles events continuously."
+        self.assertFalse(_is_example_or_tool_mention("Batch processing", text3))
+        self.assertFalse(_is_example_or_tool_mention("stream processing", text3))
+
+    def test_has_contrast_in_passage(self):
+        self.assertTrue(_has_contrast_in_passage("Paxos", "In contrast to Paxos, Raft uses a strong leader model."))
+        self.assertTrue(_has_contrast_in_passage("ETL", "ETL differs from ELT in when transformations occur."))
+        self.assertTrue(_has_contrast_in_passage("REST", "GraphQL provides flexible schema queries unlike REST endpoints."))
+        self.assertFalse(_has_contrast_in_passage("Google Ads", "Operational systems like Google Ads consume enriched customer data."))
+
+    def test_is_passing_mention_detection(self):
+        chunk = {
+            "chunk_id": "c100",
+            "chapter": "3",
+            "heading": "Reverse ETL Architecture",
+            "text": (
+                "Reverse ETL Architecture\n"
+                "Reverse ETL synchronizes analytical tables into destination applications. "
+                "Data teams use this pattern to supply clean features to ML engineers and operations staff."
+            ),
+        }
+        res_passing = analyze_intent("ML engineers", heading="Reverse ETL Architecture", chunk=chunk)
+        self.assertTrue(res_passing.get("is_passing_mention"))
+
+        res_primary = analyze_intent("Reverse ETL", heading="Reverse ETL Architecture", chunk=chunk)
+        self.assertFalse(res_primary.get("is_passing_mention"))
+
+    def test_slot3_forward_neighbor_only(self):
+        chunk = {
+            "chunk_id": "c005",
+            "chapter": "2",
+            "heading": "Ingestion Patterns",
+            "text": "Ingestion Patterns\nData ingestion moves records into storage.",
+        }
+        prev_neighbor = {
+            "chunk_id": "c004",
+            "chapter": "2",
+            "heading": "Storage Fundamentals",
+            "text": "Storage Fundamentals\nStorage tiers preserve raw bytes.",
+        }
+        next_neighbor = {
+            "chunk_id": "c006",
+            "chapter": "2",
+            "heading": "Transformation Pipelines",
+            "text": "Transformation Pipelines\nTransformations reshape data for consumption.",
+        }
+        followups = compute_dynamic_followups(chunk, neighbors=[prev_neighbor, next_neighbor], mode="explain")
+        # Slot 3 should never ask about the backwards neighbor (Storage Fundamentals)
+        for q in followups:
+            self.assertNotIn("Storage Fundamentals", q)
+        # It should propose the forward neighbor (Transformation Pipelines)
+        self.assertTrue(any("Transformation" in q for q in followups))
+
+    def test_dynamic_followups_gating_contrast_vs_example(self):
+        chunk = {
+            "chunk_id": "c010",
+            "chapter": "4",
+            "heading": "Reverse ETL",
+            "text": (
+                "Reverse ETL\n"
+                "Reverse ETL pipelines copy data from data warehouses to business tools such as Google Ads. "
+                "This enables sales teams to trigger targeted marketing campaigns."
+            ),
+        }
+        followups = compute_dynamic_followups(chunk, neighbors=[], mode="explain")
+        for q in followups:
+            # Must NOT produce 'How does this compare to Google Ads?'
+            self.assertNotIn("How does this compare to Google Ads?", q)
+            self.assertNotIn("compare to Google Ads", q)
+
+
 if __name__ == "__main__":
     unittest.main()
+

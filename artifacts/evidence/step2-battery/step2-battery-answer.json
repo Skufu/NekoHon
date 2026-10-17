@@ -1,7 +1,7 @@
 [
   {
     "question": "What does CRUD stand for?",
-    "seconds": 1.43,
+    "seconds": 1.44,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -18,21 +18,21 @@
       "figures": [],
       "refused": false,
       "followups": [
-        "How does RESTful HTTP relate to this?",
+        "What is the role of RESTful HTTP?",
         "What problem does this solve?",
-        "What is Insert-Only?"
+        "What example do the authors give?"
       ]
     }
   },
   {
     "question": "What is data ingestion?",
-    "seconds": 1.01,
+    "seconds": 0.99,
     "pass": true,
     "notes": [
       "pinned chunk cited"
     ],
     "response": {
-      "answer": "[Ch. 7] \"Data ingestion is the process of moving data from one place to another.\"\nIt\u2019s worth quickly contrasting data ingestion with data integration.",
+      "answer": "[Ch. 7] \"Data ingestion is the process of moving data from one place to another.\"\nData ingestion moves raw records from their source into a storage repository.",
       "citations": [
         {
           "chunk_id": "ch07-002",
@@ -50,7 +50,7 @@
       ],
       "refused": false,
       "followups": [
-        "How does 7-2 relate to this?",
+        "What is Data Pipelines Defined?",
         "What problem does this solve?",
         "What example do the authors give?"
       ]
@@ -82,15 +82,15 @@
       ],
       "refused": false,
       "followups": [
-        "How does 8-8 relate to this?",
-        "How does this compare to types of windows?",
+        "How do types of windows relate to this?",
+        "What problem does this solve?",
         "What example do the authors give?"
       ]
     }
   },
   {
     "question": "When is an insert-only table useful?",
-    "seconds": 0.81,
+    "seconds": 0.84,
     "pass": true,
     "notes": [
       "pinned chunk shown, not cited (cites ['ch08-107'])"
@@ -107,7 +107,7 @@
       "figures": [],
       "refused": false,
       "followups": [
-        "How does Apache Druid relate to this?",
+        "Why was this viewed as an antipattern?",
         "What are the cost trade-offs?",
         "What example do the authors give?"
       ]
@@ -115,7 +115,7 @@
   },
   {
     "question": "Where does storage sit in the data engineering lifecycle?",
-    "seconds": 1.15,
+    "seconds": 1.2,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -140,14 +140,14 @@
       "refused": false,
       "followups": [
         "What are the main stages?",
-        "How does this compare to 6-1?",
-        "Explain this in simpler words"
+        "What problem does this solve?",
+        "What are the main use cases?"
       ]
     }
   },
   {
     "question": "What do source systems provide to the rest of the lifecycle?",
-    "seconds": 0.91,
+    "seconds": 0.92,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -164,15 +164,15 @@
       "figures": [],
       "refused": false,
       "followups": [
-        "What is application database?",
-        "How does this compare to IoT swarms?",
-        "What is Ingestion?"
+        "What is the role of application database?",
+        "What is the role of IoT swarms?",
+        "What example do the authors give?"
       ]
     }
   },
   {
     "question": "How does data architecture relate to enterprise architecture?",
-    "seconds": 0.99,
+    "seconds": 1.0,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -189,15 +189,15 @@
       "figures": [],
       "refused": false,
       "followups": [
+        "How does change management relate to this?",
         "What are the key trade-offs?",
-        "What problem does this solve?",
-        "What example do the authors give?"
+        "Explain this in simpler words"
       ]
     }
   },
   {
     "question": "What is the difference between batch and streaming?",
-    "seconds": 0.98,
+    "seconds": 1.0,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -216,19 +216,19 @@
       "followups": [
         "How does or near real-time relate to this?",
         "What problem does this solve?",
-        "Explain this in simpler words"
+        "What are the main use cases?"
       ]
     }
   },
   {
     "question": "What happens to data after it is extracted in ETL?",
-    "seconds": 0.96,
+    "seconds": 0.9,
     "pass": true,
     "notes": [
       "pinned chunk shown, not cited (cites ['ch08-122'])"
     ],
     "response": {
-      "answer": "[Ch. 8] the passages do not mention reverse etl.\nDerived data must be kept consistent across all reporting scripts to maintain reliability, highlighting the importance of continuous integration and validation in analytical systems.",
+      "answer": "[Ch. 8] the passages do not mention reverse etl.\nIn Business logic and derived data, ETL is used as an example: Is attribution data stored in the guts of ETL scripts, or is it pulled from a table that is automatically generated from ad platform data?",
       "citations": [
         {
           "chunk_id": "ch08-122",
@@ -239,9 +239,9 @@
       "figures": [],
       "refused": false,
       "followups": [
-        "How does Traditional ETL relate to this?",
-        "What problem does this solve?",
-        "What is ETL, ELT, and data pipelines?"
+        "What manual process does this replace?",
+        "What is the role of Traditional ETL?",
+        "What example do the authors give?"
       ]
     }
   },
@@ -272,14 +272,14 @@
   },
   {
     "question": "What does CRU stand for?",
-    "seconds": 1.78,
+    "seconds": 1.76,
     "pass": true,
     "notes": [
       "pinned chunk shown, not cited (cites ['ch05-029'])",
       "phrase not in answer: 'stands for create, read, update, and delete'"
     ],
     "response": {
-      "answer": "[Ch. 5] \"Every type of database handles CRUD operations differently.\"\nDatabases vary in how they handle write conflicts and missing data, impacting query consistency and concurrency.\nRead as: \"What does crud stand for?\"",
+      "answer": "[Ch. 5] \"Every type of database handles CRUD operations differently.\"\nIn Major considerations for understanding database technologies, CRU is used as an example: Every type of database handles CRUD operations differently.\nRead as: \"What does crud stand for?\"",
       "citations": [
         {
           "chunk_id": "ch05-029",
@@ -292,13 +292,13 @@
       "followups": [
         "How does RESTful HTTP relate to this?",
         "What problem does this solve?",
-        "What is CRUD?"
+        "What example do the authors give?"
       ]
     }
   },
   {
     "question": "What happens to data after it is extracted in ET?",
-    "seconds": 1.34,
+    "seconds": 1.39,
     "pass": true,
     "notes": [
       "pinned chunk shown, not cited (cites ['ch08-120'])",
@@ -318,13 +318,13 @@
       "followups": [
         "How does this work in practice?",
         "What are the cost trade-offs?",
-        "Explain this in simpler words"
+        "What are the main use cases?"
       ]
     }
   },
   {
     "question": "what is a atermark?",
-    "seconds": 1.63,
+    "seconds": 1.6,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -348,15 +348,15 @@
       ],
       "refused": false,
       "followups": [
-        "How does 8-8 relate to this?",
-        "How does this compare to types of windows?",
+        "How do types of windows relate to this?",
+        "What problem does this solve?",
         "What example do the authors give?"
       ]
     }
   },
   {
     "question": "what does data engineers need to be pragmatic about",
-    "seconds": 0.83,
+    "seconds": 0.84,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -373,7 +373,7 @@
       "figures": [],
       "refused": false,
       "followups": [
-        "How does Total Cost relate to this?",
+        "How does Total Cost of Ownership work?",
         "What are the cost trade-offs?",
         "Explain this in simpler words"
       ]
@@ -381,7 +381,7 @@
   },
   {
     "question": "Data engineers need to be pragmatic about?",
-    "seconds": 0.8,
+    "seconds": 0.81,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -398,7 +398,7 @@
       "figures": [],
       "refused": false,
       "followups": [
-        "How does Total Cost relate to this?",
+        "How does Total Cost of Ownership work?",
         "What are the cost trade-offs?",
         "Explain this in simpler words"
       ]
@@ -406,7 +406,7 @@
   },
   {
     "question": "MAD data landscape",
-    "seconds": 1.6,
+    "seconds": 1.61,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -423,15 +423,15 @@
       "figures": [],
       "refused": false,
       "followups": [
-        "How does 4-1 relate to this?",
-        "How does this compare to Today Versus?",
-        "What is Data Architecture?"
+        "How does Matt Turck relate to this?",
+        "What problem does this solve?",
+        "What example do the authors give?"
       ]
     }
   },
   {
     "question": "multicloud methodology disadvantages",
-    "seconds": 0.93,
+    "seconds": 0.95,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -448,7 +448,7 @@
       "figures": [],
       "refused": false,
       "followups": [
-        "How does Snowflake relate to this?",
+        "What is the role of Snowflake?",
         "What are the cost trade-offs?",
         "What example do the authors give?"
       ]
@@ -456,7 +456,7 @@
   },
   {
     "question": "what is MAD data landscape",
-    "seconds": 1.65,
+    "seconds": 1.68,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -473,15 +473,15 @@
       "figures": [],
       "refused": false,
       "followups": [
-        "How does 4-1 relate to this?",
-        "How does this compare to Today Versus?",
-        "What is Data Architecture?"
+        "How does Matt Turck relate to this?",
+        "What problem does this solve?",
+        "What example do the authors give?"
       ]
     }
   },
   {
     "question": "what is data mesh",
-    "seconds": 1.25,
+    "seconds": 1.29,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -506,14 +506,14 @@
       "refused": false,
       "followups": [
         "How does Zhamak Dehghani relate to this?",
-        "How does this compare to Data Warehouse?",
-        "What is Data Warehouse?"
+        "What is the role of Bill Inmon?",
+        "What example do the authors give?"
       ]
     }
   },
   {
     "question": "Codd introduced the idea of what",
-    "seconds": 0.99,
+    "seconds": 1.0,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -531,14 +531,14 @@
       "refused": false,
       "followups": [
         "How does DRY relate to this?",
-        "How does this compare to Edgar Codd?",
+        "What is the role of Edgar Codd?",
         "Explain this in simpler words"
       ]
     }
   },
   {
     "question": "what is an endpoint in streaming ingestion",
-    "seconds": 1.25,
+    "seconds": 1.26,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -557,13 +557,13 @@
       "followups": [
         "How does or near real-time relate to this?",
         "What problem does this solve?",
-        "What is Batch versus streaming?"
+        "What example do the authors give?"
       ]
     }
   },
   {
     "question": "What is the capital of France?",
-    "seconds": 0.87,
+    "seconds": 0.82,
     "pass": true,
     "notes": [],
     "response": {

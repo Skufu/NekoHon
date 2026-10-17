@@ -593,11 +593,16 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
     onHeightChange?.();
   };
 
-  const snippet =
-    (gloss.turns[0]?.question && gloss.turns[0].question !== gloss.quote
-      ? gloss.turns[0].question
-      : "") ||
-    (gloss.quote ? `“${gloss.quote}”` : chLabel);
+  const nodeTitle = (() => {
+    if (gloss.kind === "quiz") {
+      return gloss.heading ? `Quiz: ${gloss.heading}` : "Quiz";
+    }
+    if (gloss.quote) {
+      return `“${gloss.quote.replace(/^["'“”‘’]+|["'“”‘’]+$/g, "").trim()}”`;
+    }
+    const latest = gloss.turns[gloss.turns.length - 1];
+    return latest?.question || gloss.turns[0]?.question || chLabel;
+  })();
 
   return (
     <article
@@ -647,8 +652,19 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
       >
         <span className="gloss-node-dot" aria-hidden="true" />
         <span className="gloss-node-badge">{badge}</span>
-        <span className="gloss-node-title">{snippet}</span>
-        <span className="gloss-node-expand" aria-hidden="true">+</span>
+        <span className="gloss-node-title">{nodeTitle}</span>
+        <button
+          type="button"
+          className="gloss-node-close"
+          aria-label="Remove note"
+          title="Remove note"
+          onClick={(e) => {
+            e.stopPropagation();
+            removeGloss(gloss.id);
+          }}
+        >
+          ×
+        </button>
       </div>
 
       {/* Expanded morphable shell */}
@@ -887,6 +903,20 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
                   ? turn.question
                   : (turn.mode === "quiz" ? "Quiz" : "Initial explanation");
 
+              const seenFigureIdsBefore = new Set(
+                gloss.turns
+                  .slice(0, idx)
+                  .flatMap((t) => t.body?.figures?.map((f) => f.id) || [])
+              );
+              const turnBody = turn.body
+                ? {
+                    ...turn.body,
+                    figures: (turn.body.figures || []).filter(
+                      (f) => !seenFigureIdsBefore.has(f.id)
+                    ),
+                  }
+                : null;
+
               return (
                 <div key={turn.id || idx} className="turn-container">
                   {/* Collapsible header pill for earlier turns */}
@@ -1055,10 +1085,10 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
                         </div>
                       )}
 
-                      {turn.mode !== "quiz" && turn.body && (
+                      {turn.mode !== "quiz" && turnBody && (
                         <div className="turn-body">
                           <AnswerView
-                            body={turn.body}
+                            body={turnBody}
                             anchorQuote={gloss.quote}
                             onChip={showCitation}
                           />

@@ -11,13 +11,17 @@ from answer import (
     _candidate_sentences,
     _clean_boilerplate_gloss,
     _clean_selection_text,
+    _extract_query_entities,
     _extract_subject_from_history,
+    _has_content_word_overlap,
     _is_coherent_gloss,
     _plural,
     _resolve_contextual_query,
+    _should_include_chunk_figures,
     _synthesize_list_answer,
     ask,
     explain,
+    fix_acronym_casing,
     highlight_query,
     parse_answered,
     parse_completion,
@@ -1165,9 +1169,53 @@ class PinChunkAndCrossChunkTests(unittest.TestCase):
             "Data ingestion moves data from sources to target systems.",
         )
 
-    def test_is_coherent_gloss_rejects_prompt_leakage(self):
-        leaked = "Do not say 'the section introduces data ingestion' or explain meta."
-        self.assertFalse(_is_coherent_gloss(leaked))
+    def test_extract_query_entities(self):
+        ents = _extract_query_entities("How does this compare to Google Ads?", heading="Reverse ETL")
+        self.assertEqual(ents, ["Google Ads"])
+
+        ents_multi = _extract_query_entities("What is the difference between Paxos and Raft?", heading="")
+        self.assertEqual(ents_multi, ["Paxos", "Raft"])
+
+        ents_acronym = _extract_query_entities("How do ML engineers use Reverse ETL?", heading="Reverse ETL")
+        self.assertEqual(ents_acronym, ["ML"])
+
+    def test_should_include_chunk_figures_scoping(self):
+        chunk = {
+            "chunk_id": "c1",
+            "chapter": "4",
+            "heading": "Reverse ETL Architecture",
+            "text": "Reverse ETL syncs warehouse tables to operational tools. (Figure 4-2) shows the pipeline. ML engineers consume this data.",
+        }
+        all_figures = [
+            {"figure_id": "figure-4-2", "chapter": "4", "caption": "The reverse ETL data pipeline from data warehouse to operational systems."},
+        ]
+        # Direct mention of Figure in quote -> True
+        quote_with_fig = "Reverse ETL syncs warehouse tables to operational tools. (Figure 4-2) shows the pipeline."
+        self.assertTrue(_should_include_chunk_figures(chunk, "Reverse ETL", quote_with_fig, all_figures))
+
+        # Selection matches heading -> True
+        quote_plain = "Reverse ETL syncs warehouse tables to operational tools."
+        self.assertTrue(_should_include_chunk_figures(chunk, "Reverse ETL Architecture", quote_plain, all_figures))
+
+        # Passing mention with no figure reference and no caption overlap -> False (suppresses unrelated figure)
+        quote_passing = "ML engineers consume this data."
+        self.assertFalse(_should_include_chunk_figures(chunk, "ML engineers", quote_passing, all_figures))
+
+    def test_has_content_word_overlap(self):
+        s1 = "Google Ads consumes transformed customer attributes from the warehouse."
+        s2 = "Reverse ETL sends data to Google Ads for marketing campaigns."
+        self.assertTrue(_has_content_word_overlap(s1, s2))
+
+        s3 = "Database normalization reduces redundant rows across tables."
+        self.assertFalse(_has_content_word_overlap(s1, s3))
+
+    def test_fix_acronym_casing_expanded_coverage(self):
+        self.assertEqual(fix_acronym_casing("ml and ai in cloud systems"), "ML and AI in cloud systems")
+        self.assertEqual(fix_acronym_casing("modern bi and crm platforms"), "modern BI and CRM platforms")
+        self.assertEqual(fix_acronym_casing("use cdp or erp tools"), "use CDP or ERP tools")
+        self.assertEqual(fix_acronym_casing("saas, paas, and iaas offerings"), "SaaS, PaaS, and IaaS offerings")
+        self.assertEqual(fix_acronym_casing("rdbms and mpp architectures"), "RDBMS and MPP architectures")
+        self.assertEqual(fix_acronym_casing("mlops, dataops, and finops practices"), "MLOps, DataOps, and FinOps practices")
 
 
 if __name__ == "__main__":

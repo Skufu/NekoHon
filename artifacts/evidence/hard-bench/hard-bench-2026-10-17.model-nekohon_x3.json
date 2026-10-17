@@ -1,0 +1,244 @@
+{
+  "date": "2026-10-17",
+  "model": "nekohon_x3",
+  "total_items": 10,
+  "total_passed": 8,
+  "pass_rate": 80.0,
+  "mean_latency_sec": 0.67,
+  "category_summary": {
+    "multi_turn": {
+      "passed": 8,
+      "total": 10,
+      "pass_rate": 80.0,
+      "mean_latency_sec": 0.67
+    }
+  },
+  "results": [
+    {
+      "id": "multi_turn_01",
+      "category": "multi_turn",
+      "type": "coreference",
+      "question": "What are its downsides?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "latency_sec": 0.61,
+      "answer": "[Ch. 4] \"A multicloud methodology has several disadvantages\"\nNetworking complexity and data egress costs are significant downsides of multicloud deployments.",
+      "citations": [
+        {
+          "chunk_id": "ch04-037",
+          "chapter": "4",
+          "quote": "A multicloud methodology has several disadvantages"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "multi_turn_02",
+      "category": "multi_turn",
+      "type": "coreference",
+      "question": "Why do the authors warn against that?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "latency_sec": 0.971,
+      "answer": "[Ch. 4] \"As we often ask, \u201cWhen you need new tires for your car, do you get the raw materials, create the tires from scratch, and install them yourself?\u201d Like most people, you\u2019re probably buying tires and having someone install them. The same argument applies to build versus buy. We\u2019ve seen teams that have built their databases from scratch. A simple open source RDBMS would have served their needs much better upon closer inspection. Imagine the amount of time and money invested in this homegrown database. Talk about low ROI for TCO and opportunity cost.\"\nThe authors warn against building databases from scratch because it is often less efficient and costly than using existing, proven solutions.",
+      "citations": [
+        {
+          "chunk_id": "ch04-050",
+          "chapter": "4",
+          "quote": "As we often ask, \u201cWhen you need new tires for your car, do you get the raw materials, create the tires from scratch, and install them yourself?\u201d Like most people, you\u2019re probably buying tires and having someone install them. The same argument applies to build versus buy. We\u2019ve seen teams that have built their databases from scratch. A simple open source RDBMS would have served their needs much better upon closer inspection. Imagine the amount of time and money invested in this homegrown database. Talk about low ROI for TCO and opportunity cost."
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "multi_turn_03",
+      "category": "multi_turn",
+      "type": "coreference",
+      "question": "How does it handle late data?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "latency_sec": 0.728,
+      "answer": "[Ch. 8] \"We\u2019ve covered various types of windows and their uses. As discussed in Chapter 7, data is sometimes ingested out of the order from which it originated. A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late. If data arrives that is new to the window but older than the timestamp of the watermark, it is considered to be late-arriving data.\"\nWatermarks signal when data is too old to be included in current window calculations.",
+      "citations": [
+        {
+          "chunk_id": "ch08-039",
+          "chapter": "8",
+          "quote": "We\u2019ve covered various types of windows and their uses. As discussed in Chapter 7, data is sometimes ingested out of the order from which it originated. A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late. If data arrives that is new to the window but older than the timestamp of the watermark, it is considered to be late-arriving data."
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "multi_turn_04",
+      "category": "multi_turn",
+      "type": "coreference",
+      "question": "Which chapter covers that stage in greater detail?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "latency_sec": 0.903,
+      "answer": "[Ch. 2] \"Chapter 6 covers storage best practices and approaches in greater detail, as well as the crossover between storage and other lifecycle stages.\"\nChapter 6 explores storage best practices and how it intersects with other lifecycle stages, providing comprehensive guidance on selecting the right storage solution.",
+      "citations": [
+        {
+          "chunk_id": "ch02-015",
+          "chapter": "2",
+          "quote": "Chapter 6 covers storage best practices and approaches in greater detail, as well as the crossover between storage and other lifecycle stages."
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "multi_turn_05",
+      "category": "multi_turn",
+      "type": "coreference",
+      "question": "Who created this architectural pattern?",
+      "expect": "answer",
+      "refused": false,
+      "passed": false,
+      "latency_sec": 0.51,
+      "answer": "[Ch. 9] \"data mesh fundamentally changes the way data is served within an organization\"\nThe data mesh rearranges how companies give information to their departments.",
+      "citations": [
+        {
+          "chunk_id": "ch09-016",
+          "chapter": "9",
+          "quote": "data mesh fundamentally changes the way data is served within an organization"
+        }
+      ],
+      "reasons": [
+        "cited ['ch09-016'] does not include expected gold ['ch03-099']",
+        "answer missing key_fact regex 'Zhamak Dehghani|Dehghani'"
+      ]
+    },
+    {
+      "id": "multi_turn_06",
+      "category": "multi_turn",
+      "type": "coreference",
+      "question": "How does Type 2 handle historical records?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "latency_sec": 0.712,
+      "answer": "[Ch. 8] \"The preceding example is a Type 2 SCD: a new record is inserted when an existing record changes.\"\nType 2 handles historical records by creating new rows when attributes change, preserving historical state through end dates.",
+      "citations": [
+        {
+          "chunk_id": "ch08-069",
+          "chapter": "8",
+          "quote": "The preceding example is a Type 2 SCD: a new record is inserted when an existing record changes."
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "multi_turn_07",
+      "category": "multi_turn",
+      "type": "coreference_3turn",
+      "question": "What are the key trade-offs and operational overhead of using it?",
+      "expect": "answer",
+      "refused": false,
+      "passed": false,
+      "latency_sec": 0.74,
+      "answer": "[Ch. 6] \"However, distributed, scalable streaming frameworks like Apache Kafka now allow extremely long-duration streaming data retention.\"\nIn Streaming Storage, Apache Kafka connects to this topic: However, distributed, scalable streaming frameworks like Apache Kafka now allow extremely long-duration streaming data retention.",
+      "citations": [
+        {
+          "chunk_id": "ch06-063",
+          "chapter": "6",
+          "quote": "However, distributed, scalable streaming frameworks like Apache Kafka now allow extremely long-duration streaming data retention."
+        }
+      ],
+      "reasons": [
+        "cited ['ch06-063'] does not include expected gold ['ch07-060']",
+        "answer missing key_fact regex 'overhead|latency|throughput|partition'"
+      ]
+    },
+    {
+      "id": "multi_turn_08",
+      "category": "multi_turn",
+      "type": "followup_refusal",
+      "question": "How much does AWS charge per hour for that?",
+      "expect": "refuse",
+      "refused": true,
+      "passed": true,
+      "latency_sec": 0.64,
+      "answer": "Not in this book.",
+      "citations": [
+        {
+          "chunk_id": "ch06-054",
+          "chapter": "6",
+          "quote": "Storage classes and tiers Cloud vendors now offer storage classes that discount data storage pricing in exchange for reduced access or reduced durability. We us"
+        },
+        {
+          "chunk_id": "ch06-094",
+          "chapter": "6",
+          "quote": "Example: AWS EMR with S3 and HDFS Big data services like Amazon EMR spin up temporary HDFS clusters to process data. Engineers have the option of referencing bo"
+        },
+        {
+          "chunk_id": "ch06-055",
+          "chapter": "6",
+          "quote": "Storage classes and tiers Amazon still claims extremely high data durability, with the caveat that data will be lost if an availability zone is destroyed. Furth"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "multi_turn_09",
+      "category": "multi_turn",
+      "type": "followup_refusal",
+      "question": "What year did Google open-source it?",
+      "expect": "refuse",
+      "refused": true,
+      "passed": true,
+      "latency_sec": 0.6,
+      "answer": "Not in this book.",
+      "citations": [
+        {
+          "chunk_id": "ch04-036",
+          "chapter": "4",
+          "quote": "Multicloud Multicloud simply refers to deploying workloads to multiple public clouds. Companies may have several motivations for multicloud deployments. SaaS pl"
+        },
+        {
+          "chunk_id": "ch04-038",
+          "chapter": "4",
+          "quote": "Multicloud The Snowflake interface is essentially the same in all of these accounts, removing the training burden of switching between cloud-native data service"
+        },
+        {
+          "chunk_id": "ch04-037",
+          "chapter": "4",
+          "quote": "Multicloud Given the intense competition among the major cloud providers, expect them to offer more best-of-breed services, making multicloud more compelling. A"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "multi_turn_10",
+      "category": "multi_turn",
+      "type": "followup_refusal",
+      "question": "Show the Terraform script for this",
+      "expect": "refuse",
+      "refused": true,
+      "passed": true,
+      "latency_sec": 0.265,
+      "answer": "Not in this book.",
+      "citations": [
+        {
+          "chunk_id": "ch07-060",
+          "chapter": "7",
+          "quote": "Message Queues and Event-Streaming Platforms These events are combined into a new dataset and sent to a producer for downstream consumption. The last point is a"
+        },
+        {
+          "chunk_id": "ch07-061",
+          "chapter": "7",
+          "quote": "Managed Data Connectors These days, if you\u2019re considering writing a data ingestion connector to a database or API, ask yourself: has this already been created? "
+        },
+        {
+          "chunk_id": "ch07-062",
+          "chapter": "7",
+          "quote": "Moving Data with Object Storage Object storage is a multitenant system in public clouds, and it supports storing massive amounts of data. This makes object stor"
+        }
+      ],
+      "reasons": []
+    }
+  ]
+}

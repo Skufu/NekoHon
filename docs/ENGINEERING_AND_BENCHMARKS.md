@@ -4,7 +4,7 @@ This document provides a technical deep-dive into the architecture of `ask-this-
 
 ```mermaid
 flowchart TD
-    subgraph Ingestion["1. EPUB Ingestion Pipeline (ingest.py)"]
+    subgraph Subsystem1["1. EPUB Ingestion Pipeline (ingest.py)"]
         EPUB["Raw EPUB File<br/>(books/fde.epub)"] --> Spine["OPF Spine & Container Parse"]
         Spine --> Packer["Sentence-Boundary Chunker<br/>(CHUNK_MAX_CHARS = 1400, OVERLAP = 180)"]
         Spine --> FigExt["Figure & Caption Extractor"]
@@ -14,9 +14,11 @@ flowchart TD
         Figures --> Index
     end
 
-    subgraph Retrieval["2. Hybrid Retrieval & RRF (retrieve.py & keywords.py)"]
-        Query["User Query / Selection"] --> Pre["Alphanumeric Normalization<br/>(preprocess.py)"]
-        Pre --> Dense["Dense Vector Search<br/>(nomic-embed-text, 768d)"]
+    subgraph Subsystem2["2. Hybrid Retrieval & RRF (preprocess.py, retrieve.py, keywords.py, fusion.py, readings.py)"]
+        Query["User Query / Selection"] --> Pre["Alphanumeric Normalization<br/>(tokens: S3, 3NF, DDR5)"]
+        Pre --> Cache{"_EMBED_CACHE<br/>Hit?"}
+        Cache -->|Miss| Dense["Dense Vector Search<br/>(nomic-embed-text, 768d)"]
+        Cache -->|Hit| Dense
         Pre --> Lexical["Lexical Rare-Word Postings<br/>(BM25 / IDF scoring)"]
         Dense --> Band{"Dense Top 20% Band<br/>(France Refusal Canary)"}
         Lexical --> Band
@@ -24,17 +26,72 @@ flowchart TD
         Band -->|Rejected| DenseOnly["Dense Top-10"]
         RRF --> Context["Ranked Top-5 Passages"]
         DenseOnly --> Context
+        Pre -.-> Readings["Self-Proving Typo Readings<br/>(readings.py difflib 0.85)"]
     end
 
-    subgraph Generation["3. Intent & Grounded Generation (intent.py & answer.py)"]
-        Context --> Intent["Highlight Intent Classifier<br/>(CONCEPT, FRAGMENT, MULTI, QUESTION)"]
-        Intent --> Prompt["Aligned ChatML System Prompt<br/>(prompt.py)"]
+    subgraph Subsystem3["3. Highlight Intent & Follow-Up Engine (intent.py)"]
+        Context --> Classifier["Sub-ms Intent Classifier<br/>(&lt; 1ms)"]
+        Classifier --> Intents["Classes: CONCEPT_TERM, VAGUE_FRAGMENT,<br/>MULTI_SENTENCE_PASSAGE, AUTHOR_QUESTION"]
+        Intents --> Mention["Passing-Mention Detection<br/>(Anchor Grounding)"]
+        Mention --> FollowupGen["Dynamic Follow-Up Generator<br/>(compute_dynamic_followups)"]
+    end
+
+    subgraph Subsystem4["4. Bidirectional Quote-Gloss Ranking & Grounded Generation (answer.py, prompt.py, figures.py)"]
+        Mention --> Prompt["Aligned ChatML System Prompt<br/>(prompt.py)"]
         Prompt --> Ollama["Local Student Model<br/>(nekohon_x3 3B / nekohon_x3_mobile 1.5B)"]
         Ollama --> Coherence{"_is_coherent_gloss Validation<br/>(Repetition & Loop Guard)"}
-        Coherence -->|Passed| FinalAnswer["[Ch. N] Cited Answer + Gloss"]
-        Coherence -->|Failed| GroundedSyn["_synthesize_grounded_gloss<br/>(Direct Sentence Extraction)"]
-        GroundedSyn --> FinalAnswer
+        Coherence -->|Passed| QuoteRank["Bidirectional Quote-Gloss Ranking<br/>(Query-Entity Alignment)"]
+        Coherence -->|Failed| Fallback["_synthesize_grounded_gloss<br/>(Grounded Sentence Extraction)"]
+        QuoteRank --> ListSyn["List-Item Synthesis & Acronym Casing"]
+        Fallback --> ListSyn
+        ListSyn --> FigAttach["Scoped Figure Attachment<br/>(figures.py)"]
     end
+
+    subgraph Subsystem5["5. Direct-DOM Physics & Liquid Reader UX (web/ Next.js)"]
+        FigAttach --> Stream["NDJSON Token Stream<br/>(POST /ask stream=1)"]
+        Stream --> Pacer["Word-Boundary Streaming Pacer<br/>(~50 words/sec)"]
+        Pacer --> Card["MarginCard Component<br/>(Movable, 2D Resizable)"]
+        Card --> Physics["Direct-DOM rAF Physics (60/120fps)<br/>(Drag, Resize, Clamping)"]
+        Physics --> Leader["Live SVG Leader Line<br/>(updateLeaderLineDOM)"]
+        Card --> Dedupe["Cross-Turn Figure Deduplication<br/>(Collapsible Toggle)"]
+        Card --> Mini["Minimized 26px Node Pills<br/>(One-Click Dismiss)"]
+        Card --> Jump["520ms Cubic-Bezier Citation Jump<br/>(mark.cite-mark & Return Banner)"]
+    end
+
+```
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Reader as Reader / UI
+    participant Web as web/ (Next.js)
+    participant Srv as server.py (Engine)
+    participant Intent as intent.py
+    participant Pre as preprocess.py
+    participant Ret as retrieve.py & keywords.py
+    participant Fuse as fusion.py (RRF)
+    participant Ans as answer.py
+    participant Ollama as Ollama (nekohon_x3)
+    participant Figs as figures.py
+
+    Reader->>Web: Select text or type query
+    Web->>Srv: POST /ask {question, selection, mode, stream=1}
+    Srv->>Intent: Classify selection (< 1ms)
+    Intent-->>Srv: Intent class + enclosing subject / passing mention
+    Srv->>Pre: Alphanumeric tokenization (preserve S3, 3NF, DDR5)
+    Pre->>Ret: Query vector (_EMBED_CACHE check) + rare postings
+    Ret->>Fuse: Dense candidates (768d) + Top 20% dense safety band + lexical candidates
+    Fuse->>Fuse: Reciprocal Rank Fusion (K = 60)
+    Fuse-->>Ans: Top-5 fused passages
+    Ans->>Ollama: ChatML prompt with passages + question
+    Ollama-->>Ans: Generated token stream
+    Ans->>Ans: Validate _is_coherent_gloss & bidirectional quote alignment
+    Ans->>Figs: Attach scoped figure if explicitly referenced
+    Ans-->>Srv: Validated [Ch. N] citation, gloss, figures
+    Srv-->>Web: NDJSON streaming frames (token, reset, final)
+    Web->>Web: Word-boundary pacer (~50 words/s) & updateLeaderLineDOM (SVG curve)
+    Reader->>Web: Click citation chip [Ch. N]
+    Web->>Reader: 520ms cubic-bezier jump to cite-mark + return banner
 ```
 
 ---
@@ -188,13 +245,20 @@ Small language models (1.5B–3B) under low temperature can occasionally degener
 - Rejects outputs with repeated 4-gram cycles.
 - Rejects outputs ending without terminating punctuation (`.`, `!`, `?`, `"`).
 - Rejects context recitation traps where the model echoes `"Sentence 0: ..."`.
-- **Grounded Gloss Synthesis Fallback**: If a generated gloss fails `_is_coherent_gloss`, `_synthesize_grounded_gloss()` automatically extracts the anchor sentence from the pinned chunk, guaranteeing that the reader receives a clean, grounded answer.
-
 ### 3.3 Dynamic Follow-Up Pill Synthesis
 Completed margin cards dynamically display 2–3 follow-up suggestion chips:
 1. Candidate sentences are extracted from the cited passage.
 2. Rhetorical author questions in adjacent paragraphs are surfaced.
 3. Concepts with high document co-occurrence are converted into natural query pills (e.g. `"What are the disadvantages of multicloud?"`).
+
+### 3.4 Direct-DOM Physics & Liquid Reader UX (`web/` Next.js)
+The frontend companion implements high-performance DOM physics to provide an uncompromised reading experience:
+- **Word-Boundary Streaming Pacer**: Instead of raw character bursting, incoming NDJSON tokens are accumulated and paced across word boundaries at ~50 words/sec (~16ms ticks), eliminating layout jank and cognitive fatigue.
+- **60/120fps Direct-DOM Drag & 2D Resize**: Margin card positioning, header dragging, and corner resizing bypass React re-render cycles using `requestAnimationFrame` to update inline transforms and dimensions directly on the DOM element.
+- **Live SVG Cubic-Bezier Leader Lines (`updateLeaderLineDOM`)**: Margin cards maintain a live SVG curve visually anchoring the card to its source passage highlight. The curve smoothly recalculates control points in real time during scrolling, card dragging, and window resizing.
+- **Minimized 26px Node Pills**: When cards are closed or congested, they smoothly collapse into compact 26px circular node pills in the right margin gutter with a one-click `×` dismiss.
+- **Cross-Turn Figure Deduplication**: When consecutive dialogue turns in a margin card thread reference the same figure, redundant image displays are suppressed into a collapsible drawer toggle.
+- **520ms Cubic-Bezier Citation Jump**: Clicking a `[Ch. N]` citation chip triggers a 520ms smooth scroll targeting the exact quote, animating a rubric underline on `mark.cite-mark` and displaying a `"← Back to previous spot"` return banner.
 
 ---
 
@@ -204,7 +268,7 @@ Every PR must pass all quality gates before merge. Run these commands from the r
 
 ```mermaid
 flowchart LR
-    Unit["1. Unit Suite<br/>(356 unit tests, 1.6s)"] --> Hard["2. Hard Benchmark<br/>(60 items, 100%)"]
+    Unit["1. Unit Suite<br/>(370 unit tests, 1.7s)"] --> Hard["2. Hard Benchmark<br/>(60 items, 100%)"]
     Hard --> High["3. Highlight Golden<br/>(24 items, 100%)"]
     High --> Batt["4. HTTP Battery<br/>(22 items, 100%)"]
     Batt --> PR["PR Approved &amp; Merged"]
@@ -214,8 +278,9 @@ flowchart LR
 ```sh
 python -m unittest discover -s tests
 ```
-- **Scope**: 356 unit tests executing in ~1.6 seconds.
+- **Scope**: 370 unit tests executing in ~1.7 seconds.
 - **Coverage**: Contract validation, sentence-boundary chunk packing, hybrid RRF fusion, typo second readings, figure attachment integrity, and [`tests/test_generalization.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/tests/test_generalization.py) (fails if any book-specific IDs or titles leak into logic modules).
+- **Book-Agnostic Query Understanding** ([`tests/test_query_understanding.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/tests/test_query_understanding.py)): Verifies canonical query normalization, intent classification, passing-mention extraction, acronym casing normalization, and multi-turn coreference resolution without depending on book-specific IDs or constants.
 
 ### 4.2 60-Item Hard Benchmark ([`artifacts/harnesses/hard-bench.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/artifacts/harnesses/hard-bench.py))
 ```sh

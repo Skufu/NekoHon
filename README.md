@@ -6,39 +6,93 @@ Retrieval, intent resolution, and answer generation run strictly on local Ollama
 
 ```mermaid
 flowchart TD
-    subgraph UI["Reader Interface (web/ Next.js on :3100)"]
-        Reader["Book Prose Viewport<br/>(EPUB Section Chunks)"]
-        Lens["Selection Lens<br/>(Explain, Ask, Copy, 4 Highlights)"]
-        Card["Movable Margin Cards<br/>(26px Nodes, Follow-Up Pills)"]
-        Reader --> Lens
-        Lens --> Card
+    subgraph Subsystem1["1. EPUB Ingestion Pipeline (ingest.py)"]
+        EPUB["Raw EPUB File<br/>(books/fde.epub)"] --> Spine["OPF Spine & Container Parse"]
+        Spine --> Packer["Sentence-Boundary Chunker<br/>(CHUNK_MAX_CHARS = 1400, OVERLAP = 180)"]
+        Spine --> FigExt["Figure & Caption Extractor"]
+        Packer --> Chunks["1,042 Chunks<br/>(0/1,042 mid-sentence starts)"]
+        FigExt --> Figures["111 Extracted PNGs + Captions"]
+        Chunks --> Index["data/index.json"]
+        Figures --> Index
     end
 
-    subgraph Engine["Local Engine (server.py on :8000)"]
-        Router["HTTP & NDJSON Stream Router<br/>(POST /ask, GET /chunks)"]
-        IntentEng["Highlight Intent Engine<br/>(intent.py &lt; 1ms)"]
-        Canon["Canonical Query Normalizer<br/>(canonical.py)"]
-        HybridRet["Hybrid Dense + RRF Retrieval<br/>(retrieve.py & keywords.py)"]
-        AnswerEng["Grounded Answer Synthesis<br/>(answer.py)"]
-
-        Router --> IntentEng
-        Router --> Canon
-        IntentEng --> HybridRet
-        Canon --> HybridRet
-        HybridRet --> AnswerEng
+    subgraph Subsystem2["2. Hybrid Retrieval & RRF (preprocess.py, retrieve.py, keywords.py, fusion.py, readings.py)"]
+        Query["User Query / Selection"] --> Pre["Alphanumeric Normalization<br/>(tokens: S3, 3NF, DDR5)"]
+        Pre --> Cache{"_EMBED_CACHE<br/>Hit?"}
+        Cache -->|Miss| Dense["Dense Vector Search<br/>(nomic-embed-text, 768d)"]
+        Cache -->|Hit| Dense
+        Pre --> Lexical["Lexical Rare-Word Postings<br/>(BM25 / IDF scoring)"]
+        Dense --> Band{"Dense Top 20% Band<br/>(France Refusal Canary)"}
+        Lexical --> Band
+        Band -->|Admitted| RRF["Reciprocal Rank Fusion<br/>(K = 60)"]
+        Band -->|Rejected| DenseOnly["Dense Top-10"]
+        RRF --> Context["Ranked Top-5 Passages"]
+        DenseOnly --> Context
+        Pre -.-> Readings["Self-Proving Typo Readings<br/>(readings.py difflib 0.85)"]
     end
 
-    subgraph LocalOllama["Offline Ollama Runtime (127.0.0.1:11434)"]
-        Embedder["nomic-embed-text<br/>(768d, 274 MB)"]
-        Model3B["nekohon_x3 (3B Q4_K_M)<br/>Desktop Default (1.93 GB)"]
-        Model15B["nekohon_x3_mobile (1.5B Q4_K_M)<br/>Edge / Mobile Default (986 MB)"]
+    subgraph Subsystem3["3. Highlight Intent & Follow-Up Engine (intent.py)"]
+        Context --> Classifier["Sub-ms Intent Classifier<br/>(&lt; 1ms)"]
+        Classifier --> Intents["Classes: CONCEPT_TERM, VAGUE_FRAGMENT,<br/>MULTI_SENTENCE_PASSAGE, AUTHOR_QUESTION"]
+        Intents --> Mention["Passing-Mention Detection<br/>(Anchor Grounding)"]
+        Mention --> FollowupGen["Dynamic Follow-Up Generator<br/>(compute_dynamic_followups)"]
     end
 
-    Card -->|POST /ask stream=1| Router
-    HybridRet -->|Cosine Search| Embedder
-    AnswerEng -->|Streaming Generation| Model3B
-    AnswerEng -.->|Low-Resource Revert| Model15B
-    AnswerEng -->|Token Frames + Citations| Card
+    subgraph Subsystem4["4. Bidirectional Quote-Gloss Ranking & Grounded Generation (answer.py, prompt.py, figures.py)"]
+        Mention --> Prompt["Aligned ChatML System Prompt<br/>(prompt.py)"]
+        Prompt --> Ollama["Local Student Model<br/>(nekohon_x3 3B / nekohon_x3_mobile 1.5B)"]
+        Ollama --> Coherence{"_is_coherent_gloss Validation<br/>(Repetition & Loop Guard)"}
+        Coherence -->|Passed| QuoteRank["Bidirectional Quote-Gloss Ranking<br/>(Query-Entity Alignment)"]
+        Coherence -->|Failed| Fallback["_synthesize_grounded_gloss<br/>(Grounded Sentence Extraction)"]
+        QuoteRank --> ListSyn["List-Item Synthesis & Acronym Casing"]
+        Fallback --> ListSyn
+        ListSyn --> FigAttach["Scoped Figure Attachment<br/>(figures.py)"]
+    end
+
+    subgraph Subsystem5["5. Direct-DOM Physics & Liquid Reader UX (web/ Next.js)"]
+        FigAttach --> Stream["NDJSON Token Stream<br/>(POST /ask stream=1)"]
+        Stream --> Pacer["Word-Boundary Streaming Pacer<br/>(~50 words/sec)"]
+        Pacer --> Card["MarginCard Component<br/>(Movable, 2D Resizable)"]
+        Card --> Physics["Direct-DOM rAF Physics (60/120fps)<br/>(Drag, Resize, Clamping)"]
+        Physics --> Leader["Live SVG Leader Line<br/>(updateLeaderLineDOM)"]
+        Card --> Dedupe["Cross-Turn Figure Deduplication<br/>(Collapsible Toggle)"]
+        Card --> Mini["Minimized 26px Node Pills<br/>(One-Click Dismiss)"]
+        Card --> Jump["520ms Cubic-Bezier Citation Jump<br/>(mark.cite-mark & Return Banner)"]
+    end
+```
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Reader as Reader / UI
+    participant Web as web/ (Next.js)
+    participant Srv as server.py (Engine)
+    participant Intent as intent.py
+    participant Pre as preprocess.py
+    participant Ret as retrieve.py & keywords.py
+    participant Fuse as fusion.py (RRF)
+    participant Ans as answer.py
+    participant Ollama as Ollama (nekohon_x3)
+    participant Figs as figures.py
+
+    Reader->>Web: Select text or type query
+    Web->>Srv: POST /ask {question, selection, mode, stream=1}
+    Srv->>Intent: Classify selection (< 1ms)
+    Intent-->>Srv: Intent class + enclosing subject / passing mention
+    Srv->>Pre: Alphanumeric tokenization (preserve S3, 3NF, DDR5)
+    Pre->>Ret: Query vector (_EMBED_CACHE check) + rare postings
+    Ret->>Fuse: Dense candidates (768d) + Top 20% dense safety band + lexical candidates
+    Fuse->>Fuse: Reciprocal Rank Fusion (K = 60)
+    Fuse-->>Ans: Top-5 fused passages
+    Ans->>Ollama: ChatML prompt with passages + question
+    Ollama-->>Ans: Generated token stream
+    Ans->>Ans: Validate _is_coherent_gloss & bidirectional quote alignment
+    Ans->>Figs: Attach scoped figure if explicitly referenced
+    Ans-->>Srv: Validated [Ch. N] citation, gloss, figures
+    Srv-->>Web: NDJSON streaming frames (token, reset, final)
+    Web->>Web: Word-boundary pacer (~50 words/s) & updateLeaderLineDOM (SVG curve)
+    Reader->>Web: Click citation chip [Ch. N]
+    Web->>Reader: 520ms cubic-bezier jump to cite-mark + return banner
 ```
 
 ---
@@ -73,7 +127,7 @@ flowchart TD
 
 ## Model Lineup & Download Table
 
-All `nekohon` models (renamed from the `smallbook_x3` line on 2026-10-17; identical weights and hashes) are purpose-distilled quote-or-refuse students trained on an 844-row 7-layer corpus using Wide-LoRA ($r=32, \alpha=64$) on an A100 GPU and exported directly to 4-bit GGUFs.
+All `nekohon` models (renamed from the `smallbook_x3` line on 2026-10-17; identical weights and hashes) are purpose-distilled quote-or-refuse students trained on an 844-row 7-layer corpus using Wide-LoRA (r=32, alpha=64) on an A100 GPU and exported directly to 4-bit GGUFs.
 
 | Model | Parameters | Quantization | Disk Size | SHA-256 Digest | Role & Hardware | Benchmark Scores |
 | --- | :---: | :---: | :---: | --- | --- | :---: |
@@ -163,7 +217,7 @@ The engine exposes a strictly typed, frozen HTTP contract:
 Run all checks from the repo root:
 
 ```sh
-# 1. Fast Unit Suite (356 unit tests, 0 network, ~1.5s)
+# 1. Fast Unit Suite (370 unit tests, 0 network, ~1.5s)
 python -m unittest discover -s tests
 
 # 2. Read-Only Index Vector Hygiene Audit
@@ -178,9 +232,14 @@ python artifacts/probes/probe-highlight-2026-10-16.py nekohon_x3
 # 5. End-to-End HTTP Battery (22 live queries against running engine)
 python artifacts/harnesses/step2-battery.py
 
-# 6. TypeScript Validation in web/
+# 6. Book-Agnostic Query Understanding Suite (Canonicalization, intents, passing-mentions)
+python -m unittest tests/test_query_understanding.py
+
+# 7. TypeScript Validation in web/
 cd web && npx tsc --noEmit
 ```
+
+*Book-Agnostic Query Understanding Suite:* [`tests/test_query_understanding.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/tests/test_query_understanding.py) enforces that query canonicalization, sub-millisecond intent classification, passing-mention extraction, acronym casing normalization, and coreference resolution function generically across any text corpus without book-specific hardcoding.
 
 ---
 
