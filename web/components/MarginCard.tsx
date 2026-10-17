@@ -106,55 +106,30 @@ function renderStreamingText(raw: string) {
 
   if (text.startsWith("[")) {
     const firstNewline = text.indexOf("\n");
-    if (firstNewline !== -1) {
-      const firstLine = text.slice(0, firstNewline).trim();
-      const rest = text.slice(firstNewline + 1).trimStart();
-      const quoteMatch = firstLine.match(
-        /^\[(?:ch|chapter)\.?\s*([^\]]+)\]\s*"?([^"]*)"?$/i
-      );
+    const firstLine = firstNewline !== -1 ? text.slice(0, firstNewline).trim() : text.trim();
+    const rest = firstNewline !== -1 ? text.slice(firstNewline + 1).trimStart() : "";
 
-      if (quoteMatch) {
-        const ch = quoteMatch[1].trim();
-        const quoteText = quoteMatch[2].trim();
-        return (
-          <div className="turn-body is-streaming">
-            <p className="answer">
-              {renderAnimatedTokens(rest)}
-              <span className="stream-cursor" aria-hidden="true" />
-            </p>
-            {quoteText ? (
-              <p className="answer-quote">
-                <span className="answer-quote-text">“{quoteText}”</span>
-                <span className="chip">Ch. {formatChapter(ch)}</span>
-              </p>
-            ) : null}
-          </div>
-        );
-      }
-    } else {
-      // Opening quote is still streaming
-      const chMatch = text.match(
-        /^\[(?:ch|chapter)\.?\s*([^\]]+)\]\s*"?([^"]*)$/i
-      );
-      if (chMatch) {
-        const ch = chMatch[1].trim();
-        const quotePreview = chMatch[2];
-        return (
-          <div className="streaming-quote-preview">
-            <p className="answer-quote is-streaming">
-              <span className="answer-quote-text">“{renderAnimatedTokens(quotePreview)}</span>
-              <span className="stream-cursor" aria-hidden="true" />
-              <span className="chip">Ch. {formatChapter(ch)}</span>
-            </p>
-          </div>
-        );
-      }
+    const quoteMatch = firstLine.match(
+      /^\[(?:ch|chapter)\.?\s*([^\]]+)\]\s*["\u201c]?([^"\u201d\n]*)/i
+    );
+
+    if (quoteMatch) {
+      const ch = quoteMatch[1].trim();
+      const quoteText = quoteMatch[2].replace(/["\u201d]$/, "").trim();
       return (
-        <div className="streaming-quote-preview">
+        <div className="turn-body is-streaming">
           <p className="answer">
-            {renderAnimatedTokens(text)}
+            {rest ? renderAnimatedTokens(rest) : null}
             <span className="stream-cursor" aria-hidden="true" />
           </p>
+          <div className="source-pill-row">
+            <span
+              className="source-pill"
+              title={quoteText ? `“${quoteText}”` : undefined}
+            >
+              + Source quote · Ch. {formatChapter(ch)}
+            </span>
+          </div>
         </div>
       );
     }
@@ -202,6 +177,13 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
   const [expandedTurns, setExpandedTurns] = useState<Record<string, boolean>>({});
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const articleRef = useRef<HTMLElement | null>(null);
+  const setRefs = (el: HTMLElement | null) => {
+    articleRef.current = el;
+    if (typeof ref === "function") ref(el);
+    else if (ref) (ref as React.MutableRefObject<HTMLElement | null>).current = el;
+  };
+
   const isDraggingRef = useRef(false);
   const dragStartRef = useRef<{ clientX: number; clientY: number; origX: number; origY: number }>({
     clientX: 0,
@@ -224,6 +206,40 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
     startHeight: 320,
     startDragY: 0,
   });
+
+  const dragX = gloss.dragOffset?.x ?? 0;
+  const dragY = gloss.dragOffset?.y ?? 0;
+
+  const liveDragRef = useRef<{ x: number; y: number }>({ x: dragX, y: dragY });
+  const liveWidthRef = useRef<number | undefined>(gloss.customWidth);
+  const liveHeightRef = useRef<number | undefined>(gloss.customHeight);
+  const rafRef = useRef<number>(0);
+
+  if (!isDraggingRef.current && !isResizingRef.current) {
+    liveDragRef.current = { x: dragX, y: dragY };
+    liveWidthRef.current = gloss.customWidth;
+    liveHeightRef.current = gloss.customHeight;
+  }
+
+  const updateLeaderLineDOM = (newX: number, newY: number, customW?: number) => {
+    const leaderPath = document.querySelector<SVGPathElement>(`[data-leader-for="${gloss.id}"]`);
+    if (!leaderPath) return;
+    const y0 = parseFloat(leaderPath.getAttribute("data-y0") || "0");
+    const widthShift = customW ? 320 - customW : 0;
+    const x0 = 4;
+    const x1 = 27 + newX + widthShift;
+    const y1 = Math.round(top + 18 + newY);
+    const dx = x1 - x0;
+    const cpOffset = Math.max(12, Math.min(80, Math.abs(dx) * 0.45));
+    const cp1x = Math.round(x0 + (dx >= 0 ? cpOffset : -cpOffset * 0.5));
+    const cp2x = Math.round(x1 - (dx >= 0 ? cpOffset : -cpOffset * 0.5));
+    leaderPath.setAttribute("d", `M ${x0} ${y0} C ${cp1x} ${y0}, ${cp2x} ${y1}, ${x1} ${y1}`);
+    const endDot = document.querySelector<SVGCircleElement>(`[data-leader-end-for="${gloss.id}"]`);
+    if (endDot) {
+      endDot.setAttribute("cx", String(x1));
+      endDot.setAttribute("cy", String(y1));
+    }
+  };
 
   const badge = modeBadge(gloss);
   const chLabel = formatChapter(gloss.chapter);
@@ -261,8 +277,6 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
   };
 
   const isMinimized = mini || Boolean(gloss.minimized);
-  const dragX = gloss.dragOffset?.x ?? 0;
-  const dragY = gloss.dragOffset?.y ?? 0;
 
   const style: CSSProperties = {
     transform:
@@ -283,14 +297,16 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
     if (e.button !== 0) return;
     if ((e.target as HTMLElement).closest("button, a, input")) return;
     e.preventDefault();
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    try {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    } catch {}
     isDraggingRef.current = true;
     setIsInteracting(true);
     dragStartRef.current = {
       clientX: e.clientX,
       clientY: e.clientY,
-      origX: gloss.dragOffset?.x ?? 0,
-      origY: gloss.dragOffset?.y ?? 0,
+      origX: liveDragRef.current.x,
+      origY: liveDragRef.current.y,
     };
   };
 
@@ -298,16 +314,33 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
     if (!isDraggingRef.current) return;
     const dx = e.clientX - dragStartRef.current.clientX;
     const dy = e.clientY - dragStartRef.current.clientY;
-    setGlossDragOffset(gloss.id, {
-      x: Math.round(dragStartRef.current.origX + dx),
-      y: Math.round(dragStartRef.current.origY + dy),
-    });
+    const nextX = Math.round(dragStartRef.current.origX + dx);
+    const nextY = Math.round(dragStartRef.current.origY + dy);
+    liveDragRef.current = { x: nextX, y: nextY };
+    if (!rafRef.current) {
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = 0;
+        if (articleRef.current) {
+          articleRef.current.style.transform =
+            liveDragRef.current.x !== 0 || liveDragRef.current.y !== 0
+              ? `translate3d(${liveDragRef.current.x}px, ${Math.round(top + liveDragRef.current.y)}px, 0)`
+              : `translateY(${Math.round(top)}px)`;
+        }
+        updateLeaderLineDOM(liveDragRef.current.x, liveDragRef.current.y, liveWidthRef.current);
+      });
+    }
   };
 
   const handleHeaderPointerUp = (e: React.PointerEvent<HTMLElement>) => {
     if (!isDraggingRef.current) return;
     isDraggingRef.current = false;
     setIsInteracting(false);
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+    }
+    updateLeaderLineDOM(liveDragRef.current.x, liveDragRef.current.y, liveWidthRef.current);
+    setGlossDragOffset(gloss.id, liveDragRef.current);
     try {
       (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
     } catch {
@@ -322,12 +355,14 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     isResizingRef.current = "left";
     setIsInteracting(true);
+    const startW = gloss.customWidth ?? 320;
+    liveWidthRef.current = startW;
     resizeStartRef.current = {
       clientX: e.clientX,
       clientY: e.clientY,
-      startWidth: gloss.customWidth ?? 320,
+      startWidth: startW,
       startHeight: gloss.customHeight ?? 320,
-      startDragY: gloss.dragOffset?.y ?? 0,
+      startDragY: liveDragRef.current.y,
     };
   };
 
@@ -335,14 +370,32 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
     if (isResizingRef.current !== "left") return;
     const delta = resizeStartRef.current.clientX - e.clientX;
     const nextWidth = Math.max(280, Math.min(540, Math.round(resizeStartRef.current.startWidth + delta)));
-    setGlossWidth(gloss.id, nextWidth);
-    onHeightChange?.();
+    liveWidthRef.current = nextWidth;
+    if (!rafRef.current) {
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = 0;
+        if (articleRef.current) {
+          articleRef.current.style.width = `${liveWidthRef.current}px`;
+          articleRef.current.style.left = "auto";
+          articleRef.current.style.right = "0px";
+        }
+        updateLeaderLineDOM(liveDragRef.current.x, liveDragRef.current.y, liveWidthRef.current);
+      });
+    }
   };
 
   const handleResizeLeftUp = (e: React.PointerEvent<HTMLDivElement>) => {
     if (isResizingRef.current !== "left") return;
     isResizingRef.current = null;
     setIsInteracting(false);
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+    }
+    if (liveWidthRef.current !== undefined) {
+      setGlossWidth(gloss.id, liveWidthRef.current);
+    }
+    updateLeaderLineDOM(liveDragRef.current.x, liveDragRef.current.y, liveWidthRef.current);
     try {
       (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
     } catch {}
@@ -356,15 +409,16 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     isResizingRef.current = "bottom";
     setIsInteracting(true);
-    const cardEl = (e.currentTarget as HTMLElement).closest(".gloss-card") as HTMLElement | null;
-    const turnsEl = cardEl?.querySelector(".gloss-turns") as HTMLElement | null;
+    const cardEl = articleRef.current || ((e.currentTarget as HTMLElement).closest(".gloss-card") as HTMLElement | null);
+    const turnsEl = cardEl?.querySelector<HTMLElement>(".gloss-turns");
     const currentH = gloss.customHeight ?? (turnsEl?.offsetHeight || 320);
+    liveHeightRef.current = currentH;
     resizeStartRef.current = {
       clientX: e.clientX,
       clientY: e.clientY,
       startWidth: gloss.customWidth ?? 320,
       startHeight: currentH,
-      startDragY: gloss.dragOffset?.y ?? 0,
+      startDragY: liveDragRef.current.y,
     };
   };
 
@@ -372,14 +426,32 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
     if (isResizingRef.current !== "bottom") return;
     const delta = e.clientY - resizeStartRef.current.clientY;
     const nextHeight = Math.max(200, Math.min(720, Math.round(resizeStartRef.current.startHeight + delta)));
-    setGlossHeight(gloss.id, nextHeight);
-    onHeightChange?.();
+    liveHeightRef.current = nextHeight;
+    if (!rafRef.current) {
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = 0;
+        if (articleRef.current) {
+          const turnsEl = articleRef.current.querySelector<HTMLElement>(".gloss-turns");
+          if (turnsEl) {
+            turnsEl.style.maxHeight = `${liveHeightRef.current}px`;
+            turnsEl.style.overflowY = "auto";
+          }
+        }
+      });
+    }
   };
 
   const handleResizeBottomUp = (e: React.PointerEvent<HTMLDivElement>) => {
     if (isResizingRef.current !== "bottom") return;
     isResizingRef.current = null;
     setIsInteracting(false);
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+    }
+    if (liveHeightRef.current !== undefined) {
+      setGlossHeight(gloss.id, liveHeightRef.current);
+    }
     try {
       (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
     } catch {}
@@ -393,15 +465,16 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     isResizingRef.current = "top";
     setIsInteracting(true);
-    const cardEl = (e.currentTarget as HTMLElement).closest(".gloss-card") as HTMLElement | null;
-    const turnsEl = cardEl?.querySelector(".gloss-turns") as HTMLElement | null;
+    const cardEl = articleRef.current || ((e.currentTarget as HTMLElement).closest(".gloss-card") as HTMLElement | null);
+    const turnsEl = cardEl?.querySelector<HTMLElement>(".gloss-turns");
     const currentH = gloss.customHeight ?? (turnsEl?.offsetHeight || 320);
+    liveHeightRef.current = currentH;
     resizeStartRef.current = {
       clientX: e.clientX,
       clientY: e.clientY,
       startWidth: gloss.customWidth ?? 320,
       startHeight: currentH,
-      startDragY: gloss.dragOffset?.y ?? 0,
+      startDragY: liveDragRef.current.y,
     };
   };
 
@@ -410,18 +483,41 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
     const delta = resizeStartRef.current.clientY - e.clientY;
     const nextHeight = Math.max(200, Math.min(720, Math.round(resizeStartRef.current.startHeight + delta)));
     const actualDelta = nextHeight - resizeStartRef.current.startHeight;
-    setGlossHeight(gloss.id, nextHeight);
-    setGlossDragOffset(gloss.id, {
-      x: gloss.dragOffset?.x ?? 0,
-      y: Math.round(resizeStartRef.current.startDragY - actualDelta),
-    });
-    onHeightChange?.();
+    const nextDragY = Math.round(resizeStartRef.current.startDragY - actualDelta);
+    liveHeightRef.current = nextHeight;
+    liveDragRef.current = { x: liveDragRef.current.x, y: nextDragY };
+    if (!rafRef.current) {
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = 0;
+        if (articleRef.current) {
+          const turnsEl = articleRef.current.querySelector<HTMLElement>(".gloss-turns");
+          if (turnsEl) {
+            turnsEl.style.maxHeight = `${liveHeightRef.current}px`;
+            turnsEl.style.overflowY = "auto";
+          }
+          articleRef.current.style.transform =
+            liveDragRef.current.x !== 0 || liveDragRef.current.y !== 0
+              ? `translate3d(${liveDragRef.current.x}px, ${Math.round(top + liveDragRef.current.y)}px, 0)`
+              : `translateY(${Math.round(top)}px)`;
+        }
+        updateLeaderLineDOM(liveDragRef.current.x, liveDragRef.current.y, liveWidthRef.current);
+      });
+    }
   };
 
   const handleResizeTopUp = (e: React.PointerEvent<HTMLDivElement>) => {
     if (isResizingRef.current !== "top") return;
     isResizingRef.current = null;
     setIsInteracting(false);
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+    }
+    if (liveHeightRef.current !== undefined) {
+      setGlossHeight(gloss.id, liveHeightRef.current);
+    }
+    setGlossDragOffset(gloss.id, liveDragRef.current);
+    updateLeaderLineDOM(liveDragRef.current.x, liveDragRef.current.y, liveWidthRef.current);
     try {
       (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
     } catch {}
@@ -435,15 +531,18 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     isResizingRef.current = "corner";
     setIsInteracting(true);
-    const cardEl = (e.currentTarget as HTMLElement).closest(".gloss-card") as HTMLElement | null;
-    const turnsEl = cardEl?.querySelector(".gloss-turns") as HTMLElement | null;
+    const cardEl = articleRef.current || ((e.currentTarget as HTMLElement).closest(".gloss-card") as HTMLElement | null);
+    const turnsEl = cardEl?.querySelector<HTMLElement>(".gloss-turns");
     const currentH = gloss.customHeight ?? (turnsEl?.offsetHeight || 320);
+    const currentW = gloss.customWidth ?? 320;
+    liveWidthRef.current = currentW;
+    liveHeightRef.current = currentH;
     resizeStartRef.current = {
       clientX: e.clientX,
       clientY: e.clientY,
-      startWidth: gloss.customWidth ?? 320,
+      startWidth: currentW,
       startHeight: currentH,
-      startDragY: gloss.dragOffset?.y ?? 0,
+      startDragY: liveDragRef.current.y,
     };
   };
 
@@ -451,18 +550,43 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
     if (isResizingRef.current !== "corner") return;
     const deltaX = resizeStartRef.current.clientX - e.clientX;
     const nextWidth = Math.max(280, Math.min(540, Math.round(resizeStartRef.current.startWidth + deltaX)));
-    setGlossWidth(gloss.id, nextWidth);
-
     const deltaY = e.clientY - resizeStartRef.current.clientY;
     const nextHeight = Math.max(200, Math.min(720, Math.round(resizeStartRef.current.startHeight + deltaY)));
-    setGlossHeight(gloss.id, nextHeight);
-    onHeightChange?.();
+    liveWidthRef.current = nextWidth;
+    liveHeightRef.current = nextHeight;
+    if (!rafRef.current) {
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = 0;
+        if (articleRef.current) {
+          articleRef.current.style.width = `${liveWidthRef.current}px`;
+          articleRef.current.style.left = "auto";
+          articleRef.current.style.right = "0px";
+          const turnsEl = articleRef.current.querySelector<HTMLElement>(".gloss-turns");
+          if (turnsEl) {
+            turnsEl.style.maxHeight = `${liveHeightRef.current}px`;
+            turnsEl.style.overflowY = "auto";
+          }
+        }
+        updateLeaderLineDOM(liveDragRef.current.x, liveDragRef.current.y, liveWidthRef.current);
+      });
+    }
   };
 
   const handleResizeCornerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     if (isResizingRef.current !== "corner") return;
     isResizingRef.current = null;
     setIsInteracting(false);
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+    }
+    if (liveWidthRef.current !== undefined) {
+      setGlossWidth(gloss.id, liveWidthRef.current);
+    }
+    if (liveHeightRef.current !== undefined) {
+      setGlossHeight(gloss.id, liveHeightRef.current);
+    }
+    updateLeaderLineDOM(liveDragRef.current.x, liveDragRef.current.y, liveWidthRef.current);
     try {
       (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
     } catch {}
@@ -477,7 +601,7 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
 
   return (
     <article
-      ref={ref}
+      ref={setRefs}
       data-gloss-id={gloss.id}
       aria-label={`${badge} note for ${chLabel}`}
       className={`gloss-card ${placed ? "" : "unplaced"} ${
@@ -572,6 +696,11 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
             onPointerUp={handleHeaderPointerUp}
             onDoubleClick={(e) => {
               e.stopPropagation();
+              liveDragRef.current = { x: 0, y: 0 };
+              if (articleRef.current) {
+                articleRef.current.style.transform = `translateY(${Math.round(top)}px)`;
+              }
+              updateLeaderLineDOM(0, 0, liveWidthRef.current);
               setGlossDragOffset(gloss.id, { x: 0, y: 0 });
             }}
             title="Drag header to move card · Double-click to reset position"

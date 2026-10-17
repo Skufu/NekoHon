@@ -25,7 +25,7 @@
 
 The product bet: local inference, cited answers, figures on screen, wifi off.
 
-**Current (2026-10-17):** post-v1. `nekohon_x3` (3.1B, Q4_K_M, 1.93 GB (1,840.5 MiB); renamed from `smallbook_x3` 2026-10-17, same weights) is adopted as the primary desktop answer model (`prompt.ANSWER_MODEL = "nekohon_x3"`), succeeding `smallbook_x2g` and `smallbook_x2d`. `nekohon_x3_mobile` (1.5B, Q4_K_M, 986 MB (940.4 MiB)) serves edge and resource-constrained environments. All edge cases (alphanumeric acronyms, coreference follow-ups, natural comparison grammar, highlight intent) are resolved. Benchmark status: **60/60** Hard Benchmark, **24/24** Highlight Golden, **22/22** HTTP Battery, **348** unit tests. Report: `artifacts/reports/architecture-and-x3-2026-10-17.md`.
+**Current (2026-10-17):** post-v1. `nekohon_x3` (3.1B, Q4_K_M, 1.93 GB (1,840.5 MiB); renamed from `smallbook_x3` 2026-10-17, same weights) is adopted as the primary desktop answer model (`prompt.ANSWER_MODEL = "nekohon_x3"`), succeeding `smallbook_x2g` and `smallbook_x2d`. `nekohon_x3_mobile` (1.5B, Q4_K_M, 986 MB (940.4 MiB)) serves edge and resource-constrained environments. All edge cases (alphanumeric acronyms, coreference follow-ups, natural comparison grammar, highlight intent) are resolved. Benchmark status: **60/60** Hard Benchmark, **24/24** Highlight Golden, **22/22** HTTP Battery, **356** unit tests. Report: `artifacts/reports/architecture-and-x3-2026-10-17.md`.
 
 Two older drafts in `~/.hermes/cache/scratch/hackathon-plan.md` and `hackathon-plan-full.md` disagree with each other. This file replaces both.
 
@@ -108,7 +108,7 @@ ask-this-book/
   models/            # committed portable Modelfiles (nekohon_x3, nekohon_x3_mobile)
   scripts/           # setup_models.py (one-command install, verify, release package)
   docs/              # ENGINEERING_AND_BENCHMARKS.md (in-depth contributor guide)
-  tests/             # 348 unit tests + fixtures
+  tests/             # 356 unit tests + fixtures
     test_contract.py  test_ingest.py  test_retrieve.py  test_answer.py
     test_figures.py   test_keywords.py  test_captions.py  test_readings.py
     test_preprocess.py  test_chunking.py  test_generalization.py

@@ -329,18 +329,25 @@ export default function Margin({
           aria-hidden="true"
         >
           {lead.map((id) => {
+            const g = glosses.find((item) => item.id === id);
+            const dragX = g?.dragOffset?.x ?? 0;
+            const dragY = g?.dragOffset?.y ?? 0;
+            const widthShift = g?.customWidth ? 320 - g.customWidth : 0;
             const y0 = layout.anchors[id];
-            const y1 = (layout.tops[id] ?? 0) + 18;
+            const y1 = (layout.tops[id] ?? 0) + 18 + dragY;
             const x0 = 4;
-            const x1 = 27;
-            const d = `M ${x0} ${y0} C ${x0 + 12} ${y0}, ${x1 - 12} ${y1}, ${x1} ${y1}`;
+            const x1 = 27 + dragX + widthShift;
+            const dx = x1 - x0;
+            const cpOffset = Math.max(12, Math.min(80, Math.abs(dx) * 0.45));
+            const cp1x = Math.round(x0 + (dx >= 0 ? cpOffset : -cpOffset * 0.5));
+            const cp2x = Math.round(x1 - (dx >= 0 ? cpOffset : -cpOffset * 0.5));
+            const d = `M ${x0} ${y0} C ${cp1x} ${y0}, ${cp2x} ${y1}, ${x1} ${y1}`;
             const isActive = id === activeGlossId;
             return (
-              <g
-                key={`${id}:${Math.round(y0)}:${Math.round(y1)}`}
-                opacity={isActive ? 1 : 0.6}
-              >
+              <g key={id} opacity={isActive ? 1 : 0.65}>
                 <path
+                  data-leader-for={id}
+                  data-y0={y0}
                   d={d}
                   className="gloss-leader"
                   stroke="var(--rubric)"
@@ -348,6 +355,13 @@ export default function Margin({
                   fill="none"
                 />
                 <circle cx={x0} cy={y0} r={2.5} fill="var(--rubric)" />
+                <circle
+                  data-leader-end-for={id}
+                  cx={x1}
+                  cy={y1}
+                  r={2}
+                  fill="var(--rubric)"
+                />
               </g>
             );
           })}

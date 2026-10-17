@@ -36,6 +36,9 @@ class IntentEngineTests(unittest.TestCase):
             ("Defining Storage Tiers", "Storage Tiers"),
             ("What is Cloud Native?", "Cloud Native"),
             ("What are Credit Default Swaps?", "Credit Default Swaps"),
+            ("Chapter 7. Ingestion", "Ingestion"),
+            ("Section 3.2 Key Considerations", "Key Considerations"),
+            ("Part 1: Foundations", "Foundations"),
             ("simple lift and shift", "simple lift and shift"),
             ("Cloud", "Cloud"),
             ("IOPS", "IOPS"),
@@ -382,6 +385,78 @@ class AdvanceFollowupQuoteTests(unittest.TestCase):
         self.assertEqual(fix_acronym_casing("Ssds and Hdds"), "SSDs and HDDs")
         self.assertEqual(fix_acronym_casing("Ddr5 ram"), "DDR5 RAM")
         self.assertEqual(fix_acronym_casing("ci/cd pipeline"), "CI/CD pipeline")
+
+    def test_compute_dynamic_followups_lifecycle_no_glued_terms_or_duplicate_pills(self):
+        chunk_02_002 = {
+            "chunk_id": "ch02-002",
+            "chapter": "2",
+            "heading": "What Is the Data Engineering Lifecycle?",
+            "text": (
+                "What Is the Data Engineering Lifecycle?\n"
+                "The data engineering lifecycle comprises stages that turn raw data ingredients into a useful end product, ready for consumption by analysts, data scientists, ML engineers, and others. This chapter introduces the major stages of the data engineering lifecycle, focusing on each stage's core concepts and saving details for later chapters.\n\n"
+                "We divide the data engineering lifecycle into five stages (Figure 2-1, top):\n\n"
+                "Generation\n\n"
+                "Storage\n\n"
+                "Ingestion\n\n"
+                "Transformation\n\n"
+                "Serving data\n\n"
+                "Figure 2-1 shows the data engineering lifecycle."
+            ),
+        }
+        user_q = "What are the stages of the data engineering lifecycle?"
+        answer_text = '[Ch. 2] "Generation, Storage, Ingestion, Transformation, Serving data"\nThe five stages of the data engineering lifecycle are generation, storage, ingestion, transformation, and serving data.'
+        followups = compute_dynamic_followups(
+            chunk_02_002,
+            neighbors=[],
+            question=user_q,
+            answer_text=answer_text,
+            mode="answer",
+        )
+        self.assertEqual(len(followups), 3)
+        # ZERO newline-glued terms (like "Generation Storage Ingestion")
+        for q in followups:
+            self.assertNotIn("Generation Storage", q)
+            self.assertNotIn("Storage Ingestion", q)
+            # ZERO duplicate question pills repeating the user question
+            self.assertNotEqual(q.lower(), user_q.lower())
+            self.assertNotIn("what are the main stages", q.lower())
+            self.assertNotIn("what is the data engineering lifecycle", q.lower())
+
+    def test_compute_dynamic_followups_ch07_002_no_figure_or_heading_pills(self):
+        chunk_07_002 = {
+            "chunk_id": "ch07-002",
+            "chapter": "7",
+            "heading": "What Is Data Ingestion?",
+            "text": (
+                "What Is Data Ingestion?\n"
+                "Data ingestion is the process of moving data from where it is generated to where it is stored. "
+                "In this section, we cover ingestion pipelines (Figure 7-2) and how they process events."
+            ),
+        }
+        neighbor_07_001 = {
+            "chunk_id": "ch07-001",
+            "chapter": "7",
+            "heading": "Chapter 7. Ingestion",
+            "text": "Chapter 7. Ingestion\nOverview of the ingestion chapter.",
+        }
+        selection = "Data Ingestion"
+        followups = compute_dynamic_followups(
+            chunk_07_002,
+            neighbors=[neighbor_07_001],
+            selection=selection,
+            question=selection,
+            mode="explain",
+        )
+        self.assertEqual(len(followups), 3)
+        for q in followups:
+            self.assertLessEqual(len(q), 42)
+            # No stripped figure numbers like '7-2'
+            self.assertNotIn("7-2", q)
+            # No partial heading matches like 'What Is Data'
+            self.assertNotIn("What Is Data", q)
+            # No unstripped chapter prefixes or redundant section repeats
+            self.assertNotIn("Chapter 7", q)
+            self.assertNotEqual(q.lower(), "what is ingestion?")
 
 
 if __name__ == "__main__":

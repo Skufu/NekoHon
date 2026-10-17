@@ -204,7 +204,7 @@ Every PR must pass all quality gates before merge. Run these commands from the r
 
 ```mermaid
 flowchart LR
-    Unit["1. Unit Suite<br/>(348 unit tests, 1.6s)"] --> Hard["2. Hard Benchmark<br/>(60 items, 100%)"]
+    Unit["1. Unit Suite<br/>(356 unit tests, 1.6s)"] --> Hard["2. Hard Benchmark<br/>(60 items, 100%)"]
     Hard --> High["3. Highlight Golden<br/>(24 items, 100%)"]
     High --> Batt["4. HTTP Battery<br/>(22 items, 100%)"]
     Batt --> PR["PR Approved &amp; Merged"]
@@ -214,7 +214,7 @@ flowchart LR
 ```sh
 python -m unittest discover -s tests
 ```
-- **Scope**: 348 unit tests executing in ~1.6 seconds.
+- **Scope**: 356 unit tests executing in ~1.6 seconds.
 - **Coverage**: Contract validation, sentence-boundary chunk packing, hybrid RRF fusion, typo second readings, figure attachment integrity, and [`tests/test_generalization.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/tests/test_generalization.py) (fails if any book-specific IDs or titles leak into logic modules).
 
 ### 4.2 60-Item Hard Benchmark ([`artifacts/harnesses/hard-bench.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/artifacts/harnesses/hard-bench.py))

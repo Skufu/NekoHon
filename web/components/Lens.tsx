@@ -393,7 +393,7 @@ export default function Lens({
       aria-label={
         lens.mode === "ask" ? "Ask about selection" : "Selection actions"
       }
-      className="lens"
+      className={`lens${lens.mode === "ask" ? " lens-morph" : ""}`}
       style={{
         left: pos?.x ?? -9999,
         top: pos?.y ?? -9999,

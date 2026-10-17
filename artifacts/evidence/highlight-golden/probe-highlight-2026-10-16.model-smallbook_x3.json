@@ -71,7 +71,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 2] \"Now, a new batch of open source competitors (including Prefect, Dagster, and Metaflow) has sprung up to fix perceived limitations of Airflow, providing better metadata handling, portability, and dependency management.\"\n[ch. 2] \"many data engineers are heavily involved in developing open source frameworks.",
    "error": null,
-   "seconds": 0.7,
+   "seconds": 0.6,
    "id": "ch02-085:source",
    "asked": "What is source in Development of open source frameworks?"
   },
@@ -115,7 +115,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 6] \"No hard and fast rules indicate how often warm data is accessed, but it’s less than hot data and more than cold data.\"\n[ch. 6] \"warm data is accessed semi-regularly, say, once per month.",
    "error": null,
-   "seconds": 0.7,
+   "seconds": 0.6,
    "id": "ch06-104:accessed",
    "asked": "What is accessed in Warm data?"
   },
@@ -137,7 +137,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 6] \"Just as code version control allows developers to track down commits that cause bugs, data version control can aid ML engineers in tracking changes that lead to model performance degradation.\"\nPerformance measures how well a model or system meets its intended goals under specific conditions.",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.2,
    "id": "ch06-121:performance",
    "asked": "What is performance in Data versioning in object storage?"
   },
@@ -157,9 +157,9 @@
    "pin_cited": true,
    "quote_verbatim_in_pin": true,
    "word_in_quoted_span": true,
-   "answer": "[Ch. 8] \"In terms of performance, queries should execute as quickly as possible in the most cost-effective way.\"\nQuickly' means delivering analytical queries within milliseconds so end-users experience near-instantaneous results.",
+   "answer": "[Ch. 8] \"In terms of performance, queries should execute as quickly as possible in the most cost-effective way.\"\nQuickly' means delivering analytical queries within milliseconds to support real-time business decisions without compromising data integrity.",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.2,
    "id": "ch08-147:quickly",
    "asked": "What is quickly in Downstream Stakeholders?"
   },
@@ -192,7 +192,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 5] \"Individual log entries can be written to a messaging system such as Kafka or Pulsar for real-time applications.\"\nNow' events are recorded precisely when they occur, allowing real-time processing to react instantly.",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.2,
    "id": "ch05-017:time",
    "asked": "What is time in Log latency: Batch or real time?"
   },
@@ -203,7 +203,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 1] \"A CTO owns the key technological strategy and architectures for external-facing applications, such as mobile, web apps, and IoT—all critical data sources for data engineers.\"\nData are the foundational records that drive operational decisions and strategic planning across all organizational units.",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.2,
    "id": "ch01-065:data",
    "asked": "What is data in Chief technology officer?"
   },
@@ -247,7 +247,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 3] \"25 Zhamak Dehghani, “How to Move Beyond a Monolithic Data Lake to a Distributed Data Mesh,” MartinFowler.com, May 20, 2019, https://oreil.ly/SqMe8.\"\nData means distributed architecture over monolithic storage solutions.",
    "error": null,
-   "seconds": 0.1,
+   "seconds": 0.2,
    "id": "ch03-108:data",
    "asked": "What is data in Additional Resources?"
   },

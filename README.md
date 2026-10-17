@@ -163,7 +163,7 @@ The engine exposes a strictly typed, frozen HTTP contract:
 Run all checks from the repo root:
 
 ```sh
-# 1. Fast Unit Suite (348 unit tests, 0 network, ~1.5s)
+# 1. Fast Unit Suite (356 unit tests, 0 network, ~1.5s)
 python -m unittest discover -s tests
 
 # 2. Read-Only Index Vector Hygiene Audit

@@ -283,7 +283,9 @@ export default function Reader({
       `[data-chunk-id="${CSS.escape(chunkId)}"]`
     );
     if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      const topOffset = 72;
+      const targetY = Math.max(0, window.scrollY + el.getBoundingClientRect().top - topOffset);
+      animateScrollTo(targetY, 520);
     }
   }, []);
 

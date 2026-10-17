@@ -1238,14 +1238,16 @@ mark {
   position: absolute;
   top: 0;
   overflow: visible;
+  z-index: 5;
 }
 
 .gloss-leader {
   stroke: var(--rubric);
-  stroke-width: 1.4;
+  stroke-width: 1.5;
   stroke-dasharray: 400;
   stroke-dashoffset: 400;
-  animation: draw 0.55s var(--ease-out) forwards;
+  animation: draw 0.45s var(--ease-out) forwards;
+  transition: opacity 0.18s var(--ease-out);
 }
 
 @keyframes draw {
@@ -1745,6 +1747,17 @@ mark {
   color: var(--ink-3);
 }
 
+@keyframes question-fade {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .turn-question {
   margin-bottom: 6px;
   font-family: var(--font-sans);
@@ -1752,6 +1765,7 @@ mark {
   font-weight: 500;
   line-height: 1.4;
   color: var(--ink);
+  animation: question-fade 0.22s var(--ease-out) both;
 }
 
 .turn-busy {
@@ -1924,6 +1938,17 @@ mark {
   margin-bottom: 8px;
 }
 
+@keyframes chip-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .followup-chips {
   margin-top: 10px;
   display: flex;
@@ -1943,7 +1968,20 @@ mark {
   font-weight: 500;
   color: var(--ink-3);
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s, background-color 0.15s;
+  transition: color 0.15s, border-color 0.15s, background-color 0.15s, transform 0.15s;
+  animation: chip-in 0.22s var(--ease-out) both;
+}
+
+.followup-chip:nth-child(2) {
+  animation-delay: 35ms;
+}
+
+.followup-chip:nth-child(3) {
+  animation-delay: 70ms;
+}
+
+.followup-chip:nth-child(n+4) {
+  animation-delay: 105ms;
 }
 
 .followup-chip:hover {
@@ -2783,12 +2821,24 @@ mark.key {
   margin: 8px 0;
 }
 
+@keyframes figure-fade {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .answer-figure-img {
   max-width: 100%;
   height: auto;
   display: block;
   border-radius: 6px;
   border: 1px solid var(--rule);
+  animation: figure-fade 0.28s var(--ease-out) both;
 }
 
 .answer-figure-caption {
@@ -2858,7 +2908,10 @@ mark.key {
   }
   .stream-token,
   .source-popover,
-  .return-spot-banner {
+  .return-spot-banner,
+  .turn-question,
+  .followup-chip,
+  .answer-figure-img {
     animation: none;
   }
   .source-popover-wrapper,

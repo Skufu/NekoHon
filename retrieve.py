@@ -103,7 +103,17 @@ def document_input(model, record, kind):
     return format_input(model, "document", caption, "")
 
 
+_EMBED_CACHE = {}
+_MAX_EMBED_CACHE = 256
+
+
 def ollama_embed(texts, model=DEFAULT_EMBEDDER, url=OLLAMA, timeout=120):
+    cache_key = None
+    if len(texts) <= 4:
+        cache_key = (url, model, tuple(texts))
+        if cache_key in _EMBED_CACHE:
+            return [list(v) for v in _EMBED_CACHE[cache_key]]
+
     payload = json.dumps({
         "model": model,
         "input": texts,
@@ -119,6 +129,15 @@ def ollama_embed(texts, model=DEFAULT_EMBEDDER, url=OLLAMA, timeout=120):
     vectors = body.get("embeddings")
     if not isinstance(vectors, list) or len(vectors) != len(texts):
         raise RuntimeError(f"bad embed response for {model}")
+
+    if cache_key is not None:
+        if len(_EMBED_CACHE) >= _MAX_EMBED_CACHE:
+            try:
+                _EMBED_CACHE.pop(next(iter(_EMBED_CACHE)))
+            except Exception:
+                _EMBED_CACHE.clear()
+        _EMBED_CACHE[cache_key] = [list(v) for v in vectors]
+
     return vectors
 
 
@@ -233,9 +252,9 @@ def rank_chunks(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
     return ranked
 
 
-def search(index, question, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K):
+def search(index, question, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K, return_ranks=False):
     ranked = rank_chunks(index, question, model, embed_fn)
-    return [
+    passages = [
         {
             "score": score,
             "chunk_id": chunk["chunk_id"],
@@ -246,6 +265,17 @@ def search(index, question, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K):
         }
         for score, chunk in ranked[:k]
     ]
+    if return_ranks:
+        ranks = {
+            chunk["chunk_id"]: position
+            for position, (_, chunk) in enumerate(ranked, start=1)
+        }
+        return passages, ranks
+    return passages
+
+
+def search_with_ranks(index, question, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K):
+    return search(index, question, model=model, embed_fn=embed_fn, k=k, return_ranks=True)
 
 
 def dense_rank(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):

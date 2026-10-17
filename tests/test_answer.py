@@ -7,11 +7,15 @@ from unittest import mock
 
 from answer import (
     REFUSAL,
+    _after_lead_in,
     _candidate_sentences,
+    _clean_boilerplate_gloss,
     _clean_selection_text,
     _extract_subject_from_history,
+    _is_coherent_gloss,
     _plural,
     _resolve_contextual_query,
+    _synthesize_list_answer,
     ask,
     explain,
     highlight_query,
@@ -1093,6 +1097,77 @@ class PinChunkAndCrossChunkTests(unittest.TestCase):
         self.assertNotIn("Solid-state drives", turn4["answer"])
         self.assertNotIn("ch06-009", [c["chunk_id"] for c in turn4["citations"]])
         self.assertIn("RAM", turn4["answer"])
+
+    def test_after_lead_in_multi_paragraph_short_list_items(self):
+        passage = (
+            "We divide the data engineering lifecycle into five stages (Figure 2-1, top):\n\n"
+            "Generation\n\n"
+            "Storage\n\n"
+            "Ingestion\n\n"
+            "Transformation\n\n"
+            "Serving data\n\n"
+            "Figure 2-1 shows the lifecycle in detail."
+        )
+        lead = "We divide the data engineering lifecycle into five stages (Figure 2-1, top):"
+        items = _after_lead_in(lead, passage)
+        self.assertEqual(items, "Generation, Storage, Ingestion, Transformation, Serving data")
+
+    def test_is_coherent_gloss_rejects_pointer_non_answers(self):
+        pointers = [
+            "The five stages are listed in the introduction.",
+            "These concepts are discussed in this chapter.",
+            "The details are covered in the section below.",
+            "These factors are outlined in the chapter summary.",
+            "Please refer to chapter for additional details.",
+            "See figure for the complete architecture diagram.",
+        ]
+        for p in pointers:
+            with self.subTest(gloss=p):
+                self.assertFalse(_is_coherent_gloss(p), f"Should have rejected pointer: {p}")
+
+    def test_is_coherent_gloss_list_itemless_non_answers(self):
+        q = "What are the stages of the data engineering lifecycle?"
+        quote = "Generation, Storage, Ingestion, Transformation, Serving data"
+        # Itemless / summary statements failing to name items:
+        self.assertFalse(_is_coherent_gloss("The data engineering process is split into five main steps.", quote, question=q))
+        self.assertFalse(_is_coherent_gloss("There are several important stages to understand.", quote, question=q))
+        # Valid answer explicitly naming the items:
+        valid = "The five stages of the data engineering lifecycle are generation, storage, ingestion, transformation, and serving data."
+        self.assertTrue(_is_coherent_gloss(valid, quote, question=q))
+
+    def test_synthesize_list_answer(self):
+        q = "What are the stages of the data engineering lifecycle?"
+        quote = "Generation, Storage, Ingestion, Transformation, Serving data"
+        chunk_obj = {
+            "text": (
+                "We divide the data engineering lifecycle into five stages (Figure 2-1, top):\n\n"
+                "Generation\n\n"
+                "Storage\n\n"
+                "Ingestion\n\n"
+                "Transformation\n\n"
+                "Serving data"
+            )
+        }
+        res = _synthesize_list_answer(q, quote, chunk_obj)
+        self.assertEqual(
+            res,
+            "The stages of the data engineering lifecycle are generation, storage, ingestion, transformation, and serving data.",
+        )
+
+    def test_clean_boilerplate_gloss_strips_prompt_leakage(self):
+        leaked = (
+            "Data ingestion moves data from sources to target systems, "
+            "do not say 'the section explains data ingestion'."
+        )
+        cleaned = _clean_boilerplate_gloss(leaked)
+        self.assertEqual(
+            cleaned,
+            "Data ingestion moves data from sources to target systems.",
+        )
+
+    def test_is_coherent_gloss_rejects_prompt_leakage(self):
+        leaked = "Do not say 'the section introduces data ingestion' or explain meta."
+        self.assertFalse(_is_coherent_gloss(leaked))
 
 
 if __name__ == "__main__":

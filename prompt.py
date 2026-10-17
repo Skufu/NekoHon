@@ -64,7 +64,8 @@ ANSWER_GLOSS_SYSTEM = (
     "You are a clear, insightful book companion. Given the reader's question and the cited sentence from the book, "
     "write a direct 1 to 2 sentence answer in plain words that answers the reader's question based on the passage. "
     "Do not use quotation marks, do not include [Ch. N] tags, do not repeat the sentence verbatim, "
-    "do not start with 'In this context', 'The passage', or 'The authors state', and never say 'Not in this book.'"
+    "do not start with 'In this context', 'The passage', or 'The authors state', and never say 'Not in this book.' "
+    "If the reader asks 'What are the ...' (a list, stages, types, components, or reasons), you MUST explicitly name the specific items in your sentence (e.g., 'The five stages of the data engineering lifecycle are generation, storage, ingestion, transformation, and serving data.'). NEVER write vague pointer sentences like 'The stages are listed in the introduction' or 'The process is split into five steps' without naming them."
 )
 
 # Live default is nekohon_x3 (renamed from smallbook_x3 2026-10-17; the old

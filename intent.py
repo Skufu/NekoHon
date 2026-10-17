@@ -9,7 +9,7 @@ neighborhood into one of 4 structural intents:
 """
 
 import re
-from preprocess import STOPWORDS, words
+from preprocess import STOPWORDS, stem, words
 
 INTENT_CONCEPT_TERM = "CONCEPT_TERM"
 INTENT_VAGUE_FRAGMENT = "VAGUE_FRAGMENT"
@@ -34,6 +34,7 @@ META_TRANSITION_RE = re.compile(
 )
 
 CORE_PREFIX_RE = re.compile(
+    r"^(?:chapter|section|part)\s+\d+(?:[\.-]\d+)*[\.:\s-]*|"
     r"^(?:an?|the)\s+(?:brief\s+|quick\s+|short\s+)?(?:detour|note|primer|introduction|intro|overview|look|word|section|chapter|guide|discussion|summary|background|thoughts?)\s+(?:on|to|about|of|for)\s+|"
     r"^(?:brief\s+|quick\s+|short\s+)?(?:detour|note|primer|introduction|intro|overview|look|word|section|chapter|guide|discussion|summary|background|thoughts?)\s+(?:on|to|about|of|for)\s+|"
     r"^(?:understanding|defining|exploring|what\s+is|what\s+are)\s+",
@@ -54,6 +55,11 @@ INTRO_ADVERBIAL_RE = re.compile(
     r"^(?:in addition|however|furthermore|moreover|for example|for instance|recall that|note that|in general|on the other hand|similarly|finally|first|second|third|meanwhile|specifically|also|as a result),?\s*",
     re.IGNORECASE,
 )
+
+STRUCTURAL_HEADINGS = frozenset({
+    "conclusion", "summary", "introduction", "overview",
+    "additional resources", "references", "preface", "notes", "closing thoughts",
+})
 
 
 def extract_core_concept(selection: str, heading: str = "") -> str:
@@ -255,6 +261,23 @@ def analyze_intent(selection: str, heading: str = "", chunk: dict = None, neighb
     }
 
 
+def _is_redundant_followup(cand_q: str, clean_q: str, clean_sel: str = "") -> bool:
+    """True when cand_q has >= 60% stemmed content-word overlap with the user question/selection."""
+    if not cand_q:
+        return True
+    c_words = [w.lower() for w in words(cand_q) if len(w) >= 3 and w.lower() not in STOPWORDS]
+    if not c_words:
+        return False
+    c_stems = {stem(w) for w in c_words}
+    q_text = f"{clean_q} {clean_sel}".strip()
+    q_words = [w.lower() for w in words(q_text) if len(w) >= 3 and w.lower() not in STOPWORDS]
+    q_stems = {stem(w) for w in q_words}
+    if not q_stems:
+        return False
+    overlap = len(c_stems & q_stems) / len(c_stems)
+    return overlap >= 0.6
+
+
 def compute_dynamic_followups(
     chunk: dict,
     neighbors: list = None,
@@ -292,18 +315,37 @@ def compute_dynamic_followups(
     lead_low = lead_context.lower()
     chunk_low = chunk_text.lower()
 
+    # Strip heading line from chunk_text and neighbor text
+    def _body_no_heading(t: str, h: str = "") -> str:
+        if not t:
+            return ""
+        lines = t.splitlines()
+        if not lines:
+            return ""
+        first = lines[0].strip()
+        if h and first.lower() == h.lower():
+            return "\n".join(lines[1:])
+        if len(lines) > 1 and not first.endswith((".", "?", "!", ":", ";", '"', "'", "”")):
+            if h and (first.lower() in h.lower() or h.lower() in first.lower()):
+                return "\n".join(lines[1:])
+            if len(first) <= 60 and first[:1].isupper():
+                return "\n".join(lines[1:])
+        return t
+
+    body_text_no_heading = _body_no_heading(chunk_text, chunk_heading)
+
     # a) Extract candidate technical terms / concepts from chunk and neighbors[0]
     raw_terms = []
     # Parenthetical acronyms or terms: (IOPS), (Apache Beam), etc.
-    for m in re.finditer(r"\(([A-Za-z0-9\s_-]{2,30})\)", chunk_text):
+    for m in re.finditer(r"\(([A-Za-z0-9 \t_-]{2,30})\)", body_text_no_heading):
         raw_terms.append(m.group(1))
 
     # Capitalized multi-word technical terms / frameworks (2-3 words):
-    for m in re.finditer(r"\b([A-Z][A-Za-z0-9]+(?:\s+(?:and\s+)?[A-Z][A-Za-z0-9]+){1,2})\b", chunk_text):
+    for m in re.finditer(r"\b([A-Z][A-Za-z0-9]+(?:[ \t]+(?:and[ \t]+)?[A-Z][A-Za-z0-9]+){1,2})\b", body_text_no_heading):
         raw_terms.append(m.group(1))
 
     # Named / defined terms: "known as ...", "called ...", in quotes
-    for m in re.finditer(r"\b(?:known as|called|termed)\s+([a-zA-Z0-9\s_-]{3,30})[—–,\.\)]", chunk_text, re.I):
+    for m in re.finditer(r"\b(?:known as|called|termed)[ \t]+([a-zA-Z0-9 \t_-]{3,30})[—–,\.\)]", body_text_no_heading, re.I):
         raw_terms.append(m.group(1))
 
     # Specific technical phrases in the chunk:
@@ -314,14 +356,29 @@ def compute_dynamic_followups(
         if phrase in chunk_low:
             raw_terms.append(phrase)
 
+    # Standalone list-item lines from chunk_text:
+    for line in body_text_no_heading.splitlines():
+        l_strip = line.strip()
+        if (
+            3 <= len(l_strip) <= 25
+            and l_strip[0].isupper()
+            and not l_strip.endswith((".", "?", "!", ":"))
+            and l_strip.lower() != chunk_heading.lower()
+        ):
+            w = l_strip.split()
+            if 1 <= len(w) <= 3:
+                raw_terms.append(l_strip)
+
     # Neighbor terms (first neighbor in same chapter):
     if neighbors:
         for n in neighbors:
             if n and str(n.get("chapter")) == str(chunk.get("chapter")):
                 n_text = n.get("text") or ""
-                for m in re.finditer(r"\(([A-Za-z0-9\s_-]{2,30})\)", n_text):
+                n_head = (n.get("heading") or "").strip()
+                n_body = _body_no_heading(n_text, n_head)
+                for m in re.finditer(r"\(([A-Za-z0-9 \t_-]{2,30})\)", n_body):
                     raw_terms.append(m.group(1))
-                for m in re.finditer(r"\b([A-Z][A-Za-z0-9]+(?:\s+[A-Z][A-Za-z0-9]+){1,2})\b", n_text):
+                for m in re.finditer(r"\b([A-Z][A-Za-z0-9]+(?:[ \t]+[A-Z][A-Za-z0-9]+){1,2})\b", n_body):
                     raw_terms.append(m.group(1))
                 break
 
@@ -329,30 +386,49 @@ def compute_dynamic_followups(
     author_q = ""
     for s in split_sentences(chunk_text):
         s_strip = s.strip()
-        if s_strip.endswith("?") and 15 <= len(s_strip) <= 42 and s_strip.lower() not in exclude_text:
+        if (
+            s_strip.endswith("?")
+            and 15 <= len(s_strip) <= 42
+            and s_strip.lower() not in exclude_text
+            and not _is_redundant_followup(s_strip, clean_q, clean_sel)
+        ):
             author_q = s_strip
             break
 
     # Clean and filter candidate terms
     candidate_terms = []
     seen_terms = set()
+    DISCARD_OPENERS = frozenset({
+        "figure", "fig", "table", "chapter", "ch", "section", "part", "page",
+        "what", "why", "how", "when", "where", "who", "which",
+        "is", "are", "was", "were", "do", "does", "did",
+        "can", "could", "should", "would", "will",
+        "let", "see", "note",
+    })
     DROP_OPENERS = frozenset({
         "in", "on", "at", "for", "to", "with", "by", "the", "a", "an", "this",
-        "that", "these", "those", "chapter", "figure", "table", "section", "part",
-        "we", "our", "you", "here", "as", "such",
+        "that", "these", "those", "we", "our", "you", "here", "as", "such",
     })
     for t in raw_terms:
         t_clean = re.sub(r"\s+", " ", t).strip(" \t\r\n—–-,:;\"'“”()[]")
         t_words = t_clean.split()
         if not (2 <= len(t_clean) <= 28) or len(t_words) > 4:
             continue
-        if t_words[0].lower() in DROP_OPENERS and len(t_words) > 1:
+        if t_words and t_words[0].lower() in DISCARD_OPENERS:
+            continue
+        if t_words and t_words[0].lower() in DROP_OPENERS and len(t_words) > 1:
             t_clean = re.sub(r"\s+", " ", " ".join(t_words[1:])).strip(" \t\r\n—–-,:;\"'“”()[]")
             t_words = t_clean.split()
         if not t_clean or len(t_clean) < 2:
             continue
+        if re.search(r"\b\d+[-–.]\d+\b", t_clean):
+            continue
+        if not any(len(w) >= 3 and any(c.isalpha() for c in w) for w in t_words):
+            continue
         t_low = t_clean.lower()
         if t_low in seen_terms or t_low in exclude_text:
+            continue
+        if _is_redundant_followup(t_clean, clean_q, clean_sel):
             continue
         if all(w.lower() in STOPWORDS for w in t_words):
             continue
@@ -362,31 +438,34 @@ def compute_dynamic_followups(
     # Slot 1: Mechanism / Reason / Specifics in the passage
     slot1 = ""
     used_term = ""
-    if re.search(r"\b(two\s+reasons|three\s+reasons|several\s+reasons)\b", lead_low) or (
-        "reason" in lead_low and any(num in lead_low for num in ("two", "three", "several", "essential"))
+    if (
+        (
+            re.search(r"\b(two\s+reasons|three\s+reasons|several\s+reasons)\b", lead_low)
+            or ("reason" in lead_low and any(num in lead_low for num in ("two", "three", "several", "essential")))
+            or ("two reasons" in chunk_low or "three reasons" in chunk_low)
+        )
+        and "reason" not in clean_q.lower()
     ):
         slot1 = "What are the specific reasons?"
-    elif re.search(r"\b(main\s+stages|several\s+stages|stages)\b", lead_low):
+    elif re.search(r"\b(main\s+stages|several\s+stages|stages)\b", lead_low) and "stage" not in clean_q.lower():
         slot1 = "What are the main stages?"
-    elif re.search(r"\b(key\s+types|several\s+types|types\s+of)\b", lead_low):
+    elif re.search(r"\b(key\s+types|several\s+types|types\s+of)\b", lead_low) and "type" not in clean_q.lower():
         slot1 = "What are the key types?"
-    elif re.search(r"\b(characteristics|common\s+threads)\b", lead_low):
+    elif re.search(r"\b(characteristics|common\s+threads)\b", lead_low) and "characteristic" not in clean_q.lower():
         slot1 = "What are the key characteristics?"
-    elif re.search(r"\b(several\s+ways|ways\s+to)\b", lead_low):
+    elif re.search(r"\b(several\s+ways|ways\s+to)\b", lead_low) and "way" not in clean_q.lower():
         slot1 = "What are the specific ways?"
-    elif "two reasons" in chunk_low or "three reasons" in chunk_low:
-        slot1 = "What are the specific reasons?"
     else:
         for t in candidate_terms:
             is_plural = (t.endswith("s") and not t.lower().endswith(("ss", "us", "is", "as", "os", "ics"))) or t in ("SSDs", "HDDs", "CPUs", "GPUs", "VMs", "DAGs", "APIs")
             aux = "do" if is_plural else "does"
             q_cand = f"How {aux} {t} relate to this?"
-            if len(q_cand) <= 42:
+            if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
                 slot1 = q_cand
                 used_term = t
                 break
             q_cand = f"What is {t}?" if not is_plural else f"What are {t}?"
-            if len(q_cand) <= 42:
+            if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
                 slot1 = q_cand
                 used_term = t
                 break
@@ -395,7 +474,7 @@ def compute_dynamic_followups(
             core_concept = extract_core_concept(clean_sel, chunk_heading)
             if core_concept and core_concept.lower() not in exclude_text:
                 q_cand = f"How does {core_concept} work?"
-                if len(q_cand) <= 42:
+                if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
                     slot1 = q_cand
         if not slot1:
             slot1 = "How does this work in practice?"
@@ -420,12 +499,12 @@ def compute_dynamic_followups(
         for t2 in candidate_terms:
             if t2 != used_term:
                 q_cand = f"How does this compare to {t2}?"
-                if len(q_cand) <= 42:
+                if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
                     slot2 = q_cand
                     used_term = t2
                     break
                 q_cand = f"What is the role of {t2}?"
-                if len(q_cand) <= 42:
+                if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
                     slot2 = q_cand
                     used_term = t2
                     break
@@ -443,9 +522,15 @@ def compute_dynamic_followups(
                 n_head = (n.get("heading") or "").strip()
                 if n_head and n_head.lower() != chunk_heading.lower() and n_head.lower() not in exclude_text:
                     clean_next = extract_core_concept(n_head)
-                    if clean_next and len(clean_next) <= 28:
-                        q_cand = f"What is {clean_next}?"
-                        if len(q_cand) <= 42:
+                    if (
+                        clean_next
+                        and len(clean_next) <= 28
+                        and clean_next.lower() not in STRUCTURAL_HEADINGS
+                        and not _is_redundant_followup(clean_next, clean_q, clean_sel)
+                    ):
+                        is_plural = clean_next.endswith("s") and not clean_next.lower().endswith(("ss", "us", "is", "as", "os", "ics"))
+                        q_cand = f"What is {clean_next}?" if not is_plural else f"What are {clean_next}?"
+                        if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
                             slot3 = q_cand
                             break
 
@@ -463,7 +548,7 @@ def compute_dynamic_followups(
         if len(q_clean) > 42:
             if len(q_clean) > 45:
                 q_clean = q_clean[:41].rstrip(" ?.,-") + "?"
-        if q_clean and q_clean.lower() not in seen_q:
+        if q_clean and q_clean.lower() not in seen_q and not _is_redundant_followup(q_clean, clean_q, clean_sel):
             seen_q.add(q_clean.lower())
             followups.append(q_clean)
 
@@ -477,7 +562,7 @@ def compute_dynamic_followups(
     for fb in FALLBACKS:
         if len(followups) >= 3:
             break
-        if fb.lower() not in seen_q:
+        if fb.lower() not in seen_q and not _is_redundant_followup(fb, clean_q, clean_sel):
             seen_q.add(fb.lower())
             followups.append(fb)
 

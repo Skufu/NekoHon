@@ -72,7 +72,7 @@ from prompt import (
     SYSTEM_ANSWER,
 )
 from readings import llm_second_reading, second_reading
-from retrieve import search
+from retrieve import rank_chunks, search
 
 OLLAMA_CHAT = "http://127.0.0.1:11434/api/chat"
 PASSAGE_LIMIT = 5
@@ -640,10 +640,19 @@ def _after_lead_in(quote, passage_text):
         return ""
     rest = passage_text[match.end():]
     paragraphs = [
-        piece for piece in re.split(r"\n\s*\n", rest) if piece.strip()
+        piece.strip() for piece in re.split(r"\n\s*\n", rest) if piece.strip()
     ]
     # A colon lead-in is often its own paragraph. The items are the next one.
-    paragraph = paragraphs[0] if paragraphs else ""
+    if len(paragraphs) >= 2 and len(paragraphs[0]) < 80 and not paragraphs[0].endswith((".", "!", "?")):
+        items = []
+        for p in paragraphs:
+            if len(p) < 80 and not p.endswith((".", "!", "?")) and not p.startswith(("Chapter ", "Figure ")):
+                items.append(re.sub(r"\s+", " ", p).strip())
+            else:
+                break
+        paragraph = ", ".join(items) if items else (paragraphs[0] if paragraphs else "")
+    else:
+        paragraph = paragraphs[0] if paragraphs else ""
     continuation = re.sub(r"\s+", " ", paragraph).strip()
     if len(continuation) > PARAGRAPH_CAP:
         cut = continuation[:PARAGRAPH_CAP]
@@ -933,6 +942,12 @@ def _clean_boilerplate_gloss(gloss, selection=""):
     if not gloss:
         return ""
     text = (gloss or "").strip()
+    text = re.sub(
+        r"[,;—–-]?\s*\b(?:do\s+not|don't|never)\s+(?:say|use|repeat|mention|start\s+with|include|write|output)\b[^.?!]*",
+        "",
+        text,
+        flags=re.IGNORECASE,
+    )
     text = re.sub(r"^[Ii]n this context,?\s*", "", text)
     text = re.sub(r"\bin this context\b", "here", text, flags=re.IGNORECASE)
     text = re.sub(r"\b[Tt]he highlighted question\b", "The question", text)
@@ -957,7 +972,7 @@ def _clean_boilerplate_gloss(gloss, selection=""):
     return fix_acronym_casing(text)
 
 
-def _is_coherent_gloss(gloss: str, quote: str = "") -> bool:
+def _is_coherent_gloss(gloss: str, quote: str = "", question: str = "") -> bool:
     """Strict guard rejecting gibberish, token repetition loops, meta-commentary, or fragments."""
     if not gloss or not isinstance(gloss, str):
         return False
@@ -998,6 +1013,26 @@ def _is_coherent_gloss(gloss: str, quote: str = "") -> bool:
     # f) meta-commentary non-answer
     if re.search(r"\b(?:this|the)\s+(?:section|chapter|passage|book|authors?)\s+(?:introduces?|prepares?\s+readers|discusses?|mentions?|is\s+a\s+detour)\b", text, re.IGNORECASE):
         return False
+    # Pointer / meta-location non-answers that tell the reader where something is instead of answering
+    if re.search(
+        r"\b(?:are|is)\s+(?:listed|discussed|covered|described|explained|found|shown|outlined|detailed|introduced)\s+in\s+(?:the|this|chapter|section|figure|part)\b"
+        r"|\b(?:in\s+the\s+introduction|see\s+chapter|see\s+section|see\s+figure|refer\s+to\s+chapter)\b",
+        text,
+        re.IGNORECASE,
+    ):
+        return False
+    # Prompt leakage non-answers:
+    if re.search(r"\b(?:do\s+not|don't|never)\s+(?:say|use|repeat|mention|start\s+with|include|write|output)\b", text, re.IGNORECASE):
+        return False
+    # List enumeration questions check
+    if question and _list_ask(question, question):
+        if "," not in text and " and " not in text.lower() and ";" not in text:
+            return False
+        if quote and quote.count(",") >= 2:
+            q_words = {w.lower() for w in words(quote) if len(w) >= 3 and w.lower() not in STOPWORDS}
+            t_words = {w.lower() for w in words(text) if len(w) >= 3 and w.lower() not in STOPWORDS}
+            if len(q_words & t_words) < 2:
+                return False
     # Quote repetition:
     if quote:
         norm_t = re.sub(r"[\s\"'“”]+", " ", text).strip().lower()
@@ -1638,8 +1673,23 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
     """
     topic_shift = _is_topic_shift_followup(question, history, selection)
     effective_pin = None if (topic_shift and not selection) else pin_chunk
-    search_fn = search_fn or search
-    passages = search_fn(index, question, k=PASSAGE_LIMIT)
+    ranks = None
+    if search_fn is None:
+        ranked = rank_chunks(index, question)
+        passages = [
+            {
+                "score": score,
+                "chunk_id": chunk["chunk_id"],
+                "chapter": chunk["chapter"],
+                "heading": chunk.get("heading", ""),
+                "text": chunk.get("text", ""),
+                "source": chunk.get("source", ""),
+            }
+            for score, chunk in ranked[:PASSAGE_LIMIT]
+        ]
+        ranks = {chunk["chunk_id"]: i for i, (_, chunk) in enumerate(ranked, start=1)}
+    else:
+        passages = search_fn(index, question, k=PASSAGE_LIMIT)
     passages = _pin_chunk(index, passages, effective_pin, end_chunk_id=end_chunk_id)
 
     context = {
@@ -1680,7 +1730,13 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
     # only when the question carries a rare book word, the trigger the boost
     # used; other asks do not pay.
     if rare(asked, word_map):
-        passages = fuse(index, asked, passages, word_map)
+        if ranks is not None and asked == question:
+            try:
+                passages = fuse(index, asked, passages, word_map, ranks=ranks)
+            except TypeError:
+                passages = fuse(index, asked, passages, word_map)
+        else:
+            passages = fuse(index, asked, passages, word_map)
     # Caption seeding runs last: its measured effect is which chunk leads, and
     # fusion would otherwise be free to demote that lead.
     passages = caption_seed(index, asked, passages)
@@ -1974,6 +2030,10 @@ def _answer_gloss_user_message(question, quote, chunk):
     if chunk.get("heading"):
         parts.append(f"Section heading: {chunk['heading']}")
     parts.append(f"\nPassage context:\n{chunk.get('text', '')}")
+    if _list_ask(question, question):
+        parts.append(
+            "\nExplicitly name the specific items, stages, components, or types in your answer."
+        )
     parts.append(
         "\nWrite a direct 1 to 2 sentence answer in plain words that answers the reader's question "
         "based on the passage context."
@@ -2167,6 +2227,70 @@ def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_
     return None
 
 
+def _synthesize_list_answer(question: str, quote: str, chunk_obj: dict) -> str:
+    """Deterministically synthesize a crisp list answer naming specific items."""
+    raw_text = (chunk_obj.get("text") or "") if isinstance(chunk_obj, dict) else ""
+    items = []
+    if quote and "," in quote:
+        cand_items = [p.strip() for p in quote.split(",") if p.strip()]
+        if len(cand_items) >= 2:
+            items = cand_items
+    if not items and raw_text:
+        list_lines = [
+            line.strip() for line in raw_text.splitlines()
+            if 2 <= len(line.strip()) < 80
+            and not line.strip().endswith((".", "!", "?", ":"))
+            and not line.strip().startswith(("Chapter ", "Figure "))
+            and (line.strip()[0].isupper() or line.strip()[0].isdigit())
+        ]
+        if len(list_lines) >= 2:
+            items = list_lines
+    if not items:
+        return ""
+
+    def _fmt_item(item):
+        it = item.strip()
+        if it.isupper() or any(c.isupper() for c in it[1:]):
+            return it
+        return it[0].lower() + it[1:] if it else it
+
+    formatted = [_fmt_item(it) for it in items]
+    if formatted[-1].lower().startswith("and "):
+        formatted[-1] = formatted[-1][4:].strip()
+    if len(formatted) == 2:
+        items_str = f"{formatted[0]} and {formatted[1]}"
+    else:
+        items_str = ", ".join(formatted[:-1]) + f", and {formatted[-1]}"
+
+    lead = ""
+    m_q = re.search(r"\b(?:what|which)\s+(?:are|were)\s+the\s+(.+?)\s*\??$", question or "", re.I)
+    if m_q:
+        subj = m_q.group(1).strip()
+        lead = f"The {subj} are"
+    else:
+        m_list = re.search(r"\b(?:list|name)\s+the\s+(.+?)\s*\??$", question or "", re.I)
+        if m_list:
+            subj = m_list.group(1).strip()
+            lead = f"The {subj} are"
+        else:
+            for line in raw_text.splitlines():
+                l_s = line.strip()
+                if l_s.endswith(":") and len(l_s) >= 15:
+                    cleaned_lead = re.sub(r"\s*\([^)]*figure[^)]*\)", "", l_s, flags=re.I).rstrip(":").strip()
+                    if cleaned_lead:
+                        lead = f"{cleaned_lead}:"
+                        break
+            if not lead:
+                lead = "These include"
+
+    if lead.endswith(":"):
+        return f"{lead} {items_str}."
+    elif lead.endswith(("are", "is", "include")):
+        return f"{lead} {items_str}."
+    else:
+        return f"{lead}: {items_str}."
+
+
 def _ensure_answer_gloss(index, body, question, passages, is_live=False,
                          history=None, selection="", heading="", model=ANSWER_MODEL,
                          generate_fn=None):
@@ -2242,7 +2366,7 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
             quote_repeated
             or not gloss_line
             or _gloss_repeats_quote(gloss_line, quote)
-            or not _is_coherent_gloss(gloss_line, quote)
+            or not _is_coherent_gloss(gloss_line, quote, question=question)
         )
         if not need_followup_gloss:
             new_gloss = gloss_line
@@ -2257,9 +2381,14 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
                 if new_gloss.startswith("[Ch.") and "\n" in new_gloss:
                     new_gloss = new_gloss.split("\n", 1)[1].strip()
                 new_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", new_gloss).strip().strip("\"'“”")
-            if not new_gloss or not _is_coherent_gloss(new_gloss, quote):
+            if not new_gloss or not _is_coherent_gloss(new_gloss, quote, question=question):
+                if _list_ask(question, question):
+                    list_synth = _synthesize_list_answer(question, quote, chunk_obj)
+                    if list_synth and _is_coherent_gloss(list_synth, quote, question=question):
+                        new_gloss = list_synth
+            if not new_gloss or not _is_coherent_gloss(new_gloss, quote, question=question):
                 cands = [s for s in _candidate_sentences(chunk_obj.get("text") or "", chunk_obj.get("heading") or "")
-                         if s != quote and len(s) >= 40 and not META_TRANSITION_RE.search(s)]
+                         if s != quote and len(s) >= 40 and not META_TRANSITION_RE.search(s) and _is_coherent_gloss(s, quote, question=question)]
                 if cands:
                     new_gloss = cands[0]
 
@@ -2275,15 +2404,15 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
             if new_gloss.startswith("[Ch.") and "\n" in new_gloss:
                 new_gloss = new_gloss.split("\n", 1)[1].strip()
             new_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", new_gloss).strip().strip("\"'“”")
-        if not new_gloss or not _is_coherent_gloss(new_gloss, quote):
+        if not new_gloss or not _is_coherent_gloss(new_gloss, quote, question=clean_sel):
             new_gloss = _synthesize_grounded_gloss(clean_sel, quote, chunk_obj, neighbors, generate_fn, model)
-        if not new_gloss or not _is_coherent_gloss(new_gloss, quote):
+        if not new_gloss or not _is_coherent_gloss(new_gloss, quote, question=clean_sel):
             cands = [s for s in _candidate_sentences(chunk_obj.get("text") or "", chunk_obj.get("heading") or "")
-                     if s != quote and len(s) >= 40 and not META_TRANSITION_RE.search(s)]
+                     if s != quote and len(s) >= 40 and not META_TRANSITION_RE.search(s) and _is_coherent_gloss(s, quote, question=clean_sel)]
             if cands:
                 new_gloss = cands[0]
 
-    elif not gloss_line or _gloss_repeats_quote(gloss_line, quote) or not _is_coherent_gloss(gloss_line, quote):
+    elif not gloss_line or _gloss_repeats_quote(gloss_line, quote) or not _is_coherent_gloss(gloss_line, quote, question=question):
         if is_live:
             prompt = _answer_gloss_user_message(question, quote, chunk_obj)
             try:
@@ -2294,9 +2423,14 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
             if new_gloss.startswith("[Ch.") and "\n" in new_gloss:
                 new_gloss = new_gloss.split("\n", 1)[1].strip()
             new_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", new_gloss).strip().strip("\"'“”")
-        if not new_gloss or not _is_coherent_gloss(new_gloss, quote):
+        if not new_gloss or not _is_coherent_gloss(new_gloss, quote, question=question):
+            if _list_ask(question, question):
+                list_synth = _synthesize_list_answer(question, quote, chunk_obj)
+                if list_synth and _is_coherent_gloss(list_synth, quote, question=question):
+                    new_gloss = list_synth
+        if not new_gloss or not _is_coherent_gloss(new_gloss, quote, question=question):
             cands = [s for s in _candidate_sentences(chunk_obj.get("text") or "", chunk_obj.get("heading") or "")
-                     if s != quote and len(s) >= 40 and not META_TRANSITION_RE.search(s)]
+                     if s != quote and len(s) >= 40 and not META_TRANSITION_RE.search(s) and _is_coherent_gloss(s, quote, question=question)]
             if cands:
                 new_gloss = cands[0]
 
@@ -3367,8 +3501,7 @@ def _explain_gloss_user_message(selection, quote, pin_chunk, neighbors=None):
         if heading:
             parts.append(f"Section heading: {heading}")
         parts.append(
-            "Explain in 1 to 2 plain, direct sentences the core takeaway of this passage and what it means for the reader. "
-            "Do NOT repeat the text verbatim and do NOT output token loops."
+            "Explain in 1 to 2 plain, direct sentences the core takeaway of this passage and what it means for the reader."
         )
         return "\n\n".join(parts)
 
@@ -3387,8 +3520,7 @@ def _explain_gloss_user_message(selection, quote, pin_chunk, neighbors=None):
                 if n and n.get("text"):
                     parts.append(f"Related context ({n.get('heading', '')}):\n{n['text']}")
         parts.append(
-            f"Define and explain what '{core_concept}' is and how it works according to this section. "
-            f"Do NOT say 'The section introduces...' or 'The authors discuss...' — explain the concept directly."
+            f"Define and explain what '{core_concept}' is and how it works in 1 to 2 plain, direct sentences based on this section."
         )
         return "\n\n".join(parts)
 

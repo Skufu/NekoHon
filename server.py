@@ -210,7 +210,7 @@ class Handler(BaseHTTPRequestHandler):
             live = bool(prefill) or (
                 system in (EXPLAIN_GLOSS_SYSTEM, ANSWER_GLOSS_SYSTEM, FOLLOWUP_GLOSS_SYSTEM)
             ) or (
-                system == SYSTEM and mode not in ("answer", "quiz")
+                system == SYSTEM and mode != "quiz" and getattr(respond, "__name__", "") != "fake_respond"
             )
 
             def on_token(text):

@@ -344,13 +344,33 @@ export const useAsk = create<AskStore>((set, get) => {
     };
 
     const pacerStep = () => {
+      if (targetText.startsWith("[")) {
+        const nlIdx = targetText.indexOf("\n");
+        if (nlIdx === -1) {
+          displayedText = targetText;
+        } else if (displayedText.length < nlIdx + 1) {
+          displayedText = targetText.slice(0, nlIdx + 1);
+        }
+      }
+
       if (displayedText.length < targetText.length) {
         const remaining = targetText.slice(displayedText.length);
         const backlog = targetText.length - displayedText.length;
-        const step = Math.min(
-          remaining.length,
-          Math.max(2, Math.min(8, Math.ceil(backlog / 8)))
-        );
+        let step = 0;
+        const wordMatch = remaining.match(/^\s*\S+\s*/);
+        if (backlog > 40) {
+          const cap = Math.min(remaining.length, Math.max(12, Math.ceil(backlog / 5)));
+          const spaceIdx = remaining.indexOf(" ", cap);
+          if (spaceIdx !== -1 && spaceIdx - cap < 15) {
+            step = spaceIdx + 1;
+          } else {
+            const twoWords = remaining.match(/^(\s*\S+\s*){1,2}/);
+            step = twoWords ? twoWords[0].length : cap;
+          }
+        } else {
+          step = wordMatch ? wordMatch[0].length : Math.min(remaining.length, 6);
+        }
+        if (step <= 0) step = Math.min(remaining.length, 1);
         displayedText += remaining.slice(0, step);
 
         set((state) => {
@@ -451,7 +471,7 @@ export const useAsk = create<AskStore>((set, get) => {
 
     const ensurePacerRunning = () => {
       if (flight.pacerTimer === null) {
-        flight.pacerTimer = setInterval(pacerStep, 16);
+        flight.pacerTimer = setInterval(pacerStep, 20);
       }
     };
 
@@ -463,31 +483,66 @@ export const useAsk = create<AskStore>((set, get) => {
           ensurePacerRunning();
         },
         onReset: () => {
-          targetText = "";
-          displayedText = "";
-          set((state) => {
-            const nextGlosses = state.glosses.map((g) => {
-              if (g.id !== glossId) return g;
+          const quoteMatch = targetText.match(
+            /^(\[(?:Ch|Chapter)\.?\s*[^\]]+\]\s*["\u201c][^"\u201d\n]+["\u201d]?)/i
+          );
+          if (quoteMatch) {
+            const preservedQuoteLine = quoteMatch[1] + "\n";
+            targetText = preservedQuoteLine;
+            if (displayedText.length > preservedQuoteLine.length) {
+              displayedText = preservedQuoteLine;
+            }
+            set((state) => {
+              const nextGlosses = state.glosses.map((g) => {
+                if (g.id !== glossId) return g;
+                return {
+                  ...g,
+                  turns: g.turns.map((t) => {
+                    if (t.id !== turnId) return t;
+                    return {
+                      ...t,
+                      streamText: displayedText,
+                      resetting: false,
+                    };
+                  }),
+                };
+              });
+              const activeGloss = nextGlosses.find((g) => g.id === state.activeGlossId);
+              const activeTurn = activeGloss?.turns.find((t) => t.id === turnId);
               return {
-                ...g,
-                turns: g.turns.map((t) => {
-                  if (t.id !== turnId) return t;
-                  return {
-                    ...t,
-                    streamText: "",
-                    resetting: t.streamText.length > 0,
-                  };
-                }),
+                glosses: nextGlosses,
+                streamText: activeTurn ? displayedText : state.streamText,
+                resetting: false,
               };
             });
-            const activeGloss = nextGlosses.find((g) => g.id === state.activeGlossId);
-            const activeTurn = activeGloss?.turns.find((t) => t.id === turnId);
-            return {
-              glosses: nextGlosses,
-              streamText: activeTurn ? "" : state.streamText,
-              resetting: activeTurn ? activeTurn.resetting : state.resetting,
-            };
-          });
+            ensurePacerRunning();
+          } else {
+            targetText = "";
+            displayedText = "";
+            set((state) => {
+              const nextGlosses = state.glosses.map((g) => {
+                if (g.id !== glossId) return g;
+                return {
+                  ...g,
+                  turns: g.turns.map((t) => {
+                    if (t.id !== turnId) return t;
+                    return {
+                      ...t,
+                      streamText: "",
+                      resetting: t.streamText.length > 0,
+                    };
+                  }),
+                };
+              });
+              const activeGloss = nextGlosses.find((g) => g.id === state.activeGlossId);
+              const activeTurn = activeGloss?.turns.find((t) => t.id === turnId);
+              return {
+                glosses: nextGlosses,
+                streamText: activeTurn ? "" : state.streamText,
+                resetting: activeTurn ? activeTurn.resetting : state.resetting,
+              };
+            });
+          }
         },
         onFinal: (body) => {
           finalResult = body;
