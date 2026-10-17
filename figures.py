@@ -10,14 +10,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 FIGURES = ROOT / "data" / "figures"
 
-FIGURE_RE = re.compile(r"\b(?:Figure|Fig\.)\s+([A-Z]?\d+-\d+)\b", re.I)
+FIGURE_RE = re.compile(r"\b(?:Figure|Fig\.)\s+([A-Z]?\d+[-.]\d+)\b", re.I)
 # Same token cited_numbers emits, so figure-a1-2 attaches to "Figure A1-2"
 # and does not collide with figure-1-2.
-NUMBER_RE = re.compile(r"(?:figure-|fig-)?([a-z]?\d+-\d+)", re.I)
+NUMBER_RE = re.compile(r"(?:figure-|fig-)?([a-z]?\d+[-.]\d+)", re.I)
 
 
 def cited_numbers(text):
-    return {match.group(1).lower() for match in FIGURE_RE.finditer(text or "")}
+    return {
+        match.group(1).lower().replace(".", "-")
+        for match in FIGURE_RE.finditer(text or "")
+    }
 
 
 def number_from_id(figure_id):
@@ -26,10 +29,57 @@ def number_from_id(figure_id):
     `figure-a1-2` and `figure-1-2` stay distinct. A bare `1-2` still matches.
     """
     match = NUMBER_RE.search(figure_id or "")
-    return match.group(1).lower() if match else ""
+    return match.group(1).lower().replace(".", "-") if match else ""
 
 
-def figures_for(passages, figures, limit=5, figures_dir=None):
+def _figure_path_and_src(figure, figures_dir, book_id=None):
+    file_name = figure.get("file") or ""
+    if not file_name:
+        src = figure.get("src") or (f"/figures/{figure['id']}?book_id={book_id}" if book_id else f"/figures/{figure['id']}")
+        return None, src
+
+    fig_path = None
+    if (figures_dir / file_name).is_file():
+        fig_path = figures_dir / file_name
+    elif book_id and (figures_dir / book_id / file_name).is_file():
+        fig_path = figures_dir / book_id / file_name
+    elif book_id and (FIGURES / book_id / file_name).is_file():
+        fig_path = FIGURES / book_id / file_name
+    elif (FIGURES / file_name).is_file():
+        fig_path = FIGURES / file_name
+    else:
+        for root in (figures_dir, FIGURES):
+            if root.is_dir():
+                for child in root.iterdir():
+                    if child.is_dir() and (child / file_name).is_file():
+                        fig_path = child / file_name
+                        break
+            if fig_path:
+                break
+
+    src = figure.get("src")
+    if not src:
+        if fig_path:
+            if fig_path.parent != FIGURES and fig_path.parent.parent == FIGURES:
+                src = f"/figures/{figure['id']}?book_id={fig_path.parent.name}"
+            elif figures_dir != FIGURES and figures_dir.parent == FIGURES and fig_path.parent == figures_dir:
+                src = f"/figures/{figure['id']}?book_id={figures_dir.name}"
+            elif book_id and (figures_dir / book_id / file_name).is_file():
+                src = f"/figures/{figure['id']}?book_id={book_id}"
+            else:
+                src = f"/figures/{figure['id']}"
+        else:
+            if book_id and (figures_dir / file_name).is_file():
+                src = f"/figures/{figure['id']}"
+            elif book_id:
+                src = f"/figures/{figure['id']}?book_id={book_id}"
+            else:
+                src = f"/figures/{figure['id']}"
+
+    return fig_path, src
+
+
+def figures_for(passages, figures, limit=5, figures_dir=None, book_id=None):
     """A figure attaches only if a top passage names its number.
 
     The embedding score floor is not set. Do not attach by vector score.
@@ -45,15 +95,15 @@ def figures_for(passages, figures, limit=5, figures_dir=None):
         number = number_from_id(figure.get("id"))
         if not number or number not in named or figure["id"] in seen:
             continue
-        file_name = figure.get("file") or ""
-        if not file_name or not (figures_dir / file_name).is_file():
+        fig_path, src = _figure_path_and_src(figure, figures_dir, book_id=book_id)
+        if not fig_path or not fig_path.is_file():
             continue
         seen.add(figure["id"])
         attached.append({
             "id": figure["id"],
             "chapter": str(figure.get("chapter", "")),
             "caption": figure.get("caption") or "",
-            "src": "/figures/" + figure["id"],
+            "src": src,
         })
     return attached
 
@@ -70,7 +120,7 @@ def _png_size(path):
     return struct.unpack(">II", head[16:24])
 
 
-def figure_cards(ids, figures, figures_dir=None):
+def figure_cards(ids, figures, figures_dir=None, book_id=None):
     """The reader's figures: every id the chunk carries, caption, src, size.
 
     Unlike figures_for, nothing is gated on the passage naming the figure —
@@ -84,24 +134,37 @@ def figure_cards(ids, figures, figures_dir=None):
         figure = by_id.get(figure_id)
         if figure is None:
             continue
+        fig_path, src = _figure_path_and_src(figure, figures_dir, book_id=book_id)
         card = {
             "id": figure_id,
             "chapter": str(figure.get("chapter", "")),
             "caption": figure.get("caption") or "",
-            "src": "/figures/" + str(figure_id),
+            "src": src,
         }
-        size = _png_size(figures_dir / (figure.get("file") or ""))
+        size = None
+        if fig_path and fig_path.is_file():
+            size = _png_size(fig_path)
+        elif (figures_dir / (figure.get("file") or "")).is_file():
+            size = _png_size(figures_dir / (figure.get("file") or ""))
         if size is not None:
             card["width"], card["height"] = size
         cards.append(card)
     return cards
 
 
-def figure_file(figure_id, figures):
+def figure_file(figure_id, figures, figures_dir=None):
+    figures_dir = Path(figures_dir) if figures_dir else FIGURES
     for figure in figures:
         if figure.get("id") == figure_id:
             file_name = figure.get("file") or ""
-            path = FIGURES / file_name
+            path = figures_dir / file_name
             if path.is_file():
                 return path
+            if (FIGURES / file_name).is_file():
+                return FIGURES / file_name
+            for root in (figures_dir, FIGURES):
+                if root.is_dir():
+                    for child in root.iterdir():
+                        if child.is_dir() and (child / file_name).is_file():
+                            return child / file_name
     return None

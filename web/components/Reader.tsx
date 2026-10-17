@@ -14,7 +14,8 @@ import Rail from "@/components/Rail";
 import Margin from "@/components/Margin";
 import Lens from "@/components/Lens";
 import Composer from "@/components/Composer";
-import { engineUrl, type Chunk, type ChunksPayload } from "@/lib/engine";
+import LibraryView from "@/components/LibraryView";
+import { engineUrl, fetchChunks, type Chunk, type ChunksPayload } from "@/lib/engine";
 import { quotePattern } from "@/lib/quote";
 import {
   splitParagraphSegments,
@@ -143,13 +144,51 @@ function markQuote(
   return { parts, found: true };
 }
 
+export type ReaderProps = {
+  payload?: ChunksPayload | null;
+  loadError?: string;
+};
+
 export default function Reader({
-  payload,
-  loadError,
-}: {
-  payload: ChunksPayload | null;
-  loadError: string;
-}) {
+  payload: initialPayload = null,
+  loadError: initialLoadError = "",
+}: ReaderProps = {}) {
+  const viewMode = useAsk((s) => s.viewMode);
+  const activeBookId = useAsk((s) => s.activeBookId);
+  const updateBookProgress = useAsk((s) => s.updateBookProgress);
+  const setBooksCatalog = useAsk((s) => s.setBooksCatalog);
+  const booksCatalog = useAsk((s) => s.booksCatalog);
+
+  const [payload, setPayload] = useState<ChunksPayload | null>(initialPayload);
+  const [loadError, setLoadError] = useState(initialLoadError);
+  const [loading, setLoading] = useState(false);
+
+  // Re-fetch /chunks?book_id=${activeBookId} whenever activeBookId changes
+  useEffect(() => {
+    const ac = new AbortController();
+    setLoading(true);
+    setLoadError("");
+
+    fetchChunks(activeBookId, ac.signal)
+      .then((data) => {
+        setPayload(data);
+        setLoading(false);
+        if (data.books && Array.isArray(data.books)) {
+          setBooksCatalog(data.books);
+        }
+      })
+      .catch((error: unknown) => {
+        if (ac.signal.aborted) return;
+        setLoading(false);
+        const detail = error instanceof Error ? error.message : "unknown error";
+        setLoadError(
+          `Could not load the book (${activeBookId}): ${detail} — is the engine running on :8000?`
+        );
+      });
+
+    return () => ac.abort();
+  }, [activeBookId, setBooksCatalog]);
+
   const highlight = useAsk((s) => s.highlight);
   const clearHighlight = useAsk((s) => s.clearHighlight);
   const setActiveGloss = useAsk((s) => s.setActiveGloss);
@@ -215,6 +254,11 @@ export default function Reader({
         setActiveChunkId(currentChunk.chunk_id);
         setActiveChapter(currentChunk.chapter);
         setActiveHeading(currentChunk.heading);
+        updateBookProgress(activeBookId, {
+          pct: progress,
+          chapter: currentChunk.chapter,
+          chunkId: currentChunk.chunk_id,
+        });
       }
     };
 
@@ -230,7 +274,7 @@ export default function Reader({
       window.removeEventListener("resize", onScroll);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [payload]);
+  }, [payload, activeBookId, updateBookProgress]);
 
   // Keyboard navigation shortcuts: [ and ] cycle glosses, Escape clears
   useEffect(() => {
@@ -379,31 +423,40 @@ export default function Reader({
     return set.size;
   }, [payload]);
 
+  const currentBook = booksCatalog.find((b) => b.book_id === activeBookId);
+  const currentBookTitle = currentBook?.title || payload?.title || "Fundamentals of Data Engineering";
+
   return (
-    <main
-      className="reader"
-      ref={readerRef}
-      onPointerDown={(event) => {
-        if (
-          (event.target as HTMLElement).closest(
-            "mark, .gloss-card, .lens, .gloss-sheet, .composer-dock, .topbar, button, .return-spot-banner"
-          )
-        ) {
-          return;
-        }
-        clearHighlight();
-      }}
-    >
-      {/* TopBar navigation */}
-      <TopBar
-        bookTitle="Fundamentals of Data Engineering"
-        activeChapter={activeChapter}
-        activeHeading={activeHeading}
-        progress={scrollProgress}
-        onJumpTop={jumpToTop}
-        chapters={chapters}
-        onJumpChunk={scrollToChunk}
-      />
+    <>
+      <div className={`library-pane ${viewMode === "library" ? "is-active" : "is-hidden"}`}>
+        <LibraryView />
+      </div>
+
+      <div className={`reader-pane ${viewMode === "reader" ? "is-active" : "is-hidden"}`}>
+        <main
+          className="reader"
+          ref={readerRef}
+          onPointerDown={(event) => {
+            if (
+              (event.target as HTMLElement).closest(
+                "mark, .gloss-card, .lens, .gloss-sheet, .composer-dock, .topbar, button, .return-spot-banner"
+              )
+            ) {
+              return;
+            }
+            clearHighlight();
+          }}
+        >
+          {/* TopBar navigation */}
+          <TopBar
+            bookTitle={currentBookTitle}
+            activeChapter={activeChapter}
+            activeHeading={activeHeading}
+            progress={scrollProgress}
+            onJumpTop={jumpToTop}
+            chapters={chapters}
+            onJumpChunk={scrollToChunk}
+          />
 
       {/* Return spot floating pill banner */}
       {returnSpot && (
@@ -463,10 +516,10 @@ export default function Reader({
               {/* Book Header */}
               <header className="book-header">
                 <h1 className="book-title">
-                  Fundamentals of Data Engineering
+                  {payload.title || "Fundamentals of Data Engineering"}
                 </h1>
                 <p className="book-subtitle">
-                  Joe Reis &amp; Matt Housley · {totalChapters} Chapters
+                  {payload.author || "Joe Reis & Matt Housley"} · {totalChapters} Chapters
                 </p>
               </header>
 
@@ -511,6 +564,8 @@ export default function Reader({
       {/* Whole-book Ask Composer */}
       <Composer getAnchorChunk={getVisibleChunk} chunks={payload?.chunks} />
     </main>
+  </div>
+</>
   );
 }
 

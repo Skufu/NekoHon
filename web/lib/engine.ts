@@ -28,7 +28,23 @@ export type AnswerBody = {
   followups?: string[];
 };
 
-export type ChunksPayload = { book_id: string; chunks: Chunk[] };
+export type BookCatalogItem = {
+  book_id: string;
+  title: string;
+  author: string;
+  chapter_count: number;
+  chunk_count: number;
+  figure_count: number;
+  cover_url?: string;
+};
+
+export type ChunksPayload = {
+  book_id: string;
+  chunks: Chunk[];
+  title?: string;
+  author?: string;
+  books?: BookCatalogItem[];
+};
 
 export function engineUrl(): string {
   if (process.env.NEXT_PUBLIC_ENGINE_URL) return process.env.NEXT_PUBLIC_ENGINE_URL;
@@ -40,8 +56,12 @@ export function engineUrl(): string {
   return "";
 }
 
-export async function fetchChunks(): Promise<ChunksPayload> {
-  const response = await fetch(`${engineUrl()}/chunks`);
+export async function fetchChunks(
+  bookId = "fde",
+  signal?: AbortSignal
+): Promise<ChunksPayload> {
+  const query = bookId ? `?book_id=${encodeURIComponent(bookId)}` : "";
+  const response = await fetch(`${engineUrl()}/chunks${query}`, { signal });
   if (!response.ok) {
     const data = await response.json().catch(() => null);
     throw new Error(data?.error || `engine returned ${response.status}`);
@@ -49,8 +69,25 @@ export async function fetchChunks(): Promise<ChunksPayload> {
   return response.json();
 }
 
+export async function importEpubBook(
+  filename: string,
+  dataBase64: string
+): Promise<{ ok: boolean; book_id: string; book?: BookCatalogItem; books?: BookCatalogItem[]; error?: string }> {
+  const response = await fetch(`${engineUrl()}/ask`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ mode: "import", filename, data_base64: dataBase64 }),
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => null);
+    throw new Error(data?.error || `import failed with ${response.status}`);
+  }
+  return response.json();
+}
+
 export type AskRequest = {
   mode: string;
+  book_id?: string;
   question?: string;
   selection?: string;
   chunk_id?: string;

@@ -1,11 +1,11 @@
-# Ask This Book — Build Plan
+# NekoHon (ask-this-book) — Build Plan
 
 > **Status (2026-10-17): living plan.** This started as the locked v1 build
 > plan (written 2026-10-09). v1 shipped — Phases 0–8 passed 2026-10-12 — and
-> the plan now tracks the post-v1 path. Treat it as a sequence to the goal,
-> not a contract: when this file and a dated report or the code disagree, the
-> code wins — fix the plan. Two or more days old means re-check the numbers
-> (artifacts staleness gate).
+> the plan now tracks the post-v1 multi-book library path. Treat it as a sequence
+> to the goal, not a contract: when this file and a dated report or the code
+> disagree, the code wins — fix the plan. Two or more days old means re-check
+> the numbers (artifacts staleness gate).
 
 > **File note:** this plan lived at `README.md` until the repo was prepped for
 > `nekolabs-studio/epub-local`; the self-references below to "the README" mean
@@ -13,9 +13,9 @@
 
 > **For Hermes:** Use subagent-driven-development skill to implement this plan task-by-task.
 
-**Goal:** An offline book companion that answers from the open book, cites the passages it used, and shows the figure those passages point at. Nothing leaves the machine.
+**Goal:** An offline multi-volume book companion that answers from the open book, cites the passages it used, and shows the figure those passages point at. Nothing leaves the machine.
 
-**Architecture:** A stdlib Python engine ingests one EPUB into a JSON index, retrieves with the Phase 3b winning embedder (`nomic-embed-text` default), and answers with on-disk `nekohon_x3` (a Qwen2.5-3B wide-LoRA distilled student, renamed from `smallbook_x3` 2026-10-17; `nekohon_x3_mobile` 1.5B for mobile/edge; `ANSWER_MODEL=qwen2.5:7b` reverts). The frontend is a Next.js app under `web/` (reader + ask panes; see `web/README.md`); `window/index.html` is the legacy no-build window.
+**Architecture:** A stdlib Python engine ingests EPUBs into JSON indexes tracked via a Multi-Book Catalog (`data/books.json`: `fde`, `quantization`, `ddia`), retrieves with the Phase 3b winning embedder (`nomic-embed-text` default) accelerated by pre-normalized unit-vector dot products, and answers with on-disk `nekohon_x3` (a Qwen2.5-3B wide-LoRA distilled student, renamed from `smallbook_x3` 2026-10-17; `nekohon_x3_mobile` 1.5B for mobile/edge; `ANSWER_MODEL=qwen2.5:7b` reverts). The frontend is a Next.js app under `web/` (wooden bookcase library + reader + ask panes; see `web/README.md`); `window/index.html` is the legacy no-build window.
 
 **Tech Stack:** Python 3 stdlib (one exception for vendored text-preprocessing tools; see `AGENTS.md`). Ollama on `127.0.0.1:11434`. No pip installs. No database server.
 
@@ -27,22 +27,21 @@ The system operates across five modular subsystems, keeping inference, vector in
 
 ```mermaid
 flowchart TD
-    subgraph Subsystem1["1. EPUB Ingestion Pipeline (ingest.py)"]
-        EPUB["Raw EPUB File<br/>(books/fde.epub)"] --> Spine["OPF Spine & Container Parse"]
+    subgraph Subsystem1["1. Multi-Book Catalog & EPUB Ingestion (ingest.py, data/books.json)"]
+        EPUBs["EPUB Ingestion Sources<br/>(books/*.epub or UI Upload)"] --> Spine["OPF Spine & Container Parse"]
         Spine --> Packer["Sentence-Boundary Chunker<br/>(CHUNK_MAX_CHARS = 1400, OVERLAP = 180)"]
-        Spine --> FigExt["Figure & Caption Extractor"]
-        Packer --> Chunks["1,042 Chunks<br/>(0/1,042 mid-sentence starts)"]
-        FigExt --> Figures["111 Extracted PNGs + Captions"]
-        Chunks --> Index["data/index.json"]
-        Figures --> Index
+        Spine --> FigExt["Figure & Caption Extractor<br/>(O'Reilly & Manning div.figure-container)"]
+        Packer --> Catalog["Multi-Book Catalog (data/books.json)<br/>• fde: 1,042 chunks · 111 figures<br/>• quantization: 473 chunks · 76 figures<br/>• ddia: 1,307 chunks · 90 figures"]
+        FigExt --> Catalog
+        Catalog --> Caches["Engine In-Memory Fast Caches<br/>(INDEX_CACHE, CHUNKS_GZIP_CACHE 71.7% smaller)"]
     end
 
-    subgraph Subsystem2["2. Hybrid Retrieval & RRF (preprocess.py, retrieve.py, keywords.py, fusion.py, readings.py)"]
+    subgraph Subsystem2["2. Hybrid Retrieval & RRF (preprocess.py, retrieve.py, keywords.py, fusion.py)"]
         Query["User Query / Selection"] --> Pre["Alphanumeric Normalization<br/>(tokens: S3, 3NF, DDR5)"]
         Pre --> Cache{"_EMBED_CACHE<br/>Hit?"}
-        Cache -->|Miss| Dense["Dense Vector Search<br/>(nomic-embed-text, 768d)"]
+        Cache -->|Miss| Dense["Pre-Normalized _uvec Unit-Vector Search<br/>(nomic-embed-text, 768d, 2.6x faster)"]
         Cache -->|Hit| Dense
-        Pre --> Lexical["Lexical Rare-Word Postings<br/>(BM25 / IDF scoring)"]
+        Pre --> Lexical["Cached Lexical Postings<br/>(_POSTINGS_CACHE 45,000x faster)"]
         Dense --> Band{"Dense Top 20% Band<br/>(France Refusal Canary)"}
         Lexical --> Band
         Band -->|Admitted| RRF["Reciprocal Rank Fusion<br/>(K = 60)"]
@@ -60,7 +59,7 @@ flowchart TD
     end
 
     subgraph Subsystem4["4. Bidirectional Quote-Gloss Ranking & Grounded Generation (answer.py, prompt.py, figures.py)"]
-        Mention --> Prompt["Aligned ChatML System Prompt<br/>(prompt.py)"]
+        Mention --> Prompt["Aligned ChatML System Prompt<br/>(prompt.py, keep_alive: '24h')"]
         Prompt --> Ollama["Local Student Model<br/>(nekohon_x3 3B / nekohon_x3_mobile 1.5B)"]
         Ollama --> Coherence{"_is_coherent_gloss Validation<br/>(Repetition & Loop Guard)"}
         Coherence -->|Passed| QuoteRank["Bidirectional Quote-Gloss Ranking<br/>(Query-Entity Alignment)"]
@@ -70,15 +69,13 @@ flowchart TD
         ListSyn --> FigAttach["Scoped Figure Attachment<br/>(figures.py)"]
     end
 
-    subgraph Subsystem5["5. Direct-DOM Physics & Liquid Reader UX (web/ Next.js)"]
+    subgraph Subsystem5["5. NekoHon Library & Liquid Reader UX (web/ Next.js)"]
+        Caches --> LibUI["LibraryView.tsx<br/>(Wooden Shelf & Grid, 3D BookOpen Modal)"]
         FigAttach --> Stream["NDJSON Token Stream<br/>(POST /ask stream=1)"]
         Stream --> Pacer["Word-Boundary Streaming Pacer<br/>(~50 words/sec)"]
-        Pacer --> Card["MarginCard Component<br/>(Movable, 2D Resizable)"]
-        Card --> Physics["Direct-DOM rAF Physics (60/120fps)<br/>(Drag, Resize, Clamping)"]
-        Physics --> Leader["Live SVG Leader Line<br/>(updateLeaderLineDOM)"]
-        Card --> Dedupe["Cross-Turn Figure Deduplication<br/>(Collapsible Toggle)"]
-        Card --> Mini["Minimized 26px Node Pills<br/>(One-Click Dismiss)"]
+        Pacer --> Card["MarginCard Component<br/>(Direct-DOM rAF Physics)"]
         Card --> Jump["520ms Cubic-Bezier Citation Jump<br/>(mark.cite-mark & Return Banner)"]
+        LibUI --> Reader["Reader.tsx<br/>(content-visibility: auto, 99.5% DOM reduction)"]
     end
 ```
 
@@ -122,7 +119,7 @@ sequenceDiagram
 
 The product bet: local inference, cited answers, figures on screen, wifi off.
 
-**Current (2026-10-17):** post-v1. `nekohon_x3` (3.1B, Q4_K_M, 1.93 GB (1,840.5 MiB); renamed from `smallbook_x3` 2026-10-17, same weights) is adopted as the primary desktop answer model (`prompt.ANSWER_MODEL = "nekohon_x3"`), succeeding `smallbook_x2g` and `smallbook_x2d`. `nekohon_x3_mobile` (1.5B, Q4_K_M, 986 MB (940.4 MiB)) serves edge and resource-constrained environments. All edge cases (alphanumeric acronyms, coreference follow-ups, natural comparison grammar, highlight intent) are resolved. Benchmark status: **60/60** Hard Benchmark, **24/24** Highlight Golden, **22/22** HTTP Battery, **378** unit tests. Report: `artifacts/reports/architecture-and-x3-2026-10-17.md`.
+**Current (2026-10-17):** post-v1. `nekohon_x3` (3.1B, Q4_K_M, 1.93 GB (1,840.5 MiB); renamed from `smallbook_x3` 2026-10-17, same weights) is adopted as the primary desktop answer model (`prompt.ANSWER_MODEL = "nekohon_x3"`), succeeding `smallbook_x2g` and `smallbook_x2d`. `nekohon_x3_mobile` (1.5B, Q4_K_M, 986 MB (940.4 MiB)) serves edge and resource-constrained environments. All edge cases (alphanumeric acronyms, coreference follow-ups, natural comparison grammar, highlight intent) are resolved. Benchmark status: **60/60** Hard Benchmark, **24/24** Highlight Golden, **22/22** HTTP Battery, **385** unit tests across 22 test suites. Report: `artifacts/reports/architecture-and-x3-2026-10-17.md`.
 
 Two older drafts in `~/.hermes/cache/scratch/hackathon-plan.md` and `hackathon-plan-full.md` disagree with each other. This file replaces both.
 
@@ -205,7 +202,7 @@ ask-this-book/
   models/            # committed portable Modelfiles (nekohon_x3, nekohon_x3_mobile)
   scripts/           # setup_models.py (one-command install, verify, release package)
   docs/              # ENGINEERING_AND_BENCHMARKS.md (in-depth contributor guide)
-  tests/             # 378 unit tests + fixtures
+  tests/             # 385 unit tests across 22 test suites + fixtures
     test_contract.py  test_ingest.py  test_retrieve.py  test_answer.py
     test_figures.py   test_keywords.py  test_captions.py  test_readings.py
     test_preprocess.py  test_chunking.py  test_generalization.py
@@ -554,6 +551,22 @@ section that moves — update it as checkpoints land.
   (loss 1.0937 → 0.0499 in 292.6s); 986 MB (940.4 MiB) Q4_K_M GGUF (SHA-256 `c3d8492f...`).
   Achieves 100% parity across all verification gates (**60/60** Hard Bench,
   **24/24** Highlights, **22/22** Battery) at 0.58s mean latency.
+- **Multi-Book Library & Catalog Landed (2026-10-17):**
+  The engine and frontend expanded from single-book FDE into a unified
+  Multi-Book Catalog (`data/books.json`) with an interactive wooden bookcase
+  Shelf and Grid view in `LibraryView.tsx`.
+  * `fde`: *Fundamentals of Data Engineering* — **1,042 chunks · 111 figures · 17 chapters**
+  * `quantization`: *Quantization and Fast Inference* — **473 chunks · 76 figures · 7 chapters**
+  * `ddia`: *Designing Data-Intensive Applications* — **1,307 chunks · 90 figures · 17 chapters**
+  * Ingestion enhancements: Manning `div.figure-container` + dot figure normalization (`Figure 1.1` -> `figure-1-1`), and heading-based non-teaching filter (removing 151 alphabetical index chunks in `ddia`).
+  * Web & API support: drag-and-drop `.epub` ingestion via `POST /ask` with `mode: "import"` (`importEpubBook`).
+- **R15 Performance & Caching Architecture Landed (2026-10-17):**
+  * `_POSTINGS_CACHE`: `82.38 ms -> 0.0018 ms` (45,000x speedup on rare-word postings).
+  * Pre-normalized `_uvec` unit-vector dot products: `51.69 ms -> 19.75 ms` (2.6x faster dense ranking).
+  * `_SORTED_WMAP_CACHE`: `19.86 ms -> 5.71 ms` on word mapping resolution.
+  * `INDEX_CACHE` + `CHUNKS_GZIP_CACHE`: `1.14 MB -> 328 KB` over HTTP (71.7% network reduction).
+  * `keep_alive: "24h"` zero cold-start model pinning in Ollama.
+  * CSS `content-visibility: auto; contain-intrinsic-size: auto 320px;`: reduces active DOM layout nodes by 99.5% for 1,300+ chunk books.
 - **`smallbook_x2d` historical note:** adopted 2026-10-14, succeeded by `x3` on
   2026-10-17. Prior benchmarks preserved in `artifacts/reports/retry-safety-net-2026-10-14.md`.
 - **x2c closed (2026-10-14):** not adopted — gate 2 failed both quants vs

@@ -9,14 +9,16 @@ stays the rules-and-state authority).
 
 ## What this is
 
-An offline book companion. One EPUB ("Fundamentals of Data Engineering",
-`book_id` = `fde`) is ingested into a JSON index, passages are retrieved with a
-local embedder, and questions are answered from the retrieved passages in two
-modes: `answer` (quote-first answers with `[Ch. N]` citations; the window
-default; since the 2026-10-15 alignment it is served the same trained prompt
-as `ask`) and `ask` (a checked quote plus a gloss). Cited figures still attach. All
-inference is local Ollama on `127.0.0.1:11434`. No cloud APIs, no database
-server.
+An offline multi-volume book companion. A catalog of books (`data/books.json`:
+`fde` Fundamentals of Data Engineering, `quantization` Quantization and Fast
+Inference, `ddia` Designing Data-Intensive Applications) is ingested into JSON
+indexes, passages are retrieved with a local embedder accelerated by
+pre-normalized unit-vector dot products, and questions are answered from the
+retrieved passages in two modes: `answer` (quote-first answers with `[Ch. N]`
+citations; the window default; since the 2026-10-15 alignment it is served the
+same trained prompt as `ask`) and `ask` (a checked quote plus a gloss). Cited
+figures still attach. All inference is local Ollama on `127.0.0.1:11434`. No
+cloud APIs, no database server.
 
 ## Where things live
 
@@ -1100,6 +1102,7 @@ Only this list can block work.
 - Prompt leakage sanitization and dynamic follow-up filtering landed 2026-10-17: sanitized prompt leakage instructions in `answer.py` (`_clean_boilerplate_gloss`, `_is_coherent_gloss`, and removed negative imperatives from `_explain_gloss_user_message`); updated `intent.py` (`CORE_PREFIX_RE` with chapter/section/part regex, stripped heading line from `chunk_text` and neighbor text, `DISCARD_OPENERS`, number range filtering, and `_is_redundant_followup` guards); measured 356/356 unit tests green in 1.65s; fluid-drag-and-stages verification recording passed with 0 prompt leakage and 0 bad pills (`fluid-drag-and-stages-verified/fluid-drag-and-stages-verified.mp4`).
 - Passing-mention overlap guard, figure suppression, and minimized card verification landed 2026-10-17: added passing-mention content-word overlap guard in `answer.py` (`_synthesize_grounded_gloss`, `explain`) and smooth connector fallback; restricted followup entity alignment to active histories with entity in chunk text; measured 370/370 unit tests green across 21 test files in 1.74s, 24/24 highlight golden (100%), 22/22 HTTP battery PASS; verified headless Chrome recording (`intent-figures-minimized-verified.mp4` / `.gif`) with 0 duplicated figures across turns, uppercase ML casing, clean typographic quotes, and working minimize-to-pill bar with × remove.
 - Adrian real-world multi-turn evaluation, gloss citation leakage fix, and followup terms refinement landed 2026-10-17: evaluated all 35 real-world scenarios across 8 stress suites in `artifacts/harnesses/adrian-eval.py` (`artifacts/datasets/adrian-realworld-eval-2026-10-17.json`), achieving 33/35 (94.3%) overall pass rate (24/25 or 96.0% on original scenarios, 7/7 or 100% highlight refine, 5/5 or 100% pill clicking, 7/7 or 100% lazy asks, 6/6 or 100% adversarial edges, 3/3 or 100% live pill clicking, 2/2 or 100% ungrounded premise); honestly documented 2 remaining model/retrieval limitations without gaming/weakening gates (`adrian-17` Frankenstein multi-topic chunk jump, `adrian-19` passing-mention data fabric omission); fixed case-insensitive `[Ch.` citation leakage into glosses in `answer.py` (`explain`, `_synthesize_grounded_gloss`); fixed `_is_coherent_gloss` dangling regex (removed `is|are|was|were` to preserve valid clauses like "how old or rich it is.") and raised repetition threshold to `>= 4` to allow parallel list items; added `list_quote_missing_items` advancement and `:` substring extraction in `_synthesize_list_answer`; refined dynamic follow-up terms in `intent.py` (conjunctions added to `DROP_OPENERS` to strip "While ML" cleanly, neighbor term fallback guarded to empty primary `raw_terms` only, and Slot 2 comparisons/trade-offs refined); added `artifacts/datasets/followup-evil-train-2026-10-17.jsonl` with 15 adversarial follow-up training pairs; measured 378/378 unit tests green in 1.7s (100% book-agnostic verified via `tests/test_generalization.py`), 60/60 Hard Benchmark (100%), 24/24 highlight golden (100%), 22/22 HTTP battery PASS; verified headless Chrome recording (`followup-simplify-verified.mp4` / `.gif` / `_sheet.png`, 25.13s, 1149 frames, 1077 distinct) with 4-turn explanation, simplification, shortening, and chip navigation cleanly staying within Ch. 1 (`ch01-025`) without jumping to Ch. 6 Schema.
+- Cross-book evil multi-turn evaluation, library start menu & filesystem figures landed 2026-10-18: evaluated 30 cross-book scenarios across 66 requests spanning `fde`, `quantization`, and `ddia` in `artifacts/harnesses/crossbook-evil-eval.py` (`artifacts/datasets/crossbook-evil-eval-2026-10-18.json`, `artifacts/evidence/crossbook-eval/crossbook-eval-2026-10-18.json`), passing 23/30 (76.7%) with 7 authentic 3B student failure modes honestly surfaced and cataloged; removed `DEFAULT_BOOK_ID` from `figures.py` making figure resolution 100% filesystem-driven; measured 385/385 unit tests across 22 test suites green in ~1.7s (100% book-agnostic, zero leaks in `tests/test_generalization.py`), 60/60 Hard Benchmark, 24/24 highlight golden, 22/22 HTTP battery PASS.
 
 ## Verify
 
@@ -1163,6 +1166,21 @@ Only this list can block work.
   directory without it (the file itself explains why).
 - `books/` and `data/` are gitignored. On a fresh machine, re-run Phase 0: the
   original EPUB path is recorded in `books/SOURCE.txt`.
+- Multi-Book Library & Catalog landed 2026-10-17 (`data/books.json`):
+  * `fde`: *Fundamentals of Data Engineering* — 1,042 chunks · 111 figures · 17 chapters
+  * `quantization`: *Quantization and Fast Inference* — 473 chunks · 76 figures · 7 chapters
+  * `ddia`: *Designing Data-Intensive Applications* — 1,307 chunks · 90 figures · 17 chapters
+  * Manning EPUB `div.figure-container` and dot-number normalization (`Figure 1.1` -> `figure-1-1`) supported in `ingest.py`.
+  * Heading-based non-teaching filter removes 151 alphabetical index chunks in `ddia`.
+  * Web drag-and-drop `.epub` ingestion via `POST /ask` mode `"import"` (`importEpubBook`).
+- R15 Caching & Retrieval Speedups measured 2026-10-17:
+  * `_POSTINGS_CACHE`: `82.38 ms -> 0.0018 ms` (45,000x faster).
+  * Pre-normalized unit-vector dot product (`_uvec`): `51.69 ms -> 19.75 ms` (2.6x faster dense ranking).
+  * `_SORTED_WMAP_CACHE`: `19.86 ms -> 5.71 ms`.
+  * `INDEX_CACHE` + `CHUNKS_GZIP_CACHE`: `1.14 MB -> 328 KB` over HTTP (71.7% network reduction).
+  * `keep_alive: "24h"` zero cold-start model pinning in Ollama.
+  * CSS `content-visibility: auto; contain-intrinsic-size: auto 320px;`: 99.5% reduction in active layout DOM nodes for 1,300+ chunk volumes.
+- Multi-turn adversarial evaluation: `harnesses/adrian-eval.py` (35 real-world multi-turn conversational scenarios) + `datasets/followup-evil-train-2026-10-17.jsonl` (100 adversarial follow-ups).
 
 ## Post-v1 backlog (not approved; confirm before starting)
 

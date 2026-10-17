@@ -69,13 +69,27 @@ def _closest(word, vocabulary):
     return best_score, best_word, runner_up
 
 
+_SORTED_WMAP_CACHE = {}
+
+
 def _fixes(question, word_map):
     """[(start, end, word as typed, book word)] for words worth re-reading.
 
     A swap needs one candidate over CUTOFF and no tie at the top.
     """
     text = question or ""
-    vocabulary = sorted(word_map)
+    wmap_key = id(word_map)
+    if wmap_key in _SORTED_WMAP_CACHE and _SORTED_WMAP_CACHE[wmap_key][0] == len(word_map):
+        vocabulary = _SORTED_WMAP_CACHE[wmap_key][1]
+    else:
+        vocabulary = sorted(word_map)
+        if len(_SORTED_WMAP_CACHE) >= 16:
+            try:
+                _SORTED_WMAP_CACHE.pop(next(iter(_SORTED_WMAP_CACHE)))
+            except Exception:
+                _SORTED_WMAP_CACHE.clear()
+        _SORTED_WMAP_CACHE[wmap_key] = (len(word_map), vocabulary)
+
     if not vocabulary:
         return []
     fixes = []
@@ -131,10 +145,16 @@ def _book_forms(index):
     postings() folds case, and an acronym must go back to the question in the
     book's own shape: "CRUD", not "crud".
     """
+    if isinstance(index, dict) and "_book_forms" in index:
+        return index["_book_forms"]
     forms = {}
-    for chunk in index.get("chunks") or []:
-        for token in tokens(chunk.get("text")):
+    chunks = index.get("chunks") if isinstance(index, dict) else index
+    for chunk in chunks or []:
+        text = chunk.get("text") if isinstance(chunk, dict) else str(chunk)
+        for token in tokens(text):
             forms.setdefault(token.lower(), token)
+    if isinstance(index, dict):
+        index["_book_forms"] = forms
     return forms
 
 

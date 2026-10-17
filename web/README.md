@@ -125,9 +125,10 @@ sequenceDiagram
 
 | Call | Used for |
 | --- | --- |
-| `GET /chunks` | the reader payload: 1042 chunks in reading order, no vectors, the leading heading line stripped from each text, figures as cards with real PNG width/height |
+| `GET /chunks` | the reader payload: chunks in reading sequence for the active book (`?book_id=...`), no vectors, the leading heading line stripped from each text, figures as cards with real PNG width/height |
 | `POST /ask` with `stream: 1` | NDJSON frames: `token`, `reset` (a draft was discarded — the `[Ch. ` retry), `final` (the same body the non-stream path returns), `error` |
-| `GET /figures/{id}` | figure images |
+| `POST /ask` with `mode: "import"` | One-click / drag-and-drop `.epub` ingestion (`importEpubBook` in `lib/engine.ts`): parses and indexes a new book, returning `{ ok: true, book_id, book: BookCatalogItem }` |
+| `GET /figures/{id}` | figure images (with optional `?book_id=...`) |
 
 The base URL lives in `lib/engine.ts` (`engineUrl()`): `http://127.0.0.1:8000`
 when the app runs on :3100, same-origin otherwise. The engine has CORS for
@@ -137,12 +138,17 @@ route-handler proxy would buffer the NDJSON stream.
 ## File map
 
 - `app/page.tsx` + `app/layout.tsx` — the shell, hydrating persisted appearance
-  settings (`night` theme + `vermilion` pen default) and user highlights.
+  settings (`night` theme + `vermilion` pen default), user highlights, and active volume.
 - `app/tokens.css` + `app/globals.css` — the design tokens (5 themes: `night`,
   `paper`, `sepia`, `snow`, `ink`; 4 rubric pens: `vermilion`, `cobalt`, `moss`,
   `graphite`; 4 highlighter markers: `yellow`, `green`, `blue`, `pink`) and
   semantic component rules enforced by `tests/test_frontend_rules.py`.
-- `components/TopBar.tsx` — scroll-tucking top bar with chapter TOC dropdown,
+- `components/LibraryView.tsx` — NekoHon Library start menu: interactive wooden bookcase
+  Shelf view with handcrafted cloth and gold-foil spines, editorial Grid view with
+  reading progress ribbons, drag-and-drop `.epub` upload dropzone (`importEpubBook`),
+  and 3D `BookOpen` modal spread with `EX LIBRIS · NEKOHON` bookplate and miniature cover art.
+- `components/TopBar.tsx` — scroll-tucking top bar with `← Library` return button,
+  active volume title & switcher dropdown, chapter TOC dropdown,
   running header (`Preface` / `Ch. N · Heading`), notes cycler pill, progress
   hairline, and the `Aa` appearance popover (circular `startViewTransition`
   theme reveal, pen selector, text size 15–26px).
@@ -159,7 +165,7 @@ route-handler proxy would buffer the NDJSON stream.
 - `components/Lens.tsx` — floating selection pill: `Explain | Ask | Copy` on the
   left, divider line, hover-expanding 4-color highlighter drawer on the right,
   instant printable-key morph into inline question input (`"Ask about the highlighted word…"`),
-  forwarding full context (`chunk_id`, `selection`, `heading`) to `POST /ask`.
+  forwarding full context (`chunk_id`, `selection`, `heading`, `book_id`) to `POST /ask`.
 - `components/Margin.tsx` — right-margin (`>= 1080px`, `320px` wide, `28px`
   gutter) two-way collision solver (`GAP = 16`, `GAP_MINI = 6`, `CROWD = 88`),
   crowd mini-collapse (`.is-mini`), animated SVG cubic Bezier leader curve
@@ -192,12 +198,15 @@ route-handler proxy would buffer the NDJSON stream.
   selection support, exact `nearOffset` matching, paragraph 2+ plain-text offset measurement fix
   (`Range.comparePoint(p, 0) === 0` in `offsetInChunk`), whitespace-insensitive quote lookup (`findQuoteSpan`),
   multi-layer paragraph splitter (`splitParagraphSegments`), and `formatChapter`.
-- `lib/store.ts` — zustand state machine (`useAsk`): `glosses[]`,
-  `highlights[]`, `theme`, `pen`, `marker`, `readSize`, per-card streaming with
-  60fps fluid token streaming pacer (`pacerTimer`, ~16ms tick, 2–8 chars per ~16ms tick pacing, smooth Call 2
-  gloss streaming on `onFinal`), full context forwarding (`chunkId`, `endChunkId`, `selection`, `heading`),
+- `lib/store.ts` — zustand state machine (`useAsk`): multi-book catalog (`booksCatalog[]`),
+  active volume (`currentBookId`), isolated per-book localStorage state (`nekohon-state-${bookId}`
+  for margin notes, highlights, and glosses, and `nekohon-progress` for reading scroll depth),
+  book switching (`openBook`), per-card streaming with 60fps fluid token streaming pacer
+  (`pacerTimer`, ~16ms tick, 2–8 chars per ~16ms tick pacing, smooth Call 2
+  gloss streaming on `onFinal`), full context forwarding (`chunkId`, `endChunkId`, `selection`, `heading`, `bookId`),
   preemptive stream abort (`inFlightMap`), and `startTurnStream` excluding the active `(glossId, turnId)`
   from being prematurely stopped.
+- `lib/engine.ts` — HTTP client functions: `fetchChunks(bookId)` and `importEpubBook(filename, dataBase64)`.
 
 ## Conventions that matter
 

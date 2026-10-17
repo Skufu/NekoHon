@@ -7,6 +7,7 @@ The embedder is injected so tests never call Ollama.
 import argparse
 import json
 import math
+import operator
 import os
 import time
 import urllib.request
@@ -117,7 +118,7 @@ def ollama_embed(texts, model=DEFAULT_EMBEDDER, url=OLLAMA, timeout=120):
     payload = json.dumps({
         "model": model,
         "input": texts,
-        "keep_alive": os.environ.get("OLLAMA_KEEP_ALIVE", "30m"),
+        "keep_alive": os.environ.get("OLLAMA_KEEP_ALIVE", "24h"),
     }).encode("utf-8")
     request = urllib.request.Request(
         url,
@@ -237,6 +238,8 @@ def rank_chunks(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
             f"query embedding is {len(query)} wide, index declares {declared}. "
             "Do not mix vectors."
         )
+    q_norm = math.sqrt(sum(x * x for x in query))
+    q_unit = [x / q_norm for x in query] if q_norm > 0.0 else query
     ranked = []
     for chunk in index.get("chunks", []):
         vector = chunk.get("embedding")
@@ -247,7 +250,13 @@ def rank_chunks(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
                 f"chunk {chunk.get('chunk_id')}: vector is {len(vector)} wide, "
                 f"index declares {declared}. Re-embed or repair the index."
             )
-        ranked.append((cosine(query, vector), chunk))
+        c_unit = chunk.get("_uvec")
+        if c_unit is None or len(c_unit) != len(vector):
+            c_norm = math.sqrt(sum(y * y for y in vector))
+            c_unit = [y / c_norm for y in vector] if c_norm > 0.0 else vector
+            chunk["_uvec"] = c_unit
+        score = sum(map(operator.mul, q_unit, c_unit))
+        ranked.append((score, chunk))
     ranked.sort(key=lambda item: item[0], reverse=True)
     return ranked
 
@@ -320,7 +329,18 @@ def load_index(path):
 
 
 def save_index(path, index):
-    Path(path).write_text(json.dumps(index), encoding="utf-8")
+    clean_index = dict(index)
+    clean_index.pop("_book_forms", None)
+    clean_chunks = []
+    for chunk in index.get("chunks", []):
+        if "_uvec" in chunk:
+            c = dict(chunk)
+            c.pop("_uvec", None)
+            clean_chunks.append(c)
+        else:
+            clean_chunks.append(chunk)
+    clean_index["chunks"] = clean_chunks
+    Path(path).write_text(json.dumps(clean_index), encoding="utf-8")
 
 
 def chunks_payload(index):
@@ -333,6 +353,7 @@ def chunks_payload(index):
     changes. Figures arrive as cards for the ids the chunk carries.
     """
     figures = index.get("figures") or []
+    book_id = index.get("book_id") or ""
     chunks = []
     for chunk in index.get("chunks") or []:
         _, body = chunk_title(chunk)
@@ -343,9 +364,15 @@ def chunks_payload(index):
             "section": chunk.get("section") or "",
             "source": chunk.get("source") or "",
             "text": body,
-            "figures": figure_cards(chunk.get("figures") or [], figures),
+            "figures": figure_cards(chunk.get("figures") or [], figures, book_id=book_id),
         })
-    return {"book_id": index.get("book_id") or "", "chunks": chunks}
+    return {
+        "book_id": book_id,
+        "title": index.get("title") or "",
+        "author": index.get("author") or "",
+        "chunks": chunks,
+        "figures": figure_cards([f.get("id") for f in figures if f.get("id")], figures, book_id=book_id),
+    }
 
 
 def main():

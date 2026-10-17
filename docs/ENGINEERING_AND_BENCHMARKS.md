@@ -131,16 +131,31 @@ Standard chunking approaches that split text on fixed character lengths (`text[:
    - **`983 / 1,042` (`94.34%`) ending with terminal punctuation** (`.`, `!`, `?`, quotes); the remaining `59` chunks (`5.66%`) are section headings, colon list lead-ins (`include the following:`), URLs, or bibliographic entries.
    - **`111` extracted figure records** in `data/index.json` (`110` unique figures referenced across `118` chunk-level figure attachments in `GET /chunks`, plus `1` unreferenced appendix image `fig-app02-1`).
 
-### 1.3 Figure & Caption Extraction
+### 1.3 Multi-Book Ingestion Library (`data/books.json`)
+The ingestion pipeline natively supports multi-volume catalogs configured in [`data/books.json`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/data/books.json):
+
+| Book ID | Title | Author | Chapters | Chunks | Figures |
+| --- | --- | --- | :---: | :---: | :---: |
+| **`fde`** | *Fundamentals of Data Engineering* | Joe Reis & Matt Housley | 17 | 1,042 | 111 |
+| **`quantization`** | *Quantization and Fast Inference* | Vivek Kalyanarangan | 7 | 473 | 76 |
+| **`ddia`** | *Designing Data-Intensive Applications* | Martin Kleppmann | 17 | 1,307 | 90 |
+
+#### Cross-Publisher Ingestion Adaptations
+1. **Manning `div.figure-container` & Dot Figure Normalization**:
+   - In Manning EPUBs (e.g. *Quantization and Fast Inference*), images and captions are wrapped in `<div class="figure-container">`. The extractor resolves these containers and normalizes dot-separated figure numbers into hyphenated canonical IDs (`Figure 1.1` -> `figure-1-1`), ensuring consistent citation and attachment matching across publishers.
+2. **Heading-Based Non-Teaching Filter**:
+   - Large technical volumes frequently contain alphabetical indexes, licensing sections, or backmatter that pollute retrieval. `ingest.py` inspects section headings and automatically filters out non-teaching chunks (e.g., filtering out 151 alphabetical index chunks in *Designing Data-Intensive Applications* such as `"Index: A"`, `"Index: B"`, and symbol tables), preserving pure expository content.
+
+### 1.4 Figure & Caption Extraction
 - For each chapter, all `<img>` tags are resolved against the EPUB zip container.
 - Image files are extracted and written to [`data/figures/`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/data/figures).
 - Captions are extracted from `<figcaption>` or image `alt` attributes.
-- The referencing paragraph is determined by finding the nearest text paragraph mentioning `"Figure X-Y"` or `"Fig. X-Y"`.
+- The referencing paragraph is determined by finding the nearest text paragraph mentioning `"Figure X-Y"`, `"Figure X.Y"`, or `"Fig. X-Y"`.
 - Figure records store: `{id, chapter, caption, referencing_paragraph, file}`.
 
-### 1.4 How to Ingest a Custom EPUB
+### 1.5 How to Ingest a Custom EPUB
 To index a new book for the companion:
-1. Place the EPUB file at `books/<book_id>.epub`.
+1. Place the EPUB file at `books/<book_id>.epub` or use the drag-and-drop web uploader in `LibraryView.tsx`.
 2. Update or verify `books/SOURCE.txt` with the book's metadata.
 3. Run the ingest and embedding scripts:
    - **Default FDE run**:
@@ -225,6 +240,18 @@ When a query word is absent from the book corpus (e.g. `"atermark"` or `"normila
 3. The repair is accepted **only** if the top retrieval score strictly beats the original query score.
 4. Any accepted reading is explicitly disclosed on the first line: `Read as: "..."`.
 
+### 2.6 R15 Engine & Frontend Performance Architecture (Measured Speedups)
+Engine retrieval and network streaming incorporate multi-layer in-memory caching to eliminate latency bottlenecks:
+
+| Optimization Layer | Baseline Latency | Optimized Latency | Measured Speedup / Impact | Implementation |
+| --- | :---: | :---: | :---: | --- |
+| **`_POSTINGS_CACHE`** | 82.38 ms | 0.0018 ms | **45,000x faster** | Inverted rare-word postings cached per-index in `keywords.py` |
+| **Pre-normalized `_uvec`** | 51.69 ms | 19.75 ms | **2.6x faster** | Dense cosine similarity executed as raw dot-product against cached unit vectors in `retrieve.py` |
+| **`_SORTED_WMAP_CACHE`** | 19.86 ms | 5.71 ms | **3.5x faster** | Cached sorted vocabulary word mappings in `readings.py` |
+| **`CHUNKS_GZIP_CACHE`** | 1.14 MB | 328 KB | **71.7% smaller** | Pre-compressed GZIP payload for `GET /chunks` in `server.py` |
+| **`keep_alive: "24h"`** | ~25.0 s cold | < 1.0 s warm | **Zero cold start** | Model permanently pinned in Ollama VRAM in `answer.py` |
+| **CSS `content-visibility`** | 1,307 DOM nodes | ~8 DOM nodes | **99.5% reduction** | `contain-intrinsic-size: auto 320px;` skips offscreen chunk layout |
+
 ---
 
 ## 3. Highlight Intent Engine & Grounded Answer Generation
@@ -268,7 +295,7 @@ Every PR must pass all quality gates before merge. Run these commands from the r
 
 ```mermaid
 flowchart LR
-    Unit["1. Unit Suite<br/>(378 unit tests, 1.7s)"] --> Hard["2. Hard Benchmark<br/>(60 items, 100%)"]
+    Unit["1. Unit Suite<br/>(385 unit tests across 22 test suites, ~1.7s)"] --> Hard["2. Hard Benchmark<br/>(60 items, 100%)"]
     Hard --> High["3. Highlight Golden<br/>(24 items, 100%)"]
     High --> Batt["4. HTTP Battery<br/>(22 items, 100%)"]
     Batt --> PR["PR Approved &amp; Merged"]
@@ -278,7 +305,7 @@ flowchart LR
 ```sh
 python -m unittest discover -s tests
 ```
-- **Scope**: 378 unit tests executing in ~1.7 seconds.
+- **Scope**: 385 unit tests across 22 test suites executing in ~1.7 seconds.
 - **Coverage**: Contract validation, sentence-boundary chunk packing, hybrid RRF fusion, typo second readings, figure attachment integrity, and [`tests/test_generalization.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/tests/test_generalization.py) (fails if any book-specific IDs or titles leak into logic modules).
 - **Book-Agnostic Query Understanding** ([`tests/test_query_understanding.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/tests/test_query_understanding.py)): Verifies canonical query normalization, intent classification, passing-mention extraction, acronym casing normalization, and multi-turn coreference resolution without depending on book-specific IDs or constants.
 
@@ -314,6 +341,39 @@ BATTERY_MODE=answer python artifacts/harnesses/step2-battery.py
   - 4 rare-word probes (`pragmatic`, `MAD landscape`, `multicloud`).
   - 4 coherence probes (`data mesh`, `Codd`, `streaming endpoint`).
   - 1 out-of-book refusal canary (*"What is the capital of France?"* -> exactly `Not in this book.`).
+
+### 4.5 Adrian Real-World Adversarial Multi-Turn Evaluation ([`artifacts/harnesses/adrian-eval.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/artifacts/harnesses/adrian-eval.py))
+```sh
+python artifacts/harnesses/adrian-eval.py nekohon_x3
+```
+- **Scope**: 35 real-world multi-turn conversational scenarios across 6 demanding real-reader behaviors:
+  1. Highlight refinements and drill-downs.
+  2. Live suggestion pill clicking and branch exploration.
+  3. Lazy / shorthand user queries.
+  4. Whole-book thematic shifts across chapters.
+  5. Ungrounded false premises (e.g. presupposition traps).
+  6. Adversarial prompt injection attacks.
+- Supported by the 100-row [`artifacts/datasets/followup-evil-train-2026-10-17.jsonl`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/artifacts/datasets/followup-evil-train-2026-10-17.jsonl) adversarial training set, ensuring robust citation retention and grounded refusals even under multi-turn conversation strain.
+
+### 4.6 Cross-Book Evil Multi-Turn Evaluation ([`artifacts/harnesses/crossbook-evil-eval.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/artifacts/harnesses/crossbook-evil-eval.py))
+```sh
+python artifacts/harnesses/crossbook-evil-eval.py nekohon_x3
+```
+- **Dataset & Evidence**: [`artifacts/datasets/crossbook-evil-eval-2026-10-18.json`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/artifacts/datasets/crossbook-evil-eval-2026-10-18.json), [`artifacts/evidence/crossbook-eval/crossbook-eval-2026-10-18.json`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/artifacts/evidence/crossbook-eval/crossbook-eval-2026-10-18.json).
+- **Measured Results**: **23/30 scenarios passed (76.7% pass | 23.3% fail)** across 66 multi-turn HTTP requests spanning `fde`, `quantization`, and `ddia`:
+  * `lazy_deictic_selection`: **6/6 (100.0%)**
+  * `ddia_highlight_refine`: **6/6 (100.0%)**
+  * `quantization_highlight_refine`: **4/6 (66.7%)**
+  * `evil_adversarial_nuance_traps`: **4/6 (66.7%)**
+  * `crossbook_isolation_and_shifts`: **3/6 (50.0%)**
+- **7 Authentic 3B Student Failure Modes Discovered**:
+  1. `crossbook-04` (*AWQ and GPTQ 4-Bit Weight Quantization*): Turn 1 gloss omitted the required technical concept `'weight'`.
+  2. `crossbook-06` (*Outlier Features in Large Language Models*): Turn 1 gloss omitted the required key concept `'outlier'`.
+  3. `crossbook-22` (*Cross-Book Leak Trap 4 - Asking B-tree page splits in Quantization*): Expected exact refusal `Not in this book.`, but student model retrieved a quantization passage matching the literal letter `'B'` ("Lazy batch updates of B=128").
+  4. `crossbook-23` (*Intra-Book Topic Shift in DDIA - Ch. 1 Reliability to Ch. 3 B-Trees*): Model cited Ch. 8 instead of expected Ch. 1 on topic shift.
+  5. `crossbook-24` (*Intra-Book Topic Shift in Quantization - Ch. 1 Energy to Ch. 2 Symmetric Quantization*): Turn 1 answer omitted the required concept `'energy'`.
+  6. `crossbook-27` (*Exact Energy Numbers Nuance Trap in Quantization Ch. 1*): Turn 1 gloss omitted the required exact numeric term `'1,700'`.
+  7. `crossbook-28` (*Celebrity Hybrid Timeline Synthesis in DDIA Ch. 1*): Turn 1 answer omitted the required domain concept `'celebrity'`.
 
 ---
 
@@ -385,3 +445,14 @@ python scripts/setup_models.py --package-release
 ```
 
 This verifies the SHA-256 digests, imports the models into local Ollama, and regenerates [`data/models/release-manifest.json`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/data/models/release-manifest.json) for release packaging.
+
+---
+
+## 6. NekoHon System Terminology & Glossary
+
+- **NekoHon (`猫本`)**: The local-first multi-book reading companion branding, pairing an interactive cloth-bound wooden bookcase with local Ollama distillation and marginalia reading.
+- **Multi-Book Catalog** (`data/books.json`): Catalog metadata defining the active library (`fde`, `quantization`, `ddia`), mapping book identifiers to chapter counts, chunk counts, figure directories, and extracted cover art endpoints.
+- **Bookplate Spread**: The 3D `BookOpen` modal presentation displaying an `EX LIBRIS · NEKOHON` vintage bookplate, thumbnail cover art, and passage statistics on the left page with reading progress and action controls on the right.
+- **Gzip Chunk Cache** (`CHUNKS_GZIP_CACHE`): Engine-level in-memory pre-compressed GZIP cache for `GET /chunks`, reducing HTTP payload size from 1.14 MB down to 328 KB (71.7% network reduction).
+- **Unit-Vector Dot Product** (`_uvec`): Pre-normalized 768-dimensional unit vector cache enabling dense cosine ranking via raw dot products without per-query Euclidean norm calculations, speeding up ranking from 51.69 ms to 19.75 ms (2.6x).
+

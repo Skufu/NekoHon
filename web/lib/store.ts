@@ -1,6 +1,33 @@
 import { create } from "zustand";
-import { askStream, type AnswerBody } from "./engine";
+import { askStream, type AnswerBody, type BookCatalogItem, type AskRequest } from "./engine";
 import type { MarkerColor, UserHighlight } from "./anchor";
+
+export const DEFAULT_BOOKS: BookCatalogItem[] = [
+  {
+    book_id: "fde",
+    title: "Fundamentals of Data Engineering",
+    author: "Joe Reis & Matt Housley",
+    chapter_count: 11,
+    chunk_count: 1065,
+    figure_count: 111,
+  },
+  {
+    book_id: "ddia",
+    title: "Designing Data-Intensive Applications",
+    author: "Martin Kleppmann",
+    chapter_count: 12,
+    chunk_count: 1280,
+    figure_count: 98,
+  },
+  {
+    book_id: "quantization",
+    title: "Quantization and Fast Inference",
+    author: "Tim Dettmers & Elias Frantar",
+    chapter_count: 7,
+    chunk_count: 502,
+    figure_count: 42,
+  },
+];
 
 export type ThemeName = "night" | "paper" | "sepia" | "snow" | "ink";
 export type PenName = "vermilion" | "cobalt" | "moss" | "graphite";
@@ -92,6 +119,19 @@ function flightKey(glossId: string, turnId: string) {
 }
 
 type AskStore = {
+  // Navigation & Multi-Book State
+  viewMode: "library" | "reader";
+  setViewMode: (mode: "library" | "reader") => void;
+  activeBookId: string;
+  setActiveBookId: (bookId: string) => void;
+  openBook: (bookId: string) => void;
+  booksCatalog: BookCatalogItem[];
+  setBooksCatalog: (catalog: BookCatalogItem[]) => void;
+  addBookToCatalog: (book: BookCatalogItem) => void;
+  bookProgress: Record<string, { pct: number; chapter: string; chunkId: string; lastReadAt: number }>;
+  updateBookProgress: (bookId: string, progress: { pct: number; chapter: string; chunkId: string }) => void;
+  getBookStats: (bookId: string) => { highlightsCount: number; notesCount: number; pct: number; lastChapter: string };
+
   // Appearance state
   theme: ThemeName;
   pen: PenName;
@@ -201,6 +241,91 @@ function saveHighlights(highlights: UserHighlight[]) {
   }
 }
 
+function saveBookState(bookId: string, highlights: UserHighlight[], glosses: GlossItem[]) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(`nekohon-state-${bookId}`, JSON.stringify({ highlights, glosses }));
+  } catch {
+    // ignore quota/storage errors
+  }
+}
+
+function loadBookState(bookId: string): { highlights: UserHighlight[]; glosses: GlossItem[] } {
+  if (typeof window === "undefined") return { highlights: [], glosses: [] };
+  try {
+    const raw = localStorage.getItem(`nekohon-state-${bookId}`);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        highlights: Array.isArray(parsed.highlights) ? parsed.highlights : [],
+        glosses: Array.isArray(parsed.glosses) ? parsed.glosses : [],
+      };
+    }
+    // Migration: if book is fde and legacy atb-highlights exists, migrate it
+    if (bookId === "fde") {
+      const legacyHl = localStorage.getItem("atb-highlights");
+      if (legacyHl) {
+        const parsed = JSON.parse(legacyHl);
+        if (Array.isArray(parsed)) {
+          saveBookState("fde", parsed, []);
+          return { highlights: parsed, glosses: [] };
+        }
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return { highlights: [], glosses: [] };
+}
+
+function saveProgress(progress: Record<string, { pct: number; chapter: string; chunkId: string; lastReadAt: number }>) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem("nekohon-progress", JSON.stringify(progress));
+  } catch {
+    // ignore
+  }
+}
+
+function loadProgress(): Record<string, { pct: number; chapter: string; chunkId: string; lastReadAt: number }> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = localStorage.getItem("nekohon-progress");
+    if (raw) return JSON.parse(raw);
+  } catch {
+    // ignore
+  }
+  return {};
+}
+
+function saveCatalog(catalog: BookCatalogItem[]) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem("nekohon-catalog", JSON.stringify(catalog));
+  } catch {
+    // ignore
+  }
+}
+
+function loadCatalog(): BookCatalogItem[] {
+  if (typeof window === "undefined") return DEFAULT_BOOKS;
+  try {
+    const raw = localStorage.getItem("nekohon-catalog");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const map = new Map<string, BookCatalogItem>();
+        for (const b of DEFAULT_BOOKS) map.set(b.book_id, b);
+        for (const b of parsed) map.set(b.book_id, { ...(map.get(b.book_id) || {}), ...b });
+        return Array.from(map.values());
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return DEFAULT_BOOKS;
+}
+
 function historyPayload(
   thread: ThreadTurn[]
 ): { question: string; answer: string }[] | undefined {
@@ -248,6 +373,7 @@ export const useAsk = create<AskStore>((set, get) => {
               }
             : get().highlight,
     });
+    saveBookState(get().activeBookId, get().highlights, glosses);
   }
 
   function startTurnStream(
@@ -255,6 +381,7 @@ export const useAsk = create<AskStore>((set, get) => {
     turnId: string,
     payload: {
       mode: string;
+      book_id?: string;
       question?: string;
       selection?: string;
       chunk_id?: string;
@@ -456,8 +583,13 @@ export const useAsk = create<AskStore>((set, get) => {
       }
     };
 
+    const requestPayload: AskRequest = {
+      ...payload,
+      book_id: payload.book_id || get().activeBookId,
+    };
+
     askStream(
-      payload,
+      requestPayload,
       {
         onToken: (text) => {
           targetText += text;
@@ -617,6 +749,104 @@ export const useAsk = create<AskStore>((set, get) => {
   }
 
   return {
+    // Navigation & Multi-Book State
+    viewMode: "library",
+    setViewMode: (viewMode) => set({ viewMode }),
+    activeBookId: "fde",
+    booksCatalog: DEFAULT_BOOKS,
+    bookProgress: {},
+
+    setBooksCatalog: (booksCatalog) => {
+      set({ booksCatalog });
+      saveCatalog(booksCatalog);
+    },
+
+    addBookToCatalog: (book) => {
+      const existing = get().booksCatalog;
+      const filtered = existing.filter((b) => b.book_id !== book.book_id);
+      const next = [...filtered, book];
+      set({ booksCatalog: next });
+      saveCatalog(next);
+    },
+
+    setActiveBookId: (bookId) => {
+      const prevBookId = get().activeBookId;
+      if (prevBookId === bookId) return;
+      saveBookState(prevBookId, get().highlights, get().glosses);
+      const nextState = loadBookState(bookId);
+      set({
+        activeBookId: bookId,
+        highlights: nextState.highlights,
+        glosses: nextState.glosses,
+        activeGlossId: null,
+        highlight: null,
+        anchor: null,
+        thread: [],
+        error: "",
+        status: "idle",
+        streamText: "",
+      });
+    },
+
+    openBook: (bookId) => {
+      const prevBookId = get().activeBookId;
+      if (prevBookId !== bookId) {
+        saveBookState(prevBookId, get().highlights, get().glosses);
+        const nextState = loadBookState(bookId);
+        set({
+          activeBookId: bookId,
+          viewMode: "reader",
+          highlights: nextState.highlights,
+          glosses: nextState.glosses,
+          activeGlossId: null,
+          highlight: null,
+          anchor: null,
+          thread: [],
+          error: "",
+          status: "idle",
+          streamText: "",
+        });
+      } else {
+        set({ viewMode: "reader" });
+      }
+    },
+
+    updateBookProgress: (bookId, { pct, chapter, chunkId }) => {
+      const current = get().bookProgress;
+      const next = {
+        ...current,
+        [bookId]: {
+          pct,
+          chapter,
+          chunkId,
+          lastReadAt: Date.now(),
+        },
+      };
+      set({ bookProgress: next });
+      saveProgress(next);
+    },
+
+    getBookStats: (bookId) => {
+      const isCurrent = bookId === get().activeBookId;
+      let highlightsCount = 0;
+      let notesCount = 0;
+      if (isCurrent) {
+        highlightsCount = get().highlights.length;
+        notesCount = get().glosses.length;
+      } else {
+        const state = loadBookState(bookId);
+        highlightsCount = state.highlights.length;
+        notesCount = state.glosses.length;
+      }
+      const prog = get().bookProgress[bookId] || { pct: 0, chapter: "", chunkId: "", lastReadAt: 0 };
+      return {
+        highlightsCount,
+        notesCount,
+        pct: prog.pct || 0,
+        lastChapter: prog.chapter || "",
+      };
+    },
+
     // Appearance state
     theme: "night",
     pen: "vermilion",
@@ -647,7 +877,6 @@ export const useAsk = create<AskStore>((set, get) => {
       let pen: PenName = "vermilion";
       let marker: MarkerColor = "yellow";
       let readSize = 19;
-      let highlights: UserHighlight[] = [];
 
       try {
         const rawSettings = localStorage.getItem("atb-settings");
@@ -664,25 +893,42 @@ export const useAsk = create<AskStore>((set, get) => {
         // ignore
       }
 
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.dataset.pen = pen;
+      document.documentElement.style.setProperty("--read-size", `${readSize}px`);
+
+      // Determine book and view mode from URL
+      let initialViewMode: "library" | "reader" = "library";
+      let targetBookId = "fde";
       try {
-        const rawHl = localStorage.getItem("atb-highlights");
-        if (rawHl) {
-          highlights = JSON.parse(rawHl);
+        const params = new URLSearchParams(window.location.search);
+        const bookParam = params.get("book");
+        const modeParam = params.get("mode");
+        if (bookParam) {
+          targetBookId = bookParam;
+          initialViewMode = "reader";
+        } else if (modeParam === "reader") {
+          initialViewMode = "reader";
         }
       } catch {
         // ignore
       }
 
-      document.documentElement.dataset.theme = theme;
-      document.documentElement.dataset.pen = pen;
-      document.documentElement.style.setProperty("--read-size", `${readSize}px`);
+      const catalog = loadCatalog();
+      const progress = loadProgress();
+      const bookState = loadBookState(targetBookId);
 
       set({
         theme,
         pen,
         marker,
         readSize,
-        highlights,
+        viewMode: initialViewMode,
+        activeBookId: targetBookId,
+        booksCatalog: catalog,
+        bookProgress: progress,
+        highlights: bookState.highlights,
+        glosses: bookState.glosses,
       });
     },
 
@@ -706,6 +952,7 @@ export const useAsk = create<AskStore>((set, get) => {
           // Same color -> remove / toggle off
           const next = current.filter((_, idx) => idx !== overlapIndex);
           set({ highlights: next });
+          saveBookState(get().activeBookId, next, get().glosses);
           saveHighlights(next);
           return "";
         } else {
@@ -714,6 +961,7 @@ export const useAsk = create<AskStore>((set, get) => {
             idx === overlapIndex ? { ...item, color: h.color } : item
           );
           set({ highlights: next });
+          saveBookState(get().activeBookId, next, get().glosses);
           saveHighlights(next);
           return existing.id;
         }
@@ -727,6 +975,7 @@ export const useAsk = create<AskStore>((set, get) => {
       };
       const next = [...current, newHl];
       set({ highlights: next });
+      saveBookState(get().activeBookId, next, get().glosses);
       saveHighlights(next);
       return id;
     },
@@ -734,6 +983,7 @@ export const useAsk = create<AskStore>((set, get) => {
     removeHighlight: (id) => {
       const next = get().highlights.filter((h) => h.id !== id);
       set({ highlights: next });
+      saveBookState(get().activeBookId, next, get().glosses);
       saveHighlights(next);
     },
 

@@ -1,27 +1,26 @@
-# Ask This Book (`ask-this-book`)
+# NekoHon (`猫本`) — Local-First Multi-Book Reading Companion
 
-An offline, local-first book companion pairing a Gloss-inspired marginalia reader ([`web/`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/web), Next.js) with a zero-dependency Python stdlib RAG & Highlight Intent Engine ([`server.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/server.py), [`answer.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/answer.py), [`intent.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/intent.py), [`retrieve.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/retrieve.py)) and purpose-distilled local models (`nekohon_x3` 3B for desktop, `nekohon_x3_mobile` 1.5B for mobile/edge).
+An offline, local-first multi-volume reading companion pairing a Gloss-inspired marginalia reader and wooden bookcase library ([`web/`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/web), Next.js) with a zero-dependency Python stdlib RAG & Highlight Intent Engine ([`server.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/server.py), [`answer.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/answer.py), [`intent.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/intent.py), [`retrieve.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/retrieve.py)) and purpose-distilled local models (`nekohon_x3` 3B for desktop, `nekohon_x3_mobile` 1.5B for mobile/edge).
 
 Retrieval, intent resolution, and answer generation run strictly on local Ollama on `127.0.0.1:11434` — no cloud APIs, no database servers, no pip dependencies, and zero telemetry.
 
 ```mermaid
 flowchart TD
-    subgraph Subsystem1["1. EPUB Ingestion Pipeline (ingest.py)"]
-        EPUB["Raw EPUB File<br/>(books/fde.epub)"] --> Spine["OPF Spine & Container Parse"]
+    subgraph Subsystem1["1. Multi-Book Catalog & EPUB Ingestion (ingest.py, data/books.json)"]
+        EPUBs["EPUB Ingestion Sources<br/>(books/*.epub or UI Upload)"] --> Spine["OPF Spine & Container Parse"]
         Spine --> Packer["Sentence-Boundary Chunker<br/>(CHUNK_MAX_CHARS = 1400, OVERLAP = 180)"]
-        Spine --> FigExt["Figure & Caption Extractor"]
-        Packer --> Chunks["1,042 Chunks<br/>(0/1,042 mid-sentence starts)"]
-        FigExt --> Figures["111 Extracted PNGs + Captions"]
-        Chunks --> Index["data/index.json"]
-        Figures --> Index
+        Spine --> FigExt["Figure & Caption Extractor<br/>(O'Reilly & Manning div.figure-container)"]
+        Packer --> Catalog["Multi-Book Catalog (data/books.json)<br/>• fde: 1,042 chunks · 111 figures<br/>• quantization: 473 chunks · 76 figures<br/>• ddia: 1,307 chunks · 90 figures"]
+        FigExt --> Catalog
+        Catalog --> Caches["Engine In-Memory Fast Caches<br/>(INDEX_CACHE, CHUNKS_GZIP_CACHE 71.7% smaller)"]
     end
 
-    subgraph Subsystem2["2. Hybrid Retrieval & RRF (preprocess.py, retrieve.py, keywords.py, fusion.py, readings.py)"]
+    subgraph Subsystem2["2. Hybrid Retrieval & RRF (preprocess.py, retrieve.py, keywords.py, fusion.py)"]
         Query["User Query / Selection"] --> Pre["Alphanumeric Normalization<br/>(tokens: S3, 3NF, DDR5)"]
         Pre --> Cache{"_EMBED_CACHE<br/>Hit?"}
-        Cache -->|Miss| Dense["Dense Vector Search<br/>(nomic-embed-text, 768d)"]
+        Cache -->|Miss| Dense["Pre-Normalized _uvec Unit-Vector Search<br/>(nomic-embed-text, 768d, 2.6x faster)"]
         Cache -->|Hit| Dense
-        Pre --> Lexical["Lexical Rare-Word Postings<br/>(BM25 / IDF scoring)"]
+        Pre --> Lexical["Cached Lexical Postings<br/>(_POSTINGS_CACHE 45,000x faster)"]
         Dense --> Band{"Dense Top 20% Band<br/>(France Refusal Canary)"}
         Lexical --> Band
         Band -->|Admitted| RRF["Reciprocal Rank Fusion<br/>(K = 60)"]
@@ -39,7 +38,7 @@ flowchart TD
     end
 
     subgraph Subsystem4["4. Bidirectional Quote-Gloss Ranking & Grounded Generation (answer.py, prompt.py, figures.py)"]
-        Mention --> Prompt["Aligned ChatML System Prompt<br/>(prompt.py)"]
+        Mention --> Prompt["Aligned ChatML System Prompt<br/>(prompt.py, keep_alive: '24h')"]
         Prompt --> Ollama["Local Student Model<br/>(nekohon_x3 3B / nekohon_x3_mobile 1.5B)"]
         Ollama --> Coherence{"_is_coherent_gloss Validation<br/>(Repetition & Loop Guard)"}
         Coherence -->|Passed| QuoteRank["Bidirectional Quote-Gloss Ranking<br/>(Query-Entity Alignment)"]
@@ -49,15 +48,13 @@ flowchart TD
         ListSyn --> FigAttach["Scoped Figure Attachment<br/>(figures.py)"]
     end
 
-    subgraph Subsystem5["5. Direct-DOM Physics & Liquid Reader UX (web/ Next.js)"]
+    subgraph Subsystem5["5. NekoHon Library & Liquid Reader UX (web/ Next.js)"]
+        Caches --> LibUI["LibraryView.tsx<br/>(Wooden Shelf & Grid, 3D BookOpen Modal)"]
         FigAttach --> Stream["NDJSON Token Stream<br/>(POST /ask stream=1)"]
         Stream --> Pacer["Word-Boundary Streaming Pacer<br/>(~50 words/sec)"]
-        Pacer --> Card["MarginCard Component<br/>(Movable, 2D Resizable)"]
-        Card --> Physics["Direct-DOM rAF Physics (60/120fps)<br/>(Drag, Resize, Clamping)"]
-        Physics --> Leader["Live SVG Leader Line<br/>(updateLeaderLineDOM)"]
-        Card --> Dedupe["Cross-Turn Figure Deduplication<br/>(Collapsible Toggle)"]
-        Card --> Mini["Minimized 26px Node Pills<br/>(One-Click Dismiss)"]
+        Pacer --> Card["MarginCard Component<br/>(Direct-DOM rAF Physics)"]
         Card --> Jump["520ms Cubic-Bezier Citation Jump<br/>(mark.cite-mark & Return Banner)"]
+        LibUI --> Reader["Reader.tsx<br/>(content-visibility: auto, 99.5% DOM reduction)"]
     end
 ```
 
@@ -122,6 +119,27 @@ sequenceDiagram
    - Alphanumeric tokenization preserves technical identifiers (`S3`, `3NF`, `DDR4`, `DDR5`).
    - Reciprocal Rank Fusion (RRF, K = 60) combines dense embeddings with rare-word lexical postings inside a dense 20% safety band.
    - Multi-turn conversation threads resolve pronominal coreferences (`"What are its downsides?"`) across margin card turns.
+
+6. **Multi-Book Library & Ingestion ([`data/books.json`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/data/books.json))**:
+   - Shipped with a pre-indexed 3-book default library:
+     * `fde`: *Fundamentals of Data Engineering* (Joe Reis & Matt Housley) — **1,042 chunks · 111 figures · 17 chapters**
+     * `quantization`: *Quantization and Fast Inference* (Vivek Kalyanarangan) — **473 chunks · 76 figures · 7 chapters**
+     * `ddia`: *Designing Data-Intensive Applications* (Martin Kleppmann) — **1,307 chunks · 90 figures · 17 chapters**
+   - Supports one-click drag-and-drop `.epub` ingestion in the UI (`POST /ask` with `mode: "import"`) as well as CLI ingestion (`python ingest.py --epub <path> --book-id <id>`).
+
+7. **NekoHon Library Start Menu ([`web/components/LibraryView.tsx`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/web/components/LibraryView.tsx))**:
+   - Gloss-inspired wooden bookcase Shelf view with handcrafted cloth and gold-foil book spines, alongside an editorial Grid view.
+   - 3D `BookOpen` modal spread featuring an `EX LIBRIS · NEKOHON` vintage bookplate, thumbnail cover art, and passage/figure statistics.
+   - Per-volume reading progress ribbons and isolated marginalia state (`nekohon-state-${bookId}`, `nekohon-progress`).
+   - Instant book switching from the `TopBar.tsx` header dropdown or `← Library` return button.
+
+8. **R15 Engine & Frontend Performance Architecture**:
+   - `_POSTINGS_CACHE`: `82.38 ms -> 0.0018 ms` (45,000x speedup on rare-word lexical postings).
+   - Pre-normalized `_uvec` unit-vector cosine dot-product: `51.69 ms -> 19.75 ms` (2.6x faster dense ranking).
+   - `_SORTED_WMAP_CACHE`: `19.86 ms -> 5.71 ms` on word mapping resolution.
+   - `INDEX_CACHE` + `CHUNKS_GZIP_CACHE`: `1.14 MB -> 328 KB` over HTTP (71.7% smaller network payload).
+   - `keep_alive: "24h"` zero cold-start local model pinning.
+   - CSS `content-visibility: auto; contain-intrinsic-size: auto 320px;` on `.chunk`: reduces active layout DOM nodes by 99.5% for 1,300+ chunk volumes like DDIA.
 
 ---
 
@@ -217,7 +235,7 @@ The engine exposes a strictly typed, frozen HTTP contract:
 Run all checks from the repo root:
 
 ```sh
-# 1. Fast Unit Suite (378 unit tests, 0 network, ~1.5s)
+# 1. Fast Unit Suite (385 unit tests across 22 test suites, 0 network, ~1.5s)
 python -m unittest discover -s tests
 
 # 2. Read-Only Index Vector Hygiene Audit

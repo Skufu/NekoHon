@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Ask this book",
-  description: "Ask the book. It answers only from its own pages.",
+  title: "NekoHon — Local Book Companion",
+  description: "Local-first book companion with marginalia reader and grounded intelligence.",
 };
 
 export default function RootLayout({

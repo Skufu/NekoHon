@@ -71,6 +71,24 @@ authoritative doc is named.
 - **Figure Deduplication** — reader state mechanism that suppresses redundant
   figure attachments across consecutive turns in a conversation thread,
   offering collapsible toggles instead of repeating identical diagrams.
+- **NekoHon (`猫本`)** — the local-first multi-book reading companion branding,
+  pairing an interactive cloth-bound wooden bookcase with local Ollama
+  distillation and marginalia reading.
+- **Multi-Book Catalog** (`data/books.json`) — catalog metadata defining the
+  active library (`fde`, `quantization`, `ddia`), mapping book identifiers to
+  chapter counts, chunk counts, figure directories, and extracted cover art
+  endpoints.
+- **Bookplate Spread** — the 3D `BookOpen` modal presentation displaying an
+  `EX LIBRIS · NEKOHON` vintage bookplate, thumbnail cover art, and passage
+  statistics on the left page with reading progress and action controls on the
+  right.
+- **Gzip Chunk Cache** (`CHUNKS_GZIP_CACHE`) — engine-level in-memory
+  pre-compressed GZIP cache for `GET /chunks`, reducing HTTP payload size from
+  1.14 MB down to 328 KB (71.7% network reduction).
+- **Unit-Vector Dot Product** (`_uvec`) — pre-normalized 768-dimensional unit
+  vector cache enabling dense cosine ranking via raw dot products without
+  per-query Euclidean norm calculations, speeding up ranking from 51.69 ms to
+  19.75 ms (2.6x).
 
 ## Models and training
 

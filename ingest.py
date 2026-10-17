@@ -30,6 +30,8 @@ BLOCK_TAGS = {"p", "li", "blockquote", "pre", "h1", "h2", "h3", "h4", "h5"}
 
 # Non-teaching docs: the index and front matter steal search slots. Preface,
 # part openers, chapters, and appendices stay.
+# Non-teaching docs: the index and front matter steal search slots. Preface,
+# part openers, chapters, and appendices stay.
 NON_TEACHING_IDS = {
     "cover",
     "dedication01",
@@ -39,6 +41,11 @@ NON_TEACHING_IDS = {
     "colophon01",
     "colophon02",
 }
+
+NON_TEACHING_HEADING_RE = re.compile(
+    r"^(?:index|colophon|about the authors?|dedication|copyright|title\s*page|table of contents|contents|revision history|welcome|acknowledgments?)\b",
+    re.I,
+)
 
 # A hidden marker wraps a figure's xref href so the citing-paragraph search can
 # find the figure. Stored text drops it and keeps the link words.
@@ -69,9 +76,11 @@ class ChapterParser(HTMLParser):
         self._stack = []
         self._text = []
         self._in_figure = 0
+        self._fig_div_depth = 0
         self._fig = None
         self._capture = None
         self._heading_id = ""
+        self._last_h5_fig = None
 
     def handle_starttag(self, tag, attrs):
         tag = tag.lower()
@@ -81,44 +90,57 @@ class ChapterParser(HTMLParser):
             return
         if self._skip:
             return
-        if tag == "figure":
+
+        classes = attr.get("class", "").lower().split()
+        is_fig_div = tag == "div" and any(c in ("figure-container", "mediaobject") for c in classes)
+
+        if tag == "figure" or is_fig_div:
             self._in_figure += 1
+            if tag == "div":
+                self._fig_div_depth += 1
             if self._in_figure == 1:
                 self._fig = {
-                    "anchor": "",
+                    "anchor": attr.get("id", ""),
                     "src": "",
                     "alt": "",
                     "label": "",
                     "caption": "",
                 }
+                if self._last_h5_fig:
+                    self._fig["label"], self._fig["caption"] = self._last_h5_fig
+                    self._last_h5_fig = None
             return
+
         if self._in_figure:
-            if tag == "div" and attr.get("id") and not self._fig["anchor"]:
-                self._fig["anchor"] = attr["id"]
+            if tag == "div":
+                if self._fig_div_depth > 0:
+                    self._fig_div_depth += 1
+                if attr.get("id") and not self._fig["anchor"]:
+                    self._fig["anchor"] = attr["id"]
             elif tag == "img":
                 self._fig["src"] = attr.get("src", "")
-                self._fig["alt"] = (attr.get("alt") or "").strip()
-            elif tag == "h6":
+                alt = attr.get("alt") or attr.get("data-alt") or ""
+                self._fig["alt"] = alt.strip()
+            elif tag in ("h5", "h6"):
                 self._capture = "caption"
                 self._text = []
             elif tag == "span" and attr.get("class") == "label" and self._capture == "caption":
                 self._capture = "label"
             return
+
         if tag == "table":
             self._capture = "table"
             self._text = []
             self._stack.append(tag)
             return
         if tag == "a" and attr.get("data-type") == "xref":
-            self._text.append(_marked(attr.get("href", "").lstrip("#")))
+            self._text.append(f"\x00{attr.get('href', '').lstrip('#')}\x00")
             return
         if tag in BLOCK_TAGS or tag in ("ul", "ol", "dl"):
             self._stack.append(tag)
             if tag in BLOCK_TAGS and self._capture is None:
                 self._capture = tag
                 self._text = []
-                # The heading's own id, so a chunk can point back at the spot
-                # in the reader. Nothing else on a block carries one.
                 self._heading_id = attr.get("id", "") if tag in HEADING_TAGS else ""
 
     def handle_endtag(self, tag):
@@ -128,23 +150,35 @@ class ChapterParser(HTMLParser):
             return
         if self._skip:
             return
-        if tag == "figure" and self._in_figure:
-            self._in_figure -= 1
-            if self._in_figure == 0 and self._fig and self._fig["src"]:
-                caption = self._fig["caption"].strip()
-                if not caption:
-                    caption = self._fig["alt"]
-                self.figures.append({
-                    "anchor": self._fig["anchor"],
-                    "label": self._fig["label"].strip(),
-                    "caption": caption,
-                    "src": self._fig["src"],
-                })
-                self._fig = None
-            return
+
         if self._in_figure:
-            if tag == "h6" and self._capture == "caption":
-                self._fig["caption"] = _clean("".join(self._text))
+            if self._fig_div_depth > 0 and tag == "div":
+                self._fig_div_depth -= 1
+                if self._fig_div_depth == 0:
+                    self._in_figure -= 1
+            elif tag == "figure":
+                self._in_figure -= 1
+
+            if self._in_figure == 0:
+                if self._fig and self._fig["src"]:
+                    caption = self._fig["caption"].strip()
+                    if not caption:
+                        caption = self._fig["alt"]
+                    self.figures.append({
+                        "anchor": self._fig["anchor"],
+                        "label": self._fig["label"].strip(),
+                        "caption": caption,
+                        "src": self._fig["src"],
+                    })
+                self._fig = None
+                return
+
+            if tag in ("h5", "h6") and self._capture == "caption":
+                cap_text = _clean("".join(self._text))
+                self._fig["caption"] = cap_text
+                m = re.match(r"^(Figure\s+[A-Z]?\d+[-.]\d+)", cap_text, re.I)
+                if m and not self._fig["label"]:
+                    self._fig["label"] = m.group(1)
                 self._capture = None
                 self._text = []
             elif tag == "span" and self._capture == "label":
@@ -152,6 +186,15 @@ class ChapterParser(HTMLParser):
                 self._capture = "caption"
                 self._text = []
             return
+
+        if tag == "h5" and self._capture == "h5":
+            h5_text = _clean("".join(self._text))
+            m = re.match(r"^(Figure\s+[A-Z]?\d+[-.]\d+)", h5_text, re.I)
+            if m:
+                self._last_h5_fig = (m.group(1), h5_text)
+            else:
+                self._last_h5_fig = None
+
         if tag == "table" and self._capture == "table":
             text = _clean("".join(self._text))
             if text:
@@ -191,42 +234,120 @@ def _clean(text):
 
 
 def _chapter_number(doc_id, html_text):
-    # Spine ids come as `ch07` (FDE) or `chapter-4` (second book, measured
-    # 2026-10-14); the tag the model must emit is `[Ch. 4]`, so keep only the
-    # number either way.
     match = re.match(r"ch(?:apter)?[\s_-]*(\d+)", doc_id, re.I)
     if match:
         return str(int(match.group(1)))
     label = re.search(r"Chapter\s+(\d+)", html_text[:800])
     if label:
         return label.group(1)
+    m_head = re.search(r"<h[1-6][^>]*>(.*?)</h[1-6]>", html_text[:2000], re.I | re.S)
+    if m_head:
+        h_clean = re.sub(r"<[^>]+>", "", m_head.group(1)).strip().lower()
+        if h_clean.startswith("preface"):
+            return "preface"
+        if h_clean.startswith("glossary"):
+            return "glossary"
+        if h_clean.startswith("appendix"):
+            return "appendix"
     return doc_id
+
+
+def read_metadata(zf, opf_path):
+    opf_dir = str(Path(opf_path).parent).replace("\\", "/")
+    if opf_dir == ".":
+        opf_dir = ""
+    opf = ET.fromstring(zf.read(opf_path))
+    title = ""
+    creator = ""
+    for el in opf.iter():
+        if el.tag.endswith("title") and not title and el.text:
+            title = el.text.strip()
+        if el.tag.endswith("creator") and not creator and el.text:
+            creator = el.text.strip()
+    title = re.sub(r"\s*\(\d{10,13}\)\s*$", "", title).strip()
+
+    manifest = {}
+    manifest_items = {}
+    manifest_el = opf.find(f"{OPF}manifest")
+    if manifest_el is not None:
+        for item in manifest_el:
+            mid = item.get("id")
+            href = item.get("href")
+            manifest[mid] = href
+            manifest_items[mid] = item.attrib
+
+    cover_href = None
+    for mid, attr in manifest_items.items():
+        props = attr.get("properties", "").split()
+        if "cover-image" in props:
+            cover_href = attr.get("href")
+            break
+    if not cover_href:
+        for meta in opf.iter():
+            if meta.tag.endswith("meta") and meta.get("name") == "cover":
+                cid = meta.get("content")
+                if cid in manifest:
+                    cover_href = manifest[cid]
+                    break
+    if not cover_href:
+        for mid, attr in manifest_items.items():
+            mtype = attr.get("media-type", "")
+            if mtype.startswith("image/") and mid.lower() in ("cover-image", "cover", "cover-img"):
+                cover_href = attr.get("href")
+                break
+
+    cover_relpath = None
+    if cover_href:
+        cover_relpath = f"{opf_dir}/{cover_href}" if opf_dir else cover_href
+
+    return {
+        "title": title,
+        "author": creator,
+        "cover_relpath": cover_relpath,
+        "manifest": manifest,
+        "manifest_items": manifest_items,
+        "opf": opf,
+        "opf_dir": opf_dir,
+    }
 
 
 def _spine(zf):
     container = ET.fromstring(zf.read("META-INF/container.xml"))
     rootfile = container.find(f".//{CONTAINER}rootfile")
     opf_path = rootfile.get("full-path")
-    opf_dir = str(Path(opf_path).parent).replace("\\", "/")
-    if opf_dir == ".":
-        opf_dir = ""
-    opf = ET.fromstring(zf.read(opf_path))
-    manifest = {}
-    for item in opf.find(f"{OPF}manifest"):
-        manifest[item.get("id")] = item.get("href")
+    meta = read_metadata(zf, opf_path)
+    opf = meta["opf"]
+    opf_dir = meta["opf_dir"]
+    manifest = meta["manifest"]
+    manifest_items = meta["manifest_items"]
+
     docs = []
-    for itemref in opf.find(f"{OPF}spine"):
-        href = manifest[itemref.get("idref")]
-        path = f"{opf_dir}/{href}" if opf_dir else href
-        doc_id = Path(href).stem
-        docs.append((doc_id, path))
-    return docs
+    spine_el = opf.find(f"{OPF}spine")
+    if spine_el is not None:
+        for itemref in spine_el:
+            idref = itemref.get("idref")
+            if idref not in manifest:
+                continue
+            href = manifest[idref]
+            path = f"{opf_dir}/{href}" if opf_dir else href
+            doc_id = Path(href).stem
+            is_linear = itemref.get("linear", "yes").lower() != "no"
+            item_attr = manifest_items.get(idref, {})
+            is_nav = "nav" in item_attr.get("properties", "").split()
+            docs.append((doc_id, path, is_linear, is_nav))
+    return docs, meta
 
 
 def _figure_id(label, chapter, index):
-    match = re.search(r"((?:Figure|Table|Fig\.)\s*[A-Z]?\d+-\d+)", label or "", re.I)
+    match = re.search(r"(Figure\s+(\d+)[-.](\d+))", label or "", re.I)
     if match:
-        raw = match.group(1).lower().replace(" ", "-").replace(".", "")
+        return f"figure-{match.group(2)}-{match.group(3)}"
+    match2 = re.search(r"((?:Figure|Table|Fig\.)\s*[A-Z]?\d+[-.]\d+)", label or "", re.I)
+    if match2:
+        raw = match2.group(1).lower().replace(" ", "-").replace(".", "-")
+        raw = re.sub(r"-+", "-", raw)
+        if raw.startswith("fig-"):
+            raw = "figure-" + raw[4:]
         return raw
     return f"fig-{chapter}-{index}"
 
@@ -465,23 +586,106 @@ def _attach_paragraphs(figures, blocks):
 
 
 def _label_in_text(label, text):
-    match = re.search(r"(\d+-\d+)", label or "")
+    match = re.search(r"(\d+)[-.](\d+)", label or "")
     if not match:
         return False
-    return match.group(1) in _visible(text)
+    c1, c2 = match.group(1), match.group(2)
+    vis = _visible(text)
+    return f"{c1}-{c2}" in vis or f"{c1}.{c2}" in vis
 
 
-def ingest_epub(epub_path=BOOK, figures_dir=FIGURES, write_images=True, book_id="fde"):
+def update_books_catalog(book_id, title, author, index_path, figures_dir, chunks, figures, cover_file="cover.png"):
+    catalog_path = ROOT / "data" / "books.json"
+    catalog = []
+    if catalog_path.is_file():
+        try:
+            raw = json.loads(catalog_path.read_text(encoding="utf-8"))
+            catalog = raw if isinstance(raw, list) else raw.get("books", [])
+        except Exception:
+            catalog = []
+
+    unique_chapters = len({c.get("chapter") for c in chunks if c.get("chapter") is not None})
+    cover_url = f"/figures/cover?book_id={book_id}" if book_id != "fde" else "/figures/cover"
+
+    entry = {
+        "book_id": book_id,
+        "title": title,
+        "author": author,
+        "chapter_count": unique_chapters,
+        "chunk_count": len(chunks),
+        "figure_count": len(figures),
+        "cover_url": cover_url,
+        "index_path": (str(Path(index_path).resolve().relative_to(ROOT.resolve())).replace("\\", "/") if Path(index_path).is_absolute() else str(index_path).replace("\\", "/")),
+        "figures_dir": (str(Path(figures_dir).resolve().relative_to(ROOT.resolve())).replace("\\", "/") if Path(figures_dir).is_absolute() else str(figures_dir).replace("\\", "/")),
+    }
+
+    updated = False
+    for i, b in enumerate(catalog):
+        if b.get("book_id") == book_id:
+            catalog[i] = entry
+            updated = True
+            break
+    if not updated:
+        catalog.append(entry)
+
+    catalog_path.parent.mkdir(parents=True, exist_ok=True)
+    catalog_path.write_text(json.dumps(catalog, indent=2), encoding="utf-8")
+    return entry
+
+
+def ingest_epub(epub_path=BOOK, figures_dir=None, write_images=True, book_id=None):
     """Return the index dict. Write images when figures_dir is set."""
     epub_path = Path(epub_path)
+    if book_id is None:
+        if str(epub_path.resolve()) == str(BOOK.resolve()):
+            book_id = "fde"
+        else:
+            book_id = epub_path.stem
+
+    if figures_dir is None:
+        figures_dir = FIGURES if book_id == "fde" else (ROOT / "data" / "figures" / book_id)
+    figures_dir = Path(figures_dir)
+
     chunks = []
     figures = []
+    cover_file = ""
     with zipfile.ZipFile(epub_path) as zf:
         names = set(zf.namelist())
-        for doc_id, path in _spine(zf):
+        spine_docs, meta = _spine(zf)
+
+        # Cover extraction
+        cover_relpath = meta.get("cover_relpath")
+        if cover_relpath and cover_relpath in names:
+            cover_ext = Path(cover_relpath).suffix.lower() or ".png"
+            cover_file = f"cover{cover_ext}"
+            if write_images:
+                figures_dir.mkdir(parents=True, exist_ok=True)
+                (figures_dir / cover_file).write_bytes(zf.read(cover_relpath))
+
+        for doc_id, path, is_linear, is_nav in spine_docs:
             if doc_id in NON_TEACHING_IDS or path not in names:
                 continue
+            if is_nav or not is_linear:
+                continue
+            if doc_id.lower().startswith("ix") or doc_id.lower().startswith("index"):
+                continue
+
             raw = zf.read(path).decode("utf-8")
+
+            # Skip non-teaching sections by data-type or heading/title
+            if re.search(r'data-type=["\'](?:titlepage|copyright-page|dedication|colophon|toc)["\']', raw[:1500], re.I):
+                continue
+
+            m_head = re.search(r"<h[1-6][^>]*>(.*?)</h[1-6]>", raw[:2000], re.I | re.S)
+            head_text = re.sub(r"<[^>]+>", "", m_head.group(1)).strip() if m_head else ""
+            m_title = re.search(r"<title[^>]*>(.*?)</title>", raw[:2000], re.I | re.S)
+            title_text = re.sub(r"<[^>]+>", "", m_title.group(1)).strip() if m_title else ""
+
+            if head_text and NON_TEACHING_HEADING_RE.search(head_text):
+                continue
+            if not head_text and title_text and NON_TEACHING_HEADING_RE.search(title_text):
+                continue
+
             parser = ChapterParser()
             parser.feed(raw)
             parser.close()
@@ -508,12 +712,7 @@ def ingest_epub(epub_path=BOOK, figures_dir=FIGURES, write_images=True, book_id=
                 src = figure["src"]
                 image_path = str(Path(path).parent / src).replace("\\", "/")
                 if write_images and figures_dir and image_path in names:
-                    figures_dir = Path(figures_dir)
                     figures_dir.mkdir(parents=True, exist_ok=True)
-                    # Basename alone collides across chapters (images/fig.png).
-                    # Key the file by figure id. A second write of the same id
-                    # with different bytes keeps the first file and adds the
-                    # source doc id.
                     figure_id = _figure_id(figure["label"], chapter, index)
                     suffix = Path(src).suffix.lower() or ".bin"
                     file_name = figure_id + suffix
@@ -538,8 +737,6 @@ def ingest_epub(epub_path=BOOK, figures_dir=FIGURES, write_images=True, book_id=
         if number:
             by_number[number] = figure["id"]
     for chunk in chunks:
-        # Which figures this chunk names. Derived from the text with the same
-        # rule the answer layer uses, so a split chunk cannot lose a figure.
         chunk["figures"] = sorted({
             by_number[number]
             for number in cited_numbers(chunk["text"])
@@ -547,6 +744,9 @@ def ingest_epub(epub_path=BOOK, figures_dir=FIGURES, write_images=True, book_id=
         })
     return {
         "book_id": book_id,
+        "title": meta.get("title", ""),
+        "author": meta.get("author", ""),
+        "cover_file": cover_file,
         "chunks": chunks,
         "figures": figures,
     }
@@ -557,7 +757,7 @@ def main():
     parser.add_argument("--epub", default=str(BOOK), help="Path to input EPUB file (default: books/fde.epub)")
     parser.add_argument("--book-id", default=None, help="Book ID (default: fde, or stem of --epub)")
     parser.add_argument("--index", default=None, help="Path to output index JSON")
-    parser.add_argument("--figures-dir", default=str(FIGURES), help="Directory to extract figures to")
+    parser.add_argument("--figures-dir", default=None, help="Directory to extract figures to")
     args = parser.parse_args()
 
     epub_path = Path(args.epub)
@@ -578,7 +778,13 @@ def main():
     else:
         index_path = INDEX
 
-    figures_dir = Path(args.figures_dir)
+    if args.figures_dir:
+        figures_dir = Path(args.figures_dir)
+    elif book_id != "fde":
+        figures_dir = ROOT / "data" / "figures" / book_id
+    else:
+        figures_dir = FIGURES
+
     if figures_dir.is_dir():
         for old in figures_dir.iterdir():
             if old.is_file():
@@ -588,6 +794,18 @@ def main():
     index = ingest_epub(epub_path, figures_dir, write_images=True, book_id=book_id)
     index_path.parent.mkdir(parents=True, exist_ok=True)
     index_path.write_text(json.dumps(index, indent=2), encoding="utf-8")
+
+    update_books_catalog(
+        book_id,
+        index.get("title", ""),
+        index.get("author", ""),
+        index_path,
+        figures_dir,
+        index.get("chunks", []),
+        index.get("figures", []),
+        cover_file=index.get("cover_file", "cover.png"),
+    )
+
     reloaded = json.loads(index_path.read_text(encoding="utf-8"))
     captions = [f["caption"] for f in reloaded["figures"] if f["caption"]][:3]
     print(f"chunks {len(reloaded['chunks'])}")

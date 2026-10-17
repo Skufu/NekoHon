@@ -22,12 +22,29 @@ RARE_DF = 8
 COVER_DF = 80
 
 
+_POSTINGS_CACHE = {}
+
+
 def postings(index):
     """word -> chunk positions, for every word of every chunk."""
+    chunks = index.get("chunks") if isinstance(index, dict) else index
+    chunks = chunks or []
+    key = (id(chunks), len(chunks), chunks[0].get("chunk_id") if chunks and isinstance(chunks[0], dict) else None)
+    if key in _POSTINGS_CACHE:
+        return _POSTINGS_CACHE[key]
+
     table = {}
-    for position, chunk in enumerate(index.get("chunks") or []):
-        for word in set(words(chunk.get("text"))):
+    for position, chunk in enumerate(chunks):
+        text = chunk.get("text") if isinstance(chunk, dict) else str(chunk)
+        for word in set(words(text)):
             table.setdefault(word, []).append(position)
+
+    if len(_POSTINGS_CACHE) >= 16:
+        try:
+            _POSTINGS_CACHE.pop(next(iter(_POSTINGS_CACHE)))
+        except Exception:
+            _POSTINGS_CACHE.clear()
+    _POSTINGS_CACHE[key] = table
     return table
 
 

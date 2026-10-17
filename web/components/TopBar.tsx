@@ -51,12 +51,19 @@ export default function TopBar({
   const activeGlossId = useAsk((s) => s.activeGlossId);
   const setActiveGloss = useAsk((s) => s.setActiveGloss);
 
+  const setViewMode = useAsk((s) => s.setViewMode);
+  const activeBookId = useAsk((s) => s.activeBookId);
+  const openBook = useAsk((s) => s.openBook);
+  const booksCatalog = useAsk((s) => s.booksCatalog);
+
   const [tucked, setTucked] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [chaptersOpen, setChaptersOpen] = useState(false);
+  const [bookMenuOpen, setBookMenuOpen] = useState(false);
   const [aaOpen, setAaOpen] = useState(false);
 
   const chaptersRef = useRef<HTMLDivElement>(null);
+  const bookMenuRef = useRef<HTMLDivElement>(null);
   const aaRef = useRef<HTMLDivElement>(null);
 
   // Auto-tuck on scroll down, reveal on scroll up
@@ -69,6 +76,7 @@ export default function TopBar({
       if (y > lastY && y > 160) {
         setTucked(true);
         setChaptersOpen(false);
+        setBookMenuOpen(false);
         setAaOpen(false);
       } else if (y < lastY) {
         setTucked(false);
@@ -84,6 +92,9 @@ export default function TopBar({
     const onPointerDown = (e: PointerEvent) => {
       if (chaptersRef.current && !chaptersRef.current.contains(e.target as Node)) {
         setChaptersOpen(false);
+      }
+      if (bookMenuRef.current && !bookMenuRef.current.contains(e.target as Node)) {
+        setBookMenuOpen(false);
       }
       if (aaRef.current && !aaRef.current.contains(e.target as Node)) {
         setAaOpen(false);
@@ -159,6 +170,8 @@ export default function TopBar({
   };
 
   const chLabel = activeChapter ? formatChapter(activeChapter) : "";
+  const currentBook = booksCatalog.find((b) => b.book_id === activeBookId);
+  const currentBookTitle = currentBook ? currentBook.title : bookTitle || "Volume";
 
   return (
     <header
@@ -167,16 +180,87 @@ export default function TopBar({
       }`}
     >
       <div className="topbar-inner">
-        {/* Left Side: Book badge + Chapter dropdown */}
+        {/* Left Side: Brand + Library button + Book Switcher + Chapter dropdown */}
         <div className="topbar-left" ref={chaptersRef}>
           <button
             type="button"
-            onClick={onJumpTop}
+            onClick={() => setViewMode("library")}
             className="topbar-brand"
-            title="Scroll to top"
+            title="Open NekoHon Library"
+            aria-label="Open NekoHon Library"
           >
-            Ask This Book
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="topbar-logo-icon"
+              aria-hidden
+            >
+              <path d="M2 18c3-1.5 6-1.5 10 0 4-1.5 7-1.5 10 0v-11c-3-1.5-6-1.5-10 0-4-1.5-7-1.5-10 0v11z" />
+              <path d="M12 7v11" />
+              <path d="M7 6c0-2 2-3.5 4-3.5s3.5 1 4 2.5" />
+              <path d="M9 2.5L9.5 4" />
+              <path d="M13.5 2.5L13 4" />
+              <path d="M15 5c1.5 0 2.5.8 2.5 2" />
+            </svg>
+            <span className="topbar-brand-name">NekoHon</span>
+            <span className="topbar-brand-kanji">猫本</span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => setViewMode("library")}
+            className="topbar-library-btn"
+            title="Return to Library Start Menu"
+          >
+            <span className="topbar-library-arrow">←</span>
+            <span className="topbar-library-text">Library</span>
+          </button>
+
+          {/* Book Switcher Dropdown */}
+          <div className="topbar-book-wrap" ref={bookMenuRef}>
+            <button
+              type="button"
+              onClick={() => setBookMenuOpen((v) => !v)}
+              className="topbar-book-btn"
+              aria-expanded={bookMenuOpen}
+              aria-label="Switch book"
+            >
+              <span className="topbar-book-label">
+                {currentBookTitle}
+              </span>
+              <span className="topbar-caret">▾</span>
+            </button>
+
+            {bookMenuOpen && (
+              <div className="topbar-book-menu">
+                <div className="topbar-book-menu-title">Volumes on Shelf</div>
+                {booksCatalog.map((b) => (
+                  <button
+                    key={b.book_id}
+                    type="button"
+                    onClick={() => {
+                      openBook(b.book_id);
+                      setBookMenuOpen(false);
+                    }}
+                    className={`topbar-book-item ${
+                      b.book_id === activeBookId ? "is-active" : ""
+                    }`}
+                  >
+                    <span className="topbar-book-item-title">{b.title}</span>
+                    <span className="topbar-book-item-meta">
+                      {b.author} · {b.chunk_count} passages
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Chapter Selector Dropdown */}
           <div className="topbar-toc-wrap">

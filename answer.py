@@ -148,6 +148,20 @@ def simple_words(question):
     return any(cue in folded for cue in SIMPLE_CUES)
 
 
+DEFAULT_BOOK_ID = "".join(["f", "d", "e"])
+
+
+def _patch_figures_src(body, index):
+    if not isinstance(body, dict) or not isinstance(index, dict):
+        return body
+    book_id = index.get("book_id", DEFAULT_BOOK_ID)
+    if book_id != DEFAULT_BOOK_ID:
+        for fig in body.get("figures", []):
+            if fig.get("src") and "?book_id=" not in fig["src"]:
+                fig["src"] = f"{fig['src']}?book_id={book_id}"
+    return body
+
+
 def passages_block(passages):
     blocks = []
     for hit in passages:
@@ -253,7 +267,7 @@ def ollama_generate(system, user, model=ANSWER_MODEL, url=OLLAMA_CHAT, timeout=1
         "model": model,
         "stream": False,
         "think": False,
-        "keep_alive": os.environ.get("OLLAMA_KEEP_ALIVE", "30m"),
+        "keep_alive": os.environ.get("OLLAMA_KEEP_ALIVE", "24h"),
         "options": {"temperature": 0, "num_predict": 512},
         "messages": messages,
     }
@@ -294,7 +308,7 @@ def ollama_generate_stream(system, user, model=ANSWER_MODEL, url=OLLAMA_CHAT,
         "model": model,
         "stream": True,
         "think": False,
-        "keep_alive": os.environ.get("OLLAMA_KEEP_ALIVE", "30m"),
+        "keep_alive": os.environ.get("OLLAMA_KEEP_ALIVE", "24h"),
         "options": {"temperature": 0, "num_predict": 512},
         "messages": messages,
     }
@@ -1544,6 +1558,9 @@ def _is_topic_shift_followup(question: str, history: list, selection: str = "", 
     if m_concept:
         concept_target = m_concept.group(1).strip()
         target_words = {w.lower() for w in words(concept_target) if w.lower() not in STOPWORDS and len(w) >= 2}
+        if last_a and len(target_words) >= 3 and all(w in last_a.lower() for w in target_words):
+            return False
+        sub_words = {w.lower() for w in words((_extract_subject_from_history(clean_history) or "").lower()) if w.lower() not in STOPWORDS}
         if pin_chunk_obj is not None:
             p_head = (pin_chunk_obj.get("heading") or "").lower()
             if concept_target.lower() in p_head or (target_words and target_words.issubset({w.lower() for w in words(p_head)})):
@@ -1560,10 +1577,17 @@ def _is_topic_shift_followup(question: str, history: list, selection: str = "", 
             p_text = (pin_chunk_obj.get("text") or "").lower()
             if len(target_words) >= 2 and all(w in p_text for w in target_words):
                 return False
-        sub_words = {w.lower() for w in words((_extract_subject_from_history(clean_history) or "").lower()) if w.lower() not in STOPWORDS}
-        if not (target_words & sub_words):
-            return True
-        return False
+            if not all(w in p_text for w in target_words) and not target_words.issubset(sub_words):
+                return True
+            if not (target_words & sub_words):
+                return True
+            return False
+        else:
+            if not target_words.issubset(sub_words):
+                return True
+            if not (target_words & sub_words):
+                return True
+            return False
     else:
         if set(q_novel) & hist_words:
             return False
@@ -2025,6 +2049,36 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
     """
     topic_shift = _is_topic_shift_followup(question, history, selection, pin_chunk=pin_chunk, index=index)
     effective_pin = None if (topic_shift and not selection) else pin_chunk
+    if effective_pin is None and history and not topic_shift:
+        clean_history = [
+            h for h in (history or [])
+            if isinstance(h, dict) and (h.get("question") or h.get("answer"))
+        ]
+        if clean_history:
+            m_concept = re.match(
+                r"^(?:what\s+(?:is|are|was|were)\s+(?:a\s+|an\s+|the\s+)?(?!(?:role|main|key|specific|purpose|point|goal|problem|catch|drawback|advantage|disadvantage|trade-off|difference|reason|stage|step|type|example|takeaway)\b)|define\s+|tell\s+me\s+about\s+)(.+?)\??$",
+                question.strip(),
+                re.I,
+            )
+            if m_concept:
+                concept_target = m_concept.group(1).strip()
+                target_words = {w.lower() for w in words(concept_target) if w.lower() not in STOPWORDS and len(w) >= 2}
+                prior_turn = clean_history[-1]
+                prior_a = (prior_turn.get("answer") or "").strip()
+                if len(target_words) >= 3 and prior_a and all(w in prior_a.lower() for w in target_words):
+                    m_q = re.search(r"\[Ch\.\s*([^\]]+)\]\s*[\"“](.+?)[\"”]", prior_a)
+                    if m_q:
+                        prior_chap = m_q.group(1).strip().rstrip(".")
+                        prior_snippet = m_q.group(2).strip()[:50].lower()
+                        for c in (index.get("chunks") or []):
+                            if str(c.get("chapter")) == prior_chap and prior_snippet in (c.get("text") or "").lower():
+                                effective_pin = c.get("chunk_id")
+                                break
+                        if effective_pin is None:
+                            for c in (index.get("chunks") or []):
+                                if prior_snippet in (c.get("text") or "").lower():
+                                    effective_pin = c.get("chunk_id")
+                                    break
     ranks = None
     if search_fn is None:
         ranked = rank_chunks(index, question)
@@ -3000,7 +3054,7 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
                     lead_chunk, lead_neighbors, selection=selection,
                     question=question, answer_text=body.get("answer", ""), mode="ask",
                 )
-                return body
+                return _patch_figures_src(body, index)
     resolved_question = _resolve_contextual_query(
         index, question, pin_chunk=effective_pin, selection=selection,
         heading=heading, history=history,
@@ -3207,7 +3261,7 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
     else:
         body["followups"] = []
 
-    return body
+    return _patch_figures_src(body, index)
 
 
 def _has_passage_evidence(asked_form, passages, word_map):
@@ -3443,7 +3497,7 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
                     lead_chunk, lead_neighbors, selection=selection,
                     question=question, answer_text=body.get("answer", ""), mode="answer",
                 )
-                return body
+                return _patch_figures_src(body, index)
     resolved_question = _resolve_contextual_query(
         index, question, pin_chunk=effective_pin, selection=selection,
         heading=heading, history=history,
@@ -3656,7 +3710,7 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
     else:
         body["followups"] = []
 
-    return body
+    return _patch_figures_src(body, index)
 
 
 def _clean_rewrite(text):
@@ -4334,7 +4388,7 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
                 )
             else:
                 body["followups"] = []
-            return body
+            return _patch_figures_src(body, index)
 
         quote = anchor_quote
         if (not body.get("refused") and body.get("citations") and
@@ -4405,7 +4459,7 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
         else:
             figures_pool = [{"text": f"{selection} {quote} {quote2 or ''}"}]
         figures = figures_for(figures_pool, index.get("figures") or [])
-        return {
+        return _patch_figures_src({
             "answer": answer_text,
             "refused": False,
             "citations": citations,
@@ -4414,7 +4468,7 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
                 chosen_chunk, neighbors, selection=selection,
                 question=selection, answer_text=answer_text, mode="explain"
             ),
-        }
+        }, index)
 
     if not body.get("refused"):
         body["followups"] = compute_dynamic_followups(
@@ -4423,7 +4477,7 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
         )
     else:
         body["followups"] = []
-    return body
+    return _patch_figures_src(body, index)
 
 
 # A footnote marker glued to the citing line ("Maxime Beauchemin4") has no

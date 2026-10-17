@@ -66,7 +66,7 @@ class ChunksPayloadTest(unittest.TestCase):
         self.assertEqual(
             self.payload["chunks"][0]["figures"],
             [{"id": "figure-1-1", "chapter": "1", "caption": "A graph.",
-              "src": "/figures/figure-1-1"}],
+              "src": "/figures/figure-1-1?book_id=demo"}],
         )
         self.assertEqual(self.payload["chunks"][1]["figures"], [])
 
