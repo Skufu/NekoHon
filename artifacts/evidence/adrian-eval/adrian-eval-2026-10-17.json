@@ -15,7 +15,7 @@
           "chunk_id": "ch01-025",
           "heading": "Data Maturity and the Data Engineer"
         },
-        "elapsed_sec": 0.861,
+        "elapsed_sec": 0.778,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 1] \"Data maturity is the progression toward higher data utilization, capabilities, and integration across the organization, but data maturity does not simply depend on the age or revenue of a company.\"\nData maturity measures how effectively an organization utilizes data to drive operations and strategic decisions, not just its financial size or age.",
@@ -59,10 +59,10 @@
             }
           ]
         },
-        "elapsed_sec": 0.285,
+        "elapsed_sec": 0.379,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 1] \"Data maturity is the progression toward higher data utilization, capabilities, and integration across the organization, but data maturity does not simply depend on the age or revenue of a company.\"\nThe level of data engineering complexity within a company depends a great deal on the company\u2019s data maturity.",
+        "answer": "[Ch. 1] \"Data maturity is the progression toward higher data utilization, capabilities, and integration across the organization, but data maturity does not simply depend on the age or revenue of a company.\"\nData maturity means using data well across an organization, not just how old or rich a company is.",
         "citations": [
           {
             "chunk_id": "ch01-025",
@@ -102,14 +102,14 @@
             },
             {
               "question": "Explain more simply",
-              "answer": "[Ch. 1] \"Data maturity is the progression toward higher data utilization, capabilities, and integration across the organization, but data maturity does not simply depend on the age or revenue of a company.\"\nThe level of data engineering complexity within a company depends a great deal on the company\u2019s data maturity."
+              "answer": "[Ch. 1] \"Data maturity is the progression toward higher data utilization, capabilities, and integration across the organization, but data maturity does not simply depend on the age or revenue of a company.\"\nData maturity means using data well across an organization, not just how old or rich a company is."
             }
           ]
         },
-        "elapsed_sec": 1.177,
+        "elapsed_sec": 1.455,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 1] \"Data maturity models have many versions, such as Data Management Maturity (DMM) and others, and it\u2019s hard to pick one that is both simple and useful for data engineering.\"\nStarting with data involves building foundational data structures and governance before pursuing more complex analytical tools.",
+        "answer": "[Ch. 1] \"Data maturity models have many versions, such as Data Management Maturity (DMM) and others, and it\u2019s hard to pick one that is both simple and useful for data engineering.\"\nStarting with data means the company has just begun collecting data and lacks formal structure, so the data engineer focuses on basic infrastructure and initial value delivery.",
         "citations": [
           {
             "chunk_id": "ch01-025",
@@ -150,7 +150,7 @@
           "chunk_id": "ch02-040",
           "heading": "Reverse ETL"
         },
-        "elapsed_sec": 0.236,
+        "elapsed_sec": 0.167,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"In reality, this flow is beneficial and often necessary; reverse ETL allows us to take analytics, scored models, etc., and feed these back into production systems or SaaS platforms.\"\nReverse ETL sends processed data back to source systems from downstream analytics or modeling stages.",
@@ -194,10 +194,10 @@
             }
           ]
         },
-        "elapsed_sec": 0.455,
+        "elapsed_sec": 0.336,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 2] \"In reality, this flow is beneficial and often necessary; reverse ETL allows us to take analytics, scored models, etc., and feed these back into production systems or SaaS platforms.\"\nReverse ETL sends processed data back to where it came from, which is helpful for fixing mistakes or getting new information.",
+        "answer": "[Ch. 2] \"In reality, this flow is beneficial and often necessary; reverse ETL allows us to take analytics, scored models, etc., and feed these back into production systems or SaaS platforms.\"\nReverse ETL sends processed data back to where it came from, which is helpful for fixing mistakes or getting better information.",
         "citations": [
           {
             "chunk_id": "ch02-040",
@@ -237,14 +237,14 @@
             },
             {
               "question": "explain it more simply",
-              "answer": "[Ch. 2] \"In reality, this flow is beneficial and often necessary; reverse ETL allows us to take analytics, scored models, etc., and feed these back into production systems or SaaS platforms.\"\nReverse ETL sends processed data back to where it came from, which is helpful for fixing mistakes or getting new information."
+              "answer": "[Ch. 2] \"In reality, this flow is beneficial and often necessary; reverse ETL allows us to take analytics, scored models, etc., and feed these back into production systems or SaaS platforms.\"\nReverse ETL sends processed data back to where it came from, which is helpful for fixing mistakes or getting better information."
             }
           ]
         },
-        "elapsed_sec": 0.222,
+        "elapsed_sec": 0.289,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 2] \"In reality, this flow is beneficial and often necessary; reverse ETL allows us to take analytics, scored models, etc., and feed these back into production systems or SaaS platforms.\"\nReverse ETL sends processed data back to its original source for corrections or updates.",
+        "answer": "[Ch. 2] \"In reality, this flow is beneficial and often necessary; reverse ETL allows us to take analytics, scored models, etc., and feed these back into production systems or SaaS platforms.\"\nReverse ETL sends processed data back to its original source for corrections or improvements.",
         "citations": [
           {
             "chunk_id": "ch02-040",
@@ -285,10 +285,10 @@
           "chunk_id": "ch07-015",
           "heading": "Serialization and Deserialization"
         },
-        "elapsed_sec": 0.347,
+        "elapsed_sec": 0.344,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 7] \"Moving data from source to destination involves serialization and deserialization.\"\nSerialization converts data into a format suitable for storage or transmission, while deserialization reverses this process to restore original structure and values.",
+        "answer": "[Ch. 7] \"Moving data from source to destination involves serialization and deserialization.\"\nSerialization converts data structures into formats suitable for storage or transmission, while deserialization reconstructs those structures from encoded representations.",
         "citations": [
           {
             "chunk_id": "ch07-015",
@@ -318,14 +318,14 @@
           "history": [
             {
               "question": "Serialization and Deserialization",
-              "answer": "[Ch. 7] \"Moving data from source to destination involves serialization and deserialization.\"\nSerialization converts data into a format suitable for storage or transmission, while deserialization reverses this process to restore original structure and values."
+              "answer": "[Ch. 7] \"Moving data from source to destination involves serialization and deserialization.\"\nSerialization converts data structures into formats suitable for storage or transmission, while deserialization reconstructs those structures from encoded representations."
             }
           ]
         },
-        "elapsed_sec": 0.279,
+        "elapsed_sec": 0.342,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 7] \"Moving data from source to destination involves serialization and deserialization.\"\nSerialization turns data into a format for storage or sending, and deserialization does the opposite to get it back to normal.",
+        "answer": "[Ch. 7] \"Moving data from source to destination involves serialization and deserialization.\"\nSerialization is the process of saving data so it can be stored or sent over the internet.",
         "citations": [
           {
             "chunk_id": "ch07-015",
@@ -354,18 +354,18 @@
           "history": [
             {
               "question": "Serialization and Deserialization",
-              "answer": "[Ch. 7] \"Moving data from source to destination involves serialization and deserialization.\"\nSerialization converts data into a format suitable for storage or transmission, while deserialization reverses this process to restore original structure and values."
+              "answer": "[Ch. 7] \"Moving data from source to destination involves serialization and deserialization.\"\nSerialization converts data structures into formats suitable for storage or transmission, while deserialization reconstructs those structures from encoded representations."
             },
             {
               "question": "in plain english",
-              "answer": "[Ch. 7] \"Moving data from source to destination involves serialization and deserialization.\"\nSerialization turns data into a format for storage or sending, and deserialization does the opposite to get it back to normal."
+              "answer": "[Ch. 7] \"Moving data from source to destination involves serialization and deserialization.\"\nSerialization is the process of saving data so it can be stored or sent over the internet."
             }
           ]
         },
-        "elapsed_sec": 1.019,
+        "elapsed_sec": 1.003,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 7] \"We\u2019ve seen data ingested from a source but then sitting inert and unusable in the destination because the data cannot be properly deserialized.\"\nSerialization and deserialization are crucial because they allow data to be safely stored or transmitted and then safely restored to its original form.",
+        "answer": "[Ch. 7] \"We\u2019ve seen data ingested from a source but then sitting inert and unusable in the destination because the data cannot be properly deserialized.\"\nSerialization and will compress data structures into a format suitable for transport or storage.",
         "citations": [
           {
             "chunk_id": "ch07-015",
@@ -399,7 +399,7 @@
           "chunk_id": "ch02-043",
           "heading": "Security"
         },
-        "elapsed_sec": 0.254,
+        "elapsed_sec": 0.204,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"Imposing the principle of least privilege on ourselves can prevent accidental damage and keep you in a security-first mindset.\"\nThe principle of least privilege limits user access strictly to what is necessary for their specific job tasks.",
@@ -436,10 +436,10 @@
             }
           ]
         },
-        "elapsed_sec": 1.15,
+        "elapsed_sec": 1.159,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 2] \"Imposing the principle of least privilege on ourselves can prevent accidental damage and keep you in a security-first mindset.\"\nThe principle of least privilege restricts user access to only what is absolutely necessary for their specific job tasks.",
+        "answer": "[Ch. 2] \"Imposing the principle of least privilege on ourselves can prevent accidental damage and keep you in a security-first mindset.\"\nThe principle of least privilege restricts user access to only what is necessary for their specific job tasks.",
         "citations": [
           {
             "chunk_id": "ch02-043",
@@ -472,11 +472,11 @@
             },
             {
               "question": "how does this work",
-              "answer": "[Ch. 2] \"Imposing the principle of least privilege on ourselves can prevent accidental damage and keep you in a security-first mindset.\"\nThe principle of least privilege restricts user access to only what is absolutely necessary for their specific job tasks."
+              "answer": "[Ch. 2] \"Imposing the principle of least privilege on ourselves can prevent accidental damage and keep you in a security-first mindset.\"\nThe principle of least privilege restricts user access to only what is necessary for their specific job tasks."
             }
           ]
         },
-        "elapsed_sec": 1.406,
+        "elapsed_sec": 1.181,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"Security must be top of mind for data engineers, and those who ignore it do so at their peril\"\nThe principle of least privilege ensures users have only the access needed for their specific jobs, preventing accidental data breaches and keeping security top-of-mind.",
@@ -513,10 +513,10 @@
           "chunk_id": "ch08-039",
           "heading": "Watermarks"
         },
-        "elapsed_sec": 0.329,
+        "elapsed_sec": 0.262,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are dynamic thresholds that adjust based on real-time event timing to filter late-arriving data.",
+        "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are timing thresholds that determine when new events are considered late or within the processing window.",
         "citations": [
           {
             "chunk_id": "ch08-039",
@@ -553,14 +553,14 @@
           "history": [
             {
               "question": "Watermarks",
-              "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are dynamic thresholds that adjust based on real-time event timing to filter late-arriving data."
+              "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are timing thresholds that determine when new events are considered late or within the processing window."
             }
           ]
         },
-        "elapsed_sec": 0.336,
+        "elapsed_sec": 0.228,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are dynamic lower bounds that filter late-arriving events before they corrupt state calculations.",
+        "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are safety lines that say when data is too old to be processed.",
         "citations": [
           {
             "chunk_id": "ch08-039",
@@ -596,18 +596,18 @@
           "history": [
             {
               "question": "Watermarks",
-              "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are dynamic thresholds that adjust based on real-time event timing to filter late-arriving data."
+              "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are timing thresholds that determine when new events are considered late or within the processing window."
             },
             {
               "question": "break this down",
-              "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are dynamic lower bounds that filter late-arriving events before they corrupt state calculations."
+              "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are safety lines that say when data is too old to be processed."
             }
           ]
         },
-        "elapsed_sec": 1.067,
+        "elapsed_sec": 1.102,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 8] \"We\u2019ve covered various types of windows and their uses.\"\nWatermarks prevent late events from corrupting state calculations by stopping computations when new data arrives outside current processing windows.",
+        "answer": "[Ch. 8] \"We\u2019ve covered various types of windows and their uses.\"\nWatermarks prevent late data from being processed until it arrives within acceptable time limits.",
         "citations": [
           {
             "chunk_id": "ch08-039",
@@ -648,7 +648,7 @@
           "chunk_id": "ch02-040",
           "heading": "Reverse ETL"
         },
-        "elapsed_sec": 0.216,
+        "elapsed_sec": 0.177,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"In reality, this flow is beneficial and often necessary; reverse ETL allows us to take analytics, scored models, etc., and feed these back into production systems or SaaS platforms.\"\nReverse ETL sends processed data back to source systems from downstream analytics or modeling stages.",
@@ -692,7 +692,7 @@
             }
           ]
         },
-        "elapsed_sec": 1.33,
+        "elapsed_sec": 1.364,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"Marketing analysts might calculate bids in Microsoft Excel by using the data in their data warehouse, and then upload these bids to Google Ads.\"\nReverse ETL sends processed data back to source systems from downstream analytics or modeling stages, whereas uploading bids to google ads is a manual process used for ad targeting.",
@@ -736,10 +736,10 @@
             }
           ]
         },
-        "elapsed_sec": 1.218,
+        "elapsed_sec": 1.389,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 2] \"As we\u2019ve written this book, several vendors have embraced the concept of reverse ETL and built products around it, such as Hightouch and Census\"\nThe passages mention hightouch and census as vendors offering products for reverse ETL, highlighting their importance in managing data flows between downstream analytics and upstream source systems.",
+        "answer": "[Ch. 2] \"As we\u2019ve written this book, several vendors have embraced the concept of reverse ETL and built products around it, such as Hightouch and Census\"\nThe passages mention hightouch and census as vendors offering products that facilitate reverse ETL, which is crucial for modern data management and analytics.",
         "citations": [
           {
             "chunk_id": "ch02-040",
@@ -780,10 +780,10 @@
           "chunk_id": "ch02-040",
           "heading": "Reverse ETL"
         },
-        "elapsed_sec": 0.901,
+        "elapsed_sec": 0.258,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 2] \"Expect to see more activity in reverse ETL, with an overlap in both data engineering and ML engineering.\"\nThe text suggests that both data engineers and machine learning engineers will work together on reverse ETL projects, highlighting their shared responsibilities in managing data flows.",
+        "answer": "[Ch. 2] \"Expect to see more activity in reverse ETL, with an overlap in both data engineering and ML engineering.\"\nML engineering oversees the automation and reliability of machine learning pipelines, ensuring they integrate seamlessly with data engineering workflows.",
         "citations": [
           {
             "chunk_id": "ch02-040",
@@ -820,11 +820,11 @@
           "history": [
             {
               "question": "ML engineering",
-              "answer": "[Ch. 2] \"Expect to see more activity in reverse ETL, with an overlap in both data engineering and ML engineering.\"\nThe text suggests that both data engineers and machine learning engineers will work together on reverse ETL projects, highlighting their shared responsibilities in managing data flows."
+              "answer": "[Ch. 2] \"Expect to see more activity in reverse ETL, with an overlap in both data engineering and ML engineering.\"\nML engineering oversees the automation and reliability of machine learning pipelines, ensuring they integrate seamlessly with data engineering workflows."
             }
           ]
         },
-        "elapsed_sec": 1.032,
+        "elapsed_sec": 1.241,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"Where are the technical and organizational boundaries between data engineering and ML engineering? This organizational question has significant architectural implications.\"\nIn Reverse ETL, ML connects to this topic: Where are the technical and organizational boundaries between data engineering and ML engineering?",
@@ -860,7 +860,7 @@
           "history": [
             {
               "question": "ML engineering",
-              "answer": "[Ch. 2] \"Expect to see more activity in reverse ETL, with an overlap in both data engineering and ML engineering.\"\nThe text suggests that both data engineers and machine learning engineers will work together on reverse ETL projects, highlighting their shared responsibilities in managing data flows."
+              "answer": "[Ch. 2] \"Expect to see more activity in reverse ETL, with an overlap in both data engineering and ML engineering.\"\nML engineering oversees the automation and reliability of machine learning pipelines, ensuring they integrate seamlessly with data engineering workflows."
             },
             {
               "question": "How does Reverse ETL relate to this?",
@@ -868,20 +868,20 @@
             }
           ]
         },
-        "elapsed_sec": 0.987,
+        "elapsed_sec": 0.878,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 1] \"Machine learning engineers (ML engineers) overlap with data engineers and data scientists. ML engineers develop advanced ML techniques, train models, and design and maintain the infrastructure running ML processes in a scaled production environment. ML engineers often have advanced working knowledge of ML and deep learning techniques and frameworks such as PyTorch or TensorFlow.\"\nMachine learning engineers develop, train, and maintain the infrastructure for deploying complex machine learning models at scale.",
+        "answer": "[Ch. 9] \"The second major area for serving data is machine learning\"\nMachine learning is a method that allows computers to automatically improve their performance on specific tasks over time by using data.",
         "citations": [
           {
-            "chunk_id": "ch01-058",
-            "chapter": "1",
-            "quote": "Machine learning engineers (ML engineers) overlap with data engineers and data scientists. ML engineers develop advanced ML techniques, train models, and design and maintain the infrastructure running ML processes in a scaled production environment. ML engineers often have advanced working knowledge of ML and deep learning techniques and frameworks such as PyTorch or TensorFlow."
+            "chunk_id": "ch09-030",
+            "chapter": "9",
+            "quote": "The second major area for serving data is machine learning"
           }
         ],
         "figures": [],
         "followups": [
-          "What fields overlap here?",
+          "How does this work in practice?",
           "What problem does this solve?",
           "What example do the authors give?"
         ],
@@ -905,10 +905,10 @@
           "chunk_id": "ch08-039",
           "heading": "Watermarks"
         },
-        "elapsed_sec": 0.331,
+        "elapsed_sec": 0.2,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are dynamic thresholds that adjust based on real-time event timing to filter late-arriving data.",
+        "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are timing thresholds that determine when new events are considered late or within the processing window.",
         "citations": [
           {
             "chunk_id": "ch08-039",
@@ -945,14 +945,14 @@
           "history": [
             {
               "question": "Watermarks",
-              "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are dynamic thresholds that adjust based on real-time event timing to filter late-arriving data."
+              "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are timing thresholds that determine when new events are considered late or within the processing window."
             }
           ]
         },
-        "elapsed_sec": 1.221,
+        "elapsed_sec": 0.987,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 8] \"We\u2019ve covered various types of windows and their uses.\"\nWatermarks solve the problem: they dynamically adjust to filter late events before they corrupt downstream aggregations.",
+        "answer": "[Ch. 8] \"We\u2019ve covered various types of windows and their uses.\"\nWatermarks solve the problem of handling real-time events that arrive out of order by providing dynamic timing thresholds.",
         "citations": [
           {
             "chunk_id": "ch08-039",
@@ -988,18 +988,18 @@
           "history": [
             {
               "question": "Watermarks",
-              "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are dynamic thresholds that adjust based on real-time event timing to filter late-arriving data."
+              "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are timing thresholds that determine when new events are considered late or within the processing window."
             },
             {
               "question": "What problem does this solve?",
-              "answer": "[Ch. 8] \"We\u2019ve covered various types of windows and their uses.\"\nWatermarks solve the problem: they dynamically adjust to filter late events before they corrupt downstream aggregations."
+              "answer": "[Ch. 8] \"We\u2019ve covered various types of windows and their uses.\"\nWatermarks solve the problem of handling real-time events that arrive out of order by providing dynamic timing thresholds."
             }
           ]
         },
-        "elapsed_sec": 0.966,
+        "elapsed_sec": 0.99,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 8] \"We\u2019ve covered various types of windows and their uses.\"\nWatermarks trade off between processing latency and memory usage by stopping late events from accumulating in buffers.",
+        "answer": "[Ch. 8] \"We\u2019ve covered various types of windows and their uses.\"\nWatermarks allow real-time processing to handle events that arrive out of order within safe, controlled thresholds.",
         "citations": [
           {
             "chunk_id": "ch08-039",
@@ -1040,7 +1040,7 @@
           "chunk_id": "ch03-064",
           "heading": "Event-Driven Architecture"
         },
-        "elapsed_sec": 0.218,
+        "elapsed_sec": 0.188,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 3] \"An event-driven workflow (Figure 3-8) encompasses the ability to create, update, and asynchronously move events across various parts of the data engineering lifecycle.\"\nEvent-driven architecture decouples producers from consumers by routing events through flexible routing engines.",
@@ -1084,10 +1084,10 @@
             }
           ]
         },
-        "elapsed_sec": 1.005,
+        "elapsed_sec": 1.123,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 3] \"An event-driven architecture (Figure 3-9) embraces the event-driven workflow and uses this to communicate across various services.\"\nEvent-driven architecture decouples producers from consumers by routing events through flexible engines, allowing for loose coupling and distributed processing.",
+        "answer": "[Ch. 3] \"An event-driven architecture (Figure 3-9) embraces the event-driven workflow and uses this to communicate across various services.\"\nThis architectural pattern decouples state changes from persistent storage, allowing consumers to be dynamically provisioned without redeploying dependent services.",
         "citations": [
           {
             "chunk_id": "ch03-065",
@@ -1124,19 +1124,19 @@
             },
             {
               "question": "What problem does this solve?",
-              "answer": "[Ch. 3] \"An event-driven architecture (Figure 3-9) embraces the event-driven workflow and uses this to communicate across various services.\"\nEvent-driven architecture decouples producers from consumers by routing events through flexible engines, allowing for loose coupling and distributed processing."
+              "answer": "[Ch. 3] \"An event-driven architecture (Figure 3-9) embraces the event-driven workflow and uses this to communicate across various services.\"\nThis architectural pattern decouples state changes from persistent storage, allowing consumers to be dynamically provisioned without redeploying dependent services."
             }
           ]
         },
-        "elapsed_sec": 1.027,
+        "elapsed_sec": 1.069,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 3] \"The advantage of an event-driven architecture is that it distributes the state of an event across multiple services.\"\nThe main drawback is that event-driven architectures require complex routing and consumer coordination, which can introduce latency and complexity into distributed systems.",
+        "answer": "[Ch. 3] \"This workflow boils down to three main areas: event production, routing, and consumption. An event must be produced and routed to something that consumes it without tightly coupled dependencies among the producer, event router, and consumer.\"\nThe main drawbacks are event production, routing, and consumption. An event must be produced and routed to something that consumes it without tightly coupled dependencies among the producer, event router, and consumer.",
         "citations": [
           {
-            "chunk_id": "ch03-065",
+            "chunk_id": "ch03-064",
             "chapter": "3",
-            "quote": "The advantage of an event-driven architecture is that it distributes the state of an event across multiple services."
+            "quote": "This workflow boils down to three main areas: event production, routing, and consumption. An event must be produced and routed to something that consumes it without tightly coupled dependencies among the producer, event router, and consumer."
           }
         ],
         "figures": [
@@ -1150,7 +1150,7 @@
         "followups": [
           "How does this work in practice?",
           "What are the key trade-offs?",
-          "What are Brownfield projects?"
+          "What example do the authors give?"
         ],
         "reasons": []
       }
@@ -1172,10 +1172,10 @@
           "chunk_id": "ch02-065",
           "heading": "Data lifecycle management"
         },
-        "elapsed_sec": 0.281,
+        "elapsed_sec": 0.192,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 2] \"Tools such as Hive ACID and Delta Lake allow easy management of deletion transactions at scale.\"\nThe ACID feature ensures transactions are durable, consistent, isolated, and durable even with cloud object storage's eventual consistency.",
+        "answer": "[Ch. 2] \"Tools such as Hive ACID and Delta Lake allow easy management of deletion transactions at scale.\"\nACID transactions ensure reliable, durable state commits even with partial row deletes.",
         "citations": [
           {
             "chunk_id": "ch02-065",
@@ -1205,14 +1205,14 @@
           "history": [
             {
               "question": "ACID",
-              "answer": "[Ch. 2] \"Tools such as Hive ACID and Delta Lake allow easy management of deletion transactions at scale.\"\nThe ACID feature ensures transactions are durable, consistent, isolated, and durable even with cloud object storage's eventual consistency."
+              "answer": "[Ch. 2] \"Tools such as Hive ACID and Delta Lake allow easy management of deletion transactions at scale.\"\nACID transactions ensure reliable, durable state commits even with partial row deletes."
             }
           ]
         },
-        "elapsed_sec": 0.94,
+        "elapsed_sec": 1.149,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 2] \"Tools such as Hive ACID and Delta Lake allow easy management of deletion transactions at scale\"\nACID stands for atomicity, consistency, isolation, and durability, ensuring reliable transactional data integrity.",
+        "answer": "[Ch. 2] \"Tools such as Hive ACID and Delta Lake allow easy management of deletion transactions at scale\"\nACID stands for atomicity, consistency, isolation, and durability, ensuring reliable data transactions.",
         "citations": [
           {
             "chunk_id": "ch02-065",
@@ -1241,15 +1241,15 @@
           "history": [
             {
               "question": "ACID",
-              "answer": "[Ch. 2] \"Tools such as Hive ACID and Delta Lake allow easy management of deletion transactions at scale.\"\nThe ACID feature ensures transactions are durable, consistent, isolated, and durable even with cloud object storage's eventual consistency."
+              "answer": "[Ch. 2] \"Tools such as Hive ACID and Delta Lake allow easy management of deletion transactions at scale.\"\nACID transactions ensure reliable, durable state commits even with partial row deletes."
             },
             {
               "question": "What does this stand for?",
-              "answer": "[Ch. 2] \"Tools such as Hive ACID and Delta Lake allow easy management of deletion transactions at scale\"\nACID stands for atomicity, consistency, isolation, and durability, ensuring reliable transactional data integrity."
+              "answer": "[Ch. 2] \"Tools such as Hive ACID and Delta Lake allow easy management of deletion transactions at scale\"\nACID stands for atomicity, consistency, isolation, and durability, ensuring reliable data transactions."
             }
           ]
         },
-        "elapsed_sec": 0.599,
+        "elapsed_sec": 0.722,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"Tools such as Hive ACID and Delta Lake allow easy management of deletion transactions at scale.\"\nThe passages do not mention BASE.",
@@ -1287,10 +1287,10 @@
           "chunk_id": "ch01-025",
           "heading": "Data Maturity and the Data Engineer"
         },
-        "elapsed_sec": 1.387,
+        "elapsed_sec": 1.361,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 1] \"Data maturity is the progression toward higher data utilization, capabilities, and integration across the organization, but data maturity does not simply depend on the age or revenue of a company.\"\nData maturity measures organizational readiness for strategic data-driven decision-making.",
+        "answer": "[Ch. 1] \"Data maturity is the progression toward higher data utilization, capabilities, and integration across the organization, but data maturity does not simply depend on the age or revenue of a company.\"\nData maturity measures organizational readiness for leveraging data to drive business value, crucial for guiding technical strategy and team roles.",
         "citations": [
           {
             "chunk_id": "ch01-025",
@@ -1326,14 +1326,14 @@
           "history": [
             {
               "question": "what is this",
-              "answer": "[Ch. 1] \"Data maturity is the progression toward higher data utilization, capabilities, and integration across the organization, but data maturity does not simply depend on the age or revenue of a company.\"\nData maturity measures organizational readiness for strategic data-driven decision-making."
+              "answer": "[Ch. 1] \"Data maturity is the progression toward higher data utilization, capabilities, and integration across the organization, but data maturity does not simply depend on the age or revenue of a company.\"\nData maturity measures organizational readiness for leveraging data to drive business value, crucial for guiding technical strategy and team roles."
             }
           ]
         },
-        "elapsed_sec": 1.159,
+        "elapsed_sec": 1.417,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 1] \"An early-stage startup can have greater data maturity than a 100-year-old company with annual revenues in the billions.\"\nData maturity matters because it indicates how effectively an organization leverages data to drive strategic decisions, which is crucial for competitive advantage.",
+        "answer": "[Ch. 1] \"An early-stage startup can have greater data maturity than a 100-year-old company with annual revenues in the billions.\"\nData maturity matters because it directly influences an organization's ability to leverage data effectively, which is crucial for competitive advantage and strategic decision-making.",
         "citations": [
           {
             "chunk_id": "ch01-025",
@@ -1375,10 +1375,10 @@
           "chunk_id": "ch06-102",
           "heading": "Hot, warm, and cold data"
         },
-        "elapsed_sec": 0.788,
+        "elapsed_sec": 0.966,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 6] \"Depending on how frequently data is accessed, we can roughly bucket the way it is stored into three categories of persistence: hot, warm, and cold.\"\nHot data is accessed frequently and stored on fast, expensive hardware like SSDs, while cold data is rarely used and kept cheaply on disk.",
+        "answer": "[Ch. 6] \"Depending on how frequently data is accessed, we can roughly bucket the way it is stored into three categories of persistence: hot, warm, and cold.\"\nHot data is accessed frequently and stored in fast, expensive tiered storage, while cold data is rarely used and kept cheaply in long-term archives.",
         "citations": [
           {
             "chunk_id": "ch06-102",
@@ -1414,14 +1414,14 @@
           "history": [
             {
               "question": "how does this work",
-              "answer": "[Ch. 6] \"Depending on how frequently data is accessed, we can roughly bucket the way it is stored into three categories of persistence: hot, warm, and cold.\"\nHot data is accessed frequently and stored on fast, expensive hardware like SSDs, while cold data is rarely used and kept cheaply on disk."
+              "answer": "[Ch. 6] \"Depending on how frequently data is accessed, we can roughly bucket the way it is stored into three categories of persistence: hot, warm, and cold.\"\nHot data is accessed frequently and stored in fast, expensive tiered storage, while cold data is rarely used and kept cheaply in long-term archives."
             }
           ]
         },
-        "elapsed_sec": 0.882,
+        "elapsed_sec": 0.961,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 6] \"The underlying storage for hot data is suited for fast access and reads, such as SSD or memory. Because of the type of hardware involved with hot data, storing hot data is often the most expensive form of storage.\"\nExample hot data includes query results cache entries that are stored temporarily for rapid access after initial computation.",
+        "answer": "[Ch. 6] \"The underlying storage for hot data is suited for fast access and reads, such as SSD or memory. Because of the type of hardware involved with hot data, storing hot data is often the most expensive form of storage.\"\nExample of hot data is query results cache, which stores recent query outputs to speed up repeated requests.",
         "citations": [
           {
             "chunk_id": "ch06-103",
@@ -1463,7 +1463,7 @@
           "chunk_id": "ch03-064",
           "heading": "Event-Driven Architecture"
         },
-        "elapsed_sec": 1.221,
+        "elapsed_sec": 1.164,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 3] \"An event-driven workflow (Figure 3-8) encompasses the ability to create, update, and asynchronously move events across various parts of the data engineering lifecycle.\"\nEvent-driven architecture decouples producers from consumers by routing events through flexible routing engines.",
@@ -1506,7 +1506,7 @@
             }
           ]
         },
-        "elapsed_sec": 0.938,
+        "elapsed_sec": 1.113,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 3] \"An event-driven workflow (Figure 3-8) encompasses the ability to create, update, and asynchronously move events across various parts of the data engineering lifecycle.\"\nThings often happen in your business, such as getting a new customer, a new order from a customer, or an order for a product or service.",
@@ -1551,10 +1551,10 @@
           "chunk_id": "ch05-013",
           "heading": "Change Data Capture"
         },
-        "elapsed_sec": 0.924,
+        "elapsed_sec": 0.971,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 5] \"Change data capture (CDC) is a method for extracting each change event (insert, update, delete) that occurs in a database\"\nChange data capture extracts row-level database modifications into change logs for downstream subscribers.",
+        "answer": "[Ch. 5] \"Change data capture (CDC) is a method for extracting each change event (insert, update, delete) that occurs in a database\"\nChange data capture streams row-level database modifications to subscribers without imposing heavy query overhead.",
         "citations": [
           {
             "chunk_id": "ch05-013",
@@ -1583,14 +1583,14 @@
           "history": [
             {
               "question": "why do we need this",
-              "answer": "[Ch. 5] \"Change data capture (CDC) is a method for extracting each change event (insert, update, delete) that occurs in a database\"\nChange data capture extracts row-level database modifications into change logs for downstream subscribers."
+              "answer": "[Ch. 5] \"Change data capture (CDC) is a method for extracting each change event (insert, update, delete) that occurs in a database\"\nChange data capture streams row-level database modifications to subscribers without imposing heavy query overhead."
             }
           ]
         },
-        "elapsed_sec": 0.182,
+        "elapsed_sec": 0.334,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 5] \"Change data capture (CDC) is a method for extracting each change event (insert, update, delete) that occurs in a database\"\nChange data capture automatically logs database changes so you know when and how data moved.",
+        "answer": "[Ch. 5] \"Change data capture (CDC) is a method for extracting each change event (insert, update, delete) that occurs in a database\"\nChange data capture streams row-level database modifications to subscribers without imposing heavy query overhead.",
         "citations": [
           {
             "chunk_id": "ch05-013",
@@ -1625,7 +1625,7 @@
           "chunk_id": "ch03-097",
           "heading": "Data Mesh"
         },
-        "elapsed_sec": 1.171,
+        "elapsed_sec": 1.207,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 3] \"In a batch scientific application, data might be analyzed using a cloud data warehouse and then served in a report.\"\nThe concept of a data mesh allows distributed teams to manage their own analytical data pipelines independently, enhancing flexibility and efficiency in serving applications.",
@@ -1668,10 +1668,10 @@
             }
           ]
         },
-        "elapsed_sec": 0.827,
+        "elapsed_sec": 1.068,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 3] \"In a batch scientific application, data might be analyzed using a cloud data warehouse and then served in a report.\"\nData engineers and analysts use serving patterns like batch processing or real-time streaming to deliver insights to end users.",
+        "answer": "[Ch. 3] \"In a batch scientific application, data might be analyzed using a cloud data warehouse and then served in a report.\"\nThe passages describe how cloud data warehouses serve analytical reports and near-real-time event alerts in applications like home monitoring and manufacturing optimization.",
         "citations": [
           {
             "chunk_id": "ch03-097",
@@ -1710,10 +1710,10 @@
           "mode": "answer",
           "question": "What is ddr5"
         },
-        "elapsed_sec": 1.248,
+        "elapsed_sec": 1.182,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 6] \"DDR5 memory\u2014the latest widely used standard for RAM\u2014offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD.\"\nDDR5 is the new standard for fast computer memory. machines use it to get data super quickly.",
+        "answer": "[Ch. 6] \"DDR5 memory\u2014the latest widely used standard for RAM\u2014offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD.\"\nDDR5 is the latest standard for fast computer memory.",
         "citations": [
           {
             "chunk_id": "ch06-011",
@@ -1739,14 +1739,14 @@
           "history": [
             {
               "question": "What is ddr5",
-              "answer": "[Ch. 6] \"DDR5 memory\u2014the latest widely used standard for RAM\u2014offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD.\"\nDDR5 is the new standard for fast computer memory. machines use it to get data super quickly."
+              "answer": "[Ch. 6] \"DDR5 memory\u2014the latest widely used standard for RAM\u2014offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD.\"\nDDR5 is the latest standard for fast computer memory."
             }
           ]
         },
-        "elapsed_sec": 1.737,
+        "elapsed_sec": 1.799,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 6] \"DDR5 memory\u2014the latest widely used standard for ram\u2014offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than ssd\"\nDDR5 provides memory access latency measured in nanoseconds, making it orders of magnitude faster than solid-state drives.",
+        "answer": "[Ch. 6] \"DDR5 memory\u2014the latest widely used standard for ram\u2014offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than ssd\"\nDDR5 provides data retrieval latency measured in nanoseconds, making it approximately 1,000 times faster than solid-state drives.",
         "citations": [
           {
             "chunk_id": "ch06-011",
@@ -1772,18 +1772,18 @@
           "history": [
             {
               "question": "What is ddr5",
-              "answer": "[Ch. 6] \"DDR5 memory\u2014the latest widely used standard for RAM\u2014offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD.\"\nDDR5 is the new standard for fast computer memory. machines use it to get data super quickly."
+              "answer": "[Ch. 6] \"DDR5 memory\u2014the latest widely used standard for RAM\u2014offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD.\"\nDDR5 is the latest standard for fast computer memory."
             },
             {
               "question": "how fast is it",
-              "answer": "[Ch. 6] \"DDR5 memory\u2014the latest widely used standard for ram\u2014offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than ssd\"\nDDR5 provides memory access latency measured in nanoseconds, making it orders of magnitude faster than solid-state drives."
+              "answer": "[Ch. 6] \"DDR5 memory\u2014the latest widely used standard for ram\u2014offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than ssd\"\nDDR5 provides data retrieval latency measured in nanoseconds, making it approximately 1,000 times faster than solid-state drives."
             }
           ]
         },
-        "elapsed_sec": 1.248,
+        "elapsed_sec": 1.093,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 6] \"Solid-state drives (SSDs) store data as charges in flash memory cells. SSDs eliminate the mechanical components of magnetic drives; the data is read by purely electronic means. SSDs can look up random data in less than 0.1 ms (100 microseconds). In addition, SSDs can scale both data-transfer speeds and IOPS by slicing storage into partitions with numerous storage controllers running in parallel. Commercial SSDs can support transfer speeds of many gigabytes per second and tens of thousands of IOPS.\"\nSSDs keep data by saving tiny electrical charges in special storage cells.",
+        "answer": "[Ch. 6] \"Solid-state drives (SSDs) store data as charges in flash memory cells. SSDs eliminate the mechanical components of magnetic drives; the data is read by purely electronic means. SSDs can look up random data in less than 0.1 ms (100 microseconds). In addition, SSDs can scale both data-transfer speeds and IOPS by slicing storage into partitions with numerous storage controllers running in parallel. Commercial SSDs can support transfer speeds of many gigabytes per second and tens of thousands of IOPS.\"\nSSDs keep data by saving it in tiny electrical charges instead of moving physical disks.",
         "citations": [
           {
             "chunk_id": "ch06-009",
@@ -1809,23 +1809,23 @@
           "history": [
             {
               "question": "how fast is it",
-              "answer": "[Ch. 6] \"DDR5 memory\u2014the latest widely used standard for ram\u2014offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than ssd\"\nDDR5 provides memory access latency measured in nanoseconds, making it orders of magnitude faster than solid-state drives."
+              "answer": "[Ch. 6] \"DDR5 memory\u2014the latest widely used standard for ram\u2014offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than ssd\"\nDDR5 provides data retrieval latency measured in nanoseconds, making it approximately 1,000 times faster than solid-state drives."
             },
             {
               "question": "What is Solid-State Drive?",
-              "answer": "[Ch. 6] \"Solid-state drives (SSDs) store data as charges in flash memory cells. SSDs eliminate the mechanical components of magnetic drives; the data is read by purely electronic means. SSDs can look up random data in less than 0.1 ms (100 microseconds). In addition, SSDs can scale both data-transfer speeds and IOPS by slicing storage into partitions with numerous storage controllers running in parallel. Commercial SSDs can support transfer speeds of many gigabytes per second and tens of thousands of IOPS.\"\nSSDs keep data by saving tiny electrical charges in special storage cells."
+              "answer": "[Ch. 6] \"Solid-state drives (SSDs) store data as charges in flash memory cells. SSDs eliminate the mechanical components of magnetic drives; the data is read by purely electronic means. SSDs can look up random data in less than 0.1 ms (100 microseconds). In addition, SSDs can scale both data-transfer speeds and IOPS by slicing storage into partitions with numerous storage controllers running in parallel. Commercial SSDs can support transfer speeds of many gigabytes per second and tens of thousands of IOPS.\"\nSSDs keep data by saving it in tiny electrical charges instead of moving physical disks."
             }
           ]
         },
-        "elapsed_sec": 1.184,
+        "elapsed_sec": 1.205,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 6] \"we commonly use the terms random access memory (ram) and memory interchangeably\"\nRAM is a type of fast computer memory that can be read or written to quickly.",
+        "answer": "[Ch. 6] \"ram loses data in less than a second when it is unpowered\"\nRAM is a fast, volatile memory that loses data instantly when the power is turned off.",
         "citations": [
           {
             "chunk_id": "ch06-011",
             "chapter": "6",
-            "quote": "we commonly use the terms random access memory (ram) and memory interchangeably"
+            "quote": "ram loses data in less than a second when it is unpowered"
           }
         ],
         "figures": [],
@@ -1852,7 +1852,7 @@
           "mode": "answer",
           "question": "What are the stages of the data engineering lifecycle?"
         },
-        "elapsed_sec": 1.088,
+        "elapsed_sec": 1.129,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"Generation, Storage, Ingestion, Transformation, Serving data\"\nThe five stages are generation, storage, ingestion, transformation, and serving data.",
@@ -1892,15 +1892,15 @@
             }
           ]
         },
-        "elapsed_sec": 0.884,
+        "elapsed_sec": 0.897,
         "passed": false,
         "refused": false,
-        "answer": "[Ch. 7] data ingestion is the process of gathering data from source systems\nData ingestion means getting data from where it starts.",
+        "answer": "[Ch. 7] \"data ingestion is data movement from point a to b\"\nData moves from where it starts to where it is stored.",
         "citations": [
           {
             "chunk_id": "ch07-002",
             "chapter": "7",
-            "quote": "Data ingestion implies data movement from source systems into storage in the data engineering lifecycle, with ingestion as an intermediate step (Figure 7-2)."
+            "quote": "data ingestion is data movement from point a to b"
           }
         ],
         "figures": [
@@ -1934,26 +1934,33 @@
             },
             {
               "question": "What is Generation Storage Ingestion?",
-              "answer": "[Ch. 7] data ingestion is the process of gathering data from source systems\nData ingestion means getting data from where it starts."
+              "answer": "[Ch. 7] \"data ingestion is data movement from point a to b\"\nData moves from where it starts to where it is stored."
             }
           ]
         },
-        "elapsed_sec": 0.999,
+        "elapsed_sec": 0.976,
         "passed": false,
         "refused": false,
-        "answer": "[Ch. 7] \"In theory, your ingestion should never be a bottleneck\"\nThis concept ensures that data flow is smooth and reliable, addressing the initial stage's critical role in the data engineering lifecycle.",
+        "answer": "[Ch. 7] \"data ingestion is the process of moving data from one place to another\"\nIt solves the problem of transporting data from its source to a storage location.",
         "citations": [
           {
-            "chunk_id": "ch07-016",
+            "chunk_id": "ch07-002",
             "chapter": "7",
-            "quote": "In theory, your ingestion should never be a bottleneck"
+            "quote": "data ingestion is the process of moving data from one place to another"
           }
         ],
-        "figures": [],
+        "figures": [
+          {
+            "id": "figure-7-2",
+            "chapter": "7",
+            "caption": "Data from system 1 is ingested into system 2",
+            "src": "/figures/figure-7-2"
+          }
+        ],
         "followups": [
-          "How does Throughput and Scalability work?",
-          "What are the main bottlenecks?",
-          "What example do the authors give?"
+          "What is Data Pipelines Defined?",
+          "What Is Data Ingestion?",
+          "What is the main takeaway?"
         ],
         "reasons": [
           "Cited chapter(s) ['7'] != expected Ch. 2"
@@ -1975,7 +1982,7 @@
           "mode": "answer",
           "question": "What is change data capture?"
         },
-        "elapsed_sec": 1.253,
+        "elapsed_sec": 1.269,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 7] \"change data capture (cdc), introduced in chapter 2, is the process of ingesting changes from a source database system\"\nChange data capture streams row-level database modifications to downstream subscribers without imposing heavy query overhead.",
@@ -2008,7 +2015,7 @@
             }
           ]
         },
-        "elapsed_sec": 1.47,
+        "elapsed_sec": 1.626,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 7] \"We set the filter timestamp based on when we last captured changed rows from the tables. This process allows us to pull changes and differentially update a target table.\"\nThe highlighted phrase filtering changes based on when the last data was captured to efficiently update downstream subscribers.",
@@ -2045,7 +2052,7 @@
             }
           ]
         },
-        "elapsed_sec": 2.013,
+        "elapsed_sec": 1.962,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 6] \"However, distributed, scalable streaming frameworks like Apache Kafka now allow extremely long-duration streaming data retention.\"\nApache kafka provides persistent, long-term storage for streaming data by archiving old messages into object storage when they are no longer actively processed.",
@@ -2082,10 +2089,10 @@
             }
           ]
         },
-        "elapsed_sec": 1.355,
+        "elapsed_sec": 1.532,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 6] \"Kafka competitors (including Amazon Kinesis, Apache Pulsar, and Google Cloud Pub/Sub) also support long data retention.\"\nKafka provides persistent storage for streaming data by archiving old messages into object storage, allowing for long-term retention and replay capabilities.",
+        "answer": "[Ch. 6] \"Kafka competitors (including Amazon Kinesis, Apache Pulsar, and Google Cloud Pub/Sub) also support long data retention.\"\nKafka provides persistent storage so data can be kept indefinitely without losing its value, crucial for applications requiring long-term archiving or historical analysis.",
         "citations": [
           {
             "chunk_id": "ch06-063",
@@ -2117,15 +2124,15 @@
           "mode": "answer",
           "question": "What is a data mesh?"
         },
-        "elapsed_sec": 1.394,
+        "elapsed_sec": 1.361,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 3] \"the data mesh is a recent\"\nBecause the data mesh has captured much recent attention, you should be aware of it.",
+        "answer": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and \u201cthe great divide of data,\u201d wherein the landscape is divided between operational data and analytical data.24 The data mesh attempts to invert the challenges of centralized data architecture, taking the concepts of domain-driven design (commonly used in software architectures) and applying them to data architecture. Because the data mesh has captured much recent attention, you should be aware of it.\"\nThe data mesh distributes analytical data management across decentralized domains rather than concentrating it in a single central repository.",
         "citations": [
           {
             "chunk_id": "ch03-099",
             "chapter": "3",
-            "quote": "The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and \u201cthe great divide of data,\u201d wherein the landscape is divided between operational data and analytical data.24 The data mesh attempts to invert the challenges of centralized data architecture, taking the concepts of domain-driven design (commonly used in software architectures) and applying them to data architecture."
+            "quote": "The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and \u201cthe great divide of data,\u201d wherein the landscape is divided between operational data and analytical data.24 The data mesh attempts to invert the challenges of centralized data architecture, taking the concepts of domain-driven design (commonly used in software architectures) and applying them to data architecture. Because the data mesh has captured much recent attention, you should be aware of it."
           }
         ],
         "figures": [
@@ -2153,19 +2160,19 @@
           "history": [
             {
               "question": "What is a data mesh?",
-              "answer": "[Ch. 3] \"the data mesh is a recent\"\nBecause the data mesh has captured much recent attention, you should be aware of it."
+              "answer": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and \u201cthe great divide of data,\u201d wherein the landscape is divided between operational data and analytical data.24 The data mesh attempts to invert the challenges of centralized data architecture, taking the concepts of domain-driven design (commonly used in software architectures) and applying them to data architecture. Because the data mesh has captured much recent attention, you should be aware of it.\"\nThe data mesh distributes analytical data management across decentralized domains rather than concentrating it in a single central repository."
             }
           ]
         },
-        "elapsed_sec": 1.124,
+        "elapsed_sec": 1.319,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 3] \"data as a product\"\nBecause the data mesh has captured much recent attention, you should be aware of it.",
+        "answer": "[Ch. 3] \"Because the data mesh has captured much recent attention, you should be aware of it.\"\nThese include because the data mesh has captured much recent attention and you should be aware of it..",
         "citations": [
           {
             "chunk_id": "ch03-099",
             "chapter": "3",
-            "quote": "The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and \u201cthe great divide of data,\u201d wherein the landscape is divided between operational data and analytical data.24 The data mesh attempts to invert the challenges of centralized data architecture, taking the concepts of domain-driven design (commonly used in software architectures) and applying them to data architecture."
+            "quote": "Because the data mesh has captured much recent attention, you should be aware of it."
           }
         ],
         "figures": [
@@ -2193,23 +2200,23 @@
           "history": [
             {
               "question": "What is a data mesh?",
-              "answer": "[Ch. 3] \"the data mesh is a recent\"\nBecause the data mesh has captured much recent attention, you should be aware of it."
+              "answer": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and \u201cthe great divide of data,\u201d wherein the landscape is divided between operational data and analytical data.24 The data mesh attempts to invert the challenges of centralized data architecture, taking the concepts of domain-driven design (commonly used in software architectures) and applying them to data architecture. Because the data mesh has captured much recent attention, you should be aware of it.\"\nThe data mesh distributes analytical data management across decentralized domains rather than concentrating it in a single central repository."
             },
             {
               "question": "what are its four principles",
-              "answer": "[Ch. 3] \"data as a product\"\nBecause the data mesh has captured much recent attention, you should be aware of it."
+              "answer": "[Ch. 3] \"Because the data mesh has captured much recent attention, you should be aware of it.\"\nThese include because the data mesh has captured much recent attention and you should be aware of it.."
             }
           ]
         },
-        "elapsed_sec": 0.196,
+        "elapsed_sec": 0.296,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 3] \"data as a product\"\nThe data mesh distributes data ownership across domains to empower self-service consumption.",
+        "answer": "[Ch. 3] \"Because the data mesh has captured much recent attention, you should be aware of it.\"\nThe data mesh distributes data ownership across domains rather than centralizing it in one place.",
         "citations": [
           {
             "chunk_id": "ch03-099",
             "chapter": "3",
-            "quote": "data as a product"
+            "quote": "Because the data mesh has captured much recent attention, you should be aware of it."
           }
         ],
         "figures": [
@@ -2237,18 +2244,18 @@
           "history": [
             {
               "question": "what are its four principles",
-              "answer": "[Ch. 3] \"data as a product\"\nBecause the data mesh has captured much recent attention, you should be aware of it."
+              "answer": "[Ch. 3] \"Because the data mesh has captured much recent attention, you should be aware of it.\"\nThese include because the data mesh has captured much recent attention and you should be aware of it.."
             },
             {
               "question": "explain it more simply",
-              "answer": "[Ch. 3] \"data as a product\"\nThe data mesh distributes data ownership across domains to empower self-service consumption."
+              "answer": "[Ch. 3] \"Because the data mesh has captured much recent attention, you should be aware of it.\"\nThe data mesh distributes data ownership across domains rather than centralizing it in one place."
             }
           ]
         },
-        "elapsed_sec": 1.126,
+        "elapsed_sec": 1.613,
         "passed": false,
         "refused": false,
-        "answer": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and \u201cthe great divide of data,\u201d wherein the landscape is divided between operational data and analytical data.\"\nThe data mesh handles large, centralized data systems by distributing ownership across domains.",
+        "answer": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and \u201cthe great divide of data,\u201d wherein the landscape is divided between operational data and analytical data.\"\nThe data mesh is a new way to handle data that splits it up instead of keeping it all in one place.",
         "citations": [
           {
             "chunk_id": "ch03-099",
@@ -2289,7 +2296,7 @@
           "mode": "answer",
           "question": "What is the difference between OLTP and OLAP?"
         },
-        "elapsed_sec": 1.215,
+        "elapsed_sec": 1.157,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 5] \"In contrast to an OLTP system, an online analytical processing (OLAP) system is built to run large analytics queries and is typically inefficient at handling lookups of individual records.\"\nAn OLTP system handles many small data changes quickly.",
@@ -2322,10 +2329,10 @@
             }
           ]
         },
-        "elapsed_sec": 2.152,
+        "elapsed_sec": 1.819,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 5] \"in contrast to an OLtp system, an online analytical processing (olap) system is built to run large analytics queries and is typically inefficient at handling lookups of individual records\"\nThe highlighted phrase does not mention which is faster for queries, but the text explains the fundamental differences between the two systems, highlighting that OLTP is better suited for rapid record updates while OLAP excels at executing complex analytical queries over large datasets.",
+        "answer": "[Ch. 5] \"in contrast to an OLtp system, an online analytical processing (olap) system is built to run large analytics queries and is typically inefficient at handling lookups of individual records\"\nThe passages describe OLTP systems being faster for individual record lookups while OLAP systems excel at handling large analytics queries.",
         "citations": [
           {
             "chunk_id": "ch05-011",
@@ -2355,19 +2362,19 @@
             },
             {
               "question": "which one is faster for queries",
-              "answer": "[Ch. 5] \"in contrast to an OLtp system, an online analytical processing (olap) system is built to run large analytics queries and is typically inefficient at handling lookups of individual records\"\nThe highlighted phrase does not mention which is faster for queries, but the text explains the fundamental differences between the two systems, highlighting that OLTP is better suited for rapid record updates while OLAP excels at executing complex analytical queries over large datasets."
+              "answer": "[Ch. 5] \"in contrast to an OLtp system, an online analytical processing (olap) system is built to run large analytics queries and is typically inefficient at handling lookups of individual records\"\nThe passages describe OLTP systems being faster for individual record lookups while OLAP systems excel at handling large analytics queries."
             }
           ]
         },
-        "elapsed_sec": 1.715,
+        "elapsed_sec": 1.125,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 5] \"for example, modern column databases are optimized to scan large volumes of data, dispensing with indexes to improve scalability and scan performance\"\nColumn databases are built to quickly look at big data without using indexes, which is different from the way transactional databases work.",
+        "answer": "[Ch. 5] \"For example, modern column databases are optimized to scan large volumes\"\nColumn databases are built to quickly look at big data without using indexes.",
         "citations": [
           {
             "chunk_id": "ch05-011",
             "chapter": "5",
-            "quote": "for example, modern column databases are optimized to scan large volumes of data, dispensing with indexes to improve scalability and scan performance"
+            "quote": "For example, modern column databases are optimized to scan large volumes"
           }
         ],
         "figures": [],
@@ -2396,7 +2403,7 @@
           "chunk_id": "ch02-040",
           "heading": "Reverse ETL"
         },
-        "elapsed_sec": 0.229,
+        "elapsed_sec": 0.214,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"In reality, this flow is beneficial and often necessary; reverse ETL allows us to take analytics, scored models, etc., and feed these back into production systems or SaaS platforms.\"\nReverse ETL sends processed data back to source systems from downstream analytics or modeling stages.",
@@ -2440,7 +2447,7 @@
             }
           ]
         },
-        "elapsed_sec": 1.385,
+        "elapsed_sec": 1.317,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"Marketing analysts might calculate bids in Microsoft Excel by using the data in their data warehouse, and then upload these bids to Google Ads.\"\nIn Reverse ETL, Microsoft Excel connects to this topic: Marketing analysts might calculate bids in Microsoft Excel by using the data in their data warehouse, and then upload these bids to Google Ads.",
@@ -2484,7 +2491,7 @@
           "chunk_id": "ch01-025",
           "heading": "Data Maturity and the Data Engineer"
         },
-        "elapsed_sec": 0.87,
+        "elapsed_sec": 0.74,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 1] \"Data maturity is the progression toward higher data utilization, capabilities, and integration across the organization, but data maturity does not simply depend on the age or revenue of a company.\"\nData maturity measures how effectively an organization utilizes data to drive operations and strategic decisions, not just its financial size or age.",
@@ -2528,7 +2535,7 @@
             }
           ]
         },
-        "elapsed_sec": 1.361,
+        "elapsed_sec": 1.53,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 1] \"The level of data engineering complexity within a company depends a great deal on the company\u2019s data maturity.\"\nAmazon S3 aligns with the third stage of leading with data, where organizations leverage data strategically to drive business strategy and innovation.",
@@ -2572,7 +2579,7 @@
           "chunk_id": "ch06-076",
           "heading": "The Data Lakehouse"
         },
-        "elapsed_sec": 0.832,
+        "elapsed_sec": 0.717,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 6] \"A variety of new competitors to Delta Lake have emerged, including Apache Hudi and Apache Iceberg.\"\nIn The Data Lakehouse, Apache Iceberg connects to this topic\u2014a variety of new competitors to Delta Lake have emerged, including Apache Hudi and Apache Iceberg.",
@@ -2606,7 +2613,7 @@
             }
           ]
         },
-        "elapsed_sec": 0.559,
+        "elapsed_sec": 0.525,
         "passed": true,
         "refused": true,
         "answer": "Not in this book.",
@@ -2649,7 +2656,7 @@
           "chunk_id": "ch02-043",
           "heading": "Security"
         },
-        "elapsed_sec": 0.238,
+        "elapsed_sec": 0.194,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"Imposing the principle of least privilege on ourselves can prevent accidental damage and keep you in a security-first mindset.\"\nThe principle of least privilege limits user access strictly to what is necessary for their specific job tasks.",
@@ -2686,7 +2693,7 @@
             }
           ]
         },
-        "elapsed_sec": 1.14,
+        "elapsed_sec": 1.256,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"People and organizational structure are always the biggest security vulnerabilities in any company. When we hear about major security breaches in the media, it often turns out that someone in the company ignored basic precautions, fell victim to a phishing attack, or otherwise acted irresponsibly.\"\nSecurity is crucial because human errors and organizational oversights can lead to major data breaches, highlighting the importance of maintaining a strong security culture within companies.",
@@ -2729,7 +2736,7 @@
         "elapsed_sec": 1.025,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 2] \"The first line of defense for data security is to create a culture of security that permeates the organization.\"\nCreating a security-conscious organizational culture prevents human errors from compromising data integrity.",
+        "answer": "[Ch. 2] \"The first line of defense for data security is to create a culture of security that permeates the organization.\"\nCreating a security-first organizational culture prevents human errors from compromising data by ensuring everyone understands their role in protecting company assets.",
         "citations": [
           {
             "chunk_id": "ch02-044",
@@ -2762,14 +2769,14 @@
             },
             {
               "question": "How?",
-              "answer": "[Ch. 2] \"The first line of defense for data security is to create a culture of security that permeates the organization.\"\nCreating a security-conscious organizational culture prevents human errors from compromising data integrity."
+              "answer": "[Ch. 2] \"The first line of defense for data security is to create a culture of security that permeates the organization.\"\nCreating a security-first organizational culture prevents human errors from compromising data by ensuring everyone understands their role in protecting company assets."
             }
           ]
         },
-        "elapsed_sec": 1.06,
+        "elapsed_sec": 1.166,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 2] \"Imposing the principle of least privilege on ourselves can prevent accidental damage and keep you in a security-first mindset\"\nImposing the principle of least privilege saves time, money, and data by preventing accidental damage and reducing the need for costly security audits.",
+        "answer": "[Ch. 2] \"Imposing the principle of least privilege on ourselves can prevent accidental damage and keep you in a security-first mindset\"\nImposing least-privilege controls prevents users from accidentally exposing sensitive data.",
         "citations": [
           {
             "chunk_id": "ch02-044",
@@ -2803,7 +2810,7 @@
           "chunk_id": "ch02-046",
           "heading": "Data Management"
         },
-        "elapsed_sec": 0.243,
+        "elapsed_sec": 0.285,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"Data management is the development, execution, and supervision of plans, policies, programs, and practices that deliver, control, protect, and enhance the value of data and information assets throughout their lifecycle.\"\nData management encompasses practices to keep data secure, reliable, and accessible throughout its lifecycle.",
@@ -2840,7 +2847,7 @@
             }
           ]
         },
-        "elapsed_sec": 0.002,
+        "elapsed_sec": 0.012,
         "passed": true,
         "refused": true,
         "answer": "Not in this book.",
@@ -2867,7 +2874,7 @@
           "chunk_id": "ch01-025",
           "heading": "Data Maturity and the Data Engineer"
         },
-        "elapsed_sec": 0.856,
+        "elapsed_sec": 0.755,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 1] \"Data maturity is the progression toward higher data utilization, capabilities, and integration across the organization, but data maturity does not simply depend on the age or revenue of a company.\"\nData maturity measures how effectively an organization utilizes data to drive operations and strategic decisions, not just its financial size or age.",
@@ -2908,7 +2915,7 @@
             }
           ]
         },
-        "elapsed_sec": 1.077,
+        "elapsed_sec": 0.79,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 1] \"Data maturity models have many versions, such as Data Management Maturity (DMM) and others, and it\u2019s hard to pick one that is both simple and useful for data engineering.\"\nThe level of data engineering complexity within a company depends a great deal on the company\u2019s data maturity.",
@@ -2952,20 +2959,20 @@
             }
           ]
         },
-        "elapsed_sec": 2.08,
+        "elapsed_sec": 1.417,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 1] \"The level of data engineering complexity within a company depends a great deal on the company\u2019s data maturity.\"\nData maturity allows organizations to leverage data effectively across departments, which requires balancing strategic vision with practical operational readiness.",
+        "answer": "[Ch. 1] \"Our data maturity model (Figure 1-8) has three stages: starting with data, scaling with data, and leading with data.\"\nThe three stages of data maturity require different skill sets from the data engineer, highlighting the importance of progressive specialization as data integration deepens.",
         "citations": [
           {
             "chunk_id": "ch01-025",
             "chapter": "1",
-            "quote": "The level of data engineering complexity within a company depends a great deal on the company\u2019s data maturity."
+            "quote": "Our data maturity model (Figure 1-8) has three stages: starting with data, scaling with data, and leading with data."
           }
         ],
         "figures": [],
         "followups": [
-          "What is the role of DMM?",
+          "What are the main stages?",
           "What example do the authors give?",
           "What problem does this solve?"
         ],
@@ -2989,7 +2996,7 @@
           "chunk_id": "ch02-040",
           "heading": "Reverse ETL"
         },
-        "elapsed_sec": 0.224,
+        "elapsed_sec": 0.164,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"In reality, this flow is beneficial and often necessary; reverse ETL allows us to take analytics, scored models, etc., and feed these back into production systems or SaaS platforms.\"\nReverse ETL sends processed data back to source systems from downstream analytics or modeling stages.",
@@ -3033,7 +3040,7 @@
             }
           ]
         },
-        "elapsed_sec": 1.461,
+        "elapsed_sec": 1.116,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"Reverse ETL has long been a practical reality in data, viewed as an antipattern that we didn\u2019t like to talk about or dignify with a name\"\nThe authors view reverse ETL as an antipattern because it bypasses modern data pipelines and is seen as a backward step in data management.",
@@ -3080,7 +3087,7 @@
             }
           ]
         },
-        "elapsed_sec": 1.259,
+        "elapsed_sec": 0.826,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"In reality, this flow is beneficial and often necessary; reverse ETL allows us to take analytics, scored models, etc., and feed these back into production systems or SaaS platforms.\"\nReverse ETL replaces manual data entry processes by automating the flow of transformed data back into source systems from downstream analytics tools.",
@@ -3124,10 +3131,10 @@
           "chunk_id": "ch08-039",
           "heading": "Watermarks"
         },
-        "elapsed_sec": 0.362,
+        "elapsed_sec": 0.205,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are dynamic thresholds that adjust based on real-time event timing to filter late-arriving data.",
+        "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are timing thresholds that determine when new events are considered late or within the processing window.",
         "citations": [
           {
             "chunk_id": "ch08-039",
@@ -3164,19 +3171,19 @@
           "history": [
             {
               "question": "Watermarks",
-              "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are dynamic thresholds that adjust based on real-time event timing to filter late-arriving data."
+              "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are timing thresholds that determine when new events are considered late or within the processing window."
             }
           ]
         },
-        "elapsed_sec": 1.198,
+        "elapsed_sec": 0.965,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 8] \"We\u2019ve covered various types of windows and their uses.\"\nAs discussed in Chapter 7, data is sometimes ingested out of the order from which it originated.",
+        "answer": "[Ch. 8] \"If data arrives that is new to the window but older than the timestamp of the watermark, it is considered to be late-arriving data.\"\nSliding windows adjust their boundaries dynamically as new events arrive, ensuring timely processing even as event streams evolve over time.",
         "citations": [
           {
             "chunk_id": "ch08-039",
             "chapter": "8",
-            "quote": "We\u2019ve covered various types of windows and their uses."
+            "quote": "If data arrives that is new to the window but older than the timestamp of the watermark, it is considered to be late-arriving data."
           }
         ],
         "figures": [
@@ -3207,23 +3214,23 @@
           "history": [
             {
               "question": "Watermarks",
-              "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are dynamic thresholds that adjust based on real-time event timing to filter late-arriving data."
+              "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are timing thresholds that determine when new events are considered late or within the processing window."
             },
             {
               "question": "How do types of windows relate to this?",
-              "answer": "[Ch. 8] \"We\u2019ve covered various types of windows and their uses.\"\nAs discussed in Chapter 7, data is sometimes ingested out of the order from which it originated."
+              "answer": "[Ch. 8] \"If data arrives that is new to the window but older than the timestamp of the watermark, it is considered to be late-arriving data.\"\nSliding windows adjust their boundaries dynamically as new events arrive, ensuring timely processing even as event streams evolve over time."
             }
           ]
         },
-        "elapsed_sec": 1.204,
+        "elapsed_sec": 1.119,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 8] \"For example, we could generate a new 60-second window every 30 seconds (Figure 8-7). Just as we did before, we can emit mean and median statistics.\"\nThe authors illustrate sliding windows by emitting statistics only when a user clicks a specific banner, highlighting how real-time data processing can be tailored to user actions.",
+        "answer": "[Ch. 8] \"We\u2019ve covered various types of windows and their uses.\"\nThe authors illustrate watermark usage with a sliding window example where real-time events are grouped into fixed intervals, adjusting dynamically as new data points arrive.",
         "citations": [
           {
-            "chunk_id": "ch08-038",
+            "chunk_id": "ch08-039",
             "chapter": "8",
-            "quote": "For example, we could generate a new 60-second window every 30 seconds (Figure 8-7). Just as we did before, we can emit mean and median statistics."
+            "quote": "We\u2019ve covered various types of windows and their uses."
           }
         ],
         "figures": [
@@ -3235,7 +3242,7 @@
           }
         ],
         "followups": [
-          "What fields overlap here?",
+          "What are the key types?",
           "What are the key trade-offs?",
           "What problem does this solve?"
         ],
@@ -3247,7 +3254,7 @@
     "id": "adrian-29",
     "category": "highlight_refine",
     "name": "Data maturity stages and main takeaway refinement",
-    "passed": false,
+    "passed": true,
     "turns": [
       {
         "turn": 1,
@@ -3259,7 +3266,7 @@
           "chunk_id": "ch01-025",
           "heading": "Data Maturity and the Data Engineer"
         },
-        "elapsed_sec": 0.862,
+        "elapsed_sec": 0.7,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 1] \"Data maturity is the progression toward higher data utilization, capabilities, and integration across the organization, but data maturity does not simply depend on the age or revenue of a company.\"\nData maturity measures how effectively an organization utilizes data to drive operations and strategic decisions, not just its financial size or age.",
@@ -3303,15 +3310,15 @@
             }
           ]
         },
-        "elapsed_sec": 1.131,
-        "passed": false,
+        "elapsed_sec": 0.981,
+        "passed": true,
         "refused": false,
-        "answer": "[Ch. 1] \"An early-stage startup can have greater data maturity than a 100-year-old company with annual revenues in the billions.\"\nThis significantly impacts a data engineer\u2019s day-to-day job responsibilities and career progression.",
+        "answer": "[Ch. 1] \"Our data maturity model (Figure 1-8) has three stages: starting with data, scaling with data, and leading with data.\"\nThe three stages are starting with data, scaling with data, and leading with data.",
         "citations": [
           {
             "chunk_id": "ch01-025",
             "chapter": "1",
-            "quote": "An early-stage startup can have greater data maturity than a 100-year-old company with annual revenues in the billions."
+            "quote": "Our data maturity model (Figure 1-8) has three stages: starting with data, scaling with data, and leading with data."
           }
         ],
         "figures": [
@@ -3327,11 +3334,7 @@
           "What are the key trade-offs?",
           "What example do the authors give?"
         ],
-        "reasons": [
-          "Answer missing required concept 'starting'",
-          "Answer missing required concept 'scaling'",
-          "Answer missing required concept 'leading'"
-        ]
+        "reasons": []
       },
       {
         "turn": 3,
@@ -3347,19 +3350,19 @@
             },
             {
               "question": "What are the three stages mentioned here?",
-              "answer": "[Ch. 1] \"An early-stage startup can have greater data maturity than a 100-year-old company with annual revenues in the billions.\"\nThis significantly impacts a data engineer\u2019s day-to-day job responsibilities and career progression."
+              "answer": "[Ch. 1] \"Our data maturity model (Figure 1-8) has three stages: starting with data, scaling with data, and leading with data.\"\nThe three stages are starting with data, scaling with data, and leading with data."
             }
           ]
         },
-        "elapsed_sec": 0.196,
+        "elapsed_sec": 0.283,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 1] \"An early-stage startup can have greater data maturity than a 100-year-old company with annual revenues in the billions.\"\nStarting with data requires building foundational architecture and governance before pursuing complex analytics.",
+        "answer": "[Ch. 1] \"Our data maturity model (Figure 1-8) has three stages: starting with data, scaling with data, and leading with data.\"\nStarting with data means building foundational data structures before pursuing advanced analytics.",
         "citations": [
           {
             "chunk_id": "ch01-025",
             "chapter": "1",
-            "quote": "An early-stage startup can have greater data maturity than a 100-year-old company with annual revenues in the billions."
+            "quote": "Our data maturity model (Figure 1-8) has three stages: starting with data, scaling with data, and leading with data."
           }
         ],
         "figures": [
@@ -3371,7 +3374,7 @@
           }
         ],
         "followups": [
-          "What is the role of DMM?",
+          "What are the main stages?",
           "What problem does this solve?",
           "What is data maturity, exactly?"
         ],
@@ -3395,7 +3398,7 @@
           "chunk_id": "ch02-040",
           "heading": "Reverse ETL"
         },
-        "elapsed_sec": 0.215,
+        "elapsed_sec": 0.175,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"In reality, this flow is beneficial and often necessary; reverse ETL allows us to take analytics, scored models, etc., and feed these back into production systems or SaaS platforms.\"\nReverse ETL sends processed data back to source systems from downstream analytics or modeling stages.",
@@ -3436,7 +3439,7 @@
             }
           ]
         },
-        "elapsed_sec": 0.452,
+        "elapsed_sec": 0.347,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"In reality, this flow is beneficial and often necessary; reverse ETL allows us to take analytics, scored models, etc., and feed these back into production systems or SaaS platforms.\"\nReverse ETL lets you send data back to where it started after analysis, which is useful for fixing mistakes or getting new info.",
@@ -3483,7 +3486,7 @@
             }
           ]
         },
-        "elapsed_sec": 0.274,
+        "elapsed_sec": 0.249,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"In reality, this flow is beneficial and often necessary; reverse ETL allows us to take analytics, scored models, etc., and feed these back into production systems or SaaS platforms.\"\nReverse ETL sends processed data back to where it came from, which is helpful for fixing mistakes or getting new info.",
@@ -3527,7 +3530,7 @@
           "chunk_id": "ch02-040",
           "heading": "Reverse ETL"
         },
-        "elapsed_sec": 0.206,
+        "elapsed_sec": 0.181,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"In reality, this flow is beneficial and often necessary; reverse ETL allows us to take analytics, scored models, etc., and feed these back into production systems or SaaS platforms.\"\nReverse ETL sends processed data back to source systems from downstream analytics or modeling stages.",
@@ -3571,7 +3574,7 @@
             }
           ]
         },
-        "elapsed_sec": 1.475,
+        "elapsed_sec": 1.093,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"Reverse ETL takes processed data from the output side of the data engineering lifecycle and feeds it back into source systems, as shown in Figure 2-6\"\nReverse ETL sends processed data back to source systems from downstream analytics or modeling stages. as shown in figure 2-6, this flow is beneficial and often necessary; reverse ETL allows us to take analytics, scored models, etc., and feed these back into production systems or SaaS platforms.",
@@ -3615,10 +3618,10 @@
           "chunk_id": "ch08-039",
           "heading": "Watermarks"
         },
-        "elapsed_sec": 0.329,
+        "elapsed_sec": 0.212,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are dynamic thresholds that adjust based on real-time event timing to filter late-arriving data.",
+        "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are timing thresholds that determine when new events are considered late or within the processing window.",
         "citations": [
           {
             "chunk_id": "ch08-039",
@@ -3655,14 +3658,14 @@
           "history": [
             {
               "question": "Watermarks",
-              "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are dynamic thresholds that adjust based on real-time event timing to filter late-arriving data."
+              "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late.\"\nWatermarks are timing thresholds that determine when new events are considered late or within the processing window."
             }
           ]
         },
-        "elapsed_sec": 1.624,
+        "elapsed_sec": 1.245,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 8] \"We\u2019ve covered various types of windows and their uses.\"\nThe concept of watermarks was introduced by authors in chapter 8 to handle late-arriving events in real-time streams.",
+        "answer": "[Ch. 8] \"We\u2019ve covered various types of windows and their uses.\"\nThe concept of watermarks was introduced by authors in chapter 7 to handle out-of-order events in real-time processing systems.",
         "citations": [
           {
             "chunk_id": "ch08-039",
@@ -3704,10 +3707,10 @@
           "chunk_id": "ch03-011",
           "heading": "Our definition"
         },
-        "elapsed_sec": 1.438,
+        "elapsed_sec": 1.215,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 3] \"Technical solutions exist not for their own sake but in support of business goals.\"\nFocusing solely on technical elegance without business alignment risks building systems that fail to deliver value.",
+        "answer": "[Ch. 3] \"Technical solutions exist not for their own sake but in support of business goals.\"\nFocusing solely on technical excellence without considering business outcomes leads to projects that fail to deliver value.",
         "citations": [
           {
             "chunk_id": "ch03-011",
@@ -3736,14 +3739,14 @@
           "history": [
             {
               "question": "what is this",
-              "answer": "[Ch. 3] \"Technical solutions exist not for their own sake but in support of business goals.\"\nFocusing solely on technical elegance without business alignment risks building systems that fail to deliver value."
+              "answer": "[Ch. 3] \"Technical solutions exist not for their own sake but in support of business goals.\"\nFocusing solely on technical excellence without considering business outcomes leads to projects that fail to deliver value."
             }
           ]
         },
-        "elapsed_sec": 0.239,
+        "elapsed_sec": 0.3,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 3] \"Technical solutions exist not for their own sake but in support of business goals.\"\nTechnical solutions are tools created to help businesses achieve their goals, not just for the sake of being smart.",
+        "answer": "[Ch. 3] \"Technical solutions exist not for their own sake but in support of business goals.\"\nTechnical solutions are tools used to achieve business objectives, not just to show off programming skills.",
         "citations": [
           {
             "chunk_id": "ch03-011",
@@ -3772,18 +3775,18 @@
           "history": [
             {
               "question": "what is this",
-              "answer": "[Ch. 3] \"Technical solutions exist not for their own sake but in support of business goals.\"\nFocusing solely on technical elegance without business alignment risks building systems that fail to deliver value."
+              "answer": "[Ch. 3] \"Technical solutions exist not for their own sake but in support of business goals.\"\nFocusing solely on technical excellence without considering business outcomes leads to projects that fail to deliver value."
             },
             {
               "question": "explain more simply",
-              "answer": "[Ch. 3] \"Technical solutions exist not for their own sake but in support of business goals.\"\nTechnical solutions are tools created to help businesses achieve their goals, not just for the sake of being smart."
+              "answer": "[Ch. 3] \"Technical solutions exist not for their own sake but in support of business goals.\"\nTechnical solutions are tools used to achieve business objectives, not just to show off programming skills."
             }
           ]
         },
-        "elapsed_sec": 0.248,
+        "elapsed_sec": 0.284,
         "passed": true,
         "refused": false,
-        "answer": "[Ch. 3] \"Technical solutions exist not for their own sake but in support of business goals.\"\nTechnical solutions are tools created to help businesses achieve their goals, not just for the sake of being smart.",
+        "answer": "[Ch. 3] \"Technical solutions exist not for their own sake but in support of business goals.\"\nTechnical solutions are tools used to achieve business objectives, not just to show off programming skills.",
         "citations": [
           {
             "chunk_id": "ch03-011",
@@ -3817,7 +3820,7 @@
           "chunk_id": "ch04-028",
           "heading": "Cloud"
         },
-        "elapsed_sec": 0.24,
+        "elapsed_sec": 0.202,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 4] \"Enterprises that migrate to the cloud often make major deployment errors by not appropriately adapting their practices to the cloud pricing model.\"\nCloud economics involves understanding how cloud providers structure pricing to optimize resource utilization and cost savings.",
@@ -3854,7 +3857,7 @@
             }
           ]
         },
-        "elapsed_sec": 0.259,
+        "elapsed_sec": 0.226,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 4] \"Enterprises that migrate to the cloud often make major deployment errors by not appropriately adapting their practices to the cloud pricing model.\"\nCloud pricing models require rethinking traditional IT infrastructure choices because they offer pay-as-you-go flexibility and elastic scaling.",
@@ -3894,7 +3897,7 @@
             }
           ]
         },
-        "elapsed_sec": 1.738,
+        "elapsed_sec": 0.743,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 4] \"The advent of COVID-19 in 2020 was a major driver of cloud adoption, as companies recognized the value of rapidly scaling up data processes to gain insights in a highly uncertain business climate; businesses also had to cope with substantially increased load due to a spike in online shopping, web app usage, and remote work.\"\nCloud pricing models require rethinking traditional IT infrastructure choices because they offer pay-as-you-go flexibility and elastic scaling, which are crucial for managing variable workloads efficiently.",
@@ -3931,7 +3934,7 @@
           "chunk_id": "ch02-043",
           "heading": "Security"
         },
-        "elapsed_sec": 0.249,
+        "elapsed_sec": 0.182,
         "passed": true,
         "refused": false,
         "answer": "[Ch. 2] \"Imposing the principle of least privilege on ourselves can prevent accidental damage and keep you in a security-first mindset.\"\nThe principle of least privilege limits user access strictly to what is necessary for their specific job tasks.",

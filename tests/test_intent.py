@@ -145,7 +145,7 @@ class AntiGibberishCoherenceTests(unittest.TestCase):
         self.assertFalse(_is_coherent_gloss("A complete thought but ends with also."))
 
     def test_is_coherent_gloss_rejects_word_repetition_loops(self):
-        loop_sent = "The disk reads data and reads cache and reads memory continuously."
+        loop_sent = "The disk reads data and reads cache and reads memory and reads buffers continuously."
         self.assertFalse(_is_coherent_gloss(loop_sent))
 
         adjacent_repeat = "The disk reads reads the blocks."
@@ -164,9 +164,13 @@ class AntiGibberishCoherenceTests(unittest.TestCase):
         good1 = "To understand how to use cloud services efficiently through cloud native architecture, you need to know how clouds make money."
         good2 = "The highlighted phrase refers to moving on-premises servers one by one to VMs in the cloud, explaining why lift and shift is acceptable initially."
         good3 = "Limits on IOPs, storage capacity, and bandwidth create bottlenecks that encourage providers to price resources to discourage overconsumption."
+        good4 = "Data maturity means using data better as your company grows, not just by how old or rich it is."
+        good5 = "The model includes starting with data, scaling with data, and leading with data."
         self.assertTrue(_is_coherent_gloss(good1))
         self.assertTrue(_is_coherent_gloss(good2))
         self.assertTrue(_is_coherent_gloss(good3))
+        self.assertTrue(_is_coherent_gloss(good4))
+        self.assertTrue(_is_coherent_gloss(good5))
 
     def test_clean_boilerplate_gloss_rewrites_the_passage(self):
         raw_word = "The passage explains that cloud storage pricing depends on access patterns."

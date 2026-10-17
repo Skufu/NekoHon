@@ -1172,8 +1172,8 @@ def _clean_boilerplate_gloss(gloss, selection=""):
         text = re.sub(r"\b[Tt]he highlighted(?!\s+(?:word|phrase))\b", replacement, text)
     else:
         text = re.sub(r"^(?:[Tt]he|[Tt]his)\s+passage\s+", "This section ", text)
-        text = re.sub(r"\b[Tt]he highlighted (?:text|phrase|sentence|passage|term|concept|word|section)\b", "The highlighted phrase", text)
-        text = re.sub(r"\b[Tt]he highlighted(?!\s+(?:word|phrase))\b", "The highlighted phrase", text)
+        text = re.sub(r"\b[Tt]he highlighted (?:text|phrase|sentence|passage|term|concept|word|section)\b", "This section", text)
+        text = re.sub(r"\b[Tt]he highlighted(?!\s+(?:word|phrase))\b", "This section", text)
     text = re.sub(r"\brefers to an?\b", "is a", text, flags=re.IGNORECASE)
     text = re.sub(r"\brefers to the\b", "is the", text, flags=re.IGNORECASE)
     text = re.sub(r"\brefers to\b", "means", text, flags=re.IGNORECASE)
@@ -1205,7 +1205,7 @@ def _is_coherent_gloss(gloss: str, quote: str = "", question: str = "") -> bool:
         counts = {}
         for w in s_words:
             counts[w] = counts.get(w, 0) + 1
-            if counts[w] >= 3:
+            if counts[w] >= 4:
                 return False
     all_words = text.split()
     for i in range(len(all_words)):
@@ -1220,7 +1220,7 @@ def _is_coherent_gloss(gloss: str, quote: str = "", question: str = "") -> bool:
     if re.search(r"\b([A-Za-z]{3,})\s+\1\b", text, re.IGNORECASE):
         return False
     # e) sentence ends with auxiliary/determiner/preposition
-    if re.search(r"\b(?:the|a|an|also|again|to|of|in|for|with|and|or|is|are|was|were|that)\s*[.?!]$", text, re.IGNORECASE):
+    if re.search(r"\b(?:the|a|an|also|again|to|of|in|for|with|and|or|that)\s*[.?!]$", text, re.IGNORECASE):
         return False
     # f) meta-commentary non-answer
     if re.search(r"\b(?:this|the)\s+(?:section|chapter|passage|book|authors?)\s+(?:introduces?|prepares?\s+readers|discusses?|mentions?|is\s+a\s+detour)\b", text, re.IGNORECASE):
@@ -2631,6 +2631,10 @@ def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_
                     if ent.lower() in s_low:
                         score += 30 * len(ent.split())
 
+            if _list_ask(followup_question, followup_question):
+                if ":" in s_clean and "," in s_clean:
+                    score += 25
+
             # Bias towards primary chunk
             if c == chunk_obj:
                 score += 2
@@ -2674,7 +2678,10 @@ def _synthesize_list_answer(question: str, quote: str, chunk_obj: dict) -> str:
     raw_text = (chunk_obj.get("text") or "") if isinstance(chunk_obj, dict) else ""
     items = []
     if quote and "," in quote:
-        cand_items = [p.strip() for p in quote.split(",") if p.strip()]
+        quote_src = quote
+        if ":" in quote:
+            quote_src = quote.split(":")[-1].strip().rstrip(".?!")
+        cand_items = [p.strip() for p in quote_src.split(",") if p.strip()]
         if len(cand_items) >= 2:
             items = cand_items
     if not items and raw_text:
@@ -2798,7 +2805,8 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
                 or (len(norm_prior) >= 40 and norm_prior in norm_curr)
             )
         )
-        if quote_repeated and not SIMPLIFY_RE.search(question):
+        list_quote_missing_items = bool(_list_ask(question, question) and "," not in quote and ":" not in quote)
+        if (quote_repeated or list_quote_missing_items) and not SIMPLIFY_RE.search(question):
             adv_quote = _advance_followup_quote(chunk_obj, neighbors, prior_quote, question)
             if adv_quote and adv_quote != quote:
                 adv_chunk = chunk_obj
@@ -2816,6 +2824,7 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
         need_followup_gloss = (
             bool(SIMPLIFY_RE.search(question))
             or quote_repeated
+            or list_quote_missing_items
             or (gloss_missing_query_entity and not GENERIC_FACETS_RE.search(question))
             or not gloss_line
             or _gloss_repeats_quote(gloss_line, quote)
