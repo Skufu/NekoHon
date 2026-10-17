@@ -208,25 +208,6 @@ function historyPayload(
   return thread.slice(-2).map(({ question, answer }) => ({ question, answer }));
 }
 
-function isSelfContainedNewTopic(question: string): boolean {
-  const q = question.trim();
-  const lower = q.toLowerCase();
-  const startsWithDef = /^(?:what is|what are|define|who is)\b/i.test(q);
-  if (!startsWithDef) return false;
-  if (
-    /^(?:what are the (?:specific )?reasons|what are the (?:cost )?trade-offs|what is the reason|what is the trade-off)\b/i.test(
-      q
-    )
-  ) {
-    return false;
-  }
-  const deictic = /\b(?:this|that|it|its|they|them|their|these|those|here)\b/i;
-  if (deictic.test(lower)) {
-    return false;
-  }
-  return true;
-}
-
 export const useAsk = create<AskStore>((set, get) => {
   function syncActiveTurn(glosses: GlossItem[], activeGlossId: string | null) {
     const activeGloss = glosses.find((g) => g.id === activeGlossId) ?? null;
@@ -1095,17 +1076,16 @@ export const useAsk = create<AskStore>((set, get) => {
 
       syncActiveTurn(nextGlosses, glossId);
 
-      const isNewTopic =
-        targetGloss.kind === "whole" || isSelfContainedNewTopic(q);
-
       const payload = {
         mode: turnMode,
         question: q,
-        chunk_id: isNewTopic
-          ? undefined
-          : lastCitedChunkId || targetGloss.chunkId || undefined,
-        end_chunk_id: isNewTopic ? undefined : targetGloss.endChunkId || undefined,
-        heading: isNewTopic ? undefined : targetGloss.heading || undefined,
+        selection:
+          targetGloss.kind === "selection"
+            ? targetGloss.quote || undefined
+            : undefined,
+        chunk_id: lastCitedChunkId || targetGloss.chunkId || undefined,
+        end_chunk_id: targetGloss.endChunkId || undefined,
+        heading: targetGloss.heading || undefined,
         ...(history.length > 0 ? { history } : {}),
       };
 

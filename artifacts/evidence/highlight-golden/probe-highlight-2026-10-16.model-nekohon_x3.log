@@ -1,26 +1,26 @@
 # highlight golden eval — nekohon_x3 — 24 held-out rows
 # flags: refused / pin cited / quote verbatim in pin / word in quote
 ch04-051:great               nYYY    0.3s What is great in Build Versus Buy?
-ch09-003:potential           nYYY    0.2s What is potential in Trust?
-ch08-052:requirements        nYYY    0.2s What is requirements in Normalization?
-ch08-020:creating            nYYY    0.7s What is creating in Know how your database handles commits?
-ch07-061:set                 nYYY    0.3s What is set in Managed Data Connectors?
-ch02-085:source              nYYY    0.2s What is source in Development of open source frameworks?
-ch07-049:load                nYYY    0.2s What is load in Direct Database Connection?
+ch09-003:potential           nYYY    0.3s What is potential in Trust?
+ch08-052:requirements        nYYY    0.6s What is requirements in Normalization?
+ch08-020:creating            nYYY    0.8s What is creating in Know how your database handles commits?
+ch07-061:set                 nYYY    0.2s What is set in Managed Data Connectors?
+ch02-085:source              nYYY    0.3s What is source in Development of open source frameworks?
+ch07-049:load                nYYY    0.3s What is load in Direct Database Connection?
 ch08-119:node                nYYY    0.2s What is node in Example: Data transformation in Spark?
 ch08-029:advantage           nYYY    0.2s What is advantage in Queries on Streaming Data?
-ch06-104:accessed            nYYY    0.3s What is accessed in Warm data?
+ch06-104:accessed            nYYY    0.7s What is accessed in Warm data?
 ch02-007:state               nYYY    0.2s What is state in Evaluating source systems: Key engineering considerations?
-ch06-121:performance         nYYY    0.6s What is performance in Data versioning in object storage?
+ch06-121:performance         nYYY    0.3s What is performance in Data versioning in object storage?
 ch05-086:monolithic          nYYY    0.4s What is monolithic in Additional Resources?
-ch08-147:quickly             nYYY    0.6s What is quickly in Downstream Stakeholders?
-ch01-031:stage               nYYY    0.2s What is stage in Stage 3: Leading with data?
+ch08-147:quickly             nYYY    0.7s What is quickly in Downstream Stakeholders?
+ch01-031:stage               nYYY    0.3s What is stage in Stage 3: Leading with data?
 ch06-122:design              nYYY    0.2s What is design in Privacy?
 ch05-017:time                nYYY    0.2s What is time in Log latency: Batch or real time?
-ch01-065:data                nYYY    0.2s What is data in Chief technology officer?
-ch08-132:tools               nYYY    0.5s What is tools in Composable materialized views?
+ch01-065:data                nYYY    0.3s What is data in Chief technology officer?
+ch08-132:tools               nYYY    0.7s What is tools in Composable materialized views?
 ch06-117:queried             nYYY    0.3s What is queried in Undercurrents?
-ch09-021:dashboards          nYYY    0.7s What is dashboards in Business Analytics?
-ch03-108:data                nYYY    0.2s What is data in Additional Resources?
+ch09-021:dashboards          nYYY    0.9s What is dashboards in Business Analytics?
+ch03-108:data                nYYY    0.3s What is data in Additional Resources?
 ch03-004:widely              nYYY    0.2s What is widely in TOGAF’s definition?
 ch06-025:time                nYYY    0.2s What is time in Eventual Versus Strong Consistency?

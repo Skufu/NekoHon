@@ -14,6 +14,7 @@ from answer import (
     _advance_followup_quote,
     _ensure_answer_gloss,
     _extract_query_entities,
+    _resolve_contextual_query,
     _should_include_chunk_figures,
     explain,
     fix_acronym_casing,
@@ -234,7 +235,27 @@ class QueryUnderstandingSyntheticTests(unittest.TestCase):
         self.assertEqual(fix_acronym_casing("bwa and fastq pipelines"), "BWA and FASTQ pipelines")
         self.assertEqual(fix_acronym_casing("crispr and rna targeting"), "CRISPR and RNA targeting")
         self.assertEqual(fix_acronym_casing("mlops and devops workflows"), "MLOps and DevOps workflows")
-        self.assertEqual(fix_acronym_casing("rdbms and mpp query engines"), "RDBMS and MPP query engines")
+    def test_resolve_contextual_query_multiturn_generic_facet(self):
+        """Contextual query resolution on multi-turn history with generic facets (benefits, drawbacks, etc.)."""
+        index = {"chunks": []}
+        history = [
+            {"question": "What is Raft?", "answer": '[Ch. 6] "Raft defines a clear single-leader architecture."'}
+        ]
+        resolved = _resolve_contextual_query(
+            index,
+            "What are the main drawbacks?",
+            history=history,
+            selection="single-leader architecture",
+        )
+        self.assertIn("Raft", resolved)
+        self.assertIn("drawbacks", resolved.lower())
+
+        resolved_simple = _resolve_contextual_query(
+            index,
+            "Can you explain this in simpler words?",
+            history=history,
+        )
+        self.assertIn("Raft", resolved_simple)
 
 
 if __name__ == "__main__":

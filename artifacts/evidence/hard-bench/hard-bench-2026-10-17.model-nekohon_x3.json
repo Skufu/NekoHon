@@ -4,43 +4,43 @@
   "total_items": 60,
   "total_passed": 60,
   "pass_rate": 100.0,
-  "mean_latency_sec": 0.67,
+  "mean_latency_sec": 1.0,
   "category_summary": {
     "multi_turn": {
       "passed": 10,
       "total": 10,
       "pass_rate": 100.0,
-      "mean_latency_sec": 0.75
+      "mean_latency_sec": 1.26
     },
     "varied_comparison": {
       "passed": 10,
       "total": 10,
       "pass_rate": 100.0,
-      "mean_latency_sec": 0.82
+      "mean_latency_sec": 1.09
     },
     "alphanumeric_acronyms": {
       "passed": 10,
       "total": 10,
       "pass_rate": 100.0,
-      "mean_latency_sec": 0.84
+      "mean_latency_sec": 1.3
     },
     "adversarial_injection": {
       "passed": 10,
       "total": 10,
       "pass_rate": 100.0,
-      "mean_latency_sec": 0.72
+      "mean_latency_sec": 0.93
     },
     "hard_explain_anti_boilerplate": {
       "passed": 10,
       "total": 10,
       "pass_rate": 100.0,
-      "mean_latency_sec": 0.24
+      "mean_latency_sec": 0.35
     },
     "zero_shot_unseen_book": {
       "passed": 10,
       "total": 10,
       "pass_rate": 100.0,
-      "mean_latency_sec": 0.66
+      "mean_latency_sec": 1.07
     }
   },
   "results": [
@@ -52,7 +52,7 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.752,
+      "latency_sec": 1.344,
       "answer": "[Ch. 4] \"A multicloud methodology has several disadvantages\"\nNetworking complexity and data egress costs are significant downsides of multicloud deployments.",
       "citations": [
         {
@@ -71,7 +71,7 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 1.082,
+      "latency_sec": 1.795,
       "answer": "[Ch. 4] \"As we often ask, \u201cWhen you need new tires for your car, do you get the raw materials, create the tires from scratch, and install them yourself?\u201d Like most people, you\u2019re probably buying tires and having someone install them. The same argument applies to build versus buy. We\u2019ve seen teams that have built their databases from scratch. A simple open source RDBMS would have served their needs much better upon closer inspection. Imagine the amount of time and money invested in this homegrown database. Talk about low ROI for TCO and opportunity cost.\"\nThe authors warn against building databases from scratch because it is often less efficient and costly than using existing, proven solutions.",
       "citations": [
         {
@@ -90,8 +90,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.778,
-      "answer": "[Ch. 8] \"We\u2019ve covered various types of windows and their uses. As discussed in Chapter 7, data is sometimes ingested out of the order from which it originated. A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late. If data arrives that is new to the window but older than the timestamp of the watermark, it is considered to be late-arriving data.\"\nWatermarks signal when data is too old to be included in current window calculations.",
+      "latency_sec": 1.307,
+      "answer": "[Ch. 8] \"We\u2019ve covered various types of windows and their uses. As discussed in Chapter 7, data is sometimes ingested out of the order from which it originated. A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late. If data arrives that is new to the window but older than the timestamp of the watermark, it is considered to be late-arriving data.\"\nWatermarks allow streaming systems to handle late events by emitting partial results when current data is incomplete due to delayed network delays.",
       "citations": [
         {
           "chunk_id": "ch08-039",
@@ -109,7 +109,7 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.936,
+      "latency_sec": 1.401,
       "answer": "[Ch. 2] \"Chapter 6 covers storage best practices and approaches in greater detail, as well as the crossover between storage and other lifecycle stages.\"\nChapter 6 explores storage best practices and how it intersects with other lifecycle stages, providing comprehensive guidance on selecting the right storage solution.",
       "citations": [
         {
@@ -128,8 +128,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.758,
-      "answer": "[Ch. 3] \"You can learn more about data mesh in Dehghani\u2019s book Data Mesh (O\u2019Reilly).\"\nThe data mesh concept was introduced by zhamak dehghani through her influential article and subsequent book.",
+      "latency_sec": 1.328,
+      "answer": "[Ch. 3] \"You can learn more about data mesh in Dehghani\u2019s book Data Mesh (O\u2019Reilly).\"\nThe concept zhamak dehghani introduced the data mesh concept in her influential article.",
       "citations": [
         {
           "chunk_id": "ch03-099",
@@ -147,8 +147,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.769,
-      "answer": "[Ch. 8] \"The preceding example is a Type 2 SCD: a new record is inserted when an existing record changes.\"\nType 2 handles historical records by creating new rows when attributes change, preserving historical state through end dates.",
+      "latency_sec": 1.64,
+      "answer": "[Ch. 8] \"The preceding example is a Type 2 SCD: a new record is inserted when an existing record changes.\"\nType 2 handles historical records by keeping a full history of dimension records, marking the original as inactive with an end date.",
       "citations": [
         {
           "chunk_id": "ch08-069",
@@ -166,8 +166,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.738,
-      "answer": "[Ch. 7] \"Another consideration is the throughput of your real-time data pipelines. Messages and events should flow with as little latency as possible, meaning you should provision adequate partition (or shard) bandwidth and throughput. Provide sufficient memory, disk, and CPU resources for event processing, and if you\u2019re managing your real-time pipelines, incorporate autoscaling to handle spikes and save money as load decreases. For these reasons, managing your streaming platform can entail significant overhead. Consider managed services for your real-time ingestion pipelines, and focus your attention on ways to get value from your real-time data.\"\nThe passages highlight the importance of provisioning adequate bandwidth, memory, and disk resources to handle real-time event processing efficiently.",
+      "latency_sec": 1.313,
+      "answer": "[Ch. 7] \"Another consideration is the throughput of your real-time data pipelines. Messages and events should flow with as little latency as possible, meaning you should provision adequate partition (or shard) bandwidth and throughput. Provide sufficient memory, disk, and CPU resources for event processing, and if you\u2019re managing your real-time pipelines, incorporate autoscaling to handle spikes and save money as load decreases. For these reasons, managing your streaming platform can entail significant overhead. Consider managed services for your real-time ingestion pipelines, and focus your attention on ways to get value from your real-time data.\"\nThe passages highlight the importance of provisioning adequate bandwidth, memory, and disk for event processing to avoid bottlenecks.",
       "citations": [
         {
           "chunk_id": "ch07-060",
@@ -185,7 +185,7 @@
       "expect": "refuse",
       "refused": true,
       "passed": true,
-      "latency_sec": 0.699,
+      "latency_sec": 1.028,
       "answer": "Not in this book.",
       "citations": [
         {
@@ -214,7 +214,7 @@
       "expect": "refuse",
       "refused": true,
       "passed": true,
-      "latency_sec": 0.643,
+      "latency_sec": 0.929,
       "answer": "Not in this book.",
       "citations": [
         {
@@ -243,7 +243,7 @@
       "expect": "refuse",
       "refused": true,
       "passed": true,
-      "latency_sec": 0.309,
+      "latency_sec": 0.545,
       "answer": "Not in this book.",
       "citations": [
         {
@@ -272,7 +272,7 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.733,
+      "latency_sec": 0.977,
       "answer": "[Ch. 6] \"DDR5 memory\u2014the latest widely used standard for RAM\u2014offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD.\"\nThe passages do not mention DDR4.",
       "citations": [
         {
@@ -291,7 +291,7 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.694,
+      "latency_sec": 1.019,
       "answer": "[Ch. 8] \"BigQuery\u2019s commit model is similar to the commit models used by Snowflake, Spark, and others.\"\nThe passages do not mention DuckDB for analytical queries.",
       "citations": [
         {
@@ -310,7 +310,7 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.461,
+      "latency_sec": 0.955,
       "answer": "[Ch. 6] \"However, distributed, scalable streaming frameworks like Apache Kafka now allow extremely long-duration streaming data retention.\"\nThe passages do not mention ActiveMQ for real-time stream ingestion.",
       "citations": [
         {
@@ -329,7 +329,7 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.67,
+      "latency_sec": 0.946,
       "answer": "[Ch. 8] \"For convenience, we\u2019ll use the term database as a shorthand for a query engine and the storage it\u2019s querying; this could be a cloud data warehouse or Apache Spark querying data stored in S3.\"\nThe passages do not mention Polars for data transformation.",
       "citations": [
         {
@@ -348,7 +348,7 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 1.112,
+      "latency_sec": 1.102,
       "answer": "[Ch. 6] \"A variety of new competitors to Delta Lake have emerged, including Apache Hudi and Apache Iceberg.\"\nThe passages do not mention Apache Paimon for storage table formats.\nAsked as: \"What is the difference between Apache Iceberg and Apache Paimon for storage table formats?\"",
       "citations": [
         {
@@ -367,8 +367,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 1.048,
-      "answer": "[Ch. 8] \"As we discussed in Chapter 3, a widespread transformation pattern dating to the early days of relational databases is a batch ETL. Traditional ETL relies on an external transformation system to pull, transform, and clean data while preparing it for a target schema, such as a data mart or a Kimball star schema. The transformed data would then be loaded into a target system, such as a data warehouse, where business analytics could be performed.\"\nThe main difference is that ELT bypasses external batch processing by extracting raw records directly into warehouses, leveraging their expanded storage and compute capabilities.\nAsked as: \"What is the difference between ELT and ETL?\"",
+      "latency_sec": 1.11,
+      "answer": "[Ch. 8] \"As we discussed in Chapter 3, a widespread transformation pattern dating to the early days of relational databases is a batch ETL. Traditional ETL relies on an external transformation system to pull, transform, and clean data while preparing it for a target schema, such as a data mart or a Kimball star schema. The transformed data would then be loaded into a target system, such as a data warehouse, where business analytics could be performed.\"\nThe book contrasts traditional ETL, where transformations happen outside the warehouse, with modern ELT, where transformations occur directly within the data warehouse.\nAsked as: \"What is the difference between ELT and ETL?\"",
       "citations": [
         {
           "chunk_id": "ch08-094",
@@ -386,7 +386,7 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.835,
+      "latency_sec": 1.125,
       "answer": "[Ch. 3] \"The serving layer provides a combined view by aggregating query results from the two layers. Lambda architecture has its share of challenges and criticisms.\"\nThe serving layer in lambda architecture aggregates results from streaming and batch layers, while kappa uses stateful processing engines to maintain up-to-date aggregations over time.\nAsked as: \"What is the difference between Kappa architecture and Lambda architecture?\"",
       "citations": [
         {
@@ -405,8 +405,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.833,
-      "answer": "[Ch. 2] \"Batch ingestion is simply a specialized and convenient way of processing this stream in large chunks\u2014for example, handling a full day\u2019s worth of data in a single batch.\"\nStreaming delivers continuous, near-real-time data updates without requiring large batch preprocessing steps.\nAsked as: \"What is the difference between streaming and batch ingestion?\"",
+      "latency_sec": 1.135,
+      "answer": "[Ch. 2] \"Batch ingestion is simply a specialized and convenient way of processing this stream in large chunks\u2014for example, handling a full day\u2019s worth of data in a single batch.\"\nStreaming delivers continuous, near-real-time data updates without requiring large batch processing upfront.\nAsked as: \"What is the difference between streaming and batch ingestion?\"",
       "citations": [
         {
           "chunk_id": "ch02-018",
@@ -424,8 +424,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.987,
-      "answer": "[Ch. 6] \"Data warehouses are a standard OLAP data architecture. As discussed in Chapter 3, the term data warehouse refers to technology platforms (e.g., Google BigQuery and Teradata), an architecture for data centralization, and an organizational pattern within a company.\"\nData warehouses are a standard OLAP data architecture.",
+      "latency_sec": 1.391,
+      "answer": "[Ch. 6] \"Data warehouses are a standard OLAP data architecture. As discussed in Chapter 3, the term data warehouse refers to technology platforms (e.g., Google BigQuery and Teradata), an architecture for data centralization, and an organizational pattern within a company.\"\nThe book contrasts relational warehouses designed for analytical querying with cloud data warehouses, which serve as gateways to object storage for raw, semi-structured data.",
       "citations": [
         {
           "chunk_id": "ch06-073",
@@ -443,8 +443,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.847,
-      "answer": "[Ch. 5] \"In contrast to an OLTP system, an online analytical processing (OLAP) system is built to run large analytics queries and is typically inefficient at handling lookups of individual records.\"\nThe passages distinguish between systems optimized for row lookups versus batch aggregations by highlighting their different query scales and hardware requirements.\nAsked as: \"What is the difference between OLTP and OLAP systems?\"",
+      "latency_sec": 1.186,
+      "answer": "[Ch. 5] \"In contrast to an OLTP system, an online analytical processing (OLAP) system is built to run large analytics queries and is typically inefficient at handling lookups of individual records.\"\nThe passages distinguish between systems optimized for row lookups versus batch aggregations by highlighting their different query scales and data block sizes.\nAsked as: \"What is the difference between OLTP and OLAP systems?\"",
       "citations": [
         {
           "chunk_id": "ch05-011",
@@ -462,8 +462,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.832,
-      "answer": "[Ch. 6] \"Let\u2019s look at a couple of examples in S3 since Amazon is a benchmark for cloud service standards\"\nAmazon S3 provides durable, scalable object storage with low cost per GB for frequently accessed objects and cheaper long-term object storage.",
+      "latency_sec": 1.2,
+      "answer": "[Ch. 6] \"Let\u2019s look at a couple of examples in S3 since Amazon is a benchmark for cloud service standards\"\nAmazon S3 provides durable object storage with low cost per GB for frequently accessed objects and cheaper long-term object storage with higher retention costs.",
       "citations": [
         {
           "chunk_id": "ch06-054",
@@ -481,13 +481,13 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.792,
-      "answer": "[Ch. 8] \"Let\u2019s look at stages of normalization\u2014from denormalized to 3NF\u2014using an ecommerce example of customer orders (Table 8-1).\"\nThe requirements for third normal form eliminate all duplicate facts and partial dependencies so every attribute is uniquely determined by a primary key.",
+      "latency_sec": 1.21,
+      "answer": "[Ch. 8] \"The requirements of 2NF, plus each table contains only relevant fields related to its primary key and has no transitive dependencies.\"\nThe requirements for third normal form eliminate duplicate facts and restrict table columns strictly to primary key attributes.",
       "citations": [
         {
           "chunk_id": "ch08-052",
           "chapter": "8",
-          "quote": "Let\u2019s look at stages of normalization\u2014from denormalized to 3NF\u2014using an ecommerce example of customer orders (Table 8-1)."
+          "quote": "The requirements of 2NF, plus each table contains only relevant fields related to its primary key and has no transitive dependencies."
         }
       ],
       "reasons": []
@@ -500,8 +500,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.693,
-      "answer": "[Ch. 8] \"Each column is unique and has a single value.\"\n1NF requires every attribute in a relation to be atomic and uniquely identified by a primary key.",
+      "latency_sec": 1.296,
+      "answer": "[Ch. 8] \"Each column is unique and has a single value.\"\n1NF requires each attribute in a relation to be atomic and uniquely identified by a primary key.",
       "citations": [
         {
           "chunk_id": "ch08-052",
@@ -519,8 +519,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.712,
-      "answer": "[Ch. 8] \"To reach 2NF, we need to ensure that no partial dependencies exist. A partial dependency is a nonkey column that is fully determined by a subset of the columns in the unique primary (composite) key; partial dependencies can occur only when the primary key is composite. In our case, the last three columns are determined by order number. To fix this problem, let\u2019s split OrderDetail into two tables: Orders and OrderLineItem (Tables 8-5 and 8-6).\"\nThe primary key is composite orderID, which uniquely identifies orders and determines productname through skus.",
+      "latency_sec": 1.773,
+      "answer": "[Ch. 8] \"To reach 2NF, we need to ensure that no partial dependencies exist. A partial dependency is a nonkey column that is fully determined by a subset of the columns in the unique primary (composite) key; partial dependencies can occur only when the primary key is composite. In our case, the last three columns are determined by order number. To fix this problem, let\u2019s split OrderDetail into two tables: Orders and OrderLineItem (Tables 8-5 and 8-6).\"\nThe primary key is composite orderID, and splitting orderlineitem into orderlineitem and skus resolves transitive dependencies.",
       "citations": [
         {
           "chunk_id": "ch08-055",
@@ -538,8 +538,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.94,
-      "answer": "[Ch. 6] \"It offers significantly higher transfer speeds and faster retrieval times than SSD storage. DDR5 memory\u2014the latest widely used standard for RAM\u2014offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD. A typical CPU can support 100 GB/s bandwidth to attached memory and millions of IOPS. (Statistics vary dramatically depending on the number of memory channels and other configuration details.)\"\nDDR5 memory delivers sub-nanosecond access times and gigabit bandwidth directly to CPUs without needing an external storage layer.",
+      "latency_sec": 1.372,
+      "answer": "[Ch. 6] \"It offers significantly higher transfer speeds and faster retrieval times than SSD storage. DDR5 memory\u2014the latest widely used standard for RAM\u2014offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD. A typical CPU can support 100 GB/s bandwidth to attached memory and millions of IOPS. (Statistics vary dramatically depending on the number of memory channels and other configuration details.)\"\nDDR5 memory delivers sub-nanosecond access times and gigabit bandwidth directly to processors without needing high-latency network or storage intermediaries.",
       "citations": [
         {
           "chunk_id": "ch06-011",
@@ -557,8 +557,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 1.072,
-      "answer": "[Ch. 8] \"In our example, Housley moved to a new zip code, which triggered his initial record to reflect an effective end date, and a new record was created to show his new zip code.\"\nType-2 slowly changing dimension records maintain historical records by adding an end date to the original row.",
+      "latency_sec": 1.556,
+      "answer": "[Ch. 8] \"In our example, Housley moved to a new zip code, which triggered his initial record to reflect an effective end date, and a new record was created to show his new zip code.\"\nType-2 dimensions track changes by updating existing dimension rows with new effective dates.",
       "citations": [
         {
           "chunk_id": "ch08-070",
@@ -576,8 +576,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.782,
-      "answer": "[Ch. 6] \"A fourth limitation is input/output operations per second (IOPS), critical for transactional databases. A magnetic drive ranges from 50 to 500 IOPS.\"\nHigher rotational speeds reduce seek time and improve random access lookup latency.",
+      "latency_sec": 1.057,
+      "answer": "[Ch. 6] \"A fourth limitation is input/output operations per second (IOPS), critical for transactional databases. A magnetic drive ranges from 50 to 500 IOPS.\"\nHigher rotational speeds reduce seek time but do not match solid-state drives for random access.",
       "citations": [
         {
           "chunk_id": "ch06-008",
@@ -595,8 +595,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.933,
-      "answer": "[Ch. 9] \"In addition to building trust in data quality, it is incumbent on engineers to build trust in their SLAs and SLOs with their end users and upstream stakeholders.\"\nEstablishing rigorous data validation ensures reliable analytical insights guide business decisions.",
+      "latency_sec": 1.275,
+      "answer": "[Ch. 9] \"In addition to building trust in data quality, it is incumbent on engineers to build trust in their SLAs and SLOs with their end users and upstream stakeholders.\"\nEstablishing strict quality controls ensures reliable data delivery to stakeholders, enabling informed business decisions.",
       "citations": [
         {
           "chunk_id": "ch09-004",
@@ -614,7 +614,7 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.793,
+      "latency_sec": 1.114,
       "answer": "[Ch. 5] \"Change data capture (CDC) is a method for extracting each change event (insert, update, delete) that occurs in a database.\"\nCDC captures row-level database modifications and emits change events to subscribers in real time.",
       "citations": [
         {
@@ -633,8 +633,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.825,
-      "answer": "[Ch. 2] \"The DAG can be run once or scheduled to run at a fixed interval of daily, weekly, every hour, every five minutes, etc.\"\nA DAG in pipeline orchestration is a directed acyclic graph that models task dependencies and execution order.",
+      "latency_sec": 1.166,
+      "answer": "[Ch. 2] \"The DAG can be run once or scheduled to run at a fixed interval of daily, weekly, every hour, every five minutes, etc.\"\nA DAG is a directed graph that models the dependencies between data processing tasks.",
       "citations": [
         {
           "chunk_id": "ch02-080",
@@ -678,7 +678,7 @@
       "expect": "refuse",
       "refused": true,
       "passed": true,
-      "latency_sec": 0.875,
+      "latency_sec": 1.094,
       "answer": "Not in this book.",
       "citations": [
         {
@@ -707,7 +707,7 @@
       "expect": "refuse",
       "refused": true,
       "passed": true,
-      "latency_sec": 0.746,
+      "latency_sec": 0.991,
       "answer": "Not in this book.",
       "citations": [
         {
@@ -736,7 +736,7 @@
       "expect": "refuse",
       "refused": true,
       "passed": true,
-      "latency_sec": 0.996,
+      "latency_sec": 1.263,
       "answer": "Not in this book.",
       "citations": [
         {
@@ -765,7 +765,7 @@
       "expect": "refuse",
       "refused": true,
       "passed": true,
-      "latency_sec": 0.757,
+      "latency_sec": 1.113,
       "answer": "Not in this book.",
       "citations": [
         {
@@ -794,7 +794,7 @@
       "expect": "refuse",
       "refused": true,
       "passed": true,
-      "latency_sec": 1.001,
+      "latency_sec": 1.264,
       "answer": "Not in this book.",
       "citations": [
         {
@@ -823,7 +823,7 @@
       "expect": "refuse",
       "refused": true,
       "passed": true,
-      "latency_sec": 1.005,
+      "latency_sec": 1.241,
       "answer": "Not in this book.",
       "citations": [
         {
@@ -852,7 +852,7 @@
       "expect": "refuse",
       "refused": true,
       "passed": true,
-      "latency_sec": 1.012,
+      "latency_sec": 1.171,
       "answer": "Not in this book.",
       "citations": [
         {
@@ -881,7 +881,7 @@
       "expect": "refuse",
       "refused": true,
       "passed": true,
-      "latency_sec": 0.822,
+      "latency_sec": 1.162,
       "answer": "Not in this book.",
       "citations": [
         {
@@ -910,8 +910,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.194,
-      "answer": "[Ch. 4] \"As we often ask, \u201cWhen you need new tires for your car, do you get the raw materials, create the tires from scratch, and install them yourself?\u201d Like most people, you\u2019re probably buying tires and having someone install them.\"\nThe authors urge readers to consider whether building custom solutions from scratch offers value over leveraging existing managed services.",
+      "latency_sec": 0.38,
+      "answer": "[Ch. 4] \"As we often ask, \u201cWhen you need new tires for your car, do you get the raw materials, create the tires from scratch, and install them yourself?\u201d Like most people, you\u2019re probably buying tires and having someone install them.\"\nThe authors urge readers to consider whether building custom solutions from scratch aligns with organizational goals versus leveraging existing managed services.",
       "citations": [
         {
           "chunk_id": "ch04-050",
@@ -930,7 +930,7 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.205,
+      "latency_sec": 0.369,
       "answer": "[Ch. 8] \"For example, given a stream of data, how would you continuously update a Type-2 slowly changing dimension without bringing your data warehouse to its knees?\"\nThe authors challenge readers to design persistent dimension models that safely accommodate dynamic schema changes without requiring full table reloads.",
       "citations": [
         {
@@ -950,8 +950,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.201,
-      "answer": "[Ch. 4] \"The same argument applies to build versus buy.\"\nThe concept asks whether to create software internally or acquire it, weighing control vs. cost and team expertise.",
+      "latency_sec": 0.345,
+      "answer": "[Ch. 4] \"The same argument applies to build versus buy.\"\nThe concept asks whether to create software internally or acquire it, considering control, cost, and organizational expertise.",
       "citations": [
         {
           "chunk_id": "ch04-050",
@@ -970,8 +970,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.151,
-      "answer": "[Ch. 6] \"We commonly use the terms random access memory (RAM) and memory interchangeably.\"\nRAM provides fast, volatile storage directly accessible by the processor's execution unit.",
+      "latency_sec": 0.317,
+      "answer": "[Ch. 6] \"We commonly use the terms random access memory (RAM) and memory interchangeably.\"\nRAM provides fast, volatile storage directly accessible by the processor for running application data and instructions.",
       "citations": [
         {
           "chunk_id": "ch06-011",
@@ -990,7 +990,7 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.201,
+      "latency_sec": 0.371,
       "answer": "[Ch. 7] \"These tools aim to provide a standard set of connectors available out of the box to spare data engineers building complicated plumbing to connect to a particular source.\"\nManaged connectors provide standard, pre-built data integration tools that simplify connecting to various sources without requiring complex engineering.",
       "citations": [
         {
@@ -1010,7 +1010,7 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.634,
+      "latency_sec": 0.885,
       "answer": "[Ch. 9] \"It takes 20 years to build a reputation and five minutes to ruin it.\"\nIn Trust, It takes 20 years to build a reputation and five minutes to ruin it connects to this topic\u2014it takes 20 years to build a reputation and five minutes to ruin it.",
       "citations": [
         {
@@ -1030,8 +1030,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.177,
-      "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage.\"\nThe four fundamental database operations allow modeling stateful interactions between persistent entities.",
+      "latency_sec": 0.176,
+      "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage.\"\nThe four fundamental database operations allow modeling any relational data structure.",
       "citations": [
         {
           "chunk_id": "ch05-019",
@@ -1050,7 +1050,7 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.162,
+      "latency_sec": 0.175,
       "answer": "[Ch. 8] \"Normalization is a database data modeling practice that enforces strict control over the relationships of tables and columns within a database.\"\nNormalization reduces data redundancy and improves integrity by decomposing tables into structured relations.",
       "citations": [
         {
@@ -1070,7 +1070,7 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.165,
+      "latency_sec": 0.18,
       "answer": "[Ch. 2] \"The data engineering lifecycle comprises stages that turn raw data ingredients into a useful end product, ready for consumption by analysts, data scientists, ML engineers, and others.\"\nThe data engineering lifecycle outlines the structured steps transforming raw datasets into analytical assets.",
       "citations": [
         {
@@ -1090,8 +1090,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.307,
-      "answer": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and \u201cthe great divide of data,\u201d wherein the landscape is divided between operational data and analytical data.24 The data mesh attempts to invert the challenges of centralized data architecture, taking the concepts of domain-driven design (commonly used in software architectures) and applying them to data architecture.\"\nThe data mesh distributes data ownership across business units to match their local analytics needs better than centralized warehouses.",
+      "latency_sec": 0.351,
+      "answer": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and \u201cthe great divide of data,\u201d wherein the landscape is divided between operational data and analytical data.24 The data mesh attempts to invert the challenges of centralized data architecture, taking the concepts of domain-driven design (commonly used in software architectures) and applying them to data architecture.\"\nThe data mesh distributes data ownership across business units to match their analytical needs, bypassing centralized warehouses.",
       "citations": [
         {
           "chunk_id": "ch03-099",
@@ -1110,8 +1110,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.785,
-      "answer": "[Ch. 1] \"The Transmission Control Protocol (TCP) establishes a reliable, full-duplex connection using a three-way handshake before any application data can be transferred. First, the client initiates the connection by sending a SYN packet with an initial sequence number to the server. Second, upon receiving the SYN, the server responds with a SYN-ACK packet containing its own sequence number and acknowledging the client sequence number. Third, the client sends an ACK packet acknowledging the server SYN-ACK, at which point the connection enters the ESTABLISHED state and bidirectional data transmission begins.\"\nThe three-way handshake exchanges SYN, SYN-ack, and ack packets to synchronize sequence numbers before data streaming begins.",
+      "latency_sec": 1.134,
+      "answer": "[Ch. 1] \"The Transmission Control Protocol (TCP) establishes a reliable, full-duplex connection using a three-way handshake before any application data can be transferred. First, the client initiates the connection by sending a SYN packet with an initial sequence number to the server. Second, upon receiving the SYN, the server responds with a SYN-ACK packet containing its own sequence number and acknowledging the client sequence number. Third, the client sends an ACK packet acknowledging the server SYN-ACK, at which point the connection enters the ESTABLISHED state and bidirectional data transmission begins.\"\nThe three-way handshake exchanges SYN, SYN-ack, and ack packets to align sequence numbers before data streaming begins.",
       "citations": [
         {
           "chunk_id": "net-01",
@@ -1129,8 +1129,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.753,
-      "answer": "[Ch. 1] \"In the congestion avoidance phase, TCP employs Additive Increase Multiplicative Decrease (AIMD).\"\nThe additive increase multiplicative decrease algorithm smoothly scales TCP send rates within network bandwidth limits.",
+      "latency_sec": 1.019,
+      "answer": "[Ch. 1] \"In the congestion avoidance phase, TCP employs Additive Increase Multiplicative Decrease (AIMD).\"\nThe additive increase multiplicative decrease algorithm smoothly scales TCP flow rates within network bandwidth limits.",
       "citations": [
         {
           "chunk_id": "net-02",
@@ -1148,8 +1148,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 1.05,
-      "answer": "[Ch. 2] \"The Domain Name System (DNS) translates human-readable hostnames into numeric IP addresses through a hierarchical, distributed resolution process. When a local resolver does not hold a cached record, it first queries a root name server to determine the authoritative Top-Level Domain (TLD) servers for the target zone. The TLD server directs the recursive resolver to the authoritative name servers that maintain the canonical zone records. The authoritative name server returns the requested A or AAAA record, which the recursive resolver caches locally for the duration specified by the Time-To-Live (TTL) header before delivering it to the operating system.\"\nThe DNS queries authoritative name servers to fetch up-to-date ip addresses for domain names.",
+      "latency_sec": 1.063,
+      "answer": "[Ch. 2] \"The Domain Name System (DNS) translates human-readable hostnames into numeric IP addresses through a hierarchical, distributed resolution process. When a local resolver does not hold a cached record, it first queries a root name server to determine the authoritative Top-Level Domain (TLD) servers for the target zone. The TLD server directs the recursive resolver to the authoritative name servers that maintain the canonical zone records. The authoritative name server returns the requested A or AAAA record, which the recursive resolver caches locally for the duration specified by the Time-To-Live (TTL) header before delivering it to the operating system.\"\nRecursive resolvers query authoritative name servers to fetch up-to-date IP mappings for resolved domain names.",
       "citations": [
         {
           "chunk_id": "net-03",
@@ -1167,7 +1167,7 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.844,
+      "latency_sec": 1.137,
       "answer": "[Ch. 2] \"The Border Gateway Protocol (BGP) operates as the de facto path-vector routing protocol interconnecting autonomous systems (AS) across the global internet. Unlike interior gateway protocols that measure link metrics, BGP makes routing decisions based on network policies, path vectors, and administrative rule sets. BGP speakers exchange Network Layer Reachability Information (NLRI) via UPDATE messages containing the AS-Path attribute, which lists every autonomous system traversed. If a BGP router detects its own autonomous system number inside an incoming AS-Path attribute, it immediately discards the route to prevent routing loops.\"\nBGP ensures routes are rejected when self-as-path entries appear, stopping infinite loop cycles.",
       "citations": [
         {
@@ -1186,7 +1186,7 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.745,
+      "latency_sec": 1.083,
       "answer": "[Ch. 3] \"Transport Layer Security version 1.3 (TLS 1.3) improves performance and security over prior versions by finalizing cryptographic session establishment in exactly one round-trip time (1-RTT).\"\nTLS 1.3 completes its handshake in one round-trip time by sending server certificates and encrypted handshake messages during the initial client hello exchange.",
       "citations": [
         {
@@ -1205,8 +1205,8 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 1.062,
-      "answer": "[Ch. 4] \"The Raft consensus algorithm achieves fault-tolerant state machine replication by electing a single distinguished leader responsible for log management. Cluster nodes operate in one of three states: leader, follower, or candidate. When a follower node ceases receiving periodic heartbeats from the active leader before its election timer expires, it transitions to candidate state, increments its term counter, votes for itself, and broadcasts RequestVote RPCs to cluster peers. To prevent split votes where multiple candidates divide cluster support equally, Raft assigns randomized election timeouts between 150 milliseconds and 300 milliseconds to every node.\"\nFollower nodes transition to candidate state and initiate election timers independently, ensuring distributed leader elections prevent single-point network failures from crashing the cluster.",
+      "latency_sec": 1.315,
+      "answer": "[Ch. 4] \"The Raft consensus algorithm achieves fault-tolerant state machine replication by electing a single distinguished leader responsible for log management. Cluster nodes operate in one of three states: leader, follower, or candidate. When a follower node ceases receiving periodic heartbeats from the active leader before its election timer expires, it transitions to candidate state, increments its term counter, votes for itself, and broadcasts RequestVote RPCs to cluster peers. To prevent split votes where multiple candidates divide cluster support equally, Raft assigns randomized election timeouts between 150 milliseconds and 300 milliseconds to every node.\"\nFollower nodes transition to candidate state and initiate vote requests when they detect leader unavailability.",
       "citations": [
         {
           "chunk_id": "net-06",
@@ -1224,7 +1224,7 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.522,
+      "latency_sec": 0.765,
       "answer": "[Ch. 4] \"The Raft consensus algorithm achieves fault-tolerant state machine replication by electing a single distinguished leader responsible for log management.\"\nThe passages do not mention Paxos for consensus.",
       "citations": [
         {
@@ -1243,7 +1243,7 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "latency_sec": 0.335,
+      "latency_sec": 2.261,
       "answer": "[Ch. 1] \"TCP manages network congestion using the Congestion Window (cwnd), which dictates the maximum number of unacknowledged bytes permitted in flight. In the congestion avoidance phase, TCP employs Additive Increase Multiplicative Decrease (AIMD). The congestion window increases linearly by one Maximum Segment Size (MSS) per round-trip time (RTT) while acknowledgments arrive smoothly, probing for available network capacity. When packet loss occurs, signaling buffer saturation or network congestion, the sender halves the congestion window multiplicatively to rapidly alleviate network strain.\"\nThe passages do not mention QUIC BBR.",
       "citations": [
         {
@@ -1262,7 +1262,7 @@
       "expect": "refuse",
       "refused": true,
       "passed": true,
-      "latency_sec": 0.301,
+      "latency_sec": 0.486,
       "answer": "Not in this book.",
       "citations": [
         {
@@ -1291,7 +1291,7 @@
       "expect": "refuse",
       "refused": true,
       "passed": true,
-      "latency_sec": 0.227,
+      "latency_sec": 0.425,
       "answer": "Not in this book.",
       "citations": [
         {

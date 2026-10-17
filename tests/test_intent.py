@@ -542,6 +542,39 @@ class QueryUnderstandingAndIntentTests(unittest.TestCase):
             self.assertNotIn("How does this compare to Google Ads?", q)
             self.assertNotIn("compare to Google Ads", q)
 
+    def test_dynamic_followups_parenthetical_filtering(self):
+        chunk = {
+            "chunk_id": "c020",
+            "chapter": "4",
+            "heading": "Event Platforms",
+            "text": (
+                "Event Platforms\n"
+                "Distributed logs (e.g., Kafka) buffer event streams before processing (see chapter 5 or otherwise). "
+                "The system retains messages for replay."
+            ),
+        }
+        followups = compute_dynamic_followups(chunk, neighbors=[], mode="explain")
+        for q in followups:
+            self.assertNotIn("e.g", q.lower())
+            self.assertNotIn("chapter 5", q.lower())
+            self.assertNotIn("otherwise", q.lower())
+
+    def test_dynamic_followups_tradeoff_gating(self):
+        chunk = {
+            "chunk_id": "c030",
+            "chapter": "3",
+            "heading": "Data Ingestion",
+            "text": (
+                "Data Ingestion\n"
+                "Data ingestion is the process of moving data from raw sources into centralized storage systems. "
+                "It enables downstream analytical processing."
+            ),
+        }
+        followups = compute_dynamic_followups(chunk, neighbors=[], mode="explain")
+        for q in followups:
+            self.assertNotIn("trade-off", q.lower())
+            self.assertNotIn("tradeoffs", q.lower())
+
 
 if __name__ == "__main__":
     unittest.main()

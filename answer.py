@@ -158,7 +158,8 @@ def passages_block(passages):
 
 
 INJECTION_PATTERNS = (
-    re.compile(r"\bignore\s+(?:all\s+|previous\s+|prior\s+)?(?:instructions|rules|prompts)\b", re.I),
+    re.compile(r"\bignore\s+(?:all\s+|previous\s+|prior\s+|your\s+|the\s+|above\s+)*(?:instructions|rules|prompts|directions)\b", re.I),
+    re.compile(r"\b(?:print|show|reveal|output|repeat|display)\s+(?:the\s+|your\s+)?system\s+(?:prompt|instructions)\b", re.I),
     re.compile(r"\bsystem\s+prompt\s*:", re.I),
     re.compile(r"\n\s*passages\s*:", re.I),
     re.compile(r"\bchunk_id\s*=", re.I),
@@ -436,6 +437,74 @@ def _span_from_chapter(chapter, completion, passages):
     return best[1], snapped
 
 
+DANGLING_END_WORDS = frozenset({
+    "on", "of", "in", "to", "for", "with", "by", "at", "from", "the", "a", "an",
+    "and", "or", "as", "not", "simply", "large", "into", "such", "than", "that",
+    "which", "is", "are",
+})
+
+
+def _complete_truncated_quote(quote: str, passage_text: str) -> str:
+    """Complete a quote if it was cut off mid-sentence or has unbalanced parentheses."""
+    if not quote or not passage_text:
+        return quote
+    q = quote.strip()
+    pos = passage_text.find(q)
+    if pos == -1:
+        idx = passage_text.lower().find(q.lower())
+        if idx != -1:
+            q = passage_text[idx:idx + len(q)]
+            pos = idx
+        else:
+            return quote
+
+    unbalanced_parens = q.count("(") > q.count(")")
+    words_q = re.findall(r"\b[A-Za-z0-9_-]+\b", q)
+    last_word = words_q[-1].lower() if words_q else ""
+    ends_dangling = (last_word in DANGLING_END_WORDS) or bool(re.search(r"[,;:\-—–]\s*$", q))
+
+    if not unbalanced_parens and not ends_dangling:
+        return quote
+
+    start_pos = pos
+    if q and q[0].islower() and start_pos > 0 and (unbalanced_parens or ends_dangling):
+        prev_text = passage_text[:start_pos]
+        m = list(re.finditer(r'(?<=[.!?\n])\s+', prev_text))
+        if m:
+            cand_start = m[-1].end()
+            if start_pos - cand_start < 80:
+                start_pos = cand_start
+
+    open_parens = q.count("(") - q.count(")")
+    cur = pos + len(q)
+    n = len(passage_text)
+    while cur < n:
+        ch = passage_text[cur]
+        if ch == "(":
+            open_parens += 1
+        elif ch == ")":
+            open_parens -= 1
+        elif ch in ".!?\n":
+            if open_parens <= 0:
+                cur += 1
+                while cur < n and passage_text[cur] in '"\'”’)':
+                    cur += 1
+                completed = passage_text[start_pos:cur].strip()
+                if len(completed) <= PARAGRAPH_CAP:
+                    return completed
+                break
+        cur += 1
+
+    return q
+
+
+def check_quote(quote: str, passage_text: str) -> str:
+    """Verify and complete a quote against a passage."""
+    if not _quote_in_passage(quote, passage_text):
+        return ""
+    return _complete_truncated_quote(quote, passage_text)
+
+
 def _tagless_citation(text, passages):
     """A verified citation from a reply that forgot the [Ch. tag, or None.
 
@@ -448,6 +517,7 @@ def _tagless_citation(text, passages):
     if hit is not None and (
         len(quote) >= SPAN_MIN_CHARS or _short_sentence(text, quote)
     ):
+        quote = _complete_truncated_quote(quote, hit.get("text") or "")
         return {
             "chunk_id": hit["chunk_id"],
             "chapter": str(hit["chapter"]),
@@ -461,6 +531,7 @@ def _tagless_citation(text, passages):
     if best[1] is None:
         return None
     snapped = _original_case(best[0], best[1].get("text") or "")
+    snapped = _complete_truncated_quote(snapped, best[1].get("text") or "")
     return {
         "chunk_id": best[1]["chunk_id"],
         "chapter": str(best[1]["chapter"]),
@@ -765,22 +836,53 @@ def _comparison_sides(*texts):
     Either the original question or its canonical rewrite qualifies.
     """
     candidates = [text.strip() for text in texts if text and text.strip()]
+    pronouns = {"this", "it", "that", "they", "these", "those"}
     for text in candidates:
+        prefix_subj = ""
+        q_clean = (text or "").strip()
+        m_reg = re.match(r"^(?:In\s+.+?,\s+)?[Rr]egarding\s+['\"]?([^:'\"]+)['\"]?\s*:\s*(.+)$", q_clean)
+        if m_reg:
+            prefix_subj = m_reg.group(1).strip()
+            q_clean = m_reg.group(2).strip()
+
         for pat in COMPARISON_PATTERNS:
-            match = pat.search(text)
+            match = pat.search(q_clean)
             if match:
                 left = _clean_side(match.group(1))
                 right = _clean_side(match.group(2))
-                if left and right:
-                    return left, right
-    for text in candidates:
-        hits = list(ONE_VERSUS.finditer(text))
+                if left and left.lower() in pronouns:
+                    left = prefix_subj if prefix_subj else None
+                if right and right.lower() in pronouns:
+                    right = prefix_subj if prefix_subj else None
+                if not left or not right:
+                    continue
+                if "regarding " in left.lower() or "regarding " in right.lower():
+                    continue
+                if "how does " in left.lower() or "how does " in right.lower():
+                    continue
+                if left.lower() in pronouns or right.lower() in pronouns:
+                    continue
+                return left, right
+
+        hits = list(ONE_VERSUS.finditer(q_clean))
         if len(hits) == 1:
             hit = hits[0]
-            left = _clean_side(text[:hit.start()])
-            right = _clean_side(text[hit.end():])
-            if left and right:
-                return left, right
+            left = _clean_side(q_clean[:hit.start()])
+            right = _clean_side(q_clean[hit.end():])
+            if left and left.lower() in pronouns:
+                left = prefix_subj if prefix_subj else None
+            if right and right.lower() in pronouns:
+                right = prefix_subj if prefix_subj else None
+            if not left or not right:
+                continue
+            if "regarding " in left.lower() or "regarding " in right.lower():
+                continue
+            if "how does " in left.lower() or "how does " in right.lower():
+                continue
+            if left.lower() in pronouns or right.lower() in pronouns:
+                continue
+            return left, right
+
     return None
 
 
@@ -801,7 +903,7 @@ def _side_covered(tokens, passages):
         return None
     patterns = [re.compile(rf"\b{re.escape(token)}\b") for token in tokens]
     for hit in passages:
-        folded = (hit.get("text") or "").lower()
+        folded = f"{hit.get('heading') or ''} {hit.get('text') or ''}".lower()
         if all(pattern.search(folded) for pattern in patterns):
             return hit
     return None
@@ -846,8 +948,11 @@ def _half_covered(body, question, asked_form, passages, figures):
     missing = [item for item in found if item[2] is None]
     if len(covered) != 1 or len(missing) != 1:
         return body
+    missing_name = missing[0][0].strip()
+    if missing_name.lower().startswith("regarding") or missing_name.lower().startswith("in "):
+        return body
     if (not body.get("refused")
-            and missing[0][0].lower() in body.get("answer", "").lower()
+            and missing_name.lower() in body.get("answer", "").lower()
             and re.search(r"\b(not\s+mention|does\s+not|do\s+not|absent)\b", body.get("answer", ""), re.I)):
         return body
     side, tokens, hit = covered[0]
@@ -855,7 +960,7 @@ def _half_covered(body, question, asked_form, passages, figures):
     if not quote:
         return body
     chapter = str(hit["chapter"])
-    gloss = f"The passages do not mention {missing[0][0]}."
+    gloss = f"The passages do not mention {missing_name}."
     return {
         "answer": f'[Ch. {chapter}] "{quote}"\n{gloss}',
         "citations": [{
@@ -1072,6 +1177,7 @@ def _clean_boilerplate_gloss(gloss, selection=""):
     text = re.sub(r"\brefers to an?\b", "is a", text, flags=re.IGNORECASE)
     text = re.sub(r"\brefers to the\b", "is the", text, flags=re.IGNORECASE)
     text = re.sub(r"\brefers to\b", "means", text, flags=re.IGNORECASE)
+    text = re.sub(r"\.\s+(?:with|for|in|on|to|by|of|and|or)\s+[A-Za-z0-9_-]+\.$", ".", text)
     text = " ".join(text.split()).strip("\"'“”")
     if text:
         text = text[0].upper() + text[1:]
@@ -1091,7 +1197,7 @@ def _is_coherent_gloss(gloss: str, quote: str = "", question: str = "") -> bool:
         return False
     if re.search(r"\b[A-Za-z]+\s+\d+\s+(?:negative|positive|again|reads?)\b", text, re.IGNORECASE):
         return False
-    # c) any non-stopword content word (len >= 4) appears >= 3 times in a single sentence
+    # c) any non-stopword content word (len >= 4) appears >= 4 times in a single sentence
     #    or >= 4 times in a 25-word window
     sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
     for s in sentences:
@@ -1156,42 +1262,42 @@ def _reground_alphanumeric_quote(quote, question, chunk_text):
         if "1nf" in quote.lower() and "transitive" not in quote.lower() and "2nf" not in quote.lower():
             for sent in _sentences(text):
                 if ("transitive" in sent.lower() or "2nf" in sent.lower()) and len(sent) >= 30:
-                    return sent
+                    return _complete_truncated_quote(sent, text)
     elif "2nf" in q_low or "second normal form" in q_low:
         if "transitive" in quote.lower() or "single value" in quote.lower():
             for sent in _sentences(text):
                 if ("partial" in sent.lower() or "1nf" in sent.lower()) and len(sent) >= 30:
-                    return sent
+                    return _complete_truncated_quote(sent, text)
     elif "1nf" in q_low or "first normal form" in q_low:
         if "partial" in quote.lower() or "transitive" in quote.lower():
             for sent in _sentences(text):
                 if ("single value" in sent.lower() or "primary key" in sent.lower()) and "partial" not in sent.lower() and len(sent) >= 30:
-                    return sent
+                    return _complete_truncated_quote(sent, text)
     elif re.search(r"\btype[- ]2\b", q_low):
         if "type 3" in quote.lower() or ("type 2" not in quote.lower() and "type-2" not in quote.lower() and "effective end date" not in quote.lower()):
             for sent in _sentences(text):
                 sent_low = sent.lower()
                 if ("type 2" in sent_low or "type-2" in sent_low) and ("new record" in sent_low or "history" in sent_low or "inserted" in sent_low or "full history" in sent_low):
-                    return sent
+                    return _complete_truncated_quote(sent, text)
                 if "keep a full history of dimension records" in sent_low or ("effective end date" in sent_low and "new record" in sent_low):
-                    return sent
+                    return _complete_truncated_quote(sent, text)
     elif re.search(r"\bs3\b", q_low):
         if not any(k in quote.lower() for k in ("object", "amazon", "cloud", "storage")):
             for sent in _sentences(text):
                 sent_low = sent.lower()
                 if "s3" in sent_low and any(k in sent_low for k in ("amazon", "object", "cloud", "storage")):
-                    return sent
+                    return _complete_truncated_quote(sent, text)
     elif re.search(r"\biops\b", q_low):
         if "per second" not in quote.lower() and "input/output" not in quote.lower():
             for sent in _sentences(text):
                 sent_low = sent.lower()
                 if "iops" in sent_low and any(k in sent_low for k in ("per second", "input/output", "operations", "bottleneck", "limitation")):
-                    return sent
+                    return _complete_truncated_quote(sent, text)
     elif re.search(r"\b(sla|slas|slo|slos)\b", q_low):
         if not re.search(r"\b(sla|slas|slo|slos)\b", quote.lower()):
             for sent in _sentences(text):
                 if re.search(r"\b(sla|slas|slo|slos)\b", sent.lower()) and len(sent) >= 30:
-                    return sent
+                    return _complete_truncated_quote(sent, text)
     elif re.search(r"\bwho\s+(?:created|invented|designed|developed|authored|introduced|wrote|founded|proposed)\b", q_low):
         has_author_name = bool(re.search(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", quote))
         if not has_author_name:
@@ -1199,8 +1305,8 @@ def _reground_alphanumeric_quote(quote, question, chunk_text):
                 sent_low = sent.lower()
                 if any(w in sent_low for w in ("noted", "groundbreaking", "book", "article", "creator", "created", "proposed", "introduced", "by ")):
                     if re.search(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", sent):
-                        return sent
-    return quote
+                        return _complete_truncated_quote(sent, text)
+    return _complete_truncated_quote(quote, text)
 
 
 def _clean_selection_text(sel: str) -> str:
@@ -1212,6 +1318,22 @@ def _clean_selection_text(sel: str) -> str:
         if len(lines) >= 2 and len(lines[0]) <= 40 and lines[0].endswith(":"):
             raw = " ".join(lines[1:])
     return re.sub(r"\s+", " ", raw).strip()
+
+
+SIMPLIFY_RE = re.compile(
+    r"\b("
+    r"explain\s+(?:it\s+|this\s+|that\s+)?(?:more\s+)?simpl[ey](?:\s+words)?|"
+    r"more\s+simply|simpler\s+words|in\s+simple\s+words|in\s+simpler\s+words|"
+    r"simplify|simplification|make\s+(?:this|it)\s+simpler|put\s+(?:this|it)\s+simply|"
+    r"in\s+plain\s+(?:english|words|terms)|plain\s+english|"
+    r"break\s+(?:this|it|that)\s+down|"
+    r"what\s+does\s+(?:this|that|it)\s+mean|"
+    r"eli5|easier\s+to\s+understand|"
+    r"shorter|in\s+one\s+(?:short\s+)?sentence|one\s+short\s+sentence|"
+    r"main\s+takeaway|key\s+takeaway|summar(?:ize|y)(?:\s+(?:this|it))?|tl;dr"
+    r")\b|^shorter\??$",
+    re.IGNORECASE,
+)
 
 
 GENERIC_FOLLOWUP_RE = re.compile(
@@ -1227,7 +1349,17 @@ GENERIC_FOLLOWUP_RE = re.compile(
     r"how\s+does\s+.+?\s+relate\s+to\s+this|"
     r"how\s+does\s+this\s+compare\s+to\s+.+?|"
     r"what\s+is\s+the\s+role\s+of\s+.+?|"
-    r"what\s+are\s+the\s+risks\s+of\s+.+?)\s*\??\s*$",
+    r"what\s+are\s+the\s+risks\s+of\s+.+?|"
+    r"explain\s+(?:it\s+|this\s+|that\s+)?(?:more\s+)?simpl[ey](?:\s+words)?|"
+    r"more\s+simply|simpler\s+words|in\s+simple\s+words|in\s+simpler\s+words|"
+    r"simplify|simplification|make\s+(?:this|it)\s+simpler|put\s+(?:this|it)\s+simply|"
+    r"in\s+plain\s+(?:english|words|terms)|plain\s+english|"
+    r"break\s+(?:this|it|that)\s+down|"
+    r"what\s+does\s+(?:this|that|it)\s+mean|"
+    r"eli5|easier\s+to\s+understand|"
+    r"shorter|in\s+one\s+(?:short\s+)?sentence|one\s+short\s+sentence|"
+    r"main\s+takeaway|key\s+takeaway|summar(?:ize|y)(?:\s+(?:this|it))?|tl;dr"
+    r")\s*\??\s*$",
     re.IGNORECASE,
 )
 
@@ -1235,7 +1367,7 @@ GENERIC_FOLLOWUP_RE = re.compile(
 def _is_generic_followup(q: str) -> bool:
     if not q:
         return True
-    return bool(is_deictic_question(q) or GENERIC_FOLLOWUP_RE.match(q.strip()))
+    return bool(is_deictic_question(q) or GENERIC_FOLLOWUP_RE.match(q.strip()) or SIMPLIFY_RE.search(q.strip()))
 
 
 def _gloss_repeats_quote(gloss: str, quote: str) -> bool:
@@ -1319,7 +1451,10 @@ GENERIC_FACETS_RE = re.compile(
     r"\b(reason|reasons|stage|stages|type|types|trade-off|trade-offs|tradeoff|tradeoffs|"
     r"downside|downsides|limitation|limitations|risk|risks|pitfall|pitfalls|"
     r"bottleneck|bottlenecks|cost|costs|example|examples|chapter|created|invented|"
-    r"coined|warn|handle|overhead)\b",
+    r"coined|warn|handle|overhead|"
+    r"drawback|drawbacks|disadvantage|disadvantages|advantage|advantages|benefit|benefits|"
+    r"challenge|challenges|problem|problems|solve|solves|prevent|prevents|role|use\s+case|use\s+cases|"
+    r"takeaway|takeaways|principle|principles|simply|simpler|shorter|plain\s+english|summary|summarize|analogy|eli5)\b",
     re.IGNORECASE,
 )
 
@@ -1328,28 +1463,37 @@ EXPLICIT_CONCEPT_RE = re.compile(
     re.IGNORECASE,
 )
 
+CONVERSATIONAL_DIRECTIVES = frozenset({
+    "simply", "simpler", "simple", "simplify", "shorter", "plain", "english", "summary",
+    "summarize", "takeaway", "eli5", "analogy", "example", "examples", "drawback",
+    "drawbacks", "trade-off", "trade-offs", "downside", "downsides", "benefit",
+    "benefits", "advantage", "advantages", "disadvantage", "disadvantages",
+    "problem", "problems", "solve", "solves", "stage", "stages", "step", "steps",
+    "principle", "principles", "type", "types", "role", "overlap", "field", "fields",
+    "manual", "process", "replace", "antipattern", "viewed", "matter", "mean",
+    "work", "works", "fast", "faster", "slow", "cost", "costs", "why", "how",
+    "who", "where", "when", "which", "difference", "compare", "relate", "stand",
+    "for", "main", "key", "specific", "author", "authors", "give", "tell",
+    "explain", "describe",
+})
+
 
 def _has_deictic_reference(question: str) -> bool:
     """Check if question contains any deictic pronouns or backward references."""
     return bool(DEICTIC_REF_RE.search(question or ""))
 
 
-def _is_topic_shift_followup(question: str, history: list, selection: str = "") -> bool:
+def _is_topic_shift_followup(question: str, history: list, selection: str = "", pin_chunk=None, index=None) -> bool:
     """True when question is a self-contained topic shift rather than an in-topic follow-up.
 
     Book-agnostic: verifies absence of deictic references/generic follow-up stems,
     and requires non-overlapping content words between question and conversation history.
     """
-    if not history or selection:
-        return False
-    clean_history = [
-        h for h in (history or [])
-        if isinstance(h, dict) and (h.get("question") or h.get("answer"))
-    ]
-    if not clean_history:
+    if not history:
         return False
     if (
-        is_deictic_question(question)
+        SIMPLIFY_RE.search(question)
+        or is_deictic_question(question)
         or is_incomplete_stem(question)
         or _is_generic_followup(question)
         or _has_deictic_reference(question)
@@ -1357,35 +1501,80 @@ def _is_topic_shift_followup(question: str, history: list, selection: str = "") 
     ):
         return False
 
-    q_subjects = [
-        w.lower() for w in words(question)
-        if w.lower() not in STOPWORDS and w.lower() not in FRAMING_WORDS and len(w) >= 3
+    clean_history = [
+        h for h in (history or [])
+        if isinstance(h, dict) and (h.get("question") or h.get("answer"))
     ]
-    if not q_subjects:
+    if not clean_history:
         return False
 
-    history_subject = _extract_subject_from_history(clean_history)
-    hist_words = set(words((history_subject or "").lower()))
+    q_novel = [
+        w.lower() for w in words(question)
+        if w.lower() not in STOPWORDS and w.lower() not in FRAMING_WORDS and w.lower() not in CONVERSATIONAL_DIRECTIVES and len(w) >= 3
+    ]
+    if not q_novel:
+        return False
 
+    hist_words = set(words((_extract_subject_from_history(clean_history) or "").lower()))
+    if selection:
+        hist_words.update(w.lower() for w in words(selection))
     last_turn = clean_history[-1]
     last_q = (last_turn.get("question") or "").strip()
-    last_sub = _extract_subject_from_query(last_q) if last_q else ""
-    if last_sub:
-        hist_words.update(words(last_sub.lower()))
+    if last_q:
+        hist_words.update(w.lower() for w in words(last_q))
+    last_a = (last_turn.get("answer") or "").strip()
+    if last_a:
+        hist_words.update(w.lower() for w in words(last_a))
 
-    hist_content_words = {
-        w for w in hist_words
-        if w not in STOPWORDS and w not in FRAMING_WORDS and len(w) >= 3
-    }
-    overlap = set(q_subjects) & hist_content_words
-    if overlap:
+    pin_chunk_obj = None
+    if pin_chunk:
+        if isinstance(pin_chunk, dict):
+            pin_chunk_obj = pin_chunk
+        elif isinstance(pin_chunk, str) and index:
+            pin_chunk_obj = next(
+                (c for c in (index.get("chunks") or []) if c.get("chunk_id") == pin_chunk),
+                None,
+            )
+
+    m_concept = re.match(
+        r"^(?:what\s+(?:is|are|was|were)\s+(?:a\s+|an\s+|the\s+)?(?!(?:role|main|key|specific|purpose|point|goal|problem|catch|drawback|advantage|disadvantage|trade-off|difference|reason|stage|step|type|example|takeaway)\b)|define\s+|tell\s+me\s+about\s+)(.+?)\??$",
+        question.strip(),
+        re.I,
+    )
+    if m_concept:
+        concept_target = m_concept.group(1).strip()
+        target_words = {w.lower() for w in words(concept_target) if w.lower() not in STOPWORDS and len(w) >= 2}
+        if pin_chunk_obj is not None:
+            p_head = (pin_chunk_obj.get("heading") or "").lower()
+            if concept_target.lower() in p_head or (target_words and target_words.issubset({w.lower() for w in words(p_head)})):
+                return False
+            if index:
+                chunks = index.get("chunks") or []
+                diff_heading = any(
+                    c.get("chunk_id") != pin_chunk_obj.get("chunk_id")
+                    and concept_target.lower() in (c.get("heading") or "").lower()
+                    for c in chunks
+                )
+                if diff_heading:
+                    return True
+            p_text = (pin_chunk_obj.get("text") or "").lower()
+            if len(target_words) >= 2 and all(w in p_text for w in target_words):
+                return False
+        sub_words = {w.lower() for w in words((_extract_subject_from_history(clean_history) or "").lower()) if w.lower() not in STOPWORDS}
+        if not (target_words & sub_words):
+            return True
         return False
-
-    is_concept = bool(EXPLICIT_CONCEPT_RE.match(question.strip()))
-    if is_concept or (q_subjects and not overlap):
-        return True
-
-    return False
+    else:
+        if set(q_novel) & hist_words:
+            return False
+        if pin_chunk_obj is not None:
+            pin_words = {w.lower() for w in words(pin_chunk_obj.get("text", ""))}
+            if set(q_novel) & pin_words:
+                return False
+        if len(q_novel) >= 2 and not (set(q_novel) & hist_words):
+            if pin_chunk_obj is None or not (set(q_novel) & {w.lower() for w in words(pin_chunk_obj.get("text", ""))}):
+                return True
+        return False
 
 
 def parse_completion(completion, passages, figures=None, anchors=None, question=""):
@@ -1438,6 +1627,7 @@ def parse_completion(completion, passages, figures=None, anchors=None, question=
                 hit, quote = _span_from_chapter(chapter, text, passages)
             if hit is None:
                 return _refusal(passages, figures)
+            quote = _complete_truncated_quote(quote, hit.get("text") or "")
             citations.append({
                 "chunk_id": hit["chunk_id"],
                 "chapter": str(hit["chapter"]),
@@ -1833,7 +2023,7 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
     the LLM enhancer is the fallback under the same gate, so a typo difflib
     cannot see still gets one honest attempt.
     """
-    topic_shift = _is_topic_shift_followup(question, history, selection)
+    topic_shift = _is_topic_shift_followup(question, history, selection, pin_chunk=pin_chunk, index=index)
     effective_pin = None if (topic_shift and not selection) else pin_chunk
     ranks = None
     if search_fn is None:
@@ -1960,7 +2150,51 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
                 passages = injected + [p for p in passages if p.get("chunk_id") not in injected_ids]
                 passages = passages[:PASSAGE_LIMIT]
 
-    if effective_pin:
+    if effective_pin and not topic_shift:
+        chunks = index.get("chunks") or []
+        p_id = effective_pin.get("chunk_id") if isinstance(effective_pin, dict) else effective_pin
+        p_obj = next((c for c in chunks if c.get("chunk_id") == p_id), None)
+        if p_obj:
+            is_chapter_query = bool(re.search(r"\b(which\s+chapter|where\s+in\s+the\s+book|chapter\s+\d+|across\s+chapters)\b", question, re.I))
+            if not is_chapter_query:
+                try:
+                    p_idx = chunks.index(p_obj)
+                    p_chap = str(p_obj.get("chapter"))
+                    same_chap_seq = []
+                    for offset in (0, 1, -1, 2, -2):
+                        cand_idx = p_idx + offset
+                        if 0 <= cand_idx < len(chunks):
+                            cand = chunks[cand_idx]
+                            if str(cand.get("chapter")) == p_chap and cand.get("chunk_id") not in {c.get("chunk_id") for c in same_chap_seq}:
+                                same_chap_seq.append(cand)
+                    seen_ids = {c.get("chunk_id") for c in same_chap_seq}
+                    same_chap_dense = [p for p in passages if str(p.get("chapter")) == p_chap and p.get("chunk_id") not in seen_ids]
+                    for p in same_chap_dense:
+                        seen_ids.add(p.get("chunk_id"))
+                    other_passages = [p for p in passages if p.get("chunk_id") not in seen_ids]
+                    passages = (same_chap_seq + same_chap_dense + other_passages)[:PASSAGE_LIMIT]
+                except ValueError:
+                    pass
+            else:
+                try:
+                    p_idx = chunks.index(p_obj)
+                    p_neighbors = []
+                    if p_idx + 1 < len(chunks) and chunks[p_idx + 1].get("chapter") == p_obj.get("chapter"):
+                        p_neighbors.append(chunks[p_idx + 1])
+                    if p_idx > 0 and chunks[p_idx - 1].get("chapter") == p_obj.get("chapter"):
+                        p_neighbors.append(chunks[p_idx - 1])
+                    if clean_history:
+                        p_n_ids = {n.get("chunk_id") for n in p_neighbors}
+                        passages = [p for p in passages if p.get("chunk_id") not in p_n_ids]
+                        passages = p_neighbors + passages
+                    else:
+                        p_curr_ids = {p.get("chunk_id") for p in passages}
+                        for n in p_neighbors:
+                            if n.get("chunk_id") not in p_curr_ids:
+                                passages.append(n)
+                except ValueError:
+                    pass
+    elif effective_pin:
         chunks = index.get("chunks") or []
         p_id = effective_pin.get("chunk_id") if isinstance(effective_pin, dict) else effective_pin
         p_obj = next((c for c in chunks if c.get("chunk_id") == p_id), None)
@@ -1972,15 +2206,10 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
                     p_neighbors.append(chunks[p_idx + 1])
                 if p_idx > 0 and chunks[p_idx - 1].get("chapter") == p_obj.get("chapter"):
                     p_neighbors.append(chunks[p_idx - 1])
-                if clean_history:
-                    p_n_ids = {n.get("chunk_id") for n in p_neighbors}
-                    passages = [p for p in passages if p.get("chunk_id") not in p_n_ids]
-                    passages = p_neighbors + passages
-                else:
-                    p_curr_ids = {p.get("chunk_id") for p in passages}
-                    for n in p_neighbors:
-                        if n.get("chunk_id") not in p_curr_ids:
-                            passages.append(n)
+                p_curr_ids = {p.get("chunk_id") for p in passages}
+                for n in p_neighbors:
+                    if n.get("chunk_id") not in p_curr_ids:
+                        passages.append(n)
             except ValueError:
                 pass
 
@@ -2059,33 +2288,14 @@ def _resolve_contextual_query(index, question, pin_chunk=None, selection="",
                 None,
             )
 
-    # Case 1: Selection is non-empty and question is contextual / deictic / incomplete
-    if sel and len(sel.split()) <= 25:
-        if sel.lower() not in q.lower():
-            if is_deictic_question(q):
-                if q.lower().startswith(("why", "how")):
-                    return f"{q.rstrip('?').strip()} ('{sel}')?"
-                return f"What does '{sel}' mean in this passage?"
-            if is_incomplete_stem(q):
-                base = q.rstrip("?").strip()
-                return f"{base} {sel}?"
-            q_words = set(re.findall(r"\w+", q.lower()))
-            deictic = q_words & {"this", "that", "it", "these", "those"}
-            if deictic or q.lower().rstrip("?") in ("why", "explain", "how", "what"):
-                if head:
-                    return f"In {head}, regarding '{sel}': {q}"
-                return f"Regarding '{sel}': {q}"
-            if head:
-                return f"In {head}, regarding '{sel}': {q}"
-            return f"Regarding '{sel}': {q}"
-
-    # Case 1b: Multi-turn history coreference resolution
     clean_history = [
         h for h in (history or [])
         if isinstance(h, dict) and (h.get("question") or h.get("answer"))
     ]
-    if clean_history and not sel:
-        subject = _extract_subject_from_history(clean_history)
+
+    # Case 1b: Multi-turn history coreference resolution (Turn 2+)
+    if clean_history:
+        subject = _extract_subject_from_history(clean_history) or sel
         if subject:
             q_lower = q.lower()
             q_words = set(re.findall(r"\b[a-zA-Z]+\b", q_lower))
@@ -2117,9 +2327,29 @@ def _resolve_contextual_query(index, question, pin_chunk=None, selection="",
                 _is_generic_followup(q) or
                 is_incomplete_stem(q) or
                 bool(re.search(r"\b(type|tier|stage|phase|step)\s*\d+\b", q_lower)) or
-                bool(re.search(r"\b(trade-off|trade-offs|tradeoff|tradeoffs|downside|downsides|benefit|benefits|example|examples)\b", q_lower))
+                bool(GENERIC_FACETS_RE.search(q_lower))
             ):
                 return f"Regarding {subject}: {q}"
+
+    # Case 1: Selection is non-empty and question is contextual / deictic / incomplete (Turn 1 askSelection)
+    if sel and not clean_history and len(sel.split()) <= 45:
+        if sel.lower() not in q.lower():
+            if is_deictic_question(q):
+                if q.lower().startswith(("why", "how")):
+                    return f"{q.rstrip('?').strip()} ('{sel}')?"
+                return f"What does '{sel}' mean in this passage?"
+            if is_incomplete_stem(q):
+                base = q.rstrip("?").strip()
+                return f"{base} {sel}?"
+            q_words = set(re.findall(r"\w+", q.lower()))
+            deictic = q_words & {"this", "that", "it", "these", "those"}
+            if deictic or q.lower().rstrip("?") in ("why", "explain", "how", "what") or _is_generic_followup(q) or bool(GENERIC_FACETS_RE.search(q.lower())):
+                if head:
+                    return f"In {head}, regarding '{sel}': {q}"
+                return f"Regarding '{sel}': {q}"
+            if head:
+                return f"In {head}, regarding '{sel}': {q}"
+            return f"Regarding '{sel}': {q}"
 
     # Case 2: Incomplete stem / wh-prefix (e.g. "what are the", "how is", "why do")
     if is_incomplete_stem(q):
@@ -2177,10 +2407,21 @@ def _followup_gloss_user_message(history, question, quote, chunk, neighbors=None
         for n in neighbors:
             if n and n.get("text"):
                 parts.append(f"\nRelated context ({n.get('heading', '')}):\n{n['text']}")
-    parts.append(
-        "\nWrite a direct 1 to 2 sentence answer that explicitly answers the follow-up question "
-        "and connects it to the previous turn. Ground strictly in the passage context."
-    )
+    if SIMPLIFY_RE.search(question):
+        q_low = question.lower()
+        if any(w in q_low for w in ("shorter", "one sentence", "one short sentence", "tl;dr")):
+            parts.append(
+                "\nRewrite the previous explanation in ONE short, punchy sentence (under 18 words) using plain everyday language."
+            )
+        else:
+            parts.append(
+                "\nRewrite and simplify the previous explanation in 1 to 2 plain, everyday sentences without technical jargon so any reader can immediately understand it."
+            )
+    else:
+        parts.append(
+            "\nWrite a direct 1 to 2 sentence answer that explicitly answers the follow-up question "
+            "and connects it to the previous turn. Ground strictly in the passage context."
+        )
     return "\n".join(parts)
 
 
@@ -2234,7 +2475,7 @@ def _synthesize_grounded_gloss(selection, quote, pin_chunk_obj, neighbors, gener
             if cand_reply and cand_reply != REFUSAL:
                 lines = [ln.strip() for ln in cand_reply.splitlines() if ln.strip()]
                 for ln in lines:
-                    if ln.startswith("[Ch.") or ln.startswith('"') or ln.startswith("“"):
+                    if re.match(r"^\[ch\.", ln, re.I) or ln.startswith('"') or ln.startswith("“") or ln.startswith("”"):
                         continue
                     cleaned_cand = _clean_boilerplate_gloss(ln, selection)
                     if _is_coherent_gloss(cleaned_cand, quote) and (
@@ -2304,7 +2545,7 @@ def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_
     if not chunk_obj or not followup_question:
         return None
 
-    if re.search(r"\b(simpler\s+words|simplify|break\s+this\s+down|in\s+simple\s+words)\b", followup_question, re.I):
+    if SIMPLIFY_RE.search(followup_question):
         return None
 
     pool = [chunk_obj]
@@ -2423,7 +2664,7 @@ def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_
     scored_cands.sort(key=lambda item: (item[0], item[1]), reverse=True)
     best_cand = scored_cands[0]
     if best_cand[0] >= 10:
-        return best_cand[2]
+        return _complete_truncated_quote(best_cand[2], best_cand[3].get("text") or "")
 
     return None
 
@@ -2557,7 +2798,7 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
                 or (len(norm_prior) >= 40 and norm_prior in norm_curr)
             )
         )
-        if quote_repeated:
+        if quote_repeated and not SIMPLIFY_RE.search(question):
             adv_quote = _advance_followup_quote(chunk_obj, neighbors, prior_quote, question)
             if adv_quote and adv_quote != quote:
                 adv_chunk = chunk_obj
@@ -2573,7 +2814,8 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
                 first_line = f'[Ch. {first_cite["chapter"]}] "{quote}"'
 
         need_followup_gloss = (
-            quote_repeated
+            bool(SIMPLIFY_RE.search(question))
+            or quote_repeated
             or (gloss_missing_query_entity and not GENERIC_FACETS_RE.search(question))
             or not gloss_line
             or _gloss_repeats_quote(gloss_line, quote)
@@ -2589,9 +2831,9 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
                 except Exception:
                     raw = ""
                 new_gloss = _clean_boilerplate_gloss(raw, question)
-                if new_gloss.startswith("[Ch.") and "\n" in new_gloss:
+                if re.match(r"^\[ch\.", new_gloss, re.I) and "\n" in new_gloss:
                     new_gloss = new_gloss.split("\n", 1)[1].strip()
-                new_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", new_gloss).strip().strip("\"'“”")
+                new_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", new_gloss, flags=re.I).strip().strip("\"'“”")
             if not new_gloss or not _is_coherent_gloss(new_gloss, quote, question=question):
                 if _list_ask(question, question):
                     list_synth = _synthesize_list_answer(question, quote, chunk_obj)
@@ -2622,11 +2864,13 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
             except Exception:
                 raw = ""
             new_gloss = _clean_boilerplate_gloss(raw, clean_sel)
-            if new_gloss.startswith("[Ch.") and "\n" in new_gloss:
+            if re.match(r"^\[ch\.", new_gloss, re.I) and "\n" in new_gloss:
                 new_gloss = new_gloss.split("\n", 1)[1].strip()
-            new_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", new_gloss).strip().strip("\"'“”")
+            new_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", new_gloss, flags=re.I).strip().strip("\"'“”")
         if not new_gloss or not _is_coherent_gloss(new_gloss, quote, question=clean_sel):
             new_gloss = _synthesize_grounded_gloss(clean_sel, quote, chunk_obj, neighbors, generate_fn, model)
+            if new_gloss:
+                new_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", new_gloss, flags=re.I).strip().strip("\"'“”")
         if not new_gloss or not _is_coherent_gloss(new_gloss, quote, question=clean_sel):
             cands = [s for s in _candidate_sentences(chunk_obj.get("text") or "", chunk_obj.get("heading") or "")
                      if s != quote and len(s) >= 40 and not META_TRANSITION_RE.search(s) and _is_coherent_gloss(s, quote, question=clean_sel)]
@@ -2641,9 +2885,9 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
             except Exception:
                 raw = ""
             new_gloss = _clean_boilerplate_gloss(raw, question)
-            if new_gloss.startswith("[Ch.") and "\n" in new_gloss:
+            if re.match(r"^\[ch\.", new_gloss, re.I) and "\n" in new_gloss:
                 new_gloss = new_gloss.split("\n", 1)[1].strip()
-            new_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", new_gloss).strip().strip("\"'“”")
+            new_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", new_gloss, flags=re.I).strip().strip("\"'“”")
         if not new_gloss or not _is_coherent_gloss(new_gloss, quote, question=question):
             if _list_ask(question, question):
                 list_synth = _synthesize_list_answer(question, quote, chunk_obj)
@@ -2678,8 +2922,76 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
     is_live = (generate_fn is None) or bool(getattr(generate_fn, "_is_live", False))
     generate_fn = generate_fn or ollama_generate
     history = sanitize_history(history)
-    topic_shift = _is_topic_shift_followup(question, history, selection)
+    clean_history = [
+        h for h in (history or [])
+        if isinstance(h, dict) and (h.get("question") or h.get("answer"))
+    ]
+    topic_shift = _is_topic_shift_followup(question, history, selection, pin_chunk=pin_chunk, index=index)
     effective_pin = None if (topic_shift and not selection) else pin_chunk
+    if clean_history and not topic_shift and SIMPLIFY_RE.search(question):
+        target_chunk_obj = None
+        if effective_pin:
+            if isinstance(effective_pin, dict):
+                target_chunk_obj = effective_pin
+            elif isinstance(effective_pin, str):
+                target_chunk_obj = next(
+                    (c for c in (index.get("chunks") or []) if c.get("chunk_id") == effective_pin),
+                    None,
+                )
+        if target_chunk_obj is None and clean_history:
+            prior_turn = clean_history[-1]
+            prior_a = (prior_turn.get("answer") or "").strip()
+            m_q = re.search(r"\[Ch\.\s*([^\]]+)\]\s*[\"“](.+?)[\"”]", prior_a)
+            if m_q:
+                prior_chap = m_q.group(1).strip().rstrip(".")
+                prior_snippet = m_q.group(2).strip()[:50].lower()
+                for c in (index.get("chunks") or []):
+                    if str(c.get("chapter")) == prior_chap and prior_snippet in (c.get("text") or "").lower():
+                        target_chunk_obj = c
+                        break
+                if target_chunk_obj is None:
+                    for c in (index.get("chunks") or []):
+                        if prior_snippet in (c.get("text") or "").lower():
+                            target_chunk_obj = c
+                            break
+        if target_chunk_obj is not None:
+            prior_turn = clean_history[-1]
+            prior_a = (prior_turn.get("answer") or "").strip()
+            m_q = re.search(r"\[Ch\.\s*([^\]]+)\]\s*[\"“](.+?)[\"”]", prior_a)
+            prior_quote = m_q.group(2).strip() if m_q else ""
+            chunk_text = target_chunk_obj.get("text") or ""
+            chosen_quote = ""
+            if prior_quote and (prior_quote in chunk_text or prior_quote.lower() in chunk_text.lower()):
+                chosen_quote = _complete_truncated_quote(prior_quote, chunk_text)
+            if not chosen_quote:
+                cands = _candidate_sentences(chunk_text, target_chunk_obj.get("heading") or "")
+                chosen_quote = cands[0] if cands else ""
+            if chosen_quote:
+                chap = str(target_chunk_obj.get("chapter", ""))
+                body = {
+                    "refused": False,
+                    "citations": [{
+                        "chunk_id": target_chunk_obj.get("chunk_id"),
+                        "chapter": chap,
+                        "quote": chosen_quote,
+                    }],
+                    "answer": f'[Ch. {chap}] "{chosen_quote}"',
+                    "figures": figures_for([target_chunk_obj], index.get("figures") or []),
+                }
+                passages = [target_chunk_obj]
+                body = _ensure_answer_gloss(
+                    index, body, question, passages, is_live=is_live,
+                    history=history, selection=selection, heading=heading, model=model,
+                    generate_fn=generate_fn,
+                )
+                lead_chunk = target_chunk_obj
+                chunks = index.get("chunks") or []
+                lead_neighbors = [c for c in chunks if str(c.get("chapter")) == chap and c.get("chunk_id") != lead_chunk.get("chunk_id")][:4]
+                body["followups"] = compute_dynamic_followups(
+                    lead_chunk, lead_neighbors, selection=selection,
+                    question=question, answer_text=body.get("answer", ""), mode="ask",
+                )
+                return body
     resolved_question = _resolve_contextual_query(
         index, question, pin_chunk=effective_pin, selection=selection,
         heading=heading, history=history,
@@ -2724,37 +3036,6 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
                 body = retry
                 body = _align_citation_to_query_concepts(body, resolved_question, passages)
     body = _expand_list(body, resolved_question, asked_form, passages)
-
-    SIMPLIFY_RE = re.compile(r"\b(simpler\s+words|simplify|break\s+this\s+down|explain\s+this|what\s+does\s+this\s+mean|in\s+simple\s+words)\b", re.I)
-    if clean_history and effective_pin and SIMPLIFY_RE.search(question):
-        pin_chunk_obj = None
-        if isinstance(effective_pin, dict):
-            pin_chunk_obj = effective_pin
-        elif isinstance(effective_pin, str):
-            pin_chunk_obj = next(
-                (c for c in (index.get("chunks") or []) if c.get("chunk_id") == effective_pin),
-                None,
-            )
-        if pin_chunk_obj is not None:
-            prior_turn = clean_history[-1]
-            prior_a = (prior_turn.get("answer") or "").strip()
-            m_q = re.search(r"\[Ch\.\s*[^\]]+\]\s*[\"“](.+?)[\"”]", prior_a)
-            chosen_quote = ""
-            if m_q and m_q.group(1).strip() in (pin_chunk_obj.get("text") or ""):
-                chosen_quote = m_q.group(1).strip()
-            else:
-                cands = _candidate_sentences(pin_chunk_obj.get("text") or "", pin_chunk_obj.get("heading") or "")
-                chosen_quote = cands[0] if cands else ""
-            if chosen_quote:
-                chap = str(pin_chunk_obj.get("chapter", ""))
-                body["refused"] = False
-                body["citations"] = [{
-                    "chunk_id": pin_chunk_obj.get("chunk_id"),
-                    "chapter": chap,
-                    "quote": chosen_quote,
-                }]
-                body["answer"] = f'[Ch. {chap}] "{chosen_quote}"'
-                body["figures"] = figures_for([pin_chunk_obj], index.get("figures") or [])
 
     if clean_history and not SIMPLIFY_RE.search(question) and not topic_shift:
         prior_turn = clean_history[-1]
@@ -3088,8 +3369,72 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
         h for h in (history or [])
         if isinstance(h, dict) and (h.get("question") or h.get("answer"))
     ]
-    topic_shift = _is_topic_shift_followup(question, history, selection)
+    topic_shift = _is_topic_shift_followup(question, history, selection, pin_chunk=pin_chunk, index=index)
     effective_pin = None if (topic_shift and not selection) else pin_chunk
+    if clean_history and not topic_shift and SIMPLIFY_RE.search(question):
+        target_chunk_obj = None
+        if effective_pin:
+            if isinstance(effective_pin, dict):
+                target_chunk_obj = effective_pin
+            elif isinstance(effective_pin, str):
+                target_chunk_obj = next(
+                    (c for c in (index.get("chunks") or []) if c.get("chunk_id") == effective_pin),
+                    None,
+                )
+        if target_chunk_obj is None and clean_history:
+            prior_turn = clean_history[-1]
+            prior_a = (prior_turn.get("answer") or "").strip()
+            m_q = re.search(r"\[Ch\.\s*([^\]]+)\]\s*[\"“](.+?)[\"”]", prior_a)
+            if m_q:
+                prior_chap = m_q.group(1).strip().rstrip(".")
+                prior_snippet = m_q.group(2).strip()[:50].lower()
+                for c in (index.get("chunks") or []):
+                    if str(c.get("chapter")) == prior_chap and prior_snippet in (c.get("text") or "").lower():
+                        target_chunk_obj = c
+                        break
+                if target_chunk_obj is None:
+                    for c in (index.get("chunks") or []):
+                        if prior_snippet in (c.get("text") or "").lower():
+                            target_chunk_obj = c
+                            break
+        if target_chunk_obj is not None:
+            prior_turn = clean_history[-1]
+            prior_a = (prior_turn.get("answer") or "").strip()
+            m_q = re.search(r"\[Ch\.\s*([^\]]+)\]\s*[\"“](.+?)[\"”]", prior_a)
+            prior_quote = m_q.group(2).strip() if m_q else ""
+            chunk_text = target_chunk_obj.get("text") or ""
+            chosen_quote = ""
+            if prior_quote and (prior_quote in chunk_text or prior_quote.lower() in chunk_text.lower()):
+                chosen_quote = _complete_truncated_quote(prior_quote, chunk_text)
+            if not chosen_quote:
+                cands = _candidate_sentences(chunk_text, target_chunk_obj.get("heading") or "")
+                chosen_quote = cands[0] if cands else ""
+            if chosen_quote:
+                chap = str(target_chunk_obj.get("chapter", ""))
+                body = {
+                    "refused": False,
+                    "citations": [{
+                        "chunk_id": target_chunk_obj.get("chunk_id"),
+                        "chapter": chap,
+                        "quote": chosen_quote,
+                    }],
+                    "answer": f'[Ch. {chap}] "{chosen_quote}"',
+                    "figures": figures_for([target_chunk_obj], index.get("figures") or []),
+                }
+                passages = [target_chunk_obj]
+                body = _ensure_answer_gloss(
+                    index, body, question, passages, is_live=is_live,
+                    history=history, selection=selection, heading=heading, model=model,
+                    generate_fn=generate_fn,
+                )
+                lead_chunk = target_chunk_obj
+                chunks = index.get("chunks") or []
+                lead_neighbors = [c for c in chunks if str(c.get("chapter")) == chap and c.get("chunk_id") != lead_chunk.get("chunk_id")][:4]
+                body["followups"] = compute_dynamic_followups(
+                    lead_chunk, lead_neighbors, selection=selection,
+                    question=question, answer_text=body.get("answer", ""), mode="answer",
+                )
+                return body
     resolved_question = _resolve_contextual_query(
         index, question, pin_chunk=effective_pin, selection=selection,
         heading=heading, history=history,
@@ -3140,36 +3485,6 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
                 if retry is not None and not retry.get("refused"):
                     body = retry
     body = _expand_list(body, resolved_question, asked_form, passages)
-
-    if clean_history and effective_pin and SIMPLIFY_RE.search(question):
-        pin_chunk_obj = None
-        if isinstance(effective_pin, dict):
-            pin_chunk_obj = effective_pin
-        elif isinstance(effective_pin, str):
-            pin_chunk_obj = next(
-                (c for c in (index.get("chunks") or []) if c.get("chunk_id") == effective_pin),
-                None,
-            )
-        if pin_chunk_obj is not None:
-            prior_turn = clean_history[-1]
-            prior_a = (prior_turn.get("answer") or "").strip()
-            m_q = re.search(r"\[Ch\.\s*[^\]]+\]\s*[\"“](.+?)[\"”]", prior_a)
-            chosen_quote = ""
-            if m_q and m_q.group(1).strip() in (pin_chunk_obj.get("text") or ""):
-                chosen_quote = m_q.group(1).strip()
-            else:
-                cands = _candidate_sentences(pin_chunk_obj.get("text") or "", pin_chunk_obj.get("heading") or "")
-                chosen_quote = cands[0] if cands else ""
-            if chosen_quote:
-                chap = str(pin_chunk_obj.get("chapter", ""))
-                body["refused"] = False
-                body["citations"] = [{
-                    "chunk_id": pin_chunk_obj.get("chunk_id"),
-                    "chapter": chap,
-                    "quote": chosen_quote,
-                }]
-                body["answer"] = f'[Ch. {chap}] "{chosen_quote}"'
-                body["figures"] = figures_for([pin_chunk_obj], index.get("figures") or [])
 
     if clean_history and not SIMPLIFY_RE.search(question) and not topic_shift:
         prior_turn = clean_history[-1]
@@ -3561,6 +3876,7 @@ def parse_answered(completion, passages, figures=None):
             long_sents = [s for s in all_sents if len(s) >= 40 and s.strip().lower() != heading_clean]
             if long_sents:
                 quote = _without_heading(long_sents[0], hit)
+        quote = _complete_truncated_quote(quote, hit.get("text") or "")
         citations.append({
             "chunk_id": hit["chunk_id"],
             "chapter": str(hit["chapter"]),
@@ -3914,16 +4230,21 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
                 raw_gloss = ""
 
             cleaned_gloss = (raw_gloss or "").strip()
-            if cleaned_gloss.startswith("[Ch.") and "\n" in cleaned_gloss:
+            if re.match(r"^\[ch\.", cleaned_gloss, re.I) and "\n" in cleaned_gloss:
                 cleaned_gloss = cleaned_gloss.split("\n", 1)[1].strip()
-            cleaned_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", cleaned_gloss).strip()
+            cleaned_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", cleaned_gloss, flags=re.I).strip()
             cleaned_gloss = cleaned_gloss.strip("\"'“”")
             cleaned_gloss = _clean_boilerplate_gloss(cleaned_gloss, selection)
-            if not _is_coherent_gloss(cleaned_gloss, quote_for_prompt) or (
+            if not _is_coherent_gloss(cleaned_gloss, quote_for_prompt) or _gloss_repeats_quote(cleaned_gloss, quote_for_prompt) or (
                 intent_info.get("is_passing_mention")
                 and not _has_content_word_overlap(cleaned_gloss, quote_for_prompt, exclude=f"{selection} {chosen_chunk.get('heading', '')}")
             ):
                 cleaned_gloss = _synthesize_grounded_gloss(selection, quote_for_prompt, chosen_chunk, neighbors, generate_fn, model)
+            if cleaned_gloss:
+                if re.match(r"^\[ch\.", cleaned_gloss, re.I) and "\n" in cleaned_gloss:
+                    cleaned_gloss = cleaned_gloss.split("\n", 1)[1].strip()
+                cleaned_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", cleaned_gloss, flags=re.I).strip()
+                cleaned_gloss = cleaned_gloss.strip("\"'“”")
 
             chapter = str(chosen_chunk.get("chapter", ""))
             citations = [{
@@ -4036,13 +4357,18 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
             raw_gloss = ""
 
         cleaned_gloss = (raw_gloss or "").strip()
-        if cleaned_gloss.startswith("[Ch.") and "\n" in cleaned_gloss:
+        if re.match(r"^\[ch\.", cleaned_gloss, re.I) and "\n" in cleaned_gloss:
             cleaned_gloss = cleaned_gloss.split("\n", 1)[1].strip()
-        cleaned_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", cleaned_gloss).strip()
+        cleaned_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", cleaned_gloss, flags=re.I).strip()
         cleaned_gloss = cleaned_gloss.strip("\"'“”")
         cleaned_gloss = _clean_boilerplate_gloss(cleaned_gloss, selection)
-        if not _is_coherent_gloss(cleaned_gloss, quote_for_prompt):
+        if not _is_coherent_gloss(cleaned_gloss, quote_for_prompt) or _gloss_repeats_quote(cleaned_gloss, quote_for_prompt):
             cleaned_gloss = _synthesize_grounded_gloss(selection, quote_for_prompt, chosen_chunk, neighbors, generate_fn, model)
+        if cleaned_gloss:
+            if re.match(r"^\[ch\.", cleaned_gloss, re.I) and "\n" in cleaned_gloss:
+                cleaned_gloss = cleaned_gloss.split("\n", 1)[1].strip()
+            cleaned_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", cleaned_gloss, flags=re.I).strip()
+            cleaned_gloss = cleaned_gloss.strip("\"'“”")
 
         chapter = str(chosen_chunk.get("chapter", ""))
         citations = [{

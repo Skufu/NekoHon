@@ -409,9 +409,14 @@ def compute_dynamic_followups(
 
     # a) Extract candidate technical terms / concepts from chunk and neighbors[0]
     raw_terms = []
+    skip_paren_markers = (
+        " or ", " and ", "otherwise", "e.g", "i.e", "chapter", "figure", "section", "top", "bottom", "left", "right"
+    )
     # Parenthetical acronyms or terms: (IOPS), (Apache Beam), etc.
     for m in re.finditer(r"\(([A-Za-z0-9 \t_-]{2,30})\)", body_text_no_heading):
-        raw_terms.append(m.group(1))
+        val = m.group(1)
+        if not any(sm in val.lower() for sm in skip_paren_markers):
+            raw_terms.append(val)
 
     # Capitalized multi-word technical terms / frameworks (2-3 words):
     for m in re.finditer(r"\b([A-Z][A-Za-z0-9]+(?:[ \t]+(?:and[ \t]+)?[A-Z][A-Za-z0-9]+){1,2})\b", body_text_no_heading):
@@ -442,15 +447,17 @@ def compute_dynamic_followups(
             if 1 <= len(w) <= 3:
                 raw_terms.append(l_strip)
 
-    # Neighbor terms (first neighbor in same chapter):
-    if neighbors:
+    # Neighbor terms ONLY when the current chunk does not yield candidate terms:
+    if not raw_terms and neighbors:
         for n in neighbors:
             if n and str(n.get("chapter")) == str(chunk.get("chapter")):
                 n_text = n.get("text") or ""
                 n_head = (n.get("heading") or "").strip()
                 n_body = _body_no_heading(n_text, n_head)
                 for m in re.finditer(r"\(([A-Za-z0-9 \t_-]{2,30})\)", n_body):
-                    raw_terms.append(m.group(1))
+                    val = m.group(1)
+                    if not any(sm in val.lower() for sm in skip_paren_markers) and not any(w.lower() in ("or", "and", "otherwise", "etc") for w in val.split()):
+                        raw_terms.append(val)
                 for m in re.finditer(r"\b([A-Z][A-Za-z0-9]+(?:[ \t]+[A-Z][A-Za-z0-9]+){1,2})\b", n_body):
                     raw_terms.append(m.group(1))
                 break
@@ -482,13 +489,16 @@ def compute_dynamic_followups(
         "in", "on", "at", "for", "to", "with", "by", "the", "a", "an", "this",
         "that", "these", "those", "we", "our", "you", "here", "as", "such",
         "unlike", "against", "between",
+        "while", "although", "though", "when", "since", "if", "where", "because",
+        "after", "before", "during", "despite", "given", "unless", "until", "once",
+        "whether", "whereas",
     })
     for t in raw_terms:
         t_clean = re.sub(r"\s+", " ", t).strip(" \t\r\n—–-,:;\"'“”()[]")
         t_words = t_clean.split()
         if not (2 <= len(t_clean) <= 28) or len(t_words) > 4:
             continue
-        if t_words and t_words[0].lower() in DISCARD_OPENERS:
+        if t_words and (t_words[0].lower() in DISCARD_OPENERS or (len(t_words) == 1 and t_words[0].lower() in DROP_OPENERS)):
             continue
         while t_words and t_words[0].lower() in DROP_OPENERS and len(t_words) > 1:
             t_clean = re.sub(r"\s+", " ", " ".join(t_words[1:])).strip(" \t\r\n—–-,:;\"'“”()[]")
@@ -508,6 +518,24 @@ def compute_dynamic_followups(
             continue
         seen_terms.add(t_low)
         candidate_terms.append(t_clean)
+
+    deduped_candidates = []
+    for t in candidate_terms:
+        if any(t.lower() != other.lower() and t.lower() in other.lower() for other in candidate_terms):
+            continue
+        deduped_candidates.append(t)
+    candidate_terms = deduped_candidates
+
+    TRADEOFF_SIGNALS = (
+        "trade-off", "trade-offs", "tradeoffs", "cost", "expensive", "pricing",
+        "pay-as-you-go", "limitation", "limitations", "downside", "downsides",
+        "bottleneck", "bottlenecks", "overhead", "latency", "throughput",
+        "versus", "vs", "drawback", "drawbacks", "compromise", "sacrifice",
+    )
+    has_tradeoff_signal = any(w in chunk_low for w in TRADEOFF_SIGNALS) or any(
+        any(w in (n.get("text") or "").lower() for w in TRADEOFF_SIGNALS)
+        for n in (neighbors or []) if n and isinstance(n, dict)
+    )
 
     # Slot 1: Mechanism / Reason / Specifics in the passage
     slot1 = ""
@@ -594,32 +622,18 @@ def compute_dynamic_followups(
         slot2 = "What manual process does this replace?"
     else:
         for t2 in candidate_terms:
-            if t2 != used_term:
+            if t2.lower() != used_term.lower() and t2.lower() not in used_term.lower() and used_term.lower() not in t2.lower():
                 if _has_contrast_in_passage(t2, chunk_text):
                     q_cand = f"How does this compare to {t2}?"
                     if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
                         slot2 = q_cand
                         used_term = t2
                         break
-                elif _is_example_or_tool_mention(t2, chunk_text):
-                    q_cand = f"What is the role of {t2}?"
-                    if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
-                        slot2 = q_cand
-                        used_term = t2
-                        break
-                    q_cand = f"How is {t2} used here?"
-                    if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
-                        slot2 = q_cand
-                        used_term = t2
-                        break
-                else:
-                    q_cand = f"What is the role of {t2}?"
-                    if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
-                        slot2 = q_cand
-                        used_term = t2
-                        break
         if not slot2:
-            slot2 = "What problem does this solve?"
+            if has_tradeoff_signal:
+                slot2 = "What are the key trade-offs?"
+            else:
+                slot2 = "What problem does this solve?"
 
     # Slot 3: Concrete Example / Next Concept in Section
     slot3 = ""
@@ -673,14 +687,17 @@ def compute_dynamic_followups(
             seen_q.add(q_clean.lower())
             followups.append(q_clean)
 
-    FALLBACKS = [
-        "What are the key trade-offs?",
+    fallbacks = []
+    if has_tradeoff_signal:
+        fallbacks.append("What are the key trade-offs?")
+    fallbacks.extend([
         "What problem does this solve?",
+        "What is the main takeaway?",
         "What example do the authors give?",
         "Explain this in simpler words",
         "Why does this matter?",
-    ]
-    for fb in FALLBACKS:
+    ])
+    for fb in fallbacks:
         if len(followups) >= 3:
             break
         if fb.lower() not in seen_q and not _is_redundant_followup(fb, clean_q, clean_sel):

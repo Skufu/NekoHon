@@ -1,7 +1,7 @@
 [
   {
     "question": "What does CRUD stand for?",
-    "seconds": 1.31,
+    "seconds": 1.66,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -19,25 +19,25 @@
       "refused": false,
       "followups": [
         "What is the role of RESTful HTTP?",
-        "What problem does this solve?",
+        "What are the key trade-offs?",
         "What example do the authors give?"
       ]
     }
   },
   {
     "question": "What is data ingestion?",
-    "seconds": 0.78,
+    "seconds": 1.7,
     "pass": true,
     "notes": [
       "pinned chunk cited"
     ],
     "response": {
-      "answer": "[Ch. 7] \"Data ingestion implies data movement from\"\nData ingestion means moving data from one place to another.",
+      "answer": "[Ch. 7] \"Data ingestion implies data movement from source systems into storage in the data engineering lifecycle, with ingestion as an intermediate step (Figure 7-2).\"\nData ingestion moves raw records from sources into persistent storage buffers or databases.",
       "citations": [
         {
           "chunk_id": "ch07-002",
           "chapter": "7",
-          "quote": "Data ingestion implies data movement from"
+          "quote": "Data ingestion implies data movement from source systems into storage in the data engineering lifecycle, with ingestion as an intermediate step (Figure 7-2)."
         }
       ],
       "figures": [
@@ -58,7 +58,7 @@
   },
   {
     "question": "What is a watermark?",
-    "seconds": 1.12,
+    "seconds": 1.45,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -90,7 +90,7 @@
   },
   {
     "question": "When is an insert-only table useful?",
-    "seconds": 0.68,
+    "seconds": 0.96,
     "pass": true,
     "notes": [
       "pinned chunk shown, not cited (cites ['ch08-107'])"
@@ -115,13 +115,13 @@
   },
   {
     "question": "Where does storage sit in the data engineering lifecycle?",
-    "seconds": 0.98,
+    "seconds": 1.32,
     "pass": true,
     "notes": [
       "pinned chunk cited"
     ],
     "response": {
-      "answer": "[Ch. 6] \"storage is the cornerstone of the data engineering lifecycle (figure 6-1) and underlies its major stages\u2014ingestion, transformation, and serving\"\nStorage is the main foundation for the entire data process.",
+      "answer": "[Ch. 6] \"storage is the cornerstone of the data engineering lifecycle (figure 6-1) and underlies its major stages\u2014ingestion, transformation, and serving\"\nStorage is the base for the whole data process.",
       "citations": [
         {
           "chunk_id": "ch06-001",
@@ -140,14 +140,14 @@
       "refused": false,
       "followups": [
         "What are the main stages?",
-        "What problem does this solve?",
+        "What are the key trade-offs?",
         "What are the main use cases?"
       ]
     }
   },
   {
     "question": "What do source systems provide to the rest of the lifecycle?",
-    "seconds": 0.84,
+    "seconds": 1.1,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -165,14 +165,14 @@
       "refused": false,
       "followups": [
         "What is the role of application database?",
-        "What is the role of IoT swarms?",
+        "What are the key trade-offs?",
         "What example do the authors give?"
       ]
     }
   },
   {
     "question": "How does data architecture relate to enterprise architecture?",
-    "seconds": 0.93,
+    "seconds": 1.17,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -197,13 +197,13 @@
   },
   {
     "question": "What is the difference between batch and streaming?",
-    "seconds": 0.92,
+    "seconds": 1.1,
     "pass": true,
     "notes": [
       "pinned chunk cited"
     ],
     "response": {
-      "answer": "[Ch. 2] \"Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML.\"\nThe book says you pick between batch or streaming based on your specific need and how fast you want the data to arrive.",
+      "answer": "[Ch. 2] \"Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML.\"\nBatch processing is still used a lot for getting data ready for analysis.",
       "citations": [
         {
           "chunk_id": "ch02-019",
@@ -214,21 +214,21 @@
       "figures": [],
       "refused": false,
       "followups": [
-        "How does or near real-time relate to this?",
-        "What problem does this solve?",
+        "How does Batch versus streaming work?",
+        "What are the key trade-offs?",
         "What are the main use cases?"
       ]
     }
   },
   {
     "question": "What happens to data after it is extracted in ETL?",
-    "seconds": 0.79,
+    "seconds": 1.0,
     "pass": true,
     "notes": [
       "pinned chunk shown, not cited (cites ['ch08-122'])"
     ],
     "response": {
-      "answer": "[Ch. 8] the passages do not mention reverse etl.\nDerived data must be kept consistent across all reporting scripts to maintain reliability, highlighting the importance of continuous integration and validation.",
+      "answer": "[Ch. 8] the passages do not mention reverse etl.\nDerived data like attribution metrics relies heavily on maintaining consistent records across all reporting systems.",
       "citations": [
         {
           "chunk_id": "ch08-122",
@@ -240,7 +240,7 @@
       "refused": false,
       "followups": [
         "What manual process does this replace?",
-        "What is the role of Traditional ETL?",
+        "What are the key trade-offs?",
         "What example do the authors give?"
       ]
     }
@@ -250,36 +250,36 @@
     "seconds": 0.95,
     "pass": true,
     "notes": [
-      "pinned chunk shown, not cited (cites ['ch02-025'])"
+      "pinned chunk cited"
     ],
     "response": {
-      "answer": "[Ch. 2] \"After you\u2019ve ingested and stored data, you need to do something with it. The next stage of the data engineering lifecycle is transformation, meaning data needs to be changed from its original form into something useful for downstream use cases. Without proper transformations, data will sit inert, and not be in a useful form for reports, analysis, or ML. Typically, the transformation stage is where data begins to create value for downstream user consumption.\"\nTransformations change raw data into a helpful format for people to use.",
+      "answer": "[Ch. 2] \"Logically, we treat transformation as a standalone area of the data engineering lifecycle, but the realities of the lifecycle can be much more complicated in practice. Transformation is often entangled in other phases of the lifecycle. Typically, data is transformed in source systems or in flight during ingestion. For example, a source system may add an event timestamp to a record before forwarding it to an ingestion process. Or a record within a streaming pipeline may be \u201cenriched\u201d with additional fields and calculations before it\u2019s sent to a data warehouse. Transformations are ubiquitous in various parts of the lifecycle. Data preparation, data wrangling, and cleaning\u2014these transformative tasks add value for end consumers of data.\"\nTransformations happen everywhere in data work.",
       "citations": [
         {
-          "chunk_id": "ch02-025",
+          "chunk_id": "ch02-027",
           "chapter": "2",
-          "quote": "After you\u2019ve ingested and stored data, you need to do something with it. The next stage of the data engineering lifecycle is transformation, meaning data needs to be changed from its original form into something useful for downstream use cases. Without proper transformations, data will sit inert, and not be in a useful form for reports, analysis, or ML. Typically, the transformation stage is where data begins to create value for downstream user consumption."
+          "quote": "Logically, we treat transformation as a standalone area of the data engineering lifecycle, but the realities of the lifecycle can be much more complicated in practice. Transformation is often entangled in other phases of the lifecycle. Typically, data is transformed in source systems or in flight during ingestion. For example, a source system may add an event timestamp to a record before forwarding it to an ingestion process. Or a record within a streaming pipeline may be \u201cenriched\u201d with additional fields and calculations before it\u2019s sent to a data warehouse. Transformations are ubiquitous in various parts of the lifecycle. Data preparation, data wrangling, and cleaning\u2014these transformative tasks add value for end consumers of data."
         }
       ],
       "figures": [],
       "refused": false,
       "followups": [
         "How does this work in practice?",
-        "What problem does this solve?",
-        "What are the main use cases?"
+        "What are the key trade-offs?",
+        "What example do the authors give?"
       ]
     }
   },
   {
     "question": "What does CRU stand for?",
-    "seconds": 1.68,
+    "seconds": 2.0,
     "pass": true,
     "notes": [
       "pinned chunk shown, not cited (cites ['ch05-029'])",
       "phrase not in answer: 'stands for create, read, update, and delete'"
     ],
     "response": {
-      "answer": "[Ch. 5] \"Every type of database handles CRUD operations differently.\"\nDatabases vary in how they handle relational integrity and consistency across transactions.\nRead as: \"What does crud stand for?\"",
+      "answer": "[Ch. 5] \"Every type of database handles CRUD operations differently.\"\nDatabases vary in how they handle atomic database operations like insert, delete, and update due to their different design philosophies.\nRead as: \"What does crud stand for?\"",
       "citations": [
         {
           "chunk_id": "ch05-029",
@@ -298,7 +298,7 @@
   },
   {
     "question": "What happens to data after it is extracted in ET?",
-    "seconds": 1.2,
+    "seconds": 1.51,
     "pass": true,
     "notes": [
       "pinned chunk shown, not cited (cites ['ch08-120'])",
@@ -324,13 +324,13 @@
   },
   {
     "question": "what is a atermark?",
-    "seconds": 1.38,
+    "seconds": 1.59,
     "pass": true,
     "notes": [
       "pinned chunk cited"
     ],
     "response": {
-      "answer": "[Ch. 8] \"a watermark (figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late\"\nA watermark guide lines are used to decide if data is early or late. figures.\nRead as: \"what is a watermark?\"",
+      "answer": "[Ch. 8] \"a watermark (figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late\"\nA watermark does not arrive before the data is considered late.\nRead as: \"what is a watermark?\"",
       "citations": [
         {
           "chunk_id": "ch08-039",
@@ -356,7 +356,32 @@
   },
   {
     "question": "what does data engineers need to be pragmatic about",
-    "seconds": 0.71,
+    "seconds": 0.94,
+    "pass": true,
+    "notes": [
+      "pinned chunk cited"
+    ],
+    "response": {
+      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"\nData engineers should be practical about how easily their systems can change.",
+      "citations": [
+        {
+          "chunk_id": "ch04-012",
+          "chapter": "4",
+          "quote": "Data engineers need to be pragmatic about flexibility"
+        }
+      ],
+      "figures": [],
+      "refused": false,
+      "followups": [
+        "How does Total Cost of Ownership work?",
+        "What are the cost trade-offs?",
+        "Explain this in simpler words"
+      ]
+    }
+  },
+  {
+    "question": "Data engineers need to be pragmatic about?",
+    "seconds": 0.93,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -380,33 +405,8 @@
     }
   },
   {
-    "question": "Data engineers need to be pragmatic about?",
-    "seconds": 0.69,
-    "pass": true,
-    "notes": [
-      "pinned chunk cited"
-    ],
-    "response": {
-      "answer": "[Ch. 4] \"data engineers need to be pragmatic about flexibility\"\nData engineers must be practical about how easily their systems can change.",
-      "citations": [
-        {
-          "chunk_id": "ch04-012",
-          "chapter": "4",
-          "quote": "data engineers need to be pragmatic about flexibility"
-        }
-      ],
-      "figures": [],
-      "refused": false,
-      "followups": [
-        "How does Total Cost of Ownership work?",
-        "What are the cost trade-offs?",
-        "Explain this in simpler words"
-      ]
-    }
-  },
-  {
     "question": "MAD data landscape",
-    "seconds": 1.28,
+    "seconds": 1.62,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -431,14 +431,14 @@
       "refused": false,
       "followups": [
         "How does Matt Turck relate to this?",
-        "What problem does this solve?",
+        "What are the key trade-offs?",
         "What example do the authors give?"
       ]
     }
   },
   {
     "question": "multicloud methodology disadvantages",
-    "seconds": 0.83,
+    "seconds": 1.05,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -463,7 +463,7 @@
   },
   {
     "question": "what is MAD data landscape",
-    "seconds": 1.23,
+    "seconds": 1.52,
     "pass": true,
     "notes": [
       "pinned chunk cited"
@@ -488,20 +488,20 @@
       "refused": false,
       "followups": [
         "How does Matt Turck relate to this?",
-        "What problem does this solve?",
+        "What are the key trade-offs?",
         "What example do the authors give?"
       ]
     }
   },
   {
     "question": "what is data mesh",
-    "seconds": 1.23,
+    "seconds": 1.59,
     "pass": true,
     "notes": [
       "pinned chunk cited"
     ],
     "response": {
-      "answer": "[Ch. 3] \"the data mesh is a recent\"\nBecause the data mesh has captured much recent attention, you should be aware of it.",
+      "answer": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and \u201cthe great divide of data,\u201d wherein the landscape is divided between operational data and analytical data.24 The data mesh attempts to invert the challenges of centralized data architecture, taking the concepts of domain-driven design (commonly used in software architectures) and applying them to data architecture.\"\nBecause the data mesh has captured much recent attention, you should be aware of it.",
       "citations": [
         {
           "chunk_id": "ch03-099",
@@ -520,45 +520,45 @@
       "refused": false,
       "followups": [
         "How does Zhamak Dehghani relate to this?",
-        "What is the role of Bill Inmon?",
+        "What are the key trade-offs?",
         "What example do the authors give?"
       ]
     }
   },
   {
     "question": "Codd introduced the idea of what",
-    "seconds": 0.8,
+    "seconds": 1.09,
     "pass": true,
     "notes": [
       "pinned chunk cited"
     ],
     "response": {
-      "answer": "[Ch. 8] \"Codd introduced the idea of normal forms.\"\nCodd defined the fundamental relational integrity structure through strict normal form enforcement.",
+      "answer": "[Ch. 8] \"codd introduced the idea of normal forms\"\nCodd created a set of rules for organizing database tables to avoid repeating data. eliminated duplicate entries.",
       "citations": [
         {
           "chunk_id": "ch08-051",
           "chapter": "8",
-          "quote": "Codd introduced the idea of normal forms."
+          "quote": "codd introduced the idea of normal forms"
         }
       ],
       "figures": [],
       "refused": false,
       "followups": [
         "How does DRY relate to this?",
-        "What is the role of Edgar Codd?",
+        "What problem does this solve?",
         "Explain this in simpler words"
       ]
     }
   },
   {
     "question": "what is an endpoint in streaming ingestion",
-    "seconds": 1.12,
+    "seconds": 1.42,
     "pass": true,
     "notes": [
       "pinned chunk cited"
     ],
     "response": {
-      "answer": "[Ch. 2] \"with streaming ingestion, data bypasses a backend database and is pushed directly to an endpoint, typically with data buffered by an event-streaming platform\"\nStreaming sends data directly to an endpoint like an event-streaming tool without first storing it in a database.",
+      "answer": "[Ch. 2] \"with streaming ingestion, data bypasses a backend database and is pushed directly to an endpoint, typically with data buffered by an event-streaming platform\"\nStreaming sends data straight to an endpoint like an event-streaming tool without first storing it in a database.",
       "citations": [
         {
           "chunk_id": "ch02-024",
@@ -569,15 +569,15 @@
       "figures": [],
       "refused": false,
       "followups": [
-        "How does or near real-time relate to this?",
-        "What problem does this solve?",
+        "How does Push versus pull work?",
+        "What are the key trade-offs?",
         "What example do the authors give?"
       ]
     }
   },
   {
     "question": "What is the capital of France?",
-    "seconds": 0.65,
+    "seconds": 0.89,
     "pass": true,
     "notes": [],
     "response": {
