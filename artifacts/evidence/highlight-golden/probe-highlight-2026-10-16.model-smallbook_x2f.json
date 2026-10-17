@@ -1,0 +1,277 @@
+{
+ "model": "smallbook_x2f",
+ "summary": {
+  "rows": 24,
+  "full_pass": 13,
+  "not_refused_and_pin_cited": 15,
+  "quote_verbatim_in_pin": 15,
+  "refused": 3,
+  "errors": 0
+ },
+ "rows": [
+  {
+   "refused": false,
+   "pin_cited": false,
+   "quote_verbatim_in_pin": false,
+   "word_in_quoted_span": false,
+   "answer": "[Ch. 4] \"Build versus buy is an age-old debate in technology. The argument for building is that you have end-to-end control over the solution and are not at the mercy of a vendor or open source community. The argument supporting buying comes down to resource constraints and expertise; do you have the expertise to build a better solution than something already available? Either decision comes down ",
+   "error": null,
+   "seconds": 6.7,
+   "id": "ch04-051:great",
+   "asked": "What is great in Build Versus Buy?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": false,
+   "answer": "[Ch. 9] \"Trust is the root consideration in serving data; end users need to trust the data they’re receiving\"\nTrust comes first when providing data; users must trust the data they receive.",
+   "error": null,
+   "seconds": 0.8,
+   "id": "ch09-003:potential",
+   "asked": "What is potential in Trust?"
+  },
+  {
+   "refused": false,
+   "pin_cited": false,
+   "quote_verbatim_in_pin": false,
+   "word_in_quoted_span": false,
+   "answer": "[Ch. 8] \"Normalization is a database data modeling practice that enforces strict control over the relationships of tables and columns within a database\"\nNormalization controls how tables and columns are related in a database.",
+   "error": null,
+   "seconds": 1.0,
+   "id": "ch08-052:requirements",
+   "asked": "What is requirements in Normalization?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 8] \"A database commit is a change within a database, such as creating, updating, or deleting a record, table, or other database objects. Many databases support transactions—i.e., a notion of committing several operations simultaneously in a way that maintains a consistent state. Please note that the term transaction is somewhat overloaded; see Chapter 5. The purpose of a transaction is to kee",
+   "error": null,
+   "seconds": 0.8,
+   "id": "ch08-020:creating",
+   "asked": "What is creating in Know how your database handles commits?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 7] \"These days, if you’re considering writing a data ingestion connector to a database or API, ask yourself: has this already been created? Furthermore, is there a service that will manage the nitty-gritty details of this connection for me? “APIs” mentions the popularity of managed data connector platforms and frameworks. These tools aim to provide a standard set of connectors available out o",
+   "error": null,
+   "seconds": 1.1,
+   "id": "ch07-061:set",
+   "asked": "What is set in Managed Data Connectors?"
+  },
+  {
+   "refused": false,
+   "pin_cited": false,
+   "quote_verbatim_in_pin": false,
+   "word_in_quoted_span": false,
+   "answer": "[Ch. 4] \"Open source software (OSS) is a software distribution model in which software, and the underlying codebase, is made available for general use, typically under specific licensing terms. Often OSS is created and maintained by a distributed team of collaborators. OSS is free to use, change, and distribute most of the time, but with specific caveats. For example, many licenses require that th",
+   "error": null,
+   "seconds": 0.9,
+   "id": "ch02-085:source",
+   "asked": "What is source in Development of open source frameworks?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 7] \"JDBC and ODBC are used extensively for data ingestion from relational databases, returning to the general concept of direct database connections. Various enhancements are used to accelerate data ingestion. Many data frameworks can parallelize several simultaneous connections and partition queries to pull data in parallel. On the other hand, nothing is free; using parallel connections also",
+   "error": null,
+   "seconds": 0.9,
+   "id": "ch07-049:load",
+   "asked": "What is load in Direct Database Connection?"
+  },
+  {
+   "refused": true,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": false,
+   "answer": "Not in this book.",
+   "error": null,
+   "seconds": 0.6,
+   "id": "ch08-119:node",
+   "asked": "What is node in Example: Data transformation in Spark?"
+  },
+  {
+   "refused": false,
+   "pin_cited": false,
+   "quote_verbatim_in_pin": false,
+   "word_in_quoted_span": false,
+   "answer": "[Ch. 8] \"Streaming queries run dynamically to present a current view of data, as discussed previously\"\nQueries are made to show the latest data.",
+   "error": null,
+   "seconds": 0.7,
+   "id": "ch08-029:advantage",
+   "asked": "What is advantage in Queries on Streaming Data?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 6] \"Warm data is accessed semi-regularly, say, once per month\"\nWarm data is accessed about once a month.",
+   "error": null,
+   "seconds": 0.8,
+   "id": "ch06-104:accessed",
+   "asked": "What is accessed in Warm data?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 2] \"There are many things to consider when assessing source systems, including how the system handles ingestion, state, and data generation. The following is a starting set of evaluation questions of source systems that data engineers must consider:\"\nState refers to the condition or status of data at a particular time.",
+   "error": null,
+   "seconds": 0.8,
+   "id": "ch02-007:state",
+   "asked": "What is state in Evaluating source systems: Key engineering considerations?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 6] \"Data versioning can help with error recovery when processes fail, and data becomes corrupted. Versioning is also beneficial for tracking the history of datasets used to build models. Just as code version control allows developers to track down commits that cause bugs, data version control can aid ML engineers in tracking changes that lead to model performance degradation\"\nData versioning ",
+   "error": null,
+   "seconds": 1.2,
+   "id": "ch06-121:performance",
+   "asked": "What is performance in Data versioning in object storage?"
+  },
+  {
+   "refused": true,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": false,
+   "answer": "Not in this book.",
+   "error": null,
+   "seconds": 0.8,
+   "id": "ch05-086:monolithic",
+   "asked": "What is monolithic in Additional Resources?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 8] \"Transformations are where data starts providing utility to downstream stakeholders. Your downstream stakeholders include many people, including data analysts, data scientists, ML engineers, and “the business.” Collaborate with them to ensure the data model and transformations you provide are performant and useful. In terms of performance, queries should execute as quickly as possible in t",
+   "error": null,
+   "seconds": 0.7,
+   "id": "ch08-147:quickly",
+   "asked": "What is quickly in Downstream Stakeholders?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": false,
+   "answer": "[Ch. 1] \"Create automation for the seamless introduction and usage of new data\"\nCreate automation to smoothly add new data.",
+   "error": null,
+   "seconds": 1.0,
+   "id": "ch01-031:stage",
+   "asked": "What is stage in Stage 3: Leading with data?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 6] \"Privacy regulations have significantly impacted storage system design\"\nPrivacy laws have changed how data is stored.",
+   "error": null,
+   "seconds": 0.9,
+   "id": "ch06-122:design",
+   "asked": "What is design in Privacy?"
+  },
+  {
+   "refused": false,
+   "pin_cited": false,
+   "quote_verbatim_in_pin": false,
+   "word_in_quoted_span": false,
+   "answer": "[Ch. 7] \"we note that “real-time” ingestion patterns are becoming increasingly common. we put “real-time” in quotation marks because no ingestion system is genuinely real-time. any database, queue or pipeline has inherent latency in delivering data to a target system. it is more accurate to speak of near real-time, but we often use real-time for brevity. the near real-time pattern generally does a",
+   "error": null,
+   "seconds": 2.6,
+   "id": "ch05-017:time",
+   "asked": "What is time in Log latency: Batch or real time?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 1] \"A chief technology officer (CTO) is similar to a CIO but faces outward. A CTO owns the key technological strategy and architectures for external-facing applications, such as mobile, web apps, and IoT—all critical data sources for data engineers\"\nA CTO focuses on external tech like mobile and web apps, important for data engineers.",
+   "error": null,
+   "seconds": 2.0,
+   "id": "ch01-065:data",
+   "asked": "What is data in Chief technology officer?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 8] \"In general, materialized views do not allow for composition—that is, a materialized view cannot select from another materialized view. However, we’ve recently seen the emergence of tools that support this capability. For example, Databricks has introduced the notion of live tables. Each table is updated as data arrives from sources. Data flows down to subsequent tables asynchronously.\"\nTo",
+   "error": null,
+   "seconds": 1.5,
+   "id": "ch08-132:tools",
+   "asked": "What is tools in Composable materialized views?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 6] \"The undercurrents for storage are significant because storage is a critical hub for all stages of the data engineering lifecycle. Unlike other undercurrents for which data might be in motion (ingestion) or queried and transformed, the undercurrents for storage differ because storage is so ubiquitous.\"\nStorage is important for all parts of data management.",
+   "error": null,
+   "seconds": 0.8,
+   "id": "ch06-117:queried",
+   "asked": "What is queried in Undercurrents?"
+  },
+  {
+   "refused": false,
+   "pin_cited": false,
+   "quote_verbatim_in_pin": false,
+   "word_in_quoted_span": false,
+   "answer": "[Ch. 9] \"A dashboard concisely shows decision makers how an organization is performing against a handful of core metrics, such as sales and customer retention. These core metrics are presented as visualizations (e.g., charts or heatmaps), summary statistics, or even a single number. This is similar to a car dashboard, which gives you a single readout of the critical things you need to know while d",
+   "error": null,
+   "seconds": 2.0,
+   "id": "ch09-021:dashboards",
+   "asked": "What is dashboards in Business Analytics?"
+  },
+  {
+   "refused": true,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": false,
+   "answer": "Not in this book.",
+   "error": null,
+   "seconds": 0.5,
+   "id": "ch03-108:data",
+   "asked": "What is data in Additional Resources?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 3] \"TOGAF is The Open Group Architecture Framework, a standard of The Open Group. It’s touted as the most widely used architecture framework today. Here’s the TOGAF definition:1\"\nIt is said to be the most widely used architecture framework today.",
+   "error": null,
+   "seconds": 0.8,
+   "id": "ch03-004:widely",
+   "asked": "What is widely in TOGAF’s definition?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 6] \"You’ll use strong consistency when you can tolerate higher query latency and require correct data every time you read from the database.\"\nYou’ll use strong consistency when you can tolerate higher query latency and require correct data every time you read from the database.",
+   "error": null,
+   "seconds": 1.0,
+   "id": "ch06-025:time",
+   "asked": "What is time in Eventual Versus Strong Consistency?"
+  }
+ ]
+}

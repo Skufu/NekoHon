@@ -2,7 +2,7 @@
 
 import unittest
 
-from verify_index import audit
+from verify_index import audit, exit_code
 
 
 def clean_index():
@@ -47,17 +47,22 @@ class AuditTests(unittest.TestCase):
         report = audit(index)
         self.assertEqual(report["dim_drift"], ["chunk c1-002 (3 wide)"])
 
-    def test_a_missing_vector_is_listed_not_an_error(self):
+    def test_a_missing_vector_is_listed_and_exits_dirty(self):
         index = clean_index()
         index["chunks"][0].pop("embedding")
         report = audit(index)
         self.assertEqual(report["missing"], ["chunk c1-001"])
+        self.assertEqual(exit_code(report), 1)
+
+    def test_a_clean_report_exits_0(self):
+        self.assertEqual(exit_code(audit(clean_index())), 0)
 
     def test_vectors_without_declared_dims_are_flagged(self):
         index = clean_index()
         index.pop("embedding_dims")
         report = audit(index)
         self.assertTrue(report["no_declared_dims"])
+        self.assertEqual(exit_code(report), 1)
 
 
 if __name__ == "__main__":

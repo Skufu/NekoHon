@@ -1,0 +1,40 @@
+# answer-quality ranking (method v2: checkables + voted bits) — owner-sample-m2b — 27 judged | 0 skipped — judge openai:muse-spark-1.3-contributor
+# layer 1 checkables: refusal_ok / gold_cited / key_fact_present / quote_ok — deterministic; layer 2 bits voted 3x, majority (A answers, G grounded, F clean form, R no-reask)
+# defect derived from the first failed check, not asked of the judge
+# rating: agreement 2/3 | bads flagged 1/2
+# persona_rating: agreement 20/24 | bads flagged 3/3
+# checker_rating: agreement 19/24 | bads flagged 4/4
+# UNVALIDATED against human labels — a triage list, not a score.
+
+rank | id | rated | defect | refusal_ok | gold | key | quote | A G F R | question
+   1 |  11 | mixed | invented-claim | True       | Y | Y | Y | yes no yes no | Location
+     |     | pin: pin: the Location card gold is ch07-046; sense-of-term judged by bits
+   2 |  13 | bad   | false-refusal  | False      | - | N | - | - - - -     | ddr4 vs ddr5
+     |     | pin: pin: book has DDR5 (ch06-011); the 2026-10-14 record answered this — refusal is a false one
+   3 |  15 | bad   | false-refusal  | False      | - | N | - | - - - -     | why's kafka so popular?
+     |     | pin: pin: book has Kafka material (ch03-086); refusal is a false one (7B ceiling on record)
+   4 |   7 | mixed | invented-claim | True       | Y | Y | N | yes yes yes yes | data science vs data engineering
+   5 |   1 | mixed | wrong-subject  | True       | Y | Y | Y | no yes yes yes | Snowflake
+   6 |  10 | mixed | wrong-subject  | True       | Y | Y | Y | no yes yes yes | how does micro-batch differ from true stream
+   7 |  12 | good  | incomplete     | True       | Y | Y | Y | yes yes yes yes | DE Lifecycle
+   8 |  14 | mixed | incomplete     | True       | Y | Y | Y | yes yes yes yes | lambda vs kappa
+   9 |  19 | mixed | incomplete     | True       | Y | Y | Y | yes yes yes yes | MAD data landscape
+  10 |   2 | good  | incomplete     | True       | Y | Y | Y | yes yes yes yes | micro-partitioning
+  11 |  24 | bad   | wrong-subject  | True       | Y | N | Y | no yes yes yes | what is the difference between column-orient
+  12 |  26 | mixed | incomplete     | True       | Y | N | Y | yes yes yes yes | What are the following factors to consider w
+  13 |  27 | bad   | incomplete     | True       | Y | Y | Y | yes yes yes yes | Monolith Versus Modular
+  14 |   3 | mixed | wrong-subject  | True       | Y | Y | Y | no yes yes yes | OLAP data architecture
+  15 |   5 | mixed | format-drift   | True       | Y | Y | - | yes yes no yes | Database
+  16 |   8 | mixed | wrong-subject  | True       | Y | Y | Y | no yes yes yes | schema on read vs schema on write
+  17 |   9 | good  | incomplete     | True       | Y | Y | Y | yes yes yes yes | push vs pull ingestion
+  18 |  16 | good  | none           | True       | Y | Y | Y | yes yes yes no | What does CRUD stand for?
+  19 |  17 | good  | none           | True       | Y | Y | Y | yes yes yes no | What is data ingestion?
+  20 |  18 | good  | none           | True       | Y | Y | Y | yes yes yes no | multicloud methodology disadvantages
+  21 |  20 | good  | none           | True       | - | - | - | - - - -     | What is the capital of France?
+  22 |  21 | mixed | none           | True       | Y | Y | Y | yes yes yes no | what is a atermark?
+  23 |  22 | good  | none           | True       | Y | Y | Y | yes yes yes no | cdc
+  24 |  23 | good  | none           | True       | Y | Y | Y | yes yes yes no | what's the deal with time series
+  25 |  25 | bad   | none           | True       | Y | Y | Y | yes yes yes no | Dataa analysts seek to undertstand what busi
+  26 |   4 | good  | none           | True       | - | - | - | - - - -     | Data
+     |     | pin: pin: plain 'Data' is not defined in the book; refusal correct (persona agrees; owner may flip)
+  27 |   6 | good  | none           | True       | Y | Y | Y | yes yes yes no | what is data engineering

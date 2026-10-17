@@ -73,7 +73,10 @@ class IngestTests(unittest.TestCase):
             figures = tmp / "figures"
             _write_epub(epub)
             index = ingest_epub(epub, figures, write_images=True)
-            image_written = (figures / "fig-7-3.png").is_file()
+            # Keyed by figure id, not the zip basename, so two chapters that
+            # both ship images/fig.png do not overwrite each other.
+            written_name = index["figures"][0]["file"]
+            image_written = written_name != "fig-7-3.png" and (figures / written_name).is_file()
 
         self.assertGreater(len(index["chunks"]), 0)
         tables = [c for c in index["chunks"] if "batch" in c["text"] and "stream" in c["text"]]

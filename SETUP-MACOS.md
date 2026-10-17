@@ -2,16 +2,16 @@
 
 The engine is Python standard library only — there is nothing to install for
 the app itself. Two external pieces: Python 3 and Ollama with two models —
-`nomic-embed-text` (pulled, 274 MB) and the answerer `smallbook_x2` (1.9 GB,
+`nomic-embed-text` (pulled, 274 MB) and the answerer `smallbook_x2d` (1.9 GB,
 imported from its GGUF — see step 2). Everything after that runs offline on
 localhost.
 
 ## 0. What you need
 
 - A Mac (Apple Silicon or Intel), 16 GB RAM recommended — the answer model
-  (`smallbook_x2`) is 1.9 GB on disk; the `qwen2.5:7b` teacher, needed only to
-  rebuild it or revert, is 4.7 GB. An 8 GB machine will swap. Check yours:
-  `sysctl -n hw.memsize` in bytes (17179869184 = 16 GB).
+  (`smallbook_x2d`) is 1.9 GB on disk; the `qwen2.5:7b` teacher (4.7 GB) is
+  the fresh-clone fallback and the rebuild/revert target. An 8 GB machine will
+  swap. Check yours: `sysctl -n hw.memsize` in bytes (17179869184 = 16 GB).
 - Python 3.9 or newer: `python3 -V`. The Xcode Command Line Tools `python3`
   qualifies; for parity with the dev box use `brew install python@3.12`.
 - The book (it is not in the repo — the EPUB is copyright). Get the file from
@@ -36,10 +36,14 @@ brew install --cask ollama        # or download from https://ollama.com/download
 ollama pull nomic-embed-text      # 274 MB — the embedder
 ollama list                       # must appear
 
-# The answerer `smallbook_x2` (1.9 GB) is imported, not pulled. It needs its
-# GGUF first, then: ollama create smallbook_x2 -f <Modelfile>
-# Recipe: artifacts/reports/smallbook_x2-rebuild-2026-10-14.md (`qwen2.5:7b`,
-# the 4.7 GB teacher, is only needed to rebuild it or to revert).
+# The default answerer `smallbook_x2d` (1.9 GB) is imported, not pulled. It
+# needs its GGUF first, then: ollama create smallbook_x2d -f <Modelfile>
+# Session / import record: artifacts/evidence/x2d-session-2026-10-14/,
+# artifacts/reports/x2d-plan-2026-10-14.md (x2d stays default after x2e:
+# artifacts/reports/x2e-verdict-2026-10-15.md).
+# Fresh clone without the GGUF: ollama pull qwen2.5:7b (4.7 GB) and launch
+# with ANSWER_MODEL=qwen2.5:7b (see step 5). Earlier x2 rebuild recipe (not
+# the current default): artifacts/reports/smallbook_x2-rebuild-2026-10-14.md.
 ```
 
 Native Ollama uses the Mac GPU (Metal). Warm answers take about a second;
@@ -73,12 +77,15 @@ python3 preflight.py   # should now say ready
 ## 5. Run it
 
 ```sh
-python3 server.py
+python3 server.py                 # if smallbook_x2d is imported
+# OR on a fresh clone with the teacher only:
+# ANSWER_MODEL=qwen2.5:7b python3 server.py
 ```
 
 Open <http://127.0.0.1:8000/> and ask "What is a watermark?" in mode `ask`.
 You should get a checked quote with a `[Ch. 8]` tag, one gloss line, and the
-Figure 8-8 image.
+Figure 8-8 image. (The Next.js reader in `web/` is separate — see
+`web/README.md`; engine on `:8000`, then `npm run dev` on `:3100`.)
 
 ## 6. Test it (what "testing" means here)
 
@@ -104,7 +111,9 @@ The eval harness (optional) needs the LLM judge, separate from the answer
 model. Local default (offline, keyless):
 
 ```sh
-ollama pull granite4.1:8b     # 5.3 GB, eval only
+ollama pull granite4.1:8b     # 5.3 GB, offline judge fallback (JUDGE_BACKEND=ollama)
+# The judge defaults to muse-spark-1.3-contributor over the OpenCode Go relay:
+# put its key in .judge-key, or prefix JUDGE_BACKEND=ollama for the local one.
 python3 artifacts/harnesses/eval.py --label v1
 ```
 
@@ -138,8 +147,9 @@ If you still want it, the engine is unchanged and just talks to the container:
 ```sh
 docker run -d --name ollama -p 127.0.0.1:11434:11434 -v ollama:/root/.ollama ollama/ollama
 docker exec -it ollama ollama pull nomic-embed-text
-# the answerer smallbook_x2 is imported from its GGUF, not pulled:
-# docker exec -it ollama ollama create smallbook_x2 -f <Modelfile>
+# the answerer smallbook_x2d is imported from its GGUF, not pulled:
+# docker exec -it ollama ollama create smallbook_x2d -f <Modelfile>
+# or: docker exec -it ollama ollama pull qwen2.5:7b  # fresh-clone fallback
 ```
 
 Expect CPU-speed answers. Native Ollama is the supported path.

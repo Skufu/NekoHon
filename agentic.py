@@ -1,9 +1,9 @@
 """Agentic retrieval prototype: three tools, the model picks the next step.
 
-Not wired into the server -- the four routes stay frozen. This is a prototype
-for a future `mode`; the evidence lives in `artifacts/reports/agentic-design.md`, the
-live probe in `artifacts/probes/probe-agentic.py`, and the offline tests in
-`tests/test_agentic.py`.
+Not imported by server.py. A measured multi-hop win is the bar for wiring
+this loop into a route. Follow-up chat is a different change and does not
+go through this file. Evidence: `artifacts/reports/agentic-design.md`,
+`artifacts/probes/probe-agentic.py`, `tests/test_agentic.py`.
 
 The loop:
 

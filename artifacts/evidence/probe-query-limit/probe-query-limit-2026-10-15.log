@@ -1,0 +1,28 @@
+# query-limit — smallbook_x2d — 20 invented queries
+# repaired = the reading became the searched question
+# hit is only set when a chunk was expected
+
+- [known-typo] "what is a atermark?" -> "what is a watermark?" | top ch08-039 0.817 | llm 0 | 0.53s HIT
+- [known-llm] "what is normilazation" -> "what is normalization" | top ch08-051 0.728 | llm 1 | 3.08s HIT
+- [known-llm] "what is data ingestoin" -> "what is data ingestion" | top ch07-002 0.818 | llm 1 | 0.45s HIT
+- [known-acronym] "What does CRU stand for?" -> "What does crud stand for?" | top ch05-029 0 | llm 0 | 0.46s MISS
+- [bare-swap] "watermrak" canon="What is watermrak?" -> "What is watermark?" | top ch08-039 0.587 | llm 0 | 0.55s HIT
+- [split-word] "wa termark" canon="What is wa termark?" -> "What is wa watermark?" | top ch08-039 0.69 | llm 0 | 0.6s HIT
+- [two-typos] "what is a watremark and a chekpoint" -> "what is a watermark and a checkpoint" | top ch08-039 0.747 | llm 0 | 0.59s HIT
+- [two-hard-typos] "normilazatoin of ingestoin" canon="What is normilazatoin of ingestoin?" -> "What is normalization of ingestion?" | top ch08-051 0.723 | llm 1 | 0.58s
+- [messy-clean-topic] "so like whats a watermark thing" canon="What is so like whats a watermark thing?" -> "What is a like whats a watermark thing?" | top ch02-046 0 | llm 1 | 0.63s MISS
+- [sentence-typos] "Dataa analysts seek to undertstand what business performance" -> "data analysts seek to understand what business performance" | top ch01-057 0.784 | llm 0 | 0.5s
+- [comparison-bare] "Monolith Versus Modular" canon="What is Monolith Versus Modular?" | top ch04-064 0.829 | llm 0 | 0.18s
+- [greeting] "hey" -> "they" | top preface01-016 0.602 | llm 0 | 0.43s
+- [garbage] "asdf qwer zxcv" canon="What is asdf qwer zxcv?" | top ch07-066 0.573 | llm 1 | 0.48s
+- [punct] "???" | top ch05-045 0.684 | llm 0 | 0.21s
+- [fragment] "how do" | top ch05-003 0.681 | llm 0 | 0.21s
+- [negation] "what is the opposite of a watermark" | top ch08-039 0.701 | llm 0 | 0.26s
+- [clean-control] "explain watermark in simple words" | top ch08-039 0.8 | llm 0 | 0.25s HIT
+- [out-of-book] "What is the capital of France?" | top ch01-064 0.544 | llm 1 | 0.36s
+- [repetition] "watermarks watermarks watermarks" canon="What is watermarks watermarks watermarks?" | top ch08-034 0 | llm 0 | 0.28s MISS
+- [keyword-salad] "CRUD CRUD CRUD CRUD ingestion streaming watermark" canon="What is CRUD CRUD CRUD CRUD ingestion streaming watermark?" | top ch08-005 0 | llm 0 | 0.34s
+
+# expected-chunk hits 7/10
+# repairs kept 11/20
+# llm calls 6

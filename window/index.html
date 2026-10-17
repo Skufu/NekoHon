@@ -16,14 +16,20 @@
 </head>
 <body>
   <form id="ask">
-    <select name="mode">
-      <option value="answer" selected>answer</option>
-      <option value="ask">ask</option>
-      <option value="explain">explain</option>
-      <option value="quiz">quiz</option>
-    </select>
-    <input name="question" placeholder="Ask the book">
-    <input name="selection" placeholder="Highlighted text">
+    <label>Mode
+      <select name="mode">
+        <option value="answer" selected>answer</option>
+        <option value="ask">ask</option>
+        <option value="explain">explain</option>
+        <option value="quiz">quiz</option>
+      </select>
+    </label>
+    <label>Question
+      <input name="question" placeholder="Ask the book">
+    </label>
+    <label>Selection
+      <input name="selection" placeholder="Highlighted text">
+    </label>
     <button type="submit">Go</button>
   </form>
   <pre id="answer"></pre>
@@ -50,20 +56,48 @@
       key.hidden = true;
       showKey.hidden = true;
       const mode = form.mode.value;
-      const response = await fetch("/ask", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          book_id: "fde",
-          question: mode === "quiz" ? "" : form.question.value,
-          selection: form.selection.value || null,
-          mode
-        })
-      });
-      const body = await response.json();
-      answer.textContent = body.answer || body.error || "";
-      refs.textContent = (body.citations || []).map((item) => item.chunk_id).join(" ");
-      if (body.refused && refs.textContent) refs.textContent = "nearest misses: " + refs.textContent;
+      let response;
+      try {
+        response = await fetch("/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            question: mode === "quiz" ? "" : form.question.value,
+            selection: form.selection.value || null,
+            mode
+          })
+        });
+      } catch (err) {
+        answer.textContent = "Could not reach the engine.";
+        return;
+      }
+      let body;
+      try {
+        body = await response.json();
+      } catch (err) {
+        answer.textContent = "The engine returned a body that was not JSON.";
+        return;
+      }
+      if (!response.ok && !body.answer && !body.error) {
+        answer.textContent = "The engine returned " + response.status + ".";
+        return;
+      }
+      if (body.error && !body.answer) {
+        answer.textContent = "Engine problem. " + body.error;
+      } else {
+        answer.textContent = body.answer || "The engine returned an empty body.";
+      }
+      if (body.refused) {
+        const note = document.createElement("p");
+        note.className = "nearby";
+        note.textContent = "The check kept no quote. Closest pages are nearby, not the answer.";
+        refs.before(note);
+      }
+      refs.textContent = (body.citations || []).map((item) => {
+        const quote = item.quote ? " — " + item.quote.slice(0, 140) : "";
+        return "Ch. " + (item.chapter || "?") + " (" + item.chunk_id + ")" + quote;
+      }).join("\n");
+      if (body.refused && refs.textContent) refs.textContent = "Closest I found.\n" + refs.textContent;
       if (mode === "quiz" && body.citations && body.citations.length) {
         key.textContent = body.citations.map((item) => item.quote).join("\n");
         showKey.hidden = false;

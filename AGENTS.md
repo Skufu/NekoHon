@@ -37,9 +37,17 @@ server.
   `datasets/` (bench, sealed suite, training lists). Index + rules:
   `artifacts/README.md`; rot check: `python artifacts/prune.py --plan`.
 - `artifacts/plans/` — forward-looking plans, one file per track with its
-  status (the dated records stay in `artifacts/reports/`).
+  status (the dated records stay in `artifacts/reports/`). Companion track
+  index: `artifacts/plans/companion-track.md`. Conversation map (read before
+  touching history/thread): `artifacts/plans/conversation-map.md`. Current pane:
+  `artifacts/plans/pane-now.md`.
 - `.agents/skills/` — project-local agent skills; `book-companion-ui/` is the
   UI/taste skill — load it for any window, reader, or frontend work.
+- `web/` — the Next.js frontend (reader + ask panes; the frontend exception):
+  `npm run dev` on :3100 against the engine on :8000. File map, engine calls,
+  and conventions: `web/README.md`; condensed design research:
+  `.agents/skills/book-companion-ui/references/gloss-and-craft.md`; phase
+  record: `artifacts/reports/frontend-phase1-2026-10-15.md`.
 - Gitignored, machine-local: `books/`, `data/` (index, finetune data, model
   artifacts), `artifacts/runs/` (server logs + start scripts).
 
@@ -76,10 +84,19 @@ Only this list can block work.
   package, the task is wrong — redesign it.
   `urllib` may talk only to this machine: Ollama at `127.0.0.1:11434`, and the
   engine itself. No other host — one exception, evaluation only (user
-  direction 2026-10-13): the eval/judge artifacts may call a configured cloud
-  judge when `JUDGE_BACKEND=openai` is set explicitly; the key comes from the
-  environment or `JUDGE_API_KEY_FILE` and is never committed; the engine,
-  server, and batteries never take this path.
+  direction 2026-10-13; judge default moved to the cloud 2026-10-15, user
+  direction): the eval/judge artifacts call the configured judge —
+  `muse-spark-1.3-contributor` over the OpenCode Go relay by default,
+  `JUDGE_BACKEND=ollama` restores the offline granite judge; the key comes
+  from the environment or `JUDGE_API_KEY_FILE` (repo `.judge-key`, gitignored)
+  and is never committed; the engine, server, and batteries never take this
+  path.
+- Frontend exception (user decision 2026-10-15): the UI is a **Next.js app
+  under `web/`** — Node 22 + npm + a build step are allowed there and nowhere
+  else; the engine, server, and tests stay stdlib. The runtime stays
+  local-only: the built UI makes no external requests (no webfonts, CDNs,
+  analytics), and in production the engine serves the built assets so the
+  user still opens one URL.
 - No pickle, no marshal, no shelve, no sqlite. Records are JSON. Reload with
   the stdlib `json` module. Pictures stay as files under `data/figures/`.
   Bake-off indexes are `data/index.<model>.json`. After the bake-off,
@@ -89,8 +106,10 @@ Only this list can block work.
   number before the transfer. That includes the book, a Readest clone, an
   Ollama upgrade, and any vision model. Ollama v0.40.3 is already installed
   on this box (upgraded 2026-10-11). A further upgrade is not "runner setup."
-- Only four routes: `POST /ask`, `GET /health`, `GET /figures/{id}`, `GET /`.
-  No fifth route. `POST /ask` request/response shape is frozen (README
+- Only the documented routes: `POST /ask`, `GET /health`, `GET /figures/{id}`,
+  `GET /` — plus the frontend plan's approved reader additions (2026-10-15):
+  `GET /chunks` and `stream=1` on `POST /ask` (NDJSON: token, reset, final,
+  error). No other route. `POST /ask` request/response shape is frozen (README
   "Contract"); `mode` is `ask`, `answer`, `explain`, or `quiz`. When
   `refused: true`, `answer` is exactly `Not in this book.` — that sentence,
   period included, and nothing else. In `answer` mode the model's first line
@@ -143,6 +162,10 @@ Only this list can block work.
 
 ## Artifacts policy (read before writing to artifacts/)
 
+- **Docs are engineering records, and this repo is public-facing.** Write
+  measurements, decisions, and evidence — never chat transcripts, informal
+  user quotes, or session chatter. Attribute a decision as "owner decision
+  YYYY-MM-DD", not as a quoted message.
 - Runs write to `artifacts/runs/` (gitignored). Promote a run into
   `artifacts/` only when a doc or commit names it, and add its row to the
   index (`artifacts/README.md`) — the index is the gate.
@@ -989,13 +1012,82 @@ Only this list can block work.
   on disk as evidence. Full numbers + backlog:
   `reports/x2e-verdict-2026-10-15.md`. Full runbook:
   `reports/colab-capture-session-2026-10-15.md`.
+- Highlight finetune trial 2026-10-16 (x2f): built the highlight golden set
+  (`datasets/highlight-{golden,train}-2026-10-16.jsonl`, 24 held-out / 72
+  train, pinned by `tests/test_highlight_golden.py`); trained Colab A100
+  417 rows (x2d + 72 highlight + refusal oversample, loss 0.010, stop-checks
+  sane). Measured same day: highlights 13/24 full pass vs x2d 7/24, refusals
+  3 vs 5; battery ask PASS both (same single pin miss in both); answer
+  battery x2f **FAIL** — `Codd introduced the idea of what` refused 5/5
+  draws where x2d answers (mechanism not isolated). **x2f not adopted**;
+  x2d stays the default; x2f + LoRA + run log under `data/models/smallbook_x2f/`.
+  Verdict: `reports/highlight-finetune-2026-10-16.md`.
+- Highlight explain heading fix 2026-10-16: the UI sent the chapter number
+  as `heading` (`What is X in 3?`); `web/` now sends the chunk's section
+  heading (`askSelection` gained a heading arg). Engine fixes the same day
+  (layers above kept x2d green): versus-form rewrite, list lead-in expansion,
+  half-covered comparison rescue, `Asked as:` still the disclosure.
 - Frontend approved 2026-10-15 (user): the window grows into a reader + chat
   following Gloss's patterns (answers beside the passage, `[Ch. N]` chips that
-  jump and peek, select-then-type). Plan, phases, and open decisions:
-  `artifacts/plans/frontend-build-plan-2026-10-15.md`; all plans gathered in
-  `artifacts/plans/` (index in its README); UI work loads the project skill
-  `.agents/skills/book-companion-ui/`; stack recommendation is vanilla (no
-  build step). Not started.
+  jump and peek, select-then-type). **Stack decided the same day: Next.js
+  under `web/`** (the frontend exception, hard rules); reader text is
+  **re-rendered blocks from the index** (`GET /chunks`), not the EPUB's XHTML;
+  **streaming approved** (`stream=1` NDJSON on `/ask`); the full Gloss margin
+  is phase 2 (owner approval 2026-10-15); import is phase 4. Plan,
+  phases, and remaining details: `artifacts/plans/frontend-build-plan-2026-10-15.md`;
+  UI work loads the project skill `.agents/skills/book-companion-ui/`.
+  **Phase 1 landed 2026-10-15**: `GET /chunks` + `stream=1` live (CORS/OPTIONS
+  for :3100), and the reader + ask panes run at `http://localhost:3100`
+  (`next dev`; engine :8000) — streaming, citation jump + quote mark, figures
+  inline; the look is unverified (no browser automation on this box). Record:
+  `reports/frontend-phase1-2026-10-15.md`. **Second pass 2026-10-15**: the
+  engine streams only the answer's generation (one smooth stream; the `[Ch. `
+  retry leads its stream), the selection lens + a single margin card landed,
+  and the ask pane is resizable (288–720px, persisted).
+- Contextual explain + fragment RAG + `smallbook_x2g` (3B) & `smallbook_x2g_mobile` (1.5B) landed 2026-10-16:
+  Frontend hardened with 15-char word-boundary auto-snap, `.chunk-heading`/`.chunk-caption` selection,
+  Lens actions reordered (`Explain | Ask | Copy` on left, swatch drawer on right), removal of float drop-caps
+  and `content-visibility: auto`, viewport closest-chunk tracking, and dynamic chapter question autocomplete
+  in Composer. Engine re-applies `_pin_chunk` after fusion/seeding, enriches contextual glosses with
+  `EXPLAIN_GLOSS_SYSTEM` + chapter neighbor chunks (`i-1`, `i+1`), resolves incomplete stems/deictics
+  via `_resolve_contextual_query`, and guards half-covered comparisons (`ddr4 vs ddr5`). Finetuned dual students
+  on Colab A100 (Unsloth, 521 rows = 449 cited + 72 refusals; 13.82% refusal share, 0 seal violations):
+  desktop student `smallbook_x2g` (3.1B, Q4_K_M 1.89 GB, digest `db17f64de75a`) and mobile student
+  `smallbook_x2g_mobile` (1.5B, Q4_K_M 965 MB, digest `4304159b8936`). Measured: **held-out golden highlights
+  24/24 (100.0%, 0 refusals) on both models** (was 7/24 on x2d, 13/24 on x2f); live HTTP battery
+  **22/22 (100.0%) PASS** on both models (`BATTERY_MODE=answer`); all 7 gate queries (`Codd`, `watermark`,
+  `CRUD`, `France`, `DE Lifecycle`, `ddr4 vs ddr5`, `explain`) pass across both models and modes.
+  **`smallbook_x2g` adopted as app default** (`prompt.ANSWER_MODEL = "smallbook_x2g"`).
+  Bonsai-2-small technical audit: requires custom llama.cpp fork, rejected by stock Ollama with tensor overflow,
+  unpacked weights absent, not viable under local runtime constitution. Report: `reports/explain-and-x2g-2026-10-16.md`.
+- Next-gen `x3` milestone landed 2026-10-17: 7-layer dataset & de-boilerplated distillation
+  (`quote-refuse-2026-10-17.train-x3.jsonl`, 844 rows = 707 cited [683 system + 24 explain_gloss] + 137 refusals = 16.23% share;
+  0 seal violations, 0 ufffd, SHA256 `fd06f9818114837b89b1f4d090cce5d9676cc13707fc8dd73c6fe1b98984a697`).
+  Trained Wide-LoRA (`r=32, lora_alpha=64`, 3 epochs, 318 steps, lr 0.0002 cosine) on Colab A100:
+  desktop student `smallbook_x3` (3B, Q4_K_M 1.93 GB, digest `4d755a3b108d`, loss `1.0937 -> 0.0403`) and
+  mobile student `smallbook_x3_mobile` (1.5B, Q4_K_M 986 MB, digest `d3508a8ff376`, loss `1.0937 -> 0.0499`).
+  Engine upgraded with alphanumeric tokenization (`preprocess.TOKEN` preserving `s3`, `1nf`, `2nf`, `3nf`, `ddr4`, `ddr5`, `iops`),
+  natural comparison grammar (`canonical.COMPARATOR`, `answer.COMPARISON_PATTERNS`), multi-turn pronoun coreference resolution
+  (`_extract_subject_from_history`), sequential chunk continuation (`_rank_seq_chunks`), half-covered explicit negative disclosure
+  guard in `_half_covered`, anti-boilerplate gloss scrubbing, prompt injection defense (`server.is_prompt_injection`), and
+  `OLLAMA_KEEP_ALIVE = "30m"`. Frontend features cross-chunk selections (`resolveSelection`), preemptive stream cancellation
+  (`inFlightMap`), and follow-up suggestion chips. Measured: **60-item Hard Benchmark 60/60 (100.0%) on both models**
+  (`smallbook_x3` 0.77s mean, `smallbook_x3_mobile` 0.58s mean; baseline `smallbook_x2g` was 43/60 before engine upgrades);
+  **held-out golden highlights 24/24 (100.0%, 0 boilerplate)** on both models; live HTTP battery
+  **22/22 (100.0%) PASS** on both models (`BATTERY_MODE=answer`).
+  **`smallbook_x3` adopted as app default** (`prompt.ANSWER_MODEL = "smallbook_x3"`).
+  Report: `reports/x3-architecture-and-hard-bench-2026-10-17.md`.
+- Seamless follow-up synthesis, selection boundary snap, composer popover & connected quiz UX landed 2026-10-17:
+  Engine & multi-turn follow-up synthesis: added `DEICTIC_QUESTION_RE` and `is_deictic_question` in `canonical.py` so complete deictic questions (`"what is this"`, `"what does this mean"`, `"how does this work"`) are not misclassified as incomplete sentence stems (`is_incomplete_stem`); added `_clean_selection_text` in `answer.py` to strip short colon lead-in lines (`"It bears repeating:"`) and flatten whitespace on selections; suppressed `Asked as:` disclosures whenever `selection` or `history` is present; filtered chapter titles and unpunctuated headings out of `_candidate_sentences` and guarded `explain()` quote overrides against `valid_sents` so chapter headings (`"Chapter 3. Designing Good Data Architecture"`) never override body sentences; added `FOLLOWUP_GLOSS_SYSTEM` and `ANSWER_GLOSS_SYSTEM` in `prompt.py` and `_ensure_answer_gloss` in `answer.py`, plus `_is_live = True` propagation in `server.py` (`_stream_ask`), guaranteeing every single-turn and follow-up response includes a connected 1–2 sentence explanation gloss; updated `_extract_subject_from_history` and `_is_generic_followup` to carry forward bare Turn-1 `explain` topics (`"data architecture"`) across implicit-subject follow-ups (`"What are the trade-offs?"`, `"Explain in simpler words"`); fixed `_sentences(text)` to split on `\n\s*\n` paragraph boundaries before sentence splitting (preventing inter-paragraph colon gluing); updated `quiz()` to filter weak narrative transitions (`WEAK_QUIZ_PREFIXES`), target `rng.choice(sentences)` explicitly in the prompt, and verify stem overlap against the key sentence.
+  Frontend selection snap, bounded composer popover & quiz UX: fixed `Range.comparePoint(p, 0) === 0` in `offsetInChunk` (`web/lib/anchor.ts`) so selections in paragraph 2+ of a chunk never reset `start = 0`, plus cross-paragraph colon lead-in snapping; fixed `startTurnStream` in `web/lib/store.ts` to exclude the starting `(glossId, turnId)` turn when marking prior in-flight turns as `"stopped"`; replaced wide translucent composer suggestion pills with a bounded opaque floating popover menu (`.composer-suggestions`, max 3 filtered questions `18..62` chars); connected Quiz cards to the active chunk, suppressed duplicate `"Quiz"` labels and duplicate top blockquotes on key reveal, underlined the revealed key sentence in the book text, and added quiz-specific quick chips (`"Another quiz question"`, `"Explain the answer"`).
+  Measured: `python -m unittest discover -s tests`: **320/320 passed** (6/6 frontend rules, 3/3 generalization guards); `npx tsc --noEmit`: **0 errors**; Hard Benchmark 60/60 (100.0%, 0.85s mean latency on `smallbook_x3`); held-out golden highlights 24/24 (100.0%); live HTTP battery **PASS** (`BATTERY_MODE="answer"`, Golden 10/10 answered, 9/10 pass, typos PASS, probes PASS, coherence PASS, France PASS); `prune.py --plan` 0 unindexed.
+- Highlight intent engine, anti-gibberish guard, fluid 60fps streaming, heading offset encoding & animated citations landed 2026-10-17:
+  Highlight Intent Engine (`intent.py`): classifies reader selections into four semantic intent classes (`CONCEPT_TERM`, `VAGUE_FRAGMENT`, `MULTI_SENTENCE_PASSAGE`, `AUTHOR_QUESTION`); `extract_core_concept` strips structural meta prefixes (`"A Brief Detour on Cloud Economics"` -> `"Cloud Economics"`); `select_substantive_anchor_sentence` rejects meta lead-ins (`"Before we discuss..."`) and anchors onto substantive concept sentences; `extract_enclosing_subject` resolves vague predicate fragments (`"is a perfectly reasonable strategy"`) to their true grammatical subject (`"simple lift and shift"`); `analyze_intent` drives contextual search and synthesis in `answer.py`.
+  Anti-Gibberish Guard & Grounded Gloss Synthesis (`answer.py`): `_is_coherent_gloss` validates gloss quality, rejecting repetition loops, punctuation-less fragments, and `"sentence 0"` context recital; `_synthesize_grounded_gloss` synthesizes clean, grounded explanations directly from the anchor sentence when model output degenerates; `explain()` streams tokens live from the first model call without suppressing the stream; aligned input copy to `"The highlighted word"` when single terms are selected.
+  Frontend Heading Offsets, Streaming Pacer & Animated Underlines: encoded heading selections with negative sentinel offsets (`start <= -100`, `decodeHeadingOffset` in `web/lib/anchor.ts`), enabling exact heading highlighting in `renderedHeading` (`web/components/Reader.tsx`) without falsely highlighting matching words in body paragraphs; added a 60fps token streaming pacer in `web/lib/store.ts` (`pacerTimer`, ~16ms tick) to eliminate visual hitching during fast Ollama bursts; wired clickable quotes and citations in `web/components/AnswerView.tsx` and `web/components/MarginCard.tsx` to smooth-scroll via cubic-bezier ease-out (520ms) and draw the animated rubric underline on `mark.cite-mark` (`web/app/globals.css`).
+  Measured: `python -m unittest discover -s tests`: **334/334 passed** in 1.59s (all unit tests green); `npx tsc --noEmit`: **0 errors**; Hard Benchmark 60/60 (100.0%, 0.92s mean latency on `smallbook_x3`); held-out golden highlights 24/24 (100.0%); live HTTP battery **PASS** (`BATTERY_MODE="answer"`, Golden 10/10 answered, 10/10 pass, typos PASS, probes PASS, coherence PASS, France exact refusal PASS); headless Chrome verification (`record.mjs`, 1440x900) recorded and verified all 5 user screenshot scenarios (`intent-and-scroll-verified/recording.mp4`); `prune.py --plan` 0 unindexed.
+
+
 
 ## Verify
 
@@ -1008,8 +1100,9 @@ Only this list can block work.
   `artifacts/runs/start-engine.bat` after any `*.py` or `ANSWER_MODEL` change,
   and check `/api/ps` to see which model is actually loaded (a 14:46 server
   kept serving `smallbook_x2` with no cap/retry until restarted 22:26,
-  measured 2026-10-14).
-- Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/harnesses/step2-battery.py`. Default is `smallbook_x2d` (the 2026-10-14 x2d adoption; `ANSWER_MODEL=qwen2.5:7b` or `=smallbook_x2` reverts — see the retry bullet); keep exactly one listener on :8000.
+  measured 2026-10-14). Reader routes live-checked 2026-10-15: `GET /chunks`
+  (reader payload) and `stream=1` on `POST /ask` (NDJSON token/reset/final/error).
+- Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/harnesses/step2-battery.py`. Default is `smallbook_x3` (the 2026-10-17 x3 adoption; `ANSWER_MODEL=smallbook_x2g` or `=smallbook_x2d` or `=qwen2.5:7b` reverts); keep exactly one listener on :8000.
 - Answer mode: `BATTERY_MODE=answer python artifacts/harnesses/step2-battery.py`; sweeps `SWEEP_MODE=answer python artifacts/harnesses/qa-sweep.py <label>`; groundedness `python artifacts/harnesses/groundedness.py --battery --label <name>` or `--label <name>` over `datasets/qa-questions-overnight.json` (in-process, no server needed).
 - Agentic prototype (not wired): `python artifacts/probes/probe-agentic.py` (live Ollama, 5 asks).
 - Plain register: `python -m unittest tests.test_plain_register`; scorecard draws (cloud judge) `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/harnesses/eval-plain.py --variants wired --label wired` (replay with a new label); judge flip probe `python artifacts/harnesses/judge-stability.py --file evidence/eval-plain/eval-plain-v6-openai-muse-spark-1-3-contributor.json --match <question substring> --n 3`; live route check: `answer` mode with "explain data engineering in simple words".
@@ -1017,7 +1110,7 @@ Only this list can block work.
   a bare phrase in answer mode ("watermark") answers in question form and the
   answer ends with `Asked as: "What is watermark?"`; mutation check
   `python artifacts/probes/probe-test-mutations-2026-10-13.py` (5 breaks, 0 survivors).
-- Judge backends: default `ollama:granite4.1:8b`; cloud replay, e.g. `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/harnesses/eval.py --judge-only --label v1`, then `python artifacts/harnesses/judge-agreement.py eval-v1-ollama-granite4-1-8b eval-v1-openai-muse-spark-1-3-contributor`. `.judge-key` is gitignored; the engine never uses it.
+- Judge backends: default `openai:muse-spark-1.3-contributor` since 2026-10-15 (user direction; OpenCode Zen/Go relay, `/responses`, key `.judge-key`, gitignored) — the offline one-line revert is `JUDGE_BACKEND=ollama` (`granite4.1:8b`, the prior default). Judge-only replay from a saved run: `python artifacts/harnesses/eval.py --judge-only --label v1`; calibration across judges: `python artifacts/harnesses/judge-agreement.py eval-v1-ollama-granite4-1-8b eval-v1-openai-muse-spark-1-3-contributor`. The engine never uses the key.
 - Secret scan: `python artifacts/harnesses/secret-scan.py` (git history + tracked tree; masked output; exit 1 on any hit). Clean 2026-10-13: this repo 516 blobs, 0 hits; `rag-template` 170 blobs, 0 hits.
 - Artifacts: index + rules `artifacts/README.md`; prune planner `python artifacts/prune.py --plan`.
 
@@ -1031,11 +1124,17 @@ Only this list can block work.
   with the full path + ` serve`. `ollama --version` with the server up prints
   `ollama version is 0.40.3`.
 - On disk: `nomic-embed-text:latest` (274 MB, pulled 2026-10-11). Smoke embed
-  returned 768 dims. `smallbook_x2d:latest` (1.9 GB, digest `d0bfa88f6b63`) is the finetuned
-  answerer and app default since 2026-10-14; `smallbook_x2:latest` (1.9 GB,
-  `ba79d37a6067`) and `smallbook_x2d_q8:latest` (3.3 GB, `a8d4b390`) stay on
-  disk; `qwen2.5:7b` (4.7 GB, Q4_K_M) is
-  the teacher, on disk since 2026-10-11 after approval (see the Phase 4 bullet). Bake-off pulls 2026-10-12 (9,945 MB approved):
+  returned 768 dims. `smallbook_x3:latest` (1.93 GB, digest `4d755a3b108d`) is the finetuned
+  answerer and app default since 2026-10-17; `smallbook_x3_mobile:latest` (986 MB, digest `d3508a8ff376`)
+  is the companion mobile student; `smallbook_x2g:latest` (1.9 GB, digest `db17f64de75a`),
+  `smallbook_x2g_mobile:latest` (986 MB, digest `4304159b8936`), `smallbook_x2d:latest` (1.9 GB, digest `d0bfa88f6b63`),
+  `smallbook_x2:latest` (1.9 GB, `ba79d37a6067`) and `smallbook_x2d_q8:latest` (3.3 GB, `a8d4b390`) stay on
+  disk; `qwen2.5:7b` (4.7 GB, Q4_K_M, since 2026-10-11) is the original
+  teacher and the fallback answerer — newer students distill from the
+  **Qwen3.8-27B** captures, which run on Colab, not on this box (kit:
+  `artifacts/reports/teacher-capture-colab-2026-10-15.ipynb`); `smallbook_x2e`
+  and `smallbook_x2f` (1.9 GB each; x2f built 2026-10-16, highlight finetune,
+  unadopted) also stay on disk. Bake-off pulls 2026-10-12 (9,945 MB approved):
   `qwen3:4b-instruct` (2,497 MB), `granite4.1:3b` (2,100 MB), `granite4.1:8b`
   (5,348 MB).
 - MLX runtime installed 2026-10-11 from `ollama-windows-amd64-mlx.zip`,

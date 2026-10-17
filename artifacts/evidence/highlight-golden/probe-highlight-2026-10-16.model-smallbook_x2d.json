@@ -1,0 +1,277 @@
+{
+ "model": "smallbook_x2d",
+ "summary": {
+  "rows": 24,
+  "full_pass": 24,
+  "not_refused_and_pin_cited": 24,
+  "quote_verbatim_in_pin": 24,
+  "refused": 0,
+  "errors": 0
+ },
+ "rows": [
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 4] \"Plenty of great modular services are available to choose from in either case.\"\nThe word \"great\" indicates that there are many good options available for modular services in both building and buying software. This suggests that companies have a variety of high-quality choices when deciding between developing their own solutions or purchasing ready-made ones.",
+   "error": null,
+   "seconds": 9.7,
+   "id": "ch04-051:great",
+   "asked": "What is great in Build Versus Buy?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 9] \"This inevitably leads to the business not performing to its fullest potential with data and data teams losing credibility (and possibly being dissolved).\"\nThe highlighted text explains that when trust in data is lost, the business cannot perform at its best, and data teams may lose credibility or even be dissolved. This shows the severe consequences of lacking trust in data.",
+   "error": null,
+   "seconds": 1.0,
+   "id": "ch09-003:potential",
+   "asked": "What is potential in Trust?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 8] \"The requirements of 1NF, plus partial dependencies are removed.\"\nThe highlighted text \"The requirements of 1NF, plus partial dependencies are removed\" means that after meeting the requirements of 1NF (first normal form), partial dependencies are no longer allowed. This explains why the passage moves on to discuss 2NF (second normal form) next.",
+   "error": null,
+   "seconds": 1.7,
+   "id": "ch08-052:requirements",
+   "asked": "What is requirements in Normalization?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 8] \"A database commit is a change within a database, such as creating, updating, or deleting a record, table, or other database objects. Many databases support transactions—i.e., a notion of committing several operations simultaneously in a way that maintains a consistent state. Please note that the term transaction is somewhat overloaded; see Chapter 5. The purpose of a transaction is to kee",
+   "error": null,
+   "seconds": 0.8,
+   "id": "ch08-020:creating",
+   "asked": "What is creating in Know how your database handles commits?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 7] \"Generally, options in the space allow users to set a target and source, ingest in various ways (e.g., CDC, replication, truncate and reload), set permissions and credentials, configure an update frequency, and begin syncing data\"\nUsers can choose where to connect and how to import data.",
+   "error": null,
+   "seconds": 1.0,
+   "id": "ch07-061:set",
+   "asked": "What is set in Managed Data Connectors?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 2] \"Many data engineers are heavily involved in developing open source frameworks.\"\nThe highlighted text \"source\" refers to the origin or provider of the open source frameworks being developed by data engineers. It explains that many data engineers are actively contributing to the creation and improvement of these frameworks, which are used to solve specific problems in data engineering.",
+   "error": null,
+   "seconds": 1.4,
+   "id": "ch02-085:source",
+   "asked": "What is source in Development of open source frameworks?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 7] \"On the other hand, nothing is free; using parallel connections also increases the load on the source database.\"\nThe highlighted \"On the other hand, nothing is free; using parallel connections also increases the load on the source database\" explains that while parallel connections can speed up data ingestion, they put more strain on the source database. This matters because the authors are",
+   "error": null,
+   "seconds": 1.3,
+   "id": "ch07-049:load",
+   "asked": "What is load in Direct Database Connection?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 8] \"A key is used to redistribute data across the cluster; once again, a spill to disk occurs as the data is written to each node.\"\nThe highlighted \"node\" refers to a computer in the cluster that stores data. It explains why data needs to be redistributed when performing operations like joins in Spark, showing the need for disk writes after data is moved to nodes.",
+   "error": null,
+   "seconds": 1.1,
+   "id": "ch08-119:node",
+   "asked": "What is node in Example: Data transformation in Spark?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 8] \"To fully take advantage of a data stream, we must adapt query patterns that reflect its real-time nature.\"\nThe highlighted word \"advantage\" refers to the benefits of changing query patterns to match the real-time nature of streaming data. This is important because understanding how to best query streaming data allows for more efficient and effective use of such data sources.",
+   "error": null,
+   "seconds": 1.2,
+   "id": "ch08-029:advantage",
+   "asked": "What is advantage in Queries on Streaming Data?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 6] \"Warm data is accessed semi-regularly, say, once per month\"\nWarm data is used about once a month.",
+   "error": null,
+   "seconds": 0.8,
+   "id": "ch06-104:accessed",
+   "asked": "What is accessed in Warm data?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 2] \"There are many things to consider when assessing source systems, including how the system handles ingestion, state, and data generation.\"\nThe highlighted \"state\" refers to how the system maintains information about its current condition or status. In this context, it's important because understanding how a system handles state helps evaluate its reliability and consistency, which are cruc",
+   "error": null,
+   "seconds": 1.3,
+   "id": "ch02-007:state",
+   "asked": "What is state in Evaluating source systems: Key engineering considerations?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 6] \"Just as code version control allows developers to track down commits that cause bugs, data version control can aid ML engineers in tracking changes that lead to model performance degradation.\"\nThe highlighted word \"performance\" refers to the effectiveness or efficiency of a model. Here, it explains how data version control helps ML engineers monitor changes that degrade model performance.",
+   "error": null,
+   "seconds": 1.3,
+   "id": "ch06-121:performance",
+   "asked": "What is performance in Data versioning in object storage?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 5] \"6 Martin Fowler, “How to Move Beyond a Monolithic Data Lake to a Distributed Data Mesh,” MartinFowler.com, May 20, 2019, https://oreil.ly/TEdJF.\"\nThe term \"monolithic\" refers to a system or application that is built as a single, integrated unit without any modular components. In this context, Martin Fowler discusses moving beyond such a monolithic data lake to a distributed data mesh, ind",
+   "error": null,
+   "seconds": 1.3,
+   "id": "ch05-086:monolithic",
+   "asked": "What is monolithic in Additional Resources?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 8] \"Transformations are where data starts providing utility to downstream stakeholders. Your downstream stakeholders include many people, including data analysts, data scientists, ML engineers, and “the business.” Collaborate with them to ensure the data model and transformations you provide are performant and useful. In terms of performance, queries should execute as quickly as possible in t",
+   "error": null,
+   "seconds": 1.6,
+   "id": "ch08-147:quickly",
+   "asked": "What is quickly in Downstream Stakeholders?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 1] \"At this stage, the company is data-driven. The automated pipelines and systems created by data engineers allow people within the company to do self-service analytics and ML. Introducing new data sources is seamless, and tangible value is derived. Data engineers implement proper controls and practices to ensure that data is always available to the people and systems. Data engineering roles",
+   "error": null,
+   "seconds": 1.2,
+   "id": "ch01-031:stage",
+   "asked": "What is stage in Stage 3: Leading with data?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 6] \"GDPR and other privacy regulations have significantly impacted storage system design.\"\nThe highlighted word \"design\" refers to the modifications made to storage systems to comply with privacy regulations like GDPR. This is important because it shows how privacy requirements influence the way data is stored and managed.",
+   "error": null,
+   "seconds": 1.3,
+   "id": "ch06-122:design",
+   "asked": "What is design in Privacy?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 5] \"Individual log entries can be written to a messaging system such as Kafka or Pulsar for real-time applications.\"\nThe term \"time\" isn't directly used in the given sentence, but it refers to the real-time aspect of writing individual log entries to a messaging system like Kafka or Pulsar. This discussion highlights how real-time applications can benefit from immediate logging without batch ",
+   "error": null,
+   "seconds": 3.1,
+   "id": "ch05-017:time",
+   "asked": "What is time in Log latency: Batch or real time?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 1] \"A chief technology officer (CTO) is similar to a CIO but faces outward. A CTO owns the key technological strategy and architectures for external-facing applications, such as mobile, web apps, and IoT—all critical data sources for data engineers\"\nA CTO focuses on external tech like mobile and web apps, important for data engineers.",
+   "error": null,
+   "seconds": 1.1,
+   "id": "ch01-065:data",
+   "asked": "What is data in Chief technology officer?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 8] \"However, we’ve recently seen the emergence of tools that support this capability.\"\nThe highlighted \"tools\" refers to software or technologies that now allow for composing materialized views, meaning one materialized view can reference another. This capability is important because it expands the utility of materialized views by enabling more complex data integration and query optimization.",
+   "error": null,
+   "seconds": 1.2,
+   "id": "ch08-132:tools",
+   "asked": "What is tools in Composable materialized views?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 6] \"The undercurrents for storage are significant because storage is a critical hub for all stages of the data engineering lifecycle. Unlike other undercurrents for which data might be in motion (ingestion) or queried and transformed, the undercurrents for storage differ because storage is so ubiquitous.\"\nStorage is crucial for managing all parts of data work.",
+   "error": null,
+   "seconds": 0.7,
+   "id": "ch06-117:queried",
+   "asked": "What is queried in Undercurrents?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 9] \"The technologies used for reports and ad hoc analysis are similar to dashboards but may include Excel, Python, R-based notebooks, SQL queries, and much more.\"\nDashboards use similar technologies to reports and ad hoc analysis, including Excel, Python, R-based notebooks, and SQL queries. This diversity of tools shows how flexible business analytics can be.",
+   "error": null,
+   "seconds": 2.6,
+   "id": "ch09-021:dashboards",
+   "asked": "What is dashboards in Business Analytics?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 3] \"Inmon, Building the Data Warehouse (Hoboken: Wiley, 2005).\"\nInmon uses the term \"data\" to refer to the raw facts or information that are collected and stored for analysis or decision-making. The authors mention this because they want to establish a common understanding of terms used in data warehouse construction and management.",
+   "error": null,
+   "seconds": 1.5,
+   "id": "ch03-108:data",
+   "asked": "What is data in Additional Resources?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 3] \"It’s touted as the most widely used architecture framework today.\"\nThe term \"widely\" indicates that TOGAF is used by many organizations today. This is important because understanding its widespread use helps readers grasp how relevant and adopted TOGAF is in real-world scenarios.",
+   "error": null,
+   "seconds": 1.3,
+   "id": "ch03-004:widely",
+   "asked": "What is widely in TOGAF’s definition?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 6] \"You’ll use strong consistency when you can tolerate higher query latency and require correct data every time you read from the database.\"\nThe word \"time\" in this context likely refers to the immediate execution or occurrence of an action, contrasting with eventual consistency where changes may take time to propagate. It explains why strong consistency requires correct data every time you ",
+   "error": null,
+   "seconds": 1.4,
+   "id": "ch06-025:time",
+   "asked": "What is time in Eventual Versus Strong Consistency?"
+  }
+ ]
+}

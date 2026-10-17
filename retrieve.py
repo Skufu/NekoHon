@@ -7,10 +7,12 @@ The embedder is injected so tests never call Ollama.
 import argparse
 import json
 import math
+import os
 import time
 import urllib.request
 from pathlib import Path
 
+from figures import figure_cards
 from preprocess import normalize
 
 ROOT = Path(__file__).resolve().parent
@@ -102,7 +104,11 @@ def document_input(model, record, kind):
 
 
 def ollama_embed(texts, model=DEFAULT_EMBEDDER, url=OLLAMA, timeout=120):
-    payload = json.dumps({"model": model, "input": texts}).encode("utf-8")
+    payload = json.dumps({
+        "model": model,
+        "input": texts,
+        "keep_alive": os.environ.get("OLLAMA_KEEP_ALIVE", "30m"),
+    }).encode("utf-8")
     request = urllib.request.Request(
         url,
         data=payload,
@@ -197,10 +203,15 @@ def rank_chunks(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
     if index.get("embedder") != model:
         raise SystemExit(f"index was embedded with {index.get('embedder')}, not {model}")
     query = embed_texts([question], model, embed_fn, "query")[0]
-    if not isinstance(query, list) or not query or any(
-        not math.isfinite(value) for value in query
+    if (
+        not isinstance(query, list)
+        or not query
+        or any(not math.isfinite(value) for value in query)
+        or all(value == 0.0 for value in query)
     ):
-        raise SystemExit("query embedding is empty or non-finite; refusing to rank.")
+        raise SystemExit(
+            "query embedding is empty, non-finite, or all-zero; refusing to rank."
+        )
     declared = index.get("embedding_dims")
     if declared and len(query) != declared:
         raise SystemExit(
@@ -280,6 +291,31 @@ def load_index(path):
 
 def save_index(path, index):
     Path(path).write_text(json.dumps(index), encoding="utf-8")
+
+
+def chunks_payload(index):
+    """The reader's view of the index: reading order, no vectors, reader-ready text.
+
+    One block per chunk — measured 2026-10-15: no two consecutive chunks in
+    this book overlap, so nothing needs merging. Every chunk text repeats its
+    heading as the first line (1042/1042), so that line is dropped here and
+    the heading travels as its own field; the reader renders it when it
+    changes. Figures arrive as cards for the ids the chunk carries.
+    """
+    figures = index.get("figures") or []
+    chunks = []
+    for chunk in index.get("chunks") or []:
+        _, body = chunk_title(chunk)
+        chunks.append({
+            "chunk_id": chunk.get("chunk_id"),
+            "chapter": chunk.get("chapter"),
+            "heading": chunk.get("heading") or "",
+            "section": chunk.get("section") or "",
+            "source": chunk.get("source") or "",
+            "text": body,
+            "figures": figure_cards(chunk.get("figures") or [], figures),
+        })
+    return {"book_id": index.get("book_id") or "", "chunks": chunks}
 
 
 def main():

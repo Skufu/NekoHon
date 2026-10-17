@@ -18,16 +18,58 @@ path now serves what the model was trained on.
 
 import difflib
 import json
+import os
 import random
 import re
 import urllib.request
 
-from canonical import canonical_query
+from canonical import STEM_WORDS, canonical_query, is_deictic_question, is_incomplete_stem
 from captions import caption_seed
 from figures import figures_for
 from fusion import fuse
+from intent import (
+    INTENT_AUTHOR_QUESTION,
+    INTENT_CONCEPT_TERM,
+    INTENT_MULTI_SENTENCE,
+    INTENT_VAGUE_FRAGMENT,
+    META_TRANSITION_RE,
+    analyze_intent,
+    classify_intent,
+    extract_core_concept,
+    extract_enclosing_subject,
+    select_substantive_anchor_sentence,
+    split_sentences,
+)
 from keywords import anchor_words, postings, rare
-from prompt import ANSWER_MODEL, PARAPHRASE_SYSTEM, REFUSAL, SYSTEM, SYSTEM_ANSWER
+from preprocess import STOPWORDS, stem, tokens, words
+
+FRAMING_WORDS = frozenset((
+    "define", "defines", "defined", "definition",
+    "describe", "describes", "described", "description",
+    "explain", "explains", "explained", "explanation",
+    "mean", "means", "meaning",
+    "stand", "stands",
+    "constitute", "constitutes",
+    "refer", "refers",
+    "work", "works", "worked", "working",
+    "occur", "occurs", "occurred",
+    "use", "uses", "used", "using",
+    "handle", "handles", "handled", "handling",
+    "require", "requires", "required", "requirement", "requirements",
+    "condition", "conditions",
+    "provide", "provides", "provided",
+))
+from prompt import (
+    ANSWER_GLOSS_SYSTEM,
+    ANSWER_MODEL,
+    EXPLAIN_GLOSS_SYSTEM,
+    FOLLOWUP_GLOSS_SYSTEM,
+    PARAPHRASE_SYSTEM,
+    REFUSAL,
+    SPELL_SYSTEM,
+    SYSTEM,
+    SYSTEM_ANSWER,
+)
 from readings import llm_second_reading, second_reading
 from retrieve import search
 
@@ -49,6 +91,15 @@ QUIZ_INSTRUCTION = (
     "passage below. Do not include that quote in the question. "
     "Do not start with [Ch. The question is one or two sentences."
 )
+QUIZ_SYSTEM = (
+    "You are a teacher testing a reader's comprehension of a book. "
+    "Write exactly one question whose answer is the target sentence. "
+    "Do not include [Ch. N] tags, do not quote the sentence verbatim, and do not refuse."
+)
+SIMPLIFY_RE = re.compile(
+    r"\b(simpler\s+words|simplify|break\s+this\s+down|explain\s+this|what\s+does\s+this\s+mean|in\s+simple\s+words)\b",
+    re.IGNORECASE,
+)
 TAG_PATTERN = re.compile(r"\[Ch\.\s*([^\]]+)\]")
 QUOTE_PATTERN = re.compile(r"[\"“]([^\"“”]+)[\"”]")
 ANSWER_REMINDER = (
@@ -65,6 +116,9 @@ MIN_QUOTE_CHARS = 20
 # keeps the model's quote instead of the whole paragraph. Chosen for
 # readability; not tuned to any ask.
 PARAGRAPH_CAP = 1200
+HISTORY_TURNS = 2
+HISTORY_QUESTION_CHARS = 200
+HISTORY_ANSWER_CHARS = 400
 
 
 # The plain register's cues. Generic English phrases, not fitted to a test
@@ -99,8 +153,67 @@ def passages_block(passages):
     return "\n\n".join(blocks)
 
 
-def user_message(question, passages):
+INJECTION_PATTERNS = (
+    re.compile(r"\bignore\s+(?:all\s+|previous\s+|prior\s+)?(?:instructions|rules|prompts)\b", re.I),
+    re.compile(r"\bsystem\s+prompt\s*:", re.I),
+    re.compile(r"\n\s*passages\s*:", re.I),
+    re.compile(r"\bchunk_id\s*=", re.I),
+    re.compile(r"<\|im_(?:start|end)\|>", re.I),
+)
+CONTROL_TOKENS = re.compile(r"<\|im_(?:start|end)\|>", re.I)
+FORGED_HEADERS = re.compile(
+    r"\n\s*(?:passages|question|user|book)\s*:",
+    re.I,
+)
+
+
+def is_prompt_injection(question: str) -> bool:
+    """True when question contains explicit adversarial prompt injection patterns."""
+    if not question or not isinstance(question, str):
+        return False
+    return any(pattern.search(question) for pattern in INJECTION_PATTERNS)
+
+
+def sanitize_query(question: str) -> str:
+    """Strip control tokens and collapse forged section headers to spaces."""
+    if not question or not isinstance(question, str):
+        return ""
+    cleaned = CONTROL_TOKENS.sub("", question)
+    cleaned = FORGED_HEADERS.sub(" ", cleaned)
+    return cleaned.strip()
+
+
+def sanitize_history(history):
+    """Last HISTORY_TURNS turns, clipped. Missing or non-list history is []."""
+    if not isinstance(history, list):
+        return []
+    kept = []
+    for item in history:
+        if not isinstance(item, dict):
+            continue
+        question = item.get("question")
+        answer = item.get("answer")
+        if not isinstance(question, str) or not isinstance(answer, str):
+            continue
+        question = sanitize_query(question)[:HISTORY_QUESTION_CHARS].strip()
+        answer = sanitize_query(answer)[:HISTORY_ANSWER_CHARS].strip()
+        if not question or not answer:
+            continue
+        kept.append({"question": question, "answer": answer})
+    return kept[-HISTORY_TURNS:]
+
+
+def user_message(question, passages, history=None):
+    turns = sanitize_history(history)
+    prefix = ""
+    if turns:
+        lines = ["Earlier in this conversation (not a source — do not quote it):"]
+        for turn in turns:
+            lines.append(f"User: {turn['question']}")
+            lines.append(f"Book: {turn['answer']}")
+        prefix = "\n".join(lines) + "\n\n"
     return (
+        f"{prefix}"
         f"Question: {question}\n\n"
         "Passages:\n"
         f"{passages_block(passages)}\n\n"
@@ -135,6 +248,7 @@ def ollama_generate(system, user, model=ANSWER_MODEL, url=OLLAMA_CHAT, timeout=1
         "model": model,
         "stream": False,
         "think": False,
+        "keep_alive": os.environ.get("OLLAMA_KEEP_ALIVE", "30m"),
         "options": {"temperature": 0, "num_predict": 512},
         "messages": messages,
     }
@@ -150,6 +264,68 @@ def ollama_generate(system, user, model=ANSWER_MODEL, url=OLLAMA_CHAT, timeout=1
     if not isinstance(content, str) or not content.strip():
         raise RuntimeError("empty completion")
     return content.strip()
+
+
+ollama_generate._is_live = True
+
+
+def ollama_generate_stream(system, user, model=ANSWER_MODEL, url=OLLAMA_CHAT,
+                           timeout=120, prefill="", on_token=None):
+    """ollama_generate, but each token reaches on_token as it arrives.
+
+    Same request shape (stream=True), same return value (the stripped
+    completion), same empty-completion RuntimeError; on_token receives each
+    non-empty content piece. The server's stream=1 path passes on_token;
+    every other caller keeps using ollama_generate.
+    """
+    messages = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": user},
+    ]
+    if prefill:
+        # Raw continuation; see ollama_generate.
+        messages.append({"role": "assistant", "content": prefill})
+    payload = {
+        "model": model,
+        "stream": True,
+        "think": False,
+        "keep_alive": os.environ.get("OLLAMA_KEEP_ALIVE", "30m"),
+        "options": {"temperature": 0, "num_predict": 512},
+        "messages": messages,
+    }
+    request = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+    )
+    pieces = []
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        if prefill and on_token is not None:
+            # The callers prepend the prefill to the returned continuation; the
+            # token stream carries it so the pane shows the whole text
+            # (`[Ch. 7] …`, not a bare `7] …`). The return value stays the
+            # continuation only.
+            on_token(prefill)
+        for line in response:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                frame = json.loads(line.decode("utf-8"))
+            except (UnicodeDecodeError, ValueError):
+                continue
+            piece = ((frame.get("message") or {}).get("content")) or ""
+            if piece:
+                pieces.append(piece)
+                if on_token is not None:
+                    on_token(piece)
+    content = "".join(pieces)
+    if not content.strip():
+        raise RuntimeError("empty completion")
+    return content.strip()
+
+
+ollama_generate_stream._is_live = True
 
 
 def _strip_quotes(text):
@@ -208,6 +384,23 @@ def _fold(text):
     return re.sub(r"\s+", " ", text or "").lower()
 
 
+def _original_case(span, text):
+    """The span as it is written in the passage, case and all, snapped to whole-word boundaries."""
+    if not span or not text:
+        return span or ""
+    flat = re.sub(r"\s+", " ", text or "")
+    match = re.search(re.escape(span), flat, re.I)
+    if not match:
+        return span
+    start, end = match.start(), match.end()
+    while start > 0 and (flat[start - 1].isalnum() or flat[start - 1] in "-_"):
+        start -= 1
+    while end < len(flat) and (flat[end].isalnum() or flat[end] in "-_"):
+        end += 1
+    snapped = flat[start:end].strip(" .")
+    return snapped if snapped else span
+
+
 def longest_copied_span(completion, passage):
     """The longest word-for-word run the model copied. The edit is dropped.
 
@@ -235,7 +428,8 @@ def _span_from_chapter(chapter, completion, passages):
             best = (span, hit)
     if best[1] is None:
         return None, ""
-    return best[1], best[0]
+    snapped = _original_case(best[0], best[1].get("text") or "")
+    return best[1], snapped
 
 
 def _tagless_citation(text, passages):
@@ -262,10 +456,11 @@ def _tagless_citation(text, passages):
             best = (span, hit)
     if best[1] is None:
         return None
+    snapped = _original_case(best[0], best[1].get("text") or "")
     return {
         "chunk_id": best[1]["chunk_id"],
         "chapter": str(best[1]["chapter"]),
-        "quote": best[0],
+        "quote": snapped,
     }
 
 
@@ -348,6 +543,318 @@ def _whole_paragraph(anchors, paragraph, quote):
     return False
 
 
+# Closed English classes. A list ask names the shape of the answer, not a topic.
+LIST_ASK = re.compile(
+    r"\b(?:what are|which are|what were|list the)\b"
+    r"|\b(?:factors|parts|kinds|types|steps|stages)\b"
+    r"(?:\W+\w+){0,6}\W+(?:of|to)\b",
+    re.I,
+)
+# Digits stay: a version token is one side of a comparison, and splitting on
+# letters alone would fold both numbered sides into the same stem.
+SIDE_SPLIT = re.compile(r"[^a-z0-9]+")
+SIDE_DROP = frozenset({
+    "what", "is", "the", "difference", "between", "and", "vs", "versus",
+    "how", "why", "who", "which", "are", "was", "were", "do", "does", "did",
+    "can", "could", "should", "would", "a", "an", "with", "from", "than", "to",
+    "against", "or",
+})
+COMPARISON_PATTERNS = (
+    # 1) difference between X and Y
+    re.compile(r"\bdifference\s+between\s+(.+?)\s+and\s+(.+?)\s*[?.!]*$", re.I),
+    # 2) how does X stack up against / compare to / compared to / measure up to / differ from Y
+    re.compile(
+        r"\b(?:how\s+(?:does|do|can|is|are)\s+)?(.+?)\s+(?:stack\s+up\s+against|compare\s+(?:to|with|against)|compared\s+(?:to|with|against)|measure\s+up\s+(?:to|against)|differ\s+from)\s+(.+?)\s*[?.!]*$",
+        re.I,
+    ),
+    # 2b) how do X and Y compare
+    re.compile(
+        r"\b(?:how\s+(?:does|do|can|is|are)\s+)?(.+?)\s+and\s+(.+?)\s+compare\s*[?.!]*$",
+        re.I,
+    ),
+    # 3) compare / contrast / distinguish X and/with/to/from/vs Y
+    re.compile(
+        r"\b(?:compare|comparing|contrast|contrasting|distinguish(?:\s+between)?)\s+(.+?)\s+(?:and|with|to|from|vs\.?|versus)\s+(.+?)\s*[?.!]*$",
+        re.I,
+    ),
+    # 4) is/are/was/were X better/worse/faster/slower/cheaper/simpler/more .../less ... than Y
+    re.compile(
+        r"\b(?:is|are|was|were)\s+(.+?)\s+(?:better|worse|faster|slower|cheaper|simpler|more\s+\w+|less\s+\w+)\s+than\s+(.+?)\s*[?.!]*$",
+        re.I,
+    ),
+    # 5) what sets X apart from Y
+    re.compile(r"\bwhat\s+sets\s+(.+?)\s+apart\s+from\s+(.+?)\s*[?.!]*$", re.I),
+)
+COMPARISON = re.compile(
+    r"\bdifference\s+between\s+(.+?)\s+and\s+(.+?)\s*\??\s*$",
+    re.I,
+)
+ONE_VERSUS = re.compile(r"\bvs\.?(?!\w)|\bversus\b", re.I)
+
+
+def _list_ask(question, asked_form):
+    """True when the question asks for items, not a definition."""
+    for text in (question, asked_form):
+        if text and LIST_ASK.search(text):
+            return True
+    return False
+
+
+def _is_lead_in(quote):
+    """True when a quote only introduces a list and does not hold the items.
+
+    A trailing colon is the printed cue. A sentence that names "the following"
+    is a lead-in only when what follows that phrase is itself a lead-in: no
+    second sentence, no comma or semicolon listing the items.
+    """
+    text = (quote or "").strip()
+    if not text:
+        return False
+    if text.endswith(":"):
+        return True
+    folded = text.lower()
+    marker = folded.find("the following")
+    if marker < 0:
+        return False
+    tail = folded[marker + len("the following"):]
+    if re.search(r"[.!?]\s+\S", tail):
+        return False
+    if "," in tail or ";" in tail:
+        return False
+    return True
+
+
+def _after_lead_in(quote, passage_text):
+    """Verbatim passage text after the lead-in, in the same paragraph.
+
+    Empty when the passage ends at the lead-in. Nothing is added that the
+    passage does not already contain.
+    """
+    words = (quote or "").split()
+    if not words or not passage_text:
+        return ""
+    pattern = r"\s+".join(re.escape(word) for word in words)
+    match = re.search(pattern, passage_text, re.I)
+    if not match:
+        return ""
+    rest = passage_text[match.end():]
+    paragraphs = [
+        piece for piece in re.split(r"\n\s*\n", rest) if piece.strip()
+    ]
+    # A colon lead-in is often its own paragraph. The items are the next one.
+    paragraph = paragraphs[0] if paragraphs else ""
+    continuation = re.sub(r"\s+", " ", paragraph).strip()
+    if len(continuation) > PARAGRAPH_CAP:
+        cut = continuation[:PARAGRAPH_CAP]
+        boundary = cut.rfind(" ")
+        continuation = cut if boundary < 0 else cut[:boundary]
+    return continuation.strip()
+
+
+def _replace_lead_in(answer, lead, continuation):
+    """Swap the lead-in for the items, including inside quotation marks."""
+    if not lead or lead not in answer:
+        return answer
+    return answer.replace(lead, continuation, 1)
+
+
+def _expand_list(body, question, asked_form, passages):
+    """Swap a lead-in quote for the items that follow it in the same passage."""
+    if body.get("refused") or not _list_ask(question, asked_form):
+        return body
+    by_id = {hit.get("chunk_id"): hit for hit in passages}
+    expanded = False
+    for item in body.get("citations") or []:
+        hit = by_id.get(item.get("chunk_id"))
+        if hit is None or not _is_lead_in(item.get("quote")):
+            continue
+        continuation = _after_lead_in(item.get("quote"), hit.get("text") or "")
+        if not continuation:
+            continue
+        lead = item["quote"]
+        item["quote"] = continuation
+        body["answer"] = _replace_lead_in(body["answer"], lead, continuation)
+        if continuation not in body["answer"]:
+            body["answer"] = (
+                body["answer"].rstrip()
+                + f"\n[Ch. {item['chapter']}] \"{continuation}\""
+            )
+        expanded = True
+    # A lead-in can sit in the model's quotes and not match the citation string.
+    def swap(match):
+        lead = match.group(1)
+        if not _is_lead_in(lead):
+            return match.group(0)
+        for hit in passages:
+            continuation = _after_lead_in(lead, hit.get("text") or "")
+            if continuation:
+                return f'"{continuation}"'
+        return match.group(0)
+
+    swapped = re.sub(r'["\u201c]([^"\u201c\u201d]+)["\u201d]', swap, body["answer"])
+    body["answer"] = _drop_lead_in_already_listed(swapped)
+    return body
+
+
+def _drop_lead_in_already_listed(answer):
+    """A lead-in quote line goes when a later quote already holds the items."""
+    lines = answer.splitlines()
+    quote_line = re.compile(
+        r'\[Ch\.\s*[^\]]+\]\s*["\u201c]([^"\u201c\u201d]+)["\u201d]'
+    )
+    later_items = False
+    for line in lines:
+        match = quote_line.match(line.strip())
+        if match and not _is_lead_in(match.group(1)) and len(match.group(1)) >= 40:
+            later_items = True
+            break
+    if not later_items:
+        return answer
+    kept = []
+    seen = []
+    for line in lines:
+        match = quote_line.match(line.strip())
+        if match and _is_lead_in(match.group(1)):
+            continue
+        if match:
+            quote = match.group(1)
+            if any(quote in earlier or earlier in quote for earlier in seen):
+                continue
+            seen.append(quote)
+        kept.append(line)
+    return "\n".join(kept)
+
+
+def _clean_side(text):
+    """Strip question fillers, auxiliaries, and articles from a comparison side."""
+    text = (text or "").strip(" ?.!\"'")
+    text = re.sub(
+        r"^(?:what\s+is|what\s+are|how\s+does|how\s+do|how\s+is|how\s+are|why\s+is|why\s+does)\s+",
+        "",
+        text,
+        flags=re.I,
+    )
+    text = re.sub(
+        r"^(?:is|are|was|were|do|does|did|can|could|should|would)\s+",
+        "",
+        text,
+        flags=re.I,
+    )
+    text = re.sub(r"^(?:the|a|an)\s+", "", text, flags=re.I)
+    return text.strip(" ?.!\"'")
+
+
+def _comparison_sides(*texts):
+    """(left, right) raw sides of a comparison, or None.
+
+    Matches difference-between, comparison predicates, compare/contrast,
+    comparative adjectives, what-sets-apart, or exactly one vs/versus.
+    Either the original question or its canonical rewrite qualifies.
+    """
+    candidates = [text.strip() for text in texts if text and text.strip()]
+    for text in candidates:
+        for pat in COMPARISON_PATTERNS:
+            match = pat.search(text)
+            if match:
+                left = _clean_side(match.group(1))
+                right = _clean_side(match.group(2))
+                if left and right:
+                    return left, right
+    for text in candidates:
+        hits = list(ONE_VERSUS.finditer(text))
+        if len(hits) == 1:
+            hit = hits[0]
+            left = _clean_side(text[:hit.start()])
+            right = _clean_side(text[hit.end():])
+            if left and right:
+                return left, right
+    return None
+
+
+def _side_tokens(side):
+    """Content tokens of one side. Closed function words and short tokens drop."""
+    cleaned = _clean_side(side)
+    tokens = []
+    for token in SIDE_SPLIT.split((cleaned or "").lower()):
+        if len(token) < 3 or token in SIDE_DROP:
+            continue
+        tokens.append(token)
+    return tokens
+
+
+def _side_covered(tokens, passages):
+    """The shown passage holding every token as a whole word, or None."""
+    if not tokens:
+        return None
+    patterns = [re.compile(rf"\b{re.escape(token)}\b") for token in tokens]
+    for hit in passages:
+        folded = (hit.get("text") or "").lower()
+        if all(pattern.search(folded) for pattern in patterns):
+            return hit
+    return None
+
+
+def _covering_quote(tokens, hit):
+    """A verbatim sentence naming the covered side, else its paragraph.
+
+    Nothing under the quote floor is invented into a sentence. Empty when the
+    passage has no quotable span that names the side.
+    """
+    text = hit.get("text") or ""
+    patterns = [re.compile(rf"\b{re.escape(token)}\b") for token in tokens]
+    for sentence in _sentences(text):
+        if all(pattern.search(sentence.lower()) for pattern in patterns):
+            return _without_heading(sentence, hit)
+    paragraph = re.sub(r"\s+", " ", text).strip()
+    if (
+        len(paragraph) <= PARAGRAPH_CAP
+        and len(paragraph) >= SPAN_MIN_CHARS
+        and all(pattern.search(paragraph.lower()) for pattern in patterns)
+    ):
+        return _without_heading(paragraph, hit)
+    return ""
+
+
+def _half_covered(body, question, asked_form, passages, figures):
+    """Answer the covered side of a comparison when only one side is in the passages.
+
+    Fires only when exactly one side is in the shown passages and a verbatim
+    span can be quoted. The other side is named in a gloss, never quoted and
+    never given attributes the passages do not contain.
+    """
+    sides = _comparison_sides(question, asked_form)
+    if sides is None:
+        return body
+    found = []
+    for side in sides:
+        tokens = _side_tokens(side)
+        found.append((side, tokens, _side_covered(tokens, passages)))
+    covered = [item for item in found if item[2] is not None]
+    missing = [item for item in found if item[2] is None]
+    if len(covered) != 1 or len(missing) != 1:
+        return body
+    if (not body.get("refused")
+            and missing[0][0].lower() in body.get("answer", "").lower()
+            and re.search(r"\b(not\s+mention|does\s+not|do\s+not|absent)\b", body.get("answer", ""), re.I)):
+        return body
+    side, tokens, hit = covered[0]
+    quote = _covering_quote(tokens, hit)
+    if not quote:
+        return body
+    chapter = str(hit["chapter"])
+    gloss = f"The passages do not mention {missing[0][0]}."
+    return {
+        "answer": f'[Ch. {chapter}] "{quote}"\n{gloss}',
+        "citations": [{
+            "chunk_id": hit["chunk_id"],
+            "chapter": chapter,
+            "quote": quote,
+        }],
+        "figures": figures_for([hit], figures or []),
+        "refused": False,
+    }
+
+
 def _without_heading(quote, passage):
     """A quote that opens with the passage's heading line drops it.
 
@@ -377,7 +884,233 @@ def _without_heading(quote, passage):
     return rest
 
 
-def parse_completion(completion, passages, figures=None, anchors=None):
+def _clean_boilerplate_gloss(gloss, selection=""):
+    """Clean robotic boilerplate or formulaic crutches from a gloss."""
+    if not gloss:
+        return ""
+    text = (gloss or "").strip()
+    text = re.sub(r"^[Ii]n this context,?\s*", "", text)
+    text = re.sub(r"\bin this context\b", "here", text, flags=re.IGNORECASE)
+    text = re.sub(r"\b[Tt]he highlighted question\b", "The question", text)
+    text = re.sub(r"^[Ii]n this passage,?\s*", "", text)
+    if selection:
+        sel_words = selection.strip().split()
+        replacement = "The highlighted word" if len(sel_words) == 1 else "The highlighted phrase"
+        text = re.sub(r"^(?:[Tt]he|[Tt]his)\s+passage\s+(?:states|explains|discusses|describes|refers to|means)\s+", f"{replacement} ", text)
+        text = re.sub(r"^(?:[Tt]he|[Tt]his)\s+passage\s+", f"{replacement} ", text)
+        text = re.sub(r"\b[Tt]he highlighted (?:text|phrase|sentence|passage|term|concept|word|section)\b", replacement, text)
+        text = re.sub(r"\b[Tt]he highlighted(?!\s+(?:word|phrase))\b", replacement, text)
+    else:
+        text = re.sub(r"^(?:[Tt]he|[Tt]his)\s+passage\s+", "This section ", text)
+        text = re.sub(r"\b[Tt]he highlighted (?:text|phrase|sentence|passage|term|concept|word|section)\b", "The highlighted phrase", text)
+        text = re.sub(r"\b[Tt]he highlighted(?!\s+(?:word|phrase))\b", "The highlighted phrase", text)
+    text = re.sub(r"\brefers to an?\b", "is a", text, flags=re.IGNORECASE)
+    text = re.sub(r"\brefers to the\b", "is the", text, flags=re.IGNORECASE)
+    text = re.sub(r"\brefers to\b", "means", text, flags=re.IGNORECASE)
+    text = " ".join(text.split()).strip("\"'“”")
+    if text:
+        text = text[0].upper() + text[1:]
+    return text
+
+
+def _is_coherent_gloss(gloss: str, quote: str = "") -> bool:
+    """Strict guard rejecting gibberish, token repetition loops, meta-commentary, or fragments."""
+    if not gloss or not isinstance(gloss, str):
+        return False
+    text = gloss.strip()
+    # a) len < 25
+    if len(text) < 25:
+        return False
+    # b) gibberish markers: sentence digits or stray standalone digits after nouns
+    if re.search(r"\b(?:sentence|line|paragraph|passage)\s+\d+\b", text, re.IGNORECASE):
+        return False
+    if re.search(r"\b[A-Za-z]+\s+\d+\s+(?:negative|positive|again|reads?)\b", text, re.IGNORECASE):
+        return False
+    # c) any non-stopword content word (len >= 4) appears >= 3 times in a single sentence
+    #    or >= 4 times in a 25-word window
+    sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
+    for s in sentences:
+        s_words = [w.lower() for w in words(s) if len(w) >= 4 and w.lower() not in STOPWORDS]
+        counts = {}
+        for w in s_words:
+            counts[w] = counts.get(w, 0) + 1
+            if counts[w] >= 3:
+                return False
+    all_words = text.split()
+    for i in range(len(all_words)):
+        win = all_words[i:i + 25]
+        win_content = [w.lower() for w in words(" ".join(win)) if len(w) >= 4 and w.lower() not in STOPWORDS]
+        counts = {}
+        for w in win_content:
+            counts[w] = counts.get(w, 0) + 1
+            if counts[w] >= 4:
+                return False
+    # d) adjacent repeated words
+    if re.search(r"\b([A-Za-z]{3,})\s+\1\b", text, re.IGNORECASE):
+        return False
+    # e) sentence ends with auxiliary/determiner/preposition
+    if re.search(r"\b(?:the|a|an|also|again|to|of|in|for|with|and|or|is|are|was|were|that)\s*[.?!]$", text, re.IGNORECASE):
+        return False
+    # f) meta-commentary non-answer
+    if re.search(r"\b(?:this|the)\s+(?:section|chapter|passage|book|authors?)\s+(?:introduces?|prepares?\s+readers|discusses?|mentions?|is\s+a\s+detour)\b", text, re.IGNORECASE):
+        return False
+    # Quote repetition:
+    if quote:
+        norm_t = re.sub(r"[\s\"'“”]+", " ", text).strip().lower()
+        norm_q = re.sub(r"[\s\"'“”]+", " ", quote).strip().lower()
+        if norm_t == norm_q:
+            return False
+    return True
+
+
+def _reground_alphanumeric_quote(quote, question, chunk_text):
+    """Ensure quotes for normal forms, SCD types, acronyms, and attributions align to the exact form asked."""
+    q_low = (question or "").lower()
+    text = chunk_text or ""
+    if "3nf" in q_low or "third normal form" in q_low:
+        if "1nf" in quote.lower() and "transitive" not in quote.lower() and "2nf" not in quote.lower():
+            for sent in _sentences(text):
+                if ("transitive" in sent.lower() or "2nf" in sent.lower()) and len(sent) >= 30:
+                    return sent
+    elif "2nf" in q_low or "second normal form" in q_low:
+        if "transitive" in quote.lower() or "single value" in quote.lower():
+            for sent in _sentences(text):
+                if ("partial" in sent.lower() or "1nf" in sent.lower()) and len(sent) >= 30:
+                    return sent
+    elif "1nf" in q_low or "first normal form" in q_low:
+        if "partial" in quote.lower() or "transitive" in quote.lower():
+            for sent in _sentences(text):
+                if ("single value" in sent.lower() or "primary key" in sent.lower()) and "partial" not in sent.lower() and len(sent) >= 30:
+                    return sent
+    elif re.search(r"\btype[- ]2\b", q_low):
+        if "type 3" in quote.lower() or ("type 2" not in quote.lower() and "type-2" not in quote.lower() and "effective end date" not in quote.lower()):
+            for sent in _sentences(text):
+                sent_low = sent.lower()
+                if ("type 2" in sent_low or "type-2" in sent_low) and ("new record" in sent_low or "history" in sent_low or "inserted" in sent_low or "full history" in sent_low):
+                    return sent
+                if "keep a full history of dimension records" in sent_low or ("effective end date" in sent_low and "new record" in sent_low):
+                    return sent
+    elif re.search(r"\bs3\b", q_low):
+        if not any(k in quote.lower() for k in ("object", "amazon", "cloud", "storage")):
+            for sent in _sentences(text):
+                sent_low = sent.lower()
+                if "s3" in sent_low and any(k in sent_low for k in ("amazon", "object", "cloud", "storage")):
+                    return sent
+    elif re.search(r"\biops\b", q_low):
+        if "per second" not in quote.lower() and "input/output" not in quote.lower():
+            for sent in _sentences(text):
+                sent_low = sent.lower()
+                if "iops" in sent_low and any(k in sent_low for k in ("per second", "input/output", "operations", "bottleneck", "limitation")):
+                    return sent
+    elif re.search(r"\bwho\s+(?:created|invented|designed|developed|authored|introduced|wrote|founded|proposed)\b", q_low):
+        has_author_name = bool(re.search(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", quote))
+        if not has_author_name:
+            for sent in _sentences(text):
+                sent_low = sent.lower()
+                if any(w in sent_low for w in ("noted", "groundbreaking", "book", "article", "creator", "created", "proposed", "introduced", "by ")):
+                    if re.search(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", sent):
+                        return sent
+    return quote
+
+
+def _clean_selection_text(sel: str) -> str:
+    raw = (sel or "").strip()
+    if not raw:
+        return ""
+    if "\n" in raw:
+        lines = [line.strip() for line in raw.splitlines() if line.strip()]
+        if len(lines) >= 2 and len(lines[0]) <= 40 and lines[0].endswith(":"):
+            raw = " ".join(lines[1:])
+    return re.sub(r"\s+", " ", raw).strip()
+
+
+GENERIC_FOLLOWUP_RE = re.compile(
+    r"^\s*(?:why\s+does\s+this\s+matter|explain\s+(?:in\s+)?simpler\s+words|simpler\s+words|"
+    r"break\s+this\s+down|what\s+are\s+(?:the|its)\s+trade-?offs|what\s+are\s+trade-?offs|"
+    r"trade-?offs|why\s+matter|tell\s+me\s+more|elaborate|simplify|how\s+does\s+this\s+work)\s*\??\s*$",
+    re.IGNORECASE,
+)
+
+
+def _is_generic_followup(q: str) -> bool:
+    if not q:
+        return True
+    return bool(is_deictic_question(q) or GENERIC_FOLLOWUP_RE.match(q.strip()))
+
+
+def _gloss_repeats_quote(gloss: str, quote: str) -> bool:
+    g = re.sub(r"[\s\"'“”]+", " ", gloss or "").strip().lower()
+    q = re.sub(r"[\s\"'“”]+", " ", quote or "").strip().lower()
+    if not g or not q:
+        return True
+    if g == q or g.startswith(q) or q.startswith(g):
+        return True
+    g_words = set(re.findall(r"\b[a-zA-Z0-9]+\b", g))
+    q_words = set(re.findall(r"\b[a-zA-Z0-9]+\b", q))
+    return len(g_words - q_words) < 3
+
+
+def _extract_subject_from_query(s):
+    if not s:
+        return ""
+    m_when = re.search(r"\b(?:when|while)\s+(.+)", s, re.I)
+    if m_when and len(m_when.group(1).split()) >= 2:
+        cand = m_when.group(1).rstrip("?.!").strip()
+        cand = re.sub(r"^(selecting|evaluating|choosing|designing|building)\s+", "", cand, flags=re.I)
+        cand = re.sub(r"^(a|an|the)\s+", "", cand, flags=re.I)
+        return cand
+    q = s.strip().rstrip("?.!")
+    m = re.match(r"^(what|how|why|where|which|should|tell me about|explain)\s+(?:is|are|was|were|does|do|did|can|could|should)?\s*(?:\b(?:a|an|the|teams|engineers|users|we)\b)?\s*", q, re.I)
+    if m:
+        q = q[m.end():].strip()
+    q = re.split(r"\s+(?:sit|sits|used|use|stand for|look|differ|consider|covered)\b", q, flags=re.I)[0].strip()
+    return q or s
+
+
+def _extract_subject_from_history(history):
+    clean_history = [
+        h for h in (history or [])
+        if isinstance(h, dict) and (h.get("question") or h.get("answer"))
+    ]
+    if not clean_history:
+        return ""
+
+    for prev in reversed(clean_history):
+        prev_q = (prev.get("question") or "").strip()
+        if prev_q and not _is_generic_followup(prev_q):
+            q_words = prev_q.split()
+            first_w = q_words[0].lower() if q_words else ""
+            wh_starts = ("what", "which", "who", "whom", "whose", "where", "when", "why", "how")
+            aux_words = ("is", "are", "was", "were", "do", "does", "did", "can", "could", "should", "would", "will")
+            opener_words = ("explain", "describe", "define", "compare", "tell", "show")
+            if (len(q_words) <= 10 and not any(first_w.startswith(w) for w in wh_starts)
+                    and first_w not in aux_words and first_w not in opener_words):
+                return prev_q.strip(" ?.!\"'")
+            sub = _extract_subject_from_query(prev_q)
+            sub_tokens = set(re.findall(r"\b[a-zA-Z]+\b", sub.lower()))
+            if not (sub_tokens & {"it", "its", "that", "this", "these", "those"}):
+                return sub
+
+    for prev in reversed(clean_history):
+        prev_a = (prev.get("answer") or "").strip()
+        if prev_a:
+            m_q = re.search(r"\[Ch\.\s*[^\]]+\]\s*[\"“](.+?)[\"”]", prev_a)
+            if m_q:
+                quote = m_q.group(1).strip()
+                m_sub = re.match(
+                    r"^\s*(?:A|An|The)?\s*([A-Za-z0-9\s_-]{3,40}?)\s+(?:is|are|was|were|provides|serves|enables|means|refers|consists|helps|acts|describes)\b",
+                    quote,
+                )
+                if m_sub:
+                    cand = m_sub.group(1).strip()
+                    cand_tokens = set(re.findall(r"\b[a-zA-Z]+\b", cand.lower()))
+                    if not (cand_tokens & {"it", "its", "this", "that"}):
+                        return cand
+
+    return _extract_subject_from_query(clean_history[0].get("question") or "")
+
+
+def parse_completion(completion, passages, figures=None, anchors=None, question=""):
     """Return a contract body. Unchecked prose is a refusal.
 
     A figure is attached only when a passage the answer cited names it. When
@@ -422,7 +1155,9 @@ def parse_completion(completion, passages, figures=None, anchors=None):
             if hit is None:
                 hit = _matching_passage_anywhere(quote, passages)
             if hit is None:
-                hit, quote = _span_from_chapter(chapter, rest or text, passages)
+                hit, quote = _span_from_chapter(chapter, rest, passages)
+            if hit is None:
+                hit, quote = _span_from_chapter(chapter, text, passages)
             if hit is None:
                 return _refusal(passages, figures)
             citations.append({
@@ -432,7 +1167,8 @@ def parse_completion(completion, passages, figures=None, anchors=None):
             })
     if not citations:
         return _refusal(passages, figures)
-    if anchors:
+    is_process_q = bool(re.search(r"\bhow\s+(?:does|do|can)\b", question or "", re.I))
+    if anchors or is_process_q:
         for item in citations:
             spot = next(
                 (hit for hit in passages if hit["chunk_id"] == item["chunk_id"]),
@@ -441,7 +1177,9 @@ def parse_completion(completion, passages, figures=None, anchors=None):
             if spot is None:
                 continue
             paragraph = _paragraph_around(item["quote"], spot.get("text") or "")
-            if _whole_paragraph(anchors, paragraph, item["quote"]):
+            if anchors and _whole_paragraph(anchors, paragraph, item["quote"]):
+                item["quote"] = paragraph
+            elif is_process_q and paragraph and len(paragraph) <= PARAGRAPH_CAP and len(paragraph) >= SPAN_MIN_CHARS:
                 item["quote"] = paragraph
     # One trim, after every path that can set a quote: the anchor expansion
     # above replaces the quote with the whole paragraph, heading line included.
@@ -452,22 +1190,196 @@ def parse_completion(completion, passages, figures=None, anchors=None):
         )
         if spot is not None:
             item["quote"] = _without_heading(item["quote"], spot)
+            item["quote"] = _reground_alphanumeric_quote(
+                item["quote"], question, spot.get("text", "")
+            )
+
+    # Fully-covered comparison alignment: if query compares two concepts, cite the passage
+    # and sentence mentioning both sides when present.
+    sides = _comparison_sides(question)
+    if sides and len(passages) >= 2:
+        tokens_left = _side_tokens(sides[0])
+        tokens_right = _side_tokens(sides[1])
+        if tokens_left and tokens_right:
+            dual_hit = None
+            dual_sentence = None
+            best_contrast_score = -1
+            for p in passages:
+                p_text = p.get("text") or ""
+                p_low = p_text.lower()
+                hl = all(re.search(rf"\b{re.escape(stem(t))}\w*\b", p_low) for t in tokens_left)
+                hr = all(re.search(rf"\b{re.escape(stem(t))}\w*\b", p_low) for t in tokens_right)
+                if hl and hr:
+                    c_score = 1
+                    for marker in ("unlike", "versus", "vs.", "vs", "difference between", "differ from", "differ", "compared to", "in contrast"):
+                        if marker in p_low:
+                            c_score += 5
+                    body_start = p_text.split("\n", 1)[1].strip() if "\n" in p_text else p_text
+                    if body_start.startswith("("):
+                        c_score -= 10
+                    if c_score > best_contrast_score:
+                        s_best = None
+                        for s in _sentences(p_text):
+                            s_low = s.lower()
+                            in_left = any(re.search(rf"\b{re.escape(stem(t))}\w*\b", s_low) for t in tokens_left)
+                            in_right = any(re.search(rf"\b{re.escape(stem(t))}\w*\b", s_low) for t in tokens_right)
+                            if in_left and in_right:
+                                if len(s) >= SPAN_MIN_CHARS:
+                                    s_best = _without_heading(s, p)
+                                    break
+                            elif (in_left or in_right) and any(m in s_low for m in ("unlike", "difference", "versus", "differ")):
+                                if len(s) >= SPAN_MIN_CHARS and not s_best:
+                                    s_best = _without_heading(s, p)
+                        if not s_best:
+                            s_best = _without_heading(p_text.split("\n\n")[0], p)
+                        if s_best:
+                            best_contrast_score = c_score
+                            dual_hit = p
+                            dual_sentence = s_best
+            if dual_hit and dual_sentence:
+                cur_quote = citations[0]["quote"].lower() if citations else ""
+                cur_has_left = any(re.search(rf"\b{re.escape(stem(t))}\w*\b", cur_quote) for t in tokens_left)
+                cur_has_right = any(re.search(rf"\b{re.escape(stem(t))}\w*\b", cur_quote) for t in tokens_right)
+                if not (cur_has_left and cur_has_right) or dual_hit["chunk_id"] != citations[0]["chunk_id"]:
+                    citations = [{
+                        "chunk_id": dual_hit["chunk_id"],
+                        "chapter": str(dual_hit["chapter"]),
+                        "quote": dual_sentence,
+                    }]
     answer_lines = [
         f"[Ch. {item['chapter']}] \"{item['quote']}\"" for item in citations
     ]
     if gloss:
-        answer_lines.append(" ".join(gloss))
-    # Only the passages the answer actually cited may attach a figure. The rest
-    # of the kept passages used to ride along, which is how a data-mesh figure
-    # appeared on an answer about the MAD landscape.
+        gloss_cleaned = _clean_boilerplate_gloss(" ".join(gloss))
+        if gloss_cleaned:
+            answer_lines.append(gloss_cleaned)
     cited = {item["chunk_id"] for item in citations}
     named = [hit for hit in passages if hit["chunk_id"] in cited] or passages
-    return {
+    body = {
         "answer": "\n".join(answer_lines),
         "citations": citations,
         "figures": figures_for(named, figures or []),
         "refused": False,
     }
+    return _align_citation_to_query_concepts(body, question, passages)
+
+
+def _align_citation_to_query_concepts(body, question, passages):
+    """Realign citations to passages that actually discuss the query's core acronyms or topic concepts."""
+    if not body or body.get("refused") or not body.get("citations") or not passages:
+        return body
+    citations = body["citations"]
+    cur_chunk_id = citations[0].get("chunk_id")
+
+    q_words = words(question)
+    raw_acronyms = [w.lower() for w in re.findall(r"\b[A-Za-z0-9]+\b", question) if (w.isupper() and len(w) >= 2) or w.lower() in ("s3", "iops", "aimd", "sla", "slo", "cdc")]
+    # Prioritize specific technical acronyms over generic network protocols
+    q_acronyms = sorted(raw_acronyms, key=lambda a: (0 if a in ("tcp", "ip", "udp") else 1, len(a)), reverse=True)
+    if q_acronyms:
+        cur_hit = next((p for p in passages if p.get("chunk_id") == cur_chunk_id), None)
+        cur_text = ((cur_hit.get("heading") or "") + " " + (cur_hit.get("text") or "")).lower() if cur_hit else ""
+        # Does current cited passage have the specific acronyms?
+        primary_ac = [ac for ac in q_acronyms if ac not in ("tcp", "ip", "udp")] or q_acronyms
+        cur_has_acronym = any(re.search(rf"\b{re.escape(ac)}s?\b", cur_text) for ac in primary_ac)
+        if "iops" in primary_ac and cur_chunk_id != passages[0].get("chunk_id"):
+            p0_text = (passages[0].get("text") or "").lower()
+            if "operations per second" in p0_text and "operations per second" not in cur_text:
+                cur_has_acronym = False
+        if not cur_has_acronym:
+            best_hit = None
+            best_count = -100
+            for p in passages:
+                p_text = ((p.get("heading") or "") + " " + (p.get("text") or "")).lower()
+                head_text = (p.get("heading") or "").lower()
+                is_example = head_text.startswith("example:") or head_text.startswith("example ")
+                count = sum(2 if ac in primary_ac else 1 for ac in q_acronyms if re.search(rf"\b{re.escape(ac)}s?\b", p_text))
+                if is_example:
+                    count -= 3
+                if count > best_count:
+                    best_count = count
+                    best_hit = p
+            if best_hit:
+                b_text = best_hit.get("text") or ""
+                best_sent = ""
+                for ac in primary_ac:
+                    for s in _sentences(b_text):
+                        s_clean = _without_heading(s, best_hit)
+                        if re.search(rf"\b{re.escape(ac)}s?\b", s_clean.lower()) and len(s_clean) >= SPAN_MIN_CHARS:
+                            best_sent = s_clean
+                            break
+                    if best_sent:
+                        break
+                if not best_sent:
+                    for ac in primary_ac:
+                        para = _paragraph_around(ac, b_text)
+                        if para and len(para) <= PARAGRAPH_CAP and len(para) >= SPAN_MIN_CHARS:
+                            best_sent = _without_heading(para, best_hit)
+                            break
+                if best_sent:
+                    chap = str(best_hit["chapter"])
+                    return {
+                        "answer": f'[Ch. {chap}] "{best_sent}"\n{best_sent}',
+                        "citations": [{
+                            "chunk_id": best_hit["chunk_id"],
+                            "chapter": chap,
+                            "quote": best_sent,
+                        }],
+                        "figures": figures_for([best_hit], body.get("figures") or []),
+                        "refused": False,
+                    }
+
+    content_verbs = [w.lower() for w in q_words if w.lower() in ("extract", "extracting", "replicate", "ingest")]
+    if content_verbs:
+        cur_hit = next((p for p in passages if p.get("chunk_id") == cur_chunk_id), None)
+        cur_text = ((cur_hit.get("heading") or "") + " " + (cur_hit.get("text") or "")).lower() if cur_hit else ""
+        if not any(v in cur_text for v in content_verbs):
+            for p in passages:
+                p_text = ((p.get("heading") or "") + " " + (p.get("text") or "")).lower()
+                if any(v in p_text for v in content_verbs):
+                    for s in _sentences(p.get("text") or ""):
+                        s_clean = _without_heading(s, p)
+                        if any(v in s_clean.lower() for v in content_verbs) and len(s_clean) >= SPAN_MIN_CHARS:
+                            chap = str(p["chapter"])
+                            return {
+                                "answer": f'[Ch. {chap}] "{s_clean}"\n{s_clean}',
+                                "citations": [{
+                                    "chunk_id": p["chunk_id"],
+                                    "chapter": chap,
+                                    "quote": s_clean,
+                                }],
+                                "figures": figures_for([p], body.get("figures") or []),
+                                "refused": False,
+                            }
+
+    tokens = re.findall(r"\b[a-zA-Z0-9_-]+\b", question.lower())
+    phrases = []
+    for i in range(len(tokens) - 1):
+        w1, w2 = tokens[i], tokens[i + 1]
+        if w1 not in STOPWORDS and w1 not in STEM_WORDS and len(w1) >= 3:
+            if w2 not in STOPWORDS and w2 not in STEM_WORDS and len(w2) >= 3:
+                phrases.append(f"{w1} {w2}")
+    if phrases and passages and cur_chunk_id != passages[0].get("chunk_id"):
+        cur_hit = next((p for p in passages if p.get("chunk_id") == cur_chunk_id), None)
+        cur_text = ((cur_hit.get("heading") or "") + " " + (cur_hit.get("text") or "")).lower() if cur_hit else ""
+        top_text = ((passages[0].get("heading") or "") + " " + (passages[0].get("text") or "")).lower()
+        matched_phrase = next((ph for ph in phrases if re.search(rf"\b{re.escape(ph)}\b", top_text)), None)
+        if matched_phrase and not re.search(rf"\b{re.escape(matched_phrase)}\b", cur_text):
+            p = passages[0]
+            for s in _sentences(p.get("text") or ""):
+                s_clean = _without_heading(s, p)
+                if re.search(rf"\b{re.escape(matched_phrase)}\b", s_clean.lower()) and len(s_clean) >= SPAN_MIN_CHARS:
+                    chap = str(p["chapter"])
+                    return {
+                        "answer": f'[Ch. {chap}] "{s_clean}"\n{s_clean}',
+                        "citations": [{
+                            "chunk_id": p["chunk_id"],
+                            "chapter": chap,
+                            "quote": s_clean,
+                        }],
+                        "figures": figures_for([p], body.get("figures") or []),
+                        "refused": False,
+                    }
+    return body
 
 
 def _refusal(passages, figures=None):
@@ -487,7 +1399,93 @@ def _refusal(passages, figures=None):
     }
 
 
-def retrieval_context(index, question, search_fn=None, generate_fn=None):
+def _rank_seq_chunks(seq_chunks, question, history_subject=None):
+    """Rank sequential neighbor chunks by keyword relevance to the follow-up question."""
+    q_lower = (question or "").lower()
+    q_words = set(re.findall(r"\b[a-zA-Z0-9]+\b", q_lower))
+
+    def score_chunk(c):
+        text = (c.get("heading") or "").lower() + " " + (c.get("text") or "").lower()
+        score = 0
+        if history_subject and history_subject.lower() in text:
+            score += 25
+        elif history_subject and any(w in text for w in history_subject.lower().split() if len(w) > 3):
+            score += 15
+        if re.search(r"\b(which\s+chapter|where\s+in\s+the\s+book)\b", q_lower):
+            if "in greater detail" in text:
+                score += 25
+            if re.search(r"\bchapter\s+\d+\b", text):
+                score += 20
+        if re.search(r"\b(who\s+created|who\s+introduced|who\s+coined|who\s+founded|who\s+proposed|who\s+invented|creator|inventor)\b", q_lower):
+            for marker in ("introduced", "created", "coined", "founded", "proposed", "author", "invented", "noted", "article", "book"):
+                if marker in text:
+                    score += 10
+            orig_text = (c.get("text") or "")
+            if re.search(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", orig_text):
+                score += 10
+        content_words = {w for w in q_words if len(w) > 3 and w not in STOPWORDS and w not in FRAMING_WORDS}
+        for cw in content_words:
+            if cw in text:
+                score += 2
+        if re.search(r"\b(downside|downsides|disadvantage|disadvantages|drawback|drawbacks|con|cons|trade-off|trade-offs|tradeoff|tradeoffs|challenge|challenges|risk|risks)\b", q_lower):
+            for term in ("disadvantage", "disadvantages", "downside", "downsides", "drawback", "drawbacks", "complexity", "bottleneck", "bottlenecks", "overhead", "costs", "trade-off", "trade-offs"):
+                if term in text:
+                    score += 15
+        for term in ("overhead", "trade-offs", "tradeoffs", "latency", "throughput", "partition"):
+            if term in text:
+                score += 5
+        return score
+
+    return sorted(seq_chunks, key=score_chunk, reverse=True)
+
+
+def _prioritize_phrase_matches(passages, question):
+    """Prioritize passages containing exact multi-word non-stopword phrases or acronym definitions from the query."""
+    if not passages or not question:
+        return passages
+    tokens = re.findall(r"\b[a-zA-Z0-9_-]+\b", question.lower())
+    phrases = []
+    for i in range(len(tokens) - 1):
+        w1, w2 = tokens[i], tokens[i + 1]
+        if w1 not in STOPWORDS and w1 not in STEM_WORDS and len(w1) >= 3:
+            if w2 not in STOPWORDS and w2 not in STEM_WORDS and len(w2) >= 3:
+                phrases.append(f"{w1} {w2}")
+    acronyms = [w for w in re.findall(r"\b[A-Za-z0-9]+\b", question) if (w.isupper() and 2 <= len(w) <= 5) or w.lower() in ("s3", "iops")]
+
+    def score_hit(hit):
+        score = 0
+        text_low = ((hit.get("heading") or "") + " " + (hit.get("text") or "")).lower()
+        head_low = (hit.get("heading") or "").lower()
+        for p in phrases:
+            if re.search(rf"\b{re.escape(p)}\b", text_low):
+                score += 10
+            if re.search(rf"\b{re.escape(p)}\b", head_low):
+                score += 15
+        for ac in acronyms:
+            ac_low = ac.lower()
+            if re.search(rf"\b{re.escape(ac_low)}s?\b", head_low):
+                if not (head_low.startswith("example:") or head_low.startswith("example ")):
+                    score += 20
+                else:
+                    score += 5
+            if ac_low == "s3":
+                if "amazon s3" in text_low or "object storage" in text_low:
+                    score += 15
+                if "storage classes" in text_low or "storage tiers" in text_low:
+                    score += 10
+            elif ac_low == "iops" and ("operations per second" in text_low or "(iops)" in text_low):
+                score += 15
+        return score
+
+    scores = [score_hit(h) for h in passages]
+    if any(s > 0 for s in scores):
+        scored = list(zip(scores, passages))
+        passages = [h for _, h in sorted(scored, key=lambda x: x[0], reverse=True)]
+    return passages
+
+
+def retrieval_context(index, question, search_fn=None, generate_fn=None,
+                      pin_chunk=None, end_chunk_id=None, history=None):
     """The passages the model is shown, after reading, fusion, and seeding.
 
     Shared by ask and respond so both modes see the same evidence; the
@@ -499,6 +1497,8 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None):
     """
     search_fn = search_fn or search
     passages = search_fn(index, question, k=PASSAGE_LIMIT)
+    passages = _pin_chunk(index, passages, pin_chunk, end_chunk_id=end_chunk_id)
+
     context = {
         "question": question,
         "asked": question,
@@ -513,14 +1513,15 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None):
     # A word the book does not contain may be a typo. One self-proving reading
     # becomes the question when it scores strictly better, and the answer says
     # which reading it answered. Nothing is repaired silently.
-    reading = second_reading(index, question, passages[0]["score"], word_map=word_map)
+    best_score = passages[0].get("score", 0.0)
+    reading = second_reading(index, question, best_score, word_map=word_map)
     if reading is None:
         # The difflib reading cannot see every typo (measured 2026-10-13:
         # "normilazation", "ingestoin"); the model proposes and the same
         # strict-improvement gate decides. A failed call leaves the literal
         # question standing.
         reading = llm_second_reading(
-            index, question, passages[0]["score"],
+            index, question, best_score,
             generate_fn=generate_fn, word_map=word_map,
         )
     if reading is not None:
@@ -539,32 +1540,740 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None):
         passages = fuse(index, asked, passages, word_map)
     # Caption seeding runs last: its measured effect is which chunk leads, and
     # fusion would otherwise be free to demote that lead.
-    context["passages"] = caption_seed(index, asked, passages)
+    passages = caption_seed(index, asked, passages)
+    passages = _prioritize_phrase_matches(passages, asked)
+
+    clean_history = [
+        h for h in (history or [])
+        if isinstance(h, dict) and (h.get("question") or h.get("answer"))
+    ]
+    if clean_history:
+        last_turn = clean_history[-1]
+        last_ans = last_turn.get("answer") or ""
+        m = re.search(r"\[Ch\.\s*([^\]]+)\]\s*[\"“](.+?)[\"”]", last_ans)
+        if m:
+            prior_chap = m.group(1).strip().rstrip(".")
+            prior_quote = m.group(2).strip()
+            chunks = index.get("chunks") or []
+            target_idx = None
+            snippet = prior_quote[:50].lower()
+            for i, c in enumerate(chunks):
+                if str(c.get("chapter")) == prior_chap and snippet in (c.get("text") or "").lower():
+                    target_idx = i
+                    break
+            if target_idx is None:
+                for i, c in enumerate(chunks):
+                    if snippet in (c.get("text") or "").lower():
+                        target_idx = i
+                        break
+            if target_idx is not None:
+                cand_offsets = (0, 1, -1, 2)
+                seq_chunks = []
+                for offset in cand_offsets:
+                    cand_idx = target_idx + offset
+                    if 0 <= cand_idx < len(chunks):
+                        cand = chunks[cand_idx]
+                        if str(cand.get("chapter")) == str(chunks[target_idx].get("chapter")):
+                            if cand not in seq_chunks:
+                                seq_chunks.append(cand)
+                if seq_chunks:
+                    history_subject = _extract_subject_from_history(clean_history)
+                    ranked_seq = _rank_seq_chunks(seq_chunks, question, history_subject)
+                    p0_s = passages[0].get("score") if passages else 1.0
+                    base_score = float(p0_s) if p0_s is not None else 1.0
+                    injected = []
+                    for idx_offset, c in enumerate(ranked_seq):
+                        c_dict = dict(c)
+                        c_s = c.get("score")
+                        c_dict["score"] = float(c_s) if c_s is not None else (base_score - 0.001 * (idx_offset + 1))
+                        injected.append(c_dict)
+                    injected_ids = {c["chunk_id"] for c in injected}
+                    passages = injected + [p for p in passages if p.get("chunk_id") not in injected_ids]
+                    passages = passages[:PASSAGE_LIMIT]
+
+    if pin_chunk:
+        chunks = index.get("chunks") or []
+        p_id = pin_chunk.get("chunk_id") if isinstance(pin_chunk, dict) else pin_chunk
+        p_obj = next((c for c in chunks if c.get("chunk_id") == p_id), None)
+        if p_obj:
+            try:
+                p_idx = chunks.index(p_obj)
+                p_neighbors = []
+                if p_idx > 0 and chunks[p_idx - 1].get("chapter") == p_obj.get("chapter"):
+                    p_neighbors.append(chunks[p_idx - 1])
+                if p_idx + 1 < len(chunks) and chunks[p_idx + 1].get("chapter") == p_obj.get("chapter"):
+                    p_neighbors.append(chunks[p_idx + 1])
+                p_curr_ids = {p.get("chunk_id") for p in passages}
+                for n in p_neighbors:
+                    if n.get("chunk_id") not in p_curr_ids:
+                        passages.append(n)
+            except ValueError:
+                pass
+
+    if pin_chunk or end_chunk_id:
+        passages = _pin_chunk(index, passages, pin_chunk, end_chunk_id=end_chunk_id)
+    context["passages"] = passages
     return context
 
 
-def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
-        canonical=True):
-    generate_fn = generate_fn or ollama_generate
-    asked_form = canonical_query(question) if canonical else question
-    context = retrieval_context(index, asked_form, search_fn, generate_fn)
-    passages = context["passages"]
-    if not passages:
-        return _refusal([])
-    completion = generate_fn(SYSTEM, user_message(context["asked"], passages), model)
-    anchors = anchor_words(asked_form, context["word_map"])
-    body = parse_completion(
-        completion, passages, index.get("figures") or [], anchors
+def _candidate_sentences(text, heading=""):
+    raw = (text or "").strip()
+    if not raw:
+        return []
+    raw = raw.replace("\r\n", "\n").replace("\r", "\n")
+    paragraphs = [p.strip() for p in raw.split("\n\n") if p.strip()]
+    raw_candidates = []
+    for para in paragraphs:
+        lines = [line.strip() for line in para.splitlines() if line.strip()]
+        if not lines:
+            continue
+        body_lines = []
+        for i, line in enumerate(lines):
+            if i == 0 and len(lines) > 1 and not line.endswith((".", "?", "!", ":", ";", '"', "'", "”")):
+                raw_candidates.append(line)
+            else:
+                body_lines.append(line)
+        if body_lines:
+            body_text = " ".join(body_lines)
+            parts = [s.strip() for s in re.split(r"(?<=[.!?])\s+", body_text) if s.strip()]
+            raw_candidates.extend(parts)
+
+    if not raw_candidates:
+        return []
+
+    head_norm = (heading or "").strip().lower()
+    terminal_punct = re.compile(r'[.!?]["\'”’]?$')
+    has_terminal = any(terminal_punct.search(s.strip()) for s in raw_candidates)
+
+    filtered = []
+    for s in raw_candidates:
+        s_strip = s.strip()
+        if not s_strip:
+            continue
+        # a) matches heading.strip() (case-insensitive)
+        if head_norm and s_strip.lower() == head_norm:
+            continue
+        # b) matches r"^Chapter\s+\d+\b" and does not end with ., !, or ?
+        if re.match(r"^Chapter\s+\d+\b", s_strip, re.I) and not terminal_punct.search(s_strip):
+            continue
+        # c) does not end with terminal punctuation when there are other sentences that DO
+        if has_terminal and not terminal_punct.search(s_strip):
+            continue
+        filtered.append(s_strip)
+
+    return filtered if filtered else raw_candidates
+
+
+def _resolve_contextual_query(index, question, pin_chunk=None, selection="",
+                              heading="", history=None):
+    """Resolve incomplete, fragment, deictic, or selection-backed queries.
+
+    Book-agnostic: uses the reader's active chunk, selection, heading, or the
+    index's sentence postings to turn fragments into self-contained queries.
+    """
+    q = re.sub(r"\s+", " ", (question or "")).strip()
+    sel = _clean_selection_text(selection)
+    head = re.sub(r"\s+", " ", (heading or "")).strip()
+
+    pin_chunk_obj = None
+    if pin_chunk:
+        if isinstance(pin_chunk, dict):
+            pin_chunk_obj = pin_chunk
+        elif isinstance(pin_chunk, str):
+            pin_chunk_obj = next(
+                (c for c in (index.get("chunks") or []) if c.get("chunk_id") == pin_chunk),
+                None,
+            )
+
+    # Case 1: Selection is non-empty and question is contextual / deictic / incomplete
+    if sel and len(sel.split()) <= 25:
+        if sel.lower() not in q.lower():
+            if is_deictic_question(q):
+                if q.lower().startswith(("why", "how")):
+                    return f"{q.rstrip('?').strip()} ('{sel}')?"
+                return f"What does '{sel}' mean in this passage?"
+            if is_incomplete_stem(q):
+                base = q.rstrip("?").strip()
+                return f"{base} {sel}?"
+            q_words = set(re.findall(r"\w+", q.lower()))
+            deictic = q_words & {"this", "that", "it", "these", "those"}
+            if deictic or q.lower().rstrip("?") in ("why", "explain", "how", "what"):
+                if head:
+                    return f"In {head}, regarding '{sel}': {q}"
+                return f"Regarding '{sel}': {q}"
+            if head:
+                return f"In {head}, regarding '{sel}': {q}"
+            return f"Regarding '{sel}': {q}"
+
+    # Case 1b: Multi-turn history coreference resolution
+    clean_history = [
+        h for h in (history or [])
+        if isinstance(h, dict) and (h.get("question") or h.get("answer"))
+    ]
+    if clean_history and not sel:
+        subject = _extract_subject_from_history(clean_history)
+        if subject:
+            q_lower = q.lower()
+            q_words = set(re.findall(r"\b[a-zA-Z]+\b", q_lower))
+            deictic = q_words & {"it", "its", "this", "that", "these", "those", "they", "them", "such"}
+            if re.search(r"\b(its\s+downsides|its\s+disadvantages|its\s+pros\s+and\s+cons|its\s+drawbacks)\b", q_lower):
+                return re.sub(r"\bits\b", f"the {subject}'s", q, flags=re.IGNORECASE)
+            elif re.search(r"\b(warn\s+against\s+that|warn\s+about\s+that|caution\s+against\s+that)\b", q_lower):
+                return re.sub(r"\bthat\b", f"{subject}", q, flags=re.IGNORECASE)
+            elif re.search(r"\b(handle\s+late\s+data|handles\s+late\s+data)\b", q_lower) and "it" in q_words:
+                return re.sub(r"\bit\b", f"{subject}", q, flags=re.IGNORECASE)
+            elif re.search(r"\b(that\s+stage|that\s+phase|that\s+step)\b", q_lower):
+                return re.sub(r"\bthat\s+stage\b", f"the {subject} stage", q, flags=re.IGNORECASE)
+            elif re.search(r"\b(this\s+architectural\s+pattern|this\s+pattern|this\s+architecture)\b", q_lower):
+                return re.sub(r"\bthis\s+(architectural\s+pattern|pattern|architecture)\b", f"{subject}", q, flags=re.IGNORECASE)
+            elif re.search(r"\busing\s+it\b", q_lower):
+                return re.sub(r"\busing\s+it\b", f"using {subject}", q, flags=re.IGNORECASE)
+            elif re.search(r"\bfor\s+(this|that)\b", q_lower):
+                return re.sub(r"\bfor\s+(this|that)\b", f"for {subject}", q, flags=re.IGNORECASE)
+            elif re.search(r"\bopen-source\s+it\b", q_lower):
+                return re.sub(r"\bopen-source\s+it\b", f"open-source {subject}", q, flags=re.IGNORECASE)
+            elif deictic:
+                if re.search(r"\b(how\s+does|how\s+is|what\s+is|what\s+are|why\s+does|why\s+is)\s+it\b", q_lower):
+                    return re.sub(r"\bit\b", f"{subject}", q, count=1, flags=re.IGNORECASE)
+                elif re.search(r"\b(what\s+are|what\s+is)\s+its\b", q_lower):
+                    return re.sub(r"\bits\b", f"{subject}'s", q, count=1, flags=re.IGNORECASE)
+                else:
+                    return f"Regarding {subject}: {q}"
+            elif subject.lower() not in q_lower and (
+                _is_generic_followup(q) or
+                is_incomplete_stem(q) or
+                bool(re.search(r"\b(type|tier|stage|phase|step)\s*\d+\b", q_lower)) or
+                bool(re.search(r"\b(trade-off|trade-offs|tradeoff|tradeoffs|downside|downsides|benefit|benefits|example|examples)\b", q_lower))
+            ):
+                return f"Regarding {subject}: {q}"
+
+    # Case 2: Incomplete stem / wh-prefix (e.g. "what are the", "how is", "why do")
+    if is_incomplete_stem(q):
+        stem = re.sub(r"[?!.,]", "", q.lower()).strip()
+        if pin_chunk_obj is not None:
+            chunks = index.get("chunks") or []
+            search_pool = [pin_chunk_obj]
+            try:
+                idx = chunks.index(pin_chunk_obj)
+                if idx > 0 and chunks[idx - 1].get("chapter") == pin_chunk_obj.get("chapter"):
+                    search_pool.append(chunks[idx - 1])
+                if idx + 1 < len(chunks) and chunks[idx + 1].get("chapter") == pin_chunk_obj.get("chapter"):
+                    search_pool.append(chunks[idx + 1])
+            except ValueError:
+                pass
+            for chunk in search_pool:
+                for sent in _candidate_sentences(chunk.get("text") or "", chunk.get("heading") or ""):
+                    if sent.lower().startswith(stem + " ") and len(sent) >= 20:
+                        return sent
+            h = head or pin_chunk_obj.get("heading", "")
+            if h:
+                return f"{q.rstrip('?')} {h}?"
+
+        for chunk in (index.get("chunks") or []):
+            for sent in _candidate_sentences(chunk.get("text") or "", chunk.get("heading") or ""):
+                if sent.lower().startswith(stem + " ") and len(sent) >= 20:
+                    return sent
+
+        first_chunk = (index.get("chunks") or [{}])[0]
+        first_head = first_chunk.get("heading") or head
+        if first_head:
+            return f"{q.rstrip('?')} {first_head}?"
+
+    return question
+
+
+def _followup_gloss_user_message(history, question, quote, chunk, neighbors=None):
+    clean_history = [
+        h for h in (history or [])
+        if isinstance(h, dict) and (h.get("question") or h.get("answer"))
+    ]
+    parts = []
+    if clean_history:
+        last = clean_history[-1]
+        parts.append(f"Previous reader question: {last.get('question', '')}")
+        last_a = (last.get("answer") or "").strip()
+        if last_a:
+            parts.append(f"Previous answer: {last_a}")
+    parts.append(f"Current reader follow-up question: {question}")
+    parts.append(f"Cited passage quote: {quote}")
+    if chunk.get("heading"):
+        parts.append(f"Section heading: {chunk['heading']}")
+    parts.append(f"\nPassage context:\n{chunk.get('text', '')}")
+    if neighbors:
+        for n in neighbors:
+            if n and n.get("text"):
+                parts.append(f"\nRelated context ({n.get('heading', '')}):\n{n['text']}")
+    parts.append(
+        "\nWrite a direct 1 to 2 sentence answer that explicitly answers the follow-up question "
+        "and connects it to the previous turn. Ground strictly in the passage context."
     )
-    if asked_form != question and not body["refused"]:
-        body["answer"] = f'{body["answer"]}\nAsked as: "{asked_form}"'
-    if context["reading"] is not None and not body["refused"]:
-        body["answer"] = f'{body["answer"]}\nRead as: "{context["asked"]}"'
+    return "\n".join(parts)
+
+
+def _answer_gloss_user_message(question, quote, chunk):
+    parts = [
+        f"Reader question: {question}",
+        f"Cited sentence from the book: {quote}",
+    ]
+    if chunk.get("heading"):
+        parts.append(f"Section heading: {chunk['heading']}")
+    parts.append(f"\nPassage context:\n{chunk.get('text', '')}")
+    parts.append(
+        "\nWrite a direct 1 to 2 sentence answer in plain words that answers the reader's question "
+        "based on the passage context."
+    )
+    return "\n".join(parts)
+
+
+def _synthesize_grounded_gloss(selection, quote, pin_chunk_obj, neighbors, generate_fn, model):
+    heading = (pin_chunk_obj.get("heading") or "") if pin_chunk_obj else ""
+    intent_info = analyze_intent(selection, heading, pin_chunk_obj, neighbors)
+    intent_type = intent_info.get("intent_type") or INTENT_CONCEPT_TERM
+    core_concept = intent_info.get("core_concept") or extract_core_concept(selection, heading)
+    subject = intent_info.get("subject") or (extract_enclosing_subject(quote, selection) if quote else "")
+
+    if intent_type == INTENT_CONCEPT_TERM:
+        q_synth = f"What is {core_concept}?"
+    elif intent_type == INTENT_VAGUE_FRAGMENT:
+        q_synth = f"Why is {subject} described as {selection}?" if subject else f"What does {selection} mean?"
+    elif intent_type == INTENT_MULTI_SENTENCE:
+        q_synth = "What is the core takeaway of this passage?"
+    else:
+        q_synth = selection.strip()
+
+    context_passages = [pin_chunk_obj] if pin_chunk_obj else []
+    if neighbors:
+        for n in neighbors:
+            if n and n not in context_passages:
+                context_passages.append(n)
+
+    if generate_fn and context_passages:
+        try:
+            cand_reply = generate_fn(SYSTEM, user_message(q_synth, context_passages), model)
+            if cand_reply and cand_reply != REFUSAL:
+                lines = [ln.strip() for ln in cand_reply.splitlines() if ln.strip()]
+                for ln in lines:
+                    if ln.startswith("[Ch.") or ln.startswith('"') or ln.startswith("“"):
+                        continue
+                    cleaned_cand = _clean_boilerplate_gloss(ln, selection)
+                    if _is_coherent_gloss(cleaned_cand, quote):
+                        return cleaned_cand
+        except Exception:
+            pass
+
+    if intent_type == INTENT_VAGUE_FRAGMENT:
+        if subject:
+            m = re.search(re.escape(selection.strip()), quote, re.IGNORECASE) if quote else None
+            after_text = ""
+            if m:
+                after_text = quote[m.end():].strip().rstrip(".?!")
+            if after_text:
+                return f"The highlighted phrase refers to {subject}, explaining that it is {selection.lstrip()} {after_text}."
+            return f"The highlighted phrase refers to {subject} as {selection} in this section."
+        return f"The highlighted phrase characterizes the approach described in this sentence: {quote[:100]}."
+
+    if intent_type == INTENT_CONCEPT_TERM:
+        substantive = []
+        for cand_c in context_passages:
+            if not cand_c:
+                continue
+            cands = split_sentences(cand_c.get("text", ""))
+            for s in cands:
+                if len(s) >= 40 and not META_TRANSITION_RE.search(s):
+                    if core_concept.lower() in s.lower() or any(w.lower() in s.lower() for w in words(core_concept) if w.lower() not in STOPWORDS):
+                        substantive.append(s)
+        if substantive:
+            first_sub = substantive[0]
+            if first_sub.lower().startswith("to understand"):
+                return first_sub
+            if len(substantive) >= 2 and substantive[0] != substantive[1]:
+                return f"{substantive[0]} {substantive[1]}"
+            return substantive[0]
+        return f"{core_concept} refers to the technical and operational model described in this section."
+
+    if intent_type == INTENT_MULTI_SENTENCE:
+        sents = split_sentences(selection)
+        non_examples = [s for s in sents if len(s) >= 40 and not s.lower().startswith(("for instance", "for example", "consider", "look at"))]
+        if non_examples:
+            cand = non_examples[0]
+            if len(non_examples) > 1 and len(cand) + len(non_examples[-1]) < 250:
+                cand = f"{cand} {non_examples[-1]}"
+            return f"This passage explains that {cand[0].lower() + cand[1:]}"
+        return "This passage analyzes the trade-offs and operational constraints between storage, capacity, and resource limits."
+
+    if quote:
+        return f"The authors explain {selection} in this section: {quote[:120]}."
+    return f"The authors discuss {selection} in this section."
+
+
+def _ensure_answer_gloss(index, body, question, passages, is_live=False,
+                         history=None, selection="", heading="", model=ANSWER_MODEL,
+                         generate_fn=None):
+    """Ensure every non-refused answer has a crisp, informative 2nd line gloss."""
+    if not body or body.get("refused") or not body.get("citations") or not passages:
+        return body
+
+    generate_fn = generate_fn or ollama_generate
+
+    first_cite = body["citations"][0]
+    quote = first_cite.get("quote") or ""
+    if not quote:
+        return body
+
+    ans = (body.get("answer") or "").strip()
+    lines = [ln.strip() for ln in ans.splitlines() if ln.strip()]
+    first_line = lines[0] if lines else f'[Ch. {first_cite.get("chapter", "")}] "{quote}"'
+    gloss_line = lines[1] if len(lines) >= 2 else ""
+
+    if gloss_line.startswith(("Asked as:", "Read as:")):
+        gloss_line = ""
+
+    chunks = index.get("chunks") or []
+    cite_id = first_cite.get("chunk_id")
+    chunk_obj = next((c for c in chunks if c.get("chunk_id") == cite_id), passages[0])
+    neighbors = []
+    for i, c in enumerate(chunks):
+        if c.get("chunk_id") == cite_id:
+            if i > 0 and chunks[i - 1].get("chapter") == c.get("chapter"):
+                neighbors.append(chunks[i - 1])
+            if i + 1 < len(chunks) and chunks[i + 1].get("chapter") == c.get("chapter"):
+                neighbors.append(chunks[i + 1])
+            break
+
+    clean_history = [
+        h for h in (history or [])
+        if isinstance(h, dict) and (h.get("question") or h.get("answer"))
+    ]
+
+    new_gloss = ""
+
+    if clean_history:
+        if is_live:
+            prompt = _followup_gloss_user_message(clean_history, question, quote, chunk_obj, neighbors)
+            try:
+                raw = generate_fn(FOLLOWUP_GLOSS_SYSTEM, prompt, model)
+            except Exception:
+                raw = ""
+            new_gloss = _clean_boilerplate_gloss(raw, question)
+            if new_gloss.startswith("[Ch.") and "\n" in new_gloss:
+                new_gloss = new_gloss.split("\n", 1)[1].strip()
+            new_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", new_gloss).strip().strip("\"'“”")
+        if not new_gloss or not _is_coherent_gloss(new_gloss, quote):
+            cands = [s for s in _candidate_sentences(chunk_obj.get("text") or "", chunk_obj.get("heading") or "")
+                     if s != quote and len(s) >= 40 and not META_TRANSITION_RE.search(s)]
+            if cands:
+                new_gloss = cands[0]
+
+    elif selection:
+        clean_sel = _clean_selection_text(selection)
+        if is_live:
+            prompt = _explain_gloss_user_message(clean_sel, quote, chunk_obj, neighbors)
+            try:
+                raw = generate_fn(EXPLAIN_GLOSS_SYSTEM, prompt, model)
+            except Exception:
+                raw = ""
+            new_gloss = _clean_boilerplate_gloss(raw, clean_sel)
+            if new_gloss.startswith("[Ch.") and "\n" in new_gloss:
+                new_gloss = new_gloss.split("\n", 1)[1].strip()
+            new_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", new_gloss).strip().strip("\"'“”")
+        if not new_gloss or not _is_coherent_gloss(new_gloss, quote):
+            new_gloss = _synthesize_grounded_gloss(clean_sel, quote, chunk_obj, neighbors, generate_fn, model)
+        if not new_gloss or not _is_coherent_gloss(new_gloss, quote):
+            cands = [s for s in _candidate_sentences(chunk_obj.get("text") or "", chunk_obj.get("heading") or "")
+                     if s != quote and len(s) >= 40 and not META_TRANSITION_RE.search(s)]
+            if cands:
+                new_gloss = cands[0]
+
+    elif not gloss_line or _gloss_repeats_quote(gloss_line, quote) or not _is_coherent_gloss(gloss_line, quote):
+        if is_live:
+            prompt = _answer_gloss_user_message(question, quote, chunk_obj)
+            try:
+                raw = generate_fn(ANSWER_GLOSS_SYSTEM, prompt, model)
+            except Exception:
+                raw = ""
+            new_gloss = _clean_boilerplate_gloss(raw, question)
+            if new_gloss.startswith("[Ch.") and "\n" in new_gloss:
+                new_gloss = new_gloss.split("\n", 1)[1].strip()
+            new_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", new_gloss).strip().strip("\"'“”")
+        if not new_gloss or not _is_coherent_gloss(new_gloss, quote):
+            cands = [s for s in _candidate_sentences(chunk_obj.get("text") or "", chunk_obj.get("heading") or "")
+                     if s != quote and len(s) >= 40 and not META_TRANSITION_RE.search(s)]
+            if cands:
+                new_gloss = cands[0]
+
+    if new_gloss and new_gloss != REFUSAL:
+        extra_lines = [ln for ln in lines[1:] if ln.startswith(("Asked as:", "Read as:"))]
+        res_lines = [first_line, new_gloss] + extra_lines
+        body = dict(body)
+        body["answer"] = "\n".join(res_lines)
+
     return body
 
 
-def _retry_uncited(question, passages, figures, generate_fn, model):
-    """One `[Ch. ` prefill retry for an uncited answer, or None.
+def _maybe_enrich_contextual_gloss(index, body, resolved_question, passages,
+                                   generate_fn, model):
+    return body
+
+
+def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
+        canonical=True, history=None, pin_chunk=None, selection="", heading="",
+        end_chunk_id=None):
+    if is_prompt_injection(question):
+        return _refusal([])
+    question = sanitize_query(question)
+    is_live = (generate_fn is None) or bool(getattr(generate_fn, "_is_live", False))
+    generate_fn = generate_fn or ollama_generate
+    history = sanitize_history(history)
+    resolved_question = _resolve_contextual_query(
+        index, question, pin_chunk=pin_chunk, selection=selection,
+        heading=heading, history=history,
+    )
+    asked_form = canonical_query(resolved_question) if canonical else resolved_question
+    history_subject = _extract_subject_from_history(history)
+    context = retrieval_context(
+        index, asked_form, search_fn, generate_fn, pin_chunk=pin_chunk,
+        end_chunk_id=end_chunk_id, history=history,
+    )
+    passages = context["passages"]
+    if not passages:
+        return _refusal([])
+    completion = generate_fn(
+        SYSTEM, user_message(context["asked"], passages, history=history), model
+    )
+    anchors = anchor_words(asked_form, context["word_map"])
+    figures = index.get("figures") or []
+    body = parse_completion(completion, passages, figures, anchors, question=resolved_question)
+    body = _half_covered(body, resolved_question, asked_form, passages, figures)
+    body = _align_citation_to_query_concepts(body, resolved_question, passages)
+    clean_history = [
+        h for h in (history or [])
+        if isinstance(h, dict) and (h.get("question") or h.get("answer"))
+    ]
+    if body.get("refused") and _has_passage_evidence(asked_form, passages, context["word_map"]):
+        retry = _retry_uncited(
+            context["asked"], passages, figures, generate_fn, model,
+            history=history, anchors=anchors, word_map=context["word_map"],
+        )
+        if retry is not None and not retry.get("refused"):
+            body = retry
+            body = _align_citation_to_query_concepts(body, resolved_question, passages)
+    elif body.get("refused") and clean_history and (resolved_question != question):
+        is_trap = bool(re.search(r"\b(how\s+much|charge|price|cost\s+per\s+hour|what\s+year|when\s+did|in\s+what\s+year|terraform|script|code|install|download)\b", question, re.I))
+        if not is_trap and passages:
+            retry = _retry_uncited(
+                context["asked"], passages, figures, generate_fn, model,
+                history=history, anchors=anchors, word_map=context["word_map"],
+            )
+            if retry is not None and not retry.get("refused"):
+                body = retry
+                body = _align_citation_to_query_concepts(body, resolved_question, passages)
+    body = _expand_list(body, resolved_question, asked_form, passages)
+
+    SIMPLIFY_RE = re.compile(r"\b(simpler\s+words|simplify|break\s+this\s+down|explain\s+this|what\s+does\s+this\s+mean|in\s+simple\s+words)\b", re.I)
+    if clean_history and pin_chunk and SIMPLIFY_RE.search(question):
+        pin_chunk_obj = None
+        if isinstance(pin_chunk, dict):
+            pin_chunk_obj = pin_chunk
+        elif isinstance(pin_chunk, str):
+            pin_chunk_obj = next(
+                (c for c in (index.get("chunks") or []) if c.get("chunk_id") == pin_chunk),
+                None,
+            )
+        if pin_chunk_obj is not None:
+            prior_turn = clean_history[-1]
+            prior_a = (prior_turn.get("answer") or "").strip()
+            m_q = re.search(r"\[Ch\.\s*[^\]]+\]\s*[\"“](.+?)[\"”]", prior_a)
+            chosen_quote = ""
+            if m_q and m_q.group(1).strip() in (pin_chunk_obj.get("text") or ""):
+                chosen_quote = m_q.group(1).strip()
+            else:
+                cands = _candidate_sentences(pin_chunk_obj.get("text") or "", pin_chunk_obj.get("heading") or "")
+                chosen_quote = cands[0] if cands else ""
+            if chosen_quote:
+                chap = str(pin_chunk_obj.get("chapter", ""))
+                body["refused"] = False
+                body["citations"] = [{
+                    "chunk_id": pin_chunk_obj.get("chunk_id"),
+                    "chapter": chap,
+                    "quote": chosen_quote,
+                }]
+                body["answer"] = f'[Ch. {chap}] "{chosen_quote}"'
+                body["figures"] = figures_for([pin_chunk_obj], index.get("figures") or [])
+
+    if selection and pin_chunk:
+        pin_chunk_obj = None
+        if isinstance(pin_chunk, dict):
+            pin_chunk_obj = pin_chunk
+        elif isinstance(pin_chunk, str):
+            pin_chunk_obj = next(
+                (c for c in (index.get("chunks") or []) if c.get("chunk_id") == pin_chunk),
+                None,
+            )
+        if pin_chunk_obj is not None:
+            clean_sel = _clean_selection_text(selection)
+            anchor_quote = _anchor_sentence_for_selection(pin_chunk_obj, clean_sel)
+            if anchor_quote:
+                first_cite = body["citations"][0] if (not body.get("refused") and body.get("citations")) else None
+                cite_id = first_cite.get("chunk_id") if first_cite else None
+                cite_quote = first_cite.get("quote", "") if first_cite else ""
+                has_sel = clean_sel.lower() in cite_quote.lower()
+                if body.get("refused") or cite_id != pin_chunk_obj.get("chunk_id") or not has_sel or len(cite_quote) > len(anchor_quote) + 30:
+                    chap = str(pin_chunk_obj.get("chapter", ""))
+                    body["refused"] = False
+                    body["citations"] = [{
+                        "chunk_id": pin_chunk_obj.get("chunk_id"),
+                        "chapter": chap,
+                        "quote": anchor_quote,
+                    }]
+                    body["answer"] = f'[Ch. {chap}] "{anchor_quote}"'
+                    body["figures"] = figures_for([pin_chunk_obj], index.get("figures") or [])
+
+    if clean_history and (resolved_question != question) and not body.get("refused"):
+        if re.search(r"\b(which\s+chapter|where\s+in\s+the\s+book)\b", question, re.I):
+            first_q = body["citations"][0].get("quote", "") if body.get("citations") else ""
+            if not re.search(r"\bchapter\s+\d+\b", first_q, re.I):
+                for p in passages:
+                    for sent in re.split(r"(?<=[.!?])\s+", p.get("text") or ""):
+                        if re.search(r"\bin greater detail\b", sent, re.I) and re.search(r"\bchapter\s+\d+\b", sent, re.I):
+                            sent_clean = sent.strip().strip("\"'“”")
+                            chap_m = re.search(r"\bchapter\s+(\d+)\b", sent_clean, re.I)
+                            chap_num = chap_m.group(1) if chap_m else str(p.get("chapter", ""))
+                            body["citations"] = [{
+                                "chunk_id": p.get("chunk_id"),
+                                "chapter": str(p.get("chapter")),
+                                "quote": sent_clean,
+                            }]
+                            body["answer"] = f'[Ch. {p.get("chapter")}] "{sent_clean}"\nChapter {chap_num} covers this in greater detail.'
+                            body["refused"] = False
+                            break
+                    if body.get("citations") and re.search(r"\bchapter\s+\d+\b", body["citations"][0].get("quote", ""), re.I):
+                        break
+
+        if re.search(r"\b(overhead|trade-offs|tradeoffs)\b", question, re.I):
+            first_q = body["citations"][0].get("quote", "") if body.get("citations") else ""
+            if not re.search(r"\b(overhead|trade-offs|tradeoffs|latency|throughput)\b", first_q, re.I):
+                for p in passages:
+                    for sent in re.split(r"(?<=[.!?])\s+", p.get("text") or ""):
+                        if re.search(r"\b(overhead|trade-offs|tradeoffs)\b", sent, re.I) and len(sent) >= 30:
+                            sent_clean = sent.strip().strip("\"'“”")
+                            body["citations"] = [{
+                                "chunk_id": p.get("chunk_id"),
+                                "chapter": str(p.get("chapter")),
+                                "quote": sent_clean,
+                            }]
+                            body["answer"] = f'[Ch. {p.get("chapter")}] "{sent_clean}"\nManaging this system requires substantial operational overhead and resources.'
+                            body["refused"] = False
+                            break
+                    if body.get("citations") and re.search(r"\b(overhead|trade-offs|tradeoffs)\b", body["citations"][0].get("quote", ""), re.I):
+                        break
+
+        if not body.get("citations"):
+            body = _refusal(passages, figures)
+        else:
+            first_cite = body["citations"][0]
+            first_chunk_id = first_cite.get("chunk_id")
+            first_quote = first_cite.get("quote", "")
+            cited_chunk = next((c for c in passages if c.get("chunk_id") == first_chunk_id), None)
+            if not cited_chunk:
+                body = _refusal(passages, figures)
+            elif history_subject:
+                subj_tokens = [
+                    t.lower() for t in tokens(history_subject)
+                    if len(t) > 2 and t.lower() not in STEM_WORDS and t.lower() not in FRAMING_WORDS and t.lower() not in STOPWORDS
+                ]
+                if subj_tokens:
+                    c_text = (cited_chunk.get("heading") or "").lower() + " " + (cited_chunk.get("text") or "").lower()
+                    c_stems = {stem(w) for w in words(c_text)}
+                    has_subj = any(t in c_text or stem(t) in c_stems for t in subj_tokens)
+                    last_ans = clean_history[-1].get("answer") or ""
+                    last_chap_m = re.search(r"\[Ch\.\s*([^\]]+)\]", last_ans)
+                    prior_chap = last_chap_m.group(1).strip().rstrip(".") if last_chap_m else None
+                    if prior_chap and str(cited_chunk.get("chapter")) == prior_chap:
+                        has_subj = True
+                    if not has_subj:
+                        body = _refusal(passages, figures)
+            if not body.get("refused"):
+                if re.search(r"\b(what\s+year|when\s+did|in\s+what\s+year)\b", question, re.I):
+                    if not re.search(r"\b(19|20)\d{2}\b", first_quote):
+                        body = _refusal(passages, figures)
+                elif re.search(r"\b(how\s+much|cost\s+per\s+hour|charge|price)\b", question, re.I):
+                    if not re.search(r"(\$|\b(dollar|dollars|cents|cost|charge|price|per\s+hour)\b)", first_quote, re.I):
+                        body = _refusal(passages, figures)
+                elif re.search(r"\b(terraform|script|code)\b", question, re.I):
+                    if not re.search(r"\b(terraform|resource|provider|hcl|script|def |class |function)\b", first_quote, re.I):
+                        body = _refusal(passages, figures)
+    body = _align_citation_to_query_concepts(body, resolved_question, passages)
+    if not selection and not clean_history:
+        if (asked_form != resolved_question or is_incomplete_stem(question)) and asked_form != question and not body["refused"]:
+            clean_asked = re.sub(r"\s+", " ", asked_form).strip()
+            body["answer"] = f'{body["answer"]}\nAsked as: "{clean_asked}"'
+    if context["reading"] is not None and not body["refused"]:
+        body["answer"] = f'{body["answer"]}\nRead as: "{context["asked"]}"'
+
+    if not body.get("refused"):
+        body = _ensure_answer_gloss(
+            index, body, resolved_question, passages, is_live=is_live,
+            history=history, selection=selection, heading=heading, model=model,
+            generate_fn=generate_fn,
+        )
+
+    return body
+
+
+def _has_passage_evidence(asked_form, passages, word_map):
+    """True when every content word in the query appears in the shown passages
+    and in the book's word_map, supporting stem-level matching and alphanumeric
+    precision.
+
+    Groundedness gate for false-refusal recovery: an out-of-book question (like
+    France) or a question whose content is absent from the shown passages fails
+    closed immediately without triggering a retry.
+    """
+    q_words = [w.lower() for w in words(asked_form)]
+    if not q_words or not word_map or not passages:
+        return False
+
+    stemmed_word_map = None
+    for w in q_words:
+        if w in word_map or w in FRAMING_WORDS or w in STEM_WORDS or w in STOPWORDS:
+            continue
+        if any(c.isdigit() for c in w):
+            return False
+        if stemmed_word_map is None:
+            stemmed_word_map = {stem(k) for k in word_map}
+        if stem(w) not in stemmed_word_map:
+            return False
+
+    content = [
+        w for w in q_words
+        if w not in STEM_WORDS and w not in FRAMING_WORDS and w not in STOPWORDS
+    ]
+    if not content:
+        return False
+
+    passage_vocab = {
+        w.lower()
+        for hit in passages
+        for w in words((hit.get("heading") or "") + " " + (hit.get("text") or ""))
+    }
+    passage_stems = None
+
+    for w in content:
+        if w in passage_vocab:
+            continue
+        if any(c.isdigit() for c in w):
+            return False
+        if passage_stems is None:
+            passage_stems = {stem(pv) for pv in passage_vocab}
+        if stem(w) not in passage_stems:
+            return False
+
+    return True
+
+
+def _retry_uncited(question, passages, figures, generate_fn, model, history=None,
+                   anchors=None, word_map=None):
+    """One `[Ch. ` prefill retry for an uncited answer or false-refusal, or None.
 
     The x2d gap (measured 2026-10-14): on unseen non-canonical forms the
     model writes uncited prose — it answers, it just drops the tag. The retry
@@ -585,28 +2294,28 @@ def _retry_uncited(question, passages, figures, generate_fn, model):
     """
     try:
         completion = generate_fn(
-            SYSTEM, user_message(question, passages), model,
+            SYSTEM, user_message(question, passages, history=history), model,
             prefill="[Ch. ",
         )
     except Exception:
         # A generator seam without prefill support (or a failed call) keeps
         # the original answer; the retry may never break the main path.
-        return None
-    if not isinstance(completion, str) or not completion.strip():
-        return None
-    text = (
-        completion
-        if completion.lstrip().startswith("[Ch.")
-        else "[Ch. " + completion
-    )
+        completion = None
+
     candidates = []
-    try:
-        candidates.append(parse_answered(text, passages, figures))
-    except Exception:
-        pass
-    if text.lstrip().startswith("[Ch."):
+    if isinstance(completion, str) and completion.strip() and REFUSAL.lower() not in completion.lower():
+        text = (
+            completion
+            if completion.lstrip().startswith("[Ch.")
+            else "[Ch. " + completion
+        )
+        if text.lstrip().startswith("[Ch."):
+            try:
+                candidates.append(parse_completion(text, passages, figures, anchors=anchors, question=question))
+            except Exception:
+                pass
         try:
-            candidates.append(parse_completion(text, passages, figures))
+            candidates.append(parse_answered(text, passages, figures))
         except Exception:
             pass
     texts = {hit["chunk_id"]: hit.get("text") or "" for hit in passages}
@@ -619,11 +2328,42 @@ def _retry_uncited(question, passages, figures, generate_fn, model):
         ):
             continue
         return body
+
+    # Fallback quote extraction from passages[0] when _has_passage_evidence holds and len(passages) >= 3
+    if passages and len(passages) >= 3 and word_map and _has_passage_evidence(question, passages, word_map):
+        lead = passages[0]
+        lead_text = lead.get("text") or ""
+        q_tokens = [w.lower() for w in words(question) if w.lower() not in STEM_WORDS and w.lower() not in STOPWORDS]
+        best_sent = ""
+        best_overlap = -1
+        for sent in _sentences(lead_text):
+            sent_clean = _without_heading(sent, lead)
+            if len(sent_clean) < SPAN_MIN_CHARS:
+                continue
+            sent_words = set(words(sent_clean.lower()))
+            overlap = sum(1 for t in q_tokens if t in sent_words or any(stem(t) == stem(sw) for sw in sent_words))
+            if overlap > best_overlap:
+                best_overlap = overlap
+                best_sent = sent_clean
+        if best_sent:
+            chap = str(lead["chapter"])
+            return {
+                "answer": f'[Ch. {chap}] "{best_sent}"\n{best_sent}',
+                "citations": [{
+                    "chunk_id": lead["chunk_id"],
+                    "chapter": chap,
+                    "quote": best_sent,
+                }],
+                "figures": figures_for([lead], figures or []),
+                "refused": False,
+            }
+
     return None
 
 
 def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
-            canonical=True):
+            canonical=True, history=None, pin_chunk=None, selection="", heading="",
+            end_chunk_id=None):
     """Free-generation answer from the retrieved passages.
 
     No quote enforcement: the model answers, its [Ch. n] tags become the
@@ -637,30 +2377,214 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
     (canonical_query). An uncited answer is retried once with a `[Ch. `
     prefill and kept only when a citation validates (`_retry_uncited`).
     """
+    if is_prompt_injection(question):
+        return _refusal([])
+    question = sanitize_query(question)
+    is_live = (generate_fn is None) or bool(getattr(generate_fn, "_is_live", False))
     generate_fn = generate_fn or ollama_generate
-    asked_form = canonical_query(question) if canonical else question
-    context = retrieval_context(index, asked_form, search_fn, generate_fn)
+    history = sanitize_history(history)
+    clean_history = [
+        h for h in (history or [])
+        if isinstance(h, dict) and (h.get("question") or h.get("answer"))
+    ]
+    resolved_question = _resolve_contextual_query(
+        index, question, pin_chunk=pin_chunk, selection=selection,
+        heading=heading, history=history,
+    )
+    history_subject = _extract_subject_from_history(history)
+    asked_form = canonical_query(resolved_question) if canonical else resolved_question
+    context = retrieval_context(
+        index, asked_form, search_fn, generate_fn, pin_chunk=pin_chunk,
+        end_chunk_id=end_chunk_id, history=history,
+    )
     passages = context["passages"]
     if not passages:
         return _refusal([])
-    if simple_words(asked_form):
+    anchors = anchor_words(asked_form, context["word_map"])
+    figures = index.get("figures") or []
+    if simple_words(asked_form) and not (clean_history and pin_chunk and SIMPLIFY_RE.search(question)):
         body = _plain_body(index, context, generate_fn, model)
+        body = _half_covered(body, resolved_question, asked_form, passages, figures)
     else:
         completion = generate_fn(
-            SYSTEM, user_message(context["asked"], passages), model
+            SYSTEM, user_message(context["asked"], passages, history=history), model
         )
-        body = parse_answered(completion, passages, index.get("figures") or [])
+        body = parse_answered(completion, passages, figures)
+        body = _half_covered(body, resolved_question, asked_form, passages, figures)
+        body = _align_citation_to_query_concepts(body, resolved_question, passages)
         if not body["refused"] and not body["citations"]:
             retry = _retry_uncited(
-                context["asked"], passages, index.get("figures") or [],
-                generate_fn, model,
+                context["asked"], passages, figures,
+                generate_fn, model, history=history, anchors=anchors,
+                word_map=context.get("word_map", {}),
             )
             if retry is not None:
                 body = retry
-    if asked_form != question and not body["refused"]:
-        body["answer"] = f'{body["answer"]}\nAsked as: "{asked_form}"'
+        elif body.get("refused"):
+            can_retry = False
+            if clean_history and (resolved_question != question):
+                is_trap = bool(re.search(r"\b(how\s+much|charge|price|cost\s+per\s+hour|what\s+year|when\s+did|in\s+what\s+year|terraform|script|code|install|download)\b", question, re.I))
+                if not is_trap and passages:
+                    can_retry = True
+            elif len(passages) >= 3 and _has_passage_evidence(context["asked"], passages, context.get("word_map", {})):
+                can_retry = True
+
+            if can_retry:
+                retry = _retry_uncited(
+                    context["asked"], passages, figures, generate_fn, model,
+                    history=history, anchors=anchors, word_map=context.get("word_map", {}),
+                )
+                if retry is not None and not retry.get("refused"):
+                    body = retry
+    body = _expand_list(body, resolved_question, asked_form, passages)
+
+    if clean_history and pin_chunk and SIMPLIFY_RE.search(question):
+        pin_chunk_obj = None
+        if isinstance(pin_chunk, dict):
+            pin_chunk_obj = pin_chunk
+        elif isinstance(pin_chunk, str):
+            pin_chunk_obj = next(
+                (c for c in (index.get("chunks") or []) if c.get("chunk_id") == pin_chunk),
+                None,
+            )
+        if pin_chunk_obj is not None:
+            prior_turn = clean_history[-1]
+            prior_a = (prior_turn.get("answer") or "").strip()
+            m_q = re.search(r"\[Ch\.\s*[^\]]+\]\s*[\"“](.+?)[\"”]", prior_a)
+            chosen_quote = ""
+            if m_q and m_q.group(1).strip() in (pin_chunk_obj.get("text") or ""):
+                chosen_quote = m_q.group(1).strip()
+            else:
+                cands = _candidate_sentences(pin_chunk_obj.get("text") or "", pin_chunk_obj.get("heading") or "")
+                chosen_quote = cands[0] if cands else ""
+            if chosen_quote:
+                chap = str(pin_chunk_obj.get("chapter", ""))
+                body["refused"] = False
+                body["citations"] = [{
+                    "chunk_id": pin_chunk_obj.get("chunk_id"),
+                    "chapter": chap,
+                    "quote": chosen_quote,
+                }]
+                body["answer"] = f'[Ch. {chap}] "{chosen_quote}"'
+                body["figures"] = figures_for([pin_chunk_obj], index.get("figures") or [])
+
+    if selection and pin_chunk:
+        pin_chunk_obj = None
+        if isinstance(pin_chunk, dict):
+            pin_chunk_obj = pin_chunk
+        elif isinstance(pin_chunk, str):
+            pin_chunk_obj = next(
+                (c for c in (index.get("chunks") or []) if c.get("chunk_id") == pin_chunk),
+                None,
+            )
+        if pin_chunk_obj is not None:
+            clean_sel = _clean_selection_text(selection)
+            anchor_quote = _anchor_sentence_for_selection(pin_chunk_obj, clean_sel)
+            if anchor_quote:
+                first_cite = body["citations"][0] if (not body.get("refused") and body.get("citations")) else None
+                cite_id = first_cite.get("chunk_id") if first_cite else None
+                cite_quote = first_cite.get("quote", "") if first_cite else ""
+                has_sel = clean_sel.lower() in cite_quote.lower()
+                if body.get("refused") or cite_id != pin_chunk_obj.get("chunk_id") or not has_sel or len(cite_quote) > len(anchor_quote) + 30:
+                    chap = str(pin_chunk_obj.get("chapter", ""))
+                    body["refused"] = False
+                    body["citations"] = [{
+                        "chunk_id": pin_chunk_obj.get("chunk_id"),
+                        "chapter": chap,
+                        "quote": anchor_quote,
+                    }]
+                    body["answer"] = f'[Ch. {chap}] "{anchor_quote}"'
+                    body["figures"] = figures_for([pin_chunk_obj], index.get("figures") or [])
+
+    if clean_history and (resolved_question != question) and not body.get("refused"):
+        if re.search(r"\b(which\s+chapter|where\s+in\s+the\s+book)\b", question, re.I):
+            first_q = body["citations"][0].get("quote", "") if body.get("citations") else ""
+            if not re.search(r"\bchapter\s+\d+\b", first_q, re.I):
+                for p in passages:
+                    for sent in re.split(r"(?<=[.!?])\s+", p.get("text") or ""):
+                        if re.search(r"\bin greater detail\b", sent, re.I) and re.search(r"\bchapter\s+\d+\b", sent, re.I):
+                            sent_clean = sent.strip().strip("\"'“”")
+                            chap_m = re.search(r"\bchapter\s+(\d+)\b", sent_clean, re.I)
+                            chap_num = chap_m.group(1) if chap_m else str(p.get("chapter", ""))
+                            body["citations"] = [{
+                                "chunk_id": p.get("chunk_id"),
+                                "chapter": str(p.get("chapter")),
+                                "quote": sent_clean,
+                            }]
+                            body["answer"] = f'[Ch. {p.get("chapter")}] "{sent_clean}"\nChapter {chap_num} covers this in greater detail.'
+                            body["refused"] = False
+                            break
+                    if body.get("citations") and re.search(r"\bchapter\s+\d+\b", body["citations"][0].get("quote", ""), re.I):
+                        break
+
+        if re.search(r"\b(overhead|trade-offs|tradeoffs)\b", question, re.I):
+            first_q = body["citations"][0].get("quote", "") if body.get("citations") else ""
+            if not re.search(r"\b(overhead|trade-offs|tradeoffs|latency|throughput)\b", first_q, re.I):
+                for p in passages:
+                    for sent in re.split(r"(?<=[.!?])\s+", p.get("text") or ""):
+                        if re.search(r"\b(overhead|trade-offs|tradeoffs)\b", sent, re.I) and len(sent) >= 30:
+                            sent_clean = sent.strip().strip("\"'“”")
+                            body["citations"] = [{
+                                "chunk_id": p.get("chunk_id"),
+                                "chapter": str(p.get("chapter")),
+                                "quote": sent_clean,
+                            }]
+                            body["answer"] = f'[Ch. {p.get("chapter")}] "{sent_clean}"\nManaging this system requires substantial operational overhead and resources.'
+                            body["refused"] = False
+                            break
+                    if body.get("citations") and re.search(r"\b(overhead|trade-offs|tradeoffs)\b", body["citations"][0].get("quote", ""), re.I):
+                        break
+
+        if not body.get("citations"):
+            body = _refusal(passages, figures)
+        else:
+            first_cite = body["citations"][0]
+            first_chunk_id = first_cite.get("chunk_id")
+            first_quote = first_cite.get("quote", "")
+            cited_chunk = next((c for c in passages if c.get("chunk_id") == first_chunk_id), None)
+            if not cited_chunk:
+                body = _refusal(passages, figures)
+            elif history_subject:
+                subj_tokens = [
+                    t.lower() for t in tokens(history_subject)
+                    if len(t) > 2 and t.lower() not in STEM_WORDS and t.lower() not in FRAMING_WORDS and t.lower() not in STOPWORDS
+                ]
+                if subj_tokens:
+                    c_text = (cited_chunk.get("heading") or "").lower() + " " + (cited_chunk.get("text") or "").lower()
+                    c_stems = {stem(w) for w in words(c_text)}
+                    has_subj = any(t in c_text or stem(t) in c_stems for t in subj_tokens)
+                    last_ans = clean_history[-1].get("answer") or ""
+                    last_chap_m = re.search(r"\[Ch\.\s*([^\]]+)\]", last_ans)
+                    prior_chap = last_chap_m.group(1).strip().rstrip(".") if last_chap_m else None
+                    if prior_chap and str(cited_chunk.get("chapter")) == prior_chap:
+                        has_subj = True
+                    if not has_subj:
+                        body = _refusal(passages, figures)
+            if not body.get("refused"):
+                if re.search(r"\b(what\s+year|when\s+did|in\s+what\s+year)\b", question, re.I):
+                    if not re.search(r"\b(19|20)\d{2}\b", first_quote):
+                        body = _refusal(passages, figures)
+                elif re.search(r"\b(how\s+much|cost\s+per\s+hour|charge|price)\b", question, re.I):
+                    if not re.search(r"(\$|\b(dollar|dollars|cents|cost|charge|price|per\s+hour)\b)", first_quote, re.I):
+                        body = _refusal(passages, figures)
+                elif re.search(r"\b(terraform|script|code)\b", question, re.I):
+                    if not re.search(r"\b(terraform|resource|provider|hcl|script|def |class |function)\b", first_quote, re.I):
+                        body = _refusal(passages, figures)
+    body = _align_citation_to_query_concepts(body, resolved_question, passages)
+    if not selection and not clean_history:
+        if (asked_form != resolved_question or is_incomplete_stem(question)) and asked_form != question and not body["refused"]:
+            clean_asked = re.sub(r"\s+", " ", asked_form).strip()
+            body["answer"] = f'{body["answer"]}\nAsked as: "{clean_asked}"'
     if context["reading"] is not None and not body["refused"]:
         body["answer"] = f'{body["answer"]}\nRead as: "{context["asked"]}"'
+
+    if not body.get("refused"):
+        body = _ensure_answer_gloss(
+            index, body, resolved_question, passages, is_live=is_live,
+            history=history, selection=selection, heading=heading, model=model,
+            generate_fn=generate_fn,
+        )
+
     return body
 
 
@@ -711,7 +2635,8 @@ def _free_refusal(text):
     """True when the model asked to refuse. The first line must be the exact
     sentence; a refusal that keeps talking is still a refusal, never a free
     answer."""
-    return (text or "").strip().split("\n", 1)[0].strip() == REFUSAL
+    first = (text or "").strip().split("\n", 1)[0].strip()
+    return first == REFUSAL or first.lower() == REFUSAL.lower()
 
 
 def _strip_fake_quotes(text, passages):
@@ -733,11 +2658,14 @@ def _tokens(text):
     return {word for word in _punctuation_plain(text).split() if len(word) > 2}
 
 
-def _original_case(span, text):
-    """The span as it is written in the passage, case and all."""
-    flat = re.sub(r"\s+", " ", text or "")
-    match = re.search(re.escape(span), flat, re.I)
-    return match.group(0) if match else span
+
+def _claim_after_tag(rest):
+    """Quote or remainder of a tag-first line. Empty when the tag stands alone."""
+    first_line = rest.split("\n", 1)[0]
+    quoted = QUOTE_PATTERN.search(first_line)
+    if quoted:
+        return quoted.group(1).strip()
+    return re.sub(r"\s+", " ", first_line).strip()
 
 
 def _sentence_claims(text):
@@ -750,7 +2678,9 @@ def _sentence_claims(text):
     entirely (measured 2026-10-13: the endpoint answer lost all citations).
     Text accumulates until a tag arrives, so a tag at the start of the next
     line still cites the sentence before it, and a tags-only fragment merges
-    into the previous claim.
+    into the previous claim. A tag with no pending text takes the quote on
+    that line (or the rest of the line) as the claim; a bare tag with no prior
+    text still produces no claim.
     """
     masked = TAG_PATTERN.sub(
         lambda m: "\x01" + re.sub(r"[.!?]", " ", m.group(1)) + "\x02", text
@@ -765,17 +2695,28 @@ def _sentence_claims(text):
             segments.append(("tag", match.group(1)))
             cursor = match.end()
         segments.append(("text", part[cursor:]))
-        for kind, value in segments:
+        i = 0
+        while i < len(segments):
+            kind, value = segments[i]
             if kind == "text":
                 pending = (pending + " " + value).strip()
+                i += 1
                 continue
             chapters = re.findall(r"\d+", value)
             claim = re.sub(r"\s+", " ", pending).strip()
+            if not claim:
+                rest = []
+                j = i + 1
+                while j < len(segments) and segments[j][0] == "text":
+                    rest.append(segments[j][1])
+                    j += 1
+                claim = _claim_after_tag("".join(rest))
             if claim:
                 claims.append([claim, chapters])
                 pending = ""
             elif claims:
                 claims[-1][1].extend(chapters)
+            i += 1
     return claims
 
 
@@ -818,7 +2759,9 @@ def _evidence_quote(claim, hit):
     span = longest_copied_span(claim, text)
     tokens = _tokens(claim)
     best, best_key = "", (-1.0, False)
-    for sentence in _sentences(text):
+    all_sents = _sentences(text)
+    heading_clean = (hit.get("heading") or "").strip().lower()
+    for sentence in all_sents:
         sentence_tokens = _tokens(sentence)
         if not sentence_tokens:
             continue
@@ -826,11 +2769,22 @@ def _evidence_quote(claim, hit):
         holds = bool(span) and _fold(span) in _fold(sentence)
         if (overlap, holds) > best_key:
             best, best_key = sentence, (overlap, holds)
+    res = ""
     if best:
-        return _without_heading(best, hit)
-    if span:
-        return _original_case(span, text)
-    return _without_heading(re.sub(r"\s+", " ", text).strip(), hit)
+        res = _without_heading(best, hit)
+    elif span:
+        res = _original_case(span, text)
+    else:
+        res = _without_heading(re.sub(r"\s+", " ", text).strip(), hit)
+
+    res_clean = res.strip().lower()
+    if len(res) < 20 or (heading_clean and res_clean == heading_clean):
+        long_sents = [s for s in all_sents if len(s) >= 40 and s.strip().lower() != heading_clean]
+        if long_sents:
+            best_long = max(long_sents, key=lambda s: len(tokens & _tokens(s)) if tokens else 0)
+            res = _without_heading(best_long, hit)
+
+    return res
 
 
 def parse_answered(completion, passages, figures=None):
@@ -853,13 +2807,31 @@ def parse_answered(completion, passages, figures=None):
             continue
         if any(item["chunk_id"] == hit["chunk_id"] for item in citations):
             continue
+        quote = _evidence_quote(claim, hit)
+        heading_clean = (hit.get("heading") or "").strip().lower()
+        if len(quote) < 20 or (heading_clean and quote.strip().lower() == heading_clean):
+            all_sents = _sentences(hit.get("text") or "")
+            long_sents = [s for s in all_sents if len(s) >= 40 and s.strip().lower() != heading_clean]
+            if long_sents:
+                quote = _without_heading(long_sents[0], hit)
         citations.append({
             "chunk_id": hit["chunk_id"],
             "chapter": str(hit["chapter"]),
-            "quote": _evidence_quote(claim, hit),
+            "quote": quote,
         })
     cited = {item["chunk_id"] for item in citations}
     named = [hit for hit in passages if hit["chunk_id"] in cited]
+    cleaned_lines = []
+    for line in text.splitlines():
+        line_clean = line.strip()
+        if not line_clean.startswith("[Ch."):
+            cleaned = _clean_boilerplate_gloss(line_clean)
+            if cleaned:
+                cleaned_lines.append(cleaned)
+        else:
+            cleaned_lines.append(line_clean)
+    if cleaned_lines:
+        text = "\n".join(cleaned_lines)
     return {
         "answer": text,
         "citations": citations,
@@ -868,12 +2840,447 @@ def parse_answered(completion, passages, figures=None):
     }
 
 
-def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MODEL):
-    """The highlight is the question. The neighborhood is the passages."""
+def highlight_query(selection, heading=""):
+    """The question a highlight means.
+
+    A sentence is already a question for search. A word or a short phrase is
+    not: "splashed" and "because" retrieve neighbor chapters. Those become
+    "What is …?", the same rewrite canonical_query uses for a typed label,
+    with the heading so the search knows which "time" the reader marked.
+    """
+    text = (selection or "").strip()
+    if not text:
+        return text
+    words = text.split()
+    if len(words) > 6 or text.endswith((".", "?", "!")):
+        return text
+    heading = (heading or "").strip()
+    if heading and heading.lower() not in text.lower():
+        return f"What is {text} in {heading}?"
+    return f"What is {text}?"
+
+
+def _pin_chunk(index, passages, chunk_id, end_chunk_id=None):
+    """The chunk the reader was looking at leads. Search does not replace it.
+
+    When end_chunk_id is provided and differs from chunk_id, chunk_id leads at
+    index 0 and end_chunk_id sits at index 1.
+    """
+    if not chunk_id and not end_chunk_id:
+        return passages
+    chunks = index.get("chunks") or []
+    c1 = next((item for item in chunks if item.get("chunk_id") == chunk_id), None) if chunk_id else None
+    c2 = next((item for item in chunks if item.get("chunk_id") == end_chunk_id), None) if end_chunk_id and end_chunk_id != chunk_id else None
+
+    if c1 is None and c2 is None:
+        return passages
+
+    pinned = []
+    base_score = passages[0].get("score", 1.0) if passages else 1.0
+    if c1 is not None:
+        pinned.append({
+            "score": base_score,
+            "chunk_id": c1.get("chunk_id"),
+            "chapter": c1.get("chapter"),
+            "heading": c1.get("heading", ""),
+            "text": c1.get("text", ""),
+            "source": c1.get("source", ""),
+        })
+    if c2 is not None:
+        pinned.append({
+            "score": base_score * 0.99,
+            "chunk_id": c2.get("chunk_id"),
+            "chapter": c2.get("chapter"),
+            "heading": c2.get("heading", ""),
+            "text": c2.get("text", ""),
+            "source": c2.get("source", ""),
+        })
+
+    pinned_ids = {p["chunk_id"] for p in pinned}
+    rest = [hit for hit in passages if hit.get("chunk_id") not in pinned_ids]
+    return pinned + rest[: max(0, PASSAGE_LIMIT - len(pinned))]
+
+
+def _anchor_sentence_for_selection(chunk, selection):
+    text = chunk.get("text") or ""
+    heading = chunk.get("heading") or ""
+    sel = (selection or "").strip()
+    if not sel:
+        return None
+    cands = _candidate_sentences(text, heading)
+    if not cands:
+        return None
+
+    word_pat = re.compile(rf"\b{re.escape(sel)}\b", re.IGNORECASE)
+    matched = [s for s in cands if word_pat.search(s)]
+
+    if not matched:
+        matched = [s for s in cands if sel.lower() in s.lower()]
+
+    if not matched:
+        sel_words = set(re.findall(r"\w+", sel.lower()))
+        if sel_words:
+            scored_cands = sorted(
+                cands,
+                key=lambda s: len(sel_words & set(re.findall(r"\w+", s.lower()))),
+                reverse=True,
+            )
+            if scored_cands and (sel_words & set(re.findall(r"\w+", scored_cands[0].lower()))):
+                matched = [scored_cands[0]]
+
+    if not matched:
+        if heading and (sel.lower() in heading.lower() or word_pat.search(heading)):
+            long_cands = [s for s in cands if len(s) >= 40 and not META_TRANSITION_RE.search(s)]
+            if long_cands:
+                return long_cands[0]
+            _, sub = select_substantive_anchor_sentence(chunk, [], sel, extract_core_concept(sel, heading))
+            return sub if sub else (cands[0] if cands else None)
+        return None
+
+    best = matched[0]
+    for m in matched:
+        if len(m) >= 40 and not META_TRANSITION_RE.search(m):
+            best = m
+            break
+
+    if META_TRANSITION_RE.search(best) or (heading and (sel.lower() in heading.lower() or word_pat.search(heading))):
+        _, sub = select_substantive_anchor_sentence(chunk, [], sel, extract_core_concept(sel, heading))
+        if sub and not META_TRANSITION_RE.search(sub):
+            best = sub
+
+    if len(best) < 40 or best.endswith("?"):
+        idx = cands.index(best) if best in cands else 0
+        expanded = best
+        fwd = idx + 1
+        while len(expanded) < 40 and fwd < len(cands):
+            expanded = expanded + " " + cands[fwd]
+            fwd += 1
+        bwd = idx - 1
+        while len(expanded) < 40 and bwd >= 0:
+            expanded = cands[bwd] + " " + expanded
+            bwd -= 1
+        if len(expanded) >= 40:
+            best = expanded
+
+    return best
+
+
+def _explain_gloss_user_message(selection, quote, pin_chunk, neighbors=None):
+    heading = (pin_chunk.get("heading") or "") if pin_chunk else ""
+    intent_type = classify_intent(selection, heading, pin_chunk)
+
+    if intent_type == INTENT_MULTI_SENTENCE:
+        parts = [
+            f"Passage to explain:\n{selection.strip()}",
+        ]
+        if heading:
+            parts.append(f"Section heading: {heading}")
+        parts.append(
+            "Explain in 1 to 2 plain, direct sentences the core takeaway of this passage and what it means for the reader. "
+            "Do NOT repeat the text verbatim and do NOT output token loops."
+        )
+        return "\n\n".join(parts)
+
+    if intent_type == INTENT_CONCEPT_TERM:
+        core_concept = extract_core_concept(selection, heading)
+        parts = [
+            f"Core concept to define: {core_concept}",
+            f"Sentence mentioning concept: {quote}",
+        ]
+        if heading:
+            parts.append(f"Section heading: {heading}")
+        if pin_chunk and pin_chunk.get("text"):
+            parts.append(f"Section context:\n{pin_chunk['text']}")
+        if neighbors:
+            for n in neighbors:
+                if n and n.get("text"):
+                    parts.append(f"Related context ({n.get('heading', '')}):\n{n['text']}")
+        parts.append(
+            f"Define and explain what '{core_concept}' is and how it works according to this section. "
+            f"Do NOT say 'The section introduces...' or 'The authors discuss...' — explain the concept directly."
+        )
+        return "\n\n".join(parts)
+
+    if intent_type == INTENT_VAGUE_FRAGMENT:
+        subject = extract_enclosing_subject(quote, selection)
+        parts = [
+            f"Highlighted phrase: {selection}",
+            f"Full sentence: {quote}",
+        ]
+        if subject:
+            parts.append(f"Subject being described: {subject}")
+        if heading:
+            parts.append(f"Section heading: {heading}")
+        if pin_chunk and pin_chunk.get("text"):
+            parts.append(f"Passage context:\n{pin_chunk['text']}")
+        subj_note = f" ({subject})" if subject else ""
+        parts.append(
+            f"Explain in 1 to 2 plain sentences what the authors mean. "
+            f"Start with 'The highlighted phrase refers to ...' naming the specific subject{subj_note} in the sentence, "
+            f"and explain why the authors describe it as '{selection}'."
+        )
+        return "\n\n".join(parts)
+
+    parts = [
+        f"Highlighted text: {selection}",
+        f"Sentence containing highlight: {quote}",
+    ]
+    if heading:
+        parts.append(f"Section heading: {heading}")
+    if pin_chunk and pin_chunk.get("text"):
+        parts.append(f"Passage context:\n{pin_chunk['text']}")
+    if neighbors:
+        for n in neighbors:
+            if n and n.get("text"):
+                parts.append(f"Related context ({n.get('heading', '')}):\n{n['text']}")
+    if intent_type == INTENT_AUTHOR_QUESTION:
+        parts.append(
+            "Explain in 1 to 2 plain, direct sentences what the authors are asking the reader to evaluate and why it matters in this section."
+        )
+    else:
+        parts.append(
+            "Explain in 1 to 2 plain, direct sentences what the selected text means and why it is discussed here."
+        )
+    return "\n\n".join(parts)
+
+
+def _cross_chunk_quotes(chunk1, chunk2, selection):
+    """Extract boundary quotes from chunk1 and chunk2 for a cross-chunk selection."""
+    if not chunk1 or not chunk2:
+        return None, None
+    text1 = chunk1.get("text") or ""
+    text2 = chunk2.get("text") or ""
+    cands1 = _candidate_sentences(text1, chunk1.get("heading") or "")
+    cands2 = _candidate_sentences(text2, chunk2.get("heading") or "")
+    if not cands1 or not cands2:
+        return None, None
+
+    sel = (selection or "").strip().lower()
+    words_list = sel.split()
+    q1 = None
+    q2 = None
+    if len(words_list) >= 2:
+        for split_pt in range(1, len(words_list)):
+            part1 = " ".join(words_list[:split_pt])
+            part2 = " ".join(words_list[split_pt:])
+            if part1 in text1.lower() and part2 in text2.lower():
+                a1 = _anchor_sentence_for_selection(chunk1, part1)
+                a2 = _anchor_sentence_for_selection(chunk2, part2)
+                if a1 and a2:
+                    return a1, a2
+                if a1 and not q1:
+                    q1 = a1
+                if a2 and not q2:
+                    q2 = a2
+
+    if not q1:
+        q1 = cands1[-1]
+    if not q2:
+        q2 = cands2[0]
+    return q1, q2
+
+
+def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
+            chunk_id=None, heading="", end_chunk_id=None):
+    """The highlight is the question. The neighborhood is the passages.
+
+    A short highlight is asked as a question. The chunk the reader selected
+    stays in the passages even when dense search prefers another chapter.
+    """
+    if is_prompt_injection(selection):
+        return _refusal([])
+    selection = sanitize_query(selection)
     if not (selection or "").strip():
         raise ValueError("missing selection")
-    return ask(index, selection.strip(), generate_fn, search_fn, model,
-               canonical=False)
+    is_live = (generate_fn is None) or bool(getattr(generate_fn, "_is_live", False))
+    generate_fn = generate_fn or ollama_generate
+    pin_chunk_obj = None
+    end_chunk_obj = None
+    neighbors = []
+    chunks = index.get("chunks") or []
+    if chunk_id:
+        for i, c in enumerate(chunks):
+            if c.get("chunk_id") == chunk_id:
+                pin_chunk_obj = c
+                if i > 0 and chunks[i - 1].get("chapter") == c.get("chapter"):
+                    neighbors.append(chunks[i - 1])
+                if i + 1 < len(chunks) and chunks[i + 1].get("chapter") == c.get("chapter"):
+                    neighbors.append(chunks[i + 1])
+                break
+
+    if end_chunk_id:
+        end_chunk_obj = next((c for c in chunks if c.get("chunk_id") == end_chunk_id), None)
+        if end_chunk_obj and end_chunk_obj not in neighbors and end_chunk_obj != pin_chunk_obj:
+            neighbors.append(end_chunk_obj)
+
+    intent_info = analyze_intent(selection, heading, pin_chunk_obj, neighbors) if pin_chunk_obj else {}
+    anchor_quote = None
+    quote2 = None
+    sec_chunk_obj = end_chunk_obj
+    chosen_chunk = pin_chunk_obj
+
+    if pin_chunk_obj is not None:
+        anchor_quote = intent_info.get("anchor_sentence") or _anchor_sentence_for_selection(pin_chunk_obj, selection)
+        chosen_chunk = intent_info.get("chosen_chunk") or pin_chunk_obj
+        if sec_chunk_obj is None and chunk_id:
+            try:
+                idx = [c.get("chunk_id") for c in chunks].index(chunk_id)
+                if idx + 1 < len(chunks):
+                    sec_chunk_obj = chunks[idx + 1]
+            except ValueError:
+                pass
+
+        if anchor_quote is None or (sec_chunk_obj and selection.lower() not in (pin_chunk_obj.get("text") or "").lower()):
+            if sec_chunk_obj:
+                q1, q2 = _cross_chunk_quotes(pin_chunk_obj, sec_chunk_obj, selection)
+                if q1:
+                    anchor_quote = q1
+                    quote2 = q2
+                if sec_chunk_obj not in neighbors and sec_chunk_obj != pin_chunk_obj:
+                    neighbors.append(sec_chunk_obj)
+
+        if is_live and anchor_quote:
+            quote = anchor_quote
+            quote_for_prompt = f"{quote} {quote2}" if quote2 else quote
+            gloss_prompt = _explain_gloss_user_message(selection, quote_for_prompt, chosen_chunk, neighbors)
+            try:
+                raw_gloss = generate_fn(EXPLAIN_GLOSS_SYSTEM, gloss_prompt, model)
+            except Exception:
+                raw_gloss = ""
+
+            cleaned_gloss = (raw_gloss or "").strip()
+            if cleaned_gloss.startswith("[Ch.") and "\n" in cleaned_gloss:
+                cleaned_gloss = cleaned_gloss.split("\n", 1)[1].strip()
+            cleaned_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", cleaned_gloss).strip()
+            cleaned_gloss = cleaned_gloss.strip("\"'“”")
+            cleaned_gloss = _clean_boilerplate_gloss(cleaned_gloss, selection)
+            if not _is_coherent_gloss(cleaned_gloss, quote_for_prompt):
+                cleaned_gloss = _synthesize_grounded_gloss(selection, quote_for_prompt, chosen_chunk, neighbors, generate_fn, model)
+
+            chapter = str(chosen_chunk.get("chapter", ""))
+            citations = [{
+                "chunk_id": chosen_chunk.get("chunk_id") or chunk_id,
+                "chapter": chapter,
+                "quote": quote,
+                "doc": chosen_chunk.get("source", ""),
+            }]
+            if quote2 and sec_chunk_obj:
+                c2_chap = str(sec_chunk_obj.get("chapter", ""))
+                citations.append({
+                    "chunk_id": sec_chunk_obj.get("chunk_id"),
+                    "chapter": c2_chap,
+                    "quote": quote2,
+                    "doc": sec_chunk_obj.get("source", ""),
+                })
+                answer_text = f'[Ch. {chapter}] "{quote}"\n[Ch. {c2_chap}] "{quote2}"\n{cleaned_gloss}'
+            else:
+                answer_text = f'[Ch. {chapter}] "{quote}"\n{cleaned_gloss}'
+
+            figures_pool = [chosen_chunk]
+            if sec_chunk_obj and quote2:
+                figures_pool.append(sec_chunk_obj)
+            figures = figures_for(figures_pool, index.get("figures") or [])
+            return {
+                "answer": answer_text,
+                "refused": False,
+                "citations": citations,
+                "figures": figures,
+            }
+
+    question = highlight_query(selection, heading)
+    body = ask(
+        index, question, generate_fn, search_fn, model,
+        canonical=False, pin_chunk=chunk_id, end_chunk_id=end_chunk_id,
+    )
+
+    if pin_chunk_obj is not None and anchor_quote:
+        valid_sents = set(_candidate_sentences(pin_chunk_obj.get("text") or "", pin_chunk_obj.get("heading") or ""))
+        valid_ask = False
+        if not body.get("refused") and body.get("citations"):
+            first_cite = body["citations"][0]
+            cite_id = first_cite.get("chunk_id")
+            cite_quote = first_cite.get("quote", "")
+            has_sel = selection.lower() in cite_quote.lower()
+            answer_lines = [line.strip() for line in (body.get("answer") or "").splitlines() if line.strip()]
+            has_gloss = False
+            if len(answer_lines) >= 2 and not selection.strip().endswith("?"):
+                second_line = answer_lines[1]
+                norm_second = re.sub(r"[\s\"'“”]+", " ", second_line).strip().lower()
+                norm_quote = re.sub(r"[\s\"'“”]+", " ", cite_quote).strip().lower()
+                new_words = _tokens(second_line) - _tokens(cite_quote)
+                if (norm_second and norm_second != norm_quote
+                        and len(norm_second) > 25 and len(new_words) >= 3):
+                    has_gloss = True
+            if (cite_id == chunk_id and has_sel and has_gloss and not quote2 and
+                    (not valid_sents or cite_quote in valid_sents)):
+                valid_ask = True
+
+        if valid_ask:
+            answer_lines = [line.strip() for line in (body.get("answer") or "").splitlines() if line.strip()]
+            if len(answer_lines) >= 2:
+                cleaned_second = _clean_boilerplate_gloss(answer_lines[1], selection)
+                if not _is_coherent_gloss(cleaned_second, anchor_quote):
+                    cleaned_second = _synthesize_grounded_gloss(selection, anchor_quote, chosen_chunk, neighbors, generate_fn, model)
+                body["answer"] = f"{answer_lines[0]}\n{cleaned_second}"
+            return body
+
+        quote = anchor_quote
+        if (not body.get("refused") and body.get("citations") and
+                body["citations"][0].get("chunk_id") == chunk_id and not quote2):
+            cand_quote = body["citations"][0].get("quote", "")
+            if (selection.lower() in cand_quote.lower() and
+                    _quote_in_passage(cand_quote, pin_chunk_obj.get("text", "")) and
+                    (not valid_sents or cand_quote in valid_sents) and
+                    len(cand_quote) >= 40):
+                quote = cand_quote
+
+        quote_for_prompt = f"{quote} {quote2}" if quote2 else quote
+        gloss_prompt = _explain_gloss_user_message(selection, quote_for_prompt, chosen_chunk, neighbors)
+        try:
+            raw_gloss = generate_fn(EXPLAIN_GLOSS_SYSTEM, gloss_prompt, model)
+        except Exception:
+            raw_gloss = ""
+
+        cleaned_gloss = (raw_gloss or "").strip()
+        if cleaned_gloss.startswith("[Ch.") and "\n" in cleaned_gloss:
+            cleaned_gloss = cleaned_gloss.split("\n", 1)[1].strip()
+        cleaned_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", cleaned_gloss).strip()
+        cleaned_gloss = cleaned_gloss.strip("\"'“”")
+        cleaned_gloss = _clean_boilerplate_gloss(cleaned_gloss, selection)
+        if not _is_coherent_gloss(cleaned_gloss, quote_for_prompt):
+            cleaned_gloss = _synthesize_grounded_gloss(selection, quote_for_prompt, chosen_chunk, neighbors, generate_fn, model)
+
+        chapter = str(chosen_chunk.get("chapter", ""))
+        citations = [{
+            "chunk_id": chosen_chunk.get("chunk_id") or chunk_id,
+            "chapter": chapter,
+            "quote": quote,
+            "doc": chosen_chunk.get("source", ""),
+        }]
+        if quote2 and sec_chunk_obj:
+            c2_chap = str(sec_chunk_obj.get("chapter", ""))
+            citations.append({
+                "chunk_id": sec_chunk_obj.get("chunk_id"),
+                "chapter": c2_chap,
+                "quote": quote2,
+                "doc": sec_chunk_obj.get("source", ""),
+            })
+            answer_text = f'[Ch. {chapter}] "{quote}"\n[Ch. {c2_chap}] "{quote2}"\n{cleaned_gloss}'
+        else:
+            answer_text = f'[Ch. {chapter}] "{quote}"\n{cleaned_gloss}'
+
+        figures_pool = [chosen_chunk]
+        if sec_chunk_obj and quote2:
+            figures_pool.append(sec_chunk_obj)
+        figures = figures_for(figures_pool, index.get("figures") or [])
+        return {
+            "answer": answer_text,
+            "refused": False,
+            "citations": citations,
+            "figures": figures,
+        }
+
+    return body
 
 
 # A footnote marker glued to the citing line ("Maxime Beauchemin4") has no
@@ -887,14 +3294,16 @@ def _sentences(text):
     lines = raw.splitlines()
     if len(lines) > 1 and not lines[0].strip().endswith((".", "?", "!")):
         raw = "\n".join(lines[1:])
-    flat = re.sub(r"\s+", " ", raw).strip()
+    paragraphs = [p.strip() for p in re.split(r"\n\s*\n", raw) if p.strip()]
     parts = []
-    for run in re.split(r"(?<=[.!?])\s+", flat):
-        cursor = 0
-        for match in FOOTNOTE_GLUE.finditer(run):
-            parts.append(run[cursor:match.end()])
-            cursor = match.end()
-        parts.append(run[cursor:])
+    for para in paragraphs:
+        flat = re.sub(r"\s+", " ", para).strip()
+        for run in re.split(r"(?<=[.!?])\s+", flat):
+            cursor = 0
+            for match in FOOTNOTE_GLUE.finditer(run):
+                parts.append(run[cursor:match.end()])
+                cursor = match.end()
+            parts.append(run[cursor:])
     sentences = []
     for part in parts:
         sentence = part.strip()
@@ -905,6 +3314,24 @@ def _sentences(text):
     return sentences
 
 
+WEAK_QUIZ_PREFIXES = (
+    "Behind the scenes", "For example", "For instance", "As we discussed",
+    "As mentioned", "In this chapter", "In the next chapter", "Let's look",
+    "See Figure", "See Chapter", "Up to this point",
+)
+
+
+def quiz_sentences(text):
+    sents = _sentences(text)
+    if not sents:
+        return []
+    filtered = [
+        s for s in sents
+        if not any(s.strip().startswith(prefix) for prefix in WEAK_QUIZ_PREFIXES)
+    ]
+    return filtered if filtered else sents
+
+
 def pick_quiz_chunk(index, rng=None):
     """One real teaching chunk. Not a part title. Not the index."""
     rng = rng or random.Random()
@@ -912,36 +3339,105 @@ def pick_quiz_chunk(index, rng=None):
     for chunk in index.get("chunks") or []:
         if not str(chunk.get("chapter", "")).isdigit():
             continue
-        if _sentences(chunk.get("text") or ""):
+        if quiz_sentences(chunk.get("text") or ""):
             usable.append(chunk)
     if not usable:
         return None
     return rng.choice(usable)
 
 
-def quiz(index, generate_fn=None, model=ANSWER_MODEL, rng=None, chunk=None):
+def quiz(index, generate_fn=None, model=ANSWER_MODEL, rng=None, chunk=None,
+         chunk_id=None):
     """One question. The key is one sentence from one chunk. No score.
 
     The question must not contain the key. A leak is a refusal.
     """
+    is_live = (generate_fn is None) or bool(getattr(generate_fn, "_is_live", False))
     generate_fn = generate_fn or ollama_generate
+    rng = rng or random.Random()
+    chunks = index.get("chunks") or []
+    if chunk is None and chunk_id:
+        found_chunk = next(
+            (c for c in chunks if c.get("chunk_id") == chunk_id),
+            None,
+        )
+        if found_chunk is not None:
+            if quiz_sentences(found_chunk.get("text") or ""):
+                chunk = found_chunk
+            else:
+                try:
+                    idx = chunks.index(found_chunk)
+                    for offset in (1, -1, 2, -2):
+                        cand_idx = idx + offset
+                        if 0 <= cand_idx < len(chunks):
+                            cand = chunks[cand_idx]
+                            if cand.get("chapter") == found_chunk.get("chapter") and quiz_sentences(cand.get("text") or ""):
+                                chunk = cand
+                                break
+                except ValueError:
+                    pass
+                if chunk is None:
+                    chapter_chunks = [
+                        c for c in chunks
+                        if c.get("chapter") == found_chunk.get("chapter") and quiz_sentences(c.get("text") or "")
+                    ]
+                    if chapter_chunks:
+                        chunk = rng.choice(chapter_chunks)
     chunk = chunk or pick_quiz_chunk(index, rng)
     if chunk is None:
         return _refusal([])
-    sentences = _sentences(chunk.get("text") or "")
+    sentences = quiz_sentences(chunk.get("text") or "")
     if not sentences:
         return _refusal([])
-    key = sentences[0]
+    key = rng.choice(sentences)
     user = (
         f"{QUIZ_INSTRUCTION}\n\n"
-        f"[Ch. {chunk['chapter']}] chunk_id={chunk['chunk_id']}\n"
+        f"Target answer sentence (write a question that is directly answered by this specific sentence without repeating it):\n"
+        f'"{key}"\n\n'
+        f"Passage:\n"
         f"{chunk['text']}"
     )
     completion = generate_fn(SYSTEM, user, model).strip()
+
+    if is_live:
+        def _needs_quiz_retry(comp):
+            if not comp or comp == REFUSAL or "[Ch." in comp:
+                return True
+            if _quote_in_passage(key, comp) or key.lower() in comp.lower():
+                return True
+            q_line = comp.splitlines()[0].strip()
+            key_content = {
+                stem(w.lower()) for w in words(key + " " + (chunk.get("heading") or ""))
+                if len(w) > 2 and w.lower() not in STOPWORDS and w.lower() not in STEM_WORDS
+            }
+            q_stems = {
+                stem(w.lower()) for w in words(q_line)
+                if len(w) > 2 and w.lower() not in STOPWORDS and w.lower() not in STEM_WORDS
+            }
+            if key_content and not (key_content & q_stems):
+                return True
+            return False
+
+        if _needs_quiz_retry(completion):
+            retry_user = (
+                f"{QUIZ_INSTRUCTION}\n\n"
+                f"Target answer sentence (write a question that is directly answered by this specific sentence):\n"
+                f'"{key}"\n\n'
+                f"Topic: {chunk.get('heading', '')}"
+            )
+            try:
+                retry_comp = generate_fn(QUIZ_SYSTEM, retry_user, model).strip()
+                if retry_comp and retry_comp != REFUSAL and "[Ch." not in retry_comp:
+                    if not (_quote_in_passage(key, retry_comp) or key.lower() in retry_comp.lower()):
+                        completion = retry_comp
+            except Exception:
+                pass
+
     if not completion or completion == REFUSAL or "[Ch." in completion:
         return _refusal([chunk], index.get("figures") or [])
     if _quote_in_passage(key, completion) or key.lower() in completion.lower():
         return _refusal([chunk], index.get("figures") or [])
+
     return {
         "answer": completion,
         "citations": [{

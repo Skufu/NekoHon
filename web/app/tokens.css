@@ -1,0 +1,265 @@
+/* ==========================================================================
+   ask-this-book design tokens
+   5 themes (night default, paper, sepia, snow, ink)
+   4 pens (vermilion default, cobalt, moss, graphite)
+   4 highlighters (yellow, green, blue, pink)
+   Offline system fonts per GOAL.md
+   ========================================================================== */
+
+/* Light grounds */
+:root,
+[data-theme="paper"] {
+  --bg: #f6f3ec;
+  --bg-raised: #fcfaf6;
+  --bg-sunk: #ede8dd;
+  --ink: #1d1b18;
+  --ink-2: #4b463f;
+  --ink-3: #857e72;
+  --ink-4: #aba394;
+  --rule: #e5dfd2;
+  --rule-strong: #d3cab8;
+  --hl: rgb(242 196 56 / 0.46);
+  --hl-strong: rgb(242 196 56 / 0.7);
+  --hl-a: 46%;
+  --hl-a-strong: 70%;
+  --key-a: 13%;
+  --lens-bg: #1d1b18;
+  --lens-fg: #f3efe6;
+  --lens-mute: #9a9285;
+  --lens-hover: #34312c;
+  --shadow-pop: 0 1px 1px rgb(40 30 20 / 0.04), 0 14px 36px -14px rgb(40 30 20 / 0.3), 0 3px 8px -3px rgb(40 30 20 / 0.1);
+  --shadow-card: 0 1px 1px rgb(40 30 20 / 0.03), 0 10px 26px -16px rgb(40 30 20 / 0.24);
+  --bg-pill: #fffdf9;
+  --grain-opacity: 0.045;
+  --good: #3f7d4e;
+  --rubric: var(--pen-l);
+  --rubric-text: var(--pen-l-text);
+  color-scheme: light;
+}
+
+[data-theme="sepia"] {
+  --bg: #f1e6cf;
+  --bg-raised: #f7eedc;
+  --bg-sunk: #e7d9bb;
+  --ink: #33281b;
+  --ink-2: #5a4a36;
+  --ink-3: #8c785c;
+  --ink-4: #ae9b78;
+  --rule: #e0cfad;
+  --rule-strong: #d1bd96;
+  --hl: rgb(236 186 50 / 0.42);
+  --hl-strong: rgb(236 186 50 / 0.66);
+  --hl-a: 42%;
+  --hl-a-strong: 66%;
+  --key-a: 13%;
+  --lens-bg: #2e2418;
+  --lens-fg: #f4ead6;
+  --lens-mute: #a8957a;
+  --lens-hover: #463a2a;
+  --shadow-pop: 0 1px 1px rgb(40 30 20 / 0.04), 0 14px 36px -14px rgb(40 30 20 / 0.3), 0 3px 8px -3px rgb(40 30 20 / 0.1);
+  --shadow-card: 0 1px 1px rgb(40 30 20 / 0.03), 0 10px 26px -16px rgb(40 30 20 / 0.24);
+  --bg-pill: #fbf5e8;
+  --grain-opacity: 0.06;
+  --good: #3f7d4e;
+  --rubric: var(--pen-l);
+  --rubric-text: var(--pen-l-text);
+  color-scheme: light;
+}
+
+[data-theme="snow"] {
+  --bg: #fdfdfc;
+  --bg-raised: #ffffff;
+  --bg-sunk: #f1f1ef;
+  --ink: #141518;
+  --ink-2: #45474d;
+  --ink-3: #82848a;
+  --ink-4: #abadb3;
+  --rule: #e9e9e6;
+  --rule-strong: #d7d7d3;
+  --hl: rgb(250 210 60 / 0.42);
+  --hl-strong: rgb(250 210 60 / 0.66);
+  --hl-a: 42%;
+  --hl-a-strong: 66%;
+  --key-a: 13%;
+  --lens-bg: #141518;
+  --lens-fg: #f5f5f4;
+  --lens-mute: #8e9096;
+  --lens-hover: #2c2e33;
+  --shadow-pop: 0 1px 1px rgb(15 20 30 / 0.04), 0 14px 36px -14px rgb(15 20 30 / 0.22), 0 3px 8px -3px rgb(15 20 30 / 0.08);
+  --shadow-card: 0 1px 1px rgb(15 20 30 / 0.03), 0 10px 26px -16px rgb(15 20 30 / 0.18);
+  --bg-pill: #ffffff;
+  --grain-opacity: 0.02;
+  --good: #3f7d4e;
+  --rubric: var(--pen-l);
+  --rubric-text: var(--pen-l-text);
+  color-scheme: light;
+}
+
+/* Dark grounds */
+[data-theme="night"] {
+  --bg: #151412;
+  --bg-raised: #1d1b18;
+  --bg-sunk: #24221e;
+  --ink: #e9e3d6;
+  --ink-2: #b6ae9e;
+  --ink-3: #878073;
+  --ink-4: #5b564d;
+  --rule: #2c2a26;
+  --rule-strong: #3e3a34;
+  --hl: rgb(240 196 70 / 0.2);
+  --hl-strong: rgb(240 196 70 / 0.34);
+  --hl-a: 24%;
+  --hl-a-strong: 38%;
+  --key-a: 19%;
+  --lens-bg: #26231f;
+  --lens-fg: #f3efe6;
+  --lens-mute: #9a9285;
+  --lens-hover: #36322c;
+  --bg-pill: #26231f;
+  --shadow-pop: 0 1px 1px rgb(0 0 0 / 0.3), 0 18px 44px -14px rgb(0 0 0 / 0.65), 0 3px 8px -3px rgb(0 0 0 / 0.4);
+  --shadow-card: 0 1px 1px rgb(0 0 0 / 0.25), 0 12px 30px -16px rgb(0 0 0 / 0.6);
+  --grain-opacity: 0.035;
+  --good: #79b98a;
+  --rubric: var(--pen-d);
+  --rubric-text: var(--pen-d-text);
+  color-scheme: dark;
+}
+
+[data-theme="ink"] {
+  --bg: #0f1319;
+  --bg-raised: #161b23;
+  --bg-sunk: #1c222c;
+  --ink: #e3e8f0;
+  --ink-2: #abb4c1;
+  --ink-3: #7a8594;
+  --ink-4: #505a69;
+  --rule: #232b36;
+  --rule-strong: #303947;
+  --hl: rgb(240 200 80 / 0.2);
+  --hl-strong: rgb(240 200 80 / 0.34);
+  --hl-a: 24%;
+  --hl-a-strong: 38%;
+  --key-a: 19%;
+  --lens-bg: #1e2530;
+  --lens-fg: #f0f4f8;
+  --lens-mute: #8a95a5;
+  --lens-hover: #2c3545;
+  --shadow-pop: 0 1px 1px rgb(0 0 0 / 0.35), 0 18px 44px -14px rgb(0 0 0 / 0.7), 0 3px 8px -3px rgb(0 0 0 / 0.45);
+  --shadow-card: 0 1px 1px rgb(0 0 0 / 0.3), 0 12px 30px -16px rgb(0 0 0 / 0.65);
+  --bg-pill: #1e2530;
+  --grain-opacity: 0.03;
+  --good: #7fbf95;
+  --rubric: var(--pen-d);
+  --rubric-text: var(--pen-d-text);
+  color-scheme: dark;
+}
+
+/* Pens: the colour the model writes in. One light and one dark tone each. */
+:root,
+[data-pen="vermilion"] {
+  --pen-l: #c1401b;
+  --pen-l-text: #a9361a;
+  --pen-d: #ef7a50;
+  --pen-d-text: #f28b65;
+}
+[data-pen="cobalt"] {
+  --pen-l: #2c58c9;
+  --pen-l-text: #234cb4;
+  --pen-d: #86a8ff;
+  --pen-d-text: #9bb7ff;
+}
+[data-pen="moss"] {
+  --pen-l: #3b7a3d;
+  --pen-l-text: #316934;
+  --pen-d: #8fc68c;
+  --pen-d-text: #a2d29f;
+}
+[data-pen="graphite"] {
+  --pen-l: #4b4a47;
+  --pen-l-text: #3a3936;
+  --pen-d: #cfc9bd;
+  --pen-d-text: #ddd7cb;
+}
+
+:root {
+  /* Rubric washes */
+  --rubric-line: color-mix(in oklab, var(--rubric) 52%, transparent);
+  --rubric-wash: color-mix(in oklab, var(--rubric) 9%, transparent);
+  --rubric-wash-strong: color-mix(in oklab, var(--rubric) 17%, transparent);
+  --rubric-key: color-mix(in oklab, var(--rubric) var(--key-a, 13%), transparent);
+  --selection: color-mix(in oklab, var(--rubric) 18%, transparent);
+
+  /* Highlighter inks */
+  --mk-yellow: #f2c438;
+  --mk-green: #7cc66f;
+  --mk-blue: #6aa8f0;
+  --mk-pink: #f084ac;
+
+  --hl-yellow: var(--mk-yellow);
+  --hl-green: var(--mk-green);
+  --hl-blue: var(--mk-blue);
+  --hl-pink: var(--mk-pink);
+
+  /* Offline system fonts per GOAL.md */
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* Swatch preview colors for UI pickers */
+  --swatch-night-bg: #151412;
+  --swatch-night-fg: #e9e3d6;
+  --swatch-paper-bg: #f6f3ec;
+  --swatch-paper-fg: #1d1b18;
+  --swatch-sepia-bg: #f1e6cf;
+  --swatch-sepia-fg: #33281b;
+  --swatch-snow-bg: #fdfdfc;
+  --swatch-snow-fg: #141518;
+  --swatch-ink-bg: #0f1319;
+  --swatch-ink-fg: #e3e8f0;
+
+  --swatch-vermilion: #c1401b;
+  --swatch-cobalt: #2c58c9;
+  --swatch-moss: #3b7a3d;
+  --swatch-graphite: #4b4a47;
+
+  /* Shadows */
+  --shadow-inset: inset 0 0 0 1px rgb(0 0 0 / 0.2);
+  --shadow-pill: 0 16px 40px -12px rgb(0 0 0 / 0.45);
+  --shadow-ring: 0 0 0 2px var(--lens-bg), 0 0 0 3.5px var(--lens-fg);
+  --shadow-none: none;
+  --lens-border: color-mix(in oklab, var(--rule-strong) 40%, transparent);
+
+  /* Typography & Layout */
+  --font-text: var(--font-serif);
+  --font-ui: var(--font-sans);
+  --font-book: var(--font-serif);
+  --font-legible: var(--font-sans);
+  --read-size: 19px;
+  --leading: 1.64;
+  --topbar-h: 60px;
+  --measure-k: 34;
+
+  /* Backward compatibility tokens */
+  --paper: var(--bg);
+  --ink-muted: var(--ink-3);
+  --accent: var(--rubric);
+  --focus: var(--rubric);
+  --highlight-wash: var(--rubric-wash);
+  --highlight-flash: var(--rubric-wash-strong);
+  --radius: 6px;
+  --measure: 68ch;
+
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+  --s8: 64px;
+
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.36, 0.64, 1);
+  --ease-inout: cubic-bezier(0.4, 0, 0.2, 1);
+}

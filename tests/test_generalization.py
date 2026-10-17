@@ -21,6 +21,7 @@ LOGIC = (
     "captions.py",
     "figures.py",
     "fusion.py",
+    "intent.py",
     "keywords.py",
     "preprocess.py",
     "prompt.py",

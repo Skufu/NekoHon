@@ -8,6 +8,7 @@ from retrieve import (
     document_input,
     embed_index,
     format_input,
+    rank_chunks,
     search,
     smoke,
 )
@@ -167,6 +168,19 @@ class RetrieveTests(unittest.TestCase):
         with self.assertRaises(SystemExit) as caught:
             embed_index(index, embed_fn=bad_embed, dims=DIMS)
         self.assertIn("c7-001", str(caught.exception))
+        self.assertIn("all-zero", str(caught.exception))
+
+    def test_rank_chunks_refuses_a_zero_query(self):
+        def zero_query(texts, model):
+            return [[0.0, 0.0] for _ in texts]
+
+        index = {
+            "embedder": "nomic-embed-text",
+            "embedding_dims": 2,
+            "chunks": [{"chunk_id": "c1", "text": "a row", "embedding": [1.0, 0.0]}],
+        }
+        with self.assertRaises(SystemExit) as caught:
+            rank_chunks(index, "anything", embed_fn=zero_query)
         self.assertIn("all-zero", str(caught.exception))
 
     def test_embed_index_refuses_a_wrong_width_response(self):

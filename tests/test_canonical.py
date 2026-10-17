@@ -9,7 +9,7 @@ book sentence, not a question). No Ollama: recovery is injected.
 import unittest
 
 import answer as A
-from canonical import canonical_query
+from canonical import canonical_query, is_deictic_question, is_incomplete_stem
 from prompt import SYSTEM, SYSTEM_ANSWER
 
 
@@ -68,7 +68,7 @@ class TriggerTest(unittest.TestCase):
             "explain data ingestion",
             "describe CDC",
             "types of metadata",
-            "compare batch and streaming",
+            "contrast without connector",
             "list the transformation types",
             "hey can you tell me about data mesh",
             "watermark for me",
@@ -89,6 +89,126 @@ class TriggerTest(unittest.TestCase):
         self.assertEqual(canonical_query(""), "")
         self.assertEqual(canonical_query(None), "")
         self.assertEqual(canonical_query("   "), "   ")
+
+
+class DeicticStemTest(unittest.TestCase):
+    def test_deictic_questions_recognize_self_contained_forms(self):
+        for q in (
+            "what is this",
+            "what is this?",
+            "What does this mean",
+            "what does this mean?",
+            "how does this work",
+            "why does this matter",
+            "what are these",
+            "what is that",
+            "what can this do",
+            "why is it important",
+        ):
+            with self.subTest(q=q):
+                self.assertTrue(is_deictic_question(q))
+                self.assertFalse(is_incomplete_stem(q))
+
+    def test_incomplete_stems_fire_only_on_fragments(self):
+        for stem in (
+            "what are the",
+            "how is",
+            "why do",
+            "what is a",
+            "what can",
+        ):
+            with self.subTest(stem=stem):
+                self.assertFalse(is_deictic_question(stem))
+                self.assertTrue(is_incomplete_stem(stem))
+
+    def test_non_stems_do_not_fire(self):
+        for q in (
+            "data architecture",
+            "watermark",
+            "CRUD stands for",
+            "What is batch processing?",
+        ):
+            with self.subTest(q=q):
+                self.assertFalse(is_deictic_question(q))
+                self.assertFalse(is_incomplete_stem(q))
+
+
+class ComparisonTest(unittest.TestCase):
+    """Rows 27 and 8 of the 2026-10-15 owner sample: a versus text asked
+    as `What is X versus Y?` — rated wrong; a comparison asks as a
+    comparison. Generic tokens only: the rule is structural English.
+    """
+
+    def test_bare_label_rewrites(self):
+        self.assertEqual(
+            canonical_query("Monolith Versus Modular"),
+            "What is the difference between Monolith and Modular?",
+        )
+
+    def test_each_connector_form_rewrites_and_keeps_casing(self):
+        for question, expected in (
+            ("ddr4 vs ddr5", "What is the difference between ddr4 and ddr5?"),
+            ("DDR5 vs. ddr4", "What is the difference between DDR5 and ddr4?"),
+            ("alpha versus beta", "What is the difference between alpha and beta?"),
+        ):
+            with self.subTest(question=question):
+                self.assertEqual(canonical_query(question), expected)
+
+    def test_definition_shaped_vs_question_rewrites(self):
+        self.assertEqual(
+            canonical_query("What is data science vs data engineering?"),
+            "What is the difference between data science and data engineering?",
+        )
+
+    def test_two_connectors_do_not_rewrite(self):
+        self.assertEqual(
+            canonical_query("lambda versus kappa versus batch"),
+            "lambda versus kappa versus batch",
+        )
+
+    def test_spelled_out_difference_question_passes_through(self):
+        untouched = "What is the difference between batch and streaming?"
+        self.assertEqual(canonical_query(untouched), untouched)
+
+    def test_sentence_merely_containing_versus_passes_through(self):
+        sentence = "Monoliths versus modular systems is a longtime debate."
+        self.assertEqual(canonical_query(sentence), sentence)
+
+    def test_cdc_question_does_not_rewrite(self):
+        untouched = "What is CDC?"
+        self.assertEqual(canonical_query(untouched), untouched)
+
+    def test_compare_and_compared_to_rewrite(self):
+        self.assertEqual(
+            canonical_query("Compare DDR5 with DDR4"),
+            "What is the difference between DDR5 and DDR4?",
+        )
+        self.assertEqual(
+            canonical_query("DDR5 compared to DDR4"),
+            "What is the difference between DDR5 and DDR4?",
+        )
+        self.assertEqual(
+            canonical_query("compare batch and streaming"),
+            "What is the difference between batch and streaming?",
+        )
+
+    def test_distinguish_sets_apart_and_differ_rewrite(self):
+        self.assertEqual(
+            canonical_query("Distinguish between batch and streaming"),
+            "What is the difference between batch and streaming?",
+        )
+        self.assertEqual(
+            canonical_query("Distinguish batch from streaming"),
+            "What is the difference between batch and streaming?",
+        )
+        self.assertEqual(
+            canonical_query("What sets batch apart from streaming?"),
+            "What is the difference between batch and streaming?",
+        )
+        self.assertEqual(
+            canonical_query("How does batch differ from streaming?"),
+            "What is the difference between batch and streaming?",
+        )
 
 
 class _SeamBase(unittest.TestCase):

@@ -1,0 +1,363 @@
+[
+  {
+    "kind": "known-typo",
+    "q": "what is a atermark?",
+    "canonical": null,
+    "asked": "what is a watermark?",
+    "repaired": true,
+    "swaps": {
+      "atermark": "watermark"
+    },
+    "llm_calls": 0,
+    "llm": [],
+    "top": "ch08-039",
+    "score": 0.817,
+    "expect": "ch08-039",
+    "hit": true,
+    "seconds": 0.53
+  },
+  {
+    "kind": "known-llm",
+    "q": "what is normilazation",
+    "canonical": null,
+    "asked": "what is normalization",
+    "repaired": true,
+    "swaps": {
+      "normilazation": "normalization"
+    },
+    "llm_calls": 1,
+    "llm": [
+      {
+        "seconds": 2.72,
+        "user": "User query: \"what is normilazation\"",
+        "out": "what is normalization"
+      }
+    ],
+    "top": "ch08-051",
+    "score": 0.728,
+    "expect": "ch08-051",
+    "hit": true,
+    "seconds": 3.08
+  },
+  {
+    "kind": "known-llm",
+    "q": "what is data ingestoin",
+    "canonical": null,
+    "asked": "what is data ingestion",
+    "repaired": true,
+    "swaps": {
+      "ingestoin": "ingestion"
+    },
+    "llm_calls": 1,
+    "llm": [
+      {
+        "seconds": 0.07,
+        "user": "User query: \"what is data ingestoin\"",
+        "out": "what is data ingestion"
+      }
+    ],
+    "top": "ch07-002",
+    "score": 0.818,
+    "expect": "ch07-002",
+    "hit": true,
+    "seconds": 0.45
+  },
+  {
+    "kind": "known-acronym",
+    "q": "What does CRU stand for?",
+    "canonical": null,
+    "asked": "What does crud stand for?",
+    "repaired": true,
+    "swaps": {
+      "cru": "CRUD"
+    },
+    "llm_calls": 0,
+    "llm": [],
+    "top": "ch05-029",
+    "score": 0,
+    "expect": "ch05-019",
+    "hit": false,
+    "seconds": 0.46
+  },
+  {
+    "kind": "bare-swap",
+    "q": "watermrak",
+    "canonical": "What is watermrak?",
+    "asked": "What is watermark?",
+    "repaired": true,
+    "swaps": {
+      "watermrak": "watermark"
+    },
+    "llm_calls": 0,
+    "llm": [],
+    "top": "ch08-039",
+    "score": 0.587,
+    "expect": "ch08-039",
+    "hit": true,
+    "seconds": 0.55
+  },
+  {
+    "kind": "split-word",
+    "q": "wa termark",
+    "canonical": "What is wa termark?",
+    "asked": "What is wa watermark?",
+    "repaired": true,
+    "swaps": {
+      "termark": "watermark"
+    },
+    "llm_calls": 0,
+    "llm": [],
+    "top": "ch08-039",
+    "score": 0.69,
+    "expect": "ch08-039",
+    "hit": true,
+    "seconds": 0.6
+  },
+  {
+    "kind": "two-typos",
+    "q": "what is a watremark and a chekpoint",
+    "canonical": null,
+    "asked": "what is a watermark and a checkpoint",
+    "repaired": true,
+    "swaps": {
+      "watremark": "watermark",
+      "chekpoint": "checkpoint"
+    },
+    "llm_calls": 0,
+    "llm": [],
+    "top": "ch08-039",
+    "score": 0.747,
+    "expect": "ch08-039",
+    "hit": true,
+    "seconds": 0.59
+  },
+  {
+    "kind": "two-hard-typos",
+    "q": "normilazatoin of ingestoin",
+    "canonical": "What is normilazatoin of ingestoin?",
+    "asked": "What is normalization of ingestion?",
+    "repaired": true,
+    "swaps": {
+      "normilazatoin": "normalization",
+      "ingestoin": "ingestion"
+    },
+    "llm_calls": 1,
+    "llm": [
+      {
+        "seconds": 0.09,
+        "user": "User query: \"What is normilazatoin of ingestoin?\"",
+        "out": "What is normalization of ingestion?"
+      }
+    ],
+    "top": "ch08-051",
+    "score": 0.723,
+    "expect": null,
+    "hit": null,
+    "seconds": 0.58
+  },
+  {
+    "kind": "messy-clean-topic",
+    "q": "so like whats a watermark thing",
+    "canonical": "What is so like whats a watermark thing?",
+    "asked": "What is a like whats a watermark thing?",
+    "repaired": true,
+    "swaps": {
+      "so": "a"
+    },
+    "llm_calls": 1,
+    "llm": [
+      {
+        "seconds": 0.12,
+        "user": "User query: \"What is so like whats a watermark thing?\"",
+        "out": "What is a like whats a watermark thing?"
+      }
+    ],
+    "top": "ch02-046",
+    "score": 0,
+    "expect": "ch08-039",
+    "hit": false,
+    "seconds": 0.63
+  },
+  {
+    "kind": "sentence-typos",
+    "q": "Dataa analysts seek to undertstand what business performance",
+    "canonical": null,
+    "asked": "data analysts seek to understand what business performance",
+    "repaired": true,
+    "swaps": {
+      "dataa": "data",
+      "undertstand": "understand"
+    },
+    "llm_calls": 0,
+    "llm": [],
+    "top": "ch01-057",
+    "score": 0.784,
+    "expect": null,
+    "hit": null,
+    "seconds": 0.5
+  },
+  {
+    "kind": "comparison-bare",
+    "q": "Monolith Versus Modular",
+    "canonical": "What is Monolith Versus Modular?",
+    "asked": "What is Monolith Versus Modular?",
+    "repaired": false,
+    "swaps": null,
+    "llm_calls": 0,
+    "llm": [],
+    "top": "ch04-064",
+    "score": 0.829,
+    "expect": null,
+    "hit": null,
+    "seconds": 0.18
+  },
+  {
+    "kind": "greeting",
+    "q": "hey",
+    "canonical": null,
+    "asked": "they",
+    "repaired": true,
+    "swaps": {
+      "hey": "they"
+    },
+    "llm_calls": 0,
+    "llm": [],
+    "top": "preface01-016",
+    "score": 0.602,
+    "expect": null,
+    "hit": null,
+    "seconds": 0.43
+  },
+  {
+    "kind": "garbage",
+    "q": "asdf qwer zxcv",
+    "canonical": "What is asdf qwer zxcv?",
+    "asked": "What is asdf qwer zxcv?",
+    "repaired": false,
+    "swaps": null,
+    "llm_calls": 1,
+    "llm": [
+      {
+        "seconds": 0.12,
+        "user": "User query: \"What is asdf qwer zxcv?\"",
+        "out": "What is asdf qwer zxcv?"
+      }
+    ],
+    "top": "ch07-066",
+    "score": 0.573,
+    "expect": null,
+    "hit": null,
+    "seconds": 0.48
+  },
+  {
+    "kind": "punct",
+    "q": "???",
+    "canonical": null,
+    "asked": "???",
+    "repaired": false,
+    "swaps": null,
+    "llm_calls": 0,
+    "llm": [],
+    "top": "ch05-045",
+    "score": 0.684,
+    "expect": null,
+    "hit": null,
+    "seconds": 0.21
+  },
+  {
+    "kind": "fragment",
+    "q": "how do",
+    "canonical": null,
+    "asked": "how do",
+    "repaired": false,
+    "swaps": null,
+    "llm_calls": 0,
+    "llm": [],
+    "top": "ch05-003",
+    "score": 0.681,
+    "expect": null,
+    "hit": null,
+    "seconds": 0.21
+  },
+  {
+    "kind": "negation",
+    "q": "what is the opposite of a watermark",
+    "canonical": null,
+    "asked": "what is the opposite of a watermark",
+    "repaired": false,
+    "swaps": null,
+    "llm_calls": 0,
+    "llm": [],
+    "top": "ch08-039",
+    "score": 0.701,
+    "expect": null,
+    "hit": null,
+    "seconds": 0.26
+  },
+  {
+    "kind": "clean-control",
+    "q": "explain watermark in simple words",
+    "canonical": null,
+    "asked": "explain watermark in simple words",
+    "repaired": false,
+    "swaps": null,
+    "llm_calls": 0,
+    "llm": [],
+    "top": "ch08-039",
+    "score": 0.8,
+    "expect": "ch08-039",
+    "hit": true,
+    "seconds": 0.25
+  },
+  {
+    "kind": "out-of-book",
+    "q": "What is the capital of France?",
+    "canonical": null,
+    "asked": "What is the capital of France?",
+    "repaired": false,
+    "swaps": null,
+    "llm_calls": 1,
+    "llm": [
+      {
+        "seconds": 0.09,
+        "user": "User query: \"What is the capital of France?\"",
+        "out": "What is the capital of France?"
+      }
+    ],
+    "top": "ch01-064",
+    "score": 0.544,
+    "expect": null,
+    "hit": null,
+    "seconds": 0.36
+  },
+  {
+    "kind": "repetition",
+    "q": "watermarks watermarks watermarks",
+    "canonical": "What is watermarks watermarks watermarks?",
+    "asked": "What is watermarks watermarks watermarks?",
+    "repaired": false,
+    "swaps": null,
+    "llm_calls": 0,
+    "llm": [],
+    "top": "ch08-034",
+    "score": 0,
+    "expect": "ch08-039",
+    "hit": false,
+    "seconds": 0.28
+  },
+  {
+    "kind": "keyword-salad",
+    "q": "CRUD CRUD CRUD CRUD ingestion streaming watermark",
+    "canonical": "What is CRUD CRUD CRUD CRUD ingestion streaming watermark?",
+    "asked": "What is CRUD CRUD CRUD CRUD ingestion streaming watermark?",
+    "repaired": false,
+    "swaps": null,
+    "llm_calls": 0,
+    "llm": [],
+    "top": "ch08-005",
+    "score": 0,
+    "expect": null,
+    "hit": null,
+    "seconds": 0.34
+  }
+]

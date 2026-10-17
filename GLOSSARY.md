@@ -27,7 +27,29 @@ authoritative doc is named.
   typed (e.g. a typo repair).
 - **retry** — the engine's one `[Ch. ` prefill retry for an uncited
   answer-mode reply; kept only when a citation validates as verbatim text.
-  Monotone: it can only add a citation, never change an answer.
+  Monotone: it can only add a citation, never change an answer. In the
+  streaming UI its discarded draft shows as a **reset**.
+- **reader payload** (`GET /chunks`) — the book as the reader pane needs it:
+  chunks in reading order, no vectors, the leading heading line stripped,
+  figures as cards with their real pixel size (`retrieve.chunks_payload`).
+- **streaming frames** (`stream=1` on `POST /ask`) — NDJSON lines: `token`
+  (text as it is written), `reset` (a draft was discarded), `final` (the same
+  body the non-stream path returns), `error`.
+- **reset / the hold** — the engine discards provisional drafts itself: tokens
+  stream only for the generation whose text becomes the answer (the `[Ch. `
+  retry, ask's main generation), so the pane shows one continuous stream; the
+  `reset` frame still marks a discarded draft and usually arrives before
+  anything was shown.
+- **the lens** — select text in the reader → the ink pill at the selection; a
+  typed question is an `ask`, an empty one runs `explain` on the passage
+  (`web/components/Lens.tsx`).
+- **margin card** — the anchored answer beside its passage, streaming, shown
+  only when the margin fits (`web/components/MarginCard.tsx`).
+- **citation jump** — clicking a `[Ch. N]` chip scrolls the book pane to the
+  cited block and marks the quote (whitespace-insensitive search; the marked
+  characters are the quote's own words).
+- **the panes** — the frontend's two columns: the book (reader) and the ask
+  box; the Next.js app under `web/` — `web/README.md`.
 
 ## Models and training
 

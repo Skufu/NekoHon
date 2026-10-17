@@ -1,0 +1,523 @@
+[
+  {
+    "question": "What does CRUD stand for?",
+    "seconds": 0.82,
+    "pass": true,
+    "notes": [
+      "pinned chunk cited"
+    ],
+    "response": {
+      "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage\"\nCRUD means create, read, update, delete.",
+      "citations": [
+        {
+          "chunk_id": "ch05-019",
+          "chapter": "5",
+          "quote": "CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "What is data ingestion?",
+    "seconds": 0.49,
+    "pass": true,
+    "notes": [
+      "pinned chunk cited"
+    ],
+    "response": {
+      "answer": "[Ch. 7] \"Data ingestion is the process of moving data from one place to another\"\nData ingestion moves data from one place to another.",
+      "citations": [
+        {
+          "chunk_id": "ch07-002",
+          "chapter": "7",
+          "quote": "Data ingestion is the process of moving data from one place to another."
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-7-2",
+          "chapter": "7",
+          "caption": "Data from system 1 is ingested into system 2",
+          "src": "/figures/figure-7-2"
+        }
+      ],
+      "refused": false
+    }
+  },
+  {
+    "question": "What is a watermark?",
+    "seconds": 0.81,
+    "pass": true,
+    "notes": [
+      "pinned chunk cited"
+    ],
+    "response": {
+      "answer": "[Ch. 8] A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late-arriving data\nA watermark sets a time limit for data; late data doesn't meet this limit.",
+      "citations": [
+        {
+          "chunk_id": "ch08-039",
+          "chapter": "8",
+          "quote": "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late."
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-8-8",
+          "chapter": "8",
+          "caption": "Watermark acting as a threshold for late-arriving data",
+          "src": "/figures/figure-8-8"
+        }
+      ],
+      "refused": false
+    }
+  },
+  {
+    "question": "When is an insert-only table useful?",
+    "seconds": 0.68,
+    "pass": true,
+    "notes": [
+      "pinned chunk shown, not cited (cites ['ch08-107'])"
+    ],
+    "response": {
+      "answer": "[Ch. 8] \"Insert-only patterns can be used to maintain a current view of data\u2014for example, if new versions of records are inserted without deleting old records.\"\nInsert-only patterns keep track of current data by adding new versions without deleting old ones.",
+      "citations": [
+        {
+          "chunk_id": "ch08-107",
+          "chapter": "8",
+          "quote": "Insert-only patterns can be used to maintain a current view of data\u2014for example, if new versions of records are inserted without deleting old records."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "Where does storage sit in the data engineering lifecycle?",
+    "seconds": 1.38,
+    "pass": true,
+    "notes": [
+      "pinned chunk cited"
+    ],
+    "response": {
+      "answer": "[Ch. 6] \"Storage is the cornerstone of the data engineering lifecycle (Figure 6-1) and underlies its major stages\u2014ingestion, transformation, and serving. Data gets stored many times as it moves through the lifecycle. To paraphrase an old saying, it\u2019s storage all the way down. Whether data is needed seconds, minutes, days, months, or years later, it must persist in storage until systems are ready to consume it for further processing and transmission. Knowing the use case of the data and the way you will retrieve it in the future is the first step to choosing the proper storage solutions for your data architecture.\"\nStorage is about keeping data safe for a long time.",
+      "citations": [
+        {
+          "chunk_id": "ch06-001",
+          "chapter": "6",
+          "quote": "Storage is the cornerstone of the data engineering lifecycle (Figure 6-1) and underlies its major stages\u2014ingestion, transformation, and serving."
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-6-1",
+          "chapter": "6",
+          "caption": "Storage plays a central role in the data engineering lifecycle",
+          "src": "/figures/figure-6-1"
+        }
+      ],
+      "refused": false
+    }
+  },
+  {
+    "question": "What do source systems provide to the rest of the lifecycle?",
+    "seconds": 0.5,
+    "pass": true,
+    "notes": [
+      "pinned chunk cited"
+    ],
+    "response": {
+      "answer": "[Ch. 2] Source systems are the origin of the data used in the data engineering lifecycle\nSource systems provide the initial data for data engineering projects.",
+      "citations": [
+        {
+          "chunk_id": "ch02-005",
+          "chapter": "2",
+          "quote": "A source system is the origin of the data used in the data engineering lifecycle."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "How does data architecture relate to enterprise architecture?",
+    "seconds": 0.67,
+    "pass": true,
+    "notes": [
+      "pinned chunk cited"
+    ],
+    "response": {
+      "answer": "[Ch. 3] \"Data architecture is a subset of enterprise architecture, inheriting its properties: processes, strategy, change management, and evaluating trade-offs\"\nData architecture includes processes, strategy, and change management.",
+      "citations": [
+        {
+          "chunk_id": "ch03-013",
+          "chapter": "3",
+          "quote": "Data architecture is a subset of enterprise architecture, inheriting its properties: processes, strategy, change management, and evaluating trade-offs."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "What is the difference between batch and streaming?",
+    "seconds": 0.54,
+    "pass": true,
+    "notes": [
+      "pinned chunk cited"
+    ],
+    "response": {
+      "answer": "[Ch. 2] \"Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML.\"\nBatch processing is widely used for analytics and ML.",
+      "citations": [
+        {
+          "chunk_id": "ch02-019",
+          "chapter": "2",
+          "quote": "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "What happens to data after it is extracted in ETL?",
+    "seconds": 0.69,
+    "pass": true,
+    "notes": [
+      "pinned chunk cited"
+    ],
+    "response": {
+      "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation.\"\nData is extracted from a source and can be transformed or loaded into storage.",
+      "citations": [
+        {
+          "chunk_id": "ch07-033",
+          "chapter": "7",
+          "quote": "Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "What do transformations do in the data engineering lifecycle?",
+    "seconds": 0.54,
+    "pass": true,
+    "notes": [
+      "pinned chunk cited"
+    ],
+    "response": {
+      "answer": "[Ch. 2] \"Transformation is often entangled in other phases of the lifecycle\"\nTransformation is mixed with other steps in data engineering.",
+      "citations": [
+        {
+          "chunk_id": "ch02-027",
+          "chapter": "2",
+          "quote": "Transformation is often entangled in other phases of the lifecycle."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "What does CRU stand for?",
+    "seconds": 0.89,
+    "pass": true,
+    "notes": [
+      "pinned chunk cited"
+    ],
+    "response": {
+      "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage\"\nCRUD means create, read, update, delete.\nRead as: \"What does crud stand for?\"",
+      "citations": [
+        {
+          "chunk_id": "ch05-019",
+          "chapter": "5",
+          "quote": "CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "What happens to data after it is extracted in ET?",
+    "seconds": 0.72,
+    "pass": true,
+    "notes": [
+      "pinned chunk cited"
+    ],
+    "response": {
+      "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation.\"\nData is extracted. It can be transformed first or loaded directly.",
+      "citations": [
+        {
+          "chunk_id": "ch07-033",
+          "chapter": "7",
+          "quote": "Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simply loaded into storage for future transformation."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "what is a atermark?",
+    "seconds": 0.95,
+    "pass": true,
+    "notes": [
+      "pinned chunk cited"
+    ],
+    "response": {
+      "answer": "[Ch. 8] A watermark is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late-arriving data\nA watermark sets a time limit for data; late data is ignored.\nRead as: \"what is a watermark?\"",
+      "citations": [
+        {
+          "chunk_id": "ch08-039",
+          "chapter": "8",
+          "quote": "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it\u2019s considered late."
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-8-8",
+          "chapter": "8",
+          "caption": "Watermark acting as a threshold for late-arriving data",
+          "src": "/figures/figure-8-8"
+        }
+      ],
+      "refused": false
+    }
+  },
+  {
+    "question": "what does data engineers need to be pragmatic about",
+    "seconds": 0.48,
+    "pass": true,
+    "notes": [
+      "pinned chunk cited"
+    ],
+    "response": {
+      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"\nBe practical about being flexible.",
+      "citations": [
+        {
+          "chunk_id": "ch04-012",
+          "chapter": "4",
+          "quote": "Data engineers need to be pragmatic about flexibility."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "Data engineers need to be pragmatic about?",
+    "seconds": 0.48,
+    "pass": true,
+    "notes": [
+      "pinned chunk cited"
+    ],
+    "response": {
+      "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"\nBe practical about being flexible.",
+      "citations": [
+        {
+          "chunk_id": "ch04-012",
+          "chapter": "4",
+          "quote": "Data engineers need to be pragmatic about flexibility."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "MAD data landscape",
+    "seconds": 1.03,
+    "pass": true,
+    "notes": [
+      "pinned chunk cited"
+    ],
+    "response": {
+      "answer": "[Ch. 4] \"It\u2019s hard. Just consider the number of technologies in Matt turck\u2019s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1).\"\nIt's difficult to predict which new tech will last.\nAsked as: \"What is MAD data landscape?\"",
+      "citations": [
+        {
+          "chunk_id": "ch04-020",
+          "chapter": "4",
+          "quote": "Just consider the number of technologies in Matt Turck\u2019s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)."
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-4-1",
+          "chapter": "4",
+          "caption": "Matt Turck\u2019s 2021 MAD data landscape",
+          "src": "/figures/figure-4-1"
+        }
+      ],
+      "refused": false
+    }
+  },
+  {
+    "question": "multicloud methodology disadvantages",
+    "seconds": 1.05,
+    "pass": true,
+    "notes": [
+      "pinned chunk cited"
+    ],
+    "response": {
+      "answer": "[Ch. 4] \"A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bottlenecks are critical. Going multicloud can introduce significant complexity. Companies must now manage a dizzying array of services across several clouds; cross-cloud integration and security present a considerable challenge; multicloud networking can be diabolically complicated.\"\nMulticloud can make management very complex.\nAsked as: \"What is multicloud methodology disadvantages?\"",
+      "citations": [
+        {
+          "chunk_id": "ch04-037",
+          "chapter": "4",
+          "quote": "A multicloud methodology has several disadvantages."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "what is MAD data landscape",
+    "seconds": 0.98,
+    "pass": true,
+    "notes": [
+      "pinned chunk cited"
+    ],
+    "response": {
+      "answer": "[Ch. 4] \"It\u2019s hard. Just consider the number of technologies in Matt turck\u2019s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1).\"\nThe MAD landscape shows many ML, AI, and data technologies that come and go quickly.",
+      "citations": [
+        {
+          "chunk_id": "ch04-020",
+          "chapter": "4",
+          "quote": "Just consider the number of technologies in Matt Turck\u2019s (in)famous depictions of the ML, AI, and data (MAD) landscape that we introduced in Chapter 1 (Figure 4-1)."
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-4-1",
+          "chapter": "4",
+          "caption": "Matt Turck\u2019s 2021 MAD data landscape",
+          "src": "/figures/figure-4-1"
+        }
+      ],
+      "refused": false
+    }
+  },
+  {
+    "question": "what is data mesh",
+    "seconds": 1.21,
+    "pass": true,
+    "notes": [
+      "pinned chunk cited"
+    ],
+    "response": {
+      "answer": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and \u201cthe great divide of data,\u201d wherein the landscape is divided between operational data and analytical data.24 The data mesh attempts to invert the challenges of centralized data architecture, taking the concepts of domain-driven design (commonly used in software architectures) and applying them to data architecture. Because the data mesh has captured much recent attention, you should be aware of it.\"\nThe data mesh responds to big data systems like data lakes and warehouses.",
+      "citations": [
+        {
+          "chunk_id": "ch03-099",
+          "chapter": "3",
+          "quote": "The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and data warehouses, and \u201cthe great divide of data,\u201d wherein the landscape is divided between operational data and analytical data.24 The data mesh attempts to invert the challenges of centralized data architecture, taking the concepts of domain-driven design (commonly used in software architectures) and applying them to data architecture."
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-3-18",
+          "chapter": "3",
+          "caption": "Simplified example of a data mesh architecture. Source: From Data Mesh, by Zhamak Dehghani. Copyright \u00a9 2022 Zhamak Dehghani. Published by O\u2019Reilly Media, Inc. Used with permission.",
+          "src": "/figures/figure-3-18"
+        }
+      ],
+      "refused": false
+    }
+  },
+  {
+    "question": "Codd introduced the idea of what",
+    "seconds": 0.38,
+    "pass": false,
+    "notes": [
+      "refused"
+    ],
+    "response": {
+      "answer": "Not in this book.",
+      "citations": [
+        {
+          "chunk_id": "ch04-067",
+          "chapter": "4",
+          "quote": "Modularity Modularity (Figure 4-5) is an old concept in software engineering, but modular distributed systems truly came into vogue with the rise of microservic"
+        },
+        {
+          "chunk_id": "ch03-071",
+          "chapter": "3",
+          "quote": "Data Warehouse A data warehouse is a central data hub used for reporting and analysis. Data in a data warehouse is typically highly formatted and structured for"
+        },
+        {
+          "chunk_id": "ch04-052",
+          "chapter": "4",
+          "quote": "Open Source Software Open source software (OSS) is a software distribution model in which software, and the underlying codebase, is made available for general u"
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-4-5",
+          "chapter": "4",
+          "caption": "With modularity, each service is decoupled from another",
+          "src": "/figures/figure-4-5"
+        }
+      ],
+      "refused": true
+    }
+  },
+  {
+    "question": "what is an endpoint in streaming ingestion",
+    "seconds": 0.81,
+    "pass": true,
+    "notes": [
+      "pinned chunk cited"
+    ],
+    "response": {
+      "answer": "[Ch. 2] \"With streaming ingestion, data bypasses a backend database and is pushed directly to an endpoint, typically with data buffered by an event-streaming platform\"\nData is sent to an endpoint without going through a database, using an event-streaming platform to buffer the data.",
+      "citations": [
+        {
+          "chunk_id": "ch02-024",
+          "chapter": "2",
+          "quote": "With streaming ingestion, data bypasses a backend database and is pushed directly to an endpoint, typically with data buffered by an event-streaming platform."
+        }
+      ],
+      "figures": [],
+      "refused": false
+    }
+  },
+  {
+    "question": "What is the capital of France?",
+    "seconds": 0.47,
+    "pass": true,
+    "notes": [],
+    "response": {
+      "answer": "Not in this book.",
+      "citations": [
+        {
+          "chunk_id": "ch01-064",
+          "chapter": "1",
+          "quote": "Chief information officer A chief information officer (CIO) is the senior C-suite executive responsible for information technology within an organization; it is"
+        },
+        {
+          "chunk_id": "ch03-071",
+          "chapter": "3",
+          "quote": "Data Warehouse A data warehouse is a central data hub used for reporting and analysis. Data in a data warehouse is typically highly formatted and structured for"
+        },
+        {
+          "chunk_id": "ch05-030",
+          "chapter": "5",
+          "quote": "Relational databases A relational database management system (RDBMS) is one of the most common application backends. Relational databases were developed at IBM "
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-5-7",
+          "chapter": "5",
+          "caption": "RDBMS stores and retrieves data at a row level",
+          "src": "/figures/figure-5-7"
+        }
+      ],
+      "refused": true
+    }
+  }
+]

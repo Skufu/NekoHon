@@ -1,0 +1,18 @@
+# answer-shape live probe — three owner findings (2026-10-16)
+
+## monolith-vs — Monolith Versus Modular
+refused: False | 3.9s
+[Ch. 4] "Monoliths versus modular systems is another longtime debate in the software architecture space"
+Monoliths and modular systems are debated in software architecture.
+Asked as: "What is the difference between Monolith and Modular?"
+
+## ddr4-vs-ddr5 — ddr4 vs ddr5
+refused: False | 0.82s
+[Ch. 6] "DDR5 memory—the latest widely used standard for RAM—offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD."
+The passages do not mention ddr4.
+Asked as: "What is the difference between ddr4 and ddr5?"
+
+## oss-factors — What are the following factors to consider with a community-managed OSS project
+refused: False | 0.87s
+[Ch. 4] "Avoid adopting OSS projects that don’t have traction and popularity. Look at the number of GitHub stars, forks, and commit volume and recency. Another thing to pay attention to is community activity on related chat groups and forums. Does the project have a strong sense of community? A strong community creates a virtuous cycle of strong adoption. It also means that you’ll have an easier time getting technical assistance and finding talent qualified to work with the framework."
+Be aware of the project's maturity and community activity.

@@ -1,0 +1,220 @@
+{
+  "smallbook_x2g": {
+    "Codd introduced the idea of what": {
+      "ask": {
+        "refused": false,
+        "citations": [
+          "ch08-051"
+        ],
+        "answer": "[Ch. 8] \"Codd introduced the idea of normal forms.\"\nCodd created a set of rules for organizing database tables to avoid repeating data."
+      },
+      "respond": {
+        "refused": false,
+        "citations": [
+          "ch08-051"
+        ],
+        "answer": "[Ch. 8] \"Codd introduced the idea of normal forms.\"\nCodd created a set of rules for organizing database tables to avoid repeating data."
+      }
+    },
+    "What is a watermark?": {
+      "ask": {
+        "refused": false,
+        "citations": [
+          "ch08-039"
+        ],
+        "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late\"\nA watermark is a set point that decides if new data is on time or late."
+      },
+      "respond": {
+        "refused": false,
+        "citations": [
+          "ch08-039"
+        ],
+        "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late.\"\nA watermark is a set point that decides if new data is on time or late."
+      }
+    },
+    "What does CRUD stand for?": {
+      "ask": {
+        "refused": false,
+        "citations": [
+          "ch05-019"
+        ],
+        "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage\"\nCRUD is an acronym for the four main actions you can do with data: make it, look at it, change it, or remove it."
+      },
+      "respond": {
+        "refused": false,
+        "citations": [
+          "ch05-019"
+        ],
+        "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage.\"\nCRUD is an acronym for the four main actions you can do with data: make it, look at it, change it, or remove it."
+      }
+    },
+    "What is the capital of France?": {
+      "ask": {
+        "refused": true,
+        "citations": [
+          "ch01-064",
+          "ch03-071",
+          "ch05-030"
+        ],
+        "answer": "Not in this book."
+      },
+      "respond": {
+        "refused": true,
+        "citations": [
+          "ch01-064",
+          "ch03-071",
+          "ch05-030"
+        ],
+        "answer": "Not in this book."
+      }
+    },
+    "DE Lifecycle": {
+      "ask": {
+        "refused": false,
+        "citations": [
+          "ch01-006"
+        ],
+        "answer": "[Ch. 1] \"The data engineering lifecycle shifts the conversation away from technology and toward the data itself and the end goals that it must serve\"\nThis chapter explains how to focus on the data's purpose instead of just the tools used to handle it.\nAsked as: \"What is DE Lifecycle?\""
+      },
+      "respond": {
+        "refused": false,
+        "citations": [
+          "ch01-006"
+        ],
+        "answer": "[Ch. 1] \"The data engineering lifecycle shifts the conversation away from technology and toward the data itself and the end goals that it must serve.\"\nThis chapter explains how to focus on the data's purpose instead of just the tools used to handle it.\nAsked as: \"What is DE Lifecycle?\""
+      }
+    },
+    "ddr4 vs ddr5": {
+      "ask": {
+        "refused": false,
+        "citations": [
+          "ch06-011"
+        ],
+        "answer": "[Ch. 6] \"DDR5 memory—the latest widely used standard for RAM—offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD.\"\nThe passages do not mention ddr4.\nAsked as: \"What is the difference between ddr4 and ddr5?\""
+      },
+      "respond": {
+        "refused": false,
+        "citations": [
+          "ch06-011"
+        ],
+        "answer": "[Ch. 6] \"DDR5 memory—the latest widely used standard for RAM—offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD.\"\nThe passages do not mention ddr4.\nAsked as: \"What is the difference between ddr4 and ddr5?\""
+      }
+    },
+    "explain": {
+      "refused": false,
+      "citations": [
+        "ch02-007"
+      ],
+      "answer": "[Ch. 2] \"What are the essential characteristics of the data source? Is it an application? A swarm of IoT devices?\"\nEssential characteristics are the main features or important aspects that define the data source."
+    }
+  },
+  "smallbook_x2g_mobile": {
+    "Codd introduced the idea of what": {
+      "ask": {
+        "refused": false,
+        "citations": [
+          "ch08-051"
+        ],
+        "answer": "[Ch. 8] \"Codd introduced the idea of normal forms\"\nCodd created a set of rules for organizing database tables to avoid repeating data."
+      },
+      "respond": {
+        "refused": false,
+        "citations": [
+          "ch08-051"
+        ],
+        "answer": "[Ch. 8] \"Codd introduced the idea of normal forms.\"\nCodd created a set of rules for organizing database tables to avoid repeating data."
+      }
+    },
+    "What is a watermark?": {
+      "ask": {
+        "refused": false,
+        "citations": [
+          "ch08-039"
+        ],
+        "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late\"\nA watermark is a set point that decides if new, old data stays in a window."
+      },
+      "respond": {
+        "refused": false,
+        "citations": [
+          "ch08-039"
+        ],
+        "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late.\"\nA watermark is a set point that decides if new, old data stays in a window."
+      }
+    },
+    "What does CRUD stand for?": {
+      "ask": {
+        "refused": false,
+        "citations": [
+          "ch05-019"
+        ],
+        "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage\"\nCRUD is an acronym for the four main actions you can do with data: make it, look at it, change it, and remove it."
+      },
+      "respond": {
+        "refused": false,
+        "citations": [
+          "ch05-019"
+        ],
+        "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programming and represents the four basic operations of persistent storage.\"\nCRUD is an acronym for the four main actions you can do with data: make it, look at it, change it, and remove it."
+      }
+    },
+    "What is the capital of France?": {
+      "ask": {
+        "refused": true,
+        "citations": [
+          "ch01-064",
+          "ch03-071",
+          "ch05-030"
+        ],
+        "answer": "Not in this book."
+      },
+      "respond": {
+        "refused": true,
+        "citations": [
+          "ch01-064",
+          "ch03-071",
+          "ch05-030"
+        ],
+        "answer": "Not in this book."
+      }
+    },
+    "DE Lifecycle": {
+      "ask": {
+        "refused": false,
+        "citations": [
+          "ch02-002"
+        ],
+        "answer": "[Ch. 2] \"The data engineering lifecycle comprises stages that turn raw data ingredients into a useful end product, ready for consumption by analysts, data scientists, ML engineers, and others\"\nIt is the process of changing raw data into something useful for people to use.\nAsked as: \"What is DE Lifecycle?\""
+      },
+      "respond": {
+        "refused": false,
+        "citations": [
+          "ch01-006"
+        ],
+        "answer": "[Ch. 1] \"The data engineering lifecycle comprises stages that turn raw data ingredients into a useful end product, ready for consumption by analysts, data scientists, ML engineers, and others.\"\nIt is the process of changing raw data into something useful for people to use.\nAsked as: \"What is DE Lifecycle?\""
+      }
+    },
+    "ddr4 vs ddr5": {
+      "ask": {
+        "refused": false,
+        "citations": [
+          "ch06-011"
+        ],
+        "answer": "[Ch. 6] \"DDR5 memory—the latest widely used standard for RAM—offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD.\"\nThe passages do not mention ddr4.\nAsked as: \"What is the difference between ddr4 and ddr5?\""
+      },
+      "respond": {
+        "refused": false,
+        "citations": [
+          "ch06-011"
+        ],
+        "answer": "[Ch. 6] \"DDR5 memory—the latest widely used standard for RAM—offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD.\"\nThe passages do not mention ddr4.\nAsked as: \"What is the difference between ddr4 and ddr5?\""
+      }
+    },
+    "explain": {
+      "refused": false,
+      "citations": [
+        "ch02-007"
+      ],
+      "answer": "[Ch. 2] \"What are the essential characteristics of the data source? Is it an application? A swarm of IoT devices?\"\nThe highlighted essential characteristics refers to the fundamental properties that define whether a system is an application, a swarm of IoT devices, or something else."
+    }
+  }
+}

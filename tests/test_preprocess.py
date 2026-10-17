@@ -13,9 +13,9 @@ class TokenizerTests(unittest.TestCase):
         self.assertEqual(words("The Pragmatic Lead"), ["the", "pragmatic", "lead"])
 
     def test_punctuation_is_not_a_token_and_digits_are_not_one_either(self):
-        # Documented on purpose: "S3" reads as "s" and "1/17" reads as nothing.
-        # Widening this moves every df count, and the rare gate rides on those.
-        self.assertEqual(words("S3 stores 1/17 of it."), ["s", "stores", "of", "it"])
+        # Pure digits are not tokens: "1/17" reads as nothing.
+        # Alphanumeric terms with letters ("S3", "3NF", "DDR4") stay intact.
+        self.assertEqual(words("S3 stores 1/17 of it."), ["s3", "stores", "of", "it"])
 
 
 class SymmetryTests(unittest.TestCase):

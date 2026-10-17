@@ -9,6 +9,16 @@
   --rule: #e7e2d8;             /* (proposed) the one structural divider (pane split); never decorative */
   --focus: #8a6d00;            /* visible focus ring on --paper */
 
+  /* The reader's own additions (kept in sync with web/app/tokens.css). */
+  --highlight-wash: rgba(138, 109, 0, 0.14);  /* the citation mark — the accent, marks only */
+  --highlight-flash: rgba(138, 109, 0, 0.32); /* what a fresh citation jump starts from */
+  --lens-bg: #1a1a1a;          /* the selection pill: the ink as a ground */
+  --lens-fg: #faf8f4;
+  --lens-muted: #a8a29a;
+  --lens-border: rgba(255, 255, 255, 0.14);
+  --lens-shadow: 0 2px 10px rgba(0, 0, 0, 0.18); /* the one floating control */
+  --radius: 6px;
+
   --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
 
   --font-text: Georgia, "Iowan Old Style", "Times New Roman", serif;  /* no webfonts: offline */
@@ -23,5 +33,5 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-inout: cubic-bezier(0.4, 0, 0.2, 1);
 }
-/* Every use of --dur-*/--ease-* pairs with a prefers-reduced-motion: reduce
-   block that shows the content immediately. */
+/* Every use of a duration or easing token pairs with a
+   prefers-reduced-motion: reduce block that shows the content immediately. */

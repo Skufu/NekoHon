@@ -15,7 +15,7 @@
 
 **Goal:** An offline book companion that answers from the open book, cites the passages it used, and shows the figure those passages point at. Nothing leaves the machine.
 
-**Architecture:** A stdlib Python engine ingests one EPUB into a JSON index, retrieves with the Phase 3b winning embedder (`nomic-embed-text` default), and answers with on-disk `smallbook_x2d` (a Qwen2.5-3B finetune distilled from `qwen2.5:7b`; `ANSWER_MODEL=qwen2.5:7b` reverts). The window is one HTML file that calls that engine. Readest is a later shell, not the way the engine gets proven.
+**Architecture:** A stdlib Python engine ingests one EPUB into a JSON index, retrieves with the Phase 3b winning embedder (`nomic-embed-text` default), and answers with on-disk `smallbook_x2d` (a Qwen2.5-3B finetune distilled from `qwen2.5:7b`; `ANSWER_MODEL=qwen2.5:7b` reverts). The frontend is a Next.js app under `web/` (reader + ask panes; the 2026-10-15 exception — see `web/README.md`); `window/index.html` is the v1 window and keeps the quiz/explain modes until the reader covers them. Readest is a later shell, not the way the engine gets proven.
 
 **Tech Stack:** Python 3 stdlib (one exception for vendored text-preprocessing tools; see `AGENTS.md`). Ollama on `127.0.0.1:11434`. No pip installs. No new model downloads except the approved embedder pulls (see Status). No database server.
 
@@ -110,6 +110,7 @@ ask-this-book/
     fixtures/ask_response.json
     fixtures/questions.json
   window/index.html  # the v1 window
+  web/               # the Next.js frontend (reader + ask); see web/README.md
   artifacts/         # phase briefs, model notes, gate logs
   data/              # gitignored: index + extracted images
   books/             # gitignored: the epub, or a one-line path file
@@ -472,6 +473,15 @@ section that moves — update it as checkpoints land.
   under the aligned prompt); **x2e not adopted** (ask battery 7/10; false
   refusals on the visible-ten) — verdict + backlog in
   `reports/x2e-verdict-2026-10-15.md`.
+- **Highlight trial x2f (2026-10-16):** the first student trained on the
+  highlight class — 417 rows (x2d + 72 golden highlight rows + refusal
+  oversample), Colab A100, loss 0.010, stop-checks sane; imported as
+  `smallbook_x2f`. Measured: highlight held-out 13/24 full pass vs x2d 7/24;
+  ask battery PASS both; answer battery **FAIL** — `Codd introduced the idea
+  of what` refused 5/5 where x2d answers (mechanism not isolated). **Not
+  adopted** — x2d stays; x2f + LoRA + run log kept under
+  `data/models/smallbook_x2f/`. Verdict + next-build notes:
+  `reports/highlight-finetune-2026-10-16.md`.
 - **Recipe / provenance:** `smallbook_x2-rebuild-2026-10-14.md`,
   `smallbook_x2-provenance-2026-10-14.md`, `smallbook_x2-model-card.md`.
 - **Rule kept:** the engine contract does not change — swap the answerer, keep

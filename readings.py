@@ -48,7 +48,7 @@ import difflib
 import urllib.error
 
 from keywords import postings
-from preprocess import token_spans, tokens
+from preprocess import stem, token_spans, tokens
 from prompt import ANSWER_MODEL, SPELL_SYSTEM
 from retrieve import DEFAULT_EMBEDDER, rank_chunks
 
@@ -84,9 +84,21 @@ def _fixes(question, word_map):
         word = token.lower()
         if word in word_map or word in seen:
             continue
+        # Proper-noun and mixed-case guard:
+        # 1. Skip mid-sentence capitalized words (Titlecase proper nouns like "Polars", "France").
+        # 2. Skip camelCase/PascalCase tokens (like "ActiveMQ", "DuckDB", "PostgreSQL").
+        # 3. Skip alphanumeric tokens containing digits (e.g. "DDR4", "3NF") - version numbers are not typos.
+        # Keep all-uppercase acronym typos ("CRU" -> "CRUD", "ET" -> "ETL") and lowercase typos.
+        is_mid_title = start > 0 and token[0].isupper() and token[1:].islower()
+        is_mixed_case = any(c.isupper() for c in token) and any(c.islower() for c in token) and any(c.isupper() for c in token[1:])
+        has_digit = any(c.isdigit() for c in token)
+        if is_mid_title or is_mixed_case or has_digit:
+            continue
         seen.add(word)
         score, candidate, runner_up = _closest(word, vocabulary)
         if score < CUTOFF or score <= runner_up:
+            continue
+        if stem(word) == stem(candidate):
             continue
         fixes.append((start, end, token, candidate))
     return fixes

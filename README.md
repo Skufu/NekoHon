@@ -8,13 +8,16 @@ installs, no build step.
 
 Repo: `nekolabs-studio/epub-local` (developed internally as `ask-this-book`).
 
-**Status (2026-10-14):** v1 complete. Phases 0-7 pass, including the wifi-off
+**Status (2026-10-15):** v1 complete. Phases 0-7 pass, including the wifi-off
 gate (2026-10-12). The answer model is the finetuned `smallbook_x2d` (see
-Models below). 223 unit tests green, index audit clean, HTTP battery PASS. A
-second book was probed end to end the same day — refusals transfer, and a
-chapter-number ingest fix restored its citations
-(`artifacts/reports/second-book-2026-10-14.md`). Post-v1 hardening continues;
-evidence lives in `artifacts/`.
+Models below; x2e was built 2026-10-15 and not adopted —
+`artifacts/reports/x2e-verdict-2026-10-15.md`). 250 unit tests green, index
+audit clean, HTTP battery PASS. A second book was probed end to end 2026-10-14
+— refusals transfer, and a chapter-number ingest fix restored its citations
+(`artifacts/reports/second-book-2026-10-14.md`). The engine half of frontend
+phase 1 landed (`GET /chunks`, streamed `POST /ask`;
+`artifacts/reports/frontend-phase1-2026-10-15.md`); `web/` is the Next.js
+reader. Post-v1 hardening continues; evidence lives in `artifacts/`.
 
 ---
 
@@ -23,8 +26,9 @@ evidence lives in `artifacts/`.
 | Job | Model | On disk | Notes |
 | --- | --- | --- | --- |
 | Embed | `nomic-embed-text:latest` | 274 MB | 768-dim. Won the embedder bake-off: 10/10 vs EmbeddingGemma-2's 9/10. |
-| Answer | `smallbook_x2d` | 1.9 GB | The default for both answer modes since 2026-10-14 (adoption + the `[Ch. ` retry: `artifacts/reports/retry-safety-net-2026-10-14.md`): a Qwen2.5-3B quote-or-refuse LoRA distilled offline from `qwen2.5:7b`. `smallbook_x2` and the teacher stay on disk (1.9 GB / 4.7 GB); `ANSWER_MODEL=qwen2.5:7b` (or `=smallbook_x2`) reverts. Temperature 0. |
-| Eval judge | `granite4.1:8b` local; `muse-spark-1.3-contributor` cloud | 5.3 GB local | The LLM judge (`artifacts/harnesses/judge.py`): passage relevance, key facts, book fidelity, example use. Local is the offline default; the eval runs currently use Muse Spark 1.3 over the OpenCode Go relay. Any stronger OpenAI-compatible model can be swapped in — `judge_name()` records it and `artifacts/harnesses/judge-agreement.py` re-calibrates. The engine never uses either. |
+| Answer | `smallbook_x2d` | 1.9 GB | The default for both answer modes since 2026-10-14 (adoption + the `[Ch. ` retry: `artifacts/reports/retry-safety-net-2026-10-14.md`): a Qwen2.5-3B quote-or-refuse LoRA distilled offline from `qwen2.5:7b`. `smallbook_x2` and the original teacher (`qwen2.5:7b`, 4.7 GB) stay on disk; `ANSWER_MODEL=qwen2.5:7b` (or `=smallbook_x2`) reverts. Temperature 0. |
+| Teacher (current) | `Qwen3.8-27B` | Colab, ~16 GB — not on this box | The capture teacher for the newer builds: x2e's 475 rows came from its captures (`artifacts/reports/x2e-build-2026-10-15.md`; kit: `artifacts/reports/teacher-capture-colab-2026-10-15.ipynb`). `qwen2.5:7b` was the original teacher (x2d's data) and stays as the fallback answerer; x2f's own provenance is not yet recorded. |
+| Eval judge | `muse-spark-1.3-contributor` cloud (default since 2026-10-15); `granite4.1:8b` local fallback | 5.3 GB local | The LLM judge (`artifacts/harnesses/judge.py`): passage relevance, key facts, book fidelity, example use. The default is Muse Spark 1.3 over the OpenCode Go relay (key `.judge-key`, gitignored); `JUDGE_BACKEND=ollama` is the one-line offline revert. `judge_name()` records the judge in every output and `artifacts/harnesses/judge-agreement.py` re-calibrates across swaps. The engine never uses either. |
 
 Also on disk, not defaults: `smallbook_x2d_q8` (3.3 GB, the 8-bit quant of
 the default — one suite spot scored 20/160 vs the q4's 21/160 on the same
@@ -180,22 +184,24 @@ curl -s -X POST http://127.0.0.1:8000/ask -H "Content-Type: application/json" \
 
 ## Using the window
 
-`window/index.html` — one file, no build step, no npm. `server.py` serves it
-at `GET /` so the page and the API share an origin; there is no second server.
+Two UIs:
 
-- Type a question in "Ask the book". Mode `answer` is the default; switch to
-  `ask` for the quote-first presentation.
-- "Highlighted text" is the selection box used by `explain`.
-- `quiz` ignores the question box; press "Show the key" to reveal the key
-  sentence after answering it yourself.
-- Under the answer: citation chunk ids (on refusals, labeled "nearest
-  misses"), then figures as images with captions.
-
-Browser-check status: the window was first opened 2026-10-12; the ask path,
-explain, and the quiz "Show the key" button were all clicked and verified the
-same day. This Windows box cannot run the browser-automation tool (machine
-facts in `AGENTS.md`), so window checks are manual; the curl calls above are
-the automatable equivalent.
+- **`window/index.html`** — the v1 window: one file, no build step, no npm.
+  `server.py` serves it at `GET /` so the page and the API share an origin.
+  Type a question in "Ask the book" (`answer` default; switch to `ask` for
+  quote-first). "Highlighted text" is the selection box for `explain`.
+  `quiz` ignores the question box; press "Show the key" to reveal the key
+  sentence. Under the answer: citation chunk ids (on refusals, "nearest
+  misses"), then figures as images with captions. First opened 2026-10-12;
+  ask, explain, and quiz "Show the key" were clicked the same day. This
+  Windows box cannot run the browser-automation tool (machine facts in
+  `AGENTS.md`), so window checks are manual; the curl calls above are the
+  automatable equivalent.
+- **`web/`** — the Next.js reader + ask pane (frontend exception: Node/npm).
+  Engine half of phase 1 landed 2026-10-15 (`GET /chunks`, streamed
+  `POST /ask`). Dev: engine on `:8000`, then `npm run dev` on `:3100`. How to
+  run it: `web/README.md`. Report:
+  `artifacts/reports/frontend-phase1-2026-10-15.md`.
 
 ## HTTP contract (short)
 
@@ -204,12 +210,15 @@ One route set, frozen:
 | Route | Returns |
 | --- | --- |
 | `POST /ask` | `{answer, citations[{chunk_id, chapter, quote}], figures[{id, chapter, caption, src}], refused}` |
+| `GET /chunks` | reader payload: chunks in reading order (no vectors), headings, figure cards |
 | `GET /health` | `{ok: true, ollama: <localhost probe>}` |
 | `GET /figures/{id}` | the extracted image bytes |
-| `GET /` | the window |
+| `GET /` | the window (`window/index.html`; production will serve `web/out` when wired) |
 
 `POST /ask` request: `{"book_id": "fde", "question": "...", "selection": null, "mode": "answer"}`;
-`mode` is `answer`, `ask`, `explain`, or `quiz`. Validation rules:
+optional `stream: 1` returns NDJSON frames (`token` / `reset` / `final` / `error`)
+instead of one JSON body. `mode` is `answer`, `ask`, `explain`, or `quiz`.
+Validation rules:
 - `ask` and `answer` require `question`; `explain` requires `selection`; `quiz` requires neither.
 - Missing required fields, invalid JSON, or unknown modes return `400 {"error": "..."}` (`bad mode`, `missing question`, `missing selection`, `invalid json`).
 - Server-side runtime errors return `500 {"error": "..."}` (`missing index`, `answer model unavailable`).
@@ -230,9 +239,9 @@ Ollama; the rest need Ollama up, and the battery-style checks need
    python -m unittest discover -s tests
    ```
 
-   223 tests, green (0.6 s on this box). Covers the contract, ingest and
+   250 tests, green (1.3 s on this box). Covers the contract, ingest and
    chunking, retrieval guards, fusion, readings, the answer checks, figures,
-   the form canonicalizer, and the generalization guard.
+   the form canonicalizer, reader routes, and the generalization guard.
 
 2. **Index hygiene** — read-only audit of the stored vectors (width,
    non-finite, zero-norm, missing). Exits 1 when dirty.
@@ -289,11 +298,12 @@ Ollama; the rest need Ollama up, and the battery-style checks need
 
 8. **Eval harness + LLM judge** — labeled-set evaluation (dense recall, shown
    recall, MRR, refusal classes, key facts). The LLM judge is
-   `artifacts/harnesses/judge.py`: one-word verdicts at temperature 0. Local
-   `granite4.1:8b` (cross-family with the answerer, offline, keyless) is the
-   default; the eval runs currently use `muse-spark-1.3-contributor` over the
-   OpenCode Go relay (key in `.judge-key`, gitignored, never read by the
-   engine). Judges are swappable by design: if a stronger model is available,
+   `artifacts/harnesses/judge.py`: one-word verdicts at temperature 0. The
+   default is `muse-spark-1.3-contributor` over the OpenCode Go relay (key in
+   `.judge-key`, gitignored, never read by the engine); `JUDGE_BACKEND=ollama`
+   is the one-line offline revert to local `granite4.1:8b` (cross-family with
+   the answerer, keyless). Judges are swappable by design: if a stronger model
+   is available,
    `judge_name()` records the judge in every output, and
    `artifacts/harnesses/judge-agreement.py` re-calibrates it against the previous one before runs
    are compared. Verdicts are unvalidated against human labels.
@@ -362,8 +372,9 @@ online and offline, no restarts. Raw log: `artifacts/evidence/phase7-offline/pha
 
 Disclosure: embeddings and answers are Ollama on localhost; the models are
 `nomic-embed-text` and — since 2026-10-14 — the finetuned `smallbook_x2d`
-(1.9 GB; a Qwen2.5-3B LoRA distilled offline from `qwen2.5:7b`; set
-`ANSWER_MODEL=qwen2.5:7b` to revert); no cloud model API. The finetune
+(1.9 GB; a Qwen2.5-3B LoRA distilled offline from `qwen2.5:7b`, the
+original teacher — newer builds distill from Qwen3.8-27B captures, Colab,
+build-time only; set `ANSWER_MODEL=qwen2.5:7b` to revert); no cloud model API. The finetune
 track and its evidence:
 `artifacts/reports/finetune-data-prep-2026-10-13.md`,
 `artifacts/reports/x2-trial-2026-10-14.md`,
@@ -396,8 +407,9 @@ ask-this-book/
   verify_index.py    read-only index audit (exit 1 when dirty)
   preflight.py       setup checker: Python, book, index, Ollama, models
   agentic.py         agentic-retrieval prototype (not wired; see Limits)
-  tests/             223 unit tests + fixtures
+  tests/             250 unit tests + fixtures
   window/index.html  the v1 window (no build step)
+  web/               Next.js reader + ask pane (npm; frontend exception)
   vendor/            vendored SMART stopwords + Snowball Porter2 (BSD-3)
   artifacts/         evidence + tooling: the LLM judge (judge.py), the eval
                      harness, battery logs, sweeps, audits, reports
@@ -429,40 +441,40 @@ ask-this-book/
   measured multi-hop failure set exists.
 - `quiz` has no scoring; a graded second call is out of scope (see
   `BUILD_PLAN.md` "Contract").
-- **Finetune default: `smallbook_x2d`** (adopted 2026-10-14): a 1.9 GB
-  Qwen2.5-3B quote-or-refuse model distilled offline from the 7B, plus the
-  engine's validation-gated `[Ch. ` retry. Measured: refusals exact, battery
-  20/21 ×3 (best small-model run), 0 suite loops, both ETL pin targets fixed.
-  The pre-registered gate's sealed-suite bar is still unmet on bare-topic /
-  order-flip (bare 41/50, order 20/40 vs the 7B's 50/50, 40/40; refreshed
-  under the retry 2026-10-14, the 7B holds 140/160 with identical classes, so
-  the bar stands) — recorded, not hidden:
-  `artifacts/reports/retry-safety-net-2026-10-14.md`.
-  Revert: `ANSWER_MODEL=qwen2.5:7b` (or `=smallbook_x2`). Provenance hashes:
-  `artifacts/reports/smallbook_x2-provenance-2026-10-14.md` (x2 lineage; x2d
-  run artefacts in `artifacts/evidence/x2d-session-2026-10-14/`).
-  **Next build (in flight, 2026-10-15):** the same student recipe will
-  distill from a Qwen3.8-27B-class teacher captured on Colab — build-time
-  only; nothing cloud touches the shipped app, and the shipped artifact
-  stays a stock GGUF. Kit: `artifacts/reports/teacher-capture-colab-2026-10-15.ipynb`;
+- **Finetune default: `smallbook_x2d`** (adopted 2026-10-14; still default
+  after the 2026-10-15 x2e run): a 1.9 GB Qwen2.5-3B quote-or-refuse model
+  distilled offline from the 7B, plus the engine's validation-gated `[Ch. `
+  retry. A 2026-10-15 engine prompt-alignment fix (answer mode now serves the
+  ask-shaped training prompt) lifted the sealed suite for the shipped x2d from
+  111/160 to **160/160** with 0 loops; the 7B went 140 → 160 on the same fix
+  (`artifacts/reports/x2e-verdict-2026-10-15.md`). Pre-fix numbers under the
+  retry alone remain in
+  `artifacts/reports/retry-safety-net-2026-10-14.md`. Battery on x2d remains
+  strong (ask golden 9/10; answer 10/10 with one coherence miss on the owner
+  endpoint item). **x2e is not adopted** (ask golden 7/10 < 8; two visible-ten
+  false refusals). Revert: `ANSWER_MODEL=qwen2.5:7b` (or `=smallbook_x2`).
+  Provenance: `artifacts/reports/smallbook_x2-provenance-2026-10-14.md` (x2
+  lineage); x2d artefacts in `artifacts/evidence/x2d-session-2026-10-14/`;
+  x2e stay-on-disk in `artifacts/evidence/x2e-session-2026-10-15/`.
+  Teacher-capture kit (build-time only):
+  `artifacts/reports/teacher-capture-colab-2026-10-15.ipynb`;
   review answers: `artifacts/reports/coach-review-response-2026-10-15.md`.
 
 ## Roadmap
 
-- Frontend (direction 2026-10-13, not approved): the app gets its own reader;
-  citations become links that jump to the passage and highlight it. The
-  external-reader hand-off is dropped; Readest is pattern inspiration (not a
-  fork), ReadAny is the UX reference, and foliate-js is the candidate
-  engine. Plan, locator strategy, and the open renderer decision:
+- Frontend: engine half of phase 1 landed 2026-10-15 (`GET /chunks`, streamed
+  `POST /ask`, CORS for `:3100`; report
+  `artifacts/reports/frontend-phase1-2026-10-15.md`). `web/` is the Next.js
+  reader + ask pane; `window/index.html` stays the no-build v1 window.
+  Plans: `artifacts/plans/frontend-build-plan-2026-10-15.md`,
   `artifacts/plans/frontend-navigation-plan.md`.
 - Post-v1 backlog (not approved): quote figure captions in prompts;
   `keep_alive` on Ollama requests to remove the ~25 s cold load (cost: ~5 GB
   VRAM held).
-- Finetune track: `smallbook_x2d` is the default (adopted 2026-10-14; the
-  x2c session closed the same day — not adopted, sealed-suite bar vs the 7B,
-  verdict in `artifacts/reports/x2-trial-2026-10-14.md`). Next data build:
-  `artifacts/datasets/training-list-2026-10-14.md` (5 sealed targets; a sixth
-  list item was engine-side — the chapter-number fix — and is done).
+- Finetune track: `smallbook_x2d` remains the default (x2c not adopted 2026-10-14;
+  x2e not adopted 2026-10-15 —
+  `artifacts/reports/x2e-verdict-2026-10-15.md`). Training list that fed x2d:
+  `artifacts/datasets/training-list-2026-10-14.md`.
 - Next book: a first portability probe ran end to end 2026-10-14 (refusals
   transfer; citations after the chapter fix; visible targets only). Full
   adoption still re-runs Phase 0-3 plus a fresh answer-model bake-off.
@@ -478,8 +490,13 @@ ask-this-book/
   plus what each stage kills and why.
 - `SETUP-MACOS.md` — the macOS walkthrough for testers: native Ollama (not
   Docker), exact commands, and the gotchas worth knowing.
-- `artifacts/plans/frontend-navigation-plan.md` — the recorded direction for the
-  own frontend and citation navigation (not approved; needs a yes).
+- `web/README.md` — how to run the Next.js reader against the local engine.
+- `artifacts/plans/frontend-build-plan-2026-10-15.md`,
+  `artifacts/plans/frontend-navigation-plan.md` — frontend plans.
+- `artifacts/reports/frontend-phase1-2026-10-15.md` — what landed on the engine
+  side for the reader.
+- `artifacts/reports/x2e-verdict-2026-10-15.md` — x2e not adopted; x2d stays
+  default after the prompt-alignment fix.
 - `artifacts/datasets/demo-questions.md` — the questions that demo well and the ones
   that refuse, with pins.
 - `artifacts/reports/answer-model-bakeoff-results.md`, `artifacts/evidence/eval-v1/eval-v1.*`,

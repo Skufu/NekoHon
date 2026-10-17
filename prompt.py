@@ -38,16 +38,37 @@ Output only the final query text, nothing else."""
 # Measured 2026-10-13 (artifacts/evidence/eval-plain/eval-plain-v6): 8/10 scorecard pass,
 # Flesch-Kincaid 7.4, zero grade fails, zero unbacked quotes.
 PARAPHRASE_SYSTEM = """Rewrite one sentence from a book in simpler words for a newcomer. Rewrite the whole sentence and keep all of its meaning: do not summarize it, do not drop any part, and do not add any fact, comparison, or example that is not in the sentence. Keep the subject: every sentence must say who or what does the action — never output a fragment. Use short sentences of fifteen words or fewer. Use common words; keep technical terms that are necessary. Output only the rewritten sentence, nothing else."""
-# The default is qwen2.5:7b: the bake-off winner granite4.1:3b failed the
-# "what is MAD data landscape" phrasing probe (mad-phrasing-probe.md) and was
-# reverted the same day. The env seam exists so a bake-off can run the same
-# battery per candidate without editing this file.
-# reverted the same day. The env seam exists so a bake-off can run the same
-# battery per candidate without editing this file.
-# 2026-10-14: `smallbook_x2d` (1.9 GB q4) is the default — best small-model
-# battery recorded (20/21 x3), both ETL pin targets fixed, 0 suite loops, and
-# the pre-retry gate's suite gap (bare-topic/order-flip) is documented in
-# artifacts/reports/retry-safety-net-2026-10-14.md (user decision: adopt
-# anyway). `smallbook_x2` and the teacher stay on disk.
-# Revert without editing: set ANSWER_MODEL=qwen2.5:7b (or =smallbook_x2).
-ANSWER_MODEL = os.environ.get("ANSWER_MODEL", "smallbook_x2d")
+
+EXPLAIN_GLOSS_SYSTEM = (
+    "You are a clear, insightful book companion. The reader selected a word, "
+    "phrase, or sentence inside a passage from the book. Explain in 1 to 2 plain, "
+    "direct sentences what the selected text means and why the authors mention it here. "
+    "If the selection is a question posed by the authors, explain what the authors "
+    "are asking the reader to evaluate and why it matters in this section. Ground "
+    "your explanation strictly in the provided passage context. Do not use quotation "
+    "marks, do not include [Ch. N] tags, do not repeat the sentence verbatim, and "
+    "never say 'Not in this book.'. Never start with 'The passage' or 'This passage'. "
+    "Never use boilerplate phrases like 'In this context', 'The highlighted text', or 'refers to'."
+)
+
+FOLLOWUP_GLOSS_SYSTEM = (
+    "You are a smart, conversational book companion helping a reader understand a technical book. "
+    "Given the previous turn in the conversation, the reader's follow-up question, and the cited book quote and passage context, "
+    "write a direct 1 to 2 sentence answer that explicitly answers the follow-up question and connects it to the topic from the previous turn. "
+    "Use clear, plain language grounded strictly in the provided passage. "
+    "Do not use quotation marks, do not include [Ch. N] tags, do not repeat the quote verbatim, "
+    "do not start with 'In this context', 'The passage', or 'The authors state', and never say 'Not in this book.'"
+)
+
+ANSWER_GLOSS_SYSTEM = (
+    "You are a clear, insightful book companion. Given the reader's question and the cited sentence from the book, "
+    "write a direct 1 to 2 sentence answer in plain words that answers the reader's question based on the passage. "
+    "Do not use quotation marks, do not include [Ch. N] tags, do not repeat the sentence verbatim, "
+    "do not start with 'In this context', 'The passage', or 'The authors state', and never say 'Not in this book.'"
+)
+
+# Live default is smallbook_x3. Revert without editing:
+# ANSWER_MODEL=qwen2.5:7b or ANSWER_MODEL=smallbook_x2.
+# Granite was tried and dropped 2026-10-13; that record is in
+# artifacts/reports/, not here.
+ANSWER_MODEL = os.environ.get("ANSWER_MODEL", "smallbook_x3")

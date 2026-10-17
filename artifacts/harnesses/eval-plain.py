@@ -22,11 +22,9 @@ Dials (reported, not pass/fail):
 
 Run:
     python artifacts/harnesses/eval-plain.py [--limit N] [--variants current,plain,plain3]
-        [--label v3]                                       (granite judge)
-    JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=... \\
-        JUDGE_BASE_URL=... JUDGE_API_KEY_FILE=.judge-key \\
-        python artifacts/harnesses/eval-plain.py --variants plain,plain3 --label v3
-                                                           (Muse release judge)
+        [--label v3]                                      (muse judge — default)
+    JUDGE_BACKEND=ollama python artifacts/harnesses/eval-plain.py \
+        --variants plain,plain3 --label v3                 (offline granite judge)
 
 Writes artifacts/evidence/eval-plain/eval-plain-<label>-<judge-slug>.{json,log}.
 """

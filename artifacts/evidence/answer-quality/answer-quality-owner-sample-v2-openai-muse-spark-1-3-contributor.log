@@ -1,0 +1,59 @@
+# answer-quality ranking — owner-sample-v2 — 27 judged | 0 skipped (no answer) — judge openai:muse-spark-1.3-contributor
+# rank: tier0 = false-refusal / unsupported / recitation, tier1 = other defect, tier2 = clean; then axes asc
+# rating: agreement 2/3 | bads flagged 1/2 | v0 bar (bad-above-good) n/a
+# persona_rating: agreement 19/24 | bads flagged 3/3 | v0 bar (bad-above-good) FAIL
+# checker_rating: agreement 20/24 | bads flagged 4/4 | v0 bar (bad-above-good) FAIL
+# UNVALIDATED against human labels — a triage list, not a score.
+
+rank | id | rated | defect | grounded | r c f | question
+   1 |   1 | mixed | wrong-subject       | unsupported | 1 1 3 | Snowflake
+     |     | note: headless quote missing its subject; describes size, not what Snowflake is
+   2 |  11 | mixed | none                | unsupported | 3 3 3 | Location
+     |     | note: quote is about streaming regions, not the term; thin gloss
+   3 |  13 | bad   | false-refusal       | -           | - - - | ddr4 vs ddr5
+     |     | note: refused, but the book has ddr4/ddr5 material
+   4 |  15 | bad   | false-refusal       | -           | - - - | why's kafka so popular?
+     |     | note: refused, but the book has Kafka material
+   5 |  17 | good  | recitation-loop     | supported   | 3 3 3 | What is data ingestion?
+     |     | note: definition + gloss match
+   6 |   4 | good  | false-refusal       | -           | - - - | Data
+     |     | note: bare 'Data' is ambiguous; refusal defensible but the book may define it — verify
+   7 |  24 | bad   | incomplete-comparison | supported   | 1 0 3 | what is the difference between column-oriented and r
+     |     | note: doesn't compare the two; quote is data warehouse history
+   8 |  10 | mixed | incomplete-comparison | supported   | 1 1 2 | how does micro-batch differ from true streaming
+     |     | note: explains micro-batching only; never says how true streaming differs
+   9 |   3 | mixed | wrong-subject       | supported   | 1 1 2 | OLAP data architecture
+     |     | note: quote starts mid-sentence; explains a drawback, not what OLAP is
+  10 |  14 | mixed | wrong-asked-form    | supported   | 1 1 3 | lambda vs kappa
+     |     | note: only explains Kappa; Lambda architecture never described
+  11 |  27 | -     | wrong-asked-form    | supported   | 1 1 3 | Monolith Versus Modular
+  12 |  26 | -     | incomplete-list     | supported   | 2 1 3 | What are the following factors to consider with a co
+  13 |   8 | mixed | incomplete-comparison | supported   | 2 1 3 | schema on read vs schema on write
+     |     | note: only schema on write; schema on read never explained
+  14 |   7 | mixed | wrong-asked-form    | supported   | 2 3 0 | data science vs data engineering
+     |     | note: one-sided; explains the link, data science itself never defined
+  15 |   5 | mixed | format-drift        | supported   | 3 3 3 | Database
+     |     | note: bare one-line definition, nothing quoted to check; gloss just repeats it
+  16 |   9 | good  | wrong-asked-form    | supported   | 3 3 3 | push vs pull ingestion
+     |     | note: quote has both models; gloss covers push only
+  17 |  25 | -     | none                | supported   | 3 3 0 | Dataa analysts seek to undertstand what business per
+  18 |  21 | mixed | none                | supported   | 3 3 2 | what is a atermark?
+     |     | note: quote starts mid-sentence; the definition lands only in the gloss
+  19 |  12 | good  | none                | supported   | 3 3 3 | DE Lifecycle
+     |     | note: lifecycle defined; gloss fair
+  20 |  16 | good  | none                | supported   | 3 3 3 | What does CRUD stand for?
+     |     | note: expansion quoted; gloss clean
+  21 |  18 | good  | none                | supported   | 3 3 3 | multicloud methodology disadvantages
+     |     | note: quote carries the list of disadvantages; gloss gives the gist
+  22 |  19 | mixed | none                | supported   | 3 3 3 | MAD data landscape
+     |     | note: quote opens with 'It's hard.'; MAD never really defined
+  23 |   2 | good  | none                | supported   | 3 3 3 | micro-partitioning
+     |     | note: defines the term; quote exact; gloss clean
+  24 |  20 | good  | none                | -           | - - - | What is the capital of France?
+     |     | note: exact refusal control
+  25 |  22 | good  | none                | supported   | 3 3 3 | cdc
+     |     | note: shorthand expanded; cited definition
+  26 |  23 | good  | none                | supported   | 3 3 3 | what's the deal with time series
+     |     | note: definition + example, gloss tight
+  27 |   6 | good  | none                | supported   | 3 3 3 | what is data engineering
+     |     | note: book's own definition quoted in full; gloss fair

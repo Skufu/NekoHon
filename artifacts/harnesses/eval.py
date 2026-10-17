@@ -18,7 +18,9 @@ which side failed:
 - key fact: regex hit first; misses go to the cross-family judge (granite)
   for a paraphrase check.
 - relevance judge (--judge): every shown passage judged relevant/not by
-  granite4.1:8b. The direct precision reading. Verdicts are UNVALIDATED
+  the configured judge (`muse-spark-1.3-contributor` by default since
+  2026-10-15; `JUDGE_BACKEND=ollama` = granite4.1:8b). The direct precision
+  reading. Verdicts are UNVALIDATED
   against human labels; the gold-not-relevant list is the judge-vs-pin
   disagreement, the strongest calibration signal this run can show.
 
@@ -62,7 +64,8 @@ def eval_item(index, item, timeout):
     question = item["question"]
     dense = search(index, question, k=10)
     dense_ids = [hit["chunk_id"] for hit in dense]
-    # One measured answer per item, through the same code path the server uses.
+    # Not the server path. respond/ask serve SYSTEM + user_message.
+    # This harness still measures SYSTEM_ANSWER unless you pass another prompt.
     measured = G.measure(index, question, run_generate, timeout, SYSTEM_ANSWER)
     passages = A.retrieval_context(index, question)["passages"]
     shown = [hit["chunk_id"] for hit in passages]

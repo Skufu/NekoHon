@@ -1,0 +1,12 @@
+{
+  "answer": "[Ch. 5] \"A time-series database is optimized for retrieving and statistical processing of time-series data\"\nA time-series database speeds up finding and analyzing time-based data.",
+  "citations": [
+    {
+      "chunk_id": "ch05-045",
+      "chapter": "5",
+      "quote": "A time-series database is optimized for retrieving and statistical processing of time-series data"
+    }
+  ],
+  "figures": [],
+  "refused": false
+}

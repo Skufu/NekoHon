@@ -49,6 +49,17 @@ class FigureTests(unittest.TestCase):
         passages = [{"text": "No figure number here.", "quote": "", "score": 0.99}]
         self.assertEqual(figures_for(passages, FIGURES, figures_dir=self.folder), [])
 
+    def test_a_letter_prefix_attaches_and_does_not_collide(self):
+        (self.folder / "figure-a1-2.png").write_bytes(b"png")
+        (self.folder / "figure-1-2.png").write_bytes(b"png")
+        figures = [
+            {"id": "figure-a1-2", "chapter": "1", "caption": "Appendix.", "file": "figure-a1-2.png"},
+            {"id": "figure-1-2", "chapter": "1", "caption": "Body.", "file": "figure-1-2.png"},
+        ]
+        passages = [{"text": "See Figure A1-2 for the appendix form.", "quote": ""}]
+        attached = figures_for(passages, figures, figures_dir=self.folder)
+        self.assertEqual([item["id"] for item in attached], ["figure-a1-2"])
+
 
 if __name__ == "__main__":
     unittest.main()

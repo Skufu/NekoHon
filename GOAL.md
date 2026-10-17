@@ -9,7 +9,9 @@ changes.
 An offline book companion that answers from the open book, cites the passages
 it used, and shows the figure those passages point at. It runs on weak machines
 — as small a footprint as we can manage — with nothing leaving the machine. It
-should hold for other books, not only this one.
+It should hold for other books, not only this one. A later turn may follow
+the last one — simpler words, the cited passage, the figure — and a refusal
+is still only `Not in this book.`
 
 **The reader is the judge.** Retrieval, models, quantization, the contract —
 all means; the person asking is the end. What counts as "good" is what the
@@ -25,7 +27,8 @@ Only these can block work. Nothing else in the repo can.
 - **Local only.** Embeddings and answers are Ollama on localhost. The engine
   never calls a cloud model. Wifi off is the proof, not a quiet network panel.
   One bounded exception: evaluation/judging may call a stronger cloud model
-  when explicitly enabled (`JUDGE_BACKEND=openai`) — testing only, for smarter
+  — default `muse-spark-1.3-contributor` since 2026-10-15, `JUDGE_BACKEND=ollama`
+  restores the offline granite judge — testing only, for smarter
   testing; the engine, server, and batteries never take this path.
 - **Stdlib only.** No package installs. The single vendored-preprocessing
   exception is in `AGENTS.md`.

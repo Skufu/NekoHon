@@ -1,0 +1,766 @@
+{
+  "smallbook_x2g": {
+    "ask": {
+      "passed": 16,
+      "total": 18,
+      "results": [
+        {
+          "question": "What does CRUD stand for?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.88,
+          "refused": false,
+          "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programmin"
+        },
+        {
+          "question": "What is data ingestion?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.71,
+          "refused": false,
+          "answer": "[Ch. 7] \"Data ingestion is the process of moving data from one place to another\"\nIt means taking data from where it star"
+        },
+        {
+          "question": "What is a watermark?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.81,
+          "refused": false,
+          "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the es"
+        },
+        {
+          "question": "When is an insert-only table useful?",
+          "pass": false,
+          "notes": [
+            "chunk ch08-107 != ch05-020"
+          ],
+          "elapsed": 0.72,
+          "refused": false,
+          "answer": "[Ch. 8] \"Insert only inserts new records without changing or deleting old records\"\nInsert-only tables are useful when yo"
+        },
+        {
+          "question": "Where does storage sit in the data engineering lifecycle?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.76,
+          "refused": false,
+          "answer": "[Ch. 6] \"Storage is the cornerstone of the data engineering lifecycle (Figure 6-1)\"\nStorage is the main part that holds "
+        },
+        {
+          "question": "What do source systems provide to the rest of the lifecycle?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.68,
+          "refused": false,
+          "answer": "[Ch. 2] \"A source system is the origin of the data used in the data engineering lifecycle\"\nSource systems provide the st"
+        },
+        {
+          "question": "How does data architecture relate to enterprise architecture?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.91,
+          "refused": false,
+          "answer": "[Ch. 3] \"Data architecture is a subset of enterprise architecture, inheriting its properties: processes, strategy, chang"
+        },
+        {
+          "question": "What is the difference between batch and streaming?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.76,
+          "refused": false,
+          "answer": "[Ch. 2] \"Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an"
+        },
+        {
+          "question": "What happens to data after it is extracted in ETL?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 1.05,
+          "refused": false,
+          "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simp"
+        },
+        {
+          "question": "What do transformations do in the data engineering lifecycle?",
+          "pass": false,
+          "notes": [
+            "chunk ch02-025 != ch02-027"
+          ],
+          "elapsed": 0.7,
+          "refused": false,
+          "answer": "[Ch. 2] \"After you’ve ingested and stored data, you need to do something with it. The next stage of the data engineering"
+        },
+        {
+          "question": "What does CRU stand for?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 1.15,
+          "refused": false,
+          "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programmin"
+        },
+        {
+          "question": "What happens to data after it is extracted in ET?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.87,
+          "refused": false,
+          "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simp"
+        },
+        {
+          "question": "what is a atermark?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 1.19,
+          "refused": false,
+          "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the es"
+        },
+        {
+          "question": "what does data engineers need to be pragmatic about",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.74,
+          "refused": false,
+          "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"\nData engineers should be practical about how easily they"
+        },
+        {
+          "question": "Data engineers need to be pragmatic about?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.76,
+          "refused": false,
+          "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"\nData engineers should be practical about how easily they"
+        },
+        {
+          "question": "MAD data landscape",
+          "pass": true,
+          "notes": [],
+          "elapsed": 1.12,
+          "refused": false,
+          "answer": "[Ch. 4] \"It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and da"
+        },
+        {
+          "question": "multicloud methodology disadvantages",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.67,
+          "refused": false,
+          "answer": "[Ch. 4] \"A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bott"
+        },
+        {
+          "question": "What is the capital of France?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.49,
+          "refused": true,
+          "answer": "Not in this book."
+        }
+      ]
+    },
+    "answer": {
+      "passed": 22,
+      "total": 22,
+      "results": [
+        {
+          "question": "What does CRUD stand for?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.83,
+          "refused": false,
+          "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programmin"
+        },
+        {
+          "question": "What is data ingestion?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.56,
+          "refused": false,
+          "answer": "[Ch. 7] \"Data ingestion is the process of moving data from one place to another.\"\nIt means taking data from where it sta"
+        },
+        {
+          "question": "What is a watermark?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.78,
+          "refused": false,
+          "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the es"
+        },
+        {
+          "question": "When is an insert-only table useful?",
+          "pass": true,
+          "notes": [
+            "pinned chunk shown, not cited (cites ['ch08-107'])"
+          ],
+          "elapsed": 0.53,
+          "refused": false,
+          "answer": "[Ch. 8] \"Insert only inserts new records without changing or deleting old records.\"\nInsert-only tables are useful when y"
+        },
+        {
+          "question": "Where does storage sit in the data engineering lifecycle?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.54,
+          "refused": false,
+          "answer": "[Ch. 6] \"Storage is the cornerstone of the data engineering lifecycle (Figure 6-1)\"\nStorage is the main part that holds "
+        },
+        {
+          "question": "What do source systems provide to the rest of the lifecycle?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.54,
+          "refused": false,
+          "answer": "[Ch. 2] \"A source system is the origin of the data used in the data engineering lifecycle.\"\nSource systems provide the s"
+        },
+        {
+          "question": "How does data architecture relate to enterprise architecture?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.65,
+          "refused": false,
+          "answer": "[Ch. 3] \"Data architecture is a subset of enterprise architecture, inheriting its properties: processes, strategy, chang"
+        },
+        {
+          "question": "What is the difference between batch and streaming?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.5,
+          "refused": false,
+          "answer": "[Ch. 2] \"Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an"
+        },
+        {
+          "question": "What happens to data after it is extracted in ETL?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.71,
+          "refused": false,
+          "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simp"
+        },
+        {
+          "question": "What do transformations do in the data engineering lifecycle?",
+          "pass": true,
+          "notes": [
+            "pinned chunk shown, not cited (cites ['ch02-025'])"
+          ],
+          "elapsed": 0.54,
+          "refused": false,
+          "answer": "[Ch. 2] \"Typically, the transformation stage is where data begins to create value for downstream user consumption.\"\nTran"
+        },
+        {
+          "question": "What does CRU stand for?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 1.07,
+          "refused": false,
+          "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programmin"
+        },
+        {
+          "question": "What happens to data after it is extracted in ET?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.76,
+          "refused": false,
+          "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simp"
+        },
+        {
+          "question": "what is a atermark?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 1.03,
+          "refused": false,
+          "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the es"
+        },
+        {
+          "question": "what does data engineers need to be pragmatic about",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.57,
+          "refused": false,
+          "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility.\"\nData engineers should be practical about how easily the"
+        },
+        {
+          "question": "Data engineers need to be pragmatic about?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.56,
+          "refused": false,
+          "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility.\"\nData engineers should be practical about how easily the"
+        },
+        {
+          "question": "MAD data landscape",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.83,
+          "refused": false,
+          "answer": "[Ch. 4] \"It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and da"
+        },
+        {
+          "question": "multicloud methodology disadvantages",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited",
+            "phrase not in answer: 'dizzying array'"
+          ],
+          "elapsed": 0.52,
+          "refused": false,
+          "answer": "[Ch. 4] \"A multicloud methodology has several disadvantages.\"\nThe book lists the downsides of using multiple cloud provi"
+        },
+        {
+          "question": "what is MAD data landscape",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 1.11,
+          "refused": false,
+          "answer": "[Ch. 4] \"It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and da"
+        },
+        {
+          "question": "what is data mesh",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.96,
+          "refused": false,
+          "answer": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and d"
+        },
+        {
+          "question": "Codd introduced the idea of what",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.61,
+          "refused": false,
+          "answer": "[Ch. 8] \"Codd introduced the idea of normal forms.\"\nCodd created a set of rules for organizing database tables to avoid "
+        },
+        {
+          "question": "what is an endpoint in streaming ingestion",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.99,
+          "refused": false,
+          "answer": "[Ch. 2] \"With streaming ingestion, data bypasses a backend database and is pushed directly to an endpoint, typically wit"
+        },
+        {
+          "question": "What is the capital of France?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.45,
+          "refused": true,
+          "answer": "Not in this book."
+        }
+      ]
+    }
+  },
+  "smallbook_x2g_mobile": {
+    "ask": {
+      "passed": 15,
+      "total": 18,
+      "results": [
+        {
+          "question": "What does CRUD stand for?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.86,
+          "refused": false,
+          "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programmin"
+        },
+        {
+          "question": "What is data ingestion?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.57,
+          "refused": false,
+          "answer": "[Ch. 7] \"Data ingestion is the process of moving data from one place to another\"\nIt means taking data from where it star"
+        },
+        {
+          "question": "What is a watermark?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.65,
+          "refused": false,
+          "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the es"
+        },
+        {
+          "question": "When is an insert-only table useful?",
+          "pass": false,
+          "notes": [
+            "chunk ch08-107 != ch05-020"
+          ],
+          "elapsed": 0.62,
+          "refused": false,
+          "answer": "[Ch. 8] \"Insert-only patterns can be used to maintain a current view of data—for example, if new versions of records are"
+        },
+        {
+          "question": "Where does storage sit in the data engineering lifecycle?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.91,
+          "refused": false,
+          "answer": "[Ch. 6] \"Storage is the cornerstone of the data engineering lifecycle (Figure 6-1) and underlies its major stages—ingest"
+        },
+        {
+          "question": "What do source systems provide to the rest of the lifecycle?",
+          "pass": false,
+          "notes": [
+            "chunk ch05-004 != ch02-005"
+          ],
+          "elapsed": 0.53,
+          "refused": false,
+          "answer": "[Ch. 5] \"Source systems produce data in various ways\"\nSource systems generate the raw information that is transformed an"
+        },
+        {
+          "question": "How does data architecture relate to enterprise architecture?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.69,
+          "refused": false,
+          "answer": "[Ch. 3] \"Data architecture is a subset of enterprise architecture, inheriting its properties: processes, strategy, chang"
+        },
+        {
+          "question": "What is the difference between batch and streaming?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.76,
+          "refused": false,
+          "answer": "[Ch. 2] \"Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an"
+        },
+        {
+          "question": "What happens to data after it is extracted in ETL?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.73,
+          "refused": false,
+          "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simp"
+        },
+        {
+          "question": "What do transformations do in the data engineering lifecycle?",
+          "pass": false,
+          "notes": [
+            "chunk ch02-025 != ch02-027"
+          ],
+          "elapsed": 0.58,
+          "refused": false,
+          "answer": "[Ch. 2] \"After you’ve ingested and stored data, you need to do something with it. The next stage of the data engineering"
+        },
+        {
+          "question": "What does CRU stand for?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.88,
+          "refused": false,
+          "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programmin"
+        },
+        {
+          "question": "What happens to data after it is extracted in ET?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.66,
+          "refused": false,
+          "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simp"
+        },
+        {
+          "question": "what is a atermark?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.97,
+          "refused": false,
+          "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the es"
+        },
+        {
+          "question": "what does data engineers need to be pragmatic about",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.59,
+          "refused": false,
+          "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"\nData engineers should be practical about how easily they"
+        },
+        {
+          "question": "Data engineers need to be pragmatic about?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.59,
+          "refused": false,
+          "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility\"\nData engineers should be practical about how easily they"
+        },
+        {
+          "question": "MAD data landscape",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.85,
+          "refused": false,
+          "answer": "[Ch. 4] \"It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and da"
+        },
+        {
+          "question": "multicloud methodology disadvantages",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.56,
+          "refused": false,
+          "answer": "[Ch. 4] \"A multicloud methodology has several disadvantages. As we just mentioned, data egress costs and networking bott"
+        },
+        {
+          "question": "What is the capital of France?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.61,
+          "refused": true,
+          "answer": "Not in this book."
+        }
+      ]
+    },
+    "answer": {
+      "passed": 22,
+      "total": 22,
+      "results": [
+        {
+          "question": "What does CRUD stand for?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.72,
+          "refused": false,
+          "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programmin"
+        },
+        {
+          "question": "What is data ingestion?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.47,
+          "refused": false,
+          "answer": "[Ch. 7] \"Data ingestion is the process of moving data from one place to another.\"\nIt means taking data from where it sta"
+        },
+        {
+          "question": "What is a watermark?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.63,
+          "refused": false,
+          "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the es"
+        },
+        {
+          "question": "When is an insert-only table useful?",
+          "pass": true,
+          "notes": [
+            "pinned chunk shown, not cited (cites ['ch08-107'])"
+          ],
+          "elapsed": 0.54,
+          "refused": false,
+          "answer": "[Ch. 8] \"Insert-only patterns can be used to maintain a current view of data—for example, if new versions of records are"
+        },
+        {
+          "question": "Where does storage sit in the data engineering lifecycle?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.58,
+          "refused": false,
+          "answer": "[Ch. 6] \"Storage is the cornerstone of the data engineering lifecycle (Figure 6-1) and underlies its major stages—ingest"
+        },
+        {
+          "question": "What do source systems provide to the rest of the lifecycle?",
+          "pass": true,
+          "notes": [
+            "pinned chunk shown, not cited (cites ['ch05-004'])"
+          ],
+          "elapsed": 0.42,
+          "refused": false,
+          "answer": "[Ch. 5] \"Source systems produce data in various ways.\"\nSource systems generate the raw information that is transformed a"
+        },
+        {
+          "question": "How does data architecture relate to enterprise architecture?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.55,
+          "refused": false,
+          "answer": "[Ch. 3] \"Data architecture is a subset of enterprise architecture, inheriting its properties: processes, strategy, chang"
+        },
+        {
+          "question": "What is the difference between batch and streaming?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.49,
+          "refused": false,
+          "answer": "[Ch. 2] \"Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in an"
+        },
+        {
+          "question": "What happens to data after it is extracted in ETL?",
+          "pass": true,
+          "notes": [
+            "pinned chunk shown, not cited (cites ['ch08-094'])"
+          ],
+          "elapsed": 0.57,
+          "refused": false,
+          "answer": "[Ch. 8] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simp"
+        },
+        {
+          "question": "What do transformations do in the data engineering lifecycle?",
+          "pass": true,
+          "notes": [
+            "pinned chunk shown, not cited (cites ['ch02-025'])"
+          ],
+          "elapsed": 0.47,
+          "refused": false,
+          "answer": "[Ch. 2] \"Typically, the transformation stage is where data begins to create value for downstream user consumption.\"\nTran"
+        },
+        {
+          "question": "What does CRU stand for?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.82,
+          "refused": false,
+          "answer": "[Ch. 5] \"CRUD, which stands for create, read, update, and delete, is a transactional pattern commonly used in programmin"
+        },
+        {
+          "question": "What happens to data after it is extracted in ET?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.57,
+          "refused": false,
+          "answer": "[Ch. 7] \"Once data is extracted, it can either be transformed (ETL) before loading it into a storage destination or simp"
+        },
+        {
+          "question": "what is a atermark?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.88,
+          "refused": false,
+          "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the es"
+        },
+        {
+          "question": "what does data engineers need to be pragmatic about",
+          "pass": true,
+          "notes": [
+            "pinned chunk shown, not cited (cites ['ch01-034'])"
+          ],
+          "elapsed": 0.5,
+          "refused": false,
+          "answer": "[Ch. 1] \"Data engineers need to be pragmatic about flexibility.\"\nData engineers should be practical about how easily the"
+        },
+        {
+          "question": "Data engineers need to be pragmatic about?",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.51,
+          "refused": false,
+          "answer": "[Ch. 4] \"Data engineers need to be pragmatic about flexibility.\"\nData engineers should be practical about how easily the"
+        },
+        {
+          "question": "MAD data landscape",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.77,
+          "refused": false,
+          "answer": "[Ch. 4] \"It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and da"
+        },
+        {
+          "question": "multicloud methodology disadvantages",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited",
+            "phrase not in answer: 'dizzying array'"
+          ],
+          "elapsed": 0.47,
+          "refused": false,
+          "answer": "[Ch. 4] \"A multicloud methodology has several disadvantages.\"\nThe book lists the downsides of using multiple cloud provi"
+        },
+        {
+          "question": "what is MAD data landscape",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.84,
+          "refused": false,
+          "answer": "[Ch. 4] \"It’s hard. Just consider the number of technologies in Matt Turck’s (in)famous depictions of the ML, AI, and da"
+        },
+        {
+          "question": "what is data mesh",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.74,
+          "refused": false,
+          "answer": "[Ch. 3] \"The data mesh is a recent response to sprawling monolithic data platforms, such as centralized data lakes and d"
+        },
+        {
+          "question": "Codd introduced the idea of what",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.5,
+          "refused": false,
+          "answer": "[Ch. 8] \"Codd introduced the idea of normal forms.\"\nCodd created a set of rules for organizing database tables to avoid "
+        },
+        {
+          "question": "what is an endpoint in streaming ingestion",
+          "pass": true,
+          "notes": [
+            "pinned chunk cited"
+          ],
+          "elapsed": 0.69,
+          "refused": false,
+          "answer": "[Ch. 2] \"With streaming ingestion, data bypasses a backend database and is pushed directly to an endpoint, typically wit"
+        },
+        {
+          "question": "What is the capital of France?",
+          "pass": true,
+          "notes": [],
+          "elapsed": 0.43,
+          "refused": true,
+          "answer": "Not in this book."
+        }
+      ]
+    }
+  }
+}

@@ -10,7 +10,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
-from figures import cited_numbers
+from figures import cited_numbers, number_from_id
 
 ROOT = Path(__file__).resolve().parent
 BOOK = ROOT / "books" / "fde.epub"
@@ -509,8 +509,19 @@ def ingest_epub(epub_path, figures_dir=None, write_images=True):
                 if write_images and figures_dir and image_path in names:
                     figures_dir = Path(figures_dir)
                     figures_dir.mkdir(parents=True, exist_ok=True)
-                    file_name = Path(src).name
-                    (figures_dir / file_name).write_bytes(zf.read(image_path))
+                    # Basename alone collides across chapters (images/fig.png).
+                    # Key the file by figure id. A second write of the same id
+                    # with different bytes keeps the first file and adds the
+                    # source doc id.
+                    figure_id = _figure_id(figure["label"], chapter, index)
+                    suffix = Path(src).suffix.lower() or ".bin"
+                    file_name = figure_id + suffix
+                    blob = zf.read(image_path)
+                    target = figures_dir / file_name
+                    if target.exists() and target.read_bytes() != blob:
+                        file_name = f"{figure_id}-{doc_id}{suffix}"
+                        target = figures_dir / file_name
+                    target.write_bytes(blob)
                 figures.append({
                     "id": _figure_id(figure["label"], chapter, index),
                     "chapter": chapter,
@@ -522,9 +533,9 @@ def ingest_epub(epub_path, figures_dir=None, write_images=True):
                 })
     by_number = {}
     for figure in figures:
-        match = re.search(r"(\d+-\d+)", figure.get("id") or "")
-        if match:
-            by_number[match.group(1)] = figure["id"]
+        number = number_from_id(figure.get("id"))
+        if number:
+            by_number[number] = figure["id"]
     for chunk in chunks:
         # Which figures this chunk names. Derived from the text with the same
         # rule the answer layer uses, so a split chunk cannot lose a figure.

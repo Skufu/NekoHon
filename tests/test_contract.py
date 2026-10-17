@@ -2,7 +2,7 @@
 
 The 200 body is locked in BUILD_PLAN.md ("Contract"): keys answer, citations,
 figures, refused. This test fails if the fixture drifts from that shape. It also
-pins the route shape (only the four documented routes answer) and the exact
+pins the route shape (only the documented routes answer) and the exact
 refusal sentence, so server.py and prompt.py do not restate those rules.
 """
 
@@ -47,7 +47,7 @@ class AskResponseContractTest(unittest.TestCase):
 
 
 class RouteShapeTest(unittest.TestCase):
-    """Only the four documented routes answer; everything else is 404."""
+    """Only the documented routes answer; everything else is 404."""
 
     @classmethod
     def setUpClass(cls):
@@ -76,7 +76,7 @@ class RouteShapeTest(unittest.TestCase):
     def test_health_answers(self):
         self.assertEqual(self.status("GET", "/health"), 200)
 
-    def test_a_fifth_route_is_404(self):
+    def test_an_unknown_route_is_404(self):
         self.assertEqual(self.status("GET", "/nope"), 404)
         self.assertEqual(self.status("GET", "/ask"), 404)
         self.assertEqual(self.status("POST", "/nope"), 404)

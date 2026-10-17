@@ -166,6 +166,8 @@ def main():
     )
     args = parser.parse_args()
 
+    # Default here is SYSTEM_ANSWER. The live server path is SYSTEM
+    # (answer.py respond / ask). Pass --system-text to measure the live prompt.
     system = SYSTEM_ANSWER
     if args.system_text:
         system = Path(args.system_text).read_text(encoding="utf-8").strip()

@@ -49,7 +49,7 @@ from pathlib import Path
 
 from vendor.snowballstemmer import stemmer as _make_stemmer
 
-TOKEN = re.compile(r"[A-Za-z]+")
+TOKEN = re.compile(r"[A-Za-z0-9]*[A-Za-z][A-Za-z0-9]*")
 
 # NFKC maps ﬁ→fi, ①→1, full-width Ａ→A, and no-break space→space, but it does
 # not touch typographic quotes or dashes; those are folded by hand so that a
@@ -78,10 +78,9 @@ def token_spans(text):
 def tokens(text):
     """The word tokens of a text, in the spelling the source used.
 
-    Digits are not tokens: "S3" reads as "s" and "1/17" reads as nothing. That
-    is today's behavior and it is kept on purpose, because widening it moves
-    every df count in the book and the rare gate rides on those counts. Widen
-    it only with the pins in front of you.
+    Pure digits are not tokens: "1/17" reads as nothing. Alphanumeric terms
+    containing at least one ASCII letter ("S3", "3NF", "DDR4") are preserved
+    intact as single tokens.
     """
     return [token for _, _, token in token_spans(text)]
 

@@ -1,0 +1,22 @@
+{
+  "answer": "Not in this book.",
+  "citations": [
+    {
+      "chunk_id": "preface01-015",
+      "chapter": "preface01",
+      "quote": "Acknowledgments Their ideas helped shape our book. There are too many people to name individually, but we\u2019d like to give shoutouts to Jordan Tigani, Zhamak Dehg"
+    },
+    {
+      "chunk_id": "ch01-064",
+      "chapter": "1",
+      "quote": "Chief information officer A chief information officer (CIO) is the senior C-suite executive responsible for information technology within an organization; it is"
+    },
+    {
+      "chunk_id": "ch04-052",
+      "chapter": "4",
+      "quote": "Open Source Software Open source software (OSS) is a software distribution model in which software, and the underlying codebase, is made available for general u"
+    }
+  ],
+  "figures": [],
+  "refused": true
+}

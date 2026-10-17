@@ -22,17 +22,10 @@ Measured 2026-10-12 ("MAD data landscape"):
 Stdlib only. The embedder is injected so tests never call Ollama.
 """
 
-import re
+import math
 
-from figures import cited_numbers
+from figures import cited_numbers, number_from_id
 from retrieve import DEFAULT_EMBEDDER, cosine, embed_texts, ollama_embed
-
-NUMBER_RE = re.compile(r"(\d+-\d+)")
-
-
-def _figure_number(figure_id):
-    match = NUMBER_RE.search(figure_id or "")
-    return match.group(1) if match else ""
 
 
 def caption_seed(index, question, passages, model=DEFAULT_EMBEDDER, embed_fn=None):
@@ -51,6 +44,15 @@ def caption_seed(index, question, passages, model=DEFAULT_EMBEDDER, embed_fn=Non
     top_score = max((hit.get("score") or 0.0) for hit in passages)
     embed_fn = embed_fn or ollama_embed
     query = embed_texts([question], model, embed_fn, "query")[0]
+    if (
+        not isinstance(query, list)
+        or not query
+        or any(not isinstance(value, (int, float)) or not math.isfinite(value) for value in query)
+        or all(value == 0.0 for value in query)
+    ):
+        raise SystemExit(
+            "query embedding is empty, non-finite, or all-zero; refusing to rank."
+        )
     best_figure = None
     best_score = 0.0
     for figure in figures:
@@ -62,7 +64,7 @@ def caption_seed(index, question, passages, model=DEFAULT_EMBEDDER, embed_fn=Non
             best_figure, best_score = figure, score
     if best_figure is None or best_score <= top_score:
         return passages
-    number = _figure_number(best_figure.get("id"))
+    number = number_from_id(best_figure.get("id"))
     if not number:
         return passages
     naming = [

@@ -121,6 +121,16 @@ class CaptionSeedTests(unittest.TestCase):
         )
         self.assertEqual(seeded, DENSE)
 
+    def test_a_zero_query_refuses_instead_of_seeding(self):
+        figures = [figure("figure-4-1", "Matt Turck's 2021 MAD data landscape", [1.0, 0.0])]
+
+        def zero_query(texts, model):
+            return [[0.0, 0.0] for _ in texts]
+
+        with self.assertRaises(SystemExit) as caught:
+            caption_seed(mad_index(figures), "MAD", DENSE, embed_fn=zero_query)
+        self.assertIn("all-zero", str(caught.exception))
+
     def test_no_figures_never_embeds(self):
         def refuse(*args, **kwargs):
             raise AssertionError("must not embed without figures")

@@ -62,6 +62,19 @@ def audit(index):
     return report
 
 
+def exit_code(report):
+    """0 when clean, 1 when any stored vector is bad or missing.
+
+    Matches the module docstring and preflight.audit_clean: a chunk or figure
+    with no vector is dirty, not a warning the CLI can ignore.
+    """
+    if report["missing"] or report["no_declared_dims"]:
+        return 1
+    if any(report[axis] for axis in AXES):
+        return 1
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Audit the index's stored vectors. Read-only."
@@ -78,12 +91,10 @@ def main():
     print(f"missing_vectors {len(report['missing'])} {report['missing'][:5]}")
     for axis in AXES:
         print(f"{axis}_vectors {len(report[axis])} {report[axis][:5]}")
-    dirty = [name for axis in AXES for name in report[axis]]
-    if report["no_declared_dims"]:
-        dirty.append("embedding_dims is missing")
-    if dirty:
-        print(f"dirty {len(dirty)}")
-        raise SystemExit(1)
+    code = exit_code(report)
+    if code:
+        print("dirty")
+        raise SystemExit(code)
     print("clean")
 
 

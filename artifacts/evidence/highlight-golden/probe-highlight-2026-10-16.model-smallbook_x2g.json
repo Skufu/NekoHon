@@ -1,0 +1,277 @@
+{
+ "model": "smallbook_x2g",
+ "summary": {
+  "rows": 24,
+  "full_pass": 24,
+  "not_refused_and_pin_cited": 24,
+  "quote_verbatim_in_pin": 24,
+  "refused": 0,
+  "errors": 0
+ },
+ "rows": [
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 4] \"Plenty of great modular services are available to choose from in either case.\"\nThe highlighted great means excellent or outstanding, indicating that the author considers these services to be of high quality and value.",
+   "error": null,
+   "seconds": 7.2,
+   "id": "ch04-051:great",
+   "asked": "What is great in Build Versus Buy?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 9] \"This inevitably leads to the business not performing to its fullest potential with data and data teams losing credibility (and possibly being dissolved).\"\nThe highlighted text explains that failing to meet the full potential of a business indicates a lack of trust in the data provided.",
+   "error": null,
+   "seconds": 1.4,
+   "id": "ch09-003:potential",
+   "asked": "What is potential in Trust?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 8] \"The requirements of 1NF, plus partial dependencies are removed.\"\nThe highlighted requirements refers to the specific conditions that must be met for a relation to be in 1NF. The authors mention it here to indicate that these are the criteria that were already satisfied before moving on to discuss partial dependencies, which are a different concept related to normalization.",
+   "error": null,
+   "seconds": 1.7,
+   "id": "ch08-052:requirements",
+   "asked": "What is requirements in Normalization?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 8] \"A database commit is a change within a database, such as creating, updating, or deleting a record, table, or other database objects. Many databases support transactions—i.e., a notion of committing several operations simultaneously in a way that maintains a consistent state. Please note that the term transaction is somewhat overloaded; see Chapter 5. The purpose of a transaction is to kee",
+   "error": null,
+   "seconds": 0.9,
+   "id": "ch08-020:creating",
+   "asked": "What is creating in Know how your database handles commits?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 7] \"Generally, options in the space allow users to set a target and source, ingest in various ways (e.g., CDC, replication, truncate and reload), set permissions and credentials, configure an update frequency, and begin syncing data.\"\nThe highlighted set refers to the process of configuring the settings for your data connection.",
+   "error": null,
+   "seconds": 1.2,
+   "id": "ch07-061:set",
+   "asked": "What is set in Managed Data Connectors?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 2] \"Many data engineers are heavily involved in developing open source frameworks.\"\nThe highlighted \"source\" refers to the origin or starting point of a data project, which is crucial for understanding where the data comes from and how it should be managed.",
+   "error": null,
+   "seconds": 1.4,
+   "id": "ch02-085:source",
+   "asked": "What is source in Development of open source frameworks?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 7] \"On the other hand, nothing is free; using parallel connections also increases the load on the source database.\"\nUsing many connections at once makes the database work harder.",
+   "error": null,
+   "seconds": 0.9,
+   "id": "ch07-049:load",
+   "asked": "What is load in Direct Database Connection?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 8] \"This data gets written to cluster storage; it will be reloaded into memory for subsequent processing steps.\"\nData is temporarily saved to disk so it can be loaded again later.",
+   "error": null,
+   "seconds": 1.0,
+   "id": "ch08-119:node",
+   "asked": "What is node in Example: Data transformation in Spark?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 8] \"To fully take advantage of a data stream, we must adapt query patterns that reflect its real-time nature\"\nThe highlighted advantage refers to the need to change how you ask questions about data when it arrives continuously rather than in batches.",
+   "error": null,
+   "seconds": 0.9,
+   "id": "ch08-029:advantage",
+   "asked": "What is advantage in Queries on Streaming Data?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 6] \"Warm data is accessed semi-regularly, say, once per month\"\nThe highlighted \"accessed\" indicates how frequently warm data is used, which is less often than hot data but more often than cold data. This detail helps categorize data and determine the best storage option.",
+   "error": null,
+   "seconds": 1.3,
+   "id": "ch06-104:accessed",
+   "asked": "What is accessed in Warm data?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 2] \"There are many things to consider when assessing source systems, including how the system handles ingestion, state, and data generation.\"\nThe highlighted state refers to the current condition or status of data or systems. The authors mention it because it is a crucial factor in how data is managed and whether data quality can be maintained.",
+   "error": null,
+   "seconds": 1.3,
+   "id": "ch02-007:state",
+   "asked": "What is state in Evaluating source systems: Key engineering considerations?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 6] \"Just as code version control allows developers to track down commits that cause bugs, data version control can aid ML engineers in tracking changes that lead to model performance degradation.\"\nThe highlighted performance refers to the effectiveness or quality of a machine learning model. The authors mention it because understanding how data changes affect model performance is crucial for ",
+   "error": null,
+   "seconds": 1.3,
+   "id": "ch06-121:performance",
+   "asked": "What is performance in Data versioning in object storage?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 5] \"6 Martin Fowler, “How to Move Beyond a Monolithic Data Lake to a Distributed Data Mesh,” MartinFowler.com, May 20, 2019, https://oreil.ly/TEdJF.\"\nThe highlighted \"monolithic\" refers to a single, unified system that handles all data storage and processing tasks. In this context, Fowler uses it to contrast with a distributed data architecture, which is the main topic of his article.",
+   "error": null,
+   "seconds": 1.4,
+   "id": "ch05-086:monolithic",
+   "asked": "What is monolithic in Additional Resources?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 8] \"Transformations are where data starts providing utility to downstream stakeholders. Your downstream stakeholders include many people, including data analysts, data scientists, ML engineers, and “the business.” Collaborate with them to ensure the data model and transformations you provide are performant and useful. In terms of performance, queries should execute as quickly as possible in t",
+   "error": null,
+   "seconds": 0.8,
+   "id": "ch08-147:quickly",
+   "asked": "What is quickly in Downstream Stakeholders?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 1] \"At this stage, the company is data-driven.\"\nThis means the business uses data to make decisions instead of just guessing.",
+   "error": null,
+   "seconds": 0.8,
+   "id": "ch01-031:stage",
+   "asked": "What is stage in Stage 3: Leading with data?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 6] \"GDPR and other privacy regulations have significantly impacted storage system design\"\nDesign refers to the overall plan or structure that data storage systems must follow to comply with privacy laws.",
+   "error": null,
+   "seconds": 0.8,
+   "id": "ch06-122:design",
+   "asked": "What is design in Privacy?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 5] \"Individual log entries can be written to a messaging system such as Kafka or Pulsar for real-time applications.\"\nThe highlighted \"time\" refers to when data is processed or delivered, which is crucial for deciding between batch processing (processed later) and real-time processing (processed immediately).",
+   "error": null,
+   "seconds": 1.1,
+   "id": "ch05-017:time",
+   "asked": "What is time in Log latency: Batch or real time?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 1] \"A chief technology officer (CTO) is similar to a CIO but faces outward. A CTO owns the key technological strategy and architectures for external-facing applications, such as mobile, web apps, and IoT—all critical data sources for data engineers. The CTO is likely a skilled technologist and has a good sense of software engineering fundamentals and system architecture. In some organizations",
+   "error": null,
+   "seconds": 1.1,
+   "id": "ch01-065:data",
+   "asked": "What is data in Chief technology officer?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 8] \"In general, materialized views do not allow for composition—that is, a materialized view cannot select from another materialized view. However, we’ve recently seen the emergence of tools that support this capability. For example, Databricks has introduced the notion of live tables. Each table is updated as data arrives from sources. Data flows down to subsequent tables asynchronously.\"\nTh",
+   "error": null,
+   "seconds": 1.4,
+   "id": "ch08-132:tools",
+   "asked": "What is tools in Composable materialized views?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 6] \"The undercurrents for storage are significant because storage is a critical hub for all stages of the data engineering lifecycle. Unlike other undercurrents for which data might be in motion (ingestion) or queried and transformed, the undercurrents for storage differ because storage is so ubiquitous.\"\nStorage is important because it connects every part of the data process.",
+   "error": null,
+   "seconds": 0.7,
+   "id": "ch06-117:queried",
+   "asked": "What is queried in Undercurrents?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 9] \"The technologies used for reports and ad hoc analysis are similar to dashboards but may include Excel, Python, R-based notebooks, SQL queries, and much more.\"\nThe highlighted dashboards refers to visual interfaces that summarize data, and the authors mention it because it shows how different tools are used for analyzing data, alongside more traditional methods like Excel and SQL.",
+   "error": null,
+   "seconds": 1.4,
+   "id": "ch09-021:dashboards",
+   "asked": "What is dashboards in Business Analytics?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 3] \"Inmon, Building the Data Warehouse (Hoboken: Wiley, 2005).\"\nThe highlighted data refers to information or statistics that can be analyzed, and the authors mention it because it is a common topic in data management and analytics sections of books.",
+   "error": null,
+   "seconds": 1.5,
+   "id": "ch03-108:data",
+   "asked": "What is data in Additional Resources?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 3] \"TOGAF is The Open Group Architecture Framework, a standard of The Open Group. It’s touted as the most widely used architecture framework today. Here’s the TOGAF definition:1\"\nThe highlighted \"widely\" indicates that TOGAF is used by many organizations, which is mentioned to show its popularity and relevance.",
+   "error": null,
+   "seconds": 1.4,
+   "id": "ch03-004:widely",
+   "asked": "What is widely in TOGAF’s definition?"
+  },
+  {
+   "refused": false,
+   "pin_cited": true,
+   "quote_verbatim_in_pin": true,
+   "word_in_quoted_span": true,
+   "answer": "[Ch. 6] \"You’ll use strong consistency when you can tolerate higher query latency and require correct data every time you read from the database.\"\nThe highlighted \"time\" refers to the frequency or timing at which data consistency checks occur. The authors mention it because it helps determine whether to choose strong consistency, which ensures data accuracy every time, or eventual consistency, whi",
+   "error": null,
+   "seconds": 1.5,
+   "id": "ch06-025:time",
+   "asked": "What is time in Eventual Versus Strong Consistency?"
+  }
+ ]
+}
