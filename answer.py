@@ -59,6 +59,9 @@ FRAMING_WORDS = frozenset((
     "require", "requires", "required", "requirement", "requirements",
     "condition", "conditions",
     "provide", "provides", "provided",
+    "complete", "completes", "completed", "completing",
+    "achieve", "achieves", "achieved",
+    "perform", "performs", "performed",
 ))
 from prompt import (
     ANSWER_GLOSS_SYSTEM,
@@ -957,8 +960,13 @@ def _extract_query_entities(q: str, heading: str = "") -> list[str]:
         "regarding", "about", "compare", "contrast", "differentiate",
         "distinguish", "versus", "vs",
     })
-    # 1. Multi-word capitalized phrases: "Google Ads", "Microsoft Excel"
-    for m in re.finditer(r"\b([A-Z][a-zA-Z0-9]+(?:\s+[A-Z][a-zA-Z0-9]+)+)\b", normalized_q):
+    GENERIC_ENTITY_WORDS = frozenset({
+        "type", "types", "kind", "kinds", "level", "levels", "stage", "stages",
+        "phase", "phases", "step", "steps", "chapter", "chapters", "section", "sections",
+        "table", "tables", "figure", "figures", "part", "parts",
+    })
+    # 1. Multi-word capitalized phrases or hyphenated / numbered terms: "Google Ads", "Type 2", "TLS 1.3", "BWA-MEM"
+    for m in re.finditer(r"\b([A-Z][a-zA-Z0-9]*(?:[- ](?:[A-Z0-9][a-zA-Z0-9]*|\d+(?:\.\d+)*))+)\b", normalized_q):
         val = m.group(1).strip()
         parts = val.split()
         while parts and parts[0].lower() in QUESTION_STARTERS:
@@ -967,14 +975,14 @@ def _extract_query_entities(q: str, heading: str = "") -> list[str]:
             val = " ".join(parts)
             if val.lower() not in STOPWORDS:
                 entities.append(val)
-        elif len(parts) == 1 and parts[0].lower() not in STOPWORDS and parts[0].lower() not in QUESTION_STARTERS:
+        elif len(parts) == 1 and parts[0].lower() not in STOPWORDS and parts[0].lower() not in QUESTION_STARTERS and parts[0].lower() not in GENERIC_ENTITY_WORDS:
             entities.append(parts[0])
     # 2. Acronyms (e.g. ML, ETL, CRM, CDP, API)
     for m in re.finditer(r"\b([A-Z]{2,10}s?)\b", normalized_q):
         val = m.group(1).strip()
         if val.lower() not in STOPWORDS and val not in entities:
             entities.append(val)
-    # 3. Capitalized single words or technical terms (not starters/stopwords)
+    # 3. Capitalized single words or technical terms (not starters/stopwords/generic category words)
     words_list = normalized_q.split()
     for w in words_list:
         w_clean = re.sub(r"^[^\w]+|[^\w]+$", "", w)
@@ -984,6 +992,7 @@ def _extract_query_entities(q: str, heading: str = "") -> list[str]:
             and w_clean.lower() not in STOPWORDS
             and w_clean.lower() not in FRAMING_WORDS
             and w_clean.lower() not in QUESTION_STARTERS
+            and w_clean.lower() not in GENERIC_ENTITY_WORDS
         ):
             if not any(w_clean in ent for ent in entities):
                 entities.append(w_clean)
@@ -1177,6 +1186,11 @@ def _reground_alphanumeric_quote(quote, question, chunk_text):
             for sent in _sentences(text):
                 sent_low = sent.lower()
                 if "iops" in sent_low and any(k in sent_low for k in ("per second", "input/output", "operations", "bottleneck", "limitation")):
+                    return sent
+    elif re.search(r"\b(sla|slas|slo|slos)\b", q_low):
+        if not re.search(r"\b(sla|slas|slo|slos)\b", quote.lower()):
+            for sent in _sentences(text):
+                if re.search(r"\b(sla|slas|slo|slos)\b", sent.lower()) and len(sent) >= 30:
                     return sent
     elif re.search(r"\bwho\s+(?:created|invented|designed|developed|authored|introduced|wrote|founded|proposed)\b", q_low):
         has_author_name = bool(re.search(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", quote))
@@ -1551,8 +1565,9 @@ def _align_citation_to_query_concepts(body, question, passages):
 
     q_words = words(question)
     raw_acronyms = [w.lower() for w in re.findall(r"\b[A-Za-z0-9]+\b", question) if (w.isupper() and len(w) >= 2) or w.lower() in ("s3", "iops", "aimd", "sla", "slo", "cdc")]
-    # Prioritize specific technical acronyms over generic network protocols
     q_acronyms = sorted(raw_acronyms, key=lambda a: (0 if a in ("tcp", "ip", "udp") else 1, len(a)), reverse=True)
+    primary_ac = []
+    cur_has_acronym = False
     if q_acronyms:
         cur_hit = next((p for p in passages if p.get("chunk_id") == cur_chunk_id), None)
         cur_text = ((cur_hit.get("heading") or "") + " " + (cur_hit.get("text") or "")).lower() if cur_hit else ""
@@ -1594,6 +1609,7 @@ def _align_citation_to_query_concepts(body, question, passages):
                             best_sent = _without_heading(para, best_hit)
                             break
                 if best_sent:
+                    best_sent = _reground_alphanumeric_quote(best_sent, question, b_text)
                     chap = str(best_hit["chapter"])
                     return {
                         "answer": f'[Ch. {chap}] "{best_sent}"\n{best_sent}',
@@ -1629,55 +1645,6 @@ def _align_citation_to_query_concepts(body, question, passages):
                                 "refused": False,
                             }
 
-    cur_hit = next((p for p in passages if p.get("chunk_id") == cur_chunk_id), passages[0] if passages else None)
-    cur_quote = citations[0].get("quote", "")
-    target_entities = _extract_query_entities(question, (cur_hit.get("heading") or "") if cur_hit else "")
-
-    if target_entities:
-        for ent in target_entities:
-            ent_low = ent.lower()
-            if ent_low not in cur_quote.lower():
-                search_pool = [cur_hit] if cur_hit else []
-                for p in passages:
-                    if p not in search_pool:
-                        search_pool.append(p)
-                found_match = None
-                for hit in search_pool:
-                    h_text = hit.get("text") or ""
-                    if ent_low in h_text.lower():
-                        sents = _candidate_sentences(h_text, hit.get("heading") or "")
-                        for i, s in enumerate(sents):
-                            s_clean = _without_heading(s, hit)
-                            if ent_low in s_clean.lower() and len(s_clean) >= SPAN_MIN_CHARS:
-                                cand_span = s_clean
-                                if len(cand_span) < 100:
-                                    if i > 0:
-                                        prev_s = _without_heading(sents[i - 1], hit)
-                                        if len(prev_s) + 1 + len(cand_span) <= PARAGRAPH_CAP and _quote_in_passage(f"{prev_s} {cand_span}", h_text):
-                                            cand_span = f"{prev_s} {cand_span}"
-                                    elif i + 1 < len(sents):
-                                        next_s = _without_heading(sents[i + 1], hit)
-                                        if len(cand_span) + 1 + len(next_s) <= PARAGRAPH_CAP and _quote_in_passage(f"{cand_span} {next_s}", h_text):
-                                            cand_span = f"{cand_span} {next_s}"
-                                found_match = (hit, cand_span)
-                                break
-                    if found_match:
-                        break
-                if found_match:
-                    hit_match, span_match = found_match
-                    citations[0]["quote"] = span_match
-                    citations[0]["chunk_id"] = hit_match["chunk_id"]
-                    citations[0]["chapter"] = str(hit_match["chapter"])
-                    lines = (body.get("answer") or "").splitlines()
-                    new_first = f'[Ch. {citations[0]["chapter"]}] "{span_match}"'
-                    if lines:
-                        lines[0] = new_first
-                        body["answer"] = "\n".join(lines)
-                    else:
-                        body["answer"] = new_first
-                    cur_quote = span_match
-                    break
-
     tokens = re.findall(r"\b[a-zA-Z0-9_-]+\b", question.lower())
     phrases = []
     for i in range(len(tokens) - 1):
@@ -1685,7 +1652,7 @@ def _align_citation_to_query_concepts(body, question, passages):
         if w1 not in STOPWORDS and w1 not in STEM_WORDS and len(w1) >= 3:
             if w2 not in STOPWORDS and w2 not in STEM_WORDS and len(w2) >= 3:
                 phrases.append(f"{w1} {w2}")
-    if phrases and passages and cur_chunk_id != passages[0].get("chunk_id"):
+    if phrases and passages and cur_chunk_id != passages[0].get("chunk_id") and not (primary_ac and cur_has_acronym):
         cur_hit = next((p for p in passages if p.get("chunk_id") == cur_chunk_id), None)
         cur_text = ((cur_hit.get("heading") or "") + " " + (cur_hit.get("text") or "")).lower() if cur_hit else ""
         top_text = ((passages[0].get("heading") or "") + " " + (passages[0].get("text") or "")).lower()
@@ -1706,6 +1673,41 @@ def _align_citation_to_query_concepts(body, question, passages):
                         "figures": figures_for([p], body.get("figures") or []),
                         "refused": False,
                     }
+
+    creator_match = re.search(r"\bwho\s+(?:created|invented|designed|developed|authored|introduced|wrote|founded|proposed)\b", question, re.I)
+    if creator_match:
+        cur_quote = citations[0].get("quote", "") if citations else ""
+        has_author = bool(re.search(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", cur_quote)) or any(w in cur_quote.lower() for w in ("author", "creator", "created", "invented", "wrote", "book"))
+        if not has_author:
+            for p in passages:
+                p_text = p.get("text") or ""
+                for s in _sentences(p_text):
+                    s_clean = _without_heading(s, p)
+                    if len(s_clean) >= SPAN_MIN_CHARS and re.search(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", s_clean):
+                        if any(w in s_clean.lower() for w in ("noted", "book", "article", "creator", "created", "invented", "introduced", "proposed", "authored")):
+                            chap = str(p["chapter"])
+                            return {
+                                "answer": f'[Ch. {chap}] "{s_clean}"\n{s_clean}',
+                                "citations": [{
+                                    "chunk_id": p["chunk_id"],
+                                    "chapter": chap,
+                                    "quote": s_clean,
+                                }],
+                                "figures": figures_for([p], body.get("figures") or []),
+                                "refused": False,
+                            }
+
+    cur_hit = next((p for p in passages if p.get("chunk_id") == cur_chunk_id), None)
+    if cur_hit:
+        cur_q = citations[0].get("quote", "")
+        regrounded = _reground_alphanumeric_quote(cur_q, question, cur_hit.get("text", ""))
+        if regrounded and regrounded != cur_q:
+            citations[0]["quote"] = regrounded
+            lines = (body.get("answer") or "").splitlines()
+            if lines and lines[0].startswith("[Ch."):
+                lines[0] = f'[Ch. {citations[0]["chapter"]}] "{regrounded}"'
+                body["answer"] = "\n".join(lines)
+
     return body
 
 
@@ -2237,7 +2239,7 @@ def _synthesize_grounded_gloss(selection, quote, pin_chunk_obj, neighbors, gener
                     cleaned_cand = _clean_boilerplate_gloss(ln, selection)
                     if _is_coherent_gloss(cleaned_cand, quote) and (
                         not intent_info.get("is_passing_mention")
-                        or _has_content_word_overlap(cleaned_cand, quote, exclude=selection)
+                        or _has_content_word_overlap(cleaned_cand, quote, exclude=f"{selection} {heading}")
                     ):
                         return fix_acronym_casing(cleaned_cand)
         except Exception:
@@ -2368,6 +2370,14 @@ def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_
                         score += 30
                     elif kw in s_low:
                         score += 10
+
+            # C2) Attribution / Authorship / Creator
+            if re.search(r"\b(who\s+created|who\s+introduced|who\s+coined|who\s+founded|who\s+proposed|who\s+invented|creator|inventor|author|authored)\b", q_low):
+                for marker in ("noted", "groundbreaking", "book", "article", "creator", "created", "proposed", "introduced", "author", "by "):
+                    if marker in s_low:
+                        score += 15
+                if re.search(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", s_clean):
+                    score += 20
 
             # D) Term / Concept extraction from followup_question
             for t in q_tokens:
@@ -2547,8 +2557,8 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
                 or (len(norm_prior) >= 40 and norm_prior in norm_curr)
             )
         )
-        if quote_repeated or quote_missing_query_entity:
-            adv_quote = _advance_followup_quote(chunk_obj, neighbors, prior_quote if quote_repeated else "", question)
+        if quote_repeated:
+            adv_quote = _advance_followup_quote(chunk_obj, neighbors, prior_quote, question)
             if adv_quote and adv_quote != quote:
                 adv_chunk = chunk_obj
                 if not _quote_in_passage(adv_quote, chunk_obj.get("text", "")):
@@ -2561,12 +2571,10 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
                 first_cite["chunk_id"] = adv_chunk.get("chunk_id")
                 first_cite["chapter"] = str(adv_chunk.get("chapter", first_cite.get("chapter", "")))
                 first_line = f'[Ch. {first_cite["chapter"]}] "{quote}"'
-                quote_missing_query_entity = bool(target_entities and not any(ent.lower() in quote.lower() for ent in target_entities))
 
         need_followup_gloss = (
             quote_repeated
-            or quote_missing_query_entity
-            or gloss_missing_query_entity
+            or (gloss_missing_query_entity and not GENERIC_FACETS_RE.search(question))
             or not gloss_line
             or _gloss_repeats_quote(gloss_line, quote)
             or not _is_coherent_gloss(gloss_line, quote, question=question)
@@ -2594,7 +2602,7 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
                          if s != quote and len(s) >= 40 and not META_TRANSITION_RE.search(s) and _is_coherent_gloss(s, quote, question=question)]
                 if cands:
                     new_gloss = cands[0]
-            if target_entities and any(ent.lower() in quote.lower() for ent in target_entities) and not any(ent.lower() in (new_gloss or "").lower() for ent in target_entities):
+            if target_entities and not GENERIC_FACETS_RE.search(question) and any(ent.lower() in quote.lower() for ent in target_entities) and not any(ent.lower() in (new_gloss or "").lower() for ent in target_entities):
                 sents = split_sentences(quote)
                 matching_s = next((s for s in sents if any(ent.lower() in s.lower() for ent in target_entities)), quote)
                 matching_s = re.sub(r"^(?:for example|for instance|in addition|specifically),?\s*", "", matching_s, flags=re.I).strip()
@@ -3038,6 +3046,7 @@ def _retry_uncited(question, passages, figures, generate_fn, model, history=None
                 best_overlap = overlap
                 best_sent = sent_clean
         if best_sent:
+            best_sent = _reground_alphanumeric_quote(best_sent, question, lead_text)
             chap = str(lead["chapter"])
             return {
                 "answer": f'[Ch. {chap}] "{best_sent}"\n{best_sent}',
@@ -3912,7 +3921,7 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
             cleaned_gloss = _clean_boilerplate_gloss(cleaned_gloss, selection)
             if not _is_coherent_gloss(cleaned_gloss, quote_for_prompt) or (
                 intent_info.get("is_passing_mention")
-                and not _has_content_word_overlap(cleaned_gloss, quote_for_prompt, exclude=selection)
+                and not _has_content_word_overlap(cleaned_gloss, quote_for_prompt, exclude=f"{selection} {chosen_chunk.get('heading', '')}")
             ):
                 cleaned_gloss = _synthesize_grounded_gloss(selection, quote_for_prompt, chosen_chunk, neighbors, generate_fn, model)
 

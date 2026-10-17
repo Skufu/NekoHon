@@ -47,9 +47,9 @@
    "pin_cited": true,
    "quote_verbatim_in_pin": true,
    "word_in_quoted_span": true,
-   "answer": "[Ch. 8] \"A database commit is a change within a database, such as creating, updating, or deleting a record, table, or other database objects.\"\nCreating records or tables directly writes persistent state changes into the database.",
+   "answer": "[Ch. 8] \"A database commit is a change within a database, such as creating, updating, or deleting a record, table, or other database objects.\"\nA database commit is when you make changes like adding, changing, or removing data.",
    "error": null,
-   "seconds": 0.2,
+   "seconds": 0.7,
    "id": "ch08-020:creating",
    "asked": "What is creating in Know how your database handles commits?"
   },
@@ -60,7 +60,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 7] \"Generally, options in the space allow users to set a target and source, ingest in various ways (e.g., CDC, replication, truncate and reload), set permissions and credentials, configure an update frequency, and begin syncing data.\"\nSetting parameters like target, source, and frequency empowers users to customize data ingest strategies flexibly.",
    "error": null,
-   "seconds": 0.2,
+   "seconds": 0.3,
    "id": "ch07-061:set",
    "asked": "What is set in Managed Data Connectors?"
   },
@@ -135,9 +135,9 @@
    "pin_cited": true,
    "quote_verbatim_in_pin": true,
    "word_in_quoted_span": true,
-   "answer": "[Ch. 6] \"Just as code version control allows developers to track down commits that cause bugs, data version control can aid ML engineers in tracking changes that lead to model performance degradation.\"\nData versioning lets you go back to previous good states when models stop working unexpectedly.",
+   "answer": "[Ch. 6] \"Just as code version control allows developers to track down commits that cause bugs, data version control can aid ML engineers in tracking changes that lead to model performance degradation.\"\nIn Data versioning in object storage, performance connects to this topic—just as code version control allows developers to track down commits that cause bugs, data version control can aid ML enginee",
    "error": null,
-   "seconds": 0.2,
+   "seconds": 0.6,
    "id": "ch06-121:performance",
    "asked": "What is performance in Data versioning in object storage?"
   },
@@ -148,7 +148,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 5] \"6 Martin Fowler, “How to Move Beyond a Monolithic Data Lake to a Distributed Data Mesh,” MartinFowler.com, May 20, 2019, https://oreil.ly/TEdJF.\"\nThe term \"monolithic\" describes a single, centralized data architecture that lacks flexibility and scalability, highlighting why the authors recommend transitioning to a distributed data mesh or relational database management system.",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.4,
    "id": "ch05-086:monolithic",
    "asked": "What is monolithic in Additional Resources?"
   },
@@ -159,7 +159,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 8] \"In terms of performance, queries should execute as quickly as possible in the most cost-effective way.\"\n[ch. 8] \"in terms of performance, queries should execute as quickly as possible in the most cost-effective way.",
    "error": null,
-   "seconds": 0.7,
+   "seconds": 0.6,
    "id": "ch08-147:quickly",
    "asked": "What is quickly in Downstream Stakeholders?"
   },
@@ -170,7 +170,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 1] \"In organizations in stage 3 of data maturity, a data engineer will continue building on prior stages, plus they will do the following:\"\nStage represents a specific level of data maturity within an organization, characterized by reliable self-service analytics, seamless data management, and strategic leadership.",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.2,
    "id": "ch01-031:stage",
    "asked": "What is stage in Stage 3: Leading with data?"
   },
@@ -214,7 +214,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 8] \"However, we’ve recently seen the emergence of tools that support this capability.\"\n[ch. 8] \"however, we’ve recently seen the emergence of tools that support this capability.",
    "error": null,
-   "seconds": 0.6,
+   "seconds": 0.5,
    "id": "ch08-132:tools",
    "asked": "What is tools in Composable materialized views?"
   },
@@ -236,7 +236,7 @@
    "word_in_quoted_span": true,
    "answer": "[Ch. 9] \"The technologies used for reports and ad hoc analysis are similar to dashboards but may include Excel, Python, R-based notebooks, SQL queries, and much more.\"\n[ch. 9] \"the technologies used for reports and ad hoc analysis are similar to dashboards but may include excel, python, r-based notebooks, SQL queries, and much more.",
    "error": null,
-   "seconds": 0.8,
+   "seconds": 0.7,
    "id": "ch09-021:dashboards",
    "asked": "What is dashboards in Business Analytics?"
   },
@@ -245,9 +245,9 @@
    "pin_cited": true,
    "quote_verbatim_in_pin": true,
    "word_in_quoted_span": true,
-   "answer": "[Ch. 3] \"25 Zhamak Dehghani, “How to Move Beyond a Monolithic Data Lake to a Distributed Data Mesh,” MartinFowler.com, May 20, 2019, https://oreil.ly/SqMe8.\"\nThe sentence highlights a organizational leaders transitioning from centralized data storage to distributed architectures, crucial for managing modern cloud data lakes.",
+   "answer": "[Ch. 3] \"25 Zhamak Dehghani, “How to Move Beyond a Monolithic Data Lake to a Distributed Data Mesh,” MartinFowler.com, May 20, 2019, https://oreil.ly/SqMe8.\"\nThe sentence highlights the importance of managing distributed data effectively, which is crucial for understanding modern architecture principles.",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.2,
    "id": "ch03-108:data",
    "asked": "What is data in Additional Resources?"
   },
