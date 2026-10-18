@@ -1170,8 +1170,10 @@ Only this list can block work.
   * `fde`: *Fundamentals of Data Engineering* — 1,042 chunks · 111 figures · 17 chapters
   * `quantization`: *Quantization and Fast Inference* — 473 chunks · 76 figures · 7 chapters
   * `ddia`: *Designing Data-Intensive Applications* — 1,307 chunks · 90 figures · 17 chapters
+  * Total catalog corpus: **2,822 passages** and **277 figures** across **41 chapters**.
   * Manning EPUB `div.figure-container` and dot-number normalization (`Figure 1.1` -> `figure-1-1`) supported in `ingest.py`.
   * Heading-based non-teaching filter removes 151 alphabetical index chunks in `ddia`.
+  * Filesystem-driven figure resolution in `figures.py` (zero hardcoded book IDs).
   * Web drag-and-drop `.epub` ingestion via `POST /ask` mode `"import"` (`importEpubBook`).
 - R15 Caching & Retrieval Speedups measured 2026-10-17:
   * `_POSTINGS_CACHE`: `82.38 ms -> 0.0018 ms` (45,000x faster).
@@ -1180,7 +1182,11 @@ Only this list can block work.
   * `INDEX_CACHE` + `CHUNKS_GZIP_CACHE`: `1.14 MB -> 328 KB` over HTTP (71.7% network reduction).
   * `keep_alive: "24h"` zero cold-start model pinning in Ollama.
   * CSS `content-visibility: auto; contain-intrinsic-size: auto 320px;`: 99.5% reduction in active layout DOM nodes for 1,300+ chunk volumes.
-- Multi-turn adversarial evaluation: `harnesses/adrian-eval.py` (35 real-world multi-turn conversational scenarios) + `datasets/followup-evil-train-2026-10-17.jsonl` (100 adversarial follow-ups).
+- Multi-turn adversarial evaluations & quality gates:
+  * `harnesses/adrian-eval.py`: 35 real-world multi-turn conversational scenarios across 97 turns (32/35 passed, 91.4%).
+  * `harnesses/crossbook-evil-eval.py`: 30 cross-book multi-turn scenarios across 66 requests over `fde`, `quantization`, and `ddia` (23/30 passed, 76.7%).
+  * `datasets/followup-evil-train-2026-10-17.jsonl`: 100 adversarial follow-ups.
+  * 385 unit tests green across 22 test suites (`python -m unittest discover -s tests`).
 
 ## Post-v1 backlog (not approved; confirm before starting)
 

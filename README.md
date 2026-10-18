@@ -253,7 +253,13 @@ python artifacts/harnesses/step2-battery.py
 # 6. Book-Agnostic Query Understanding Suite (Canonicalization, intents, passing-mentions)
 python -m unittest tests/test_query_understanding.py
 
-# 7. TypeScript Validation in web/
+# 7. Real-World Multi-Turn Adversarial Evaluation (35 scenarios, 97 turns, 91.4% pass)
+python artifacts/harnesses/adrian-eval.py nekohon_x3
+
+# 8. Cross-Book Evil Multi-Turn Evaluation (30 scenarios, 66 requests across fde/quant/ddia, 76.7% pass)
+python artifacts/harnesses/crossbook-evil-eval.py nekohon_x3
+
+# 9. TypeScript Validation in web/
 cd web && npx tsc --noEmit
 ```
 

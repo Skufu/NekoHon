@@ -353,6 +353,14 @@ python artifacts/harnesses/adrian-eval.py nekohon_x3
   4. Whole-book thematic shifts across chapters.
   5. Ungrounded false premises (e.g. presupposition traps).
   6. Adversarial prompt injection attacks.
+- **Measured Results**: **32/35 scenarios passed (91.4% pass | 8.6% fail)** across 97 multi-turn HTTP requests:
+  * `adversarial_edge`: **6/6 (100.0%)**
+  * `evil_ungrounded_premise`: **2/2 (100.0%)**
+  * `highlight_refine`: **7/7 (100.0%)**
+  * `live_pill_clicking`: **3/3 (100.0%)**
+  * `pill_clicking`: **5/5 (100.0%)**
+  * `selection_ask_lazy`: **7/7 (100.0%)**
+  * `whole_book_topic_shift`: **2/5 (40.0%)**
 - Supported by the 100-row [`artifacts/datasets/followup-evil-train-2026-10-17.jsonl`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/artifacts/datasets/followup-evil-train-2026-10-17.jsonl) adversarial training set, ensuring robust citation retention and grounded refusals even under multi-turn conversation strain.
 
 ### 4.6 Cross-Book Evil Multi-Turn Evaluation ([`artifacts/harnesses/crossbook-evil-eval.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/artifacts/harnesses/crossbook-evil-eval.py))

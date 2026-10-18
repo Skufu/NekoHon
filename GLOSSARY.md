@@ -136,6 +136,16 @@ authoritative doc is named.
   exploratory, not gates.
 - **contamination probe** — checks training rows against bench questions for
   near-twins.
+- **adrian-eval.py** — 35 real-world multi-turn conversational evaluation scenarios
+  spanning 97 HTTP turns across highlight refinements, live pill clicking, lazy
+  queries, whole-book topic shifts, ungrounded false premises, and prompt injections
+  (32/35 passed, 91.4% overall).
+- **crossbook-evil-eval.py** — 30 cross-book adversarial multi-turn evaluation
+  scenarios across 66 requests spanning `fde`, `quantization`, and `ddia`
+  (23/30 passed, 76.7% overall).
+- **SIMPLIFY_RE fast-path** — regex-driven simplification route in `answer.py`
+  synthesizing accessible grounded glosses directly from prior turn anchors in ~850 ms.
+
 
 ## Repo
 

@@ -1,6 +1,6 @@
 # NekoHon (ask-this-book) — Build Plan
 
-> **Status (2026-10-17): living plan.** This started as the locked v1 build
+> **Status (2026-10-18): living plan.** This started as the locked v1 build
 > plan (written 2026-10-09). v1 shipped — Phases 0–8 passed 2026-10-12 — and
 > the plan now tracks the post-v1 multi-book library path. Treat it as a sequence
 > to the goal, not a contract: when this file and a dated report or the code
@@ -119,7 +119,7 @@ sequenceDiagram
 
 The product bet: local inference, cited answers, figures on screen, wifi off.
 
-**Current (2026-10-17):** post-v1. `nekohon_x3` (3.1B, Q4_K_M, 1.93 GB (1,840.5 MiB); renamed from `smallbook_x3` 2026-10-17, same weights) is adopted as the primary desktop answer model (`prompt.ANSWER_MODEL = "nekohon_x3"`), succeeding `smallbook_x2g` and `smallbook_x2d`. `nekohon_x3_mobile` (1.5B, Q4_K_M, 986 MB (940.4 MiB)) serves edge and resource-constrained environments. All edge cases (alphanumeric acronyms, coreference follow-ups, natural comparison grammar, highlight intent) are resolved. Benchmark status: **60/60** Hard Benchmark, **24/24** Highlight Golden, **22/22** HTTP Battery, **385** unit tests across 22 test suites. Report: `artifacts/reports/architecture-and-x3-2026-10-17.md`.
+**Current (2026-10-18):** post-v1 multi-book library. `nekohon_x3` (3.1B, Q4_K_M, 1.93 GB (1,840.5 MiB); renamed from `smallbook_x3` 2026-10-17, same weights) is adopted as the primary desktop answer model (`prompt.ANSWER_MODEL = "nekohon_x3"`), succeeding `smallbook_x2g` and `smallbook_x2d`. `nekohon_x3_mobile` (1.5B, Q4_K_M, 986 MB (940.4 MiB)) serves edge and resource-constrained environments. 3-book catalog (`fde` 1,042 chunks · 111 figures, `quantization` 473 chunks · 76 figures, `ddia` 1,307 chunks · 90 figures; total 2,822 passages and 277 figures across 41 chapters). All edge cases (alphanumeric acronyms, coreference follow-ups, natural comparison grammar, highlight intent) are resolved. Benchmark status: **60/60** Hard Benchmark, **24/24** Highlight Golden, **22/22** HTTP Battery, **32/35 (91.4%)** `adrian-eval.py` across 97 turns, **23/30 (76.7%)** `crossbook-evil-eval.py` across 66 turns, and **385** unit tests across 22 test suites. Reports: `artifacts/reports/architecture-and-x3-2026-10-17.md`, `artifacts/reports/nekohon-multibook-and-perf-2026-10-18.md`.
 
 Two older drafts in `~/.hermes/cache/scratch/hackathon-plan.md` and `hackathon-plan-full.md` disagree with each other. This file replaces both.
 

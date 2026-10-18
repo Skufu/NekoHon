@@ -119,12 +119,26 @@ def main():
         if len(runs) > 2:
             over.append((family, len(runs), sorted(runs)))
 
+    missing = []
+    index_section = index_text.split("## Index", 1)[-1] if "## Index" in index_text else index_text
+    spans = re.findall(r'`([^`]+)`', index_section)
+    for s in spans:
+        for part in re.split(r'[, ]+', s):
+            part = part.strip()
+            if any(part.startswith(prefix) for prefix in ('harnesses/', 'probes/', 'datasets/', 'reports/', 'evidence/', 'plans/', 'validate/')) and not any(ch in part for ch in ('*', '{', '}', '<', '…')):
+                if not (HERE / part).exists():
+                    missing.append(part)
+    missing = sorted(set(missing))
+
     print(f"# prune plan — {len(files)} tracked files, stale-days {args.stale_days}")
     print(f"\n## stale ({len(stale)}) — agents: re-run or ask the user before trusting")
     for name, stamped in sorted(stale):
         print(f"- {name} | {stamped}")
     print(f"\n## unindexed ({len(unindexed)}) — add a README row or delete")
     for name in sorted(unindexed):
+        print(f"- {name}")
+    print(f"\n## missing ({len(missing)}) — rows in README that do not exist on disk")
+    for name in missing:
         print(f"- {name}")
     print(f"\n## unreferenced ({len(unreferenced)}) — candidates; the index row's reason may keep them")
     for name in sorted(unreferenced):

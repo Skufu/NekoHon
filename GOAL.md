@@ -8,7 +8,7 @@ changes.
 
 An offline book companion that answers from the open book, cites the passages
 it used, and shows the figure those passages point at. It runs on weak machines
-— as small a footprint as we can manage — with nothing leaving the machine. It
+— as small a footprint as we can manage — with nothing leaving the machine.
 It should hold for other books, not only this one. A later turn may follow
 the last one — simpler words, the cited passage, the figure — and a refusal
 is still only `Not in this book.`
