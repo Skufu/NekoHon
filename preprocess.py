@@ -43,6 +43,7 @@ and waits for a battery run; `words()` and `normalize()` keep their exact
 behavior until then, because the rare gate rides on the raw df counts.
 """
 
+import functools
 import re
 import unicodedata
 from pathlib import Path
@@ -90,6 +91,7 @@ def words(text):
     return [token.lower() for token in tokens(text)]
 
 
+@functools.lru_cache(maxsize=2048)
 def fold(text):
     """The matching fold: NFKC, typographic punctuation to ASCII, casefolded.
 
@@ -101,6 +103,7 @@ def fold(text):
     return folded.translate(TYPOGRAPHIC).casefold()
 
 
+@functools.lru_cache(maxsize=8192)
 def stem(word):
     """The Snowball English (Porter2) stem of one word.
 
@@ -125,6 +128,7 @@ def stemmed_words(text):
     return [stem(word) for word in words(fold(text))]
 
 
+@functools.lru_cache(maxsize=1024)
 def normalize(text):
     """The dense-channel view: NFKC, then runs of spaces folded to one.
 

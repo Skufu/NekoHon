@@ -9,12 +9,18 @@ import {
   useRef,
   useState,
 } from "react";
+import dynamic from "next/dynamic";
 import TopBar from "@/components/TopBar";
 import Rail from "@/components/Rail";
 import Margin from "@/components/Margin";
 import Lens from "@/components/Lens";
 import Composer from "@/components/Composer";
-import LibraryView from "@/components/LibraryView";
+
+const LibraryView = dynamic(() => import("@/components/LibraryView"), {
+  ssr: false,
+});
+
+const EMPTY_ARRAY: never[] = [];
 import { engineUrl, fetchChunks, type Chunk, type ChunksPayload } from "@/lib/engine";
 import { quotePattern } from "@/lib/quote";
 import {
@@ -214,6 +220,35 @@ export default function Reader({
     return () => mq.removeEventListener("change", update);
   }, []);
 
+  const chunkMap = useMemo(() => {
+    if (!payload) return new Map<string, Chunk>();
+    return new Map(payload.chunks.map((c) => [c.chunk_id, c]));
+  }, [payload]);
+
+  const restoredRef = useRef<string | null>(null);
+
+  // Restore saved reading progress on initial book load
+  useEffect(() => {
+    if (!payload || payload.chunks.length === 0) return;
+    if (restoredRef.current === activeBookId) return;
+
+    const prog = useAsk.getState().bookProgress[activeBookId];
+    if (prog && prog.chunkId && prog.chunkId !== payload.chunks[0].chunk_id) {
+      const timer = setTimeout(() => {
+        const el = document.querySelector(`[data-chunk-id="${CSS.escape(prog.chunkId)}"]`);
+        if (el) {
+          const topOffset = 72;
+          const targetY = Math.max(0, window.scrollY + el.getBoundingClientRect().top - topOffset);
+          window.scrollTo({ top: targetY, behavior: "instant" });
+          restoredRef.current = activeBookId;
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    } else {
+      restoredRef.current = activeBookId;
+    }
+  }, [payload, activeBookId]);
+
   // Track scroll position, active chapter, active chunk, and progress
   useEffect(() => {
     if (!payload || payload.chunks.length === 0) return;
@@ -234,26 +269,49 @@ export default function Reader({
 
       const threshold = window.innerHeight * 0.32;
       const chunks = payload.chunks;
-      let currentChunk = chunks[0];
+      let currentChunk: Chunk | undefined;
 
-      for (const chunk of chunks) {
-        const el = document.querySelector(
-          `[data-chunk-id="${CSS.escape(chunk.chunk_id)}"]`
-        );
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= threshold) {
-            currentChunk = chunk;
-          } else {
-            break;
+      const x = window.innerWidth / 2;
+      const hit = document.elementFromPoint(x, threshold)?.closest<HTMLElement>("[data-chunk-id]");
+      if (hit) {
+        const id = hit.getAttribute("data-chunk-id");
+        if (id) currentChunk = chunkMap.get(id);
+      }
+
+      if (!currentChunk) {
+        const approxIdx = Math.min(chunks.length - 1, Math.max(0, Math.floor(progress * chunks.length)));
+        const start = Math.max(0, approxIdx - 6);
+        const end = Math.min(chunks.length, approxIdx + 7);
+        for (let i = start; i < end; i++) {
+          const chunk = chunks[i];
+          const el = document.querySelector(`[data-chunk-id="${CSS.escape(chunk.chunk_id)}"]`);
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            if (rect.top <= threshold && rect.bottom >= threshold) {
+              currentChunk = chunk;
+              break;
+            }
           }
         }
       }
+      if (!currentChunk) currentChunk = chunks[0];
 
       if (currentChunk) {
         setActiveChunkId(currentChunk.chunk_id);
         setActiveChapter(currentChunk.chapter);
         setActiveHeading(currentChunk.heading);
+
+        const saved = useAsk.getState().bookProgress[activeBookId];
+        if (
+          scrollY === 0 &&
+          saved &&
+          saved.chunkId &&
+          saved.chunkId !== chunks[0].chunk_id &&
+          restoredRef.current !== activeBookId
+        ) {
+          return;
+        }
+
         updateBookProgress(activeBookId, {
           pct: progress,
           chapter: currentChunk.chapter,
@@ -274,7 +332,7 @@ export default function Reader({
       window.removeEventListener("resize", onScroll);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [payload, activeBookId, updateBookProgress]);
+  }, [payload, activeBookId, chunkMap, updateBookProgress]);
 
   // Keyboard navigation shortcuts: [ and ] cycle glosses, Escape clears
   useEffect(() => {
@@ -358,48 +416,26 @@ export default function Reader({
       };
     }
     const threshold = window.innerHeight * 0.35;
-    const chunkMap = new Map(payload.chunks.map((c) => [c.chunk_id, c]));
-    const elements = document.querySelectorAll<HTMLElement>("[data-chunk-id]");
-    let best =
-      payload.chunks.find((c) => c.chunk_id === activeChunkId) ||
-      payload.chunks[0];
-    let bestDist = Infinity;
-
-    for (let i = 0; i < elements.length; i++) {
-      const el = elements[i];
-      const chunkId = el.getAttribute("data-chunk-id");
-      if (!chunkId) continue;
-      const chunk = chunkMap.get(chunkId);
-      if (!chunk) continue;
-
-      const rect = el.getBoundingClientRect();
-      if (rect.top <= threshold && rect.bottom >= threshold) {
+    const hit = document.elementFromPoint(window.innerWidth / 2, threshold)?.closest<HTMLElement>("[data-chunk-id]");
+    if (hit) {
+      const id = hit.getAttribute("data-chunk-id");
+      const c = id ? chunkMap.get(id) : undefined;
+      if (c) {
         return {
-          chunkId: chunk.chunk_id,
-          chapter: chunk.chapter,
-          heading: chunk.heading ?? "",
+          chunkId: c.chunk_id,
+          chapter: c.chapter,
+          heading: c.heading ?? "",
         };
-      }
-
-      let dist = 0;
-      if (threshold < rect.top) {
-        dist = rect.top - threshold;
-      } else if (threshold > rect.bottom) {
-        dist = threshold - rect.bottom;
-      }
-
-      if (dist < bestDist) {
-        bestDist = dist;
-        best = chunk;
       }
     }
 
+    const active = chunkMap.get(activeChunkId) || payload.chunks[0];
     return {
-      chunkId: best.chunk_id,
-      chapter: best.chapter,
-      heading: best.heading ?? "",
+      chunkId: active.chunk_id,
+      chapter: active.chapter,
+      heading: active.heading ?? "",
     };
-  }, [payload, activeChunkId]);
+  }, [payload, chunkMap, activeChunkId]);
 
   // Chapters list for TopBar
   const chapters = useMemo(() => {
@@ -644,9 +680,15 @@ const ChunkBlock = memo(function ChunkBlock({
   at?: number;
   highlightNonce?: number;
 }) {
-  const highlights = useAsk((s) => s.highlights ?? []);
-  const glosses = useAsk((s) => s.glosses ?? []);
-  const activeGlossId = useAsk((s) => s.activeGlossId);
+  const highlights = useAsk((s) => s.highlightsByChunk[chunk.chunk_id] ?? EMPTY_ARRAY);
+  const chunkGlosses = useAsk((s) => s.glossAnchorsByChunk[chunk.chunk_id] ?? EMPTY_ARRAY);
+  const activeGlossId = useAsk((s) => {
+    const activeId = s.activeGlossId;
+    if (!activeId) return null;
+    const glosses = s.glossAnchorsByChunk[chunk.chunk_id];
+    if (!glosses || glosses.length === 0) return null;
+    return glosses.some((g) => g.id === activeId) ? activeId : null;
+  });
   const setActiveGloss = useAsk((s) => s.setActiveGloss);
 
   const paragraphs = useMemo(() => paragraphList(chunk.text), [chunk.text]);
@@ -654,26 +696,15 @@ const ChunkBlock = memo(function ChunkBlock({
   const ref = useRef<HTMLElement | null>(null);
 
   // Separate body vs heading highlights and glosses
-  const userHighlights = useMemo(
-    () => highlights.filter((h) => h.chunkId === chunk.chunk_id),
-    [highlights, chunk.chunk_id]
-  );
   const bodyHighlights = useMemo(
-    () => userHighlights.filter((h) => !isHeadingOffset(h.start)),
-    [userHighlights]
+    () => highlights.filter((h) => !isHeadingOffset(h.start)),
+    [highlights]
   );
   const headingHighlights = useMemo(
-    () => userHighlights.filter((h) => isHeadingOffset(h.start)),
-    [userHighlights]
+    () => highlights.filter((h) => isHeadingOffset(h.start)),
+    [highlights]
   );
 
-  const chunkGlosses = useMemo(
-    () =>
-      glosses.filter(
-        (g) => g.chunkId === chunk.chunk_id || g.endChunkId === chunk.chunk_id
-      ),
-    [glosses, chunk.chunk_id]
-  );
   const bodyGlosses = useMemo(
     () => chunkGlosses.filter((g) => !isHeadingOffset(g.at)),
     [chunkGlosses]
@@ -946,6 +977,7 @@ const ChunkBlock = memo(function ChunkBlock({
             width={figure.width}
             height={figure.height}
             loading="lazy"
+            decoding="async"
             className="chunk-img"
           />
           {figure.caption ? (

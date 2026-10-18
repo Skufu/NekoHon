@@ -46,6 +46,14 @@ export type ChunksPayload = {
   books?: BookCatalogItem[];
 };
 
+export type HealthResponse = {
+  ok?: boolean;
+  ready?: boolean;
+  ollama?: boolean;
+  book_id?: string;
+  books?: BookCatalogItem[];
+};
+
 export function engineUrl(): string {
   if (process.env.NEXT_PUBLIC_ENGINE_URL) return process.env.NEXT_PUBLIC_ENGINE_URL;
   // Anything that is not the engine's own port (8000) is a dev or preview
@@ -56,17 +64,54 @@ export function engineUrl(): string {
   return "";
 }
 
+const chunksCache = new Map<string, ChunksPayload>();
+const chunksInFlight = new Map<string, Promise<ChunksPayload>>();
+
+export function getCachedChunks(bookId = "fde"): ChunksPayload | undefined {
+  return chunksCache.get(bookId);
+}
+
+export function prefetchChunks(bookId = "fde"): void {
+  if (chunksCache.has(bookId) || chunksInFlight.has(bookId)) return;
+  fetchChunks(bookId).catch(() => {});
+}
+
+export async function checkHealth(signal?: AbortSignal): Promise<HealthResponse> {
+  const response = await fetch(`${engineUrl()}/health`, { signal });
+  if (!response.ok) {
+    throw new Error(`health check failed with status ${response.status}`);
+  }
+  return await response.json();
+}
+
 export async function fetchChunks(
   bookId = "fde",
   signal?: AbortSignal
 ): Promise<ChunksPayload> {
-  const query = bookId ? `?book_id=${encodeURIComponent(bookId)}` : "";
-  const response = await fetch(`${engineUrl()}/chunks${query}`, { signal });
-  if (!response.ok) {
-    const data = await response.json().catch(() => null);
-    throw new Error(data?.error || `engine returned ${response.status}`);
+  const cached = chunksCache.get(bookId);
+  if (cached) return cached;
+
+  const inFlight = chunksInFlight.get(bookId);
+  if (inFlight) return inFlight;
+
+  const promise = (async () => {
+    const query = bookId ? `?book_id=${encodeURIComponent(bookId)}` : "";
+    const response = await fetch(`${engineUrl()}/chunks${query}`, { signal });
+    if (!response.ok) {
+      const data = await response.json().catch(() => null);
+      throw new Error(data?.error || `engine returned ${response.status}`);
+    }
+    const data: ChunksPayload = await response.json();
+    chunksCache.set(bookId, data);
+    return data;
+  })();
+
+  chunksInFlight.set(bookId, promise);
+  try {
+    return await promise;
+  } finally {
+    chunksInFlight.delete(bookId);
   }
-  return response.json();
 }
 
 export async function importEpubBook(

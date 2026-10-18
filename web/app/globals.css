@@ -2304,6 +2304,15 @@ mark {
   border-color: var(--rule-strong);
 }
 
+.composer-warming {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--ink-3);
+  padding: 0 4px 0 10px;
+  user-select: none;
+  white-space: nowrap;
+}
+
 .composer-input {
   height: 36px;
   min-width: 0;

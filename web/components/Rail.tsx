@@ -21,7 +21,7 @@ export default function Rail({
   onScrub,
 }: RailProps) {
   const highlights = useAsk((s) => s.highlights ?? []);
-  const glosses = useAsk((s) => s.glosses ?? []);
+  const glossAnchors = useAsk((s) => s.glossAnchors ?? []);
 
   const railRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef(false);
@@ -32,6 +32,12 @@ export default function Rail({
   } | null>(null);
 
   const total = chunks.length || 1;
+
+  const chunkIndexMap = useMemo(() => {
+    const map = new Map<string, number>();
+    chunks.forEach((c, idx) => map.set(c.chunk_id, idx));
+    return map;
+  }, [chunks]);
 
   // Chapter boundaries
   const chapterMarks = useMemo(() => {
@@ -51,29 +57,23 @@ export default function Rail({
 
   // Set of chunk IDs with highlights
   const highlightedChunks = useMemo(() => {
-    const map = new Map<string, number>();
-    chunks.forEach((c, idx) => map.set(c.chunk_id, idx));
-
     return highlights
       .map((h) => {
-        const idx = map.get(h.chunkId);
+        const idx = chunkIndexMap.get(h.chunkId);
         return idx !== undefined ? { id: h.id, pct: (idx / total) * 100 } : null;
       })
       .filter((v): v is { id: string; pct: number } => v !== null);
-  }, [chunks, highlights, total]);
+  }, [chunkIndexMap, highlights, total]);
 
   // Set of chunk IDs with glosses
   const glossChunks = useMemo(() => {
-    const map = new Map<string, number>();
-    chunks.forEach((c, idx) => map.set(c.chunk_id, idx));
-
-    return glosses
+    return glossAnchors
       .map((g) => {
-        const idx = map.get(g.chunkId);
+        const idx = chunkIndexMap.get(g.chunkId);
         return idx !== undefined ? { id: g.id, pct: (idx / total) * 100 } : null;
       })
       .filter((v): v is { id: string; pct: number } => v !== null);
-  }, [chunks, glosses, total]);
+  }, [chunkIndexMap, glossAnchors, total]);
 
   const scrub = (clientY: number) => {
     if (!railRef.current) return;

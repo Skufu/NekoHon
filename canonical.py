@@ -24,6 +24,7 @@ in — two or more connectors, a sentence, an already-spelled-out
 difference question — passes through byte-for-byte.
 """
 
+import functools
 import re
 
 WH = re.compile(r"\b(what|which|when|where|who|whose|why|how)\b")
@@ -86,6 +87,7 @@ def is_incomplete_stem(text):
     return all(w in STEM_WORDS for w in words)
 
 
+@functools.lru_cache(maxsize=512)
 def canonical_query(question):
     """The question the phrase means, or the phrase unchanged.
 

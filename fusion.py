@@ -116,8 +116,8 @@ def fuse(index, question, passages, word_map=None, ranks=None,
     scores = lexical_scores(question, word_map, chunks, ranks, band)
     if not scores:
         return passages
-    ordered = sorted(scores, key=lambda position: (-scores[position], position))
-    candidate = _as_passage(chunks[ordered[0]])
+    best_pos = min(scores, key=lambda position: (-scores[position], position))
+    candidate = _as_passage(chunks[best_pos])
     by_id = {hit["chunk_id"]: hit for hit in passages}
     if candidate["chunk_id"] in by_id:
         return passages

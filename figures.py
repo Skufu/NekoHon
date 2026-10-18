@@ -3,6 +3,7 @@
 The answer still must not describe the pixels. This module only names the file.
 """
 
+import functools
 import re
 import struct
 from pathlib import Path
@@ -16,13 +17,19 @@ FIGURE_RE = re.compile(r"\b(?:Figure|Fig\.)\s+([A-Z]?\d+[-.]\d+)\b", re.I)
 NUMBER_RE = re.compile(r"(?:figure-|fig-)?([a-z]?\d+[-.]\d+)", re.I)
 
 
-def cited_numbers(text):
-    return {
+@functools.lru_cache(maxsize=4096)
+def _cited_numbers_cached(text):
+    return frozenset(
         match.group(1).lower().replace(".", "-")
         for match in FIGURE_RE.finditer(text or "")
-    }
+    )
 
 
+def cited_numbers(text):
+    return set(_cited_numbers_cached(text or ""))
+
+
+@functools.lru_cache(maxsize=512)
 def number_from_id(figure_id):
     """The figure number a passage would cite, letter prefix included.
 
@@ -32,11 +39,20 @@ def number_from_id(figure_id):
     return match.group(1).lower().replace(".", "-") if match else ""
 
 
+_FIG_PATH_CACHE = {}
+
+
 def _figure_path_and_src(figure, figures_dir, book_id=None):
     file_name = figure.get("file") or ""
+    cache_key = (file_name, str(figures_dir), book_id)
+    if cache_key in _FIG_PATH_CACHE:
+        return _FIG_PATH_CACHE[cache_key]
+
     if not file_name:
         src = figure.get("src") or (f"/figures/{figure['id']}?book_id={book_id}" if book_id else f"/figures/{figure['id']}")
-        return None, src
+        res = (None, src)
+        _FIG_PATH_CACHE[cache_key] = res
+        return res
 
     fig_path = None
     if (figures_dir / file_name).is_file():
@@ -76,7 +92,9 @@ def _figure_path_and_src(figure, figures_dir, book_id=None):
             else:
                 src = f"/figures/{figure['id']}"
 
-    return fig_path, src
+    res = (fig_path, src)
+    _FIG_PATH_CACHE[cache_key] = res
+    return res
 
 
 def figures_for(passages, figures, limit=5, figures_dir=None, book_id=None):

@@ -335,6 +335,7 @@ export default function AnswerView({
                     width={figure.width}
                     height={figure.height}
                     loading="lazy"
+                    decoding="async"
                     className="answer-figure-img"
                   />
                   {figure.caption ? (

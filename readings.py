@@ -60,8 +60,19 @@ def _closest(word, vocabulary):
     best_score = 0.0
     best_word = ""
     runner_up = 0.0
+    s = difflib.SequenceMatcher(None, word)
+    l1 = len(word)
     for candidate in vocabulary:
-        score = difflib.SequenceMatcher(None, word, candidate).ratio()
+        l2 = len(candidate)
+        upper = 2 * min(l1, l2) / (l1 + l2)
+        if upper <= runner_up:
+            continue
+        s.set_seq2(candidate)
+        if s.real_quick_ratio() <= runner_up:
+            continue
+        if s.quick_ratio() <= runner_up:
+            continue
+        score = s.ratio()
         if score > best_score:
             best_score, best_word, runner_up = score, candidate, best_score
         elif score > runner_up:

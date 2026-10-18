@@ -21,8 +21,9 @@ stdlib Python.
    unminified code) is several times slower, and :3100 recompiles on every
    edit. The preview server sends `Cache-Control: no-store`, so a rebuilt
    export can never mix with a cached page (a stale `index.html` plus fresh JS
-   chunks is a hydration mismatch). In production the engine will serve
-   `web/out` itself (one URL) — not wired yet.
+   chunks is a hydration mismatch). In production the engine serves
+   `web/out` directly on `http://127.0.0.1:8000/` (one URL) when `npm run build`
+   has been run (falling back to `window/index.html` when `web/out` is absent).
 
 Both `:3100` and `:3200` are CORS-allowlisted on the engine (`server.py`).
 

@@ -206,6 +206,9 @@ npm run dev
 
 Open <http://localhost:3100> in your browser to start reading.
 
+**Production Single-URL Serving:**
+Build the static export once with `cd web && npm run build`. The engine (`server.py`) then serves the full reader interface directly at `http://127.0.0.1:8000/` alongside `/chunks` and `/ask` (one process, one URL, no second terminal required).
+
 ---
 
 ## HTTP Contract (Frozen API)

@@ -25,7 +25,7 @@ Stdlib only. The embedder is injected so tests never call Ollama.
 import math
 
 from figures import cited_numbers, number_from_id
-from retrieve import DEFAULT_EMBEDDER, cosine, embed_texts, ollama_embed
+from retrieve import DEFAULT_EMBEDDER, _dot, cosine, embed_texts, ollama_embed
 
 
 def caption_seed(index, question, passages, model=DEFAULT_EMBEDDER, embed_fn=None):
@@ -53,13 +53,19 @@ def caption_seed(index, question, passages, model=DEFAULT_EMBEDDER, embed_fn=Non
         raise SystemExit(
             "query embedding is empty, non-finite, or all-zero; refusing to rank."
         )
+    q_norm = math.sqrt(_dot(query, query))
+    q_unit = [x / q_norm for x in query] if q_norm > 0.0 else query
     best_figure = None
     best_score = 0.0
     for figure in figures:
-        vector = figure.get("embedding")
-        if not vector:
-            continue
-        score = cosine(query, vector)
+        f_uvec = figure.get("_uvec")
+        if f_uvec is not None:
+            score = _dot(q_unit, f_uvec)
+        else:
+            vector = figure.get("embedding")
+            if not vector:
+                continue
+            score = cosine(query, vector)
         if best_figure is None or score > best_score:
             best_figure, best_score = figure, score
     if best_figure is None or best_score <= top_score:
@@ -70,12 +76,15 @@ def caption_seed(index, question, passages, model=DEFAULT_EMBEDDER, embed_fn=Non
     naming = [
         chunk
         for chunk in chunks
-        if number in cited_numbers(chunk.get("text"))
+        if number in (chunk.get("_cited_numbers") if chunk.get("_cited_numbers") is not None else cited_numbers(chunk.get("text")))
     ]
     if not naming:
         return passages
 
     def relevance(chunk):
+        c_uvec = chunk.get("_uvec")
+        if c_uvec is not None:
+            return _dot(q_unit, c_uvec)
         vector = chunk.get("embedding")
         return cosine(query, vector) if vector else 0.0
 

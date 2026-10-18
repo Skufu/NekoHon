@@ -62,6 +62,7 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
   const setMode = useAsk((s) => s.setMode);
   const submitWholeBook = useAsk((s) => s.submitWholeBook);
   const startQuiz = useAsk((s) => s.startQuiz);
+  const engineReady = useAsk((s) => s.engineReady);
 
   const [draft, setDraft] = useState("");
   const [focused, setFocused] = useState(false);
@@ -87,6 +88,13 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  // Stop health polling on unmount
+  useEffect(() => {
+    return () => {
+      useAsk.getState().stopHealthPolling?.();
+    };
   }, []);
 
   const anchor = getAnchorChunk();
@@ -183,6 +191,11 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
 
       {/* Floating pill bar */}
       <form onSubmit={handleSubmit} className="composer-form">
+        {!engineReady && (
+          <span className="composer-warming" aria-live="polite">
+            Warming up…
+          </span>
+        )}
         <input
           ref={inputRef}
           type="text"
@@ -198,7 +211,8 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
               inputRef.current?.blur();
             }
           }}
-          placeholder="Ask about the whole book… (/ to focus)"
+          placeholder={engineReady ? "Ask about the whole book… (/ to focus)" : "Warming up…"}
+          disabled={!engineReady}
           aria-label="Ask about the whole book"
           className="composer-input"
         />
@@ -217,6 +231,7 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
         <button
           type="button"
           onClick={handleQuiz}
+          disabled={!engineReady}
           title="Start quiz on current chapter passage"
           className="composer-chip"
         >
@@ -226,7 +241,7 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
         {/* Submit arrow button */}
         <button
           type="submit"
-          disabled={!draft.trim()}
+          disabled={!engineReady || !draft.trim()}
           aria-label="Submit question"
           className="composer-submit"
         >

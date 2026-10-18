@@ -12,7 +12,12 @@ NDJSON frames: token, reset (a draft was discarded), final, error.
 import base64
 import gzip
 import json
+import mimetypes
+import os
 import re
+import sys
+import threading
+import time
 import traceback
 import urllib.error
 import urllib.parse
@@ -20,12 +25,16 @@ import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+mimetypes.init()
+
+from retrieve import DEFAULT_EMBEDDER, INDEX, chunks_payload, format_input, load_index
 from answer import ask, explain, ollama_generate_stream, quiz, respond, sanitize_history
 from figures import figure_file
-from prompt import ANSWER_GLOSS_SYSTEM, ANSWER_MODEL, EXPLAIN_GLOSS_SYSTEM, FOLLOWUP_GLOSS_SYSTEM, SYSTEM
-from retrieve import INDEX, chunks_payload, load_index
+from keywords import postings
+from prompt import ANSWER_GLOSS_SYSTEM, ANSWER_MODEL, EXPLAIN_GLOSS_SYSTEM, FOLLOWUP_GLOSS_SYSTEM, OLLAMA_KEEP_ALIVE, SYSTEM
 
 ROOT = Path(__file__).resolve().parent
+WEB_OUT = ROOT / "web" / "out"
 HOST = "127.0.0.1"
 PORT = 8000
 OLLAMA_URL = "http://127.0.0.1:11434/"
@@ -51,6 +60,16 @@ MIME_TYPES = {
 INDEX_CACHE = {}
 CHUNKS_JSON_CACHE = {}
 CHUNKS_GZIP_CACHE = {}
+
+WARM_STATUS = {
+    "done": False,
+    "ok": False,
+    "error": None,
+    "answer_model": ANSWER_MODEL,
+    "embed_model": DEFAULT_EMBEDDER,
+    "models_resident": False,
+    "duration_s": None,
+}
 
 
 def ollama_up(timeout=1.0):
@@ -166,10 +185,13 @@ class Handler(BaseHTTPRequestHandler):
         except (UnicodeDecodeError, ValueError):
             return None
 
-    def _send_bytes(self, status, payload, content_type):
+    def _send_bytes(self, status, payload, content_type, headers=None):
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(payload)))
+        if headers:
+            for k, v in headers.items():
+                self.send_header(k, v)
         self._cors()
         self.end_headers()
         self.wfile.write(payload)
@@ -182,9 +204,14 @@ class Handler(BaseHTTPRequestHandler):
                 "book_id": DEFAULT_BOOK_ID,
                 "ollama": ollama_up(),
                 "books": get_books_catalog(),
+                "warm": dict(WARM_STATUS),
             })
             return
         if route == "/":
+            if (WEB_OUT / "index.html").is_file():
+                page = WEB_OUT / "index.html"
+                self._send_bytes(200, page.read_bytes(), "text/html; charset=utf-8")
+                return
             page = Path(__file__).resolve().parent / "window" / "index.html"
             if not page.is_file():
                 self._send_json(404, {"error": "not found"})
@@ -273,6 +300,33 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(body)
             return
+
+        # Static asset serving for web/out Next.js export
+        if (WEB_OUT / "index.html").is_file():
+            try:
+                base = WEB_OUT.resolve()
+                unquoted = urllib.parse.unquote(route)
+                if "\x00" in unquoted:
+                    self._send_json(404, {"error": "not found"})
+                    return
+                clean_rel = unquoted.replace("\\", "/").lstrip("/")
+                if ":" in clean_rel or clean_rel.startswith("/"):
+                    self._send_json(404, {"error": "not found"})
+                    return
+                candidate = (base / clean_rel).resolve()
+                if candidate.is_file() and candidate.is_relative_to(base):
+                    suffix = candidate.suffix.lower()
+                    guessed_type, _ = mimetypes.guess_type(str(candidate))
+                    content_type = guessed_type or MIME_TYPES.get(suffix, "application/octet-stream")
+                    if content_type.startswith("text/") or content_type in ("application/javascript", "application/json"):
+                        content_type = f"{content_type}; charset=utf-8"
+                    extra_headers = {}
+                    if route.startswith("/_next/static/"):
+                        extra_headers["Cache-Control"] = "public, max-age=31536000, immutable"
+                    self._send_bytes(200, candidate.read_bytes(), content_type, headers=extra_headers)
+                    return
+            except Exception:
+                pass
 
         self._send_json(404, {"error": "not found"})
 
@@ -579,8 +633,126 @@ def chunks_gzip(book_id=None):
     return CHUNKS_GZIP_CACHE.get(book_id)
 
 
+def _do_warmup():
+    t0 = time.time()
+    try:
+        # 1. Warm in-process caches (catalog, index, postings, chunks payload & gzip)
+        catalog = get_books_catalog()
+        for b in catalog:
+            book_id = b.get("book_id") if isinstance(b, dict) else None
+            if book_id:
+                idx = get_book_index(book_id)
+                if idx:
+                    postings(idx)
+                chunks_body(book_id)
+                chunks_gzip(book_id)
+
+        # 2. Check Ollama reachability
+        if not ollama_up():
+            WARM_STATUS["done"] = True
+            WARM_STATUS["error"] = "ollama offline"
+            return
+        WARM_STATUS["ollama"] = True
+
+        # 3. Determine models to warm
+        answer_model = ANSWER_MODEL
+        fde_idx = get_book_index(DEFAULT_BOOK_ID)
+        embed_model = (fde_idx or {}).get("embedder") or DEFAULT_EMBEDDER
+        WARM_STATUS["answer_model"] = answer_model
+        WARM_STATUS["embed_model"] = embed_model
+        keep_alive = os.environ.get("OLLAMA_KEEP_ALIVE", "24h")
+
+        # 4. Warm embedder with SAME options as retrieve.ollama_embed
+        embed_url = "http://127.0.0.1:11434/api/embed"
+        try:
+            probe_input = format_input(embed_model, "query", "warmup")
+        except Exception:
+            probe_input = "warmup"
+        embed_payload = {
+            "model": embed_model,
+            "input": [probe_input],
+            "keep_alive": keep_alive,
+        }
+        embed_req = urllib.request.Request(
+            embed_url,
+            data=json.dumps(embed_payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(embed_req, timeout=30) as resp:
+                resp.read()
+        except Exception as exc:
+            WARM_STATUS["error"] = f"embedder warm failed: {exc}"
+
+        # 5. Warm answer model with SAME options as answer.ollama_generate
+        chat_url = "http://127.0.0.1:11434/api/chat"
+        chat_payload = {
+            "model": answer_model,
+            "stream": False,
+            "think": False,
+            "keep_alive": keep_alive,
+            "options": {"temperature": 0, "num_predict": 1},
+            "messages": [
+                {"role": "user", "content": "1"}
+            ],
+        }
+        chat_req = urllib.request.Request(
+            chat_url,
+            data=json.dumps(chat_payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(chat_req, timeout=60) as resp:
+                resp.read()
+        except Exception as exc:
+            if not WARM_STATUS["error"]:
+                WARM_STATUS["error"] = f"answer model warm failed: {exc}"
+
+        # 6. Verify via /api/ps
+        ps_url = "http://127.0.0.1:11434/api/ps"
+        try:
+            with urllib.request.urlopen(ps_url, timeout=5) as resp:
+                ps_data = json.loads(resp.read().decode("utf-8"))
+                loaded_names = [m.get("name", "") for m in ps_data.get("models", [])]
+                answer_resident = any(
+                    n == answer_model or n.startswith(answer_model + ":")
+                    for n in loaded_names
+                )
+                embed_resident = any(
+                    n == embed_model or n.startswith(embed_model + ":")
+                    for n in loaded_names
+                )
+                WARM_STATUS["models_resident"] = answer_resident and embed_resident
+        except Exception:
+            pass
+
+        if not WARM_STATUS["error"]:
+            WARM_STATUS["ok"] = True
+    except Exception as exc:
+        WARM_STATUS["error"] = str(exc)
+    finally:
+        WARM_STATUS["duration_s"] = round(time.time() - t0, 3)
+        WARM_STATUS["done"] = True
+
+
+def warm_engine(block=False):
+    """Run startup warm-up for in-process caches and Ollama models.
+
+    If block=True, executes synchronously. If block=False, executes in a
+    background daemon thread so the server can begin listening immediately.
+    """
+    if block:
+        _do_warmup()
+        return None
+    t = threading.Thread(target=_do_warmup, daemon=True, name="engine-warmup")
+    t.start()
+    return t
+
+
 def main():
     load_book()
+    block = "--block-warmup" in sys.argv or os.environ.get("WARMUP_BLOCK") == "1"
+    warm_engine(block=block)
     server = ThreadingHTTPServer((HOST, PORT), Handler)
     print(f"nekohon: http://{HOST}:{PORT}  (GET /health, POST /ask; ctrl-c to stop)")
     try:

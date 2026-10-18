@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  memo,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -370,23 +371,65 @@ export default function Margin({
 
       {/* Margin cards */}
       {glosses.map((g) => (
-        <MarginCard
+        <MarginCardItem
           key={g.id}
-          ref={(el) => {
-            if (el) cards.current.set(g.id, el);
-            else cards.current.delete(g.id);
-          }}
           gloss={g}
           top={layout.tops[g.id] ?? 0}
           placed={placed.current.has(g.id)}
           mini={layout.mini[g.id] ?? false}
           active={g.id === activeGlossId}
           hovered={g.id === hoveredGlossId}
-          onSelect={() => setActiveGloss(g.id)}
-          onHover={(h) => setHoveredGloss(h ? g.id : null)}
+          cardsRef={cards}
+          onSelect={setActiveGloss}
+          onHover={setHoveredGloss}
           onHeightChange={schedule}
         />
       ))}
     </div>
   );
 }
+
+const MarginCardItem = memo(function MarginCardItem({
+  gloss,
+  top,
+  placed,
+  mini,
+  active,
+  hovered,
+  cardsRef,
+  onSelect,
+  onHover,
+  onHeightChange,
+}: {
+  gloss: GlossItem;
+  top: number;
+  placed: boolean;
+  mini: boolean;
+  active: boolean;
+  hovered: boolean;
+  cardsRef: React.RefObject<Map<string, HTMLElement>>;
+  onSelect: (id: string) => void;
+  onHover: (id: string | null) => void;
+  onHeightChange: () => void;
+}) {
+  const handleSelect = useCallback(() => onSelect(gloss.id), [onSelect, gloss.id]);
+  const handleHover = useCallback((h: boolean) => onHover(h ? gloss.id : null), [onHover, gloss.id]);
+
+  return (
+    <MarginCard
+      ref={(el) => {
+        if (el) cardsRef.current?.set(gloss.id, el);
+        else cardsRef.current?.delete(gloss.id);
+      }}
+      gloss={gloss}
+      top={top}
+      placed={placed}
+      mini={mini}
+      active={active}
+      hovered={hovered}
+      onSelect={handleSelect}
+      onHover={handleHover}
+      onHeightChange={onHeightChange}
+    />
+  );
+});

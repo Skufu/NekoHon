@@ -1,5 +1,12 @@
 import { create } from "zustand";
-import { askStream, type AnswerBody, type BookCatalogItem, type AskRequest } from "./engine";
+import {
+  askStream,
+  checkHealth,
+  prefetchChunks,
+  type AnswerBody,
+  type BookCatalogItem,
+  type AskRequest,
+} from "./engine";
 import type { MarkerColor, UserHighlight } from "./anchor";
 
 export const DEFAULT_BOOKS: BookCatalogItem[] = [
@@ -96,10 +103,20 @@ export type GlossItem = {
   customHeight?: number;
 };
 
+export type GlossAnchor = {
+  id: string;
+  chunkId: string;
+  endChunkId?: string;
+  chapter: string;
+  heading?: string;
+  quote: string;
+  at?: number;
+};
+
 type InFlightTurn = {
   controller: AbortController;
   ticker: ReturnType<typeof setInterval>;
-  pacerTimer: ReturnType<typeof setInterval> | null;
+  pacerTimer: number | null;
   startedAt: number;
 };
 
@@ -107,7 +124,11 @@ const inFlightMap = new Map<string, InFlightTurn>();
 
 function cleanupFlight(flight: InFlightTurn) {
   if (flight.pacerTimer !== null) {
-    clearInterval(flight.pacerTimer);
+    if (typeof cancelAnimationFrame !== "undefined") {
+      cancelAnimationFrame(flight.pacerTimer);
+    } else {
+      clearTimeout(flight.pacerTimer);
+    }
     flight.pacerTimer = null;
   }
   clearInterval(flight.ticker);
@@ -116,6 +137,42 @@ function cleanupFlight(flight: InFlightTurn) {
 
 function flightKey(glossId: string, turnId: string) {
   return `${glossId}:${turnId}`;
+}
+
+export function buildGlossAnchors(glosses: GlossItem[]): {
+  anchors: GlossAnchor[];
+  byChunk: Record<string, GlossAnchor[]>;
+} {
+  const anchors: GlossAnchor[] = [];
+  const byChunk: Record<string, GlossAnchor[]> = {};
+  for (const g of glosses) {
+    const a: GlossAnchor = {
+      id: g.id,
+      chunkId: g.chunkId,
+      endChunkId: g.endChunkId,
+      chapter: g.chapter,
+      heading: g.heading,
+      quote: g.quote,
+      at: g.at,
+    };
+    anchors.push(a);
+    if (!byChunk[g.chunkId]) byChunk[g.chunkId] = [];
+    byChunk[g.chunkId].push(a);
+    if (g.endChunkId && g.endChunkId !== g.chunkId) {
+      if (!byChunk[g.endChunkId]) byChunk[g.endChunkId] = [];
+      byChunk[g.endChunkId].push(a);
+    }
+  }
+  return { anchors, byChunk };
+}
+
+export function buildHighlightsByChunk(highlights: UserHighlight[]): Record<string, UserHighlight[]> {
+  const byChunk: Record<string, UserHighlight[]> = {};
+  for (const h of highlights) {
+    if (!byChunk[h.chunkId]) byChunk[h.chunkId] = [];
+    byChunk[h.chunkId].push(h);
+  }
+  return byChunk;
 }
 
 type AskStore = {
@@ -132,6 +189,11 @@ type AskStore = {
   updateBookProgress: (bookId: string, progress: { pct: number; chapter: string; chunkId: string }) => void;
   getBookStats: (bookId: string) => { highlightsCount: number; notesCount: number; pct: number; lastChapter: string };
 
+  // Engine readiness state
+  engineReady: boolean;
+  refreshHealth: () => Promise<void>;
+  stopHealthPolling: () => void;
+
   // Appearance state
   theme: ThemeName;
   pen: PenName;
@@ -145,11 +207,14 @@ type AskStore = {
 
   // User highlights
   highlights: UserHighlight[];
+  highlightsByChunk: Record<string, UserHighlight[]>;
   addHighlight: (h: Omit<UserHighlight, "id" | "createdAt">) => string;
   removeHighlight: (id: string) => void;
 
   // Gloss items
   glosses: GlossItem[];
+  glossAnchors: GlossAnchor[];
+  glossAnchorsByChunk: Record<string, GlossAnchor[]>;
   activeGlossId: string | null;
   hoveredGlossId: string | null;
   setActiveGloss: (id: string | null) => void;
@@ -278,13 +343,44 @@ function loadBookState(bookId: string): { highlights: UserHighlight[]; glosses: 
   return { highlights: [], glosses: [] };
 }
 
-function saveProgress(progress: Record<string, { pct: number; chapter: string; chunkId: string; lastReadAt: number }>) {
-  if (typeof window === "undefined") return;
+let saveProgressTimer: ReturnType<typeof setTimeout> | null = null;
+let pendingProgress: Record<string, { pct: number; chapter: string; chunkId: string; lastReadAt: number }> | null = null;
+
+export function flushProgress(): void {
+  if (typeof window === "undefined" || !pendingProgress) return;
+  if (saveProgressTimer) {
+    clearTimeout(saveProgressTimer);
+    saveProgressTimer = null;
+  }
   try {
-    localStorage.setItem("nekohon-progress", JSON.stringify(progress));
+    localStorage.setItem("nekohon-progress", JSON.stringify(pendingProgress));
   } catch {
     // ignore
   }
+  pendingProgress = null;
+}
+
+function saveProgress(progress: Record<string, { pct: number; chapter: string; chunkId: string; lastReadAt: number }>) {
+  if (typeof window === "undefined") return;
+  pendingProgress = progress;
+  if (saveProgressTimer) clearTimeout(saveProgressTimer);
+  saveProgressTimer = setTimeout(() => {
+    flushProgress();
+  }, 1000);
+}
+
+if (typeof window !== "undefined") {
+  const onFlush = () => {
+    flushProgress();
+  };
+  const onVisibilityChange = () => {
+    if (document.visibilityState === "hidden") {
+      flushProgress();
+    }
+  };
+  window.addEventListener("pagehide", onFlush);
+  window.addEventListener("beforeunload", onFlush);
+  document.addEventListener("visibilitychange", onVisibilityChange);
 }
 
 function loadProgress(): Record<string, { pct: number; chapter: string; chunkId: string; lastReadAt: number }> {
@@ -333,15 +429,34 @@ function historyPayload(
   return thread.slice(-2).map(({ question, answer }) => ({ question, answer }));
 }
 
+let healthPollTimer: ReturnType<typeof setTimeout> | null = null;
+let healthPollStart = 0;
+let healthAbortController: AbortController | null = null;
+
+export function stopHealthPolling(): void {
+  if (healthPollTimer) {
+    clearTimeout(healthPollTimer);
+    healthPollTimer = null;
+  }
+  if (healthAbortController) {
+    healthAbortController.abort();
+    healthAbortController = null;
+  }
+  healthPollStart = 0;
+}
+
 export const useAsk = create<AskStore>((set, get) => {
   function syncActiveTurn(glosses: GlossItem[], activeGlossId: string | null) {
     const activeGloss = glosses.find((g) => g.id === activeGlossId) ?? null;
     const activeTurn = activeGloss && activeGloss.turns.length > 0
       ? activeGloss.turns[activeGloss.turns.length - 1]
       : null;
+    const { anchors, byChunk } = buildGlossAnchors(glosses);
 
     set({
       glosses,
+      glossAnchors: anchors,
+      glossAnchorsByChunk: byChunk,
       activeGlossId,
       status: activeTurn ? activeTurn.status : "idle",
       streamText: activeTurn ? activeTurn.streamText : "",
@@ -446,12 +561,17 @@ export const useAsk = create<AskStore>((set, get) => {
 
     const stopPacer = () => {
       if (flight.pacerTimer !== null) {
-        clearInterval(flight.pacerTimer);
+        if (typeof cancelAnimationFrame !== "undefined") {
+          cancelAnimationFrame(flight.pacerTimer);
+        } else {
+          clearTimeout(flight.pacerTimer);
+        }
         flight.pacerTimer = null;
       }
     };
 
     const pacerStep = () => {
+      flight.pacerTimer = null;
       if (targetText.startsWith("[")) {
         const nlIdx = targetText.indexOf("\n");
         if (nlIdx === -1) {
@@ -508,6 +628,10 @@ export const useAsk = create<AskStore>((set, get) => {
             firstToken: activeTurn ? activeTurn.firstToken : state.firstToken,
           };
         });
+
+        if (displayedText.length < targetText.length || finalResult !== null) {
+          ensurePacerRunning();
+        }
       } else if (finalResult !== null) {
         stopPacer();
         clearInterval(flight.ticker);
@@ -579,7 +703,11 @@ export const useAsk = create<AskStore>((set, get) => {
 
     const ensurePacerRunning = () => {
       if (flight.pacerTimer === null) {
-        flight.pacerTimer = setInterval(pacerStep, 20);
+        if (typeof requestAnimationFrame !== "undefined") {
+          flight.pacerTimer = requestAnimationFrame(pacerStep);
+        } else {
+          flight.pacerTimer = setTimeout(pacerStep, 16) as unknown as number;
+        }
       }
     };
 
@@ -756,6 +884,50 @@ export const useAsk = create<AskStore>((set, get) => {
     booksCatalog: DEFAULT_BOOKS,
     bookProgress: {},
 
+    engineReady: true,
+    stopHealthPolling: () => {
+      stopHealthPolling();
+    },
+    refreshHealth: async () => {
+      stopHealthPolling();
+      healthPollStart = Date.now();
+      healthAbortController = new AbortController();
+      const signal = healthAbortController.signal;
+
+      const poll = async (delay = 500): Promise<void> => {
+        // Hard cap: never block longer than 60s before enabling anyway
+        if (Date.now() - healthPollStart >= 60000) {
+          stopHealthPolling();
+          set({ engineReady: true });
+          return;
+        }
+
+        try {
+          const h = await checkHealth(signal);
+          // Only an explicit ready: false from a reachable engine disables input
+          // (missing fields = ready)
+          if (h && h.ready === false) {
+            set({ engineReady: false });
+            // Poll with backoff: e.g. 500 ms -> 1000 ms -> 2000 ms cap
+            const nextDelay = Math.min(delay * 2, 2000);
+            healthPollTimer = setTimeout(() => {
+              poll(nextDelay);
+            }, delay);
+            return;
+          }
+          // Reachable and ready !== false
+          stopHealthPolling();
+          set({ engineReady: true });
+        } catch {
+          // Failed /health fetch (network error / 500 / timeout) must NOT disable input
+          stopHealthPolling();
+          set({ engineReady: true });
+        }
+      };
+
+      await poll(500);
+    },
+
     setBooksCatalog: (booksCatalog) => {
       set({ booksCatalog });
       saveCatalog(booksCatalog);
@@ -774,10 +946,16 @@ export const useAsk = create<AskStore>((set, get) => {
       if (prevBookId === bookId) return;
       saveBookState(prevBookId, get().highlights, get().glosses);
       const nextState = loadBookState(bookId);
+      const { anchors, byChunk: glossByChunk } = buildGlossAnchors(nextState.glosses);
+      const hlByChunk = buildHighlightsByChunk(nextState.highlights);
+      prefetchChunks(bookId);
       set({
         activeBookId: bookId,
         highlights: nextState.highlights,
+        highlightsByChunk: hlByChunk,
         glosses: nextState.glosses,
+        glossAnchors: anchors,
+        glossAnchorsByChunk: glossByChunk,
         activeGlossId: null,
         highlight: null,
         anchor: null,
@@ -790,14 +968,20 @@ export const useAsk = create<AskStore>((set, get) => {
 
     openBook: (bookId) => {
       const prevBookId = get().activeBookId;
+      prefetchChunks(bookId);
       if (prevBookId !== bookId) {
         saveBookState(prevBookId, get().highlights, get().glosses);
         const nextState = loadBookState(bookId);
+        const { anchors, byChunk: glossByChunk } = buildGlossAnchors(nextState.glosses);
+        const hlByChunk = buildHighlightsByChunk(nextState.highlights);
         set({
           activeBookId: bookId,
           viewMode: "reader",
           highlights: nextState.highlights,
+          highlightsByChunk: hlByChunk,
           glosses: nextState.glosses,
+          glossAnchors: anchors,
+          glossAnchorsByChunk: glossByChunk,
           activeGlossId: null,
           highlight: null,
           anchor: null,
@@ -917,6 +1101,8 @@ export const useAsk = create<AskStore>((set, get) => {
       const catalog = loadCatalog();
       const progress = loadProgress();
       const bookState = loadBookState(targetBookId);
+      const { anchors, byChunk: glossByChunk } = buildGlossAnchors(bookState.glosses);
+      const hlByChunk = buildHighlightsByChunk(bookState.highlights);
 
       set({
         theme,
@@ -928,12 +1114,20 @@ export const useAsk = create<AskStore>((set, get) => {
         booksCatalog: catalog,
         bookProgress: progress,
         highlights: bookState.highlights,
+        highlightsByChunk: hlByChunk,
         glosses: bookState.glosses,
+        glossAnchors: anchors,
+        glossAnchorsByChunk: glossByChunk,
+        engineReady: true,
       });
+
+      get().refreshHealth();
+      prefetchChunks(targetBookId);
     },
 
     // User highlights
     highlights: [],
+    highlightsByChunk: {},
     addHighlight: (h) => {
       const current = get().highlights;
       // Check for overlap in same chunk
@@ -951,7 +1145,10 @@ export const useAsk = create<AskStore>((set, get) => {
         if (existing.color === h.color) {
           // Same color -> remove / toggle off
           const next = current.filter((_, idx) => idx !== overlapIndex);
-          set({ highlights: next });
+          set({
+            highlights: next,
+            highlightsByChunk: buildHighlightsByChunk(next),
+          });
           saveBookState(get().activeBookId, next, get().glosses);
           saveHighlights(next);
           return "";
@@ -960,7 +1157,10 @@ export const useAsk = create<AskStore>((set, get) => {
           const next = current.map((item, idx) =>
             idx === overlapIndex ? { ...item, color: h.color } : item
           );
-          set({ highlights: next });
+          set({
+            highlights: next,
+            highlightsByChunk: buildHighlightsByChunk(next),
+          });
           saveBookState(get().activeBookId, next, get().glosses);
           saveHighlights(next);
           return existing.id;
@@ -974,7 +1174,10 @@ export const useAsk = create<AskStore>((set, get) => {
         createdAt: Date.now(),
       };
       const next = [...current, newHl];
-      set({ highlights: next });
+      set({
+        highlights: next,
+        highlightsByChunk: buildHighlightsByChunk(next),
+      });
       saveBookState(get().activeBookId, next, get().glosses);
       saveHighlights(next);
       return id;
@@ -982,13 +1185,18 @@ export const useAsk = create<AskStore>((set, get) => {
 
     removeHighlight: (id) => {
       const next = get().highlights.filter((h) => h.id !== id);
-      set({ highlights: next });
+      set({
+        highlights: next,
+        highlightsByChunk: buildHighlightsByChunk(next),
+      });
       saveBookState(get().activeBookId, next, get().glosses);
       saveHighlights(next);
     },
 
     // Gloss items
     glosses: [],
+    glossAnchors: [],
+    glossAnchorsByChunk: {},
     activeGlossId: null,
     hoveredGlossId: null,
 

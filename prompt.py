@@ -74,3 +74,4 @@ ANSWER_GLOSS_SYSTEM = (
 # Granite was tried and dropped 2026-10-13; that record is in
 # artifacts/reports/, not here.
 ANSWER_MODEL = os.environ.get("ANSWER_MODEL", "nekohon_x3")
+OLLAMA_KEEP_ALIVE = os.environ.get("OLLAMA_KEEP_ALIVE", "24h")

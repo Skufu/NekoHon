@@ -244,13 +244,13 @@ export default function Lens({
       if (!draggingRef.current && !hasNonCollapsed) return;
       draggingRef.current = false;
       if (timer) clearTimeout(timer);
-      timer = setTimeout(evaluate, 10);
+      timer = setTimeout(evaluate, 60);
     };
 
     const onSelectionChange = () => {
       if (draggingRef.current) return;
       if (timer) clearTimeout(timer);
-      timer = setTimeout(evaluate, 140);
+      timer = setTimeout(evaluate, 180);
     };
 
     document.addEventListener("pointerdown", onPointerDown, true);

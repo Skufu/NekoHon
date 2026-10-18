@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useState, useRef, type CSSProperties } from "react";
+import { forwardRef, memo, useState, useRef, type CSSProperties } from "react";
 import AnswerView from "@/components/AnswerView";
 import { formatChapter } from "@/lib/anchor";
 import { useAsk, type GlossItem } from "@/lib/store";
@@ -94,11 +94,20 @@ function getDynamicFollowUps(gloss: GlossItem): string[] {
 
 function renderAnimatedTokens(text: string) {
   const parts = text.split(/(\s+)/);
-  return parts.map((part, i) => (
-    <span key={i} className="stream-token">
-      {part}
-    </span>
-  ));
+  const splitPoint = Math.max(0, parts.length - 12);
+  const older = parts.slice(0, splitPoint).join("");
+  const recent = parts.slice(splitPoint);
+
+  return (
+    <>
+      {older ? <span>{older}</span> : null}
+      {recent.map((part, i) => (
+        <span key={splitPoint + i} className="stream-token">
+          {part}
+        </span>
+      ))}
+    </>
+  );
 }
 
 function renderStreamingText(raw: string) {
@@ -1209,4 +1218,4 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
   );
 });
 
-export default MarginCard;
+export default memo(MarginCard);

@@ -13,7 +13,7 @@ import time
 import urllib.request
 from pathlib import Path
 
-from figures import figure_cards
+from figures import cited_numbers, figure_cards
 from preprocess import normalize
 
 ROOT = Path(__file__).resolve().parent
@@ -42,17 +42,20 @@ PREFIXES = {
 }
 
 
+if hasattr(math, "sumprod"):
+    _dot = math.sumprod
+else:
+    def _dot(a, b):
+        return sum(map(operator.mul, a, b))
+
+
 def cosine(a, b):
     """Length-normalized similarity. Zero-length vectors score 0."""
     if len(a) != len(b) or not a:
         return 0.0
-    dot = 0.0
-    norm_a = 0.0
-    norm_b = 0.0
-    for x, y in zip(a, b):
-        dot += x * y
-        norm_a += x * x
-        norm_b += y * y
+    dot = _dot(a, b)
+    norm_a = _dot(a, a)
+    norm_b = _dot(b, b)
     if norm_a == 0.0 or norm_b == 0.0:
         return 0.0
     return dot / (math.sqrt(norm_a) * math.sqrt(norm_b))
@@ -214,7 +217,68 @@ def embed_index(index, model=DEFAULT_EMBEDDER, embed_fn=None, batch=BATCH, dims=
         figures_done += count
     index["embedder"] = model
     index["embedding_dims"] = width
+    _prepare_index(index)
     return chunks_done, figures_done
+
+
+_INDEX_CACHE = {}
+_MAX_LRU = 256
+_QUERY_UNIT_CACHE = {}
+_RANK_CACHE = {}
+_DENSE_RANK_CACHE = {}
+
+
+def _lru_put(cache, key, value, max_size=_MAX_LRU):
+    if len(cache) >= max_size:
+        try:
+            cache.pop(next(iter(cache)))
+        except Exception:
+            cache.clear()
+    cache[key] = value
+
+
+def _lru_get(cache, key):
+    if key in cache:
+        val = cache.pop(key)
+        cache[key] = val
+        return val
+    return None
+
+
+def _prepare_index(index):
+    """Derive and attach unit vectors, postings, and book forms."""
+    if not isinstance(index, dict):
+        return index
+    chunks = index.get("chunks") or []
+    for chunk in chunks:
+        vector = chunk.get("embedding")
+        if vector is not None:
+            c_unit = chunk.get("_uvec")
+            if c_unit is None or len(c_unit) != len(vector):
+                c_norm = math.sqrt(_dot(vector, vector))
+                c_unit = [y / c_norm for y in vector] if c_norm > 0.0 else vector
+                chunk["_uvec"] = c_unit
+        if chunk.get("text") and "_cited_numbers" not in chunk:
+            chunk["_cited_numbers"] = cited_numbers(chunk.get("text"))
+
+    figures = index.get("figures") or []
+    for figure in figures:
+        f_vec = figure.get("embedding")
+        if f_vec is not None:
+            f_unit = figure.get("_uvec")
+            if f_unit is None or len(f_unit) != len(f_vec):
+                f_norm = math.sqrt(_dot(f_vec, f_vec))
+                f_unit = [y / f_norm for y in f_vec] if f_norm > 0.0 else f_vec
+                figure["_uvec"] = f_unit
+
+    import keywords
+    keywords.postings(index)
+    if "_postings" in index and "_df" not in index:
+        index["_df"] = {w: len(pos) for w, pos in index["_postings"].items()}
+
+    import readings
+    readings._book_forms(index)
+    return index
 
 
 def rank_chunks(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
@@ -222,24 +286,43 @@ def rank_chunks(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
     embed_fn = embed_fn or ollama_embed
     if index.get("embedder") != model:
         raise SystemExit(f"index was embedded with {index.get('embedder')}, not {model}")
-    query = embed_texts([question], model, embed_fn, "query")[0]
-    if (
-        not isinstance(query, list)
-        or not query
-        or any(not math.isfinite(value) for value in query)
-        or all(value == 0.0 for value in query)
-    ):
-        raise SystemExit(
-            "query embedding is empty, non-finite, or all-zero; refusing to rank."
-        )
+
+    use_cache = (embed_fn is ollama_embed)
+    norm_q = normalize(question)
+    rank_key = (id(index), len(index.get("chunks", [])), model, norm_q)
+
+    if use_cache:
+        cached_rank = _lru_get(_RANK_CACHE, rank_key)
+        if cached_rank is not None:
+            return list(cached_rank)
+
+    q_unit = None
+    if use_cache:
+        q_unit = _lru_get(_QUERY_UNIT_CACHE, (model, norm_q))
+
+    if q_unit is None:
+        query = embed_texts([question], model, embed_fn, "query")[0]
+        if (
+            not isinstance(query, list)
+            or not query
+            or any(not math.isfinite(value) for value in query)
+            or all(value == 0.0 for value in query)
+        ):
+            raise SystemExit(
+                "query embedding is empty, non-finite, or all-zero; refusing to rank."
+            )
+        declared = index.get("embedding_dims")
+        if declared and len(query) != declared:
+            raise SystemExit(
+                f"query embedding is {len(query)} wide, index declares {declared}. "
+                "Do not mix vectors."
+            )
+        q_norm = math.sqrt(_dot(query, query))
+        q_unit = [x / q_norm for x in query] if q_norm > 0.0 else query
+        if use_cache:
+            _lru_put(_QUERY_UNIT_CACHE, (model, norm_q), q_unit)
+
     declared = index.get("embedding_dims")
-    if declared and len(query) != declared:
-        raise SystemExit(
-            f"query embedding is {len(query)} wide, index declares {declared}. "
-            "Do not mix vectors."
-        )
-    q_norm = math.sqrt(sum(x * x for x in query))
-    q_unit = [x / q_norm for x in query] if q_norm > 0.0 else query
     ranked = []
     for chunk in index.get("chunks", []):
         vector = chunk.get("embedding")
@@ -252,13 +335,15 @@ def rank_chunks(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
             )
         c_unit = chunk.get("_uvec")
         if c_unit is None or len(c_unit) != len(vector):
-            c_norm = math.sqrt(sum(y * y for y in vector))
+            c_norm = math.sqrt(_dot(vector, vector))
             c_unit = [y / c_norm for y in vector] if c_norm > 0.0 else vector
             chunk["_uvec"] = c_unit
-        score = sum(map(operator.mul, q_unit, c_unit))
+        score = _dot(q_unit, c_unit)
         ranked.append((score, chunk))
-    ranked.sort(key=lambda item: item[0], reverse=True)
-    return ranked
+    ranked.sort(key=operator.itemgetter(0), reverse=True)
+    if use_cache:
+        _lru_put(_RANK_CACHE, rank_key, ranked)
+    return list(ranked)
 
 
 def search(index, question, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K, return_ranks=False):
@@ -295,11 +380,21 @@ def dense_rank(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
     """
     if not index.get("embedder"):
         return {}
+    use_cache = (embed_fn is None or embed_fn is ollama_embed)
+    norm_q = normalize(question)
+    key = (id(index), len(index.get("chunks", [])), model, norm_q)
+    if use_cache:
+        cached = _lru_get(_DENSE_RANK_CACHE, key)
+        if cached is not None:
+            return dict(cached)
     ranked = rank_chunks(index, question, model, embed_fn)
-    return {
+    ranks = {
         chunk["chunk_id"]: position
         for position, (_, chunk) in enumerate(ranked, start=1)
     }
+    if use_cache:
+        _lru_put(_DENSE_RANK_CACHE, key, ranks)
+    return dict(ranks)
 
 
 def smoke(index, questions, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K):
@@ -325,22 +420,51 @@ def smoke(index, questions, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K):
 
 
 def load_index(path):
+    p = Path(path).resolve()
+    if p.is_file():
+        stat = p.stat()
+        mtime_ns = stat.st_mtime_ns
+        size = stat.st_size
+        cache_entry = _INDEX_CACHE.get(str(p))
+        if cache_entry and cache_entry["mtime_ns"] == mtime_ns and cache_entry["size"] == size:
+            return cache_entry["index"]
+        data = json.loads(p.read_text(encoding="utf-8"))
+        _prepare_index(data)
+        _INDEX_CACHE[str(p)] = {"mtime_ns": mtime_ns, "size": size, "index": data}
+        return data
     return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def warm_caches(index_path=INDEX, embedder=DEFAULT_EMBEDDER):
+    """Preload index, unit vectors, postings, book forms, and primed caches."""
+    p = Path(index_path).resolve()
+    if p.is_file():
+        return load_index(p)
+    return None
 
 
 def save_index(path, index):
     clean_index = dict(index)
     clean_index.pop("_book_forms", None)
+    clean_index.pop("_postings", None)
+    clean_index.pop("_df", None)
+    clean_index.pop("_chunk_items", None)
     clean_chunks = []
     for chunk in index.get("chunks", []):
-        if "_uvec" in chunk:
-            c = dict(chunk)
-            c.pop("_uvec", None)
-            clean_chunks.append(c)
-        else:
-            clean_chunks.append(chunk)
+        c = dict(chunk)
+        c.pop("_uvec", None)
+        c.pop("_cited_numbers", None)
+        clean_chunks.append(c)
     clean_index["chunks"] = clean_chunks
-    Path(path).write_text(json.dumps(clean_index), encoding="utf-8")
+    clean_figures = []
+    for figure in index.get("figures", []):
+        f = dict(figure)
+        f.pop("_uvec", None)
+        clean_figures.append(f)
+    clean_index["figures"] = clean_figures
+    p = Path(path).resolve()
+    p.write_text(json.dumps(clean_index), encoding="utf-8")
+    _INDEX_CACHE.pop(str(p), None)
 
 
 def chunks_payload(index):

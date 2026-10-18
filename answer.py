@@ -17,6 +17,7 @@ path now serves what the model was trained on.
 """
 
 import difflib
+import functools
 import json
 import os
 import random
@@ -42,7 +43,160 @@ from intent import (
     split_sentences,
 )
 from keywords import anchor_words, postings, rare
-from preprocess import STOPWORDS, stem, tokens, words
+from preprocess import STOPWORDS, stem as _pre_stem, tokens as _pre_tokens, words as _pre_words
+
+@functools.lru_cache(maxsize=4096)
+def _cached_words(text):
+    return tuple(_pre_words(text))
+
+def words(text):
+    return list(_cached_words(text))
+
+@functools.lru_cache(maxsize=4096)
+def _cached_tokens(text):
+    return tuple(_pre_tokens(text))
+
+def tokens(text):
+    return list(_cached_tokens(text))
+
+@functools.lru_cache(maxsize=4096)
+def stem(word):
+    return _pre_stem(word)
+
+_WHITESPACE_RE = re.compile(r"\s+")
+_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
+_PARAGRAPH_SPLIT_RE = re.compile(r"\n\s*\n")
+_CH_PREFIX_RE = re.compile(r"^\[ch\.", re.I)
+_CH_TAG_STRIP_RE = re.compile(r"\[Ch\.\s*[^\]]+\]\s*", re.I)
+_TAG_AND_QUOTE_RE = re.compile(r"\[Ch\.\s*([^\]]+)\]\s*[\"“](.+?)[\"”]")
+_TAG_SEARCH_RE = re.compile(r"\[Ch\.\s*([^\]]+)\]", re.I)
+_QUOTE_EXTRACT_RE = re.compile(r"[\"“]([^\"“”]+)[\"”]")
+_NORMALIZED_QUOTE_CHARS_RE = re.compile(r"[\s\"'“”]+")
+_TRAP_QUERY_RE = re.compile(r"\b(how\s+much|charge|price|cost\s+per\s+hour|what\s+year|when\s+did|in\s+what\s+year|terraform|script|code|install|download)\b", re.I)
+_WHICH_CHAPTER_RE = re.compile(r"\b(which\s+chapter|where\s+in\s+the\s+book)\b", re.I)
+_CHAPTER_NUM_RE = re.compile(r"\bchapter\s+\d+\b", re.I)
+_CHAPTER_DIGITS_RE = re.compile(r"\bchapter\s+(\d+)\b", re.I)
+_IN_GREATER_DETAIL_RE = re.compile(r"\bin greater detail\b", re.I)
+_OVERHEAD_RE = re.compile(r"\b(overhead|trade-offs|tradeoffs)\b", re.I)
+_OVERHEAD_EXPANDED_RE = re.compile(r"\b(overhead|trade-offs|tradeoffs|latency|throughput)\b", re.I)
+_YEAR_QUERY_RE = re.compile(r"\b(what\s+year|when\s+did|in\s+what\s+year)\b", re.I)
+_YEAR_MATCH_RE = re.compile(r"\b(19|20)\d{2}\b")
+_PRICE_QUERY_RE = re.compile(r"\b(how\s+much|cost\s+per\s+hour|charge|price)\b", re.I)
+_PRICE_MATCH_RE = re.compile(r"(\$|\b(dollar|dollars|cents|cost|charge|price|per\s+hour)\b)", re.I)
+_CODE_QUERY_RE = re.compile(r"\b(terraform|script|code)\b", re.I)
+_CODE_MATCH_RE = re.compile(r"\b(terraform|resource|provider|hcl|script|def |class |function)\b", re.I)
+_TERMINAL_PUNCT_RE = re.compile(r'[.!?]["\'”’]?$')
+_CHAPTER_PREFIX_RE = re.compile(r"^Chapter\s+\d+\b", re.I)
+_WORD_RE = re.compile(r"\w+")
+_WORD_ALPHA_RE = re.compile(r"\b[a-zA-Z]+\b")
+_WORD_ALPHANUM_RE = re.compile(r"\b[a-zA-Z0-9]+\b")
+_NON_WORD_OR_UNDERSCORE_RE = re.compile(r"[^\w\s]|_")
+_REGARDING_PREFIX_RE = re.compile(r"^(?:In\s+.+?,\s+)?[Rr]egarding\s+['\"]?([^:'\"]+)['\"]?\s*:\s*(.+)$")
+_TOPIC_SHIFT_CONCEPT_RE = re.compile(r"^(?:what\s+(?:is|are|was|were)\s+(?:a\s+|an\s+|the\s+)?(?!(?:role|main|key|specific|purpose|point|goal|problem|catch|drawback|advantage|disadvantage|trade-off|difference|reason|stage|step|type|example|takeaway)\b)|define\s+|tell\s+me\s+about\s+)(.+?)\??$", re.I)
+_BOILERPLATE_PROMPT_LEAK_RE = re.compile(r"[,;—–-]?\s*\b(?:do\s+not|don't|never)\s+(?:say|use|repeat|mention|start\s+with|include|write|output)\b[^.?!]*", re.I)
+_IN_THIS_CONTEXT_START_RE = re.compile(r"^[Ii]n this context,?\s*")
+_IN_THIS_CONTEXT_WORD_RE = re.compile(r"\bin this context\b", re.I)
+_HIGHLIGHTED_QUESTION_RE = re.compile(r"\b[Tt]he highlighted question\b")
+_IN_THIS_PASSAGE_START_RE = re.compile(r"^[Ii]n this passage,?\s*")
+_PASSAGE_VERB_RE = re.compile(r"^(?:[Tt]he|[Tt]his)\s+passage\s+(?:states|explains|discusses|describes|refers to|means)\s+")
+_PASSAGE_START_RE = re.compile(r"^(?:[Tt]he|[Tt]his)\s+passage\s+")
+_HIGHLIGHTED_TERM_RE = re.compile(r"\b[Tt]he highlighted (?:text|phrase|sentence|passage|term|concept|word|section)\b")
+_HIGHLIGHTED_NOT_WORD_PHRASE_RE = re.compile(r"\b[Tt]he highlighted(?!\s+(?:word|phrase))\b")
+_REFERS_TO_A_RE = re.compile(r"\brefers to an?\b", re.I)
+_REFERS_TO_THE_RE = re.compile(r"\brefers to the\b", re.I)
+_REFERS_TO_RE = re.compile(r"\brefers to\b", re.I)
+_TRAILING_PREP_WORD_DOT_RE = re.compile(r"\.\s+(?:with|for|in|on|to|by|of|and|or)\s+[A-Za-z0-9_-]+\.$")
+_GIBBERISH_DIGITS_RE = re.compile(r"\b(?:sentence|line|paragraph|passage)\s+\d+\b", re.I)
+_GIBBERISH_NOUN_DIGITS_RE = re.compile(r"\b[A-Za-z]+\s+\d+\s+(?:negative|positive|again|reads?)\b", re.I)
+_ADJACENT_REPEATED_WORD_RE = re.compile(r"\b([A-Za-z]{3,})\s+\1\b", re.I)
+_SENTENCE_DANGLING_END_RE = re.compile(r"\b(?:the|a|an|also|again|to|of|in|for|with|and|or|that)\s*[.?!]$", re.I)
+_META_COMMENTARY_RE = re.compile(r"\b(?:this|the)\s+(?:section|chapter|passage|book|authors?)\s+(?:introduces?|prepares?\s+readers|discusses?|mentions?|is\s+a\s+detour)\b", re.I)
+_POINTER_META_LOCATION_RE = re.compile(r"\b(?:are|is)\s+(?:listed|discussed|covered|described|explained|found|shown|outlined|detailed|introduced)\s+in\s+(?:the|this|chapter|section|figure|part)\b|\b(?:in\s+the\s+introduction|see\s+chapter|see\s+section|see\s+figure|refer\s+to\s+chapter)\b", re.I)
+_PROMPT_LEAKAGE_RE = re.compile(r"\b(?:do\s+not|don't|never)\s+(?:say|use|repeat|mention|start\s+with|include|write|output)\b", re.I)
+_TYPE_2_RE = re.compile(r"\btype[- ]2\b")
+_S3_RE = re.compile(r"\bs3\b")
+_IOPS_RE = re.compile(r"\biops\b")
+_SLA_SLO_RE = re.compile(r"\b(sla|slas|slo|slos)\b")
+_WHO_CREATED_RE = re.compile(r"\bwho\s+(?:created|invented|designed|developed|authored|introduced|wrote|founded|proposed)\b")
+_AUTHOR_NAME_RE = re.compile(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b")
+_DOWNSIDES_RE = re.compile(r"\b(its\s+downsides|its\s+disadvantages|its\s+pros\s+and\s+cons|its\s+drawbacks)\b")
+_WARN_AGAINST_RE = re.compile(r"\b(warn\s+against\s+that|warn\s+about\s+that|caution\s+against\s+that)\b")
+_LATE_DATA_RE = re.compile(r"\b(handle\s+late\s+data|handles\s+late\s+data)\b")
+_THAT_STAGE_RE = re.compile(r"\b(that\s+stage|that\s+phase|that\s+step)\b")
+_THIS_PATTERN_RE = re.compile(r"\b(this\s+architectural\s+pattern|this\s+pattern|this\s+architecture)\b")
+_USING_IT_RE = re.compile(r"\busing\s+it\b")
+_FOR_THIS_THAT_RE = re.compile(r"\bfor\s+(this|that)\b")
+_OPEN_SOURCE_IT_RE = re.compile(r"\bopen-source\s+it\b")
+_HOW_WHAT_IT_RE = re.compile(r"\b(how\s+does|how\s+is|what\s+is|what\s+are|why\s+does|why\s+is)\s+it\b")
+_WHAT_ITS_RE = re.compile(r"\b(what\s+are|what\s+is)\s+its\b")
+_TIER_STAGE_NUM_RE = re.compile(r"\b(type|tier|stage|phase|step)\s*\d+\b")
+_REASONS_QUERY_RE = re.compile(r"\b(specific\s+reasons|reasons|reason|why|main\s+stages|stages|key\s+types|types|characteristics|ways)\b")
+_EXAMPLES_QUERY_RE = re.compile(r"\b(example|examples|instance|illustrate)\b")
+_RISKS_QUERY_RE = re.compile(r"\b(risk|risks|pitfall|pitfalls|bottleneck|bottlenecks|cost|costs|expensive|trade-off|trade-offs|limitation|limitations|downside|downsides|ossification|cliff|mistake|failure)\b")
+_ATTRIBUTION_QUERY_RE = re.compile(r"\b(who\s+created|who\s+introduced|who\s+coined|who\s+founded|who\s+proposed|who\s+invented|creator|inventor|author|authored)\b")
+_ENTITY_PHRASE_RE = re.compile(r"\b([A-Z][a-zA-Z0-9]*(?:[- ](?:[A-Z0-9][a-zA-Z0-9]*|\d+(?:\.\d+)*))+)\b")
+_ACRONYM_MATCH_RE = re.compile(r"\b([A-Z]{2,10}s?)\b")
+_STRIP_PUNCT_RE = re.compile(r"^[^\w]+|[^\w]+$")
+_PUNCT_SPLIT_RE = re.compile(r"[.!?]")
+_MASK_TAG_RE = re.compile(r"\x01([^\x02]*)\x02")
+_DIGITS_RE = re.compile(r"\d+")
+_STRIP_LIST_NUM_RE = re.compile(r"^\s*\d+[.)]\s*")
+_EXAMPLE_PREFIX_STRIP_RE = re.compile(r"^(?:for example|for instance|in addition|specifically),?\s*", re.I)
+_EXTRACT_SUBJ_CAND_RE = re.compile(r"^\s*(?:A|An|The)?\s*([A-Za-z0-9\s_-]{3,40}?)\s+(?:is|are|was|were|provides|serves|enables|means|refers|consists|helps|acts|describes)\b")
+_EXTRACT_SUBJ_WHEN_RE = re.compile(r"\b(?:when|while)\s+(.+)", re.I)
+_EXTRACT_SUBJ_STRIP_ACTION_RE = re.compile(r"^(selecting|evaluating|choosing|designing|building)\s+", re.I)
+_EXTRACT_SUBJ_STRIP_ART_RE = re.compile(r"^(a|an|the)\s+", re.I)
+_EXTRACT_SUBJ_WH_START_RE = re.compile(r"^(what|how|why|where|which|should|tell me about|explain)\s+(?:is|are|was|were|does|do|did|can|could|should)?\s*(?:\b(?:a|an|the|teams|engineers|users|we)\b)?\s*", re.I)
+_EXTRACT_SUBJ_VERB_SPLIT_RE = re.compile(r"\s+(?:sit|sits|used|use|stand for|look|differ|consider|covered)\b", re.I)
+
+_PRONOUNS_SET = frozenset({"this", "it", "that", "they", "these", "those"})
+_DEICTIC_SET_1 = frozenset({"it", "its", "this", "that", "these", "those", "they", "them", "such"})
+_DEICTIC_SET_2 = frozenset({"this", "that", "it", "these", "those"})
+_QUESTION_STARTERS = frozenset({
+    "what", "why", "how", "when", "where", "who", "which",
+    "is", "are", "was", "were", "do", "does", "did",
+    "can", "could", "should", "would", "will", "explain",
+    "describe", "define", "chapter", "section", "figure",
+    "regarding", "about", "compare", "contrast", "differentiate",
+    "distinguish", "versus", "vs",
+})
+_GENERIC_ENTITY_WORDS = frozenset({
+    "type", "types", "kind", "kinds", "level", "levels", "stage", "stages",
+    "phase", "phases", "step", "steps", "chapter", "chapters", "section", "sections",
+    "table", "tables", "figure", "figures", "part", "parts",
+})
+_WH_STARTS = ("what", "which", "who", "whom", "whose", "where", "when", "why", "how")
+_AUX_WORDS = ("is", "are", "was", "were", "do", "does", "did", "can", "could", "should", "would", "will")
+_OPENER_WORDS = ("explain", "describe", "define", "compare", "tell", "show")
+_SUB_PRONOUNS = frozenset({"it", "its", "that", "this", "these", "those"})
+_CAND_PRONOUNS = frozenset({"it", "its", "this", "that"})
+_RISK_KEYWORDS = ("ossification", "cliff", "bottleneck", "bottlenecks", "cost", "costs", "expensive", "risk", "risks", "pitfall", "pitfalls", "trade-off", "trade-offs", "limitation", "limitations", "downside", "downsides")
+_ATTRIBUTION_MARKERS = ("noted", "groundbreaking", "book", "article", "creator", "created", "proposed", "introduced", "author", "by ")
+_WH_QUERY_SET = frozenset({"why", "explain", "how", "what"})
+
+@functools.lru_cache(maxsize=1024)
+def _token_word_pattern(token):
+    return re.compile(rf"\b{re.escape(token)}\b")
+
+@functools.lru_cache(maxsize=512)
+def _selection_word_pattern(sel):
+    return re.compile(rf"\b{re.escape(sel)}\b", re.IGNORECASE)
+
+@functools.lru_cache(maxsize=1024)
+def _heading_prefix_pattern(heading):
+    words_list = heading.split()
+    if not words_list:
+        return None
+    pat_str = r"\s*".join(re.escape(w) for w in words_list)
+    return re.compile(rf"\s*{pat_str}[\s:\u2014-]*", re.I)
+
+@functools.lru_cache(maxsize=512)
+def _words_pattern(quote):
+    words_list = (quote or "").split()
+    if not words_list:
+        return None
+    return re.compile(r"\s+".join(re.escape(w) for w in words_list), re.I)
+
 
 FRAMING_WORDS = frozenset((
     "define", "defines", "defined", "definition",
@@ -104,7 +258,7 @@ SIMPLIFY_RE = re.compile(
     r"\b(simpler\s+words|simplify|break\s+this\s+down|explain\s+this|what\s+does\s+this\s+mean|in\s+simple\s+words)\b",
     re.IGNORECASE,
 )
-TAG_PATTERN = re.compile(r"\[Ch\.\s*([^\]]+)\]")
+TAG_PATTERN = re.compile(r"\[Ch\.\s*([^\]]+)\]", re.I)
 QUOTE_PATTERN = re.compile(r"[\"“]([^\"“”]+)[\"”]")
 ANSWER_REMINDER = (
     "Answer the question directly, in your own words. Cite each claim with "
@@ -367,6 +521,7 @@ def _short_sentence(raw, quote):
     return raw[:1].isupper() and raw.endswith((".", "?", "!"))
 
 
+@functools.lru_cache(maxsize=2048)
 def _strip_figure_refs(text):
     """Drop "(Figure 6-1)" and the like before a quote is matched.
 
@@ -379,8 +534,9 @@ def _strip_figure_refs(text):
     return FIGURE_REFERENCE.sub(" ", text or "")
 
 
+@functools.lru_cache(maxsize=2048)
 def _punctuation_plain(text):
-    return " ".join(re.sub(r"[^\w\s]|_", " ", (text or "").lower()).split())
+    return " ".join(_NON_WORD_OR_UNDERSCORE_RE.sub(" ", (text or "").lower()).split())
 
 
 def _quote_in_passage(quote, text):
@@ -399,8 +555,9 @@ def _quote_in_passage(quote, text):
     )
 
 
+@functools.lru_cache(maxsize=2048)
 def _fold(text):
-    return re.sub(r"\s+", " ", text or "").lower()
+    return _WHITESPACE_RE.sub(" ", text or "").lower()
 
 
 def _original_case(span, text):
@@ -624,10 +781,10 @@ def _whole_paragraph(anchors, paragraph, quote):
     folded = _fold(paragraph)
     folded_quote = _fold(quote)
     for word in anchors:
-        pattern = rf"\b{re.escape(word)}\b"
-        if not re.search(pattern, folded):
+        pat = _token_word_pattern(word)
+        if not pat.search(folded):
             continue
-        if _plural(word) or not re.search(pattern, folded_quote):
+        if _plural(word) or not pat.search(folded_quote):
             return True
     return False
 
@@ -719,11 +876,10 @@ def _after_lead_in(quote, passage_text):
     Empty when the passage ends at the lead-in. Nothing is added that the
     passage does not already contain.
     """
-    words = (quote or "").split()
-    if not words or not passage_text:
+    pat = _words_pattern(quote)
+    if pat is None or not passage_text:
         return ""
-    pattern = r"\s+".join(re.escape(word) for word in words)
-    match = re.search(pattern, passage_text, re.I)
+    match = pat.search(passage_text)
     if not match:
         return ""
     rest = passage_text[match.end():]
@@ -850,11 +1006,11 @@ def _comparison_sides(*texts):
     Either the original question or its canonical rewrite qualifies.
     """
     candidates = [text.strip() for text in texts if text and text.strip()]
-    pronouns = {"this", "it", "that", "they", "these", "those"}
+    pronouns = _PRONOUNS_SET
     for text in candidates:
         prefix_subj = ""
         q_clean = (text or "").strip()
-        m_reg = re.match(r"^(?:In\s+.+?,\s+)?[Rr]egarding\s+['\"]?([^:'\"]+)['\"]?\s*:\s*(.+)$", q_clean)
+        m_reg = _REGARDING_PREFIX_RE.match(q_clean)
         if m_reg:
             prefix_subj = m_reg.group(1).strip()
             q_clean = m_reg.group(2).strip()
@@ -915,7 +1071,7 @@ def _side_covered(tokens, passages):
     """The shown passage holding every token as a whole word, or None."""
     if not tokens:
         return None
-    patterns = [re.compile(rf"\b{re.escape(token)}\b") for token in tokens]
+    patterns = [_token_word_pattern(token) for token in tokens]
     for hit in passages:
         folded = f"{hit.get('heading') or ''} {hit.get('text') or ''}".lower()
         if all(pattern.search(folded) for pattern in patterns):
@@ -930,11 +1086,11 @@ def _covering_quote(tokens, hit):
     passage has no quotable span that names the side.
     """
     text = hit.get("text") or ""
-    patterns = [re.compile(rf"\b{re.escape(token)}\b") for token in tokens]
+    patterns = [_token_word_pattern(token) for token in tokens]
     for sentence in _sentences(text):
         if all(pattern.search(sentence.lower()) for pattern in patterns):
             return _without_heading(sentence, hit)
-    paragraph = re.sub(r"\s+", " ", text).strip()
+    paragraph = _WHITESPACE_RE.sub(" ", text).strip()
     if (
         len(paragraph) <= PARAGRAPH_CAP
         and len(paragraph) >= SPAN_MIN_CHARS
@@ -1003,11 +1159,10 @@ def _without_heading(quote, passage):
     — gets the heading dropped.
     """
     heading = (passage.get("text") or "").split("\n", 1)[0].strip()
-    words = heading.split()
-    if not words:
+    pat = _heading_prefix_pattern(heading)
+    if pat is None:
         return quote
-    pattern = r"\s*".join(re.escape(word) for word in words)
-    match = re.match(rf"\s*{pattern}[\s:\u2014-]*", quote, re.I)
+    match = pat.match(quote)
     if not match:
         return quote
     rest = quote[match.end():].strip()
@@ -1071,47 +1226,34 @@ def _extract_query_entities(q: str, heading: str = "") -> list[str]:
         return []
     normalized_q = fix_acronym_casing(q)
     entities = []
-    QUESTION_STARTERS = frozenset({
-        "what", "why", "how", "when", "where", "who", "which",
-        "is", "are", "was", "were", "do", "does", "did",
-        "can", "could", "should", "would", "will", "explain",
-        "describe", "define", "chapter", "section", "figure",
-        "regarding", "about", "compare", "contrast", "differentiate",
-        "distinguish", "versus", "vs",
-    })
-    GENERIC_ENTITY_WORDS = frozenset({
-        "type", "types", "kind", "kinds", "level", "levels", "stage", "stages",
-        "phase", "phases", "step", "steps", "chapter", "chapters", "section", "sections",
-        "table", "tables", "figure", "figures", "part", "parts",
-    })
     # 1. Multi-word capitalized phrases or hyphenated / numbered terms: "Google Ads", "Type 2", "TLS 1.3", "BWA-MEM"
-    for m in re.finditer(r"\b([A-Z][a-zA-Z0-9]*(?:[- ](?:[A-Z0-9][a-zA-Z0-9]*|\d+(?:\.\d+)*))+)\b", normalized_q):
+    for m in _ENTITY_PHRASE_RE.finditer(normalized_q):
         val = m.group(1).strip()
         parts = val.split()
-        while parts and parts[0].lower() in QUESTION_STARTERS:
+        while parts and parts[0].lower() in _QUESTION_STARTERS:
             parts = parts[1:]
         if len(parts) >= 2:
             val = " ".join(parts)
             if val.lower() not in STOPWORDS:
                 entities.append(val)
-        elif len(parts) == 1 and parts[0].lower() not in STOPWORDS and parts[0].lower() not in QUESTION_STARTERS and parts[0].lower() not in GENERIC_ENTITY_WORDS:
+        elif len(parts) == 1 and parts[0].lower() not in STOPWORDS and parts[0].lower() not in _QUESTION_STARTERS and parts[0].lower() not in _GENERIC_ENTITY_WORDS:
             entities.append(parts[0])
     # 2. Acronyms (e.g. ML, ETL, CRM, CDP, API)
-    for m in re.finditer(r"\b([A-Z]{2,10}s?)\b", normalized_q):
+    for m in _ACRONYM_MATCH_RE.finditer(normalized_q):
         val = m.group(1).strip()
         if val.lower() not in STOPWORDS and val not in entities:
             entities.append(val)
     # 3. Capitalized single words or technical terms (not starters/stopwords/generic category words)
     words_list = normalized_q.split()
     for w in words_list:
-        w_clean = re.sub(r"^[^\w]+|[^\w]+$", "", w)
+        w_clean = _STRIP_PUNCT_RE.sub("", w)
         if (
             w_clean
             and w_clean[0].isupper()
             and w_clean.lower() not in STOPWORDS
             and w_clean.lower() not in FRAMING_WORDS
-            and w_clean.lower() not in QUESTION_STARTERS
-            and w_clean.lower() not in GENERIC_ENTITY_WORDS
+            and w_clean.lower() not in _QUESTION_STARTERS
+            and w_clean.lower() not in _GENERIC_ENTITY_WORDS
         ):
             if not any(w_clean in ent for ent in entities):
                 entities.append(w_clean)
@@ -1167,31 +1309,26 @@ def _clean_boilerplate_gloss(gloss, selection=""):
     if not gloss:
         return ""
     text = (gloss or "").strip()
-    text = re.sub(
-        r"[,;—–-]?\s*\b(?:do\s+not|don't|never)\s+(?:say|use|repeat|mention|start\s+with|include|write|output)\b[^.?!]*",
-        "",
-        text,
-        flags=re.IGNORECASE,
-    )
-    text = re.sub(r"^[Ii]n this context,?\s*", "", text)
-    text = re.sub(r"\bin this context\b", "here", text, flags=re.IGNORECASE)
-    text = re.sub(r"\b[Tt]he highlighted question\b", "The question", text)
-    text = re.sub(r"^[Ii]n this passage,?\s*", "", text)
+    text = _BOILERPLATE_PROMPT_LEAK_RE.sub("", text)
+    text = _IN_THIS_CONTEXT_START_RE.sub("", text)
+    text = _IN_THIS_CONTEXT_WORD_RE.sub("here", text)
+    text = _HIGHLIGHTED_QUESTION_RE.sub("The question", text)
+    text = _IN_THIS_PASSAGE_START_RE.sub("", text)
     if selection:
         sel_words = selection.strip().split()
         replacement = "The highlighted word" if len(sel_words) == 1 else "The highlighted phrase"
-        text = re.sub(r"^(?:[Tt]he|[Tt]his)\s+passage\s+(?:states|explains|discusses|describes|refers to|means)\s+", f"{replacement} ", text)
-        text = re.sub(r"^(?:[Tt]he|[Tt]his)\s+passage\s+", f"{replacement} ", text)
-        text = re.sub(r"\b[Tt]he highlighted (?:text|phrase|sentence|passage|term|concept|word|section)\b", replacement, text)
-        text = re.sub(r"\b[Tt]he highlighted(?!\s+(?:word|phrase))\b", replacement, text)
+        text = _PASSAGE_VERB_RE.sub(f"{replacement} ", text)
+        text = _PASSAGE_START_RE.sub(f"{replacement} ", text)
+        text = _HIGHLIGHTED_TERM_RE.sub(replacement, text)
+        text = _HIGHLIGHTED_NOT_WORD_PHRASE_RE.sub(replacement, text)
     else:
-        text = re.sub(r"^(?:[Tt]he|[Tt]his)\s+passage\s+", "This section ", text)
-        text = re.sub(r"\b[Tt]he highlighted (?:text|phrase|sentence|passage|term|concept|word|section)\b", "This section", text)
-        text = re.sub(r"\b[Tt]he highlighted(?!\s+(?:word|phrase))\b", "This section", text)
-    text = re.sub(r"\brefers to an?\b", "is a", text, flags=re.IGNORECASE)
-    text = re.sub(r"\brefers to the\b", "is the", text, flags=re.IGNORECASE)
-    text = re.sub(r"\brefers to\b", "means", text, flags=re.IGNORECASE)
-    text = re.sub(r"\.\s+(?:with|for|in|on|to|by|of|and|or)\s+[A-Za-z0-9_-]+\.$", ".", text)
+        text = _PASSAGE_START_RE.sub("This section ", text)
+        text = _HIGHLIGHTED_TERM_RE.sub("This section", text)
+        text = _HIGHLIGHTED_NOT_WORD_PHRASE_RE.sub("This section", text)
+    text = _REFERS_TO_A_RE.sub("is a", text)
+    text = _REFERS_TO_THE_RE.sub("is the", text)
+    text = _REFERS_TO_RE.sub("means", text)
+    text = _TRAILING_PREP_WORD_DOT_RE.sub(".", text)
     text = " ".join(text.split()).strip("\"'“”")
     if text:
         text = text[0].upper() + text[1:]
@@ -1207,13 +1344,13 @@ def _is_coherent_gloss(gloss: str, quote: str = "", question: str = "") -> bool:
     if len(text) < 25:
         return False
     # b) gibberish markers: sentence digits or stray standalone digits after nouns
-    if re.search(r"\b(?:sentence|line|paragraph|passage)\s+\d+\b", text, re.IGNORECASE):
+    if _GIBBERISH_DIGITS_RE.search(text):
         return False
-    if re.search(r"\b[A-Za-z]+\s+\d+\s+(?:negative|positive|again|reads?)\b", text, re.IGNORECASE):
+    if _GIBBERISH_NOUN_DIGITS_RE.search(text):
         return False
     # c) any non-stopword content word (len >= 4) appears >= 4 times in a single sentence
     #    or >= 4 times in a 25-word window
-    sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
+    sentences = [s.strip() for s in _SENTENCE_SPLIT_RE.split(text) if s.strip()]
     for s in sentences:
         s_words = [w.lower() for w in words(s) if len(w) >= 4 and w.lower() not in STOPWORDS]
         counts = {}
@@ -1231,24 +1368,19 @@ def _is_coherent_gloss(gloss: str, quote: str = "", question: str = "") -> bool:
             if counts[w] >= 4:
                 return False
     # d) adjacent repeated words
-    if re.search(r"\b([A-Za-z]{3,})\s+\1\b", text, re.IGNORECASE):
+    if _ADJACENT_REPEATED_WORD_RE.search(text):
         return False
     # e) sentence ends with auxiliary/determiner/preposition
-    if re.search(r"\b(?:the|a|an|also|again|to|of|in|for|with|and|or|that)\s*[.?!]$", text, re.IGNORECASE):
+    if _SENTENCE_DANGLING_END_RE.search(text):
         return False
     # f) meta-commentary non-answer
-    if re.search(r"\b(?:this|the)\s+(?:section|chapter|passage|book|authors?)\s+(?:introduces?|prepares?\s+readers|discusses?|mentions?|is\s+a\s+detour)\b", text, re.IGNORECASE):
+    if _META_COMMENTARY_RE.search(text):
         return False
     # Pointer / meta-location non-answers that tell the reader where something is instead of answering
-    if re.search(
-        r"\b(?:are|is)\s+(?:listed|discussed|covered|described|explained|found|shown|outlined|detailed|introduced)\s+in\s+(?:the|this|chapter|section|figure|part)\b"
-        r"|\b(?:in\s+the\s+introduction|see\s+chapter|see\s+section|see\s+figure|refer\s+to\s+chapter)\b",
-        text,
-        re.IGNORECASE,
-    ):
+    if _POINTER_META_LOCATION_RE.search(text):
         return False
     # Prompt leakage non-answers:
-    if not text.lower().startswith("the passages do not mention") and re.search(r"\b(?:do\s+not|don't|never)\s+(?:say|use|repeat|mention|start\s+with|include|write|output)\b", text, re.IGNORECASE):
+    if not text.lower().startswith("the passages do not mention") and _PROMPT_LEAKAGE_RE.search(text):
         return False
     # List enumeration questions check
     if question and _list_ask(question, question):
@@ -1287,7 +1419,7 @@ def _reground_alphanumeric_quote(quote, question, chunk_text):
             for sent in _sentences(text):
                 if ("single value" in sent.lower() or "primary key" in sent.lower()) and "partial" not in sent.lower() and len(sent) >= 30:
                     return _complete_truncated_quote(sent, text)
-    elif re.search(r"\btype[- ]2\b", q_low):
+    elif _TYPE_2_RE.search(q_low):
         if "type 3" in quote.lower() or ("type 2" not in quote.lower() and "type-2" not in quote.lower() and "effective end date" not in quote.lower()):
             for sent in _sentences(text):
                 sent_low = sent.lower()
@@ -1295,30 +1427,30 @@ def _reground_alphanumeric_quote(quote, question, chunk_text):
                     return _complete_truncated_quote(sent, text)
                 if "keep a full history of dimension records" in sent_low or ("effective end date" in sent_low and "new record" in sent_low):
                     return _complete_truncated_quote(sent, text)
-    elif re.search(r"\bs3\b", q_low):
+    elif _S3_RE.search(q_low):
         if not any(k in quote.lower() for k in ("object", "amazon", "cloud", "storage")):
             for sent in _sentences(text):
                 sent_low = sent.lower()
                 if "s3" in sent_low and any(k in sent_low for k in ("amazon", "object", "cloud", "storage")):
                     return _complete_truncated_quote(sent, text)
-    elif re.search(r"\biops\b", q_low):
+    elif _IOPS_RE.search(q_low):
         if "per second" not in quote.lower() and "input/output" not in quote.lower():
             for sent in _sentences(text):
                 sent_low = sent.lower()
                 if "iops" in sent_low and any(k in sent_low for k in ("per second", "input/output", "operations", "bottleneck", "limitation")):
                     return _complete_truncated_quote(sent, text)
-    elif re.search(r"\b(sla|slas|slo|slos)\b", q_low):
-        if not re.search(r"\b(sla|slas|slo|slos)\b", quote.lower()):
+    elif _SLA_SLO_RE.search(q_low):
+        if not _SLA_SLO_RE.search(quote.lower()):
             for sent in _sentences(text):
-                if re.search(r"\b(sla|slas|slo|slos)\b", sent.lower()) and len(sent) >= 30:
+                if _SLA_SLO_RE.search(sent.lower()) and len(sent) >= 30:
                     return _complete_truncated_quote(sent, text)
-    elif re.search(r"\bwho\s+(?:created|invented|designed|developed|authored|introduced|wrote|founded|proposed)\b", q_low):
-        has_author_name = bool(re.search(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", quote))
+    elif _WHO_CREATED_RE.search(q_low):
+        has_author_name = bool(_AUTHOR_NAME_RE.search(quote))
         if not has_author_name:
             for sent in _sentences(text):
                 sent_low = sent.lower()
-                if any(w in sent_low for w in ("noted", "groundbreaking", "book", "article", "creator", "created", "proposed", "introduced", "by ")):
-                    if re.search(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", sent):
+                if any(w in sent_low for w in _ATTRIBUTION_MARKERS):
+                    if _AUTHOR_NAME_RE.search(sent):
                         return _complete_truncated_quote(sent, text)
     return _complete_truncated_quote(quote, text)
 
@@ -1399,17 +1531,17 @@ def _gloss_repeats_quote(gloss: str, quote: str) -> bool:
 def _extract_subject_from_query(s):
     if not s:
         return ""
-    m_when = re.search(r"\b(?:when|while)\s+(.+)", s, re.I)
+    m_when = _EXTRACT_SUBJ_WHEN_RE.search(s)
     if m_when and len(m_when.group(1).split()) >= 2:
         cand = m_when.group(1).rstrip("?.!").strip()
-        cand = re.sub(r"^(selecting|evaluating|choosing|designing|building)\s+", "", cand, flags=re.I)
-        cand = re.sub(r"^(a|an|the)\s+", "", cand, flags=re.I)
+        cand = _EXTRACT_SUBJ_STRIP_ACTION_RE.sub("", cand)
+        cand = _EXTRACT_SUBJ_STRIP_ART_RE.sub("", cand)
         return cand
     q = s.strip().rstrip("?.!")
-    m = re.match(r"^(what|how|why|where|which|should|tell me about|explain)\s+(?:is|are|was|were|does|do|did|can|could|should)?\s*(?:\b(?:a|an|the|teams|engineers|users|we)\b)?\s*", q, re.I)
+    m = _EXTRACT_SUBJ_WH_START_RE.match(q)
     if m:
         q = q[m.end():].strip()
-    q = re.split(r"\s+(?:sit|sits|used|use|stand for|look|differ|consider|covered)\b", q, flags=re.I)[0].strip()
+    q = _EXTRACT_SUBJ_VERB_SPLIT_RE.split(q)[0].strip()
     return q or s
 
 
@@ -1426,31 +1558,25 @@ def _extract_subject_from_history(history):
         if prev_q and not _is_generic_followup(prev_q):
             q_words = prev_q.split()
             first_w = q_words[0].lower() if q_words else ""
-            wh_starts = ("what", "which", "who", "whom", "whose", "where", "when", "why", "how")
-            aux_words = ("is", "are", "was", "were", "do", "does", "did", "can", "could", "should", "would", "will")
-            opener_words = ("explain", "describe", "define", "compare", "tell", "show")
-            if (len(q_words) <= 10 and not any(first_w.startswith(w) for w in wh_starts)
-                    and first_w not in aux_words and first_w not in opener_words):
+            if (len(q_words) <= 10 and not any(first_w.startswith(w) for w in _WH_STARTS)
+                    and first_w not in _AUX_WORDS and first_w not in _OPENER_WORDS):
                 return prev_q.strip(" ?.!\"'")
             sub = _extract_subject_from_query(prev_q)
-            sub_tokens = set(re.findall(r"\b[a-zA-Z]+\b", sub.lower()))
-            if not (sub_tokens & {"it", "its", "that", "this", "these", "those"}):
+            sub_tokens = set(_WORD_ALPHA_RE.findall(sub.lower()))
+            if not (sub_tokens & _SUB_PRONOUNS):
                 return sub
 
     for prev in reversed(clean_history):
         prev_a = (prev.get("answer") or "").strip()
         if prev_a:
-            m_q = re.search(r"\[Ch\.\s*[^\]]+\]\s*[\"“](.+?)[\"”]", prev_a)
+            m_q = _TAG_AND_QUOTE_RE.search(prev_a)
             if m_q:
                 quote = m_q.group(1).strip()
-                m_sub = re.match(
-                    r"^\s*(?:A|An|The)?\s*([A-Za-z0-9\s_-]{3,40}?)\s+(?:is|are|was|were|provides|serves|enables|means|refers|consists|helps|acts|describes)\b",
-                    quote,
-                )
+                m_sub = _EXTRACT_SUBJ_CAND_RE.match(quote)
                 if m_sub:
                     cand = m_sub.group(1).strip()
-                    cand_tokens = set(re.findall(r"\b[a-zA-Z]+\b", cand.lower()))
-                    if not (cand_tokens & {"it", "its", "this", "that"}):
+                    cand_tokens = set(_WORD_ALPHA_RE.findall(cand.lower()))
+                    if not (cand_tokens & _CAND_PRONOUNS):
                         return cand
 
     return _extract_subject_from_query(clean_history[0].get("question") or "")
@@ -1550,11 +1676,7 @@ def _is_topic_shift_followup(question: str, history: list, selection: str = "", 
                 None,
             )
 
-    m_concept = re.match(
-        r"^(?:what\s+(?:is|are|was|were)\s+(?:a\s+|an\s+|the\s+)?(?!(?:role|main|key|specific|purpose|point|goal|problem|catch|drawback|advantage|disadvantage|trade-off|difference|reason|stage|step|type|example|takeaway)\b)|define\s+|tell\s+me\s+about\s+)(.+?)\??$",
-        question.strip(),
-        re.I,
-    )
+    m_concept = _TOPIC_SHIFT_CONCEPT_RE.match(question.strip())
     if m_concept:
         concept_target = m_concept.group(1).strip()
         target_words = {w.lower() for w in words(concept_target) if w.lower() not in STOPWORDS and len(w) >= 2}
@@ -2055,11 +2177,7 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
             if isinstance(h, dict) and (h.get("question") or h.get("answer"))
         ]
         if clean_history:
-            m_concept = re.match(
-                r"^(?:what\s+(?:is|are|was|were)\s+(?:a\s+|an\s+|the\s+)?(?!(?:role|main|key|specific|purpose|point|goal|problem|catch|drawback|advantage|disadvantage|trade-off|difference|reason|stage|step|type|example|takeaway)\b)|define\s+|tell\s+me\s+about\s+)(.+?)\??$",
-                question.strip(),
-                re.I,
-            )
+            m_concept = _TOPIC_SHIFT_CONCEPT_RE.match(question.strip())
             if m_concept:
                 concept_target = m_concept.group(1).strip()
                 target_words = {w.lower() for w in words(concept_target) if w.lower() not in STOPWORDS and len(w) >= 2}
@@ -2273,10 +2391,11 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
     return context
 
 
-def _candidate_sentences(text, heading=""):
+@functools.lru_cache(maxsize=1024)
+def _candidate_sentences_cached(text, heading=""):
     raw = (text or "").strip()
     if not raw:
-        return []
+        return ()
     raw = raw.replace("\r\n", "\n").replace("\r", "\n")
     paragraphs = [p.strip() for p in raw.split("\n\n") if p.strip()]
     raw_candidates = []
@@ -2292,15 +2411,14 @@ def _candidate_sentences(text, heading=""):
                 body_lines.append(line)
         if body_lines:
             body_text = " ".join(body_lines)
-            parts = [s.strip() for s in re.split(r"(?<=[.!?])\s+", body_text) if s.strip()]
+            parts = [s.strip() for s in _SENTENCE_SPLIT_RE.split(body_text) if s.strip()]
             raw_candidates.extend(parts)
 
     if not raw_candidates:
-        return []
+        return ()
 
     head_norm = (heading or "").strip().lower()
-    terminal_punct = re.compile(r'[.!?]["\'”’]?$')
-    has_terminal = any(terminal_punct.search(s.strip()) for s in raw_candidates)
+    has_terminal = any(_TERMINAL_PUNCT_RE.search(s.strip()) for s in raw_candidates)
 
     filtered = []
     for s in raw_candidates:
@@ -2311,14 +2429,17 @@ def _candidate_sentences(text, heading=""):
         if head_norm and s_strip.lower() == head_norm:
             continue
         # b) matches r"^Chapter\s+\d+\b" and does not end with ., !, or ?
-        if re.match(r"^Chapter\s+\d+\b", s_strip, re.I) and not terminal_punct.search(s_strip):
+        if _CHAPTER_PREFIX_RE.match(s_strip) and not _TERMINAL_PUNCT_RE.search(s_strip):
             continue
         # c) does not end with terminal punctuation when there are other sentences that DO
-        if has_terminal and not terminal_punct.search(s_strip):
+        if has_terminal and not _TERMINAL_PUNCT_RE.search(s_strip):
             continue
         filtered.append(s_strip)
 
-    return filtered if filtered else raw_candidates
+    return tuple(filtered if filtered else raw_candidates)
+
+def _candidate_sentences(text, heading=""):
+    return list(_candidate_sentences_cached(text, heading))
 
 
 def _resolve_contextual_query(index, question, pin_chunk=None, selection="",
@@ -2636,7 +2757,7 @@ def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_
             score = 0
 
             # A) Reasons / Specifics / Steps / Types / Stages / Ways
-            if re.search(r"\b(specific\s+reasons|reasons|reason|why|main\s+stages|stages|key\s+types|types|characteristics|ways)\b", q_low):
+            if _REASONS_QUERY_RE.search(q_low):
                 if s_low.startswith(("first,", "first ", "1.", "one reason")):
                     score += 35
                 elif s_low.startswith(("second,", "second ", "2.", "third,", "third ", "another reason")):
@@ -2650,7 +2771,7 @@ def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_
                         score += 15
 
             # B) Concrete Examples
-            if re.search(r"\b(example|examples|instance|illustrate)\b", q_low):
+            if _EXAMPLES_QUERY_RE.search(q_low):
                 if s_low.startswith(("for instance", "for example", "consider", "such as")):
                     score += 35
                 elif any(m in s_low for m in ("for instance", "for example", "such as")):
@@ -2659,19 +2780,19 @@ def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_
                     score += 15
 
             # C) Risks / Pitfalls / Bottlenecks / Costs / Trade-offs / Ossification / Cliff
-            if re.search(r"\b(risk|risks|pitfall|pitfalls|bottleneck|bottlenecks|cost|costs|expensive|trade-off|trade-offs|limitation|limitations|downside|downsides|ossification|cliff|mistake|failure)\b", q_low):
-                for kw in ("ossification", "cliff", "bottleneck", "bottlenecks", "cost", "costs", "expensive", "risk", "risks", "pitfall", "pitfalls", "trade-off", "trade-offs", "limitation", "limitations", "downside", "downsides"):
+            if _RISKS_QUERY_RE.search(q_low):
+                for kw in _RISK_KEYWORDS:
                     if kw in q_low and kw in s_low:
                         score += 30
                     elif kw in s_low:
                         score += 10
 
             # C2) Attribution / Authorship / Creator
-            if re.search(r"\b(who\s+created|who\s+introduced|who\s+coined|who\s+founded|who\s+proposed|who\s+invented|creator|inventor|author|authored)\b", q_low):
-                for marker in ("noted", "groundbreaking", "book", "article", "creator", "created", "proposed", "introduced", "author", "by "):
+            if _ATTRIBUTION_QUERY_RE.search(q_low):
+                for marker in _ATTRIBUTION_MARKERS:
                     if marker in s_low:
                         score += 15
-                if re.search(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", s_clean):
+                if _AUTHOR_NAME_RE.search(s_clean):
                     score += 20
 
             # D) Term / Concept extraction from followup_question
@@ -3164,14 +3285,14 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
                     body["figures"] = figures_for([pin_chunk_obj], index.get("figures") or [])
 
     if clean_history and (resolved_question != question) and not body.get("refused") and not topic_shift:
-        if re.search(r"\b(which\s+chapter|where\s+in\s+the\s+book)\b", question, re.I):
+        if _WHICH_CHAPTER_RE.search(question):
             first_q = body["citations"][0].get("quote", "") if body.get("citations") else ""
-            if not re.search(r"\bchapter\s+\d+\b", first_q, re.I):
+            if not _CHAPTER_NUM_RE.search(first_q):
                 for p in passages:
-                    for sent in re.split(r"(?<=[.!?])\s+", p.get("text") or ""):
-                        if re.search(r"\bin greater detail\b", sent, re.I) and re.search(r"\bchapter\s+\d+\b", sent, re.I):
+                    for sent in _SENTENCE_SPLIT_RE.split(p.get("text") or ""):
+                        if _IN_GREATER_DETAIL_RE.search(sent) and _CHAPTER_NUM_RE.search(sent):
                             sent_clean = sent.strip().strip("\"'“”")
-                            chap_m = re.search(r"\bchapter\s+(\d+)\b", sent_clean, re.I)
+                            chap_m = _CHAPTER_DIGITS_RE.search(sent_clean)
                             chap_num = chap_m.group(1) if chap_m else str(p.get("chapter", ""))
                             body["citations"] = [{
                                 "chunk_id": p.get("chunk_id"),
@@ -3181,15 +3302,15 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
                             body["answer"] = f'[Ch. {p.get("chapter")}] "{sent_clean}"\nChapter {chap_num} covers this in greater detail.'
                             body["refused"] = False
                             break
-                    if body.get("citations") and re.search(r"\bchapter\s+\d+\b", body["citations"][0].get("quote", ""), re.I):
+                    if body.get("citations") and _CHAPTER_NUM_RE.search(body["citations"][0].get("quote", "")):
                         break
 
-        if re.search(r"\b(overhead|trade-offs|tradeoffs)\b", question, re.I):
+        if _OVERHEAD_RE.search(question):
             first_q = body["citations"][0].get("quote", "") if body.get("citations") else ""
-            if not re.search(r"\b(overhead|trade-offs|tradeoffs|latency|throughput)\b", first_q, re.I):
+            if not _OVERHEAD_EXPANDED_RE.search(first_q):
                 for p in passages:
-                    for sent in re.split(r"(?<=[.!?])\s+", p.get("text") or ""):
-                        if re.search(r"\b(overhead|trade-offs|tradeoffs)\b", sent, re.I) and len(sent) >= 30:
+                    for sent in _SENTENCE_SPLIT_RE.split(p.get("text") or ""):
+                        if _OVERHEAD_RE.search(sent) and len(sent) >= 30:
                             sent_clean = sent.strip().strip("\"'“”")
                             body["citations"] = [{
                                 "chunk_id": p.get("chunk_id"),
@@ -3199,7 +3320,7 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
                             body["answer"] = f'[Ch. {p.get("chapter")}] "{sent_clean}"\nManaging this system requires substantial operational overhead and resources.'
                             body["refused"] = False
                             break
-                    if body.get("citations") and re.search(r"\b(overhead|trade-offs|tradeoffs)\b", body["citations"][0].get("quote", ""), re.I):
+                    if body.get("citations") and _OVERHEAD_RE.search(body["citations"][0].get("quote", "")):
                         break
 
         if not body.get("citations"):
@@ -3228,14 +3349,14 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
                     if not has_subj:
                         body = _refusal(passages, figures)
             if not body.get("refused"):
-                if re.search(r"\b(what\s+year|when\s+did|in\s+what\s+year)\b", question, re.I):
-                    if not re.search(r"\b(19|20)\d{2}\b", first_quote):
+                if _YEAR_QUERY_RE.search(question):
+                    if not _YEAR_MATCH_RE.search(first_quote):
                         body = _refusal(passages, figures)
-                elif re.search(r"\b(how\s+much|cost\s+per\s+hour|charge|price)\b", question, re.I):
-                    if not re.search(r"(\$|\b(dollar|dollars|cents|cost|charge|price|per\s+hour)\b)", first_quote, re.I):
+                elif _PRICE_QUERY_RE.search(question):
+                    if not _PRICE_MATCH_RE.search(first_quote):
                         body = _refusal(passages, figures)
-                elif re.search(r"\b(terraform|script|code)\b", question, re.I):
-                    if not re.search(r"\b(terraform|resource|provider|hcl|script|def |class |function)\b", first_quote, re.I):
+                elif _CODE_QUERY_RE.search(question):
+                    if not _CODE_MATCH_RE.search(first_quote):
                         body = _refusal(passages, figures)
     body = _align_citation_to_query_concepts(body, resolved_question, passages)
     if not selection and not clean_history:
@@ -3613,14 +3734,14 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
                     body["figures"] = figures_for([pin_chunk_obj], index.get("figures") or [])
 
     if clean_history and (resolved_question != question) and not body.get("refused") and not topic_shift:
-        if re.search(r"\b(which\s+chapter|where\s+in\s+the\s+book)\b", question, re.I):
+        if _WHICH_CHAPTER_RE.search(question):
             first_q = body["citations"][0].get("quote", "") if body.get("citations") else ""
-            if not re.search(r"\bchapter\s+\d+\b", first_q, re.I):
+            if not _CHAPTER_NUM_RE.search(first_q):
                 for p in passages:
-                    for sent in re.split(r"(?<=[.!?])\s+", p.get("text") or ""):
-                        if re.search(r"\bin greater detail\b", sent, re.I) and re.search(r"\bchapter\s+\d+\b", sent, re.I):
+                    for sent in _SENTENCE_SPLIT_RE.split(p.get("text") or ""):
+                        if _IN_GREATER_DETAIL_RE.search(sent) and _CHAPTER_NUM_RE.search(sent):
                             sent_clean = sent.strip().strip("\"'“”")
-                            chap_m = re.search(r"\bchapter\s+(\d+)\b", sent_clean, re.I)
+                            chap_m = _CHAPTER_DIGITS_RE.search(sent_clean)
                             chap_num = chap_m.group(1) if chap_m else str(p.get("chapter", ""))
                             body["citations"] = [{
                                 "chunk_id": p.get("chunk_id"),
@@ -3630,15 +3751,15 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
                             body["answer"] = f'[Ch. {p.get("chapter")}] "{sent_clean}"\nChapter {chap_num} covers this in greater detail.'
                             body["refused"] = False
                             break
-                    if body.get("citations") and re.search(r"\bchapter\s+\d+\b", body["citations"][0].get("quote", ""), re.I):
+                    if body.get("citations") and _CHAPTER_NUM_RE.search(body["citations"][0].get("quote", "")):
                         break
 
-        if re.search(r"\b(overhead|trade-offs|tradeoffs)\b", question, re.I):
+        if _OVERHEAD_RE.search(question):
             first_q = body["citations"][0].get("quote", "") if body.get("citations") else ""
-            if not re.search(r"\b(overhead|trade-offs|tradeoffs|latency|throughput)\b", first_q, re.I):
+            if not _OVERHEAD_EXPANDED_RE.search(first_q):
                 for p in passages:
-                    for sent in re.split(r"(?<=[.!?])\s+", p.get("text") or ""):
-                        if re.search(r"\b(overhead|trade-offs|tradeoffs)\b", sent, re.I) and len(sent) >= 30:
+                    for sent in _SENTENCE_SPLIT_RE.split(p.get("text") or ""):
+                        if _OVERHEAD_RE.search(sent) and len(sent) >= 30:
                             sent_clean = sent.strip().strip("\"'“”")
                             body["citations"] = [{
                                 "chunk_id": p.get("chunk_id"),
@@ -3648,7 +3769,7 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
                             body["answer"] = f'[Ch. {p.get("chapter")}] "{sent_clean}"\nManaging this system requires substantial operational overhead and resources.'
                             body["refused"] = False
                             break
-                    if body.get("citations") and re.search(r"\b(overhead|trade-offs|tradeoffs)\b", body["citations"][0].get("quote", ""), re.I):
+                    if body.get("citations") and _OVERHEAD_RE.search(body["citations"][0].get("quote", "")):
                         break
 
         if not body.get("citations"):
@@ -3677,14 +3798,14 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
                     if not has_subj:
                         body = _refusal(passages, figures)
             if not body.get("refused"):
-                if re.search(r"\b(what\s+year|when\s+did|in\s+what\s+year)\b", question, re.I):
-                    if not re.search(r"\b(19|20)\d{2}\b", first_quote):
+                if _YEAR_QUERY_RE.search(question):
+                    if not _YEAR_MATCH_RE.search(first_quote):
                         body = _refusal(passages, figures)
-                elif re.search(r"\b(how\s+much|cost\s+per\s+hour|charge|price)\b", question, re.I):
-                    if not re.search(r"(\$|\b(dollar|dollars|cents|cost|charge|price|per\s+hour)\b)", first_quote, re.I):
+                elif _PRICE_QUERY_RE.search(question):
+                    if not _PRICE_MATCH_RE.search(first_quote):
                         body = _refusal(passages, figures)
-                elif re.search(r"\b(terraform|script|code)\b", question, re.I):
-                    if not re.search(r"\b(terraform|resource|provider|hcl|script|def |class |function)\b", first_quote, re.I):
+                elif _CODE_QUERY_RE.search(question):
+                    if not _CODE_MATCH_RE.search(first_quote):
                         body = _refusal(passages, figures)
     body = _align_citation_to_query_concepts(body, resolved_question, passages)
     if not selection and not clean_history:
@@ -3778,9 +3899,10 @@ def _strip_fake_quotes(text, passages):
     return QUOTE_PATTERN.sub(keep, text)
 
 
+@functools.lru_cache(maxsize=2048)
 def _tokens(text):
     """Word set for overlap scoring. Very short words carry little meaning."""
-    return {word for word in _punctuation_plain(text).split() if len(word) > 2}
+    return frozenset(word for word in _punctuation_plain(text).split() if len(word) > 2)
 
 
 
@@ -3808,14 +3930,14 @@ def _sentence_claims(text):
     text still produces no claim.
     """
     masked = TAG_PATTERN.sub(
-        lambda m: "\x01" + re.sub(r"[.!?]", " ", m.group(1)) + "\x02", text
+        lambda m: "\x01" + _PUNCT_SPLIT_RE.sub(" ", m.group(1)) + "\x02", text
     )
     claims = []
     pending = ""
-    for part in re.split(r"(?<=[.!?])\s+", masked):
+    for part in _SENTENCE_SPLIT_RE.split(masked):
         segments = []
         cursor = 0
-        for match in re.finditer(r"\x01([^\x02]*)\x02", part):
+        for match in _MASK_TAG_RE.finditer(part):
             segments.append(("text", part[cursor:match.start()]))
             segments.append(("tag", match.group(1)))
             cursor = match.end()
@@ -3827,8 +3949,8 @@ def _sentence_claims(text):
                 pending = (pending + " " + value).strip()
                 i += 1
                 continue
-            chapters = re.findall(r"\d+", value)
-            claim = re.sub(r"\s+", " ", pending).strip()
+            chapters = _DIGITS_RE.findall(value)
+            claim = _WHITESPACE_RE.sub(" ", pending).strip()
             if not claim:
                 rest = []
                 j = i + 1
@@ -3950,11 +4072,13 @@ def parse_answered(completion, passages, figures=None):
     cleaned_lines = []
     for line in text.splitlines():
         line_clean = line.strip()
-        if not line_clean.startswith("[Ch."):
+        if not _CH_PREFIX_RE.match(line_clean):
             cleaned = _clean_boilerplate_gloss(line_clean)
             if cleaned:
                 cleaned_lines.append(cleaned)
         else:
+            if line_clean.startswith("[ch."):
+                line_clean = "[Ch." + line_clean[4:]
             cleaned_lines.append(line_clean)
     if cleaned_lines:
         text = "\n".join(cleaned_lines)
@@ -4037,21 +4161,22 @@ def _anchor_sentence_for_selection(chunk, selection):
     if not cands:
         return None
 
-    word_pat = re.compile(rf"\b{re.escape(sel)}\b", re.IGNORECASE)
+    word_pat = _selection_word_pattern(sel)
     matched = [s for s in cands if word_pat.search(s)]
 
     if not matched:
         matched = [s for s in cands if sel.lower() in s.lower()]
 
     if not matched:
-        sel_words = set(re.findall(r"\w+", sel.lower()))
+        sel_words = set(_WORD_RE.findall(sel.lower()))
         if sel_words:
+            cand_words = {s: set(_WORD_RE.findall(s.lower())) for s in cands}
             scored_cands = sorted(
                 cands,
-                key=lambda s: len(sel_words & set(re.findall(r"\w+", s.lower()))),
+                key=lambda s: len(sel_words & cand_words[s]),
                 reverse=True,
             )
-            if scored_cands and (sel_words & set(re.findall(r"\w+", scored_cands[0].lower()))):
+            if scored_cands and (sel_words & cand_words[scored_cands[0]]):
                 matched = [scored_cands[0]]
 
     if not matched:
@@ -4486,16 +4611,17 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
 FOOTNOTE_GLUE = re.compile(r"\b[A-Z][a-z]{2,}(\d{1,3})(?=\s+[A-Z][a-z])")
 
 
-def _sentences(text):
+@functools.lru_cache(maxsize=1024)
+def _sentences_cached(text):
     raw = (text or "").strip()
     lines = raw.splitlines()
     if len(lines) > 1 and not lines[0].strip().endswith((".", "?", "!")):
         raw = "\n".join(lines[1:])
-    paragraphs = [p.strip() for p in re.split(r"\n\s*\n", raw) if p.strip()]
+    paragraphs = [p.strip() for p in _PARAGRAPH_SPLIT_RE.split(raw) if p.strip()]
     parts = []
     for para in paragraphs:
-        flat = re.sub(r"\s+", " ", para).strip()
-        for run in re.split(r"(?<=[.!?])\s+", flat):
+        flat = _WHITESPACE_RE.sub(" ", para).strip()
+        for run in _SENTENCE_SPLIT_RE.split(flat):
             cursor = 0
             for match in FOOTNOTE_GLUE.finditer(run):
                 parts.append(run[cursor:match.end()])
@@ -4508,7 +4634,10 @@ def _sentences(text):
             continue
         if sentence[0].isupper() and sentence.endswith((".", "?", "!")):
             sentences.append(sentence)
-    return sentences
+    return tuple(sentences)
+
+def _sentences(text):
+    return list(_sentences_cached(text))
 
 
 WEAK_QUIZ_PREFIXES = (

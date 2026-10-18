@@ -15,6 +15,7 @@ script cannot drift from the app. Works unchanged on Windows and macOS.
 
 import json
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -26,6 +27,38 @@ from verify_index import AXES, audit
 
 MINIMUM_PYTHON = (3, 9)
 TAGS_URL = "http://127.0.0.1:11434/api/tags"
+PS_URL = "http://127.0.0.1:11434/api/ps"
+HEALTH_URL = "http://127.0.0.1:8000/health"
+
+
+def resident_models(timeout=2.0):
+    """Tag names currently resident in Ollama VRAM/memory, or None."""
+    try:
+        with urllib.request.urlopen(PS_URL, timeout=timeout) as response:
+            body = json.loads(response.read().decode("utf-8"))
+    except (urllib.error.URLError, TimeoutError, ValueError):
+        return None
+    return [model.get("name", "") for model in body.get("models", [])]
+
+
+def wait_for_warmup(server_url=HEALTH_URL, timeout=60.0, poll_interval=0.5):
+    """Block until engine server reports warmup complete and models resident."""
+    deadline = time.time() + timeout
+    last_err = None
+    while time.time() < deadline:
+        try:
+            req = urllib.request.Request(server_url, headers={"User-Agent": "preflight-check"})
+            with urllib.request.urlopen(req, timeout=2.0) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                warm = data.get("warm") or {}
+                if warm.get("done"):
+                    if warm.get("ok"):
+                        return True, warm
+                    return False, warm
+        except Exception as e:
+            last_err = e
+        time.sleep(poll_interval)
+    return False, {"error": f"timed out waiting for warmup ({last_err})"}
 
 
 def version_ok(version, minimum=MINIMUM_PYTHON):
@@ -79,6 +112,16 @@ def next_steps(state):
 
 
 def main():
+    if "--wait-warm" in sys.argv:
+        print("waiting for engine warmup on http://127.0.0.1:8000/health...")
+        ok, warm = wait_for_warmup()
+        if ok:
+            print(f"engine warm ok ({warm.get('duration_s', 0)}s): {warm.get('answer_model')} + {warm.get('embed_model')} resident")
+            raise SystemExit(0)
+        else:
+            print(f"engine warmup failed or timed out: {warm}")
+            raise SystemExit(1)
+
     version = (sys.version_info.major, sys.version_info.minor)
     state = {
         "python_ok": version_ok(version),
@@ -112,9 +155,11 @@ def main():
     print(f"index  {'ok' if state['index'] else 'MISSING'}   {INDEX}")
     print(f"ollama {'ok' if state['ollama'] else 'DOWN'}")
     if tags is not None:
+        resident = resident_models()
         for name in (DEFAULT_EMBEDDER, ANSWER_MODEL):
             mark = "ok" if model_present(tags, name) else "MISSING"
-            print(f"model  {mark:<8}{name}")
+            res = " (resident)" if resident and model_present(resident, name) else ""
+            print(f"model  {mark:<8}{name}{res}")
     if state["audit_clean"] is not None:
         print(f"vectors {'clean' if state['audit_clean'] else 'DIRTY'}")
     print("next:")

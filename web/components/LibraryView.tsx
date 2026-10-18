@@ -582,6 +582,10 @@ export default function LibraryView() {
                     <img
                       src={`${engineUrl()}${selectedBook.cover_url}`}
                       alt={selectedBook.title}
+                      width={180}
+                      height={260}
+                      loading="lazy"
+                      decoding="async"
                       className="bookplate-cover-thumb"
                     />
                   )}

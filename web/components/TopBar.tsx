@@ -47,7 +47,7 @@ export default function TopBar({
   const setPen = useAsk((s) => s.setPen);
   const setReadSize = useAsk((s) => s.setReadSize);
 
-  const glosses = useAsk((s) => s.glosses ?? []);
+  const glossCount = useAsk((s) => s.glosses?.length ?? 0);
   const activeGlossId = useAsk((s) => s.activeGlossId);
   const setActiveGloss = useAsk((s) => s.setActiveGloss);
 
@@ -156,10 +156,11 @@ export default function TopBar({
   };
 
   const handleCycleNotes = () => {
-    if (!glosses.length) return;
-    const currentIndex = glosses.findIndex((g) => g.id === activeGlossId);
-    const nextIndex = (currentIndex + 1) % glosses.length;
-    const next = glosses[nextIndex];
+    const list = useAsk.getState().glosses;
+    if (!list.length) return;
+    const currentIndex = list.findIndex((g) => g.id === activeGlossId);
+    const nextIndex = (currentIndex + 1) % list.length;
+    const next = list[nextIndex];
     setActiveGloss(next.id);
     const chunkEl = document.querySelector(
       `[data-chunk-id="${CSS.escape(next.chunkId)}"]`
@@ -322,16 +323,16 @@ export default function TopBar({
 
         {/* Right Side: Notes badge + Aa appearance popover */}
         <div className="topbar-right">
-          {glosses.length > 0 && (
+          {glossCount > 0 && (
             <button
               type="button"
               onClick={handleCycleNotes}
               className="topbar-notes-btn"
               title="Click to cycle notes"
             >
-              <span>{glosses.length}</span>
+              <span>{glossCount}</span>
               <span className="topbar-notes-text">
-                {glosses.length === 1 ? "note" : "notes"}
+                {glossCount === 1 ? "note" : "notes"}
               </span>
             </button>
           )}

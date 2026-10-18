@@ -330,8 +330,79 @@ def run_install(target="all"):
         else:
             print(f"Warning: probe generation returned error: {res}")
 
+    warmup_models(target_answer_model=target if target in MODELS else "nekohon_x3")
+
     print("\n" + "=" * 76)
     print(" Installation finished. To check status: python scripts/setup_models.py --status")
+    print("=" * 76)
+
+
+DEFAULT_EMBEDDER = "nomic-embed-text"
+
+
+def warmup_models(target_answer_model="nekohon_x3", embed_model=DEFAULT_EMBEDDER):
+    """Preload models into Ollama VRAM/memory with exact option parity."""
+    print("\n" + "=" * 76)
+    print(" Warming Ollama models into memory (zero cold-load latency)...")
+    print("=" * 76)
+    keep_alive = os.environ.get("OLLAMA_KEEP_ALIVE", "24h")
+
+    # 1. Warm embedder
+    embed_url = f"{OLLAMA_API_BASE}/api/embed"
+    embed_payload = {
+        "model": embed_model,
+        "input": ["search_query: warmup"],
+        "keep_alive": keep_alive,
+    }
+    req = urllib.request.Request(
+        embed_url,
+        data=json.dumps(embed_payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+    )
+    t0 = time.time()
+    try:
+        with urllib.request.urlopen(req, timeout=30.0) as resp:
+            resp.read()
+        print(f"  [Embedder] {embed_model} warmed into memory ({time.time() - t0:.2f}s)")
+    except Exception as e:
+        print(f"  [Embedder] Warning: failed to warm {embed_model}: {e}")
+
+    # 2. Warm answer model(s)
+    models_to_warm = [target_answer_model] if target_answer_model != "all" else ["nekohon_x3"]
+    chat_url = f"{OLLAMA_API_BASE}/api/chat"
+    for m in models_to_warm:
+        chat_payload = {
+            "model": m,
+            "stream": False,
+            "think": False,
+            "keep_alive": keep_alive,
+            "options": {"temperature": 0, "num_predict": 1},
+            "messages": [{"role": "user", "content": "1"}],
+        }
+        req = urllib.request.Request(
+            chat_url,
+            data=json.dumps(chat_payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+        )
+        t1 = time.time()
+        try:
+            with urllib.request.urlopen(req, timeout=60.0) as resp:
+                resp.read()
+            print(f"  [Answerer] {m} warmed into memory ({time.time() - t1:.2f}s)")
+        except Exception as e:
+            print(f"  [Answerer] Warning: failed to warm {m}: {e}")
+
+    # 3. Verify /api/ps
+    ps_url = f"{OLLAMA_API_BASE}/api/ps"
+    try:
+        with urllib.request.urlopen(ps_url, timeout=5.0) as resp:
+            ps_data = json.loads(resp.read().decode("utf-8"))
+            resident = [mod.get("name", "") for mod in ps_data.get("models", [])]
+            print("\nCurrently resident in Ollama memory:")
+            for r in resident:
+                print(f"  - {r}")
+    except Exception as e:
+        print(f"Warning: could not query /api/ps: {e}")
     print("=" * 76)
 
 
@@ -423,6 +494,7 @@ def main():
     group.add_argument("--status", action="store_true", help="Check local GGUF artifacts, SHA256 hashes, and Ollama status")
     group.add_argument("--install", action="store_true", help="Download missing models and import into local Ollama")
     group.add_argument("--package-release", action="store_true", help="Generate release manifest (data/models/release-manifest.json)")
+    group.add_argument("--warmup", action="store_true", help="Warm models into Ollama memory without reinstalling")
     parser.add_argument("--model", choices=["all", "nekohon_x3", "nekohon_x3_mobile"], default="all", help="Target model")
 
     args = parser.parse_args()
@@ -431,6 +503,8 @@ def main():
         run_install(args.model)
     elif args.package_release:
         run_package_release()
+    elif args.warmup:
+        warmup_models(target_answer_model=args.model if args.model in MODELS else "nekohon_x3")
     else:
         run_status()
 
