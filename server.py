@@ -36,7 +36,50 @@ from prompt import ANSWER_GLOSS_SYSTEM, ANSWER_MODEL, EXPLAIN_GLOSS_SYSTEM, FOLL
 ROOT = Path(__file__).resolve().parent
 WEB_OUT = ROOT / "web" / "out"
 HOST = "127.0.0.1"
-PORT = 8000
+
+
+def parse_port(argv=None, env=None):
+    """Parse and validate server port: --port N CLI arg, else $PORT, else 8000.
+
+    Validates integer in range 1..65535.
+    """
+    if argv is None:
+        argv = sys.argv[1:]
+    if env is None:
+        env = os.environ
+
+    raw_port = None
+    i = 0
+    while i < len(argv):
+        arg = argv[i]
+        if arg == "--port":
+            if i + 1 >= len(argv):
+                raise ValueError("--port requires an integer port argument")
+            raw_port = argv[i + 1]
+            break
+        elif arg.startswith("--port="):
+            raw_port = arg.split("=", 1)[1]
+            break
+        i += 1
+
+    if raw_port is None:
+        raw_port = env.get("PORT")
+
+    if raw_port is None or raw_port == "":
+        return 8000
+
+    try:
+        port = int(raw_port)
+    except (ValueError, TypeError):
+        raise ValueError(f"Invalid port {raw_port!r}: must be an integer")
+
+    if not (1 <= port <= 65535):
+        raise ValueError(f"Port {port} out of range: must be between 1 and 65535")
+
+    return port
+
+
+PORT = parse_port()
 OLLAMA_URL = "http://127.0.0.1:11434/"
 DEFAULT_BOOK_ID = "".join(["f", "d", "e"])
 MODES = ("ask", "answer", "explain", "quiz")
@@ -165,14 +208,15 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Access-Control-Allow-Origin", origin)
             self.send_header("Vary", "Origin")
 
-    def _send_json(self, status, payload):
+    def _send_json(self, status, payload, send_body=True):
         body = json.dumps(payload).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self._cors()
         self.end_headers()
-        self.wfile.write(body)
+        if send_body:
+            self.wfile.write(body)
 
     def _route(self):
         return self.path.partition("?")[0]
@@ -185,7 +229,7 @@ class Handler(BaseHTTPRequestHandler):
         except (UnicodeDecodeError, ValueError):
             return None
 
-    def _send_bytes(self, status, payload, content_type, headers=None):
+    def _send_bytes(self, status, payload, content_type, headers=None, send_body=True):
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(payload)))
@@ -194,9 +238,10 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_header(k, v)
         self._cors()
         self.end_headers()
-        self.wfile.write(payload)
+        if send_body:
+            self.wfile.write(payload)
 
-    def do_GET(self):
+    def _handle_get_or_head(self, send_body=True):
         route = self._route()
         if route == "/health":
             self._send_json(200, {
@@ -205,18 +250,19 @@ class Handler(BaseHTTPRequestHandler):
                 "ollama": ollama_up(),
                 "books": get_books_catalog(),
                 "warm": dict(WARM_STATUS),
-            })
+            }, send_body=send_body)
             return
         if route == "/":
+            headers = {"Cache-Control": "no-store"}
             if (WEB_OUT / "index.html").is_file():
                 page = WEB_OUT / "index.html"
-                self._send_bytes(200, page.read_bytes(), "text/html; charset=utf-8")
+                self._send_bytes(200, page.read_bytes(), "text/html; charset=utf-8", headers=headers, send_body=send_body)
                 return
             page = Path(__file__).resolve().parent / "window" / "index.html"
             if not page.is_file():
-                self._send_json(404, {"error": "not found"})
+                self._send_json(404, {"error": "not found"}, send_body=send_body)
                 return
-            self._send_bytes(200, page.read_bytes(), "text/html; charset=utf-8")
+            self._send_bytes(200, page.read_bytes(), "text/html; charset=utf-8", headers=headers, send_body=send_body)
             return
         if route.startswith("/figures/"):
             parsed = urllib.parse.urlparse(self.path)
@@ -242,11 +288,11 @@ class Handler(BaseHTTPRequestHandler):
                     if cand.is_file():
                         path = cand
                 if path is None:
-                    self._send_json(404, {"error": "not found"})
+                    self._send_json(404, {"error": "not found"}, send_body=send_body)
                     return
                 suffix = path.suffix.lower()
                 kind = MIME_TYPES.get(suffix, "application/octet-stream")
-                self._send_bytes(200, path.read_bytes(), kind)
+                self._send_bytes(200, path.read_bytes(), kind, send_body=send_body)
                 return
 
             path = figure_file(figure_id, (book or {}).get("figures") or [], figures_dir=figures_dir)
@@ -261,11 +307,11 @@ class Handler(BaseHTTPRequestHandler):
                             path = cand
                             break
             if path is None:
-                self._send_json(404, {"error": "not found"})
+                self._send_json(404, {"error": "not found"}, send_body=send_body)
                 return
             suffix = path.suffix.lower()
             kind = MIME_TYPES.get(suffix, "application/octet-stream")
-            self._send_bytes(200, path.read_bytes(), kind)
+            self._send_bytes(200, path.read_bytes(), kind, send_body=send_body)
             return
 
         if route == "/chunks":
@@ -276,7 +322,7 @@ class Handler(BaseHTTPRequestHandler):
             if "gzip" in accept_encoding:
                 gz_body = chunks_gzip(book_id)
                 if gz_body is None:
-                    self._send_json(500, {"error": "missing index"})
+                    self._send_json(500, {"error": "missing index"}, send_body=send_body)
                     return
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -285,12 +331,13 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_header("Content-Length", str(len(gz_body)))
                 self._cors()
                 self.end_headers()
-                self.wfile.write(gz_body)
+                if send_body:
+                    self.wfile.write(gz_body)
                 return
 
             body = chunks_body(book_id)
             if body is None:
-                self._send_json(500, {"error": "missing index"})
+                self._send_json(500, {"error": "missing index"}, send_body=send_body)
                 return
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -298,7 +345,8 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Content-Length", str(len(body)))
             self._cors()
             self.end_headers()
-            self.wfile.write(body)
+            if send_body:
+                self.wfile.write(body)
             return
 
         # Static asset serving for web/out Next.js export
@@ -307,11 +355,11 @@ class Handler(BaseHTTPRequestHandler):
                 base = WEB_OUT.resolve()
                 unquoted = urllib.parse.unquote(route)
                 if "\x00" in unquoted:
-                    self._send_json(404, {"error": "not found"})
+                    self._send_json(404, {"error": "not found"}, send_body=send_body)
                     return
                 clean_rel = unquoted.replace("\\", "/").lstrip("/")
                 if ":" in clean_rel or clean_rel.startswith("/"):
-                    self._send_json(404, {"error": "not found"})
+                    self._send_json(404, {"error": "not found"}, send_body=send_body)
                     return
                 candidate = (base / clean_rel).resolve()
                 if candidate.is_file() and candidate.is_relative_to(base):
@@ -323,17 +371,23 @@ class Handler(BaseHTTPRequestHandler):
                     extra_headers = {}
                     if route.startswith("/_next/static/"):
                         extra_headers["Cache-Control"] = "public, max-age=31536000, immutable"
-                    self._send_bytes(200, candidate.read_bytes(), content_type, headers=extra_headers)
+                    self._send_bytes(200, candidate.read_bytes(), content_type, headers=extra_headers, send_body=send_body)
                     return
             except Exception:
                 pass
 
-        self._send_json(404, {"error": "not found"})
+        self._send_json(404, {"error": "not found"}, send_body=send_body)
+
+    def do_GET(self):
+        self._handle_get_or_head(send_body=True)
+
+    def do_HEAD(self):
+        self._handle_get_or_head(send_body=False)
 
     def do_OPTIONS(self):
         self.send_response(204)
         self._cors()
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Methods", "GET, HEAD, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.send_header("Access-Control-Max-Age", "600")
         self.send_header("Content-Length", "0")
@@ -751,10 +805,15 @@ def warm_engine(block=False):
 
 def main():
     load_book()
+    try:
+        port = parse_port()
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        sys.exit(1)
     block = "--block-warmup" in sys.argv or os.environ.get("WARMUP_BLOCK") == "1"
     warm_engine(block=block)
-    server = ThreadingHTTPServer((HOST, PORT), Handler)
-    print(f"nekohon: http://{HOST}:{PORT}  (GET /health, POST /ask; ctrl-c to stop)")
+    server = ThreadingHTTPServer((HOST, port), Handler)
+    print(f"nekohon: http://{HOST}:{port}  (GET /health, POST /ask; ctrl-c to stop)")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

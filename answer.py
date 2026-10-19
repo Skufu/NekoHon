@@ -2159,7 +2159,8 @@ def _prioritize_phrase_matches(passages, question):
 
 
 def retrieval_context(index, question, search_fn=None, generate_fn=None,
-                      pin_chunk=None, end_chunk_id=None, history=None, selection=""):
+                      pin_chunk=None, end_chunk_id=None, history=None, selection="",
+                      embed_fn=None):
     """The passages the model is shown, after reading, fusion, and seeding.
 
     Shared by ask and respond so both modes see the same evidence; the
@@ -2199,7 +2200,7 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
                                     break
     ranks = None
     if search_fn is None:
-        ranked = rank_chunks(index, question)
+        ranked = rank_chunks(index, question, embed_fn=embed_fn)
         passages = [
             {
                 "score": score,
@@ -2231,16 +2232,26 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
     # becomes the question when it scores strictly better, and the answer says
     # which reading it answered. Nothing is repaired silently.
     best_score = passages[0].get("score", 0.0)
-    reading = second_reading(index, question, best_score, word_map=word_map)
+    try:
+        reading = second_reading(index, question, best_score, word_map=word_map, embed_fn=embed_fn)
+    except TypeError:
+        reading = second_reading(index, question, best_score, word_map=word_map)
     if reading is None:
         # The difflib reading cannot see every typo (measured 2026-10-13:
         # "normilazation", "ingestoin"); the model proposes and the same
         # strict-improvement gate decides. A failed call leaves the literal
         # question standing.
-        reading = llm_second_reading(
-            index, question, best_score,
-            generate_fn=generate_fn, word_map=word_map,
-        )
+        try:
+            reading = llm_second_reading(
+                index, question, best_score,
+                generate_fn=generate_fn, word_map=word_map,
+                embed_fn=embed_fn,
+            )
+        except TypeError:
+            reading = llm_second_reading(
+                index, question, best_score,
+                generate_fn=generate_fn, word_map=word_map,
+            )
     if reading is not None:
         context["reading"] = reading
         context["asked"] = reading["reading"]
@@ -2256,14 +2267,23 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
     if rare(asked, word_map):
         if ranks is not None and asked == question:
             try:
-                passages = fuse(index, asked, passages, word_map, ranks=ranks)
+                passages = fuse(index, asked, passages, word_map, ranks=ranks, embed_fn=embed_fn)
+            except TypeError:
+                try:
+                    passages = fuse(index, asked, passages, word_map, ranks=ranks)
+                except TypeError:
+                    passages = fuse(index, asked, passages, word_map)
+        else:
+            try:
+                passages = fuse(index, asked, passages, word_map, embed_fn=embed_fn)
             except TypeError:
                 passages = fuse(index, asked, passages, word_map)
-        else:
-            passages = fuse(index, asked, passages, word_map)
     # Caption seeding runs last: its measured effect is which chunk leads, and
     # fusion would otherwise be free to demote that lead.
-    passages = caption_seed(index, asked, passages)
+    try:
+        passages = caption_seed(index, asked, passages, embed_fn=embed_fn)
+    except TypeError:
+        passages = caption_seed(index, asked, passages)
     passages = _prioritize_phrase_matches(passages, asked)
 
     clean_history = [
@@ -3099,7 +3119,7 @@ def _maybe_enrich_contextual_gloss(index, body, resolved_question, passages,
 
 def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
         canonical=True, history=None, pin_chunk=None, selection="", heading="",
-        end_chunk_id=None):
+        end_chunk_id=None, embed_fn=None):
     if is_prompt_injection(question):
         return _refusal([])
     question = sanitize_query(question)
@@ -3185,6 +3205,7 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
     context = retrieval_context(
         index, asked_form, search_fn, generate_fn, pin_chunk=effective_pin,
         end_chunk_id=end_chunk_id, history=history, selection=selection,
+        embed_fn=embed_fn,
     )
     passages = context["passages"]
     if not passages:
@@ -3529,7 +3550,7 @@ def _retry_uncited(question, passages, figures, generate_fn, model, history=None
 
 def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
             canonical=True, history=None, pin_chunk=None, selection="", heading="",
-            end_chunk_id=None):
+            end_chunk_id=None, embed_fn=None):
     """Free-generation answer from the retrieved passages.
 
     No quote enforcement: the model answers, its [Ch. n] tags become the
@@ -3628,6 +3649,7 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
     context = retrieval_context(
         index, asked_form, search_fn, generate_fn, pin_chunk=effective_pin,
         end_chunk_id=end_chunk_id, history=history, selection=selection,
+        embed_fn=embed_fn,
     )
     passages = context["passages"]
     if not passages:
@@ -4344,7 +4366,7 @@ def _cross_chunk_quotes(chunk1, chunk2, selection):
 
 
 def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
-            chunk_id=None, heading="", end_chunk_id=None):
+            chunk_id=None, heading="", end_chunk_id=None, embed_fn=None):
     """The highlight is the question. The neighborhood is the passages.
 
     A short highlight is asked as a question. The chunk the reader selected
@@ -4475,6 +4497,7 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
     body = ask(
         index, question, generate_fn, search_fn, model,
         canonical=False, pin_chunk=chunk_id, end_chunk_id=end_chunk_id,
+        embed_fn=embed_fn,
     )
 
     if pin_chunk_obj is not None and anchor_quote:

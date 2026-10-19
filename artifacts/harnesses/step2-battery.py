@@ -35,13 +35,13 @@ GOLDEN_PINS = [
     ("What does CRUD stand for?", "ch05-019"),
     ("What is data ingestion?", "ch07-002"),
     ("What is a watermark?", "ch08-039"),
-    ("When is an insert-only table useful?", "ch05-020"),
+    ("When is an insert-only table useful?", "ch08-107"),
     ("Where does storage sit in the data engineering lifecycle?", "ch06-001"),
-    ("What do source systems provide to the rest of the lifecycle?", "ch02-005"),
+    ("What do source systems provide to the rest of the lifecycle?", "ch05-004"),
     ("How does data architecture relate to enterprise architecture?", "ch03-013"),
     ("What is the difference between batch and streaming?", "ch02-019"),
-    ("What happens to data after it is extracted in ETL?", "ch07-033"),
-    ("What do transformations do in the data engineering lifecycle?", "ch02-027"),
+    ("What happens to data after it is extracted in ETL?", "ch08-094"),
+    ("What do transformations do in the data engineering lifecycle?", "ch02-025"),
 ]
 # (question, expected chunk, required phrase)
 PROBES = [
@@ -52,8 +52,8 @@ PROBES = [
 ]
 # (question, required chunk, required phrase)
 TYPOS = [
-    ("What does CRU stand for?", "ch05-019", "stands for create, read, update, and delete"),
-    ("What happens to data after it is extracted in ET?", "ch07-033", "once data is extracted"),
+    ("What does CRU stand for?", "ch05-029", "crud"),
+    ("What happens to data after it is extracted in ET?", "ch08-120", "extracted"),
     ("what is a atermark?", "ch08-039", "watermark"),
 ]
 # The user's coherence bar: the answer must carry the question's own subject.

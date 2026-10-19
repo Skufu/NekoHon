@@ -269,9 +269,12 @@ def main():
     err_file = runs_dir / "stage1-server.err"
 
     print(f"[launcher] Starting server on http://{HOST}:{port}...")
-    server_cmd = [sys.executable, "server.py"]
+    server_cmd = [sys.executable, "server.py", "--port", str(port)]
     server_env = os.environ.copy()
     server_env["PORT"] = str(port)
+    flags = 0
+    if sys.platform == "win32":
+        flags = subprocess.CREATE_NEW_PROCESS_GROUP | getattr(subprocess, "DETACHED_PROCESS", 0x00000008)
     with open(out_file, "a", encoding="utf-8") as out, open(err_file, "a", encoding="utf-8") as err:
         subprocess.Popen(
             server_cmd,
@@ -279,6 +282,7 @@ def main():
             stdout=out,
             stderr=err,
             env=server_env,
+            creationflags=flags,
         )
 
     # 4. Block readiness until warmup completes

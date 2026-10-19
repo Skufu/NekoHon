@@ -56,9 +56,10 @@ export type HealthResponse = {
 
 export function engineUrl(): string {
   if (process.env.NEXT_PUBLIC_ENGINE_URL) return process.env.NEXT_PUBLIC_ENGINE_URL;
-  // Anything that is not the engine's own port (8000) is a dev or preview
-  // server: call the engine where it lives. Served by the engine = same origin.
-  if (typeof window !== "undefined" && window.location.port !== "8000") {
+  // Next.js dev server runs on :3100 (hot reload). Target the engine on :8000.
+  // When served by the engine (production static export on :8000, :8020, etc.),
+  // the page is same-origin, so use relative URLs ("").
+  if (typeof window !== "undefined" && window.location.port === "3100") {
     return "http://127.0.0.1:8000";
   }
   return "";

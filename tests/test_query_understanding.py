@@ -181,8 +181,13 @@ class QueryUnderstandingSyntheticTests(unittest.TestCase):
         )
 
         # 3. Explain endpoint suppresses figure-4-1 and grounds gloss with section heading
+        norm_val = 1.0 / (768.0 ** 0.5)
+        def fake_embed(texts, model=None):
+            return [[norm_val] * 768 for _ in texts]
+
         def fake_generate(system, user, model):
             return "Administrators monitor the heartbeat metrics generated during elections."
+        fake_generate._is_live = True
 
         index = {"chunks": [chunk], "figures": figures, "embedder": "nomic-embed-text"}
         res = explain(
@@ -193,6 +198,7 @@ class QueryUnderstandingSyntheticTests(unittest.TestCase):
             generate_fn=fake_generate,
             search_fn=lambda idx, q, k: [chunk],
             model="m",
+            embed_fn=fake_embed,
         )
         self.assertFalse(res["refused"])
         self.assertEqual(res["figures"], [], "Unrelated primary figure must not attach to passing mention")

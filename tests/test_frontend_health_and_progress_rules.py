@@ -73,6 +73,13 @@ class FrontendHealthAndProgressRulesTest(unittest.TestCase):
         # Must scope activeGlossId to whether chunk contains the gloss
         self.assertIn("glosses.some((g) => g.id === activeId)", content)
 
+    def test_engine_url_uses_same_origin_and_no_8000_hardcode(self):
+        content = ENGINE_TS.read_text(encoding="utf-8")
+        # Must not hardcode !== "8000" which leaks cross-origin requests when served on other ports
+        self.assertNotIn('!== "8000"', content)
+        # Must specifically target dev port 3100
+        self.assertIn('=== "3100"', content)
+
 
 if __name__ == "__main__":
     unittest.main()

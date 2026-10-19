@@ -14,6 +14,7 @@ script cannot drift from the app. Works unchanged on Windows and macOS.
 """
 
 import json
+import os
 import sys
 import time
 import urllib.error
@@ -113,8 +114,26 @@ def next_steps(state):
 
 def main():
     if "--wait-warm" in sys.argv:
-        print("waiting for engine warmup on http://127.0.0.1:8000/health...")
-        ok, warm = wait_for_warmup()
+        port = None
+        for i, arg in enumerate(sys.argv):
+            if arg == "--port" and i + 1 < len(sys.argv):
+                try:
+                    port = int(sys.argv[i + 1])
+                except ValueError:
+                    pass
+            elif arg.startswith("--port="):
+                try:
+                    port = int(arg.split("=", 1)[1])
+                except ValueError:
+                    pass
+        if port is None:
+            try:
+                port = int(os.environ.get("PORT", 8000))
+            except ValueError:
+                port = 8000
+        server_url = f"http://127.0.0.1:{port}/health"
+        print(f"waiting for engine warmup on {server_url}...")
+        ok, warm = wait_for_warmup(server_url=server_url)
         if ok:
             print(f"engine warm ok ({warm.get('duration_s', 0)}s): {warm.get('answer_model')} + {warm.get('embed_model')} resident")
             raise SystemExit(0)
