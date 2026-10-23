@@ -113,7 +113,7 @@ update the catalog.
 
 ```mermaid
 flowchart TD
-  Q["question (resolved, canonical)"] --> D["dense search: embed query, dot product over unit vectors, top 10"]
+  Q["question (resolved, canonical)"] --> D["dense search: embed query, dot product over unit vectors, top 5 (PASSAGE_LIMIT)"]
   D --> Pin["pin the reader's chunk, if any"]
   Pin --> Rd{"a question word absent from the book?"}
   Rd -->|yes| Read["read as closest book word (edit distance, then a model fallback); keep only if best score strictly improves"]
@@ -123,7 +123,8 @@ flowchart TD
   Gate -->|no| Cap
   Fuse --> Cap["caption seed: chunk naming a figure whose caption outscores the best chunk"]
   Cap --> Hist["follow-up: add history sequence and pin neighbors"]
-  Hist --> Out["5 passages"]
+  Hist --> Repin["re-pin the reader's chunk"]
+  Repin --> Out["passages (5, more after follow-up injection)"]
 ```
 
 The same retrieval feeds every mode. Passage text is never rewritten; it is
@@ -131,8 +132,9 @@ what gets cited.
 
 ## Answering pipeline
 
-`ask` and `answer` send the same quote-first system prompt and passage block.
-They differ in what happens to the reply.
+`ask` and `answer` send the same quote-first system prompt and passage block
+(except the plain register, which drafts with `SYSTEM_ANSWER`). They differ in
+what happens to the reply.
 
 ```mermaid
 flowchart TD
@@ -140,9 +142,9 @@ flowchart TD
   Mode -->|ask| PC["parse_completion: tag, verbatim quote check, span fix"]
   Mode -->|answer| PA["parse_answered: tags become citations; unbacked quotation marks stripped"]
   PC --> Ref{"refused?"}
-  PA --> Unc{"no citation, or refused?"}
-  Ref -->|"yes, passages hold the question's words"| Retry
-  Unc -->|yes, same evidence test| Retry["one retry with assistant prefill [Ch. ; keep only a verbatim citation"]
+  PA --> Unc{"uncited, or refused?"}
+  Ref -->|"yes: passages hold the question's words, or a rewritten follow-up that is not a trap"| Retry
+  Unc -->|"uncited: always; refused: 3+ passages with evidence, or a rewritten non-trap follow-up"| Retry["one retry with assistant prefill [Ch. ; kept only when every citation is verbatim passage text, else the lead passage's best-overlap sentence"]
   Retry --> Fin
   Ref -->|no| Fin
   Unc -->|no| Fin

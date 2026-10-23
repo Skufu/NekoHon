@@ -33,9 +33,9 @@ Plain definitions for the vocabulary this repo uses. For how the parts fit, see
   absent from the book was replaced by its closest book word
   (`engine/retrieval/readings.py`).
 - **retry** — the one regeneration with the assistant turn prefilled `[Ch. `,
-  used when a reply has no valid citation. It is kept only when a citation
-  validates as verbatim passage text; it can add a citation, not change the
-  answer's meaning.
+  used when a reply is uncited or a grounded refusal. Its body replaces the
+  draft only when every citation is verbatim passage text, with a fallback to
+  the lead passage's best-overlap sentence.
 - **gloss** — the one or two plain sentences that explain the cited quote
   (`engine/answering/gloss.py`).
 - **plain register** — answer mode when the question carries a cue such as "in
@@ -62,8 +62,8 @@ Plain definitions for the vocabulary this repo uses. For how the parts fit, see
 ## Retrieval
 
 - **dense search** — embed the question with the embedder, rank chunks by dot
-  product against pre-normalized unit vectors, take the top 10; the answering
-  layer shows 5.
+  product against pre-normalized unit vectors; the answering layer takes the
+  top 5 (`PASSAGE_LIMIT`).
 - **rare-word gate** — a question word that appears in few chunks lets the
   lexical channel contribute a candidate (`engine/retrieval/keywords.py`).
 - **anchor words** — question words rare in the book; a paragraph containing one

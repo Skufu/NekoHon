@@ -45,7 +45,7 @@ the judge backend is configured (`JUDGE_BACKEND`, key in `.judge-key`, see
 | `harnesses/eval-plain.py` | Plain-words register scorecard over `datasets/eval-set-plain.json` (imports `harnesses/probe-plain.py`). | Ollama, judge |
 | `harnesses/probe-plain.py` | Plain-register probe used by the scorecard. | Ollama (in-process) |
 | `harnesses/plain-edge-check.py` | Contract checker for saved plain-register edge responses. | none |
-| `harnesses/rank-answers.py` | Answer-quality ranking: machine checks plus yes/no bits voted three times; worst-first triage, never a gate. | judge |
+| `harnesses/rank-answers.py` | Answer-quality ranking: machine checks plus yes/no bits voted three times; worst-first triage, never a gate. | Ollama, judge |
 | `harnesses/judge.py` | The judge client (default cloud `muse-spark-1.3-contributor`; `JUDGE_BACKEND=ollama` uses local `granite4.1:8b`). | judge or Ollama |
 | `harnesses/judge-agreement.py` | Agreement between two saved judged runs. | none |
 | `harnesses/judge-stability.py` | Verdict flip-rate probe for one judged item. | Ollama, judge |
