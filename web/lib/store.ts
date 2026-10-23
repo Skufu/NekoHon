@@ -9,33 +9,6 @@ import {
 } from "./engine";
 import type { MarkerColor, UserHighlight } from "./anchor";
 
-export const DEFAULT_BOOKS: BookCatalogItem[] = [
-  {
-    book_id: "fde",
-    title: "Fundamentals of Data Engineering",
-    author: "Joe Reis & Matt Housley",
-    chapter_count: 11,
-    chunk_count: 1065,
-    figure_count: 111,
-  },
-  {
-    book_id: "ddia",
-    title: "Designing Data-Intensive Applications",
-    author: "Martin Kleppmann",
-    chapter_count: 12,
-    chunk_count: 1280,
-    figure_count: 98,
-  },
-  {
-    book_id: "quantization",
-    title: "Quantization and Fast Inference",
-    author: "Tim Dettmers & Elias Frantar",
-    chapter_count: 7,
-    chunk_count: 502,
-    figure_count: 42,
-  },
-];
-
 export type ThemeName = "night" | "paper" | "sepia" | "snow" | "ink";
 export type PenName = "vermilion" | "cobalt" | "moss" | "graphite";
 export type { MarkerColor, UserHighlight } from "./anchor";
@@ -404,22 +377,17 @@ function saveCatalog(catalog: BookCatalogItem[]) {
 }
 
 function loadCatalog(): BookCatalogItem[] {
-  if (typeof window === "undefined") return DEFAULT_BOOKS;
+  if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem("nekohon-catalog");
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        const map = new Map<string, BookCatalogItem>();
-        for (const b of DEFAULT_BOOKS) map.set(b.book_id, b);
-        for (const b of parsed) map.set(b.book_id, { ...(map.get(b.book_id) || {}), ...b });
-        return Array.from(map.values());
-      }
+      if (Array.isArray(parsed)) return parsed;
     }
   } catch {
     // ignore
   }
-  return DEFAULT_BOOKS;
+  return [];
 }
 
 function historyPayload(
@@ -881,7 +849,7 @@ export const useAsk = create<AskStore>((set, get) => {
     viewMode: "library",
     setViewMode: (viewMode) => set({ viewMode }),
     activeBookId: "fde",
-    booksCatalog: DEFAULT_BOOKS,
+    booksCatalog: [],
     bookProgress: {},
 
     engineReady: true,
@@ -904,6 +872,8 @@ export const useAsk = create<AskStore>((set, get) => {
 
         try {
           const h = await checkHealth(signal);
+          // The engine's catalog is the truth: only books indexed on this machine.
+          if (Array.isArray(h?.books)) get().setBooksCatalog(h.books);
           // Only an explicit ready: false from a reachable engine disables input
           // (missing fields = ready)
           if (h && h.ready === false) {
