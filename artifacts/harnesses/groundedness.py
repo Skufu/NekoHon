@@ -11,7 +11,7 @@ before the strip.
 
 Run: python artifacts/harnesses/groundedness.py --label answer [--limit N]
      python artifacts/harnesses/groundedness.py --battery        (the battery questions)
-Writes artifacts/evidence/groundedness/groundedness-<label>.{json,log}.
+Writes artifacts/runs/groundedness/groundedness-<label>.{json,log}.
 """
 
 import argparse
@@ -175,7 +175,7 @@ def main():
     questions = battery_questions() if args.battery else load_questions(args.questions)
     if args.limit:
         questions = questions[:args.limit]
-    out = ROOT / "artifacts" / "evidence" / "groundedness" / f"groundedness-{args.label}.json"
+    out = ROOT / "artifacts" / "runs" / "groundedness" / f"groundedness-{args.label}.json"
     log = out.with_suffix(".log")
 
     index = load_index(INDEX)
@@ -228,6 +228,7 @@ def main():
                 lines.append(f"- unbacked quote: {span[:120]}")
             for sentence in row["untraceable"]:
                 lines.append(f"- untraceable: {sentence}")
+    out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(rows, indent=2, ensure_ascii=False), encoding="utf-8")
     log.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("\n".join(lines[:2]))

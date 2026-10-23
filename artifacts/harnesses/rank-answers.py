@@ -11,7 +11,7 @@ Run:
     python artifacts/harnesses/rank-answers.py --set artifacts/datasets/owner-rated-2026-10-15.jsonl --label owner-sample-m2
     JUDGE_BACKEND=ollama python ... (offline granite judge)
 
-Writes artifacts/evidence/answer-quality/answer-quality-<label>-<judge-slug>.{json,log}.
+Writes artifacts/runs/answer-quality/answer-quality-<label>-<judge-slug>.{json,log}.
 Verdicts are UNVALIDATED against human labels; rater agreement is reported
 when rows carry rating / persona_rating / checker_rating fields.
 
@@ -272,7 +272,7 @@ def main():
 
     ordered = sorted(judged, key=lambda r: (rank_tier(r), str(r.get("id"))))
 
-    out_dir = ROOT / "artifacts" / "evidence" / "answer-quality"
+    out_dir = ROOT / "artifacts" / "runs" / "answer-quality"
     out_dir.mkdir(parents=True, exist_ok=True)
     stem = f"answer-quality-{args.label}-{slug(judge_name)}"
     json_path = out_dir / f"{stem}.json"

@@ -28,7 +28,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 
 TEXT_EXTS = (".py", ".md", ".html", ".json", ".txt", ".sh")
-SKIP_PARTS = {"books", "data", "node_modules", ".git"}
+SKIP_PARTS = {"books", "data", "node_modules", ".git", "archive"}
 # The gate itself and dir markers are infrastructure, not evidence.
 SKIP_NAMES = {"README.md", "prune.py", ".gitkeep"}
 

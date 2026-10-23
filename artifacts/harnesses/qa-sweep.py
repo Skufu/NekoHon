@@ -3,7 +3,7 @@
 Run: python artifacts/harnesses/qa-sweep.py <label>   (server must be up on :8000)
 With SWEEP_MODE=answer the same questions run through the free-generation
 mode and coherence means the answer carries the question's rarest book word.
-Writes artifacts/evidence/qa-sweep/qa-sweep-<label>.{json,log}. The question
+Writes artifacts/runs/qa-sweep/qa-sweep-<label>.{json,log}. The question
 set: the authored set (datasets/qa-questions-overnight.json), what-is asks
 for the 120 rarest book words, and what-is asks for up to 60 distinct headings.
 """
@@ -25,8 +25,8 @@ from preprocess import STOPWORDS, stem
 URL = "http://127.0.0.1:8000/ask"
 MODE = os.environ.get("SWEEP_MODE", "ask")
 label = sys.argv[1] if len(sys.argv) > 1 else "default"
-OUT = ROOT / "artifacts" / "evidence" / "qa-sweep" / f"qa-sweep-{label}.json"
-LOG = ROOT / "artifacts" / "evidence" / "qa-sweep" / f"qa-sweep-{label}.log"
+OUT = ROOT / "artifacts" / "runs" / "qa-sweep" / f"qa-sweep-{label}.json"
+LOG = ROOT / "artifacts" / "runs" / "qa-sweep" / f"qa-sweep-{label}.log"
 
 index = json.loads((ROOT / "data" / "index.json").read_text(encoding="utf-8"))
 word_map = postings(index)
@@ -170,6 +170,7 @@ lines.append("## glossless")
 for row in glossless:
     lines.append(f"- {row['question']} | {row['cite']}")
 
+OUT.parent.mkdir(parents=True, exist_ok=True)
 OUT.write_text(json.dumps(rows, indent=2, ensure_ascii=False), encoding="utf-8")
 LOG.write_text("\n".join(lines) + "\n", encoding="utf-8")
 print("\n".join(lines[:2]))

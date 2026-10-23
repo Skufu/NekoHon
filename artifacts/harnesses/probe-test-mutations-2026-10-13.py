@@ -9,7 +9,7 @@ Mutations:
   M5 explain gate open (explain canonicalizes like ask)
 
 Run: python artifacts/probes/probe-test-mutations-2026-10-13.py
-Writes artifacts/evidence/probe-test-mutations/probe-test-mutations-2026-10-13.{json,log}.
+Writes artifacts/runs/probe-test-mutations/probe-test-mutations-2026-10-13.{json,log}.
 """
 
 import io
@@ -23,7 +23,7 @@ ROOT = HERE.parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "artifacts" / "probes"))
 
-EVIDENCE = ROOT / "artifacts" / "evidence" / "probe-test-mutations"
+EVIDENCE = ROOT / "artifacts" / "runs" / "probe-test-mutations"
 
 import answer as A
 import keywords
@@ -117,6 +117,7 @@ def main():
     lines.append(f"suite restored green: {restored_result.wasSuccessful()}")
 
     log = "\n".join(lines)
+    EVIDENCE.mkdir(parents=True, exist_ok=True)
     (EVIDENCE / "probe-test-mutations-2026-10-13.log").write_text(log, encoding="utf-8")
     (EVIDENCE / "probe-test-mutations-2026-10-13.json").write_text(
         json.dumps(records, indent=2, ensure_ascii=False), encoding="utf-8"

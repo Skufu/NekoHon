@@ -29,7 +29,7 @@ sys.path.insert(0, str(ROOT))
 from prompt import REFUSAL
 
 DATASET_PATH = ROOT / "artifacts" / "datasets" / "crossbook-evil-eval-2026-10-18.json"
-EVIDENCE_DIR = ROOT / "artifacts" / "evidence" / "crossbook-eval"
+EVIDENCE_DIR = ROOT / "artifacts" / "runs" / "crossbook-eval"
 SERVER_URL = "http://127.0.0.1:8000/ask"
 
 

@@ -14,8 +14,8 @@ Usage:
     python artifacts/harnesses/hard-bench.py --limit 10
 
 Writes evidence to:
-    artifacts/evidence/hard-bench/hard-bench-2026-10-17.model-<model>.json
-    artifacts/evidence/hard-bench/hard-bench-2026-10-17.model-<model>.log
+    artifacts/runs/hard-bench/hard-bench-2026-10-17.model-<model>.json
+    artifacts/runs/hard-bench/hard-bench-2026-10-17.model-<model>.log
 """
 
 import argparse
@@ -34,7 +34,7 @@ from prompt import ANSWER_MODEL, REFUSAL
 from retrieve import INDEX, format_input, load_index, ollama_embed
 
 DATASET_PATH = ROOT / "artifacts" / "datasets" / "hard-bench-2026-10-17.jsonl"
-EVIDENCE_DIR = ROOT / "artifacts" / "evidence" / "hard-bench"
+EVIDENCE_DIR = ROOT / "artifacts" / "runs" / "hard-bench"
 
 FORMULAIC_CRUTCHES = (
     "in this context",

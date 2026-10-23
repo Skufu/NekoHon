@@ -3,8 +3,8 @@
 Run: python artifacts/harnesses/step2-battery.py    (server.py must be up on :8000)
 With BATTERY_MODE=answer the same asks run through the free-generation mode
 and four coherence probes are added; output goes to step2-battery-answer.*.
-Writes artifacts/evidence/step2-battery/step2-battery.json and
-artifacts/evidence/step2-battery/step2-battery.log.
+Writes artifacts/runs/step2-battery/step2-battery.json and
+artifacts/runs/step2-battery/step2-battery.log.
 Chunk pins come from the measured demo sheet artifacts/datasets/demo-questions.md
 (2026-10-12); the typo asks also pin the phrase their quote must carry.
 """
@@ -25,7 +25,7 @@ from retrieve import INDEX, load_index
 
 URL = "http://127.0.0.1:8000/ask"
 MODE = os.environ.get("BATTERY_MODE", "ask")
-OUT = ROOT / "artifacts" / "evidence" / "step2-battery" / (
+OUT = ROOT / "artifacts" / "runs" / "step2-battery" / (
     "step2-battery.json" if MODE == "ask" else f"step2-battery-{MODE}.json"
 )
 LOG = OUT.with_suffix(".log")
@@ -256,6 +256,7 @@ def main():
             "# answer mode: pin must appear among the citations; coherence probes"
             " pin ch04-020, ch03-099, ch08-051, ch02-024 and require the subject word."
         )
+    OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(results, indent=2), encoding="utf-8")
     LOG.write_text("\n".join(header + lines) + "\n", encoding="utf-8")
     all_ok = (

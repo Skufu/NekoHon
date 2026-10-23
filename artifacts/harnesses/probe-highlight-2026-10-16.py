@@ -22,7 +22,7 @@ import answer as A  # noqa: E402
 
 GOLDEN = ROOT / "artifacts" / "datasets" / "highlight-golden-2026-10-16.jsonl"
 INDEX = ROOT / "data" / "index.json"
-OUT = ROOT / "artifacts" / "evidence" / "highlight-golden"
+OUT = ROOT / "artifacts" / "runs" / "highlight-golden"
 
 
 def fold(text):

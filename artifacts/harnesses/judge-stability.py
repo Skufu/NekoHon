@@ -14,7 +14,7 @@ Run (cloud judge):
     python artifacts/harnesses/judge-stability.py \
         --file evidence/eval-plain/eval-plain-v6-openai-muse-spark-1-3-contributor.json \
         --match ingestion --n 3
-(a bare basename is auto-found under artifacts/evidence/*/)
+(a bare basename is auto-found under artifacts/runs/*/)
 
     --all judges every question in the file (per-question flip rate).
 
@@ -49,7 +49,7 @@ def main():
     if not target.is_absolute():
         target = ROOT / "artifacts" / args.file
     if not target.is_file():
-        hits = sorted((ROOT / "artifacts" / "evidence").glob(f"*/{Path(args.file).name}"))
+        hits = sorted((ROOT / "archive" / "artifacts" / "evidence").glob(f"*/{Path(args.file).name}"))
         if hits:
             target = hits[0]
     rows = json.loads(target.read_text(encoding="utf-8"))

@@ -26,7 +26,7 @@ Run:
     JUDGE_BACKEND=ollama python artifacts/harnesses/eval-plain.py \
         --variants plain,plain3 --label v3                 (offline granite judge)
 
-Writes artifacts/evidence/eval-plain/eval-plain-<label>-<judge-slug>.{json,log}.
+Writes artifacts/runs/eval-plain/eval-plain-<label>-<judge-slug>.{json,log}.
 """
 
 import argparse
@@ -41,7 +41,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "artifacts" / "harnesses"))
-sys.path.insert(0, str(ROOT / "artifacts" / "probes"))
+sys.path.insert(0, str(ROOT / "archive" / "artifacts" / "probes"))
 
 import answer as A
 import groundedness as G
@@ -55,7 +55,7 @@ COVERAGE_TARGET = 0.2
 
 def load_probe():
     spec = importlib.util.spec_from_file_location(
-        "probe_plain", ROOT / "artifacts" / "probes" / "probe-plain.py"
+        "probe_plain", ROOT / "archive" / "artifacts" / "probes" / "probe-plain.py"
     )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -287,8 +287,9 @@ def main():
             )
 
     parts = ["eval-plain"] + ([args.label] if args.label else []) + [slug(J.judge_name())]
-    out = ROOT / "artifacts" / "evidence" / "eval-plain" / ("-".join(parts) + ".json")
+    out = ROOT / "artifacts" / "runs" / "eval-plain" / ("-".join(parts) + ".json")
     log = out.with_suffix(".log")
+    out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(rows, indent=2, ensure_ascii=False), encoding="utf-8")
     log.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("\n".join(lines[:4]))

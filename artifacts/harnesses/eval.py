@@ -29,7 +29,7 @@ Judge-only replay under another judge (same answers, new verdicts):
   JUDGE_BACKEND=openai JUDGE_MODEL=<m> JUDGE_BASE_URL=<u> JUDGE_API_KEY=<k> \
     python artifacts/harnesses/eval.py --judge-only --label v1
 Agreement between two judged runs: python artifacts/harnesses/judge-agreement.py <a> <b>
-Writes artifacts/evidence/eval-v1/eval-<label>[-<judge-slug>].{json,log}.
+Writes artifacts/runs/eval-v1/eval-<label>[-<judge-slug>].{json,log}.
 """
 
 import argparse
@@ -262,7 +262,7 @@ def main():
     index = load_index(INDEX)
     replay_note = ""
     if args.judge_only:
-        base = ROOT / "artifacts" / "evidence" / "eval-v1" / f"eval-{args.label}.json"
+        base = ROOT / "archive" / "artifacts" / "evidence" / "eval-v1" / f"eval-{args.label}.json"
         rows = json.loads(base.read_text(encoding="utf-8"))
         mismatches = 0
         for row in rows:
@@ -279,12 +279,13 @@ def main():
             f" identical for {len(rows) - mismatches}/{len(rows)} items",
         )
         slug = re.sub(r"[^a-z0-9-]+", "-", J_judge_name().lower()).strip("-")
-        out = ROOT / "artifacts" / "evidence" / "eval-v1" / f"eval-{args.label}-{slug}.json"
+        out = ROOT / "artifacts" / "runs" / "eval-v1" / f"eval-{args.label}-{slug}.json"
         log = out.with_suffix(".log")
         lines = summarize(rows, True)
         lines.insert(1, "".join(replay_note))
         for row in rows:
             row.pop("shown_texts", None)
+        out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(json.dumps(rows, indent=2, ensure_ascii=False), encoding="utf-8")
         log.write_text("\n".join(lines) + "\n", encoding="utf-8")
         print("\n".join(lines[:6]))
@@ -295,7 +296,7 @@ def main():
     if args.limit:
         items = items[:args.limit]
 
-    out = ROOT / "artifacts" / "evidence" / "eval-v1" / f"eval-{args.label}.json"
+    out = ROOT / "artifacts" / "runs" / "eval-v1" / f"eval-{args.label}.json"
     log = out.with_suffix(".log")
 
     rows = []
@@ -314,6 +315,7 @@ def main():
     lines = summarize(rows, args.judge)
     for row in rows:
         row.pop("shown_texts", None)
+    out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(rows, indent=2, ensure_ascii=False), encoding="utf-8")
     log.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("\n".join(lines[:5]))

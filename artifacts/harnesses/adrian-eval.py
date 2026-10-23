@@ -35,7 +35,7 @@ from retrieve import INDEX, load_index
 from prompt import REFUSAL
 
 DATASET_PATH = ROOT / "artifacts" / "datasets" / "adrian-realworld-eval-2026-10-17.json"
-EVIDENCE_DIR = ROOT / "artifacts" / "evidence" / "adrian-eval"
+EVIDENCE_DIR = ROOT / "artifacts" / "runs" / "adrian-eval"
 SERVER_URL = "http://127.0.0.1:8000/ask"
 
 
@@ -478,6 +478,7 @@ def main():
 
     # Save evidence
     ev_json_path = EVIDENCE_DIR / "adrian-eval-2026-10-17.json"
+    ev_json_path.parent.mkdir(parents=True, exist_ok=True)
     ev_json_path.write_text(json.dumps(results, indent=2), encoding="utf-8")
     print(f"\nSaved detailed run evidence to {ev_json_path}")
 

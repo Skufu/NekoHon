@@ -2,7 +2,7 @@
 
 Run: python artifacts/harnesses/guard-audit.py
 Reads artifacts/datasets/qa-sweep-default.json (the sweep set).
-Writes artifacts/evidence/guard-audit/guard-audit.json.
+Writes artifacts/runs/guard-audit/guard-audit.json.
 """
 
 import json
@@ -65,6 +65,7 @@ for swap in swaps:
     print("  before:", swap["before"])
     print("  after :", swap["after"])
 
-(ROOT / "artifacts" / "evidence" / "guard-audit" / "guard-audit.json").write_text(
+(ROOT / "artifacts" / "runs" / "guard-audit").mkdir(parents=True, exist_ok=True)
+(ROOT / "artifacts" / "runs" / "guard-audit" / "guard-audit.json").write_text(
     json.dumps(swaps, indent=2, ensure_ascii=False), encoding="utf-8")
 print("wrote guard-audit.json |", len(swaps), "swaps")

@@ -6,7 +6,7 @@ loop only where it agrees with the stronger judge; disagreements are printed
 for inspection, never averaged away.
 
 Run: python artifacts/harnesses/judge-agreement.py eval-v1 eval-v1-openai-<model>
-Writes artifacts/evidence/judge-agreement/judge-agreement-<a>-vs-<b>.log.
+Writes artifacts/runs/judge-agreement/judge-agreement-<a>-vs-<b>.log.
 """
 
 import json
@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 
 def load(label):
     return json.loads(
-        (ROOT / "artifacts" / "evidence" / "eval-v1" / f"{label}.json").read_text(encoding="utf-8")
+        (ROOT / "archive" / "artifacts" / "evidence" / "eval-v1" / f"{label}.json").read_text(encoding="utf-8")
     )
 
 
@@ -66,7 +66,8 @@ def main():
         "# zero shared rows means the two runs judged different items; check the labels."
     )
 
-    log = ROOT / "artifacts" / "evidence" / "judge-agreement" / f"judge-agreement-{label_a}-vs-{label_b}.log"
+    log = ROOT / "artifacts" / "runs" / "judge-agreement" / f"judge-agreement-{label_a}-vs-{label_b}.log"
+    log.parent.mkdir(parents=True, exist_ok=True)
     log.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("\n".join(lines[:4]))
     print("wrote", log.name)

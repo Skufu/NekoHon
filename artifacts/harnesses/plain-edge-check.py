@@ -2,7 +2,7 @@
 
 Run from the repo root: python artifacts/harnesses/plain-edge-check.py
 
-Checks every artifacts/evidence/plain-edge/plain-edge-NN-*.json response against the frozen
+Checks every artifacts/runs/plain-edge/plain-edge-NN-*.json response against the frozen
 contract:
 - refused:true means answer is exactly "Not in this book."
 - answered: answer non-empty; every [Ch. n] tag has a citation entry
@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
-ART = ROOT / "artifacts" / "evidence" / "plain-edge"
+ART = ROOT / "archive" / "artifacts" / "evidence" / "plain-edge"
 REFUSAL = "Not in this book."
 
 EXPECTED_PLAIN = {
