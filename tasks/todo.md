@@ -80,7 +80,7 @@ both batteries.
   (shared payload builder), used by `answer.py` (re-exported as
   `ollama_generate*`), `server._do_warmup`; `_is_live` kept on the functions.
   - Accept: gate; `server._do_warmup` < 50 lines.
-- [ ] **E3 Per-request work.** `load_index` builds `chunk_by_id` and
+- [x] **E3 Per-request work.** `load_index` builds `chunk_by_id` and
   `chunks_by_chapter` once; replace the ~30 linear scans; one
   `prior_turn_chunk()` replaces the 3 copies; `clean_history` and the
   topic-shift check computed once per request; drop the double LRU on `stem`.
