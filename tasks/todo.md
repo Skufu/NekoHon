@@ -44,7 +44,7 @@ both batteries.
   Update `prune.py` to ignore `archive/`. Harness output paths that pointed into
   `evidence/` write to `artifacts/runs/` (gitignored) instead.
   - Accept: suite OK; every kept harness `--help` runs; `prune.py --plan` runs.
-- [ ] **A2 Archive agentic.** `git mv agentic.py tests/test_agentic.py archive/`.
+- [x] **A2 Archive agentic.** `git mv agentic.py tests/test_agentic.py archive/`.
   - Accept: suite OK; `grep -r "import agentic"` outside archive → 0.
 
 ## Phase 2: Engine (sequential)
