@@ -17,7 +17,7 @@ both batteries.
     byte-identical before/after a suite run; no assertion weakened.
   - Files: `tests/test_server_multibook.py`, `tests/test_reader_routes.py`,
     `tests/test_server_packaging.py`, `artifacts/datasets/highlight-*.jsonl`.
-- [ ] **T2 Verify skill + cassette.** Create `.agents/skills/verify/SKILL.md`
+- [x] **T2 Verify skill + cassette.** Create `.agents/skills/verify/SKILL.md`
   and `cassette.py` (`record` / `replay`). Record on the current tree: battery
   questions + France, modes `ask`/`answer`/`explain`, seeded `quiz`, two
   history follow-ups, one `stream=1` request; fakes keep `_is_live = True`.
@@ -30,7 +30,7 @@ both batteries.
   - Files: `.agents/skills/verify/*`.
 
 ### Checkpoint 0
-- [ ] Suite OK, cassette recorded, live gate PASS; commit SPEC + tasks + T1 + T2; push.
+- [x] Suite OK (403), cassette 67 cases identical, ask battery PASS (golden 8/10, bar 8), answer battery PASS (10/10); pushed.
 
 ## Phase 1: History (parallel with Phases 2–3)
 
@@ -48,6 +48,28 @@ both batteries.
   - Accept: suite OK; `grep -r "import agentic"` outside archive → 0.
 
 ## Phase 2: Engine (sequential)
+
+- [ ] **E0 Group files by role (owner direction 2026-10-23).** Move the 13
+  engine modules from the repo root into a package, with `git mv` and
+  absolute imports:
+  ```
+  engine/__init__.py, server.py, ingest.py, figures.py
+  engine/retrieval/  retrieve.py fusion.py keywords.py captions.py readings.py preprocess.py
+  engine/answering/  answer.py prompt.py canonical.py intent.py
+  scripts/           launch.py setup_models.py measure_warmup.py + preflight.py verify_index.py
+  ```
+  Every `ROOT`/`Path(__file__)` that means the repo root still resolves to the
+  repo root (data/, books/, vendor/, window/, web/out). Entry points become
+  `python3 -m engine.server`, `python3 -m engine.ingest`,
+  `python3 -m engine.retrieval.retrieve`, `python3 scripts/preflight.py`,
+  `python3 scripts/verify_index.py`. Update every importer: lazy imports inside
+  functions, tests (`import x`, `mock.patch("x.y")`), kept harnesses,
+  `scripts/launch.py` (start command + the server-process match, which must
+  accept both `server.py` and `engine.server`), the verify skill and
+  `cassette.py`, `test_generalization`/`test_query_understanding` file lists.
+  - Accept: gate (cassette identical — figure paths and data paths unchanged);
+    `python3 -m engine.server` serves `/health`; no `*.py` engine module left at
+    the root; `grep -rn "^import answer\|^from answer"` etc. outside archive → 0.
 
 - [ ] **E1 Dead code.** Delete `check_quote`, `_maybe_enrich_contextual_gloss`,
   `ingest._marked`, `retrieve.search_with_ranks`, `retrieve.warm_caches`, the
@@ -118,7 +140,7 @@ both batteries.
 
 ## Phase 4: Docs (after Phases 1–3)
 
-- [ ] **D1 `AGENTS.md`.** Rewrite to ~10–15K: hard rules, artifacts policy,
+- [ ] **D1 `AGENTS.md`.** Also group root docs: `README.md` and `AGENTS.md` stay at the root; `GOAL.md` and `GLOSSARY.md` move to `docs/` (content unchanged; update every link). Rewrite to ~10–15K: hard rules, artifacts policy,
   verify commands, one short current-state block. Merge BUILD_PLAN's contract,
   ingest/retrieval/generation/figure rules; `git mv BUILD_PLAN.md archive/`.
   Keep the constitution copy in sync with `GOAL.md`. `web/AGENTS.md` checked.
