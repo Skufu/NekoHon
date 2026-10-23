@@ -344,11 +344,15 @@ and a rerun of the gates (`.agents/skills/verify/SKILL.md`).
   `scripts/launch.py`.
 - **Request limits and import paths.** `POST` bodies over `MAX_BODY_BYTES`
   (64 MiB) get `413` before the body is read. Base64 inflates 4/3, so the cap
-  admits an EPUB of about 48 MiB, above any book in the catalog; a missing or
-  invalid `Content-Length` keeps the old behavior. Import `epub_path` is
+  admits an EPUB of about 48 MiB, above any book in the catalog; a missing
+  `Content-Length` counts as 0, and a non-numeric or negative one gets `400`
+  (a negative length used to read until the client closed). Import `epub_path` is
   resolved and must sit under `books/` (`400` otherwise), so the route cannot
   read arbitrary files. Figure routes normalize `book_id` with
-  `_normalize_book_id`, so `../` cannot leave the figures root. An import
+  `_normalize_book_id`, so `../` cannot leave the figures root, and
+  `get_book_index` (behind `/chunks` and `/ask`) refuses any non-default id
+  that normalization would change, so `book_id` cannot reach a path outside
+  `data/`. An import
   clears the `id(index)`-keyed caches (`retrieve.clear_index_caches`) so a
   recycled id cannot return a stale ranking. `_lru_get` uses `pop(key, None)`
   so two threads on one key cannot raise `KeyError`. `server`,
