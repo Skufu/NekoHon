@@ -268,7 +268,16 @@ function loadBookState(bookId: string): { highlights: UserHighlight[]; glosses: 
       const parsed = JSON.parse(raw);
       return {
         highlights: Array.isArray(parsed.highlights) ? parsed.highlights : [],
-        glosses: Array.isArray(parsed.glosses) ? parsed.glosses : [],
+        glosses: Array.isArray(parsed.glosses)
+          ? parsed.glosses.map((g: GlossItem) => ({
+              ...g,
+              turns: (g.turns || []).map((t) =>
+                t.status === "loading" || t.status === "streaming"
+                  ? { ...t, status: "stopped" as Status, streamText: "" }
+                  : t
+              ),
+            }))
+          : [],
       };
     }
     // Migration: if book is fde and legacy atb-highlights exists, migrate it
@@ -604,6 +613,7 @@ export const useAsk = create<AskStore>((set, get) => {
             thread: nextThread,
           };
         });
+        saveBookState(get().activeBookId, get().highlights, get().glosses);
       }
     };
 
@@ -724,6 +734,7 @@ export const useAsk = create<AskStore>((set, get) => {
               glosses: nextGlosses,
             };
           });
+          saveBookState(get().activeBookId, get().highlights, get().glosses);
         },
       },
       controller.signal
@@ -757,6 +768,7 @@ export const useAsk = create<AskStore>((set, get) => {
           glosses: nextGlosses,
         };
       });
+      saveBookState(get().activeBookId, get().highlights, get().glosses);
     });
   }
 
