@@ -59,15 +59,69 @@ def _cached_tokens(text):
 def tokens(text):
     return list(_cached_tokens(text))
 
-@functools.lru_cache(maxsize=4096)
-def stem(word):
-    return _pre_stem(word)
+stem = _pre_stem
 
 _WHITESPACE_RE = re.compile(r"\s+")
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
 _PARAGRAPH_SPLIT_RE = re.compile(r"\n\s*\n")
 _CH_PREFIX_RE = re.compile(r"^\[ch\.", re.I)
 _TAG_AND_QUOTE_RE = re.compile(r"\[Ch\.\s*([^\]]+)\]\s*[\"“](.+?)[\"”]")
+
+_INDEX_MAPS = {}
+
+
+def _index_maps(index):
+    chunks = index.get("chunks") or []
+    entry = _INDEX_MAPS.get(id(index))
+    if entry is not None and entry[0] is index and entry[1] is chunks and entry[2] == len(chunks):
+        return entry[3], entry[4], entry[5]
+    by_id = {}
+    pos = {}
+    by_chapter = {}
+    for i, c in enumerate(chunks):
+        cid = c.get("chunk_id")
+        by_id.setdefault(cid, c)
+        pos.setdefault(cid, i)
+        by_chapter.setdefault(str(c.get("chapter")), []).append(c)
+    if len(_INDEX_MAPS) >= 8:
+        _INDEX_MAPS.clear()
+    _INDEX_MAPS[id(index)] = (index, chunks, len(chunks), by_id, pos, by_chapter)
+    return by_id, pos, by_chapter
+
+
+def chunk_by_id(index, chunk_id, default=None):
+    try:
+        return _index_maps(index)[0].get(chunk_id, default)
+    except TypeError:
+        return default
+
+
+def chunk_position(index, chunk_id):
+    try:
+        return _index_maps(index)[1].get(chunk_id)
+    except TypeError:
+        return None
+
+
+def chapter_neighbors(index, chapter, lead_chunk_id, limit=4):
+    pool = _index_maps(index)[2].get(chapter, ())
+    return [c for c in pool if c.get("chunk_id") != lead_chunk_id][:limit]
+
+
+def prior_turn_chunk_position(index, prior_answer):
+    m = _TAG_AND_QUOTE_RE.search(prior_answer)
+    if not m:
+        return None
+    prior_chap = m.group(1).strip().rstrip(".")
+    snippet = m.group(2).strip()[:50].lower()
+    chunks = index.get("chunks") or []
+    for i, c in enumerate(chunks):
+        if str(c.get("chapter")) == prior_chap and snippet in (c.get("text") or "").lower():
+            return i
+    for i, c in enumerate(chunks):
+        if snippet in (c.get("text") or "").lower():
+            return i
+    return None
 _WHICH_CHAPTER_RE = re.compile(r"\b(which\s+chapter|where\s+in\s+the\s+book)\b", re.I)
 _CHAPTER_NUM_RE = re.compile(r"\bchapter\s+\d+\b", re.I)
 _CHAPTER_DIGITS_RE = re.compile(r"\bchapter\s+(\d+)\b", re.I)
@@ -1555,10 +1609,7 @@ def _is_topic_shift_followup(question: str, history: list, selection: str = "", 
         if isinstance(pin_chunk, dict):
             pin_chunk_obj = pin_chunk
         elif isinstance(pin_chunk, str) and index:
-            pin_chunk_obj = next(
-                (c for c in (index.get("chunks") or []) if c.get("chunk_id") == pin_chunk),
-                None,
-            )
+            pin_chunk_obj = chunk_by_id(index, pin_chunk)
 
     m_concept = _TOPIC_SHIFT_CONCEPT_RE.match(question.strip())
     if m_concept:
@@ -2069,19 +2120,9 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
                 prior_turn = clean_history[-1]
                 prior_a = (prior_turn.get("answer") or "").strip()
                 if len(target_words) >= 3 and prior_a and all(w in prior_a.lower() for w in target_words):
-                    m_q = _TAG_AND_QUOTE_RE.search(prior_a)
-                    if m_q:
-                        prior_chap = m_q.group(1).strip().rstrip(".")
-                        prior_snippet = m_q.group(2).strip()[:50].lower()
-                        for c in (index.get("chunks") or []):
-                            if str(c.get("chapter")) == prior_chap and prior_snippet in (c.get("text") or "").lower():
-                                effective_pin = c.get("chunk_id")
-                                break
-                        if effective_pin is None:
-                            for c in (index.get("chunks") or []):
-                                if prior_snippet in (c.get("text") or "").lower():
-                                    effective_pin = c.get("chunk_id")
-                                    break
+                    prior_pos = prior_turn_chunk_position(index, prior_a)
+                    if prior_pos is not None:
+                        effective_pin = index["chunks"][prior_pos].get("chunk_id")
     ranks = None
     if search_fn is None:
         ranked = rank_chunks(index, question, embed_fn=embed_fn)
@@ -2180,27 +2221,12 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
         if effective_pin:
             p_id = effective_pin.get("chunk_id") if isinstance(effective_pin, dict) else effective_pin
             if p_id:
-                for i, c in enumerate(chunks):
-                    if c.get("chunk_id") == p_id:
-                        target_idx = i
-                        break
+                target_idx = chunk_position(index, p_id)
 
         last_turn = clean_history[-1]
         last_ans = last_turn.get("answer") or ""
-        m = _TAG_AND_QUOTE_RE.search(last_ans)
-        if target_idx is None and m:
-            prior_chap = m.group(1).strip().rstrip(".")
-            prior_quote = m.group(2).strip()
-            snippet = prior_quote[:50].lower()
-            for i, c in enumerate(chunks):
-                if str(c.get("chapter")) == prior_chap and snippet in (c.get("text") or "").lower():
-                    target_idx = i
-                    break
-            if target_idx is None:
-                for i, c in enumerate(chunks):
-                    if snippet in (c.get("text") or "").lower():
-                        target_idx = i
-                        break
+        if target_idx is None:
+            target_idx = prior_turn_chunk_position(index, last_ans)
         if target_idx is not None:
             cand_offsets = (0, 1, -1, 2)
             seq_chunks = []
@@ -2229,12 +2255,12 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
     if effective_pin and not topic_shift:
         chunks = index.get("chunks") or []
         p_id = effective_pin.get("chunk_id") if isinstance(effective_pin, dict) else effective_pin
-        p_obj = next((c for c in chunks if c.get("chunk_id") == p_id), None)
+        p_obj = chunk_by_id(index, p_id)
         if p_obj:
             is_chapter_query = bool(re.search(r"\b(which\s+chapter|where\s+in\s+the\s+book|chapter\s+\d+|across\s+chapters)\b", question, re.I))
             if not is_chapter_query:
                 try:
-                    p_idx = chunks.index(p_obj)
+                    p_idx = chunk_position(index, p_id)
                     p_chap = str(p_obj.get("chapter"))
                     same_chap_seq = []
                     for offset in (0, 1, -1, 2, -2):
@@ -2253,7 +2279,7 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
                     pass
             else:
                 try:
-                    p_idx = chunks.index(p_obj)
+                    p_idx = chunk_position(index, p_id)
                     p_neighbors = []
                     if p_idx + 1 < len(chunks) and chunks[p_idx + 1].get("chapter") == p_obj.get("chapter"):
                         p_neighbors.append(chunks[p_idx + 1])
@@ -2273,10 +2299,10 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
     elif effective_pin:
         chunks = index.get("chunks") or []
         p_id = effective_pin.get("chunk_id") if isinstance(effective_pin, dict) else effective_pin
-        p_obj = next((c for c in chunks if c.get("chunk_id") == p_id), None)
+        p_obj = chunk_by_id(index, p_id)
         if p_obj:
             try:
-                p_idx = chunks.index(p_obj)
+                p_idx = chunk_position(index, p_id)
                 p_neighbors = []
                 if p_idx + 1 < len(chunks) and chunks[p_idx + 1].get("chapter") == p_obj.get("chapter"):
                     p_neighbors.append(chunks[p_idx + 1])
@@ -2362,10 +2388,7 @@ def _resolve_contextual_query(index, question, pin_chunk=None, selection="",
         if isinstance(pin_chunk, dict):
             pin_chunk_obj = pin_chunk
         elif isinstance(pin_chunk, str):
-            pin_chunk_obj = next(
-                (c for c in (index.get("chunks") or []) if c.get("chunk_id") == pin_chunk),
-                None,
-            )
+            pin_chunk_obj = chunk_by_id(index, pin_chunk)
 
     clean_history = [
         h for h in (history or [])
@@ -2843,15 +2866,17 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
 
     chunks = index.get("chunks") or []
     cite_id = first_cite.get("chunk_id")
-    chunk_obj = next((c for c in chunks if c.get("chunk_id") == cite_id), passages[0])
+    chunk_obj = chunk_by_id(index, cite_id)
+    if chunk_obj is None:
+        chunk_obj = passages[0]
     neighbors = []
-    for i, c in enumerate(chunks):
-        if c.get("chunk_id") == cite_id:
-            if i > 0 and chunks[i - 1].get("chapter") == c.get("chapter"):
-                neighbors.append(chunks[i - 1])
-            if i + 1 < len(chunks) and chunks[i + 1].get("chapter") == c.get("chapter"):
-                neighbors.append(chunks[i + 1])
-            break
+    i = chunk_position(index, cite_id)
+    if i is not None:
+        c = chunks[i]
+        if i > 0 and chunks[i - 1].get("chapter") == c.get("chapter"):
+            neighbors.append(chunks[i - 1])
+        if i + 1 < len(chunks) and chunks[i + 1].get("chapter") == c.get("chapter"):
+            neighbors.append(chunks[i + 1])
 
     clean_history = [
         h for h in (history or [])
@@ -3019,26 +3044,13 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
             if isinstance(effective_pin, dict):
                 target_chunk_obj = effective_pin
             elif isinstance(effective_pin, str):
-                target_chunk_obj = next(
-                    (c for c in (index.get("chunks") or []) if c.get("chunk_id") == effective_pin),
-                    None,
-                )
+                target_chunk_obj = chunk_by_id(index, effective_pin)
         if target_chunk_obj is None and clean_history:
             prior_turn = clean_history[-1]
             prior_a = (prior_turn.get("answer") or "").strip()
-            m_q = _TAG_AND_QUOTE_RE.search(prior_a)
-            if m_q:
-                prior_chap = m_q.group(1).strip().rstrip(".")
-                prior_snippet = m_q.group(2).strip()[:50].lower()
-                for c in (index.get("chunks") or []):
-                    if str(c.get("chapter")) == prior_chap and prior_snippet in (c.get("text") or "").lower():
-                        target_chunk_obj = c
-                        break
-                if target_chunk_obj is None:
-                    for c in (index.get("chunks") or []):
-                        if prior_snippet in (c.get("text") or "").lower():
-                            target_chunk_obj = c
-                            break
+            prior_pos = prior_turn_chunk_position(index, prior_a)
+            if prior_pos is not None:
+                target_chunk_obj = index["chunks"][prior_pos]
         if target_chunk_obj is not None:
             prior_turn = clean_history[-1]
             prior_a = (prior_turn.get("answer") or "").strip()
@@ -3070,8 +3082,7 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
                     generate_fn=generate_fn,
                 )
                 lead_chunk = target_chunk_obj
-                chunks = index.get("chunks") or []
-                lead_neighbors = [c for c in chunks if str(c.get("chapter")) == chap and c.get("chunk_id") != lead_chunk.get("chunk_id")][:4]
+                lead_neighbors = chapter_neighbors(index, chap, lead_chunk.get("chunk_id"))
                 body["followups"] = compute_dynamic_followups(
                     lead_chunk, lead_neighbors, selection=selection,
                     question=question, answer_text=body.get("answer", ""), mode="ask",
@@ -3099,10 +3110,6 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
     body = parse_completion(completion, passages, figures, anchors, question=resolved_question)
     body = _half_covered(body, resolved_question, asked_form, passages, figures)
     body = _align_citation_to_query_concepts(body, resolved_question, passages)
-    clean_history = [
-        h for h in (history or [])
-        if isinstance(h, dict) and (h.get("question") or h.get("answer"))
-    ]
     if body.get("refused") and _has_passage_evidence(asked_form, passages, context["word_map"]):
         retry = _retry_uncited(
             context["asked"], passages, figures, generate_fn, model,
@@ -3133,7 +3140,7 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
             if isinstance(effective_pin, dict):
                 target_chunk_obj = effective_pin
             elif isinstance(effective_pin, str):
-                target_chunk_obj = next((c for c in (index.get("chunks") or []) if c.get("chunk_id") == effective_pin), None)
+                target_chunk_obj = chunk_by_id(index, effective_pin)
         if target_chunk_obj is None and passages:
             target_chunk_obj = passages[0]
         if target_chunk_obj is not None:
@@ -3163,10 +3170,7 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
         if isinstance(pin_chunk, dict):
             pin_chunk_obj = pin_chunk
         elif isinstance(pin_chunk, str):
-            pin_chunk_obj = next(
-                (c for c in (index.get("chunks") or []) if c.get("chunk_id") == pin_chunk),
-                None,
-            )
+            pin_chunk_obj = chunk_by_id(index, pin_chunk)
         if pin_chunk_obj is not None:
             clean_sel = _clean_selection_text(selection)
             anchor_quote = _anchor_sentence_for_selection(pin_chunk_obj, clean_sel)
@@ -3463,26 +3467,13 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
             if isinstance(effective_pin, dict):
                 target_chunk_obj = effective_pin
             elif isinstance(effective_pin, str):
-                target_chunk_obj = next(
-                    (c for c in (index.get("chunks") or []) if c.get("chunk_id") == effective_pin),
-                    None,
-                )
+                target_chunk_obj = chunk_by_id(index, effective_pin)
         if target_chunk_obj is None and clean_history:
             prior_turn = clean_history[-1]
             prior_a = (prior_turn.get("answer") or "").strip()
-            m_q = _TAG_AND_QUOTE_RE.search(prior_a)
-            if m_q:
-                prior_chap = m_q.group(1).strip().rstrip(".")
-                prior_snippet = m_q.group(2).strip()[:50].lower()
-                for c in (index.get("chunks") or []):
-                    if str(c.get("chapter")) == prior_chap and prior_snippet in (c.get("text") or "").lower():
-                        target_chunk_obj = c
-                        break
-                if target_chunk_obj is None:
-                    for c in (index.get("chunks") or []):
-                        if prior_snippet in (c.get("text") or "").lower():
-                            target_chunk_obj = c
-                            break
+            prior_pos = prior_turn_chunk_position(index, prior_a)
+            if prior_pos is not None:
+                target_chunk_obj = index["chunks"][prior_pos]
         if target_chunk_obj is not None:
             prior_turn = clean_history[-1]
             prior_a = (prior_turn.get("answer") or "").strip()
@@ -3514,8 +3505,7 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
                     generate_fn=generate_fn,
                 )
                 lead_chunk = target_chunk_obj
-                chunks = index.get("chunks") or []
-                lead_neighbors = [c for c in chunks if str(c.get("chapter")) == chap and c.get("chunk_id") != lead_chunk.get("chunk_id")][:4]
+                lead_neighbors = chapter_neighbors(index, chap, lead_chunk.get("chunk_id"))
                 body["followups"] = compute_dynamic_followups(
                     lead_chunk, lead_neighbors, selection=selection,
                     question=question, answer_text=body.get("answer", ""), mode="answer",
@@ -3583,7 +3573,7 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
             if isinstance(effective_pin, dict):
                 target_chunk_obj = effective_pin
             elif isinstance(effective_pin, str):
-                target_chunk_obj = next((c for c in (index.get("chunks") or []) if c.get("chunk_id") == effective_pin), None)
+                target_chunk_obj = chunk_by_id(index, effective_pin)
         if target_chunk_obj is None and passages:
             target_chunk_obj = passages[0]
         if target_chunk_obj is not None:
@@ -3613,10 +3603,7 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
         if isinstance(pin_chunk, dict):
             pin_chunk_obj = pin_chunk
         elif isinstance(pin_chunk, str):
-            pin_chunk_obj = next(
-                (c for c in (index.get("chunks") or []) if c.get("chunk_id") == pin_chunk),
-                None,
-            )
+            pin_chunk_obj = chunk_by_id(index, pin_chunk)
         if pin_chunk_obj is not None:
             clean_sel = _clean_selection_text(selection)
             anchor_quote = _anchor_sentence_for_selection(pin_chunk_obj, clean_sel)
@@ -4021,9 +4008,8 @@ def _pin_chunk(index, passages, chunk_id, end_chunk_id=None):
     """
     if not chunk_id and not end_chunk_id:
         return passages
-    chunks = index.get("chunks") or []
-    c1 = next((item for item in chunks if item.get("chunk_id") == chunk_id), None) if chunk_id else None
-    c2 = next((item for item in chunks if item.get("chunk_id") == end_chunk_id), None) if end_chunk_id and end_chunk_id != chunk_id else None
+    c1 = chunk_by_id(index, chunk_id) if chunk_id else None
+    c2 = chunk_by_id(index, end_chunk_id) if end_chunk_id and end_chunk_id != chunk_id else None
 
     if c1 is None and c2 is None:
         return passages
@@ -4265,17 +4251,17 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
     neighbors = []
     chunks = index.get("chunks") or []
     if chunk_id:
-        for i, c in enumerate(chunks):
-            if c.get("chunk_id") == chunk_id:
-                pin_chunk_obj = c
-                if i > 0 and chunks[i - 1].get("chapter") == c.get("chapter"):
-                    neighbors.append(chunks[i - 1])
-                if i + 1 < len(chunks) and chunks[i + 1].get("chapter") == c.get("chapter"):
-                    neighbors.append(chunks[i + 1])
-                break
+        i = chunk_position(index, chunk_id)
+        if i is not None:
+            c = chunks[i]
+            pin_chunk_obj = c
+            if i > 0 and chunks[i - 1].get("chapter") == c.get("chapter"):
+                neighbors.append(chunks[i - 1])
+            if i + 1 < len(chunks) and chunks[i + 1].get("chapter") == c.get("chapter"):
+                neighbors.append(chunks[i + 1])
 
     if end_chunk_id:
-        end_chunk_obj = next((c for c in chunks if c.get("chunk_id") == end_chunk_id), None)
+        end_chunk_obj = chunk_by_id(index, end_chunk_id)
         if end_chunk_obj and end_chunk_obj not in neighbors and end_chunk_obj != pin_chunk_obj:
             neighbors.append(end_chunk_obj)
 
@@ -4587,10 +4573,7 @@ def quiz(index, generate_fn=None, model=ANSWER_MODEL, rng=None, chunk=None,
     rng = rng or random.Random()
     chunks = index.get("chunks") or []
     if chunk is None and chunk_id:
-        found_chunk = next(
-            (c for c in chunks if c.get("chunk_id") == chunk_id),
-            None,
-        )
+        found_chunk = chunk_by_id(index, chunk_id)
         if found_chunk is not None:
             if quiz_sentences(found_chunk.get("text") or ""):
                 chunk = found_chunk
