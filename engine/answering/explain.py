@@ -1,28 +1,25 @@
 import re
 
-from engine.answering.context import _patch_figures_src, _should_include_chunk_figures
-from engine.answering.freeanswer import _tokens
+from engine.answering.context import patch_figures_src, should_include_chunk_figures
+from engine.answering.answermode import claim_tokens
 from engine.answering.generate import ollama_generate
 from engine.answering.gloss import (
-    _gloss_repeats_quote,
-    _has_content_word_overlap,
-    _is_coherent_gloss,
-    _strip_ch_tags,
-    _synthesize_grounded_gloss,
+    gloss_repeats_quote,
+    has_content_word_overlap,
+    is_coherent_gloss,
+    strip_ch_tags,
+    synthesize_grounded_gloss,
 )
 from engine.answering.intent import analyze_intent, compute_dynamic_followups
-from engine.answering.messages import _explain_gloss_user_message
+from engine.answering.messages import explain_gloss_user_message
 from engine.answering.prompt import ANSWER_MODEL, EXPLAIN_GLOSS_SYSTEM
-from engine.answering.quoteask import ask
-from engine.answering.quotecheck import _quote_in_passage, _refusal
+from engine.answering.askmode import ask
+from engine.answering.quotecheck import quote_in_passage, refusal_response
 from engine.answering.sanitize import is_prompt_injection, sanitize_query
-from engine.answering.shared import (
-    _anchor_sentence_for_selection,
-    _candidate_sentences,
-    _clean_boilerplate_gloss,
-    chunk_by_id,
-    chunk_position,
-)
+from engine.answering.glossclean import clean_boilerplate_gloss
+from engine.answering.indexmaps import chunk_by_id, chunk_position
+from engine.answering.selection import anchor_sentence_for_selection
+from engine.answering.sentences import candidate_sentences
 from engine.figures import figures_for
 
 
@@ -44,8 +41,8 @@ def _cross_chunk_quotes(chunk1, chunk2, selection):
         return None, None
     text1 = chunk1.get("text") or ""
     text2 = chunk2.get("text") or ""
-    cands1 = _candidate_sentences(text1, chunk1.get("heading") or "")
-    cands2 = _candidate_sentences(text2, chunk2.get("heading") or "")
+    cands1 = candidate_sentences(text1, chunk1.get("heading") or "")
+    cands2 = candidate_sentences(text2, chunk2.get("heading") or "")
     if not cands1 or not cands2:
         return None, None
 
@@ -58,8 +55,8 @@ def _cross_chunk_quotes(chunk1, chunk2, selection):
             part1 = " ".join(words_list[:split_pt])
             part2 = " ".join(words_list[split_pt:])
             if part1 in text1.lower() and part2 in text2.lower():
-                a1 = _anchor_sentence_for_selection(chunk1, part1)
-                a2 = _anchor_sentence_for_selection(chunk2, part2)
+                a1 = anchor_sentence_for_selection(chunk1, part1)
+                a2 = anchor_sentence_for_selection(chunk2, part2)
                 if a1 and a2:
                     return a1, a2
                 if a1 and not q1:
@@ -75,22 +72,22 @@ def _cross_chunk_quotes(chunk1, chunk2, selection):
 
 
 def _generated_gloss(generate_fn, model, selection, prompt_quote, chunk, neighbors):
-    gloss_prompt = _explain_gloss_user_message(selection, prompt_quote, chunk, neighbors)
+    gloss_prompt = explain_gloss_user_message(selection, prompt_quote, chunk, neighbors)
     try:
         raw_gloss = generate_fn(EXPLAIN_GLOSS_SYSTEM, gloss_prompt, model)
     except Exception:
         raw_gloss = ""
-    return _clean_boilerplate_gloss(_strip_ch_tags((raw_gloss or "").strip()), selection)
+    return clean_boilerplate_gloss(strip_ch_tags((raw_gloss or "").strip()), selection)
 
 
 def _explain_gloss(generate_fn, model, selection, prompt_quote, chunk, neighbors, passing_mention=False):
     gloss = _generated_gloss(generate_fn, model, selection, prompt_quote, chunk, neighbors)
-    if not _is_coherent_gloss(gloss, prompt_quote) or _gloss_repeats_quote(gloss, prompt_quote) or (
+    if not is_coherent_gloss(gloss, prompt_quote) or gloss_repeats_quote(gloss, prompt_quote) or (
         passing_mention
-        and not _has_content_word_overlap(gloss, prompt_quote, exclude=f"{selection} {chunk.get('heading', '')}")
+        and not has_content_word_overlap(gloss, prompt_quote, exclude=f"{selection} {chunk.get('heading', '')}")
     ):
-        gloss = _synthesize_grounded_gloss(selection, prompt_quote, chunk, neighbors, generate_fn, model)
-    return _strip_ch_tags(gloss) if gloss else gloss
+        gloss = synthesize_grounded_gloss(selection, prompt_quote, chunk, neighbors, generate_fn, model)
+    return strip_ch_tags(gloss) if gloss else gloss
 
 
 def _explain_neighborhood(index, chunk_id, end_chunk_id):
@@ -115,18 +112,18 @@ def _explain_neighborhood(index, chunk_id, end_chunk_id):
 
 
 def _relocate_chunk(quote, chosen_chunk, pin_chunk_obj, neighbors):
-    if not quote or _quote_in_passage(quote, chosen_chunk.get("text") or ""):
+    if not quote or quote_in_passage(quote, chosen_chunk.get("text") or ""):
         return chosen_chunk
-    if _quote_in_passage(quote, pin_chunk_obj.get("text") or ""):
+    if quote_in_passage(quote, pin_chunk_obj.get("text") or ""):
         return pin_chunk_obj
     for n in neighbors:
-        if n and _quote_in_passage(quote, n.get("text") or ""):
+        if n and quote_in_passage(quote, n.get("text") or ""):
             return n
     return chosen_chunk
 
 
 def _select_anchor(selection, pin_chunk_obj, sec_chunk_obj, neighbors, intent_info):
-    anchor_quote = intent_info.get("anchor_sentence") or _anchor_sentence_for_selection(pin_chunk_obj, selection)
+    anchor_quote = intent_info.get("anchor_sentence") or anchor_sentence_for_selection(pin_chunk_obj, selection)
     chosen_chunk = intent_info.get("chosen_chunk") or pin_chunk_obj
     quote2 = None
     if sec_chunk_obj and (anchor_quote is None or selection.lower() not in (pin_chunk_obj.get("text") or "").lower()):
@@ -169,7 +166,7 @@ def _explain_body(index, chunk_id, selection, quote, quote2, sec_chunk_obj, chos
         answer_text = f'[Ch. {chapter}] "{quote}"\n{gloss}'
 
     figures_all = index.get("figures") or []
-    if _should_include_chunk_figures(chosen_chunk, selection, quote, figures_all):
+    if should_include_chunk_figures(chosen_chunk, selection, quote, figures_all):
         figures_pool = [chosen_chunk]
         if sec_chunk_obj and quote2:
             figures_pool.append(sec_chunk_obj)
@@ -200,7 +197,7 @@ def _ask_body_is_valid(body, selection, chunk_id, quote2, valid_sents):
         second_line = answer_lines[1]
         norm_second = re.sub(r"[\s\"'“”]+", " ", second_line).strip().lower()
         norm_quote = re.sub(r"[\s\"'“”]+", " ", cite_quote).strip().lower()
-        new_words = _tokens(second_line) - _tokens(cite_quote)
+        new_words = claim_tokens(second_line) - claim_tokens(cite_quote)
         if (norm_second and norm_second != norm_quote
                 and len(norm_second) > 25 and len(new_words) >= 3):
             has_gloss = True
@@ -223,7 +220,7 @@ def _preferred_quote(body, anchor_quote, pin_chunk_obj, chunk_id, quote2, select
             body["citations"][0].get("chunk_id") == chunk_id and not quote2):
         cand_quote = body["citations"][0].get("quote", "")
         if (selection.lower() in cand_quote.lower() and
-                _quote_in_passage(cand_quote, pin_chunk_obj.get("text", "")) and
+                quote_in_passage(cand_quote, pin_chunk_obj.get("text", "")) and
                 (not valid_sents or cand_quote in valid_sents) and
                 len(cand_quote) >= 40):
             return cand_quote
@@ -232,21 +229,21 @@ def _preferred_quote(body, anchor_quote, pin_chunk_obj, chunk_id, quote2, select
 
 def _grounded_explain(index, body, selection, chunk_id, pin_chunk_obj, sec_chunk_obj, chosen_chunk,
                       neighbors, anchor_quote, quote2, generate_fn, model):
-    valid_sents = set(_candidate_sentences(pin_chunk_obj.get("text") or "", pin_chunk_obj.get("heading") or ""))
+    valid_sents = set(candidate_sentences(pin_chunk_obj.get("text") or "", pin_chunk_obj.get("heading") or ""))
     if _ask_body_is_valid(body, selection, chunk_id, quote2, valid_sents):
         answer_lines = _answer_lines(body)
         if len(answer_lines) >= 2:
-            cleaned_second = _clean_boilerplate_gloss(answer_lines[1], selection)
-            if not _is_coherent_gloss(cleaned_second, anchor_quote):
-                cleaned_second = _synthesize_grounded_gloss(selection, anchor_quote, chosen_chunk, neighbors, generate_fn, model)
+            cleaned_second = clean_boilerplate_gloss(answer_lines[1], selection)
+            if not is_coherent_gloss(cleaned_second, anchor_quote):
+                cleaned_second = synthesize_grounded_gloss(selection, anchor_quote, chosen_chunk, neighbors, generate_fn, model)
             body["answer"] = f"{answer_lines[0]}\n{cleaned_second}"
-        return _patch_figures_src(_with_followups(body, chosen_chunk, neighbors, selection), index)
+        return patch_figures_src(_with_followups(body, chosen_chunk, neighbors, selection), index)
 
     quote = _preferred_quote(body, anchor_quote, pin_chunk_obj, chunk_id, quote2, selection, valid_sents)
     chosen_chunk = _relocate_chunk(quote, chosen_chunk, pin_chunk_obj, neighbors)
     quote_for_prompt = f"{quote} {quote2}" if quote2 else quote
     gloss = _explain_gloss(generate_fn, model, selection, quote_for_prompt, chosen_chunk, neighbors)
-    return _patch_figures_src(
+    return patch_figures_src(
         _explain_body(index, chunk_id, selection, quote, quote2, sec_chunk_obj, chosen_chunk, neighbors, gloss),
         index,
     )
@@ -255,7 +252,7 @@ def _grounded_explain(index, body, selection, chunk_id, pin_chunk_obj, sec_chunk
 def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
             chunk_id=None, heading="", end_chunk_id=None, embed_fn=None):
     if is_prompt_injection(selection):
-        return _refusal([])
+        return refusal_response([])
     selection = sanitize_query(selection)
     if not (selection or "").strip():
         raise ValueError("missing selection")
@@ -292,4 +289,4 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
             neighbors, anchor_quote, quote2, generate_fn, model,
         )
 
-    return _patch_figures_src(_with_followups(body, chosen_chunk, neighbors, selection), index)
+    return patch_figures_src(_with_followups(body, chosen_chunk, neighbors, selection), index)

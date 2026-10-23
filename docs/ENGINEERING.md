@@ -36,7 +36,7 @@ Top level (`engine/`):
 | Module | Job |
 | --- | --- |
 | `server.py` | HTTP routes, request validation, NDJSON streaming, EPUB import, static serving of `web/out`, warm-up, in-process index and chunk caches. |
-| `llm.py` | The one Ollama client: chat (blocking and streaming), embed, loaded-model query. Temperature 0, `think: false`, capped `num_predict`, `keep_alive`. |
+| `llm.py` | The one Ollama client and the `ANSWER_MODEL` default: chat (blocking and streaming), embed, loaded-model query. Temperature 0, `think: false`, capped `num_predict`, `keep_alive`. |
 | `ingest.py` | EPUB spine to chunks and figures, catalog update (`data/books.json`). |
 | `figures.py` | Figure resolution from the filesystem and the rule for which figures attach to an answer. |
 
@@ -46,19 +46,22 @@ Retrieval (`engine/retrieval/`):
 | --- | --- |
 | `retrieve.py` | Index load, embedding (with task prefixes and vector hygiene guards), dense ranking by dot product over unit vectors, reader payload (`chunks_payload`). |
 | `preprocess.py` | The text seam: `normalize`, `fold`, `tokens`, `words`, `stem`, stopwords. Backed by `vendor/`. |
-| `keywords.py` | Inverted postings, rare-word gate, anchor words. |
+| `keywords.py` | Inverted postings, rare-word gate, anchor words, book word forms. |
 | `fusion.py` | Reciprocal rank fusion of one lexical candidate into the dense results, gated by a dense-rank band. |
 | `captions.py` | Seeds the chunk that names a figure whose caption outscores the best chunk. |
-| `readings.py` | Typo repair: a question word absent from the book is read as its closest book word, kept only if the score strictly improves. |
+| `readings.py` | Typo repair: a question word absent from the book is read as its closest book word, kept only if the score strictly improves. Depends on `llm.py` only; the spelling prompt (`SPELL_SYSTEM`) lives here. |
 
-Answering (`engine/answering/`). `answer.py` is a re-export front: import public
-names from it; the work lives in the modules below.
+Answering (`engine/answering/`). `answer.py` re-exports only the public API
+(`ask`, `respond`, `explain`, `quiz`, `ollama_generate`, `ollama_generate_stream`,
+`is_prompt_injection`, `sanitize_history`, `sanitize_query`); everything else is
+imported from the defining module below. `retrieval/` imports nothing from
+`answering/`, and the import graph has no cycles.
 
 | Module | Job |
 | --- | --- |
 | `pipeline.py` | The shared turn: `begin_turn` (sanitize, topic-shift check), `simplify_shortcut`, then `finalize` (list expansion, follow-up quote advance, pinned-anchor quote, history guards, gloss, follow-up chips). |
-| `quoteask.py` | `ask` mode: quote-first generation, strict quote check. |
-| `freeanswer.py` | `answer` mode: tag-to-citation parsing, the `[Ch. ` retry, the plain-words register. |
+| `askmode.py` | `ask` mode: quote-first generation, strict quote check. |
+| `answermode.py` | `answer` mode: tag-to-citation parsing, the `[Ch. ` retry, the plain-words register. |
 | `explain.py` | `explain` mode: the reader's selection is the question; its chapter neighborhood is the evidence. |
 | `quiz.py` | `quiz` mode: one question plus one key sentence from one chunk. |
 | `context.py` | `retrieval_context`: search, pin, reading, fusion, caption seeding, history and pin neighbors. |
@@ -71,7 +74,11 @@ names from it; the work lives in the modules below.
 | `canonical.py` | Bare-phrase and comparator rewrites (`Asked as:`). |
 | `messages.py`, `prompt.py` | User-message builders and the system prompts, model tags. |
 | `sanitize.py` | Prompt-injection check, history clipping. |
-| `shared.py` | Sentence splitting, chunk lookups, candidate sentences, shared regexes. |
+| `sentences.py` | Cached `cached_words` and `cached_tokens`, sentence splitting, candidate sentences, whitespace folding and word-pattern helpers. |
+| `indexmaps.py` | Per-index chunk id, position and chapter maps (`chunk_by_id`, `chunk_position`, `chapter_neighbors`). |
+| `selection.py` | Selection cleanup, the anchor sentence for a selection, query entity extraction. |
+| `glossclean.py` | Gloss boilerplate scrub and acronym casing. |
+| `textrules.py` | Quote-check thresholds and the query-shape regexes (trap, price, year, chapter, comparison prefix). |
 | `generate.py` | Thin Ollama generate wrappers carrying the `_is_live` marker the streaming layer reads. |
 
 Other directories: `scripts/` (launch, model setup, preflight, index

@@ -1,7 +1,7 @@
 import math
 
 from engine.figures import cited_numbers, number_from_id
-from engine.retrieval.retrieve import DEFAULT_EMBEDDER, _dot, cosine, embed_texts, ollama_embed
+from engine.retrieval.retrieve import DEFAULT_EMBEDDER, dot_product, cosine, embed_texts, ollama_embed
 
 
 def caption_seed(index, question, passages, model=DEFAULT_EMBEDDER, embed_fn=None):
@@ -21,14 +21,14 @@ def caption_seed(index, question, passages, model=DEFAULT_EMBEDDER, embed_fn=Non
         raise SystemExit(
             "query embedding is empty, non-finite, or all-zero; refusing to rank."
         )
-    q_norm = math.sqrt(_dot(query, query))
+    q_norm = math.sqrt(dot_product(query, query))
     q_unit = [x / q_norm for x in query] if q_norm > 0.0 else query
     best_figure = None
     best_score = 0.0
     for figure in figures:
         f_uvec = figure.get("_uvec")
         if f_uvec is not None:
-            score = _dot(q_unit, f_uvec)
+            score = dot_product(q_unit, f_uvec)
         else:
             vector = figure.get("embedding")
             if not vector:
@@ -52,7 +52,7 @@ def caption_seed(index, question, passages, model=DEFAULT_EMBEDDER, embed_fn=Non
     def relevance(chunk):
         c_uvec = chunk.get("_uvec")
         if c_uvec is not None:
-            return _dot(q_unit, c_uvec)
+            return dot_product(q_unit, c_uvec)
         vector = chunk.get("embedding")
         return cosine(query, vector) if vector else 0.0
 

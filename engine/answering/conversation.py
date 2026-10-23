@@ -2,27 +2,24 @@ import re
 
 from engine.answering.canonical import is_deictic_question, is_incomplete_stem
 from engine.answering.intent import META_TRANSITION_RE
-from engine.answering.listshape import _list_ask
+from engine.answering.listshape import list_ask
 from engine.answering.messages import SIMPLIFY_RE
-from engine.answering.quotecheck import _complete_truncated_quote, _quote_in_passage
-from engine.answering.shared import (
-    FRAMING_WORDS,
+from engine.answering.quotecheck import complete_truncated_quote, quote_in_passage
+from engine.answering.indexmaps import chunk_by_id
+from engine.answering.selection import clean_selection_text, extract_query_entities, FRAMING_WORDS
+from engine.answering.sentences import cached_words, candidate_sentences
+from engine.answering.textrules import (
+    ATTRIBUTION_MARKERS,
+    AUTHOR_NAME_RE,
     PARAGRAPH_CAP,
-    _ATTRIBUTION_MARKERS,
-    _AUTHOR_NAME_RE,
-    _TAG_AND_QUOTE_RE,
-    _TOPIC_SHIFT_CONCEPT_RE,
-    _candidate_sentences,
-    _clean_selection_text,
-    _extract_query_entities,
-    chunk_by_id,
-    words,
+    TAG_AND_QUOTE_RE,
+    TOPIC_SHIFT_CONCEPT_RE,
 )
 from engine.retrieval.preprocess import STOPWORDS
 
 
 def prior_turn_chunk_position(index, prior_answer):
-    m = _TAG_AND_QUOTE_RE.search(prior_answer)
+    m = TAG_AND_QUOTE_RE.search(prior_answer)
     if not m:
         return None
     prior_chap = m.group(1).strip().rstrip(".")
@@ -139,7 +136,7 @@ def _extract_subject_from_query(s):
     return q or s
 
 
-def _extract_subject_from_history(history):
+def extract_subject_from_history(history):
     clean_history = [
         h for h in (history or [])
         if isinstance(h, dict) and (h.get("question") or h.get("answer"))
@@ -163,7 +160,7 @@ def _extract_subject_from_history(history):
     for prev in reversed(clean_history):
         prev_a = (prev.get("answer") or "").strip()
         if prev_a:
-            m_q = _TAG_AND_QUOTE_RE.search(prev_a)
+            m_q = TAG_AND_QUOTE_RE.search(prev_a)
             if m_q:
                 quote = m_q.group(1).strip()
                 m_sub = _EXTRACT_SUBJ_CAND_RE.match(quote)
@@ -213,7 +210,7 @@ def _has_deictic_reference(question: str) -> bool:
     return bool(DEICTIC_REF_RE.search(question or ""))
 
 
-def _is_topic_shift_followup(question: str, history: list, selection: str = "", pin_chunk=None, index=None) -> bool:
+def is_topic_shift_followup(question: str, history: list, selection: str = "", pin_chunk=None, index=None) -> bool:
     if not history:
         return False
     if (
@@ -234,22 +231,22 @@ def _is_topic_shift_followup(question: str, history: list, selection: str = "", 
         return False
 
     q_novel = [
-        w.lower() for w in words(question)
+        w.lower() for w in cached_words(question)
         if w.lower() not in STOPWORDS and w.lower() not in FRAMING_WORDS and w.lower() not in CONVERSATIONAL_DIRECTIVES and len(w) >= 3
     ]
     if not q_novel:
         return False
 
-    hist_words = set(words((_extract_subject_from_history(clean_history) or "").lower()))
+    hist_words = set(cached_words((extract_subject_from_history(clean_history) or "").lower()))
     if selection:
-        hist_words.update(w.lower() for w in words(selection))
+        hist_words.update(w.lower() for w in cached_words(selection))
     last_turn = clean_history[-1]
     last_q = (last_turn.get("question") or "").strip()
     if last_q:
-        hist_words.update(w.lower() for w in words(last_q))
+        hist_words.update(w.lower() for w in cached_words(last_q))
     last_a = (last_turn.get("answer") or "").strip()
     if last_a:
-        hist_words.update(w.lower() for w in words(last_a))
+        hist_words.update(w.lower() for w in cached_words(last_a))
 
     pin_chunk_obj = None
     if pin_chunk:
@@ -258,16 +255,16 @@ def _is_topic_shift_followup(question: str, history: list, selection: str = "", 
         elif isinstance(pin_chunk, str) and index:
             pin_chunk_obj = chunk_by_id(index, pin_chunk)
 
-    m_concept = _TOPIC_SHIFT_CONCEPT_RE.match(question.strip())
+    m_concept = TOPIC_SHIFT_CONCEPT_RE.match(question.strip())
     if m_concept:
         concept_target = m_concept.group(1).strip()
-        target_words = {w.lower() for w in words(concept_target) if w.lower() not in STOPWORDS and len(w) >= 2}
+        target_words = {w.lower() for w in cached_words(concept_target) if w.lower() not in STOPWORDS and len(w) >= 2}
         if last_a and len(target_words) >= 3 and all(w in last_a.lower() for w in target_words):
             return False
-        sub_words = {w.lower() for w in words((_extract_subject_from_history(clean_history) or "").lower()) if w.lower() not in STOPWORDS}
+        sub_words = {w.lower() for w in cached_words((extract_subject_from_history(clean_history) or "").lower()) if w.lower() not in STOPWORDS}
         if pin_chunk_obj is not None:
             p_head = (pin_chunk_obj.get("heading") or "").lower()
-            if concept_target.lower() in p_head or (target_words and target_words.issubset({w.lower() for w in words(p_head)})):
+            if concept_target.lower() in p_head or (target_words and target_words.issubset({w.lower() for w in cached_words(p_head)})):
                 return False
             if index:
                 chunks = index.get("chunks") or []
@@ -296,16 +293,16 @@ def _is_topic_shift_followup(question: str, history: list, selection: str = "", 
         if set(q_novel) & hist_words:
             return False
         if pin_chunk_obj is not None:
-            pin_words = {w.lower() for w in words(pin_chunk_obj.get("text", ""))}
+            pin_words = {w.lower() for w in cached_words(pin_chunk_obj.get("text", ""))}
             if set(q_novel) & pin_words:
                 return False
         if len(q_novel) >= 2 and not (set(q_novel) & hist_words):
-            if pin_chunk_obj is None or not (set(q_novel) & {w.lower() for w in words(pin_chunk_obj.get("text", ""))}):
+            if pin_chunk_obj is None or not (set(q_novel) & {w.lower() for w in cached_words(pin_chunk_obj.get("text", ""))}):
                 return True
         return False
 
 
-def _rank_seq_chunks(seq_chunks, question, history_subject=None):
+def rank_seq_chunks(seq_chunks, question, history_subject=None):
     q_lower = (question or "").lower()
     q_words = set(re.findall(r"\b[a-zA-Z0-9]+\b", q_lower))
 
@@ -407,7 +404,7 @@ def _resolve_from_selection(q, sel, head):
 
 def _stem_sentence(chunks, stem):
     for chunk in chunks:
-        for sent in _candidate_sentences(chunk.get("text") or "", chunk.get("heading") or ""):
+        for sent in candidate_sentences(chunk.get("text") or "", chunk.get("heading") or ""):
             if sent.lower().startswith(stem + " ") and len(sent) >= 20:
                 return sent
     return None
@@ -446,10 +443,10 @@ def _resolve_incomplete_stem(index, q, head, pin_chunk_obj):
     return None
 
 
-def _resolve_contextual_query(index, question, pin_chunk=None, selection="",
+def resolve_contextual_query(index, question, pin_chunk=None, selection="",
                               heading="", history=None):
     q = re.sub(r"\s+", " ", (question or "")).strip()
-    sel = _clean_selection_text(selection)
+    sel = clean_selection_text(selection)
     head = re.sub(r"\s+", " ", (heading or "")).strip()
 
     pin_chunk_obj = None
@@ -464,7 +461,7 @@ def _resolve_contextual_query(index, question, pin_chunk=None, selection="",
     ]
 
     if clean_history:
-        subject = _extract_subject_from_history(clean_history) or sel
+        subject = extract_subject_from_history(clean_history) or sel
         if subject:
             resolved = _resolve_from_history(q, subject)
             if resolved is not None:
@@ -524,10 +521,10 @@ def _followup_sentence_score(s_clean, norm_s, norm_prior, c_text, q_low, q_token
                 score += 10
 
     if _ATTRIBUTION_QUERY_RE.search(q_low):
-        for marker in _ATTRIBUTION_MARKERS:
+        for marker in ATTRIBUTION_MARKERS:
             if marker in s_low:
                 score += 15
-        if _AUTHOR_NAME_RE.search(s_clean):
+        if AUTHOR_NAME_RE.search(s_clean):
             score += 20
 
     for t in q_tokens:
@@ -538,7 +535,7 @@ def _followup_sentence_score(s_clean, norm_s, norm_prior, c_text, q_low, q_token
         if ent.lower() in s_low:
             score += 30 * len(ent.split())
 
-    if _list_ask(followup_question, followup_question) and ":" in s_clean and "," in s_clean:
+    if list_ask(followup_question, followup_question) and ":" in s_clean and "," in s_clean:
         score += 25
     return score
 
@@ -555,18 +552,18 @@ def _expand_short_quote(sents, i, s_clean, c_text):
         next_s = sents[i + 1].strip()
         if len(next_s) >= 20 and not next_s.lower().startswith(("second,", "third,", "finally,")):
             combined = f"{s_clean} {next_s}"
-            if len(combined) <= PARAGRAPH_CAP and _quote_in_passage(combined, c_text):
+            if len(combined) <= PARAGRAPH_CAP and quote_in_passage(combined, c_text):
                 return combined
     elif i > 0:
         prev_s = sents[i - 1].strip()
         if len(prev_s) >= 20:
             combined = f"{prev_s} {s_clean}"
-            if len(combined) <= PARAGRAPH_CAP and _quote_in_passage(combined, c_text):
+            if len(combined) <= PARAGRAPH_CAP and quote_in_passage(combined, c_text):
                 return combined
     return s_clean
 
 
-def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_question=""):
+def advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_question=""):
     if not chunk_obj or not followup_question:
         return None
 
@@ -575,16 +572,16 @@ def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_
 
     q_low = followup_question.lower()
     q_tokens = [
-        w.lower() for w in words(q_low)
+        w.lower() for w in cached_words(q_low)
         if w.lower() not in STOPWORDS and w.lower() not in FRAMING_WORDS and len(w) >= 3
     ]
-    query_entities = _extract_query_entities(followup_question, chunk_obj.get("heading", ""))
+    query_entities = extract_query_entities(followup_question, chunk_obj.get("heading", ""))
     norm_prior = re.sub(r"[\s\"'“”]+", " ", prior_quote or "").strip().lower()
 
     scored_cands = []
     for c in _followup_pool(chunk_obj, neighbors):
         c_text = c.get("text") or ""
-        sents = _candidate_sentences(c_text, c.get("heading") or "")
+        sents = candidate_sentences(c_text, c.get("heading") or "")
         for i, s in enumerate(sents):
             s_clean = s.strip()
             if len(s_clean) < 30:
@@ -608,6 +605,6 @@ def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_
     scored_cands.sort(key=lambda item: (item[0], item[1]), reverse=True)
     best_cand = scored_cands[0]
     if best_cand[0] >= 10:
-        return _complete_truncated_quote(best_cand[2], best_cand[3].get("text") or "")
+        return complete_truncated_quote(best_cand[2], best_cand[3].get("text") or "")
 
     return None

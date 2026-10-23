@@ -2,6 +2,7 @@ import json
 import os
 import urllib.request
 
+ANSWER_MODEL = os.environ.get("ANSWER_MODEL", "nekohon_x3")
 BASE = "http://127.0.0.1:11434"
 CHAT_URL = BASE + "/api/chat"
 EMBED_URL = BASE + "/api/embed"

@@ -1,26 +1,25 @@
 import re
 
-from engine.answering.shared import (
-    PARAGRAPH_CAP,
-    SPAN_MIN_CHARS,
-    _fold,
-    _heading_prefix_pattern,
-    _token_word_pattern,
-    _words_pattern,
+from engine.answering.sentences import (
+    collapse_lower,
+    heading_prefix_pattern,
+    token_word_pattern,
+    words_pattern,
 )
+from engine.answering.textrules import PARAGRAPH_CAP, SPAN_MIN_CHARS
 
 
-def _paragraph_around(quote, passage_text):
-    folded = _fold(quote)
+def paragraph_around(quote, passage_text):
+    folded = collapse_lower(quote)
     if not folded:
         return ""
     for paragraph in re.split(r"\n\s*\n", passage_text or ""):
-        if folded in _fold(paragraph):
+        if folded in collapse_lower(paragraph):
             return re.sub(r"\s+", " ", paragraph).strip()
     return ""
 
 
-def _plural(word):
+def pluralize(word):
     if len(word) < 4 or word.endswith(("ss", "us", "is", "ous")):
         return False
     if word.endswith("ies"):
@@ -30,16 +29,16 @@ def _plural(word):
     return word.endswith("s")
 
 
-def _whole_paragraph(anchors, paragraph, quote):
+def whole_paragraph(anchors, paragraph, quote):
     if not paragraph or len(paragraph) > PARAGRAPH_CAP:
         return False
-    folded = _fold(paragraph)
-    folded_quote = _fold(quote)
+    folded = collapse_lower(paragraph)
+    folded_quote = collapse_lower(quote)
     for word in anchors:
-        pat = _token_word_pattern(word)
+        pat = token_word_pattern(word)
         if not pat.search(folded):
             continue
-        if _plural(word) or not pat.search(folded_quote):
+        if pluralize(word) or not pat.search(folded_quote):
             return True
     return False
 
@@ -52,7 +51,7 @@ LIST_ASK = re.compile(
 )
 
 
-def _list_ask(question, asked_form):
+def list_ask(question, asked_form):
     for text in (question, asked_form):
         if text and LIST_ASK.search(text):
             return True
@@ -77,8 +76,8 @@ def _is_lead_in(quote):
     return True
 
 
-def _after_lead_in(quote, passage_text):
-    pat = _words_pattern(quote)
+def after_lead_in(quote, passage_text):
+    pat = words_pattern(quote)
     if pat is None or not passage_text:
         return ""
     match = pat.search(passage_text)
@@ -112,8 +111,8 @@ def _replace_lead_in(answer, lead, continuation):
     return answer.replace(lead, continuation, 1)
 
 
-def _expand_list(body, question, asked_form, passages):
-    if body.get("refused") or not _list_ask(question, asked_form):
+def expand_list(body, question, asked_form, passages):
+    if body.get("refused") or not list_ask(question, asked_form):
         return body
     by_id = {hit.get("chunk_id"): hit for hit in passages}
     expanded = False
@@ -121,7 +120,7 @@ def _expand_list(body, question, asked_form, passages):
         hit = by_id.get(item.get("chunk_id"))
         if hit is None or not _is_lead_in(item.get("quote")):
             continue
-        continuation = _after_lead_in(item.get("quote"), hit.get("text") or "")
+        continuation = after_lead_in(item.get("quote"), hit.get("text") or "")
         if not continuation:
             continue
         lead = item["quote"]
@@ -138,7 +137,7 @@ def _expand_list(body, question, asked_form, passages):
         if not _is_lead_in(lead):
             return match.group(0)
         for hit in passages:
-            continuation = _after_lead_in(lead, hit.get("text") or "")
+            continuation = after_lead_in(lead, hit.get("text") or "")
             if continuation:
                 return f'"{continuation}"'
         return match.group(0)
@@ -176,9 +175,9 @@ def _drop_lead_in_already_listed(answer):
     return "\n".join(kept)
 
 
-def _without_heading(quote, passage):
+def without_heading(quote, passage):
     heading = (passage.get("text") or "").split("\n", 1)[0].strip()
-    pat = _heading_prefix_pattern(heading)
+    pat = heading_prefix_pattern(heading)
     if pat is None:
         return quote
     match = pat.match(quote)
@@ -190,7 +189,7 @@ def _without_heading(quote, passage):
     return rest
 
 
-def _synthesize_list_answer(question: str, quote: str, chunk_obj: dict) -> str:
+def synthesize_list_answer(question: str, quote: str, chunk_obj: dict) -> str:
     raw_text = (chunk_obj.get("text") or "") if isinstance(chunk_obj, dict) else ""
     items = []
     if quote and "," in quote:

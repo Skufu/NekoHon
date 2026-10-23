@@ -2,12 +2,14 @@ import re
 
 from engine.answering.canonical import STEM_WORDS
 from engine.answering.conversation import (
-    _extract_subject_from_history,
-    _is_topic_shift_followup,
-    _rank_seq_chunks,
+    extract_subject_from_history,
+    is_topic_shift_followup,
+    rank_seq_chunks,
     prior_turn_chunk_position,
 )
-from engine.answering.shared import _TOPIC_SHIFT_CONCEPT_RE, chunk_by_id, chunk_position, words
+from engine.answering.indexmaps import chunk_by_id, chunk_position
+from engine.answering.sentences import cached_words
+from engine.answering.textrules import TOPIC_SHIFT_CONCEPT_RE
 from engine.figures import cited_numbers, number_from_id
 from engine.retrieval.captions import caption_seed
 from engine.retrieval.fusion import fuse
@@ -23,7 +25,7 @@ PASSAGE_LIMIT = 5
 DEFAULT_BOOK_ID = "".join(["f", "d", "e"])
 
 
-def _patch_figures_src(body, index):
+def patch_figures_src(body, index):
     if not isinstance(body, dict) or not isinstance(index, dict):
         return body
     book_id = index.get("book_id", DEFAULT_BOOK_ID)
@@ -34,7 +36,7 @@ def _patch_figures_src(body, index):
     return body
 
 
-def _should_include_chunk_figures(chunk, selection, quote, all_figures):
+def should_include_chunk_figures(chunk, selection, quote, all_figures):
     if not chunk:
         return False
     if cited_numbers(quote):
@@ -46,7 +48,7 @@ def _should_include_chunk_figures(chunk, selection, quote, all_figures):
     chunk_fig_nums = cited_numbers(chunk.get("text") or "")
     if chunk_fig_nums and all_figures:
         sel_quote_words = {
-            w.lower() for w in words(f"{selection} {quote}")
+            w.lower() for w in cached_words(f"{selection} {quote}")
             if len(w) >= 3 and w.lower() not in STOPWORDS
         }
         for fig in all_figures:
@@ -54,7 +56,7 @@ def _should_include_chunk_figures(chunk, selection, quote, all_figures):
             if num and num in chunk_fig_nums:
                 caption = fig.get("caption") or ""
                 cap_words = {
-                    w.lower() for w in words(caption)
+                    w.lower() for w in cached_words(caption)
                     if len(w) >= 3 and w.lower() not in STOPWORDS
                 }
                 if sel_quote_words & cap_words:
@@ -114,18 +116,18 @@ def _clean_history(history):
 
 
 def _effective_pin(index, question, history, selection, pin_chunk):
-    topic_shift = _is_topic_shift_followup(question, history, selection, pin_chunk=pin_chunk, index=index)
+    topic_shift = is_topic_shift_followup(question, history, selection, pin_chunk=pin_chunk, index=index)
     effective_pin = None if (topic_shift and not selection) else pin_chunk
     if effective_pin is not None or not history or topic_shift:
         return topic_shift, effective_pin
     clean_history = _clean_history(history)
     if not clean_history:
         return topic_shift, effective_pin
-    m_concept = _TOPIC_SHIFT_CONCEPT_RE.match(question.strip())
+    m_concept = TOPIC_SHIFT_CONCEPT_RE.match(question.strip())
     if not m_concept:
         return topic_shift, effective_pin
     concept_target = m_concept.group(1).strip()
-    target_words = {w.lower() for w in words(concept_target) if w.lower() not in STOPWORDS and len(w) >= 2}
+    target_words = {w.lower() for w in cached_words(concept_target) if w.lower() not in STOPWORDS and len(w) >= 2}
     prior_a = (clean_history[-1].get("answer") or "").strip()
     if len(target_words) >= 3 and prior_a and all(w in prior_a.lower() for w in target_words):
         prior_pos = prior_turn_chunk_position(index, prior_a)
@@ -222,7 +224,7 @@ def _inject_history_sequence(index, question, passages, clean_history, effective
                 seq_chunks.append(cand)
     if not seq_chunks:
         return passages
-    ranked_seq = _rank_seq_chunks(seq_chunks, question, _extract_subject_from_history(clean_history))
+    ranked_seq = rank_seq_chunks(seq_chunks, question, extract_subject_from_history(clean_history))
     p0_s = passages[0].get("score") if passages else 1.0
     base_score = float(p0_s) if p0_s is not None else 1.0
     injected = []
@@ -316,7 +318,7 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
                       embed_fn=None):
     topic_shift, effective_pin = _effective_pin(index, question, history, selection, pin_chunk)
     passages, ranks = _initial_passages(index, question, search_fn, embed_fn)
-    passages = _pin_chunk(index, passages, effective_pin, end_chunk_id=end_chunk_id)
+    passages = pin_to_chunk(index, passages, effective_pin, end_chunk_id=end_chunk_id)
 
     context = {
         "question": question,
@@ -346,12 +348,12 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
         passages = _inject_pin_context(index, question, passages, effective_pin, topic_shift, clean_history)
 
     if effective_pin or end_chunk_id:
-        passages = _pin_chunk(index, passages, effective_pin, end_chunk_id=end_chunk_id)
+        passages = pin_to_chunk(index, passages, effective_pin, end_chunk_id=end_chunk_id)
     context["passages"] = passages
     return context
 
 
-def _pin_chunk(index, passages, chunk_id, end_chunk_id=None):
+def pin_to_chunk(index, passages, chunk_id, end_chunk_id=None):
     if not chunk_id and not end_chunk_id:
         return passages
     c1 = chunk_by_id(index, chunk_id) if chunk_id else None

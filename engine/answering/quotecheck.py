@@ -5,31 +5,31 @@ import re
 from engine.answering.canonical import STEM_WORDS
 from engine.answering.prompt import REFUSAL
 from engine.figures import figures_for
-from engine.retrieval.preprocess import STOPWORDS
-from engine.answering.shared import (
+from engine.retrieval.preprocess import stem, STOPWORDS
+from engine.answering.glossclean import clean_boilerplate_gloss
+from engine.answering.sentences import (
+    cached_words,
+    candidate_sentences,
+    collapse_lower,
+    split_sentences,
+)
+from engine.answering.textrules import (
+    ATTRIBUTION_MARKERS,
+    AUTHOR_NAME_RE,
     FIGURE_REFERENCE,
+    IOPS_RE,
     MIN_QUOTE_CHARS,
     MISS_QUOTE_CHARS,
+    NON_WORD_OR_UNDERSCORE_RE,
     PARAGRAPH_CAP,
+    S3_RE,
+    SLA_SLO_RE,
     SPAN_MIN_CHARS,
-    _ATTRIBUTION_MARKERS,
-    _AUTHOR_NAME_RE,
-    _IOPS_RE,
-    _NON_WORD_OR_UNDERSCORE_RE,
-    _S3_RE,
-    _SLA_SLO_RE,
-    _TYPE_2_RE,
-    _WHO_CREATED_RE,
-    _candidate_sentences,
-    _clean_boilerplate_gloss,
-    _fold,
-    _sentences,
-    stem,
-    tokens,
-    words,
+    TYPE_2_RE,
+    WHO_CREATED_RE,
 )
-from engine.answering.listshape import _paragraph_around, _whole_paragraph, _without_heading
-from engine.answering.comparison import _comparison_sides, _side_tokens
+from engine.answering.listshape import paragraph_around, whole_paragraph, without_heading
+from engine.answering.comparison import comparison_sides, side_tokens
 
 
 def _strip_quotes(text):
@@ -51,11 +51,11 @@ def _strip_figure_refs(text):
 
 
 @functools.lru_cache(maxsize=2048)
-def _punctuation_plain(text):
-    return " ".join(_NON_WORD_OR_UNDERSCORE_RE.sub(" ", (text or "").lower()).split())
+def punctuation_plain(text):
+    return " ".join(NON_WORD_OR_UNDERSCORE_RE.sub(" ", (text or "").lower()).split())
 
 
-def _quote_in_passage(quote, text):
+def quote_in_passage(quote, text):
     if not quote:
         return False
     folded_quote = re.sub(r"\s+", " ", _strip_figure_refs(quote)).lower()
@@ -63,12 +63,12 @@ def _quote_in_passage(quote, text):
     if folded_quote in folded_text:
         return True
     return (
-        _punctuation_plain(_strip_figure_refs(quote))
-        in _punctuation_plain(_strip_figure_refs(text))
+        punctuation_plain(_strip_figure_refs(quote))
+        in punctuation_plain(_strip_figure_refs(text))
     )
 
 
-def _original_case(span, text):
+def original_case(span, text):
     if not span or not text:
         return span or ""
     flat = re.sub(r"\s+", " ", text or "")
@@ -85,8 +85,8 @@ def _original_case(span, text):
 
 
 def longest_copied_span(completion, passage):
-    folded_passage = _fold(passage)
-    folded_completion = _fold(completion)
+    folded_passage = collapse_lower(passage)
+    folded_completion = collapse_lower(completion)
     if not folded_passage or not folded_completion:
         return ""
     match = difflib.SequenceMatcher(
@@ -107,7 +107,7 @@ def _span_from_chapter(chapter, completion, passages):
             best = (span, hit)
     if best[1] is None:
         return None, ""
-    snapped = _original_case(best[0], best[1].get("text") or "")
+    snapped = original_case(best[0], best[1].get("text") or "")
     return best[1], snapped
 
 
@@ -118,7 +118,7 @@ DANGLING_END_WORDS = frozenset({
 })
 
 
-def _complete_truncated_quote(quote: str, passage_text: str) -> str:
+def complete_truncated_quote(quote: str, passage_text: str) -> str:
     if not quote or not passage_text:
         return quote
     q = quote.strip()
@@ -177,7 +177,7 @@ def _tagless_citation(text, passages):
     if hit is not None and (
         len(quote) >= SPAN_MIN_CHARS or _short_sentence(text, quote)
     ):
-        quote = _complete_truncated_quote(quote, hit.get("text") or "")
+        quote = complete_truncated_quote(quote, hit.get("text") or "")
         return {
             "chunk_id": hit["chunk_id"],
             "chapter": str(hit["chapter"]),
@@ -190,8 +190,8 @@ def _tagless_citation(text, passages):
             best = (span, hit)
     if best[1] is None:
         return None
-    snapped = _original_case(best[0], best[1].get("text") or "")
-    snapped = _complete_truncated_quote(snapped, best[1].get("text") or "")
+    snapped = original_case(best[0], best[1].get("text") or "")
+    snapped = complete_truncated_quote(snapped, best[1].get("text") or "")
     return {
         "chunk_id": best[1]["chunk_id"],
         "chapter": str(best[1]["chapter"]),
@@ -203,70 +203,70 @@ def _matching_passage(chapter, quote, passages):
     for hit in passages:
         if str(hit["chapter"]) != str(chapter):
             continue
-        if _quote_in_passage(quote, hit["text"]):
+        if quote_in_passage(quote, hit["text"]):
             return hit
     return None
 
 
 def _matching_passage_anywhere(quote, passages):
     for hit in passages:
-        if _quote_in_passage(quote, hit["text"]):
+        if quote_in_passage(quote, hit["text"]):
             return hit
     return None
 
 
-def _reground_alphanumeric_quote(quote, question, chunk_text):
+def reground_alphanumeric_quote(quote, question, chunk_text):
     q_low = (question or "").lower()
     text = chunk_text or ""
     if "3nf" in q_low or "third normal form" in q_low:
         if "1nf" in quote.lower() and "transitive" not in quote.lower() and "2nf" not in quote.lower():
-            for sent in _sentences(text):
+            for sent in split_sentences(text):
                 if ("transitive" in sent.lower() or "2nf" in sent.lower()) and len(sent) >= 30:
-                    return _complete_truncated_quote(sent, text)
+                    return complete_truncated_quote(sent, text)
     elif "2nf" in q_low or "second normal form" in q_low:
         if "transitive" in quote.lower() or "single value" in quote.lower():
-            for sent in _sentences(text):
+            for sent in split_sentences(text):
                 if ("partial" in sent.lower() or "1nf" in sent.lower()) and len(sent) >= 30:
-                    return _complete_truncated_quote(sent, text)
+                    return complete_truncated_quote(sent, text)
     elif "1nf" in q_low or "first normal form" in q_low:
         if "partial" in quote.lower() or "transitive" in quote.lower():
-            for sent in _sentences(text):
+            for sent in split_sentences(text):
                 if ("single value" in sent.lower() or "primary key" in sent.lower()) and "partial" not in sent.lower() and len(sent) >= 30:
-                    return _complete_truncated_quote(sent, text)
-    elif _TYPE_2_RE.search(q_low):
+                    return complete_truncated_quote(sent, text)
+    elif TYPE_2_RE.search(q_low):
         if "type 3" in quote.lower() or ("type 2" not in quote.lower() and "type-2" not in quote.lower() and "effective end date" not in quote.lower()):
-            for sent in _sentences(text):
+            for sent in split_sentences(text):
                 sent_low = sent.lower()
                 if ("type 2" in sent_low or "type-2" in sent_low) and ("new record" in sent_low or "history" in sent_low or "inserted" in sent_low or "full history" in sent_low):
-                    return _complete_truncated_quote(sent, text)
+                    return complete_truncated_quote(sent, text)
                 if "keep a full history of dimension records" in sent_low or ("effective end date" in sent_low and "new record" in sent_low):
-                    return _complete_truncated_quote(sent, text)
-    elif _S3_RE.search(q_low):
+                    return complete_truncated_quote(sent, text)
+    elif S3_RE.search(q_low):
         if not any(k in quote.lower() for k in ("object", "amazon", "cloud", "storage")):
-            for sent in _sentences(text):
+            for sent in split_sentences(text):
                 sent_low = sent.lower()
                 if "s3" in sent_low and any(k in sent_low for k in ("amazon", "object", "cloud", "storage")):
-                    return _complete_truncated_quote(sent, text)
-    elif _IOPS_RE.search(q_low):
+                    return complete_truncated_quote(sent, text)
+    elif IOPS_RE.search(q_low):
         if "per second" not in quote.lower() and "input/output" not in quote.lower():
-            for sent in _sentences(text):
+            for sent in split_sentences(text):
                 sent_low = sent.lower()
                 if "iops" in sent_low and any(k in sent_low for k in ("per second", "input/output", "operations", "bottleneck", "limitation")):
-                    return _complete_truncated_quote(sent, text)
-    elif _SLA_SLO_RE.search(q_low):
-        if not _SLA_SLO_RE.search(quote.lower()):
-            for sent in _sentences(text):
-                if _SLA_SLO_RE.search(sent.lower()) and len(sent) >= 30:
-                    return _complete_truncated_quote(sent, text)
-    elif _WHO_CREATED_RE.search(q_low):
-        has_author_name = bool(_AUTHOR_NAME_RE.search(quote))
+                    return complete_truncated_quote(sent, text)
+    elif SLA_SLO_RE.search(q_low):
+        if not SLA_SLO_RE.search(quote.lower()):
+            for sent in split_sentences(text):
+                if SLA_SLO_RE.search(sent.lower()) and len(sent) >= 30:
+                    return complete_truncated_quote(sent, text)
+    elif WHO_CREATED_RE.search(q_low):
+        has_author_name = bool(AUTHOR_NAME_RE.search(quote))
         if not has_author_name:
-            for sent in _sentences(text):
+            for sent in split_sentences(text):
                 sent_low = sent.lower()
-                if any(w in sent_low for w in _ATTRIBUTION_MARKERS):
-                    if _AUTHOR_NAME_RE.search(sent):
-                        return _complete_truncated_quote(sent, text)
-    return _complete_truncated_quote(quote, text)
+                if any(w in sent_low for w in ATTRIBUTION_MARKERS):
+                    if AUTHOR_NAME_RE.search(sent):
+                        return complete_truncated_quote(sent, text)
+    return complete_truncated_quote(quote, text)
 
 
 def _citation_from_line(stripped, text, passages):
@@ -289,7 +289,7 @@ def _citation_from_line(stripped, text, passages):
         hit, quote = _span_from_chapter(chapter, text, passages)
     if hit is None:
         return None, True
-    quote = _complete_truncated_quote(quote, hit.get("text") or "")
+    quote = complete_truncated_quote(quote, hit.get("text") or "")
     return {
         "chunk_id": hit["chunk_id"],
         "chapter": str(hit["chapter"]),
@@ -331,8 +331,8 @@ def _expand_to_paragraphs(citations, passages, anchors, question):
         spot = _passage_for_id(passages, item["chunk_id"])
         if spot is None:
             continue
-        paragraph = _paragraph_around(item["quote"], spot.get("text") or "")
-        if anchors and _whole_paragraph(anchors, paragraph, item["quote"]):
+        paragraph = paragraph_around(item["quote"], spot.get("text") or "")
+        if anchors and whole_paragraph(anchors, paragraph, item["quote"]):
             item["quote"] = paragraph
         elif is_process_q and paragraph and len(paragraph) <= PARAGRAPH_CAP and len(paragraph) >= SPAN_MIN_CHARS:
             item["quote"] = paragraph
@@ -342,8 +342,8 @@ def _trim_citations(citations, passages, question):
     for item in citations:
         spot = _passage_for_id(passages, item["chunk_id"])
         if spot is not None:
-            item["quote"] = _without_heading(item["quote"], spot)
-            item["quote"] = _reground_alphanumeric_quote(
+            item["quote"] = without_heading(item["quote"], spot)
+            item["quote"] = reground_alphanumeric_quote(
                 item["quote"], question, spot.get("text", "")
             )
 
@@ -359,23 +359,23 @@ def _side_matches(is_pronoun, tokens, text, combine):
 
 
 def _expand_pair_quote(sents, i, s, p, p_text):
-    s_cand = _without_heading(s, p)
+    s_cand = without_heading(s, p)
     if len(s_cand) >= 100:
         return s_cand
     if i > 0:
-        prev_s = _without_heading(sents[i - 1], p)
-        if len(prev_s) + 1 + len(s_cand) <= PARAGRAPH_CAP and _quote_in_passage(f"{prev_s} {s_cand}", p_text):
+        prev_s = without_heading(sents[i - 1], p)
+        if len(prev_s) + 1 + len(s_cand) <= PARAGRAPH_CAP and quote_in_passage(f"{prev_s} {s_cand}", p_text):
             return f"{prev_s} {s_cand}"
     elif i + 1 < len(sents):
-        next_s = _without_heading(sents[i + 1], p)
-        if len(s_cand) + 1 + len(next_s) <= PARAGRAPH_CAP and _quote_in_passage(f"{s_cand} {next_s}", p_text):
+        next_s = without_heading(sents[i + 1], p)
+        if len(s_cand) + 1 + len(next_s) <= PARAGRAPH_CAP and quote_in_passage(f"{s_cand} {next_s}", p_text):
             return f"{s_cand} {next_s}"
     return s_cand
 
 
 def _comparison_sentence(p, p_text, left_pr, right_pr, tokens_left, tokens_right):
     s_best = None
-    sents = _candidate_sentences(p_text, p.get("heading") or "")
+    sents = candidate_sentences(p_text, p.get("heading") or "")
     for i, s in enumerate(sents):
         s_low = s.lower()
         in_left = _side_matches(left_pr, tokens_left, s_low, any)
@@ -386,9 +386,9 @@ def _comparison_sentence(p, p_text, left_pr, right_pr, tokens_left, tokens_right
                 break
         elif (in_left or in_right) and any(m in s_low for m in ("unlike", "difference", "versus", "differ")):
             if len(s) >= SPAN_MIN_CHARS and not s_best:
-                s_best = _without_heading(s, p)
+                s_best = without_heading(s, p)
     if not s_best:
-        s_best = _without_heading(p_text.split("\n\n")[0], p)
+        s_best = without_heading(p_text.split("\n\n")[0], p)
     return s_best
 
 
@@ -418,13 +418,13 @@ def _best_dual_passage(passages, left_pr, right_pr, tokens_left, tokens_right):
 
 
 def _align_comparison(citations, passages, question):
-    sides = _comparison_sides(question)
+    sides = comparison_sides(question)
     if not (sides and len(passages) >= 1):
         return citations
     left_pr = sides[0].lower() in _COMPARISON_PRONOUNS
     right_pr = sides[1].lower() in _COMPARISON_PRONOUNS
-    tokens_left = [] if left_pr else _side_tokens(sides[0])
-    tokens_right = [] if right_pr else _side_tokens(sides[1])
+    tokens_left = [] if left_pr else side_tokens(sides[0])
+    tokens_right = [] if right_pr else side_tokens(sides[1])
     if not ((tokens_left or left_pr) and (tokens_right or right_pr)):
         return citations
     dual_hit, dual_sentence = _best_dual_passage(passages, left_pr, right_pr, tokens_left, tokens_right)
@@ -447,7 +447,7 @@ def _assemble_body(citations, gloss, passages, figures):
         f"[Ch. {item['chapter']}] \"{item['quote']}\"" for item in citations
     ]
     if gloss:
-        gloss_cleaned = _clean_boilerplate_gloss(" ".join(gloss))
+        gloss_cleaned = clean_boilerplate_gloss(" ".join(gloss))
         if gloss_cleaned:
             answer_lines.append(gloss_cleaned)
     cited = {item["chunk_id"] for item in citations}
@@ -463,17 +463,17 @@ def _assemble_body(citations, gloss, passages, figures):
 def parse_completion(completion, passages, figures=None, anchors=None, question=""):
     text = (completion or "").strip()
     if text == REFUSAL:
-        return _refusal(passages, figures)
+        return refusal_response(passages, figures)
 
     parsed = _parse_citations(text, passages)
     if parsed is None or not parsed[0]:
-        return _refusal(passages, figures)
+        return refusal_response(passages, figures)
     citations, gloss = parsed
     _expand_to_paragraphs(citations, passages, anchors, question)
     _trim_citations(citations, passages, question)
     citations = _align_comparison(citations, passages, question)
     body = _assemble_body(citations, gloss, passages, figures)
-    return _align_citation_to_query_concepts(body, question, passages)
+    return align_citation_to_query_concepts(body, question, passages)
 
 
 def _heading_text(p):
@@ -500,8 +500,8 @@ def _single_citation_body(p, quote, body):
 
 
 def _first_matching_sentence(p, predicate):
-    for s in _sentences(p.get("text") or ""):
-        s_clean = _without_heading(s, p)
+    for s in split_sentences(p.get("text") or ""):
+        s_clean = without_heading(s, p)
         if predicate(s_clean):
             return s_clean
     return None
@@ -511,8 +511,8 @@ def _acronym_sentence(best_hit, primary_ac, question):
     b_text = best_hit.get("text") or ""
     best_sent = ""
     for ac in primary_ac:
-        for s in _sentences(b_text):
-            s_clean = _without_heading(s, best_hit)
+        for s in split_sentences(b_text):
+            s_clean = without_heading(s, best_hit)
             if re.search(rf"\b{re.escape(ac)}s?\b", s_clean.lower()) and len(s_clean) >= SPAN_MIN_CHARS:
                 best_sent = s_clean
                 break
@@ -520,12 +520,12 @@ def _acronym_sentence(best_hit, primary_ac, question):
             break
     if not best_sent:
         for ac in primary_ac:
-            para = _paragraph_around(ac, b_text)
+            para = paragraph_around(ac, b_text)
             if para and len(para) <= PARAGRAPH_CAP and len(para) >= SPAN_MIN_CHARS:
-                best_sent = _without_heading(para, best_hit)
+                best_sent = without_heading(para, best_hit)
                 break
     if best_sent:
-        best_sent = _reground_alphanumeric_quote(best_sent, question, b_text)
+        best_sent = reground_alphanumeric_quote(best_sent, question, b_text)
     return best_sent
 
 
@@ -568,7 +568,7 @@ def _align_to_acronyms(body, question, passages, cur_chunk_id):
 
 
 def _align_to_content_verbs(body, question, passages, cur_chunk_id):
-    content_verbs = [w.lower() for w in words(question) if w.lower() in ("extract", "extracting", "replicate", "ingest")]
+    content_verbs = [w.lower() for w in cached_words(question) if w.lower() in ("extract", "extracting", "replicate", "ingest")]
     if not content_verbs:
         return None
     if any(v in _current_text(passages, cur_chunk_id) for v in content_verbs):
@@ -632,7 +632,7 @@ def _reground_current_citation(body, question, passages, cur_chunk_id):
     if not cur_hit:
         return
     cur_q = citations[0].get("quote", "")
-    regrounded = _reground_alphanumeric_quote(cur_q, question, cur_hit.get("text", ""))
+    regrounded = reground_alphanumeric_quote(cur_q, question, cur_hit.get("text", ""))
     if regrounded and regrounded != cur_q:
         citations[0]["quote"] = regrounded
         lines = (body.get("answer") or "").splitlines()
@@ -641,7 +641,7 @@ def _reground_current_citation(body, question, passages, cur_chunk_id):
             body["answer"] = "\n".join(lines)
 
 
-def _align_citation_to_query_concepts(body, question, passages):
+def align_citation_to_query_concepts(body, question, passages):
     if not body or body.get("refused") or not body.get("citations") or not passages:
         return body
     citations = body["citations"]
@@ -661,7 +661,7 @@ def _align_citation_to_query_concepts(body, question, passages):
     return body
 
 
-def _refusal(passages, figures=None):
+def refusal_response(passages, figures=None):
     misses = []
     for hit in passages[:3]:
         snippet = re.sub(r"\s+", " ", hit.get("text") or "").strip()

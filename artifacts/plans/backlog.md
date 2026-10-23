@@ -26,10 +26,10 @@ starting. Each item names where it lives in the code.
 
 These would change engine output, delete files, or touch `vendor/` or `GOAL.md`.
 
-- **Book-specific terms in the answer path.** `_reground_alphanumeric_quote` and
-  the `_TYPE_2_RE`, `_S3_RE`, `_IOPS_RE`, `_SLA_SLO_RE` patterns hard-code terms
+- **Book-specific terms in the answer path.** `reground_alphanumeric_quote` and
+  the `TYPE_2_RE`, `S3_RE`, `IOPS_RE`, `SLA_SLO_RE` patterns hard-code terms
   from the first book, which breaks the "generalize" rule. Removing them changes
-  output. Lives in `engine/answering/shared.py`, `quotecheck.py` and `freeanswer.py`.
+  output. Lives in `engine/answering/textrules.py`, `quotecheck.py` and `answermode.py`.
 - **Hard-coded default book id.** `engine/server.py` (`DEFAULT_BOOK_ID`, built
   with `"".join` to pass the generalization guard) and `engine/ingest.py`
   (`book_id == "fde"` selects `data/index.json`). Making the default configurable

@@ -20,6 +20,7 @@ from engine.retrieval.retrieve import DEFAULT_EMBEDDER, INDEX, chunks_payload, f
 from engine.answering.answer import ask, explain, ollama_generate_stream, quiz, respond, sanitize_history
 from engine import llm
 from engine.figures import figure_file
+from engine.retrieval import readings
 from engine.retrieval.keywords import postings
 from engine.answering.prompt import ANSWER_GLOSS_SYSTEM, ANSWER_MODEL, EXPLAIN_GLOSS_SYSTEM, FOLLOWUP_GLOSS_SYSTEM, OLLAMA_KEEP_ALIVE, SYSTEM
 
@@ -551,6 +552,7 @@ def _ingest_import(request, epub_path, book_id):
 
     INDEX_CACHE[book_id] = index
     retrieve_mod.clear_index_caches()
+    readings.clear_wmap_cache()
     CHUNKS_JSON_CACHE.clear()
     CHUNKS_GZIP_CACHE.clear()
     if not request.get("skip_embed"):

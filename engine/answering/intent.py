@@ -282,7 +282,7 @@ def _is_redundant_followup(cand_q: str, clean_q: str, clean_sel: str = "") -> bo
     return overlap >= 0.6
 
 
-def _is_example_or_tool_mention(term: str, text: str) -> bool:
+def is_example_or_tool_mention(term: str, text: str) -> bool:
     if not term or not text:
         return False
     t_low = term.lower()
@@ -305,7 +305,7 @@ def _is_example_or_tool_mention(term: str, text: str) -> bool:
     return False
 
 
-def _has_contrast_in_passage(term: str, text: str) -> bool:
+def has_contrast_in_passage(term: str, text: str) -> bool:
     if not term or not text:
         return False
     t_low = term.lower()
@@ -537,7 +537,7 @@ def _first_fitting(options: list[str], clean_q: str, clean_sel: str) -> str:
 def _term_slot1(candidate_terms: list[str], chunk_text: str, clean_q: str, clean_sel: str) -> tuple[str, str]:
     for t in candidate_terms:
         options = []
-        if _is_example_or_tool_mention(t, chunk_text):
+        if is_example_or_tool_mention(t, chunk_text):
             options = [f"What is the role of {t}?", f"How is {t} used here?"]
         plural = _is_plural_term(t)
         options.append(f"How {'do' if plural else 'does'} {t} relate to this?")
@@ -586,7 +586,7 @@ def _slot2(candidate_terms, chunk_text, chunk_low, slot1, used_term, exclude_tex
         return "What manual process does this replace?"
     for t2 in candidate_terms:
         if t2.lower() != used_term.lower() and t2.lower() not in used_term.lower() and used_term.lower() not in t2.lower():
-            if _has_contrast_in_passage(t2, chunk_text):
+            if has_contrast_in_passage(t2, chunk_text):
                 q = _first_fitting([f"How does this compare to {t2}?"], clean_q, clean_sel)
                 if q:
                     return q

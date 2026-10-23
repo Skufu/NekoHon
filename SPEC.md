@@ -144,7 +144,7 @@ def prior_turn_chunk(index, history):
 
 ## Open Questions
 
-1. `_reground_alphanumeric_quote` hard-codes this book's terms (3NF, SCD, S3,
+1. `reground_alphanumeric_quote` hard-codes this book's terms (3NF, SCD, S3,
    IOPS, SLA) and breaks the "generalize" hard rule. Removing it changes output.
    **Default:** keep it, log under "Needs owner".
 2. `agentic.py` is a prototype wired nowhere. **Default:** archive it with its

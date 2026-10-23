@@ -12,7 +12,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "artifacts" / "harnesses"))
 sys.path.insert(0, str(ROOT / "artifacts" / "harnesses"))
 
-from engine.answering import answer as A
+from engine.answering import answer as A, answermode, context as context_mod, messages
 import groundedness as G
 import judge as J
 from engine.answering.prompt import ANSWER_MODEL, REFUSAL, SYSTEM_ANSWER
@@ -63,8 +63,8 @@ def slug(name):
 
 def unmatched_tags(answer, passages):
     count = 0
-    for claim, chapters in A._sentence_claims(answer):
-        if A._best_passage(claim, chapters, passages) is None:
+    for claim, chapters in answermode.sentence_claims(answer):
+        if answermode.best_passage(claim, chapters, passages) is None:
             count += 1
     return count
 
@@ -113,7 +113,7 @@ def score(question, answer, fake_source, body, passages, started):
 def measure(index, question, spec, passages):
     started = time.perf_counter()
     completion = A.ollama_generate(
-        spec["system"], A.answer_user_message(question, passages), ANSWER_MODEL
+        spec["system"], messages.answer_user_message(question, passages), ANSWER_MODEL
     )
     if spec.get("revise"):
         passages_text = "\n\n".join(hit.get("text") or "" for hit in passages)
@@ -123,7 +123,7 @@ def measure(index, question, spec, passages):
         )
         completion = A.ollama_generate(spec["revise"], revise_user, ANSWER_MODEL)
     if spec.get("paraphrase"):
-        draft = A.parse_answered(completion, passages, index.get("figures") or [])
+        draft = answermode.parse_answered(completion, passages, index.get("figures") or [])
         if draft["refused"]:
             completion = REFUSAL
         else:
@@ -139,7 +139,7 @@ def measure(index, question, spec, passages):
                         f"{clean_rewrite(rewritten)} [Ch. {citation['chapter']}]"
                     )
             completion = " ".join(assembled) if assembled else REFUSAL
-    body = A.parse_answered(completion, passages, index.get("figures") or [])
+    body = answermode.parse_answered(completion, passages, index.get("figures") or [])
     return score(question, body["answer"], completion, body, passages, started)
 
 
@@ -149,7 +149,7 @@ def measure_wired(index, question, passages):
     def stub_search(idx, query, k=10):
         return passages
 
-    context = A.retrieval_context(index, question, search_fn=stub_search)
+    context = context_mod.retrieval_context(index, question, search_fn=stub_search)
     body = A.respond(index, question, search_fn=stub_search)
     shown = context["passages"]
     result = score(question, body["answer"], body["answer"], body, shown, started)
@@ -178,7 +178,7 @@ def main():
     rows = []
     for position, item in enumerate(items, start=1):
         question = item["question"]
-        passages = A.retrieval_context(index, question)["passages"]
+        passages = context_mod.retrieval_context(index, question)["passages"]
         row = {"question": question, "gold": item["gold_chunks"], "variants": {}}
         for name, spec in variants:
             if spec.get("wired"):

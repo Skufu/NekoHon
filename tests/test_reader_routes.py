@@ -15,7 +15,8 @@ from engine import server
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from fixture_books import FixtureRoot
 from engine.figures import figure_cards
-from engine.answering.prompt import PARAPHRASE_SYSTEM, SPELL_SYSTEM, SYSTEM, SYSTEM_ANSWER
+from engine.answering.prompt import PARAPHRASE_SYSTEM, SYSTEM, SYSTEM_ANSWER
+from engine.retrieval.readings import SPELL_SYSTEM
 from engine.retrieval.retrieve import chunks_payload
 
 FAKE_INDEX = {

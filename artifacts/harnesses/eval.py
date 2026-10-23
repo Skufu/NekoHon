@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "artifacts" / "harnesses"))
 
-from engine.answering import answer as A
+from engine.answering import answer as A, context
 import groundedness as G
 from engine.answering.prompt import ANSWER_MODEL, SYSTEM_ANSWER
 from engine.retrieval.retrieve import INDEX, load_index, search
@@ -31,7 +31,7 @@ def eval_item(index, item, timeout):
     dense = search(index, question, k=10)
     dense_ids = [hit["chunk_id"] for hit in dense]
     measured = G.measure(index, question, run_generate, timeout, SYSTEM_ANSWER)
-    passages = A.retrieval_context(index, question)["passages"]
+    passages = context.retrieval_context(index, question)["passages"]
     shown = [hit["chunk_id"] for hit in passages]
     gold = item["gold_chunks"]
     rank = best_rank(dense_ids, gold)
@@ -224,7 +224,7 @@ def main():
         rows = json.loads(base.read_text(encoding="utf-8"))
         mismatches = 0
         for row in rows:
-            passages = A.retrieval_context(index, row["question"])["passages"]
+            passages = context.retrieval_context(index, row["question"])["passages"]
             ids = [hit["chunk_id"] for hit in passages]
             if ids != row["shown"]:
                 mismatches += 1

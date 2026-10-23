@@ -11,7 +11,7 @@ ROOT = HERE.parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(HERE))
 
-from engine.answering import answer as A
+from engine.answering import answer as A, context, messages, quotecheck
 import judge as J
 from engine.answering.canonical import canonical_query
 from engine.retrieval.retrieve import INDEX, load_index
@@ -82,8 +82,8 @@ def judge_row(index, row, timeout):
     answer_text = content_text(row.get("answer"))
     asked = canonical_query(row["question"])
     try:
-        passages = A.retrieval_context(index, asked)["passages"]
-        passages_text = A.passages_block(passages) if passages else ""
+        passages = context.retrieval_context(index, asked)["passages"]
+        passages_text = messages.passages_block(passages) if passages else ""
     except Exception:
         passages_text = ""
 
@@ -108,7 +108,7 @@ def judge_row(index, row, timeout):
         spans = [m.group(1) for m in QUOTE_PATTERN.finditer(answer_text)]
         shown_texts = [hit.get("text") or "" for hit in passages]
         out["quote_ok"] = (
-            all(any(A._quote_in_passage(span, t) for t in shown_texts) for span in spans)
+            all(any(quotecheck.quote_in_passage(span, t) for t in shown_texts) for span in spans)
             if spans else None
         )
 

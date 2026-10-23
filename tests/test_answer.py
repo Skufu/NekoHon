@@ -3,35 +3,21 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from engine.answering.answer import (
-    REFUSAL,
-    _after_lead_in,
-    _candidate_sentences,
-    _clean_boilerplate_gloss,
-    _clean_selection_text,
-    _comparison_sides,
-    _complete_truncated_quote,
-    _extract_query_entities,
-    _extract_subject_from_history,
-    _has_content_word_overlap,
-    _is_coherent_gloss,
-    _plural,
-    _resolve_contextual_query,
-    _should_include_chunk_figures,
-    _synthesize_list_answer,
-    ask,
-    explain,
-    fix_acronym_casing,
-    highlight_query,
-    is_prompt_injection,
-    parse_answered,
-    parse_completion,
-    quiz,
-    quiz_sentences,
-    respond,
-    user_message,
-)
-from engine.answering.prompt import ANSWER_MODEL
+from engine.answering.answer import ask, explain, is_prompt_injection, quiz, respond
+from engine.answering.answermode import parse_answered
+from engine.answering.comparison import comparison_sides
+from engine.answering.context import should_include_chunk_figures
+from engine.answering.conversation import extract_subject_from_history, resolve_contextual_query
+from engine.answering.explain import highlight_query
+from engine.answering.gloss import has_content_word_overlap, is_coherent_gloss
+from engine.answering.glossclean import clean_boilerplate_gloss, fix_acronym_casing
+from engine.answering.listshape import after_lead_in, pluralize, synthesize_list_answer
+from engine.answering.messages import user_message
+from engine.answering.prompt import ANSWER_MODEL, REFUSAL
+from engine.answering.quiz import quiz_sentences
+from engine.answering.quotecheck import complete_truncated_quote, parse_completion
+from engine.answering.selection import clean_selection_text, extract_query_entities
+from engine.answering.sentences import candidate_sentences
 
 PASSAGES = [
     {
@@ -288,10 +274,10 @@ class AnswerTests(unittest.TestCase):
     def test_the_plural_rule(self):
         for word in ("disadvantages", "types", "steps", "categories",
                      "batches", "reasons"):
-            self.assertTrue(_plural(word), word)
+            self.assertTrue(pluralize(word), word)
         for word in ("endpoint", "analysis", "status", "business", "class",
                      "criteria"):
-            self.assertFalse(_plural(word), word)
+            self.assertFalse(pluralize(word), word)
 
     def test_a_paragraph_over_the_cap_keeps_the_quote(self):
         filler = "Filler sentence with padding words for size. " * 30
@@ -771,7 +757,7 @@ class PromptInjectionTests(unittest.TestCase):
 
 class PinChunkAndCrossChunkTests(unittest.TestCase):
     def test_pin_chunk_multi(self):
-        from engine.answering.answer import _pin_chunk
+        from engine.answering.context import pin_to_chunk
         index = {
             "chunks": [
                 {"chunk_id": "c1", "chapter": "1", "text": "Chunk one."},
@@ -782,7 +768,7 @@ class PinChunkAndCrossChunkTests(unittest.TestCase):
         passages = [
             {"chunk_id": "c3", "chapter": "1", "text": "Chunk three.", "score": 0.8},
         ]
-        pinned = _pin_chunk(index, passages, "c1", end_chunk_id="c2")
+        pinned = pin_to_chunk(index, passages, "c1", end_chunk_id="c2")
         self.assertEqual(pinned[0]["chunk_id"], "c1")
         self.assertEqual(pinned[1]["chunk_id"], "c2")
         self.assertEqual(len(pinned), 3)
@@ -843,13 +829,13 @@ class PinChunkAndCrossChunkTests(unittest.TestCase):
 
     def test_clean_selection_text_drops_lead_in_and_collapses_whitespace(self):
         sel1 = "It bears repeating:\nTechnical solutions"
-        self.assertEqual(_clean_selection_text(sel1), "Technical solutions")
+        self.assertEqual(clean_selection_text(sel1), "Technical solutions")
         sel2 = "  first line without colon\nsecond line  "
-        self.assertEqual(_clean_selection_text(sel2), "first line without colon second line")
+        self.assertEqual(clean_selection_text(sel2), "first line without colon second line")
 
     def test_candidate_sentences_excludes_chapter_headings_and_unpunctuated(self):
         text = "Chapter 3. Designing Good Data Architecture\n\nUp to this point, we have focused on data engineering at a high level. Good data architecture provides seamless capabilities across every step."
-        cands = _candidate_sentences(text, heading="Chapter 3. Designing Good Data Architecture")
+        cands = candidate_sentences(text, heading="Chapter 3. Designing Good Data Architecture")
         self.assertNotIn("Chapter 3. Designing Good Data Architecture", cands)
         self.assertTrue(any("Good data architecture provides" in s for s in cands))
 
@@ -857,7 +843,7 @@ class PinChunkAndCrossChunkTests(unittest.TestCase):
         q = "what is this"
         sel = "It bears repeating:\nTechnical solutions"
         head = "Our definition"
-        res = _resolve_contextual_query({}, q, selection=sel, heading=head)
+        res = resolve_contextual_query({}, q, selection=sel, heading=head)
         self.assertEqual(res, "What does 'Technical solutions' mean in this passage?")
         self.assertNotIn("\n", res)
 
@@ -865,7 +851,7 @@ class PinChunkAndCrossChunkTests(unittest.TestCase):
         q = "what are the"
         sel = "key principles"
         head = "Architecture"
-        res = _resolve_contextual_query({}, q, selection=sel, heading=head)
+        res = resolve_contextual_query({}, q, selection=sel, heading=head)
         self.assertEqual(res, "what are the key principles?")
         self.assertNotIn("in Architecture", res)
 
@@ -874,7 +860,7 @@ class PinChunkAndCrossChunkTests(unittest.TestCase):
             {"question": "data architecture", "answer": '[Ch. 3] "Good data architecture provides seamless capabilities..."\nGloss line.'},
             {"question": "What are the trade-offs?", "answer": '[Ch. 3] "Complexity is a trade-off."\nGloss line.'},
         ]
-        sub = _extract_subject_from_history(history)
+        sub = extract_subject_from_history(history)
         self.assertEqual(sub, "data architecture")
 
     def test_ask_selection_does_not_append_asked_as(self):
@@ -1109,7 +1095,7 @@ class PinChunkAndCrossChunkTests(unittest.TestCase):
             "Figure 2-1 shows the lifecycle in detail."
         )
         lead = "We divide the data engineering lifecycle into five stages (Figure 2-1, top):"
-        items = _after_lead_in(lead, passage)
+        items = after_lead_in(lead, passage)
         self.assertEqual(items, "Generation, Storage, Ingestion, Transformation, Serving data")
 
     def test_is_coherent_gloss_rejects_pointer_non_answers(self):
@@ -1123,15 +1109,15 @@ class PinChunkAndCrossChunkTests(unittest.TestCase):
         ]
         for p in pointers:
             with self.subTest(gloss=p):
-                self.assertFalse(_is_coherent_gloss(p), f"Should have rejected pointer: {p}")
+                self.assertFalse(is_coherent_gloss(p), f"Should have rejected pointer: {p}")
 
     def test_is_coherent_gloss_list_itemless_non_answers(self):
         q = "What are the stages of the data engineering lifecycle?"
         quote = "Generation, Storage, Ingestion, Transformation, Serving data"
-        self.assertFalse(_is_coherent_gloss("The data engineering process is split into five main steps.", quote, question=q))
-        self.assertFalse(_is_coherent_gloss("There are several important stages to understand.", quote, question=q))
+        self.assertFalse(is_coherent_gloss("The data engineering process is split into five main steps.", quote, question=q))
+        self.assertFalse(is_coherent_gloss("There are several important stages to understand.", quote, question=q))
         valid = "The five stages of the data engineering lifecycle are generation, storage, ingestion, transformation, and serving data."
-        self.assertTrue(_is_coherent_gloss(valid, quote, question=q))
+        self.assertTrue(is_coherent_gloss(valid, quote, question=q))
 
     def test_synthesize_list_answer(self):
         q = "What are the stages of the data engineering lifecycle?"
@@ -1146,7 +1132,7 @@ class PinChunkAndCrossChunkTests(unittest.TestCase):
                 "Serving data"
             )
         }
-        res = _synthesize_list_answer(q, quote, chunk_obj)
+        res = synthesize_list_answer(q, quote, chunk_obj)
         self.assertEqual(
             res,
             "The stages of the data engineering lifecycle are generation, storage, ingestion, transformation, and serving data.",
@@ -1157,20 +1143,20 @@ class PinChunkAndCrossChunkTests(unittest.TestCase):
             "Data ingestion moves data from sources to target systems, "
             "do not say 'the section explains data ingestion'."
         )
-        cleaned = _clean_boilerplate_gloss(leaked)
+        cleaned = clean_boilerplate_gloss(leaked)
         self.assertEqual(
             cleaned,
             "Data ingestion moves data from sources to target systems.",
         )
 
     def test_extract_query_entities(self):
-        ents = _extract_query_entities("How does this compare to Google Ads?", heading="Reverse ETL")
+        ents = extract_query_entities("How does this compare to Google Ads?", heading="Reverse ETL")
         self.assertEqual(ents, ["Google Ads"])
 
-        ents_multi = _extract_query_entities("What is the difference between Paxos and Raft?", heading="")
+        ents_multi = extract_query_entities("What is the difference between Paxos and Raft?", heading="")
         self.assertEqual(ents_multi, ["Paxos", "Raft"])
 
-        ents_acronym = _extract_query_entities("How do ML engineers use Reverse ETL?", heading="Reverse ETL")
+        ents_acronym = extract_query_entities("How do ML engineers use Reverse ETL?", heading="Reverse ETL")
         self.assertEqual(ents_acronym, ["ML"])
 
     def test_should_include_chunk_figures_scoping(self):
@@ -1184,21 +1170,21 @@ class PinChunkAndCrossChunkTests(unittest.TestCase):
             {"figure_id": "figure-4-2", "chapter": "4", "caption": "The reverse ETL data pipeline from data warehouse to operational systems."},
         ]
         quote_with_fig = "Reverse ETL syncs warehouse tables to operational tools. (Figure 4-2) shows the pipeline."
-        self.assertTrue(_should_include_chunk_figures(chunk, "Reverse ETL", quote_with_fig, all_figures))
+        self.assertTrue(should_include_chunk_figures(chunk, "Reverse ETL", quote_with_fig, all_figures))
 
         quote_plain = "Reverse ETL syncs warehouse tables to operational tools."
-        self.assertTrue(_should_include_chunk_figures(chunk, "Reverse ETL Architecture", quote_plain, all_figures))
+        self.assertTrue(should_include_chunk_figures(chunk, "Reverse ETL Architecture", quote_plain, all_figures))
 
         quote_passing = "ML engineers consume this data."
-        self.assertFalse(_should_include_chunk_figures(chunk, "ML engineers", quote_passing, all_figures))
+        self.assertFalse(should_include_chunk_figures(chunk, "ML engineers", quote_passing, all_figures))
 
     def test_has_content_word_overlap(self):
         s1 = "Google Ads consumes transformed customer attributes from the warehouse."
         s2 = "Reverse ETL sends data to Google Ads for marketing campaigns."
-        self.assertTrue(_has_content_word_overlap(s1, s2))
+        self.assertTrue(has_content_word_overlap(s1, s2))
 
         s3 = "Database normalization reduces redundant rows across tables."
-        self.assertFalse(_has_content_word_overlap(s1, s3))
+        self.assertFalse(has_content_word_overlap(s1, s3))
 
     def test_fix_acronym_casing_expanded_coverage(self):
         self.assertEqual(fix_acronym_casing("ml and ai in cloud systems"), "ML and AI in cloud systems")
@@ -1214,7 +1200,7 @@ class PinChunkAndCrossChunkTests(unittest.TestCase):
         self.assertFalse(is_prompt_injection("What is data ingestion?"))
 
     def test_comparison_sides_with_regarding_prefix(self):
-        sides = _comparison_sides("Regarding Reverse ETL: How does this compare to Google Ads?")
+        sides = comparison_sides("Regarding Reverse ETL: How does this compare to Google Ads?")
         self.assertIsNotNone(sides)
         side1, side2 = sides
         self.assertEqual(side1.lower(), "reverse etl")
@@ -1223,13 +1209,13 @@ class PinChunkAndCrossChunkTests(unittest.TestCase):
     def test_complete_truncated_quote_unbalanced_parens(self):
         passage = "DDR5 (Double Data Rate 5) memory provides high bandwidth for compute-intensive tasks."
         partial = "DDR5 (Double Data Rate 5"
-        completed = _complete_truncated_quote(partial, passage)
+        completed = complete_truncated_quote(partial, passage)
         self.assertEqual(completed, "DDR5 (Double Data Rate 5) memory provides high bandwidth for compute-intensive tasks.")
 
     def test_complete_truncated_quote_dangling_word(self):
         passage = "Columnar databases are designed for large volumes of analytical data."
         partial = "Columnar databases are designed for large"
-        completed = _complete_truncated_quote(partial, passage)
+        completed = complete_truncated_quote(partial, passage)
         self.assertEqual(completed, "Columnar databases are designed for large volumes of analytical data.")
 
     def test_simplification_fast_path(self):

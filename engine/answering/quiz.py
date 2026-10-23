@@ -4,10 +4,11 @@ from engine.answering.canonical import STEM_WORDS
 from engine.answering.generate import ollama_generate
 from engine.answering.intent import compute_dynamic_followups
 from engine.answering.prompt import ANSWER_MODEL, REFUSAL, SYSTEM
-from engine.answering.quotecheck import _quote_in_passage, _refusal
-from engine.answering.shared import _sentences, chunk_by_id, stem, words
+from engine.answering.quotecheck import quote_in_passage, refusal_response
+from engine.answering.indexmaps import chunk_by_id
+from engine.answering.sentences import cached_words, split_sentences
+from engine.retrieval.preprocess import stem, STOPWORDS
 from engine.figures import figures_for
-from engine.retrieval.preprocess import STOPWORDS
 
 
 QUIZ_INSTRUCTION = (
@@ -32,7 +33,7 @@ WEAK_QUIZ_PREFIXES = (
 
 
 def quiz_sentences(text):
-    sents = _sentences(text)
+    sents = split_sentences(text)
     if not sents:
         return []
     filtered = [
@@ -80,12 +81,12 @@ def _chunk_with_sentences(index, chunk_id, rng):
 
 
 def _leaks_key(key, completion):
-    return _quote_in_passage(key, completion) or key.lower() in completion.lower()
+    return quote_in_passage(key, completion) or key.lower() in completion.lower()
 
 
 def _content_stems(text):
     return {
-        stem(w.lower()) for w in words(text)
+        stem(w.lower()) for w in cached_words(text)
         if len(w) > 2 and w.lower() not in STOPWORDS and w.lower() not in STEM_WORDS
     }
 
@@ -127,10 +128,10 @@ def quiz(index, generate_fn=None, model=ANSWER_MODEL, rng=None, chunk=None,
         chunk = _chunk_with_sentences(index, chunk_id, rng)
     chunk = chunk or pick_quiz_chunk(index, rng)
     if chunk is None:
-        return _refusal([])
+        return refusal_response([])
     sentences = quiz_sentences(chunk.get("text") or "")
     if not sentences:
-        return _refusal([])
+        return refusal_response([])
     key = rng.choice(sentences)
     user = (
         f"{QUIZ_INSTRUCTION}\n\n"
@@ -145,7 +146,7 @@ def quiz(index, generate_fn=None, model=ANSWER_MODEL, rng=None, chunk=None,
         completion = _retry_completion(generate_fn, model, key, chunk, completion)
 
     if not completion or completion == REFUSAL or "[Ch." in completion or _leaks_key(key, completion):
-        return _refusal([chunk], index.get("figures") or [])
+        return refusal_response([chunk], index.get("figures") or [])
 
     quiz_neighbors = []
     if chunk in chunks:

@@ -1,6 +1,6 @@
 import unittest
 
-from engine.answering import answer as A
+from engine.answering import answer as A, answermode
 from engine.answering.prompt import PARAPHRASE_SYSTEM, SYSTEM, SYSTEM_ANSWER
 
 REFUSAL = "Not in this book."
@@ -39,51 +39,51 @@ SIX = [
 
 class SimpleWordsTest(unittest.TestCase):
     def test_the_scorecard_phrasing_routes_plain(self):
-        self.assertTrue(A.simple_words("explain data engineering in simple words"))
+        self.assertTrue(answermode.simple_words("explain data engineering in simple words"))
 
     def test_each_cue_routes_plain(self):
-        for cue in A.SIMPLE_CUES:
+        for cue in answermode.SIMPLE_CUES:
             with self.subTest(cue=cue):
-                self.assertTrue(A.simple_words(f"what is CDC {cue}"))
+                self.assertTrue(answermode.simple_words(f"what is CDC {cue}"))
 
     def test_case_is_folded(self):
-        self.assertTrue(A.simple_words("What is CDC, IN SIMPLE WORDS?"))
+        self.assertTrue(answermode.simple_words("What is CDC, IN SIMPLE WORDS?"))
 
     def test_ordinary_question_is_not_plain(self):
-        self.assertFalse(A.simple_words("What does CDC do?"))
-        self.assertFalse(A.simple_words("explain data engineering"))
+        self.assertFalse(answermode.simple_words("What does CDC do?"))
+        self.assertFalse(answermode.simple_words("explain data engineering"))
 
     def test_empty_and_none_are_not_plain(self):
-        self.assertFalse(A.simple_words(""))
-        self.assertFalse(A.simple_words(None))
+        self.assertFalse(answermode.simple_words(""))
+        self.assertFalse(answermode.simple_words(None))
 
 
 class CleanRewriteTest(unittest.TestCase):
     def test_plain_sentence_passes_through(self):
-        self.assertEqual(A._clean_rewrite("CDC sends changes."), "CDC sends changes.")
+        self.assertEqual(answermode.clean_rewrite("CDC sends changes."), "CDC sends changes.")
 
     def test_surrounding_quotes_strip(self):
         self.assertEqual(
-            A._clean_rewrite('"CDC sends changes."'), "CDC sends changes."
+            answermode.clean_rewrite('"CDC sends changes."'), "CDC sends changes."
         )
 
     def test_list_numbering_strips(self):
-        self.assertEqual(A._clean_rewrite("1. CDC sends changes."), "CDC sends changes.")
-        self.assertEqual(A._clean_rewrite("2) CDC sends changes."), "CDC sends changes.")
+        self.assertEqual(answermode.clean_rewrite("1. CDC sends changes."), "CDC sends changes.")
+        self.assertEqual(answermode.clean_rewrite("2) CDC sends changes."), "CDC sends changes.")
 
     def test_quotes_then_numbering(self):
         self.assertEqual(
-            A._clean_rewrite('"1. CDC sends changes."'), "CDC sends changes."
+            answermode.clean_rewrite('"1. CDC sends changes."'), "CDC sends changes."
         )
 
     def test_whitespace_collapses(self):
         self.assertEqual(
-            A._clean_rewrite("CDC sends\n  changes."), "CDC sends changes."
+            answermode.clean_rewrite("CDC sends\n  changes."), "CDC sends changes."
         )
 
     def test_empty_and_none_strip_to_empty(self):
-        self.assertEqual(A._clean_rewrite(""), "")
-        self.assertEqual(A._clean_rewrite(None), "")
+        self.assertEqual(answermode.clean_rewrite(""), "")
+        self.assertEqual(answermode.clean_rewrite(None), "")
 
 
 class PlainRespondTest(unittest.TestCase):
@@ -184,9 +184,9 @@ class PlainCapTest(unittest.TestCase):
             return draft
 
         context = {"asked": "explain the pipeline in simple words", "passages": SIX}
-        body = A._plain_body({"chunks": [], "figures": []}, context, fake_generate, "m")
-        self.assertEqual(len(rewrite_calls), A.PARAPHRASE_LIMIT)
-        self.assertEqual(body["answer"].count("[Ch. "), A.PARAPHRASE_LIMIT)
+        body = answermode.plain_body({"chunks": [], "figures": []}, context, fake_generate, "m")
+        self.assertEqual(len(rewrite_calls), answermode.PARAPHRASE_LIMIT)
+        self.assertEqual(body["answer"].count("[Ch. "), answermode.PARAPHRASE_LIMIT)
         self.assertEqual(len(body["citations"]), len(SIX))
         self.assertFalse(body["refused"])
 

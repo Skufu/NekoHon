@@ -2,8 +2,8 @@ import re
 
 from engine.answering.conversation import (
     GENERIC_FACETS_RE,
-    _advance_followup_quote,
-    _is_topic_shift_followup,
+    advance_followup_quote,
+    is_topic_shift_followup,
 )
 from engine.answering.generate import ollama_generate
 from engine.answering.intent import (
@@ -16,12 +16,12 @@ from engine.answering.intent import (
     extract_enclosing_subject,
     split_sentences,
 )
-from engine.answering.listshape import _list_ask, _synthesize_list_answer
+from engine.answering.listshape import list_ask, synthesize_list_answer
 from engine.answering.messages import (
     SIMPLIFY_RE,
-    _answer_gloss_user_message,
-    _explain_gloss_user_message,
-    _followup_gloss_user_message,
+    answer_gloss_user_message,
+    explain_gloss_user_message,
+    followup_gloss_user_message,
     user_message,
 )
 from engine.answering.prompt import (
@@ -32,18 +32,11 @@ from engine.answering.prompt import (
     REFUSAL,
     SYSTEM,
 )
-from engine.answering.quotecheck import _quote_in_passage
-from engine.answering.shared import (
-    _SENTENCE_SPLIT_RE,
-    _candidate_sentences,
-    _clean_boilerplate_gloss,
-    _clean_selection_text,
-    _extract_query_entities,
-    chunk_by_id,
-    chunk_position,
-    fix_acronym_casing,
-    words,
-)
+from engine.answering.quotecheck import quote_in_passage
+from engine.answering.glossclean import clean_boilerplate_gloss, fix_acronym_casing
+from engine.answering.indexmaps import chunk_by_id, chunk_position
+from engine.answering.selection import clean_selection_text, extract_query_entities
+from engine.answering.sentences import cached_words, candidate_sentences, SENTENCE_SPLIT_RE
 from engine.retrieval.preprocess import STOPWORDS
 
 
@@ -68,16 +61,16 @@ _POINTER_META_LOCATION_RE = re.compile(r"\b(?:are|is)\s+(?:listed|discussed|cove
 _PROMPT_LEAKAGE_RE = re.compile(r"\b(?:do\s+not|don't|never)\s+(?:say|use|repeat|mention|start\s+with|include|write|output)\b", re.I)
 
 
-def _has_content_word_overlap(s1: str, s2: str, exclude: str = "") -> bool:
+def has_content_word_overlap(s1: str, s2: str, exclude: str = "") -> bool:
     if not s1 or not s2:
         return False
-    ex_words = {w.lower() for w in words(exclude)} if exclude else set()
-    w1 = {w.lower() for w in words(s1) if len(w) >= 3 and w.lower() not in STOPWORDS and w.lower() not in ex_words}
-    w2 = {w.lower() for w in words(s2) if len(w) >= 3 and w.lower() not in STOPWORDS and w.lower() not in ex_words}
+    ex_words = {w.lower() for w in cached_words(exclude)} if exclude else set()
+    w1 = {w.lower() for w in cached_words(s1) if len(w) >= 3 and w.lower() not in STOPWORDS and w.lower() not in ex_words}
+    w2 = {w.lower() for w in cached_words(s2) if len(w) >= 3 and w.lower() not in STOPWORDS and w.lower() not in ex_words}
     return bool(w1 & w2)
 
 
-def _is_coherent_gloss(gloss: str, quote: str = "", question: str = "") -> bool:
+def is_coherent_gloss(gloss: str, quote: str = "", question: str = "") -> bool:
     if not gloss or not isinstance(gloss, str):
         return False
     text = gloss.strip()
@@ -87,9 +80,9 @@ def _is_coherent_gloss(gloss: str, quote: str = "", question: str = "") -> bool:
         return False
     if _GIBBERISH_NOUN_DIGITS_RE.search(text):
         return False
-    sentences = [s.strip() for s in _SENTENCE_SPLIT_RE.split(text) if s.strip()]
+    sentences = [s.strip() for s in SENTENCE_SPLIT_RE.split(text) if s.strip()]
     for s in sentences:
-        s_words = [w.lower() for w in words(s) if len(w) >= 4 and w.lower() not in STOPWORDS]
+        s_words = [w.lower() for w in cached_words(s) if len(w) >= 4 and w.lower() not in STOPWORDS]
         counts = {}
         for w in s_words:
             counts[w] = counts.get(w, 0) + 1
@@ -98,7 +91,7 @@ def _is_coherent_gloss(gloss: str, quote: str = "", question: str = "") -> bool:
     all_words = text.split()
     for i in range(len(all_words)):
         win = all_words[i:i + 25]
-        win_content = [w.lower() for w in words(" ".join(win)) if len(w) >= 4 and w.lower() not in STOPWORDS]
+        win_content = [w.lower() for w in cached_words(" ".join(win)) if len(w) >= 4 and w.lower() not in STOPWORDS]
         counts = {}
         for w in win_content:
             counts[w] = counts.get(w, 0) + 1
@@ -114,12 +107,12 @@ def _is_coherent_gloss(gloss: str, quote: str = "", question: str = "") -> bool:
         return False
     if not text.lower().startswith("the passages do not mention") and _PROMPT_LEAKAGE_RE.search(text):
         return False
-    if question and _list_ask(question, question):
+    if question and list_ask(question, question):
         if "," not in text and " and " not in text.lower() and ";" not in text:
             return False
         if quote and quote.count(",") >= 2:
-            q_words = {w.lower() for w in words(quote) if len(w) >= 3 and w.lower() not in STOPWORDS}
-            t_words = {w.lower() for w in words(text) if len(w) >= 3 and w.lower() not in STOPWORDS}
+            q_words = {w.lower() for w in cached_words(quote) if len(w) >= 3 and w.lower() not in STOPWORDS}
+            t_words = {w.lower() for w in cached_words(text) if len(w) >= 3 and w.lower() not in STOPWORDS}
             if len(q_words & t_words) < 2:
                 return False
     if quote:
@@ -130,7 +123,7 @@ def _is_coherent_gloss(gloss: str, quote: str = "", question: str = "") -> bool:
     return True
 
 
-def _gloss_repeats_quote(gloss: str, quote: str) -> bool:
+def gloss_repeats_quote(gloss: str, quote: str) -> bool:
     g = re.sub(r"[\s\"'“”]+", " ", gloss or "").strip().lower()
     q = re.sub(r"[\s\"'“”]+", " ", quote or "").strip().lower()
     if not g or not q:
@@ -142,7 +135,7 @@ def _gloss_repeats_quote(gloss: str, quote: str) -> bool:
     return len(g_words - q_words) < 3
 
 
-def _synthesize_grounded_gloss(selection, quote, pin_chunk_obj, neighbors, generate_fn, model):
+def synthesize_grounded_gloss(selection, quote, pin_chunk_obj, neighbors, generate_fn, model):
     heading = (pin_chunk_obj.get("heading") or "") if pin_chunk_obj else ""
     intent_info = analyze_intent(selection, heading, pin_chunk_obj, neighbors)
     intent_type = intent_info.get("intent_type") or INTENT_CONCEPT_TERM
@@ -175,10 +168,10 @@ def _synthesize_grounded_gloss(selection, quote, pin_chunk_obj, neighbors, gener
                 for ln in lines:
                     if re.match(r"^\[ch\.", ln, re.I) or ln.startswith('"') or ln.startswith("“") or ln.startswith("”"):
                         continue
-                    cleaned_cand = _clean_boilerplate_gloss(ln, selection)
-                    if _is_coherent_gloss(cleaned_cand, quote) and (
+                    cleaned_cand = clean_boilerplate_gloss(ln, selection)
+                    if is_coherent_gloss(cleaned_cand, quote) and (
                         not intent_info.get("is_passing_mention")
-                        or _has_content_word_overlap(cleaned_cand, quote, exclude=f"{selection} {heading}")
+                        or has_content_word_overlap(cleaned_cand, quote, exclude=f"{selection} {heading}")
                     ):
                         return fix_acronym_casing(cleaned_cand)
         except Exception:
@@ -209,7 +202,7 @@ def _synthesize_grounded_gloss(selection, quote, pin_chunk_obj, neighbors, gener
             cands = split_sentences(cand_c.get("text", ""))
             for s in cands:
                 if len(s) >= 40 and not META_TRANSITION_RE.search(s):
-                    if core_concept.lower() in s.lower() or any(w.lower() in s.lower() for w in words(core_concept) if w.lower() not in STOPWORDS):
+                    if core_concept.lower() in s.lower() or any(w.lower() in s.lower() for w in cached_words(core_concept) if w.lower() not in STOPWORDS):
                         substantive.append(s)
         if substantive:
             first_sub = substantive[0]
@@ -236,7 +229,7 @@ def _synthesize_grounded_gloss(selection, quote, pin_chunk_obj, neighbors, gener
     return fix_acronym_casing(f"The authors discuss {selection} in this section.")
 
 
-def _strip_ch_tags(gloss):
+def strip_ch_tags(gloss):
     if re.match(r"^\[ch\.", gloss, re.I) and "\n" in gloss:
         gloss = gloss.split("\n", 1)[1].strip()
     return re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", gloss, flags=re.I).strip().strip("\"'“”")
@@ -247,24 +240,24 @@ def _live_gloss(generate_fn, system, prompt, model, context):
         raw = generate_fn(system, prompt, model)
     except Exception:
         raw = ""
-    return _strip_ch_tags(_clean_boilerplate_gloss(raw, context))
+    return strip_ch_tags(clean_boilerplate_gloss(raw, context))
 
 
 def _is_good_gloss(gloss, quote, question):
-    return bool(gloss) and _is_coherent_gloss(gloss, quote, question=question)
+    return bool(gloss) and is_coherent_gloss(gloss, quote, question=question)
 
 
 def _passage_sentence_gloss(chunk_obj, quote, question):
-    for s in _candidate_sentences(chunk_obj.get("text") or "", chunk_obj.get("heading") or ""):
-        if s != quote and len(s) >= 40 and not META_TRANSITION_RE.search(s) and _is_coherent_gloss(s, quote, question=question):
+    for s in candidate_sentences(chunk_obj.get("text") or "", chunk_obj.get("heading") or ""):
+        if s != quote and len(s) >= 40 and not META_TRANSITION_RE.search(s) and is_coherent_gloss(s, quote, question=question):
             return s
     return None
 
 
 def _list_synth_gloss(question, quote, chunk_obj):
-    if _list_ask(question, question):
-        list_synth = _synthesize_list_answer(question, quote, chunk_obj)
-        if list_synth and _is_coherent_gloss(list_synth, quote, question=question):
+    if list_ask(question, question):
+        list_synth = synthesize_list_answer(question, quote, chunk_obj)
+        if list_synth and is_coherent_gloss(list_synth, quote, question=question):
             return list_synth
     return None
 
@@ -299,13 +292,13 @@ def _norm_quote(text):
 
 
 def _advance_cited_quote(first_cite, quote, first_line, chunk_obj, neighbors, prior_quote, question):
-    adv_quote = _advance_followup_quote(chunk_obj, neighbors, prior_quote, question)
+    adv_quote = advance_followup_quote(chunk_obj, neighbors, prior_quote, question)
     if not adv_quote or adv_quote == quote:
         return quote, first_line
     adv_chunk = chunk_obj
-    if not _quote_in_passage(adv_quote, chunk_obj.get("text", "")):
+    if not quote_in_passage(adv_quote, chunk_obj.get("text", "")):
         for n in (neighbors or []):
-            if n and _quote_in_passage(adv_quote, n.get("text", "")):
+            if n and quote_in_passage(adv_quote, n.get("text", "")):
                 adv_chunk = n
                 break
     first_cite["quote"] = adv_quote
@@ -339,7 +332,7 @@ def _followup_turn_gloss(clean_history, question, first_cite, quote, first_line,
             or (len(norm_prior) >= 40 and norm_prior in norm_curr)
         )
     )
-    list_quote_missing_items = bool(_list_ask(question, question) and "," not in quote and ":" not in quote)
+    list_quote_missing_items = bool(list_ask(question, question) and "," not in quote and ":" not in quote)
     simplify = bool(SIMPLIFY_RE.search(question))
     if (quote_repeated or list_quote_missing_items) and not simplify:
         quote, first_line = _advance_cited_quote(first_cite, quote, first_line, chunk_obj, neighbors, prior_quote, question)
@@ -350,15 +343,15 @@ def _followup_turn_gloss(clean_history, question, first_cite, quote, first_line,
         or list_quote_missing_items
         or (gloss_missing_query_entity and not GENERIC_FACETS_RE.search(question))
         or not gloss_line
-        or _gloss_repeats_quote(gloss_line, quote)
-        or not _is_coherent_gloss(gloss_line, quote, question=question)
+        or gloss_repeats_quote(gloss_line, quote)
+        or not is_coherent_gloss(gloss_line, quote, question=question)
     )
     if not need_followup_gloss:
         return gloss_line, quote, first_line
 
     new_gloss = ""
     if is_live:
-        prompt = _followup_gloss_user_message(clean_history, question, quote, chunk_obj, neighbors)
+        prompt = followup_gloss_user_message(clean_history, question, quote, chunk_obj, neighbors)
         new_gloss = _live_gloss(generate_fn, FOLLOWUP_GLOSS_SYSTEM, prompt, model, question)
     new_gloss = _list_or_sentence_fallback(new_gloss, question, quote, chunk_obj)
     if target_entities and not GENERIC_FACETS_RE.search(question) and any(ent.lower() in quote.lower() for ent in target_entities) and not any(ent.lower() in (new_gloss or "").lower() for ent in target_entities):
@@ -367,13 +360,13 @@ def _followup_turn_gloss(clean_history, question, first_cite, quote, first_line,
 
 
 def _selection_gloss(selection, quote, chunk_obj, neighbors, is_live, generate_fn, model):
-    clean_sel = _clean_selection_text(selection)
+    clean_sel = clean_selection_text(selection)
     new_gloss = ""
     if is_live:
-        prompt = _explain_gloss_user_message(clean_sel, quote, chunk_obj, neighbors)
+        prompt = explain_gloss_user_message(clean_sel, quote, chunk_obj, neighbors)
         new_gloss = _live_gloss(generate_fn, EXPLAIN_GLOSS_SYSTEM, prompt, model, clean_sel)
     if not _is_good_gloss(new_gloss, quote, clean_sel):
-        new_gloss = _synthesize_grounded_gloss(clean_sel, quote, chunk_obj, neighbors, generate_fn, model)
+        new_gloss = synthesize_grounded_gloss(clean_sel, quote, chunk_obj, neighbors, generate_fn, model)
         if new_gloss:
             new_gloss = re.sub(r"\[Ch\.\s*[^\]]+\]\s*", "", new_gloss, flags=re.I).strip().strip("\"'“”")
     if not _is_good_gloss(new_gloss, quote, clean_sel):
@@ -386,12 +379,12 @@ def _selection_gloss(selection, quote, chunk_obj, neighbors, is_live, generate_f
 def _plain_answer_gloss(question, quote, chunk_obj, is_live, generate_fn, model):
     new_gloss = ""
     if is_live:
-        prompt = _answer_gloss_user_message(question, quote, chunk_obj)
+        prompt = answer_gloss_user_message(question, quote, chunk_obj)
         new_gloss = _live_gloss(generate_fn, ANSWER_GLOSS_SYSTEM, prompt, model, question)
     return _list_or_sentence_fallback(new_gloss, question, quote, chunk_obj)
 
 
-def _ensure_answer_gloss(index, body, question, passages, is_live=False,
+def ensure_answer_gloss(index, body, question, passages, is_live=False,
                          history=None, selection="", heading="", model=ANSWER_MODEL,
                          generate_fn=None):
     if not body or body.get("refused") or not body.get("citations") or not passages:
@@ -423,11 +416,11 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
         if isinstance(h, dict) and (h.get("question") or h.get("answer"))
     ]
 
-    target_entities = _extract_query_entities(question, heading or chunk_obj.get("heading", "")) if clean_history else []
+    target_entities = extract_query_entities(question, heading or chunk_obj.get("heading", "")) if clean_history else []
     gloss_missing_query_entity = bool(target_entities and gloss_line and not any(ent.lower() in gloss_line.lower() for ent in target_entities))
 
     new_gloss = ""
-    topic_shift = _is_topic_shift_followup(question, history, selection)
+    topic_shift = is_topic_shift_followup(question, history, selection)
 
     if clean_history and not topic_shift:
         new_gloss, quote, first_line = _followup_turn_gloss(
@@ -436,7 +429,7 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
         )
     elif selection:
         new_gloss = _selection_gloss(selection, quote, chunk_obj, neighbors, is_live, generate_fn, model)
-    elif not gloss_line or _gloss_repeats_quote(gloss_line, quote) or not _is_coherent_gloss(gloss_line, quote, question=question):
+    elif not gloss_line or gloss_repeats_quote(gloss_line, quote) or not is_coherent_gloss(gloss_line, quote, question=question):
         new_gloss = _plain_answer_gloss(question, quote, chunk_obj, is_live, generate_fn, model)
 
     if new_gloss and new_gloss != REFUSAL:

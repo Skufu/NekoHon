@@ -1,7 +1,7 @@
 import unittest
 
-from engine.answering import answer as A
-from engine.answering import context as C
+from engine.retrieval import keywords
+from engine.answering import answer as A, answermode, context as C
 from engine.answering.canonical import canonical_query, is_deictic_question, is_incomplete_stem
 from engine.answering.prompt import SYSTEM, SYSTEM_ANSWER
 
@@ -339,14 +339,14 @@ class AnchorEquivalenceTest(unittest.TestCase):
         self.assertIn("is", STOPWORDS)
         word_map = {"watermark": [0], "what": [0], "is": [0]}
         self.assertEqual(
-            A.anchor_words("What is watermark?", word_map),
-            A.anchor_words("watermark", word_map),
+            keywords.anchor_words("What is watermark?", word_map),
+            keywords.anchor_words("watermark", word_map),
         )
 
 
 class CueTest(unittest.TestCase):
     def test_cue_survives_canonicalization(self):
-        self.assertTrue(A.simple_words(canonical_query("data mesh in simple words")))
+        self.assertTrue(answermode.simple_words(canonical_query("data mesh in simple words")))
 
 
 if __name__ == "__main__":

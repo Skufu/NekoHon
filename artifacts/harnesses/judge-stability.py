@@ -8,7 +8,7 @@ ROOT = HERE.parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(HERE))
 
-from engine.answering import answer as A
+from engine.answering import context
 import judge as J
 from engine.retrieval.retrieve import INDEX, load_index
 
@@ -42,7 +42,7 @@ def main():
         variant = args.variant or next(iter(row["variants"]))
         passages_text = "\n\n".join(
             hit.get("text") or ""
-            for hit in A.retrieval_context(index, row["question"])["passages"]
+            for hit in context.retrieval_context(index, row["question"])["passages"]
         )
         verdicts = [
             J.judge_book_fidelity(

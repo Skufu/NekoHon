@@ -1,18 +1,15 @@
 import unittest
 
-from engine.answering.answer import (
-    _advance_followup_quote,
-    _clean_boilerplate_gloss,
-    _is_coherent_gloss,
-    fix_acronym_casing,
-)
+from engine.answering.conversation import advance_followup_quote
+from engine.answering.gloss import is_coherent_gloss
+from engine.answering.glossclean import clean_boilerplate_gloss, fix_acronym_casing
 from engine.answering.intent import (
     INTENT_AUTHOR_QUESTION,
     INTENT_CONCEPT_TERM,
     INTENT_MULTI_SENTENCE,
     INTENT_VAGUE_FRAGMENT,
-    _has_contrast_in_passage,
-    _is_example_or_tool_mention,
+    has_contrast_in_passage,
+    is_example_or_tool_mention,
     analyze_intent,
     classify_intent,
     compute_dynamic_followups,
@@ -135,28 +132,28 @@ class AntiGibberishCoherenceTests(unittest.TestCase):
             "The sentence 0 negative again selects reads the cloud readers. "
             "a cloud provider might have a disk of maximum again reads the space again. The readers also."
         )
-        self.assertFalse(_is_coherent_gloss(gibberish))
+        self.assertFalse(is_coherent_gloss(gibberish))
 
     def test_is_coherent_gloss_rejects_short_and_fragments(self):
-        self.assertFalse(_is_coherent_gloss("Too short."))
-        self.assertFalse(_is_coherent_gloss("A complete thought but ends with the."))
-        self.assertFalse(_is_coherent_gloss("A complete thought but ends with also."))
+        self.assertFalse(is_coherent_gloss("Too short."))
+        self.assertFalse(is_coherent_gloss("A complete thought but ends with the."))
+        self.assertFalse(is_coherent_gloss("A complete thought but ends with also."))
 
     def test_is_coherent_gloss_rejects_word_repetition_loops(self):
         loop_sent = "The disk reads data and reads cache and reads memory and reads buffers continuously."
-        self.assertFalse(_is_coherent_gloss(loop_sent))
+        self.assertFalse(is_coherent_gloss(loop_sent))
 
         adjacent_repeat = "The disk reads reads the blocks."
-        self.assertFalse(_is_coherent_gloss(adjacent_repeat))
+        self.assertFalse(is_coherent_gloss(adjacent_repeat))
 
     def test_is_coherent_gloss_rejects_meta_commentary(self):
         meta1 = "The section introduces cloud economics to prepare readers for architecture."
         meta2 = "This chapter discusses data storage and retrieval systems."
         meta3 = "The authors mention cloud economics to provide background."
         meta4 = "The passage explains the concept in detail."
-        self.assertFalse(_is_coherent_gloss(meta1))
-        self.assertFalse(_is_coherent_gloss(meta2))
-        self.assertFalse(_is_coherent_gloss(meta3))
+        self.assertFalse(is_coherent_gloss(meta1))
+        self.assertFalse(is_coherent_gloss(meta2))
+        self.assertFalse(is_coherent_gloss(meta3))
 
     def test_is_coherent_gloss_accepts_good_explanations(self):
         good1 = "To understand how to use cloud services efficiently through cloud native architecture, you need to know how clouds make money."
@@ -164,25 +161,25 @@ class AntiGibberishCoherenceTests(unittest.TestCase):
         good3 = "Limits on IOPs, storage capacity, and bandwidth create bottlenecks that encourage providers to price resources to discourage overconsumption."
         good4 = "Data maturity means using data better as your company grows, not just by how old or rich it is."
         good5 = "The model includes starting with data, scaling with data, and leading with data."
-        self.assertTrue(_is_coherent_gloss(good1))
-        self.assertTrue(_is_coherent_gloss(good2))
-        self.assertTrue(_is_coherent_gloss(good3))
-        self.assertTrue(_is_coherent_gloss(good4))
-        self.assertTrue(_is_coherent_gloss(good5))
+        self.assertTrue(is_coherent_gloss(good1))
+        self.assertTrue(is_coherent_gloss(good2))
+        self.assertTrue(is_coherent_gloss(good3))
+        self.assertTrue(is_coherent_gloss(good4))
+        self.assertTrue(is_coherent_gloss(good5))
 
     def test_clean_boilerplate_gloss_rewrites_the_passage(self):
         raw_word = "The passage explains that cloud storage pricing depends on access patterns."
-        cleaned_word = _clean_boilerplate_gloss(raw_word, selection="Cloud")
+        cleaned_word = clean_boilerplate_gloss(raw_word, selection="Cloud")
         self.assertTrue(cleaned_word.startswith("The highlighted word"))
         self.assertNotIn("The passage", cleaned_word)
 
         raw_phrase = "This passage describes the trade-offs in cloud economics."
-        cleaned_phrase = _clean_boilerplate_gloss(raw_phrase, selection="Cloud Economics")
+        cleaned_phrase = clean_boilerplate_gloss(raw_phrase, selection="Cloud Economics")
         self.assertTrue(cleaned_phrase.startswith("The highlighted phrase"))
         self.assertNotIn("This passage", cleaned_phrase)
 
         raw_in_passage = "In this passage, cloud providers charge for bandwidth and IOPs."
-        cleaned_in = _clean_boilerplate_gloss(raw_in_passage, selection="IOPS")
+        cleaned_in = clean_boilerplate_gloss(raw_in_passage, selection="IOPS")
         self.assertFalse(cleaned_in.lower().startswith("in this passage"))
 
 
@@ -284,7 +281,7 @@ class AdvanceFollowupQuoteTests(unittest.TestCase):
             ),
         }
         prior_quote = "Understanding cloud economics is essential for two reasons."
-        adv = _advance_followup_quote(
+        adv = advance_followup_quote(
             chunk,
             neighbors=[],
             prior_quote=prior_quote,
@@ -307,7 +304,7 @@ class AdvanceFollowupQuoteTests(unittest.TestCase):
             ),
         }
         prior_quote = "Any of these limits is a potential bottleneck for a cloud provider."
-        adv = _advance_followup_quote(
+        adv = advance_followup_quote(
             chunk,
             neighbors=[],
             prior_quote=prior_quote,
@@ -330,7 +327,7 @@ class AdvanceFollowupQuoteTests(unittest.TestCase):
             ),
         }
         prior_quote = "Moving on-premises servers to cloud VMs is a common first step."
-        adv = _advance_followup_quote(
+        adv = advance_followup_quote(
             chunk,
             neighbors=[],
             prior_quote=prior_quote,
@@ -352,7 +349,7 @@ class AdvanceFollowupQuoteTests(unittest.TestCase):
             ),
         }
         prior_quote = "Vectorized execution processes data arrays in register space."
-        adv = _advance_followup_quote(
+        adv = advance_followup_quote(
             chunk,
             neighbors=[],
             prior_quote=prior_quote,
@@ -380,7 +377,7 @@ class AdvanceFollowupQuoteTests(unittest.TestCase):
 
     def test_clean_boilerplate_gloss_normalizes_acronyms(self):
         raw = "ddr5 is fast and ssds are nonvolatile."
-        cleaned = _clean_boilerplate_gloss(raw)
+        cleaned = clean_boilerplate_gloss(raw)
         self.assertEqual(cleaned, "DDR5 is fast and SSDs are nonvolatile.")
 
         self.assertEqual(fix_acronym_casing("Ssds and Hdds"), "SSDs and HDDs")
@@ -458,22 +455,22 @@ class AdvanceFollowupQuoteTests(unittest.TestCase):
 class QueryUnderstandingAndIntentTests(unittest.TestCase):
     def test_is_example_or_tool_mention(self):
         text1 = "Reverse ETL pushes transformed data back into operational systems such as Google Ads and Salesforce."
-        self.assertTrue(_is_example_or_tool_mention("Google Ads", text1))
-        self.assertTrue(_is_example_or_tool_mention("Salesforce", text1))
+        self.assertTrue(is_example_or_tool_mention("Google Ads", text1))
+        self.assertTrue(is_example_or_tool_mention("Salesforce", text1))
 
         text2 = "For instance, tools like Snowflake and BigQuery provide auto-scaling compute."
-        self.assertTrue(_is_example_or_tool_mention("Snowflake", text2))
-        self.assertTrue(_is_example_or_tool_mention("BigQuery", text2))
+        self.assertTrue(is_example_or_tool_mention("Snowflake", text2))
+        self.assertTrue(is_example_or_tool_mention("BigQuery", text2))
 
         text3 = "Batch processing runs on a schedule while stream processing handles events continuously."
-        self.assertFalse(_is_example_or_tool_mention("Batch processing", text3))
-        self.assertFalse(_is_example_or_tool_mention("stream processing", text3))
+        self.assertFalse(is_example_or_tool_mention("Batch processing", text3))
+        self.assertFalse(is_example_or_tool_mention("stream processing", text3))
 
     def test_has_contrast_in_passage(self):
-        self.assertTrue(_has_contrast_in_passage("Paxos", "In contrast to Paxos, Raft uses a strong leader model."))
-        self.assertTrue(_has_contrast_in_passage("ETL", "ETL differs from ELT in when transformations occur."))
-        self.assertTrue(_has_contrast_in_passage("REST", "GraphQL provides flexible schema queries unlike REST endpoints."))
-        self.assertFalse(_has_contrast_in_passage("Google Ads", "Operational systems like Google Ads consume enriched customer data."))
+        self.assertTrue(has_contrast_in_passage("Paxos", "In contrast to Paxos, Raft uses a strong leader model."))
+        self.assertTrue(has_contrast_in_passage("ETL", "ETL differs from ELT in when transformations occur."))
+        self.assertTrue(has_contrast_in_passage("REST", "GraphQL provides flexible schema queries unlike REST endpoints."))
+        self.assertFalse(has_contrast_in_passage("Google Ads", "Operational systems like Google Ads consume enriched customer data."))
 
     def test_is_passing_mention_detection(self):
         chunk = {

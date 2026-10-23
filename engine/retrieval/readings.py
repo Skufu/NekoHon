@@ -1,12 +1,18 @@
 import difflib
 import urllib.error
 
-from engine.retrieval.keywords import postings
+from engine import llm
+from engine.retrieval.keywords import book_forms, postings
 from engine.retrieval.preprocess import stem, token_spans, tokens
-from engine.answering.prompt import ANSWER_MODEL, SPELL_SYSTEM
 from engine.retrieval.retrieve import DEFAULT_EMBEDDER, rank_chunks
 
 CUTOFF = 0.85
+
+SPELL_SYSTEM = """Fix any spelling errors in the user-provided book search query below.
+Correct only clear, high-confidence typos. Do not rewrite, add, remove, or reorder words.
+Preserve punctuation and capitalization unless a change is required for a typo fix.
+If there are no spelling errors, or if you're unsure, output the original query unchanged.
+Output only the final query text, nothing else."""
 
 
 def _closest(word, vocabulary):
@@ -34,6 +40,10 @@ def _closest(word, vocabulary):
 
 
 _SORTED_WMAP_CACHE = {}
+
+
+def clear_wmap_cache():
+    _SORTED_WMAP_CACHE.clear()
 
 
 def _fixes(question, word_map):
@@ -90,20 +100,6 @@ def resolved_reading(question, word_map):
     return _applied(text, _fixes(text, word_map))
 
 
-def _book_forms(index):
-    if isinstance(index, dict) and "_book_forms" in index:
-        return index["_book_forms"]
-    forms = {}
-    chunks = index.get("chunks") if isinstance(index, dict) else index
-    for chunk in chunks or []:
-        text = chunk.get("text") if isinstance(chunk, dict) else str(chunk)
-        for token in tokens(text):
-            forms.setdefault(token.lower(), token)
-    if isinstance(index, dict):
-        index["_book_forms"] = forms
-    return forms
-
-
 def _clean_completion(text):
     text = (text or "").strip()
     if len(text) >= 2 and text[0] == text[-1] and text[0] in "\"'“”":
@@ -111,13 +107,11 @@ def _clean_completion(text):
     return " ".join(text.split())
 
 
-def llm_second_reading(index, question, literal_top, answer_model=ANSWER_MODEL,
+def llm_second_reading(index, question, literal_top, answer_model=llm.ANSWER_MODEL,
                        generate_fn=None, embed_model=DEFAULT_EMBEDDER,
                        embed_fn=None, word_map=None):
     if generate_fn is None:
-        from engine.answering.answer import ollama_generate
-
-        generate_fn = ollama_generate
+        generate_fn = llm.generate
     word_map = postings(index) if word_map is None else word_map
     before = [token.lower() for token in tokens(question or "")]
     if not word_map or not any(word not in word_map for word in before):
@@ -167,7 +161,7 @@ def second_reading(index, question, literal_top, model=DEFAULT_EMBEDDER,
     if not ranked or ranked[0][0] <= literal_top:
         return None
     score, chunk = ranked[0]
-    forms = _book_forms(index)
+    forms = book_forms(index)
     return {
         "reading": reading,
         "chunk": {

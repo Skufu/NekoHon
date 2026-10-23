@@ -7,6 +7,7 @@ from pathlib import Path
 
 from engine import llm
 from engine.figures import cited_numbers, figure_cards
+from engine.retrieval import keywords
 from engine.retrieval.preprocess import normalize
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -30,18 +31,18 @@ PREFIXES = {
 
 
 if hasattr(math, "sumprod"):
-    _dot = math.sumprod
+    dot_product = math.sumprod
 else:
-    def _dot(a, b):
+    def dot_product(a, b):
         return sum(map(operator.mul, a, b))
 
 
 def cosine(a, b):
     if len(a) != len(b) or not a:
         return 0.0
-    dot = _dot(a, b)
-    norm_a = _dot(a, a)
-    norm_b = _dot(b, b)
+    dot = dot_product(a, b)
+    norm_a = dot_product(a, a)
+    norm_b = dot_product(b, b)
     if norm_a == 0.0 or norm_b == 0.0:
         return 0.0
     return dot / (math.sqrt(norm_a) * math.sqrt(norm_b))
@@ -211,8 +212,6 @@ def _lru_get(cache, key):
 def clear_index_caches():
     _RANK_CACHE.clear()
     _DENSE_RANK_CACHE.clear()
-    from engine.retrieval import readings
-    readings._SORTED_WMAP_CACHE.clear()
 
 
 def _prepare_index(index):
@@ -224,7 +223,7 @@ def _prepare_index(index):
         if vector is not None:
             c_unit = chunk.get("_uvec")
             if c_unit is None or len(c_unit) != len(vector):
-                c_norm = math.sqrt(_dot(vector, vector))
+                c_norm = math.sqrt(dot_product(vector, vector))
                 c_unit = [y / c_norm for y in vector] if c_norm > 0.0 else vector
                 chunk["_uvec"] = c_unit
         if chunk.get("text") and "_cited_numbers" not in chunk:
@@ -236,17 +235,15 @@ def _prepare_index(index):
         if f_vec is not None:
             f_unit = figure.get("_uvec")
             if f_unit is None or len(f_unit) != len(f_vec):
-                f_norm = math.sqrt(_dot(f_vec, f_vec))
+                f_norm = math.sqrt(dot_product(f_vec, f_vec))
                 f_unit = [y / f_norm for y in f_vec] if f_norm > 0.0 else f_vec
                 figure["_uvec"] = f_unit
 
-    from engine.retrieval import keywords
     keywords.postings(index)
     if "_postings" in index and "_df" not in index:
         index["_df"] = {w: len(pos) for w, pos in index["_postings"].items()}
 
-    from engine.retrieval import readings
-    readings._book_forms(index)
+    keywords.book_forms(index)
     return index
 
 
@@ -285,7 +282,7 @@ def rank_chunks(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
                 f"query embedding is {len(query)} wide, index declares {declared}. "
                 "Do not mix vectors."
             )
-        q_norm = math.sqrt(_dot(query, query))
+        q_norm = math.sqrt(dot_product(query, query))
         q_unit = [x / q_norm for x in query] if q_norm > 0.0 else query
         if use_cache:
             _lru_put(_QUERY_UNIT_CACHE, (model, norm_q), q_unit)
@@ -303,10 +300,10 @@ def rank_chunks(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
             )
         c_unit = chunk.get("_uvec")
         if c_unit is None or len(c_unit) != len(vector):
-            c_norm = math.sqrt(_dot(vector, vector))
+            c_norm = math.sqrt(dot_product(vector, vector))
             c_unit = [y / c_norm for y in vector] if c_norm > 0.0 else vector
             chunk["_uvec"] = c_unit
-        score = _dot(q_unit, c_unit)
+        score = dot_product(q_unit, c_unit)
         ranked.append((score, chunk))
     ranked.sort(key=operator.itemgetter(0), reverse=True)
     if use_cache:

@@ -1,17 +1,18 @@
 import re
 
 from engine.figures import figures_for
-from engine.answering.shared import (
-    PARAGRAPH_CAP,
-    SPAN_MIN_CHARS,
-    _PRONOUNS_SET,
-    _REGARDING_PREFIX_RE,
-    _WHITESPACE_RE,
-    _sentences,
-    _token_word_pattern,
-    tokens,
+from engine.answering.sentences import (
+    split_sentences,
+    token_word_pattern,
+    WHITESPACE_RE,
 )
-from engine.answering.listshape import _without_heading
+from engine.answering.textrules import (
+    PARAGRAPH_CAP,
+    PRONOUNS_SET,
+    REGARDING_PREFIX_RE,
+    SPAN_MIN_CHARS,
+)
+from engine.answering.listshape import without_heading
 
 
 SIDE_SPLIT = re.compile(r"[^a-z0-9]+")
@@ -62,13 +63,13 @@ def _clean_side(text):
     return text.strip(" ?.!\"'")
 
 
-def _comparison_sides(*texts):
+def comparison_sides(*texts):
     candidates = [text.strip() for text in texts if text and text.strip()]
-    pronouns = _PRONOUNS_SET
+    pronouns = PRONOUNS_SET
     for text in candidates:
         prefix_subj = ""
         q_clean = (text or "").strip()
-        m_reg = _REGARDING_PREFIX_RE.match(q_clean)
+        m_reg = REGARDING_PREFIX_RE.match(q_clean)
         if m_reg:
             prefix_subj = m_reg.group(1).strip()
             q_clean = m_reg.group(2).strip()
@@ -114,7 +115,7 @@ def _comparison_sides(*texts):
     return None
 
 
-def _side_tokens(side):
+def side_tokens(side):
     cleaned = _clean_side(side)
     tokens = []
     for token in SIDE_SPLIT.split((cleaned or "").lower()):
@@ -127,7 +128,7 @@ def _side_tokens(side):
 def _side_covered(tokens, passages):
     if not tokens:
         return None
-    patterns = [_token_word_pattern(token) for token in tokens]
+    patterns = [token_word_pattern(token) for token in tokens]
     for hit in passages:
         folded = f"{hit.get('heading') or ''} {hit.get('text') or ''}".lower()
         if all(pattern.search(folded) for pattern in patterns):
@@ -137,27 +138,27 @@ def _side_covered(tokens, passages):
 
 def _covering_quote(tokens, hit):
     text = hit.get("text") or ""
-    patterns = [_token_word_pattern(token) for token in tokens]
-    for sentence in _sentences(text):
+    patterns = [token_word_pattern(token) for token in tokens]
+    for sentence in split_sentences(text):
         if all(pattern.search(sentence.lower()) for pattern in patterns):
-            return _without_heading(sentence, hit)
-    paragraph = _WHITESPACE_RE.sub(" ", text).strip()
+            return without_heading(sentence, hit)
+    paragraph = WHITESPACE_RE.sub(" ", text).strip()
     if (
         len(paragraph) <= PARAGRAPH_CAP
         and len(paragraph) >= SPAN_MIN_CHARS
         and all(pattern.search(paragraph.lower()) for pattern in patterns)
     ):
-        return _without_heading(paragraph, hit)
+        return without_heading(paragraph, hit)
     return ""
 
 
-def _half_covered(body, question, asked_form, passages, figures):
-    sides = _comparison_sides(question, asked_form)
+def half_covered(body, question, asked_form, passages, figures):
+    sides = comparison_sides(question, asked_form)
     if sides is None:
         return body
     found = []
     for side in sides:
-        tokens = _side_tokens(side)
+        tokens = side_tokens(side)
         found.append((side, tokens, _side_covered(tokens, passages)))
     covered = [item for item in found if item[2] is not None]
     missing = [item for item in found if item[2] is None]

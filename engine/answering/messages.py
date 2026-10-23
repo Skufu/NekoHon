@@ -11,7 +11,7 @@ from engine.answering.intent import (
     extract_enclosing_subject,
 )
 from engine.answering.sanitize import sanitize_history
-from engine.answering.listshape import _list_ask
+from engine.answering.listshape import list_ask
 
 
 FORMAT_REMINDER = (
@@ -80,7 +80,7 @@ SIMPLIFY_RE = re.compile(
 )
 
 
-def _followup_gloss_user_message(history, question, quote, chunk, neighbors=None):
+def followup_gloss_user_message(history, question, quote, chunk, neighbors=None):
     clean_history = [
         h for h in (history or [])
         if isinstance(h, dict) and (h.get("question") or h.get("answer"))
@@ -119,7 +119,7 @@ def _followup_gloss_user_message(history, question, quote, chunk, neighbors=None
     return "\n".join(parts)
 
 
-def _answer_gloss_user_message(question, quote, chunk):
+def answer_gloss_user_message(question, quote, chunk):
     parts = [
         f"Reader question: {question}",
         f"Cited sentence from the book: {quote}",
@@ -127,7 +127,7 @@ def _answer_gloss_user_message(question, quote, chunk):
     if chunk.get("heading"):
         parts.append(f"Section heading: {chunk['heading']}")
     parts.append(f"\nPassage context:\n{chunk.get('text', '')}")
-    if _list_ask(question, question):
+    if list_ask(question, question):
         parts.append(
             "\nExplicitly name the specific items, stages, components, or types in your answer."
         )
@@ -138,7 +138,7 @@ def _answer_gloss_user_message(question, quote, chunk):
     return "\n".join(parts)
 
 
-def _explain_gloss_user_message(selection, quote, pin_chunk, neighbors=None):
+def explain_gloss_user_message(selection, quote, pin_chunk, neighbors=None):
     heading = (pin_chunk.get("heading") or "") if pin_chunk else ""
     intent_info = analyze_intent(selection, heading, pin_chunk, neighbors) if pin_chunk else {}
     intent_type = intent_info.get("intent_type") or classify_intent(selection, heading, pin_chunk)

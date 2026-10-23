@@ -8,7 +8,7 @@ ROOT = HERE.parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "artifacts" / "harnesses"))
 
-from engine.answering import answer as A
+from engine.answering import answer as A, answermode, context, messages
 import groundedness as G
 from engine.answering.prompt import ANSWER_MODEL, SYSTEM_ANSWER
 from engine.retrieval.retrieve import INDEX, load_index
@@ -108,9 +108,9 @@ def grounding(answer, passages):
 
 def run_variant(index, question, system, passages):
     completion = A.ollama_generate(
-        system, A.answer_user_message(question, passages), ANSWER_MODEL
+        system, messages.answer_user_message(question, passages), ANSWER_MODEL
     )
-    body = A.parse_answered(completion, passages, index.get("figures") or [])
+    body = answermode.parse_answered(completion, passages, index.get("figures") or [])
     return {
         "answer": body["answer"],
         "citations": [c["chunk_id"] for c in body["citations"]],
@@ -124,7 +124,7 @@ def main():
     index = load_index(INDEX)
     rows = []
     for question in QUESTIONS:
-        passages = A.retrieval_context(index, question)["passages"]
+        passages = context.retrieval_context(index, question)["passages"]
         current = run_variant(index, question, SYSTEM_ANSWER, passages)
         plain = run_variant(index, question, PLAIN_SYSTEM, passages)
         plain2 = run_variant(index, question, PLAIN2_SYSTEM, passages)

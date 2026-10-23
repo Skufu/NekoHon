@@ -7,11 +7,11 @@ Plain definitions for the vocabulary this repo uses. For how the parts fit, see
 
 - **ask mode** — the model must quote one sentence verbatim from a shown
   passage, tagged `[Ch. N]`, with a short gloss. A quote that is not verbatim
-  fails the check and becomes a refusal (`engine/answering/quoteask.py`).
+  fails the check and becomes a refusal (`engine/answering/askmode.py`).
 - **answer mode** — the window default. The model writes a short answer from the
   shown passages with the same quote-first prompt as ask mode. Its `[Ch. N]` tags
   become citations matched back to the shown passages, and quotation marks the
-  passages cannot back are stripped (`engine/answering/freeanswer.py`).
+  passages cannot back are stripped (`engine/answering/answermode.py`).
 - **explain mode** — the reader's selection is the question; the selection's
   chapter neighborhood is the evidence (`engine/answering/explain.py`).
 - **quiz mode** — one question plus one key sentence from one chunk. The
@@ -40,7 +40,7 @@ Plain definitions for the vocabulary this repo uses. For how the parts fit, see
   (`engine/answering/gloss.py`).
 - **plain register** — answer mode when the question carries a cue such as "in
   simple words": evidence sentences from a draft are rewritten one in, one out
-  (`freeanswer._plain_body`).
+  (`answermode.plain_body`).
 - **half-covered comparison** — a "X vs Y" question where the shown passages
   cover only one side; the answer quotes that side and says the other is not in
   the passages (`engine/answering/comparison.py`).

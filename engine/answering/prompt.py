@@ -1,5 +1,7 @@
 import os
 
+from engine.llm import ANSWER_MODEL
+
 SYSTEM = """You answer only from the passages below. If the passages do not contain the answer, reply with exactly this sentence and nothing else:
 Not in this book.
 Quote first. Start the quote with [Ch. N] using the chapter on that passage. After the quote, one line of gloss in simple words. Definition first if the passage defines a term.
@@ -13,12 +15,6 @@ Not in this book.
 Do not describe an image. You cannot see images. If a passage names a figure, mention it; the app will show the image."""
 
 REFUSAL = "Not in this book."
-
-SPELL_SYSTEM = """Fix any spelling errors in the user-provided book search query below.
-Correct only clear, high-confidence typos. Do not rewrite, add, remove, or reorder words.
-Preserve punctuation and capitalization unless a change is required for a typo fix.
-If there are no spelling errors, or if you're unsure, output the original query unchanged.
-Output only the final query text, nothing else."""
 
 PARAPHRASE_SYSTEM = """Rewrite one sentence from a book in simpler words for a newcomer. Rewrite the whole sentence and keep all of its meaning: do not summarize it, do not drop any part, and do not add any fact, comparison, or example that is not in the sentence. Keep the subject: every sentence must say who or what does the action — never output a fragment. Use short sentences of fifteen words or fewer. Use common words; keep technical terms that are necessary. Output only the rewritten sentence, nothing else."""
 
@@ -51,5 +47,4 @@ ANSWER_GLOSS_SYSTEM = (
     "If the reader asks 'What are the ...' (a list, stages, types, components, or reasons), you MUST explicitly name the specific items in your sentence (e.g., 'The five stages of the data engineering lifecycle are generation, storage, ingestion, transformation, and serving data.'). NEVER write vague pointer sentences like 'The stages are listed in the introduction' or 'The process is split into five steps' without naming them."
 )
 
-ANSWER_MODEL = os.environ.get("ANSWER_MODEL", "nekohon_x3")
 OLLAMA_KEEP_ALIVE = os.environ.get("OLLAMA_KEEP_ALIVE", "24h")

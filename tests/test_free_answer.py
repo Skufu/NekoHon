@@ -1,6 +1,6 @@
 import unittest
 
-from engine.answering import answer as A
+from engine.answering import answer as A, answermode, prompt
 from engine.server import MODES
 
 REFUSAL = "Not in this book."
@@ -28,21 +28,21 @@ PASSAGES = [
 
 class ParseAnsweredTest(unittest.TestCase):
     def test_refusal_exact(self):
-        body = A.parse_answered(REFUSAL, PASSAGES)
+        body = answermode.parse_answered(REFUSAL, PASSAGES)
         self.assertTrue(body["refused"])
         self.assertEqual(body["answer"], REFUSAL)
 
     def test_refusal_first_line_then_more_is_still_a_refusal(self):
-        body = A.parse_answered(REFUSAL + "\nAnyway, here is a guess.", PASSAGES)
+        body = answermode.parse_answered(REFUSAL + "\nAnyway, here is a guess.", PASSAGES)
         self.assertTrue(body["refused"])
         self.assertEqual(body["answer"], REFUSAL)
 
     def test_empty_completion_refuses(self):
-        body = A.parse_answered("   \n ", PASSAGES)
+        body = answermode.parse_answered("   \n ", PASSAGES)
         self.assertTrue(body["refused"])
 
     def test_tagged_sentence_cites_its_chapter(self):
-        body = A.parse_answered(
+        body = answermode.parse_answered(
             "CDC streams row-level changes from a database. [Ch. 1]", PASSAGES
         )
         self.assertFalse(body["refused"])
@@ -51,13 +51,13 @@ class ParseAnsweredTest(unittest.TestCase):
         self.assertIn(quote, PASSAGES[0]["text"])
 
     def test_tag_on_the_next_line_cites_the_sentence_before_it(self):
-        body = A.parse_answered(
+        body = answermode.parse_answered(
             "CDC streams row-level changes.\n[Ch. 1]", PASSAGES
         )
         self.assertEqual([c["chunk_id"] for c in body["citations"]], ["c1-001"])
 
     def test_free_prose_without_tags_is_still_answered(self):
-        body = A.parse_answered(
+        body = answermode.parse_answered(
             "CDC keeps downstream systems in sync.", PASSAGES
         )
         self.assertFalse(body["refused"])
@@ -65,7 +65,7 @@ class ParseAnsweredTest(unittest.TestCase):
         self.assertEqual(body["citations"], [])
 
     def test_fake_quote_marks_are_stripped(self):
-        body = A.parse_answered(
+        body = answermode.parse_answered(
             'CDC "streams pink unicorns from the database" each night. [Ch. 1]',
             PASSAGES,
         )
@@ -73,34 +73,34 @@ class ParseAnsweredTest(unittest.TestCase):
         self.assertIn("pink unicorns", body["answer"])
 
     def test_real_quote_marks_are_kept(self):
-        body = A.parse_answered(
+        body = answermode.parse_answered(
             'The passage says "row-level changes from a database". [Ch. 1]',
             PASSAGES,
         )
         self.assertIn('"row-level changes from a database"', body["answer"])
 
     def test_wrong_chapter_tag_falls_back_to_overlap(self):
-        body = A.parse_answered(
+        body = answermode.parse_answered(
             "CDC streams row-level changes from a database. [Ch. 9]", PASSAGES
         )
         self.assertEqual([c["chunk_id"] for c in body["citations"]], ["c1-001"])
 
     def test_zero_overlap_sentence_is_uncited(self):
-        body = A.parse_answered(
+        body = answermode.parse_answered(
             "Strong chromodynamic forcefields bind quarks. [Ch. 1]", PASSAGES
         )
         self.assertFalse(body["refused"])
         self.assertEqual(body["citations"], [])
 
     def test_same_chunk_cited_once(self):
-        body = A.parse_answered(
+        body = answermode.parse_answered(
             "CDC streams changes. [Ch. 1] CDC keeps systems in sync. [Ch. 1]",
             PASSAGES,
         )
         self.assertEqual(len(body["citations"]), 1)
 
     def test_two_chapter_tag_still_cites(self):
-        body = A.parse_answered(
+        body = answermode.parse_answered(
             "The endpoint streams data straight past a database [Ch. 2, Ch. 7].",
             PASSAGES,
         )
@@ -108,7 +108,7 @@ class ParseAnsweredTest(unittest.TestCase):
         self.assertEqual([c["chunk_id"] for c in body["citations"]], ["c1-001"])
 
     def test_mid_sentence_span_expands_to_the_whole_sentence(self):
-        body = A.parse_answered(
+        body = answermode.parse_answered(
             "The CDC approach focuses on row-level changes from a database "
             "so downstream systems stay in sync. [Ch. 1]",
             PASSAGES,
@@ -121,7 +121,7 @@ class ParseAnsweredTest(unittest.TestCase):
 
     def test_span_outside_any_sentence_keeps_the_old_run(self):
         short = [hit("c9-009", "9", "Sync note\nrow-level changes from a database")]
-        body = A.parse_answered(
+        body = answermode.parse_answered(
             "The approach focuses on row-level changes from a database here. [Ch. 9]",
             short,
         )
@@ -135,7 +135,7 @@ class ParseAnsweredTest(unittest.TestCase):
             "Data engineering is all about the movement, manipulation, and "
             "management of data. Lewis Gavin5",
         )
-        quote = A._evidence_quote(
+        quote = answermode.evidence_quote(
             "Data engineering deals with the movement, manipulation, and "
             "management of data.",
             glued,
@@ -160,7 +160,7 @@ class ParseAnsweredTest(unittest.TestCase):
             "take in raw data and produce high-quality, consistent "
             "information that supports downstream use cases.",
         )
-        quote = A._evidence_quote(
+        quote = answermode.evidence_quote(
             "Data engineering involves developing, implementing, and "
             "maintaining systems and processes that handle raw data, "
             "transforming it into high-quality, consistent information for "
@@ -241,7 +241,7 @@ class RespondTest(unittest.TestCase):
             return PASSAGES
 
         def fake_generate(system, user, model):
-            if system == A.PARAPHRASE_SYSTEM:
+            if system == prompt.PARAPHRASE_SYSTEM:
                 seen.append(user)
                 return "CDC sends changes downstream."
             return (

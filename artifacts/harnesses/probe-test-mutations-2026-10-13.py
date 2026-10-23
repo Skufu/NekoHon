@@ -10,9 +10,7 @@ sys.path.insert(0, str(ROOT))
 
 EVIDENCE = ROOT / "artifacts" / "runs" / "probe-test-mutations"
 
-from engine.answering import answer as A
-from engine.answering import freeanswer as F
-from engine.answering import quoteask as Q
+from engine.answering import answer as A, answermode as F, askmode as Q, prompt
 from engine.retrieval import keywords
 from engine.retrieval.preprocess import words
 
@@ -46,7 +44,7 @@ def filterless_anchors(question, word_map, bound=keywords.COVER_DF):
 
 
 def open_gate_explain(index, selection, generate_fn=None, search_fn=None,
-                      model=A.ANSWER_MODEL):
+                      model=prompt.ANSWER_MODEL):
     return A.ask(index, selection.strip(), generate_fn, search_fn, model)
 
 
@@ -77,16 +75,16 @@ def main():
     try:
         for m in (Q, F):
             m.canonical_query = identity
-        mutations.append(("M3 wiring dropped in quoteask.py and freeanswer.py", run_suite()))
+        mutations.append(("M3 wiring dropped in askmode.py and answermode.py", run_suite()))
     finally:
         for m in (Q, F):
             m.canonical_query = aq
     try:
-        for m in (A, Q, F):
+        for m in (keywords, Q, F):
             m.anchor_words = filterless_anchors
         mutations.append(("M4 filterless anchors", run_suite()))
     finally:
-        for m in (A, Q, F):
+        for m in (keywords, Q, F):
             m.anchor_words = aw
     try:
         A.explain = open_gate_explain

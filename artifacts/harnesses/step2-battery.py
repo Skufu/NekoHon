@@ -9,7 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-from engine.answering import answer as A
+from engine.answering import context
 from engine.retrieval.retrieve import INDEX, load_index
 
 URL = "http://127.0.0.1:8000/ask"
@@ -117,7 +117,7 @@ def shown_ids(question):
     if question not in _SHOWN:
         _SHOWN[question] = [
             hit["chunk_id"]
-            for hit in A.retrieval_context(_INDEX, question)["passages"]
+            for hit in context.retrieval_context(_INDEX, question)["passages"]
         ]
     return _SHOWN[question]
 

@@ -45,7 +45,7 @@ flowchart TD
   resolution from the filesystem), `llm.py` (Ollama chat and embed calls),
   `retrieval/` (index search, rank fusion, keyword gate, caption seeding, typo
   readings, text preprocessing), `answering/` (the four modes, prompts, query
-  canonicalization, highlight intent; `answer.py` re-exports the public names,
+  canonicalization, highlight intent; `answer.py` re-exports only the public API,
   module roles are in `docs/ENGINEERING.md`).
 - `scripts/` — `launch.py` (start Ollama and engine, optional browser),
   `setup_models.py` (install and verify the models), `preflight.py` (readiness),

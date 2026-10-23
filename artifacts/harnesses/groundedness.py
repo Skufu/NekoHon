@@ -9,7 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-from engine.answering import answer as A
+from engine.answering import answer as A, answermode, context as context_mod, messages, quotecheck
 from engine.answering.prompt import ANSWER_MODEL, SYSTEM_ANSWER
 from engine.retrieval.retrieve import INDEX, load_index
 
@@ -18,8 +18,8 @@ NGRAM = 4
 
 
 def content_tokens(text):
-    plain = A.TAG_PATTERN.sub(" ", text or "")
-    return A._punctuation_plain(plain).split()
+    plain = answermode.TAG_PATTERN.sub(" ", text or "")
+    return quotecheck.punctuation_plain(plain).split()
 
 
 def grams(tokens, n=NGRAM):
@@ -31,7 +31,7 @@ def answer_sentences(answer):
         line for line in (answer or "").splitlines()
         if not line.strip().startswith("Read as:")
     ]
-    text = A.TAG_PATTERN.sub(" ", " ".join(lines)).strip()
+    text = answermode.TAG_PATTERN.sub(" ", " ".join(lines)).strip()
     parts = re.split(r"(?<=[.!?])\s+", text)
     return [part.strip() for part in parts if len(content_tokens(part)) >= NGRAM]
 
@@ -45,10 +45,10 @@ def sentence_coverage(sentence, passage_grams):
 
 def fake_quotes(completion, passages):
     spans = []
-    for match in A.QUOTE_PATTERN.finditer(completion or ""):
+    for match in answermode.QUOTE_PATTERN.finditer(completion or ""):
         inner = match.group(1)
         if not any(
-            A._quote_in_passage(inner, hit.get("text") or "") for hit in passages
+            quotecheck.quote_in_passage(inner, hit.get("text") or "") for hit in passages
         ):
             spans.append(inner)
     return spans
@@ -81,15 +81,15 @@ def load_questions(path):
 
 
 def measure(index, question, generate_fn, timeout, system):
-    context = A.retrieval_context(index, question)
+    context = context_mod.retrieval_context(index, question)
     passages = context["passages"]
     if not passages:
         return {"question": question, "refused": True, "empty": True}
     completion = generate_fn(
-        system, A.answer_user_message(context["asked"], passages),
+        system, messages.answer_user_message(context["asked"], passages),
         ANSWER_MODEL, timeout,
     )
-    body = A.parse_answered(completion, passages, index.get("figures") or [])
+    body = answermode.parse_answered(completion, passages, index.get("figures") or [])
     passage_grams = set()
     for hit in passages:
         passage_grams |= grams(content_tokens(hit.get("text") or ""))

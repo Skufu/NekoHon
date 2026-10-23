@@ -2,40 +2,37 @@ import functools
 import re
 
 from engine.answering.canonical import STEM_WORDS, canonical_query
-from engine.answering.comparison import _half_covered
+from engine.answering.comparison import half_covered
 from engine.answering.context import retrieval_context
-from engine.answering.conversation import _resolve_contextual_query
-from engine.answering.listshape import _without_heading
+from engine.answering.conversation import resolve_contextual_query
+from engine.answering.listshape import without_heading
 from engine.answering.messages import SIMPLIFY_RE, answer_user_message, user_message
 from engine.answering.pipeline import begin_turn, finalize, simplify_shortcut
 from engine.answering.prompt import ANSWER_MODEL, PARAPHRASE_SYSTEM, REFUSAL, SYSTEM, SYSTEM_ANSWER
 from engine.answering.quotecheck import (
-    _align_citation_to_query_concepts,
-    _complete_truncated_quote,
-    _original_case,
-    _punctuation_plain,
-    _quote_in_passage,
-    _refusal,
-    _reground_alphanumeric_quote,
+    align_citation_to_query_concepts,
+    complete_truncated_quote,
+    original_case,
+    punctuation_plain,
+    quote_in_passage,
+    refusal_response,
+    reground_alphanumeric_quote,
     longest_copied_span,
     parse_completion,
 )
-from engine.answering.shared import (
-    FRAMING_WORDS,
-    SPAN_MIN_CHARS,
-    _SENTENCE_SPLIT_RE,
-    _TRAP_QUERY_RE,
-    _WHITESPACE_RE,
-    _clean_boilerplate_gloss,
-    _fold,
-    _sentences,
-    stem,
-    tokens,
-    words,
+from engine.answering.glossclean import clean_boilerplate_gloss
+from engine.answering.selection import FRAMING_WORDS
+from engine.answering.sentences import (
+    cached_words,
+    collapse_lower,
+    SENTENCE_SPLIT_RE,
+    split_sentences,
+    WHITESPACE_RE,
 )
+from engine.answering.textrules import SPAN_MIN_CHARS, TRAP_QUERY_RE
+from engine.retrieval.preprocess import stem, STOPWORDS
 from engine.figures import figures_for
 from engine.retrieval.keywords import anchor_words
-from engine.retrieval.preprocess import STOPWORDS
 
 
 _CH_PREFIX_RE = re.compile(r"^\[ch\.", re.I)
@@ -78,8 +75,8 @@ def simple_words(question):
     return any(cue in folded for cue in SIMPLE_CUES)
 
 
-def _has_passage_evidence(asked_form, passages, word_map):
-    q_words = [w.lower() for w in words(asked_form)]
+def has_passage_evidence(asked_form, passages, word_map):
+    q_words = [w.lower() for w in cached_words(asked_form)]
     if not q_words or not word_map or not passages:
         return False
 
@@ -104,7 +101,7 @@ def _has_passage_evidence(asked_form, passages, word_map):
     passage_vocab = {
         w.lower()
         for hit in passages
-        for w in words((hit.get("heading") or "") + " " + (hit.get("text") or ""))
+        for w in cached_words((hit.get("heading") or "") + " " + (hit.get("text") or ""))
     }
     passage_stems = None
 
@@ -121,7 +118,7 @@ def _has_passage_evidence(asked_form, passages, word_map):
     return True
 
 
-def _retry_uncited(question, passages, figures, generate_fn, model, history=None,
+def retry_uncited(question, passages, figures, generate_fn, model, history=None,
                    anchors=None, word_map=None):
     try:
         completion = generate_fn(
@@ -152,29 +149,29 @@ def _retry_uncited(question, passages, figures, generate_fn, model, history=None
         if body["refused"] or not body["citations"]:
             continue
         if not all(
-            _quote_in_passage(item["quote"], texts.get(item["chunk_id"], ""))
+            quote_in_passage(item["quote"], texts.get(item["chunk_id"], ""))
             for item in body["citations"]
         ):
             continue
         return body
 
-    if passages and len(passages) >= 3 and word_map and _has_passage_evidence(question, passages, word_map):
+    if passages and len(passages) >= 3 and word_map and has_passage_evidence(question, passages, word_map):
         lead = passages[0]
         lead_text = lead.get("text") or ""
-        q_tokens = [w.lower() for w in words(question) if w.lower() not in STEM_WORDS and w.lower() not in STOPWORDS]
+        q_tokens = [w.lower() for w in cached_words(question) if w.lower() not in STEM_WORDS and w.lower() not in STOPWORDS]
         best_sent = ""
         best_overlap = -1
-        for sent in _sentences(lead_text):
-            sent_clean = _without_heading(sent, lead)
+        for sent in split_sentences(lead_text):
+            sent_clean = without_heading(sent, lead)
             if len(sent_clean) < SPAN_MIN_CHARS:
                 continue
-            sent_words = set(words(sent_clean.lower()))
+            sent_words = set(cached_words(sent_clean.lower()))
             overlap = sum(1 for t in q_tokens if t in sent_words or any(stem(t) == stem(sw) for sw in sent_words))
             if overlap > best_overlap:
                 best_overlap = overlap
                 best_sent = sent_clean
         if best_sent:
-            best_sent = _reground_alphanumeric_quote(best_sent, question, lead_text)
+            best_sent = reground_alphanumeric_quote(best_sent, question, lead_text)
             chap = str(lead["chapter"])
             return {
                 "answer": f'[Ch. {chap}] "{best_sent}"\n{best_sent}',
@@ -195,13 +192,13 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
             end_chunk_id=None, embed_fn=None):
     t = begin_turn(index, question, generate_fn, history, pin_chunk, selection, heading, model, "answer")
     if t is None:
-        return _refusal([])
+        return refusal_response([])
     shortcut = simplify_shortcut(t)
     if shortcut is not None:
         return shortcut
     question, history, clean_history = t.question, t.history, t.clean_history
     generate_fn, effective_pin = t.generate_fn, t.effective_pin
-    resolved_question = _resolve_contextual_query(
+    resolved_question = resolve_contextual_query(
         index, question, pin_chunk=effective_pin, selection=selection,
         heading=heading, history=history,
     )
@@ -214,21 +211,21 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
     passages = context["passages"]
     t.set_retrieval(resolved_question, asked_form, context)
     if not passages:
-        return _refusal([])
+        return refusal_response([])
     anchors = anchor_words(asked_form, context["word_map"])
     figures = index.get("figures") or []
     if simple_words(asked_form) and not (clean_history and effective_pin and SIMPLIFY_RE.search(question)):
-        body = _plain_body(index, context, generate_fn, model)
-        body = _half_covered(body, resolved_question, asked_form, passages, figures)
+        body = plain_body(index, context, generate_fn, model)
+        body = half_covered(body, resolved_question, asked_form, passages, figures)
     else:
         completion = generate_fn(
             SYSTEM, user_message(context["asked"], passages, history=history), model
         )
         body = parse_answered(completion, passages, figures)
-        body = _half_covered(body, resolved_question, asked_form, passages, figures)
-        body = _align_citation_to_query_concepts(body, resolved_question, passages)
+        body = half_covered(body, resolved_question, asked_form, passages, figures)
+        body = align_citation_to_query_concepts(body, resolved_question, passages)
         if not body["refused"] and not body["citations"]:
-            retry = _retry_uncited(
+            retry = retry_uncited(
                 context["asked"], passages, figures,
                 generate_fn, model, history=history, anchors=anchors,
                 word_map=context.get("word_map", {}),
@@ -238,14 +235,14 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
         elif body.get("refused"):
             can_retry = False
             if clean_history and (resolved_question != question):
-                is_trap = bool(_TRAP_QUERY_RE.search(question))
+                is_trap = bool(TRAP_QUERY_RE.search(question))
                 if not is_trap and passages:
                     can_retry = True
-            elif len(passages) >= 3 and _has_passage_evidence(context["asked"], passages, context.get("word_map", {})):
+            elif len(passages) >= 3 and has_passage_evidence(context["asked"], passages, context.get("word_map", {})):
                 can_retry = True
 
             if can_retry:
-                retry = _retry_uncited(
+                retry = retry_uncited(
                     context["asked"], passages, figures, generate_fn, model,
                     history=history, anchors=anchors, word_map=context.get("word_map", {}),
                 )
@@ -254,7 +251,7 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
     return finalize(t, body, simple_words(asked_form))
 
 
-def _clean_rewrite(text):
+def clean_rewrite(text):
     text = (text or "").strip()
     if len(text) >= 2 and text[0] == text[-1] and text[0] in "\"'“”":
         text = text[1:-1].strip()
@@ -262,7 +259,7 @@ def _clean_rewrite(text):
     return re.sub(r"\s+", " ", text).strip()
 
 
-def _plain_body(index, context, generate_fn, model):
+def plain_body(index, context, generate_fn, model):
     passages = context["passages"]
     completion = generate_fn(
         SYSTEM_ANSWER, answer_user_message(context["asked"], passages), model
@@ -275,7 +272,7 @@ def _plain_body(index, context, generate_fn, model):
         rewritten = generate_fn(
             PARAPHRASE_SYSTEM, f"Sentence: {item['quote']}", model
         )
-        clean = _clean_rewrite(rewritten)
+        clean = clean_rewrite(rewritten)
         if clean:
             assembled.append(f"{clean} [Ch. {item['chapter']}]")
     if not assembled:
@@ -296,15 +293,15 @@ def _free_refusal(text):
 def _strip_fake_quotes(text, passages):
     def keep(match):
         inner = match.group(1)
-        if any(_quote_in_passage(inner, hit.get("text") or "") for hit in passages):
+        if any(quote_in_passage(inner, hit.get("text") or "") for hit in passages):
             return match.group(0)
         return inner
     return QUOTE_PATTERN.sub(keep, text)
 
 
 @functools.lru_cache(maxsize=2048)
-def _tokens(text):
-    return frozenset(word for word in _punctuation_plain(text).split() if len(word) > 2)
+def claim_tokens(text):
+    return frozenset(word for word in punctuation_plain(text).split() if len(word) > 2)
 
 
 def _claim_after_tag(rest):
@@ -315,13 +312,13 @@ def _claim_after_tag(rest):
     return re.sub(r"\s+", " ", first_line).strip()
 
 
-def _sentence_claims(text):
+def sentence_claims(text):
     masked = TAG_PATTERN.sub(
         lambda m: "\x01" + _PUNCT_SPLIT_RE.sub(" ", m.group(1)) + "\x02", text
     )
     claims = []
     pending = ""
-    for part in _SENTENCE_SPLIT_RE.split(masked):
+    for part in SENTENCE_SPLIT_RE.split(masked):
         segments = []
         cursor = 0
         for match in _MASK_TAG_RE.finditer(part):
@@ -337,7 +334,7 @@ def _sentence_claims(text):
                 i += 1
                 continue
             chapters = _DIGITS_RE.findall(value)
-            claim = _WHITESPACE_RE.sub(" ", pending).strip()
+            claim = WHITESPACE_RE.sub(" ", pending).strip()
             if not claim:
                 rest = []
                 j = i + 1
@@ -354,8 +351,8 @@ def _sentence_claims(text):
     return claims
 
 
-def _best_passage(claim, chapters, passages):
-    tokens = _tokens(claim)
+def best_passage(claim, chapters, passages):
+    tokens = claim_tokens(claim)
     if not tokens:
         return None
     hints = set(chapters)
@@ -364,7 +361,7 @@ def _best_passage(claim, chapters, passages):
     best, best_score = None, 0.0
     for pool in pools:
         for hit in pool:
-            overlap = len(tokens & _tokens(hit.get("text") or "")) / len(tokens)
+            overlap = len(tokens & claim_tokens(hit.get("text") or "")) / len(tokens)
             if overlap > best_score:
                 best, best_score = hit, overlap
         if best is not None:
@@ -372,35 +369,35 @@ def _best_passage(claim, chapters, passages):
     return best if best_score > 0 else None
 
 
-def _evidence_quote(claim, hit):
+def evidence_quote(claim, hit):
     text = hit.get("text") or ""
     span = longest_copied_span(claim, text)
-    tokens = _tokens(claim)
+    tokens = claim_tokens(claim)
     best, best_key = "", (-1.0, False)
-    all_sents = _sentences(text)
+    all_sents = split_sentences(text)
     heading_clean = (hit.get("heading") or "").strip().lower()
     for sentence in all_sents:
-        sentence_tokens = _tokens(sentence)
+        sentence_tokens = claim_tokens(sentence)
         if not sentence_tokens:
             continue
         overlap = len(tokens & sentence_tokens) / len(tokens) if tokens else 0.0
-        holds = bool(span) and _fold(span) in _fold(sentence)
+        holds = bool(span) and collapse_lower(span) in collapse_lower(sentence)
         if (overlap, holds) > best_key:
             best, best_key = sentence, (overlap, holds)
     res = ""
     if best:
-        res = _without_heading(best, hit)
+        res = without_heading(best, hit)
     elif span:
-        res = _original_case(span, text)
+        res = original_case(span, text)
     else:
-        res = _without_heading(re.sub(r"\s+", " ", text).strip(), hit)
+        res = without_heading(re.sub(r"\s+", " ", text).strip(), hit)
 
     res_clean = res.strip().lower()
     if len(res) < 20 or (heading_clean and res_clean == heading_clean):
         long_sents = [s for s in all_sents if len(s) >= 40 and s.strip().lower() != heading_clean]
         if long_sents:
-            best_long = max(long_sents, key=lambda s: len(tokens & _tokens(s)) if tokens else 0)
-            res = _without_heading(best_long, hit)
+            best_long = max(long_sents, key=lambda s: len(tokens & claim_tokens(s)) if tokens else 0)
+            res = without_heading(best_long, hit)
 
     return res
 
@@ -408,23 +405,23 @@ def _evidence_quote(claim, hit):
 def parse_answered(completion, passages, figures=None):
     text = (completion or "").strip()
     if not text or _free_refusal(text):
-        return _refusal(passages, figures)
+        return refusal_response(passages, figures)
     text = _strip_fake_quotes(text, passages)
     citations = []
-    for claim, chapters in _sentence_claims(text):
-        hit = _best_passage(claim, chapters, passages)
+    for claim, chapters in sentence_claims(text):
+        hit = best_passage(claim, chapters, passages)
         if hit is None:
             continue
         if any(item["chunk_id"] == hit["chunk_id"] for item in citations):
             continue
-        quote = _evidence_quote(claim, hit)
+        quote = evidence_quote(claim, hit)
         heading_clean = (hit.get("heading") or "").strip().lower()
         if len(quote) < 20 or (heading_clean and quote.strip().lower() == heading_clean):
-            all_sents = _sentences(hit.get("text") or "")
+            all_sents = split_sentences(hit.get("text") or "")
             long_sents = [s for s in all_sents if len(s) >= 40 and s.strip().lower() != heading_clean]
             if long_sents:
-                quote = _without_heading(long_sents[0], hit)
-        quote = _complete_truncated_quote(quote, hit.get("text") or "")
+                quote = without_heading(long_sents[0], hit)
+        quote = complete_truncated_quote(quote, hit.get("text") or "")
         citations.append({
             "chunk_id": hit["chunk_id"],
             "chapter": str(hit["chapter"]),
@@ -436,7 +433,7 @@ def parse_answered(completion, passages, figures=None):
     for line in text.splitlines():
         line_clean = line.strip()
         if not _CH_PREFIX_RE.match(line_clean):
-            cleaned = _clean_boilerplate_gloss(line_clean)
+            cleaned = clean_boilerplate_gloss(line_clean)
             if cleaned:
                 cleaned_lines.append(cleaned)
         else:

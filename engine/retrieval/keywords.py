@@ -1,9 +1,23 @@
-from engine.retrieval.preprocess import STOPWORDS, words
+from engine.retrieval.preprocess import STOPWORDS, tokens, words
 
 from types import MappingProxyType
 
 RARE_DF = 8
 COVER_DF = 80
+
+
+def book_forms(index):
+    if isinstance(index, dict) and "_book_forms" in index:
+        return index["_book_forms"]
+    forms = {}
+    chunks = index.get("chunks") if isinstance(index, dict) else index
+    for chunk in chunks or []:
+        text = chunk.get("text") if isinstance(chunk, dict) else str(chunk)
+        for token in tokens(text):
+            forms.setdefault(token.lower(), token)
+    if isinstance(index, dict):
+        index["_book_forms"] = forms
+    return forms
 
 
 class _PostingPositions(tuple):

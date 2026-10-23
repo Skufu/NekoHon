@@ -1,15 +1,11 @@
 import unittest
 
-from engine.answering.answer import (
-    _advance_followup_quote,
-    _ensure_answer_gloss,
-    _extract_query_entities,
-    _resolve_contextual_query,
-    _should_include_chunk_figures,
-    explain,
-    fix_acronym_casing,
-    respond,
-)
+from engine.answering.answer import explain, respond
+from engine.answering.context import should_include_chunk_figures
+from engine.answering.conversation import advance_followup_quote, resolve_contextual_query
+from engine.answering.gloss import ensure_answer_gloss
+from engine.answering.glossclean import fix_acronym_casing
+from engine.answering.selection import extract_query_entities
 from engine.answering.intent import (
     INTENT_CONCEPT_TERM,
     analyze_intent,
@@ -96,7 +92,7 @@ class QueryUnderstandingSyntheticTests(unittest.TestCase):
         prior_quote = "FASTQ files represent biological sequencing reads with corresponding per-base quality scores."
         followup_q = "How does this relate to BWA-MEM?"
 
-        adv_quote = _advance_followup_quote(
+        adv_quote = advance_followup_quote(
             chunk,
             neighbors=[],
             prior_quote=prior_quote,
@@ -119,7 +115,7 @@ class QueryUnderstandingSyntheticTests(unittest.TestCase):
         history = [
             {"question": "What is FASTQ format?", "answer": f'[Ch. 5] "{prior_quote}"\nFASTQ stores reads and quality scores.'}
         ]
-        aligned_body = _ensure_answer_gloss(
+        aligned_body = ensure_answer_gloss(
             {"chunks": [chunk]},
             body,
             followup_q,
@@ -158,7 +154,7 @@ class QueryUnderstandingSyntheticTests(unittest.TestCase):
 
         passing_quote = "Database administrators can monitor cluster heartbeat metrics to detect network partitions."
         self.assertFalse(
-            _should_include_chunk_figures(chunk, "Database administrators", passing_quote, figures)
+            should_include_chunk_figures(chunk, "Database administrators", passing_quote, figures)
         )
 
         norm_val = 1.0 / (768.0 ** 0.5)
@@ -224,7 +220,7 @@ class QueryUnderstandingSyntheticTests(unittest.TestCase):
         history = [
             {"question": "What is Raft?", "answer": '[Ch. 6] "Raft defines a clear single-leader architecture."'}
         ]
-        resolved = _resolve_contextual_query(
+        resolved = resolve_contextual_query(
             index,
             "What are the main drawbacks?",
             history=history,
@@ -233,7 +229,7 @@ class QueryUnderstandingSyntheticTests(unittest.TestCase):
         self.assertIn("Raft", resolved)
         self.assertIn("drawbacks", resolved.lower())
 
-        resolved_simple = _resolve_contextual_query(
+        resolved_simple = resolve_contextual_query(
             index,
             "Can you explain this in simpler words?",
             history=history,

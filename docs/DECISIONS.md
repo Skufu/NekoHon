@@ -147,7 +147,7 @@ and a rerun of the gates (`.agents/skills/verify/SKILL.md`).
   `SYSTEM` + `user_message` as ask, the prompt the student was trained on. The
   older "a few sentences in your own words" prompt made a model that followed it
   paraphrase and fail the verbatim check (40/160 vs 111/160). `answer`,
-  `freeanswer.respond`, `_retry_uncited`.
+  `answermode.respond`, `retry_uncited`.
 - **`[Ch. ` prefill retry.** An uncited reply is retried once with the
   assistant turn prefilled `[Ch. `, kept only when a citation whose quote is
   verbatim passage text survives a parse (`parse_answered` first, then the ask
@@ -155,43 +155,43 @@ and a rerun of the gates (`.agents/skills/verify/SKILL.md`).
   failure path returns None and the original answer stands. The trigger is
   "uncited and passages present", not an anchors gate: anchors missed half of
   the non-control suite items. A generator seam without prefill support keeps
-  the original answer. `freeanswer._retry_uncited`.
+  the original answer. `answermode.retry_uncited`.
 - **Ask mode retries a refusal once, with the same prefill.** `ask` parses
   strictly (`parse_completion`: a `[Ch. N]` tag, then a quote that is verbatim
   passage text), so a reply that skips the tag or paraphrases becomes a refusal
   even though the book holds the answer. When that refusal happens and every
   content word of the question is present in the shown passages and the book's
-  word map, `_retry_uncited` regenerates once with `[Ch. ` prefilled and keeps
+  word map, `retry_uncited` regenerates once with `[Ch. ` prefilled and keeps
   the result only if each citation quote is verbatim passage text. A follow-up
   whose question was rewritten from history may also retry, unless the question
-  matches the trap pattern (`_TRAP_QUERY_RE`). If the retry yields nothing and at
+  matches the trap pattern (`TRAP_QUERY_RE`). If the retry yields nothing and at
   least three passages are shown with the same evidence test, the last resort is
   the lead passage's sentence with the most question-word overlap, quoted as
   is. Out-of-book questions fail the evidence test and keep the exact refusal.
-  `quoteask.ask`, `freeanswer._retry_uncited`, `freeanswer._has_passage_evidence`.
+  `askmode.ask`, `answermode.retry_uncited`, `answermode.has_passage_evidence`.
 - **A retry for false refusals needs grounding.** It fires only when every
   content word in the query is in the shown passages and the book's word map
   (stem-level, alphanumerics preserved). Out-of-book questions (France) fail
-  closed immediately. `freeanswer` grounding gate.
+  closed immediately. `answermode` grounding gate.
 - **Answer mode is a meter, not a gate.** Tags become citations, unbacked
   quotation marks are stripped, a zero-overlap claim stays uncited rather than
   guessed, and a hallucination is a measurement. The refusal is the exact first
-  line only. `freeanswer.parse_answered`; meter in
+  line only. `answermode.parse_answered`; meter in
   `artifacts/harnesses/groundedness.py`.
 - **Tag parsing masks `Ch.` periods.** Tags are masked before the sentence
   split, including the second `Ch.` of "[Ch. 2, Ch. 7]"; otherwise the claim is
   dropped and the answer loses all citations (measured 2026-10-13). Text
-  accumulates until a tag arrives. `freeanswer._sentence_claims`.
+  accumulates until a tag arrives. `answermode.sentence_claims`.
 - **Citation quote is the sentence with the most claim overlap,** the rule the
   passage choice already uses; a copied run only breaks ties and is the
   fallback. A stray generic run ("by data scientists, analysts, and other") must
   not hand the quote to an enumeration sentence (measured 2026-10-13: the plain
   register rewrote the enumeration, not the definition).
-  `freeanswer._evidence_quote`.
+  `answermode.evidence_quote`.
 - **Footnote glue splits sentences.** A marker glued to an attribution
   ("Maxime Beauchemin4") has no sentence end, so whitespace collapse ran it
   into the next sentence. The split view only; chunk text untouched.
-  `shared._sentences`.
+  `sentences.split_sentences`.
 - **Quote check is verbatim except figure references.** "(Figure N-N)" is
   stripped from both quote and passage, because the model drops it when copying
   and the book puts it mid-sentence. Typography folds the same way (curly
@@ -199,11 +199,11 @@ and a rerun of the gates (`.agents/skills/verify/SKILL.md`).
   `quotecheck`.
 - **Span fix.** When the model edits a near-verbatim copy, keep the longest
   word-for-word run, floor `SPAN_MIN_CHARS = 40`; shorter overlap stays a
-  refusal. `KEY_MIN_CHARS = 40`. `quotecheck`, `shared`.
+  refusal. `KEY_MIN_CHARS = 40`. `quotecheck`, `sentences`, `textrules`.
 - **`MIN_QUOTE_CHARS = 20`.** A complete sentence may be a quote under the span
   floor: "Everything fails, all the time." is 30 characters. Shape decides
   (upper-case start, terminal punctuation, real cleaned length); a fragment or
-  bare heading does not pass. `shared`, `quotecheck`.
+  bare heading does not pass. `textrules`, `quotecheck`.
 - **Tag-slip rebuild.** A verbatim quote from any attached passage is a true
   quote even when the `[Ch. N]` tag is wrong (measured: `[Ch. 1]` on a ch04
   sentence); the chapter is rebuilt from the matched hit. A quote in no passage
@@ -220,7 +220,7 @@ and a rerun of the gates (`.agents/skills/verify/SKILL.md`).
   screen (about 16 lines of 75 characters); chosen for readability, not tuned.
   Paragraph text is passage text, so the quote check holds by construction.
   Plurals are detected by a regular-plural suffix rule, not a dictionary;
-  irregulars fall through to the model (the safe side). `listshape`, `shared`.
+  irregulars fall through to the model (the safe side). `listshape`, `textrules`.
 - **List asks take the items, not the lead-in.** A trailing colon is the
   printed cue; "the following" is a lead-in only when what follows is itself a
   lead-in. The repair moves passage text after the lead-in into the quote;
@@ -248,13 +248,13 @@ and a rerun of the gates (`.agents/skills/verify/SKILL.md`).
   Owner decision 2026-10-15: `ddr4 vs ddr5` answers the covered side with a
   boundary gloss. Digits stay in comparison tokens so numbered sides do not fold
   to one stem. `comparison`.
-- **Plain register.** A "simple words" cue routes through `_plain_body`: the
+- **Plain register.** A "simple words" cue routes through `plain_body`: the
   draft selects evidence sentences, each rewritten one-in-one-out with
   `PARAPHRASE_SYSTEM`, keeping its source chunk's tag; citations keep the
   original book sentences. Nothing is written from scratch. `PARAPHRASE_LIMIT =
   5` is a call budget, not a quality knob. Cues are generic English phrases.
   An all-empty rewrite set falls back to the draft. Measured scorecard 8/10
-  under the release judge with +/-1-2 borderline noise per draw. `freeanswer`.
+  under the release judge with +/-1-2 borderline noise per draw. `answermode`.
 - **Selection text is cleaned** (short colon lead-in lines dropped, whitespace
   flattened), and `Asked as:` is suppressed whenever a selection or history is
   present. `explain`, `context`.
@@ -301,7 +301,7 @@ and a rerun of the gates (`.agents/skills/verify/SKILL.md`).
   rewritten one-in-one-out so invention has nowhere to go. `PARAPHRASE_SYSTEM`.
 - **Spell enhancer prompt:** the model proposes; the strict-improvement gate
   decides; a kept correction is always disclosed as `Read as`.
-  `prompt.SPELL_SYSTEM`.
+  `readings.SPELL_SYSTEM`.
 - **`num_predict: 512`.** Caps runaway generations: a loop becomes a truncated
   answer instead of a 120 s timeout. Far above the longest legal reply (answer
   p90 is 622 characters). `think: false`, `temperature: 0`,

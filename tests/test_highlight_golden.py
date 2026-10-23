@@ -3,7 +3,8 @@ import re
 import unittest
 from pathlib import Path
 
-from engine.answering.answer import highlight_query, user_message
+from engine.answering.explain import highlight_query
+from engine.answering.messages import user_message
 from engine.answering.prompt import SYSTEM
 
 ROOT = Path(__file__).resolve().parent.parent
