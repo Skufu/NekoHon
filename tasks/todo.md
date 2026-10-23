@@ -71,7 +71,7 @@ both batteries.
     `python3 -m engine.server` serves `/health`; no `*.py` engine module left at
     the root; `grep -rn "^import answer\|^from answer"` etc. outside archive → 0.
 
-- [ ] **E1 Dead code.** Delete `check_quote`, `_maybe_enrich_contextual_gloss`,
+- [x] **E1 Dead code.** Delete `check_quote`, `_maybe_enrich_contextual_gloss`,
   `ingest._marked`, `retrieve.search_with_ranks`, `retrieve.warm_caches`, the
   24 unused regex/set constants in `answer.py`; replace inline copies of
   existing constants (e.g. the `[Ch.` tag regex, 11×) with the constant.
@@ -121,7 +121,7 @@ both batteries.
   streaming frame (depend on gloss ids + chunk ids, read glosses via ref);
   elapsed ticker stops rebuilding `glosses`; memoize `getBookStats`; scroll
   progress throttled to change-only store writes.
-- [ ] **F4 Split `store.ts`.** `lib/persist.ts`, `lib/stream.ts`, one
+- [x] **F4 Split `store.ts`.** `lib/persist.ts`, `lib/stream.ts`, one
   `patchTurn` helper for the 19 nested updates. Keys/shapes frozen; update the
   rule test's path only if a pinned string moves.
 - [x] **F5 MarginCard.** One `startResize(edge)` + shared move/up handlers for
