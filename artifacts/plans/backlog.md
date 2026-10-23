@@ -43,3 +43,8 @@ These would change engine output, delete files, or touch `vendor/` or `GOAL.md`.
 - **Stale default tags in a harness.** `artifacts/harnesses/probe-highlight-2026-10-16.py`
   defaults to the retired `smallbook_x2d` and `smallbook_x2f` tags; pass current
   tags on the command line or change the default.
+- **Topic words in query-shape rules.** `textrules.TRAP_QUERY_RE`,
+  `CODE_QUERY_RE` and `CODE_MATCH_RE` name `terraform` (and `hcl`), words from
+  the first book's test set, inside a logic module. Replace them with a generic
+  rule (code or install requests) or record why they stay; either way the
+  cassette and batteries must stay green.
