@@ -7,7 +7,7 @@ both batteries.
 
 ## Phase 0: Safety net (sequential)
 
-- [ ] **T1 Test isolation.** `test_server_multibook` and `test_import_mode_epub`
+- [x] **T1 Test isolation.** `test_server_multibook` and `test_import_mode_epub`
   build tiny fixture books in a tempdir (patch `server.ROOT`/`INDEX`), never
   touching real `data/`, `books/`, `data/books.json`. Route/packaging tests
   patch `server.get_book_index` with their fake index. Update the 2 highlight
