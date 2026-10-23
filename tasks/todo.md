@@ -113,7 +113,7 @@ both batteries.
   limit with 413; `epub_path` import restricted to `books/`; `book_id` query on
   figure routes normalized. Answers unchanged (cassette identical); new tests
   for each guard.
-- [ ] **E9 Architecture tidy (from checkpoint E review).** `readings` stops
+- [x] **E9 Architecture tidy (from checkpoint E review).** `readings` stops
   importing `answering` (no lazy cycle); `answer.py` keeps only the public API
   and tests/harnesses import from defining modules; split `shared.py` by
   concern; rename `quoteask.py`/`freeanswer.py` to `askmode.py`/`answermode.py`;
@@ -182,7 +182,7 @@ both batteries.
 
 (Items that would change engine output, deletions, `vendor/`, `GOAL.md`.)
 
-- `_reground_alphanumeric_quote` and `_TYPE_2_RE`/`_S3_RE`/`_IOPS_RE`/`_SLA_SLO_RE`
+- `quotecheck.reground_alphanumeric_quote` and `textrules.TYPE_2_RE`/`S3_RE`/`IOPS_RE`/`SLA_SLO_RE`
   hard-code this book's terms (breaks the "generalize" hard rule). Kept; removal
   changes output.
 - The default book id `fde` is hard-coded outside the guarded logic modules:
