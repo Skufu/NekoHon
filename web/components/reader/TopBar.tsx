@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { formatChapter } from "@/lib/anchor";
 import { useAsk } from "@/lib/store";
+import { PENS, THEMES } from "@/lib/appearance";
+import { CatIcon } from "@/components/icons";
 
 type TopBarProps = {
   bookTitle: string;
@@ -14,21 +16,6 @@ type TopBarProps = {
   chapters: { chapter: string; heading: string; chunkId: string }[];
   onJumpChunk: (chunkId: string) => void;
 };
-
-const THEMES = [
-  { key: "night", label: "Night", bg: "var(--swatch-night-bg)", fg: "var(--swatch-night-fg)", dark: true },
-  { key: "paper", label: "Paper", bg: "var(--swatch-paper-bg)", fg: "var(--swatch-paper-fg)", dark: false },
-  { key: "sepia", label: "Sepia", bg: "var(--swatch-sepia-bg)", fg: "var(--swatch-sepia-fg)", dark: false },
-  { key: "snow", label: "Snow", bg: "var(--swatch-snow-bg)", fg: "var(--swatch-snow-fg)", dark: false },
-  { key: "ink", label: "Ink", bg: "var(--swatch-ink-bg)", fg: "var(--swatch-ink-fg)", dark: true },
-] as const;
-
-const PENS = [
-  { key: "vermilion", label: "Vermilion", color: "var(--swatch-vermilion)" },
-  { key: "cobalt", label: "Cobalt", color: "var(--swatch-cobalt)" },
-  { key: "moss", label: "Moss", color: "var(--swatch-moss)" },
-  { key: "graphite", label: "Graphite", color: "var(--swatch-graphite)" },
-] as const;
 
 export default function TopBar({
   bookTitle,
@@ -190,25 +177,7 @@ export default function TopBar({
             title="Open NekoHon Library"
             aria-label="Open NekoHon Library"
           >
-            <svg
-              viewBox="0 0 24 24"
-              width="20"
-              height="20"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="topbar-logo-icon"
-              aria-hidden
-            >
-              <path d="M2 18c3-1.5 6-1.5 10 0 4-1.5 7-1.5 10 0v-11c-3-1.5-6-1.5-10 0-4-1.5-7-1.5-10 0v11z" />
-              <path d="M12 7v11" />
-              <path d="M7 6c0-2 2-3.5 4-3.5s3.5 1 4 2.5" />
-              <path d="M9 2.5L9.5 4" />
-              <path d="M13.5 2.5L13 4" />
-              <path d="M15 5c1.5 0 2.5.8 2.5 2" />
-            </svg>
+            <CatIcon size={20} className="topbar-logo-icon" />
             <span className="topbar-brand-name">NekoHon</span>
             <span className="topbar-brand-kanji">猫本</span>
           </button>

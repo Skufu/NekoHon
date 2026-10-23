@@ -10,13 +10,13 @@ import {
   useState,
 } from "react";
 import dynamic from "next/dynamic";
-import TopBar from "@/components/TopBar";
-import Rail from "@/components/Rail";
-import Margin from "@/components/Margin";
-import Lens from "@/components/Lens";
-import Composer from "@/components/Composer";
+import TopBar from "@/components/reader/TopBar";
+import Rail from "@/components/reader/Rail";
+import Margin from "@/components/margin/Margin";
+import Lens from "@/components/reader/Lens";
+import Composer from "@/components/reader/Composer";
 
-const LibraryView = dynamic(() => import("@/components/LibraryView"), {
+const LibraryView = dynamic(() => import("@/components/library/LibraryView"), {
   ssr: false,
 });
 

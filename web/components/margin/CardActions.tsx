@@ -1,3 +1,4 @@
+import { CloseIcon } from "@/components/icons";
 import { useAsk, type GlossItem } from "@/lib/store";
 
 type CardActionsProps = {
@@ -106,17 +107,7 @@ export default function CardActions({ gloss, copied, onCopy, onHeightChange }: C
         title="Delete note"
         className="gloss-icon-btn"
       >
-        <svg
-          width="13"
-          height="13"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <line x1="18" y1="6" x2="6" y2="18" />
-          <line x1="6" y1="6" x2="18" y2="18" />
-        </svg>
+        <CloseIcon size={13} />
       </button>
     </div>
   );

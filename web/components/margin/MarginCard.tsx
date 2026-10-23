@@ -1,10 +1,10 @@
 "use client";
 
 import { forwardRef, memo, useState, useRef, type CSSProperties } from "react";
-import CardActions from "@/components/CardActions";
-import FollowUpForm from "@/components/FollowUpForm";
-import TurnView from "@/components/TurnView";
-import { useDragResize } from "@/components/useDragResize";
+import CardActions from "@/components/margin/CardActions";
+import FollowUpForm from "@/components/margin/FollowUpForm";
+import TurnView from "@/components/margin/TurnView";
+import { useDragResize } from "@/components/margin/useDragResize";
 import { formatChapter } from "@/lib/anchor";
 import { useAsk, type GlossItem } from "@/lib/store";
 

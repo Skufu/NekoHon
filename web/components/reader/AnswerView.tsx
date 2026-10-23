@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { formatChapter } from "@/lib/anchor";
-import { splitAnswer } from "@/lib/answer";
+import { splitAnswer, splitAskAnswer } from "@/lib/answer";
 import { engineUrl, type AnswerBody, type Citation } from "@/lib/engine";
 import { useAsk } from "@/lib/store";
 
@@ -16,60 +16,6 @@ function sameWords(a: string, b: string) {
 function chipLabel(citation: Citation, index: number, numbered: boolean) {
   const chapter = formatChapter(citation.chapter);
   return numbered ? `${index} \u00b7 ${chapter}` : chapter;
-}
-
-type AskAnswerSplit = {
-  quote?: string;
-  chapter?: string;
-  gloss: string;
-  disclosure?: string;
-};
-
-function splitAskAnswer(answer: string): AskAnswerSplit {
-  let text = answer || "";
-  let disclosure: string | undefined;
-
-  // Capture the first Read as: "..." or Asked as: "..." on a single line
-  const discMatch = text.match(/(?:^|\n)((?:Read as|Asked as):[^\n]+)/i);
-  if (discMatch) {
-    disclosure = discMatch[1].trim();
-  }
-
-  // Strip any trailing \nAsked as: ... or \nRead as: ... (even if multi-line)
-  text = text.replace(/\n(?:Asked as|Read as):[\s\S]*$/i, "");
-
-  const lines = text.split("\n").map((l) => l.trim());
-  const firstLine = lines[0] || "";
-
-  // Check if lines has a quote on line 1 ([Ch. N] "quote")
-  const quoteMatch = firstLine.match(/^\[(?:ch|chapter)\.?\s*([^\]]+)\]\s*"?([^"]*)"?$/i);
-  let quote: string | undefined;
-  let chapter: string | undefined;
-  let remainingLines = lines;
-
-  if (quoteMatch) {
-    chapter = quoteMatch[1].trim();
-    quote = quoteMatch[2].trim();
-    remainingLines = lines.slice(1);
-  }
-
-  // gloss is cleanly extracted from the remaining non-empty lines
-  // (ignoring any line starting with Asked as: or Read as: or Technical solutions in style artifacts)
-  const glossLines = remainingLines.filter((line) => {
-    if (!line) return false;
-    if (/^(?:asked as|read as):/i.test(line)) return false;
-    if (/^technical solutions in\b/i.test(line)) return false;
-    return true;
-  });
-
-  const gloss = glossLines.join("\n\n").trim();
-
-  return {
-    quote,
-    chapter,
-    gloss: gloss || (quote ? "" : firstLine),
-    disclosure,
-  };
 }
 
 function SourceQuoteSection({

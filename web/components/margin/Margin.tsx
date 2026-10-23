@@ -9,7 +9,8 @@ import {
   useState,
   type RefObject,
 } from "react";
-import MarginCard from "./MarginCard";
+import MarginCard from "@/components/margin/MarginCard";
+import { CloseIcon } from "@/components/icons";
 import { useAsk, type GlossItem } from "@/lib/store";
 
 const GAP = 16;
@@ -268,19 +269,7 @@ export default function Margin({
             onClick={() => setActiveGloss(null)}
             className="gloss-sheet-close"
           >
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+            <CloseIcon size={15} round />
           </button>
         </div>
         <div className="gloss-sheet-body">

@@ -1,4 +1,4 @@
-import AnswerView from "@/components/AnswerView";
+import AnswerView from "@/components/reader/AnswerView";
 import { formatChapter } from "@/lib/anchor";
 import { useAsk, type GlossItem } from "@/lib/store";
 

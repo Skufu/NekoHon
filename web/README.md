@@ -144,34 +144,34 @@ route-handler proxy would buffer the NDJSON stream.
   `paper`, `sepia`, `snow`, `ink`; 4 rubric pens: `vermilion`, `cobalt`, `moss`,
   `graphite`; 4 highlighter markers: `yellow`, `green`, `blue`, `pink`) and
   semantic component rules enforced by `tests/test_frontend_rules.py`.
-- `components/LibraryView.tsx` — NekoHon Library start menu: interactive wooden bookcase
+- `components/library/LibraryView.tsx` — NekoHon Library start menu: interactive wooden bookcase
   Shelf view with handcrafted cloth and gold-foil spines, editorial Grid view with
   reading progress ribbons, drag-and-drop `.epub` upload dropzone (`importEpubBook`),
   and 3D `BookOpen` modal spread with `EX LIBRIS · NEKOHON` bookplate and miniature cover art.
-- `components/TopBar.tsx` — scroll-tucking top bar with `← Library` return button,
+- `components/reader/TopBar.tsx` — scroll-tucking top bar with `← Library` return button,
   active volume title & switcher dropdown, chapter TOC dropdown,
   running header (`Preface` / `Ch. N · Heading`), notes cycler pill, progress
   hairline, and the `Aa` appearance popover (circular `startViewTransition`
   theme reveal, pen selector, text size 15–26px).
-- `components/Rail.tsx` — left-gutter proportional minimap (`>= 1260px`) with
+- `components/reader/Rail.tsx` — left-gutter proportional minimap (`>= 1260px`) with
   dense paragraph ruler ticks, chapter boundary markers, yellow user-highlight
   bars, vermilion gloss dots, and a draggable viewport scrub thumb.
-- `components/Reader.tsx` — the 3-column `.reader-grid` (`.rg-rail`,
+- `components/reader/Reader.tsx` — the 3-column `.reader-grid` (`.rg-rail`,
   `.rg-prose`, `.rg-margin`), chunks as blocks (`data-chunk-id`), inline
   figures, heading offset isolation (`renderedHeading` using `decodeHeadingOffset`),
   multi-layer segment rendering (`.hl-mark`, `.gloss-anchor`, `mark.cite-mark`),
   520ms cubic-bezier ease-out citation scroll with content-visibility late-paint correction,
   paragraph boundary offset alignment (`\n` vs `\n\n`), and viewport closest-chunk
   tracking (`getVisibleChunk`).
-- `components/Lens.tsx` — floating selection pill: `Explain | Ask | Copy` on the
+- `components/reader/Lens.tsx` — floating selection pill: `Explain | Ask | Copy` on the
   left, divider line, hover-expanding 4-color highlighter drawer on the right,
   instant printable-key morph into inline question input (`"Ask about the highlighted word…"`),
   forwarding full context (`chunk_id`, `selection`, `heading`, `book_id`) to `POST /ask`.
-- `components/Margin.tsx` — right-margin (`>= 1080px`, `320px` wide, `28px`
+- `components/margin/Margin.tsx` — right-margin (`>= 1080px`, `320px` wide, `28px`
   gutter) two-way collision solver (`GAP = 16`, `GAP_MINI = 6`, `CROWD = 88`),
   crowd mini-collapse (`.is-mini`), animated SVG cubic Bezier leader curve
   (`.gloss-leader`), and narrow-screen slide-up `.gloss-sheet`.
-- `components/MarginCard.tsx` — stacked margin card for `selection` (`explain` /
+- `components/margin/MarginCard.tsx` — stacked margin card for `selection` (`explain` /
   `ask`), `whole` (`answer` / `ask`), and connected `quiz` (`Show the key` toggle,
   revealed key sentence underlined in book text, quiz-specific chips `"Another quiz question"`
   and `"Explain the answer"`), header pointer dragging (`dragOffset`), 2D width+height resize handles
@@ -181,13 +181,13 @@ route-handler proxy would buffer the NDJSON stream.
   clickable quote snippets (`.gloss-quote-snippet`, `.answer-quote`) triggering 520ms
   smooth scroll and animated rubric underline (`mark.cite-mark`), dynamic follow-up suggestion chips,
   and inline `"Ask a follow-up…"` multi-turn input (`history`) with guaranteed 1–2 sentence explanation gloss.
-- `components/AnswerView.tsx` — reader-first gloss + italic evidence quote with `+ Source quote · Ch. N`
+- `components/reader/AnswerView.tsx` — reader-first gloss + italic evidence quote with `+ Source quote · Ch. N`
   single pill with downward liquid grid unfold, `"← Back to previous spot"` return banner,
   clickable `Ch. N` / `Preface` chips (triggering 520ms cubic-bezier smooth citation scroll and animated rubric
   underline on `mark.cite-mark`), `Read as:` disclosure, exact `Not in this book.` refusal + `nearest misses:`,
   attached figures with `nearby, not an answer`, and suppression of duplicate `"Quiz"` labels and duplicate
   top blockquotes on key reveal.
-- `components/Composer.tsx` — sticky bottom floating whole-book bar (`/` or
+- `components/reader/Composer.tsx` — sticky bottom floating whole-book bar (`/` or
   `Ctrl+K` to focus) with hover-reveal bottom Composer dock, bounded opaque floating popover menu
   (`.composer-suggestions`, max 3 filtered questions `18..62` chars), dynamic chapter rhetorical question
   autocomplete for incomplete prefixes (e.g. `"what are the"`), `Answer` / `Quote first`

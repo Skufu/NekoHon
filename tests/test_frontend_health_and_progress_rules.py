@@ -9,7 +9,7 @@ Enforces:
    - implements hard cap (e.g. 60s) before enabling anyway
    - provides stopHealthPolling to cancel polling
 3. debounced saveProgress in web/lib/persist.ts flushes on pagehide, beforeunload, and visibilitychange hidden.
-4. ChunkBlock in web/components/Reader.tsx scopes activeGlossId subscription so chunks without the gloss do not re-render.
+4. ChunkBlock in web/components/reader/Reader.tsx scopes activeGlossId subscription so chunks without the gloss do not re-render.
 """
 
 import unittest
@@ -19,8 +19,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 ENGINE_TS = REPO_ROOT / "web" / "lib" / "engine.ts"
 STORE_TS = REPO_ROOT / "web" / "lib" / "store.ts"
 PERSIST_TS = REPO_ROOT / "web" / "lib" / "persist.ts"
-READER_TSX = REPO_ROOT / "web" / "components" / "Reader.tsx"
-COMPOSER_TSX = REPO_ROOT / "web" / "components" / "Composer.tsx"
+READER_TSX = REPO_ROOT / "web" / "components" / "reader" / "Reader.tsx"
+COMPOSER_TSX = REPO_ROOT / "web" / "components" / "reader" / "Composer.tsx"
 
 
 class FrontendHealthAndProgressRulesTest(unittest.TestCase):

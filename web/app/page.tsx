@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import Reader from "@/components/Reader";
+import Reader from "@/components/reader/Reader";
 import { useAsk } from "@/lib/store";
 
 export default function Page() {

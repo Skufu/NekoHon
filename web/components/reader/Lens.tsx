@@ -18,15 +18,7 @@ import {
   type MarkerColor,
 } from "@/lib/anchor";
 import { useAsk } from "@/lib/store";
-
-type Marker = "yellow" | "green" | "blue" | "pink";
-
-const MARKERS: { key: Marker; label: string; color: string }[] = [
-  { key: "yellow", label: "Yellow", color: "var(--mk-yellow)" },
-  { key: "green", label: "Green", color: "var(--mk-green)" },
-  { key: "blue", label: "Blue", color: "var(--mk-blue)" },
-  { key: "pink", label: "Pink", color: "var(--mk-pink)" },
-];
+import { MARKERS, type Marker } from "@/lib/appearance";
 
 type LensState = {
   chunkId: string;
