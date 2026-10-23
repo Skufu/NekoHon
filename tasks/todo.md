@@ -87,7 +87,7 @@ both batteries.
   - Accept: gate; timing replay vs `timing-before.json` not slower (report numbers).
 - [x] **E4 Split `answer.py` (1/2).** Move to `sanitize.py`, `quotecheck.py`,
   `listshape.py`, `comparison.py`; message builders into `prompt.py`.
-- [ ] **E5 Split `answer.py` (2/2).** Move to `conversation.py`, `gloss.py`,
+- [x] **E5 Split `answer.py` (2/2).** Move to `conversation.py`, `gloss.py`,
   `context.py`, `explain.py`, `quiz.py`, `freeanswer.py`.
   - Accept (E4, E5): gate; `answer.py` re-exports moved names used by tests and
     kept harnesses; `test_generalization` guards cover every new module.
