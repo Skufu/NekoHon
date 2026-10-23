@@ -77,7 +77,7 @@ function buildHighlightsByChunk(highlights: UserHighlight[]): Record<string, Use
 }
 
 type AskStore = {
-  // Navigation & Multi-Book State
+
   viewMode: "library" | "reader";
   setViewMode: (mode: "library" | "reader") => void;
   activeBookId: string;
@@ -90,12 +90,10 @@ type AskStore = {
   updateBookProgress: (bookId: string, progress: { pct: number; chapter: string; chunkId: string }) => void;
   getBookStats: (bookId: string) => { highlightsCount: number; notesCount: number; pct: number; lastChapter: string };
 
-  // Engine readiness state
   engineReady: boolean;
   refreshHealth: () => Promise<void>;
   stopHealthPolling: () => void;
 
-  // Appearance state
   theme: ThemeName;
   pen: PenName;
   marker: MarkerColor;
@@ -106,13 +104,11 @@ type AskStore = {
   setReadSize: (size: number) => void;
   hydrateStore: () => void;
 
-  // User highlights
   highlights: UserHighlight[];
   highlightsByChunk: Record<string, UserHighlight[]>;
   addHighlight: (h: Omit<UserHighlight, "id" | "createdAt">) => string;
   removeHighlight: (id: string) => void;
 
-  // Gloss items
   glosses: GlossItem[];
   glossAnchors: GlossAnchor[];
   glossAnchorsByChunk: Record<string, GlossAnchor[]>;
@@ -131,7 +127,6 @@ type AskStore = {
   returnSpot: { scrollY: number; label: string } | null;
   clearReturnSpot: () => void;
 
-  // Actions
   askSelection: (
     question: string,
     passage: string,
@@ -217,7 +212,7 @@ export const useAsk = create<AskStore>((set, get) => {
     runTurnStream({ get, set }, glossId, turnId, payload);
 
   return {
-    // Navigation & Multi-Book State
+
     viewMode: "library",
     setViewMode: (viewMode) => set({ viewMode }),
     activeBookId: "fde",
@@ -235,7 +230,7 @@ export const useAsk = create<AskStore>((set, get) => {
       const signal = healthAbortController.signal;
 
       const poll = async (delay = 500): Promise<void> => {
-        // Hard cap: never block longer than 60s before enabling anyway
+
         if (Date.now() - healthPollStart >= 60000) {
           stopHealthPolling();
           set({ engineReady: true });
@@ -244,24 +239,23 @@ export const useAsk = create<AskStore>((set, get) => {
 
         try {
           const h = await checkHealth(signal);
-          // The engine's catalog is the truth: only books indexed on this machine.
+
           if (Array.isArray(h?.books)) get().setBooksCatalog(h.books);
-          // Only an explicit ready: false from a reachable engine disables input
-          // (missing fields = ready)
+
           if (h && h.ready === false) {
             set({ engineReady: false });
-            // Poll with backoff: e.g. 500 ms -> 1000 ms -> 2000 ms cap
+
             const nextDelay = Math.min(delay * 2, 2000);
             healthPollTimer = setTimeout(() => {
               poll(nextDelay);
             }, delay);
             return;
           }
-          // Reachable and ready !== false
+
           stopHealthPolling();
           set({ engineReady: true });
         } catch {
-          // Failed /health fetch (network error / 500 / timeout) must NOT disable input
+
           stopHealthPolling();
           set({ engineReady: true });
         }
@@ -365,7 +359,6 @@ export const useAsk = create<AskStore>((set, get) => {
       };
     },
 
-    // Appearance state
     theme: "night",
     pen: "vermilion",
     marker: "yellow",
@@ -397,7 +390,6 @@ export const useAsk = create<AskStore>((set, get) => {
       document.documentElement.dataset.pen = pen;
       document.documentElement.style.setProperty("--read-size", `${readSize}px`);
 
-      // Determine book and view mode from URL
       let initialViewMode: "library" | "reader" = "library";
       let targetBookId = "fde";
       try {
@@ -411,7 +403,7 @@ export const useAsk = create<AskStore>((set, get) => {
           initialViewMode = "reader";
         }
       } catch {
-        // ignore
+
       }
 
       const catalog = loadCatalog();
@@ -441,12 +433,11 @@ export const useAsk = create<AskStore>((set, get) => {
       prefetchChunks(targetBookId);
     },
 
-    // User highlights
     highlights: [],
     highlightsByChunk: {},
     addHighlight: (h) => {
       const current = get().highlights;
-      // Check for overlap in same chunk
+
       const hMin = Math.min(h.start, h.end);
       const hMax = Math.max(h.start, h.end);
       const overlapIndex = current.findIndex(
@@ -459,7 +450,7 @@ export const useAsk = create<AskStore>((set, get) => {
       if (overlapIndex >= 0) {
         const existing = current[overlapIndex];
         if (existing.color === h.color) {
-          // Same color -> remove / toggle off
+
           const next = current.filter((_, idx) => idx !== overlapIndex);
           set({
             highlights: next,
@@ -469,7 +460,7 @@ export const useAsk = create<AskStore>((set, get) => {
           saveHighlights(next);
           return "";
         } else {
-          // Different color -> update color
+
           const next = current.map((item, idx) =>
             idx === overlapIndex ? { ...item, color: h.color } : item
           );
@@ -509,7 +500,6 @@ export const useAsk = create<AskStore>((set, get) => {
       saveHighlights(next);
     },
 
-    // Gloss items
     glosses: [],
     glossAnchors: [],
     glossAnchorsByChunk: {},
@@ -585,7 +575,6 @@ export const useAsk = create<AskStore>((set, get) => {
       }));
     },
 
-    // Actions
     askSelection: (
       question,
       passage,

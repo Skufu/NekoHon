@@ -80,7 +80,6 @@ export default function Lens({
     return containerRef?.current || rootEl || (typeof document !== "undefined" ? document.body : null);
   }, [containerRef, rootEl]);
 
-  // Position calculation
   const place = useCallback(() => {
     const l = lensRef.current;
     const box = boxRef.current;
@@ -142,7 +141,6 @@ export default function Lens({
     };
   }, [lens, place]);
 
-  // Selection inspection
   useEffect(() => {
     const container = getContainer();
     if (!container) return;
@@ -257,7 +255,6 @@ export default function Lens({
     };
   }, [getContainer, payload, close]);
 
-  // Mode transition helpers
   const toAsk = useCallback((initial = "") => {
     const l = lensRef.current;
     if (!l) return;
@@ -266,7 +263,6 @@ export default function Lens({
     window.getSelection()?.removeAllRanges();
   }, []);
 
-  // Autofocus input when entering ask mode
   useLayoutEffect(() => {
     if (lens?.mode === "ask" && inputRef.current) {
       inputRef.current.focus();
@@ -274,7 +270,6 @@ export default function Lens({
     }
   }, [lens?.mode, draft.length]);
 
-  // Instant Type-to-Ask keyboard capture
   useEffect(() => {
     if (!lens || lens.mode !== "actions") return;
 
@@ -356,7 +351,7 @@ export default function Lens({
       setCopied(true);
       setTimeout(() => setCopied(false), 1200);
     } catch {
-      // Ignore clipboard error
+
     }
   };
 
@@ -396,7 +391,7 @@ export default function Lens({
         if (tag !== "INPUT" && tag !== "TEXTAREA") e.preventDefault();
       }}
     >
-      {/* Arrow pointer */}
+
       {pos && !pos.docked && (
         <span
           className={`lens-arrow ${pos.below ? "is-below" : "is-above"}`}
@@ -407,7 +402,7 @@ export default function Lens({
 
       {lens.mode === "actions" ? (
         <div className="lens-actions">
-          {/* Explain button */}
+
           <button
             type="button"
             onClick={onExplain}
@@ -416,7 +411,6 @@ export default function Lens({
             Explain
           </button>
 
-          {/* Ask button */}
           <button
             type="button"
             onClick={() => toAsk("")}
@@ -426,7 +420,6 @@ export default function Lens({
             <span className="lens-caret" aria-hidden />
           </button>
 
-          {/* Copy button */}
           <button
             type="button"
             onClick={onCopy}
@@ -439,7 +432,6 @@ export default function Lens({
             <>
               <span className="lens-sep" aria-hidden />
 
-              {/* Highlighter Swatch Group */}
               <div className="lens-hl-group">
                 <button
                   type="button"
@@ -474,7 +466,7 @@ export default function Lens({
           )}
         </div>
       ) : (
-        /* Ask mode form */
+
         <form
           onSubmit={onSubmitAsk}
           className="lens-form"

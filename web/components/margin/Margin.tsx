@@ -35,10 +35,6 @@ type Layout = {
 
 const gapAfter = (a: Item, b: Item) => (a.mini && b.mini ? GAP_MINI : GAP);
 
-/**
- * Places gloss cards beside their passages. The active gloss sits exactly
- * at its anchor; the rest stack away in both directions without overlapping.
- */
 function place(items: Item[], activeId: string | null): Record<string, number> {
   if (items.length === 0) return {};
   const tops: number[] = items.map((it) => it.desired);
@@ -160,7 +156,6 @@ export default function Margin({
       });
     }
 
-    // Sort by desired position ascending, tie-break by creation time
     items.sort((a, b) => a.desired - b.desired || a.created - b.created);
 
     const isStreaming = (it: Item) => {
@@ -172,7 +167,6 @@ export default function Margin({
       );
     };
 
-    // Mark mini for crowded items or explicitly minimized cards that are not active and not streaming
     const mini: Record<string, boolean> = {};
     items.forEach((it, i) => {
       const g = glossMap.get(it.id);
@@ -252,7 +246,6 @@ export default function Margin({
 
   const activeGloss = glosses.find((g) => g.id === activeGlossId) ?? null;
 
-  // Mobile / Narrow sheet fallback (< 1080px)
   if (!wide) {
     if (!activeGloss) return null;
     return (
@@ -288,7 +281,6 @@ export default function Margin({
     );
   }
 
-  // Active / hovered leader lines
   const lead = [
     activeGlossId,
     hoveredGlossId && hoveredGlossId !== activeGlossId ? hoveredGlossId : null,
@@ -316,7 +308,6 @@ export default function Margin({
         </div>
       )}
 
-      {/* Gutter SVG Leader Lines */}
       {glosses.length > 0 && (
         <svg
           className="gloss-leader-svg"
@@ -367,7 +358,6 @@ export default function Margin({
         </svg>
       )}
 
-      {/* Margin cards */}
       {glosses.map((g) => (
         <MarginCardItem
           key={g.id}

@@ -1,12 +1,5 @@
-/* ==========================================================================
-   ask-this-book design tokens
-   5 themes (night default, paper, sepia, snow, ink)
-   4 pens (vermilion default, cobalt, moss, graphite)
-   4 highlighters (yellow, green, blue, pink)
-   Offline system fonts per GOAL.md
-   ========================================================================== */
 
-/* Light grounds */
+
 :root,
 [data-theme="paper"] {
   --bg: #f6f3ec;
@@ -83,7 +76,6 @@
   color-scheme: light;
 }
 
-/* Dark grounds */
 [data-theme="night"] {
   --bg: #151412;
   --bg-raised: #1d1b18;
@@ -134,7 +126,6 @@
   color-scheme: dark;
 }
 
-/* Pens: the colour the model writes in. One light and one dark tone each. */
 :root,
 [data-pen="vermilion"] {
   --pen-l: #c1401b;
@@ -154,25 +145,21 @@
 }
 
 :root {
-  /* Rubric washes */
+
   --rubric-line: color-mix(in oklab, var(--rubric) 52%, transparent);
   --rubric-wash: color-mix(in oklab, var(--rubric) 9%, transparent);
   --rubric-wash-strong: color-mix(in oklab, var(--rubric) 17%, transparent);
   --rubric-key: color-mix(in oklab, var(--rubric) var(--key-a, 13%), transparent);
   --selection: color-mix(in oklab, var(--rubric) 18%, transparent);
 
-  /* Highlighter inks */
   --mk-yellow: #f2c438;
   --mk-green: #7cc66f;
   --mk-blue: #6aa8f0;
   --mk-pink: #f084ac;
 
-
-  /* Offline system fonts per GOAL.md */
   --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
-  /* Swatch preview colors for UI pickers */
   --swatch-night-bg: #151412;
   --swatch-night-fg: #e9e3d6;
   --swatch-paper-bg: #f6f3ec;
@@ -189,12 +176,10 @@
   --swatch-moss: #3b7a3d;
   --swatch-graphite: #4b4a47;
 
-  /* Shelving & Woodcraft */
   --plank-top: #dfd4c3;
   --plank-front: #b89872;
   --bookend-color: #7d7265;
 
-  /* Book Cloth bindings */
   --cloth-terracotta: #b84a32;
   --cloth-terracotta-fg: #fcece8;
   --cloth-navy: #243a5e;
@@ -204,18 +189,15 @@
   --cloth-plum: #58334f;
   --cloth-plum-fg: #faeef8;
 
-  /* Stamped Foil accents */
   --foil-gold: #e2be67;
   --foil-gold-dim: #9e7f33;
 
-  /* Ex Libris Bookplate */
   --ex-bg: #f8f4ec;
   --ex-border: #ded5c2;
   --ex-ink: #2b2620;
   --ex-mute: #8c8273;
   --ex-rule: rgb(40 30 20 / 0.16);
 
-  /* Shadows */
   --shadow-inset: inset 0 0 0 1px rgb(0 0 0 / 0.2);
   --shadow-pill: 0 16px 40px -12px rgb(0 0 0 / 0.45);
   --shadow-ring: 0 0 0 2px var(--lens-bg), 0 0 0 3.5px var(--lens-fg);
@@ -228,12 +210,10 @@
   --shadow-dropzone: 0 0 0 2px var(--rubric), 0 20px 48px -16px rgb(0 0 0 / 0.35);
   --lens-border: color-mix(in oklab, var(--rule-strong) 40%, transparent);
 
-  /* Typography & Layout */
   --read-size: 19px;
   --leading: 1.64;
   --topbar-h: 60px;
 
-  /* Spacing */
   --s2: 8px;
   --s3: 12px;
 

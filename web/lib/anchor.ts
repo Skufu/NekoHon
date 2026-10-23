@@ -38,9 +38,6 @@ export function formatChapter(ch: string): string {
   return clean.charAt(0).toUpperCase() + clean.slice(1);
 }
 
-/**
- * Character length from the start of an element's text content to (node, offset).
- */
 function offsetWithin(el: HTMLElement, node: Node, offset: number): number {
   const r = document.createRange();
   r.selectNodeContents(el);
@@ -55,11 +52,6 @@ function offsetWithin(el: HTMLElement, node: Node, offset: number): number {
 const isWordChar = (ch: string | undefined): boolean =>
   Boolean(ch && /[A-Za-z0-9]/.test(ch));
 
-/**
- * Measures plain-text character offset (start, end) of range within chunkEl's
- * <p> elements (joined by \n between <p> tags), or within heading/caption elements.
- * Returns { start, end, quote }. If outside paragraphs (e.g. heading/caption), returns start: -1, end: -1.
- */
 export function offsetInChunk(
   chunkEl: HTMLElement,
   range: Range
@@ -92,13 +84,12 @@ export function offsetInChunk(
           start = running + offsetWithin(p, range.startContainer, range.startOffset);
         } else {
           try {
-            // comparePoint(p, 0) === 0 means (p, 0) is inside the range
-            // (selection started in the parent container right before p)
+
             if (range.comparePoint(p, 0) === 0) {
               start = running;
             }
           } catch {
-            // Ignore comparePoint errors across detached nodes
+
           }
         }
       }
@@ -111,7 +102,7 @@ export function offsetInChunk(
             end = running + pLen;
           }
         } catch {
-          // Ignore comparePoint errors
+
         }
       }
 
@@ -128,11 +119,9 @@ export function offsetInChunk(
       }
     }
 
-    // Trim leading/trailing whitespace directly in fullText before word-snap:
     while (start < end && /\s/.test(fullText[start])) start++;
     while (end > start && /\s/.test(fullText[end - 1])) end--;
 
-    // Auto-snap partial words to whole word boundaries:
     if (start > 0 && isWordChar(fullText[start - 1]) && isWordChar(fullText[start])) {
       let steps = 0;
       while (
@@ -159,12 +148,9 @@ export function offsetInChunk(
       }
     }
 
-    // Trim leading and trailing whitespace (including \n)
     while (start < end && /\s/.test(fullText[start])) start++;
     while (end > start && /\s/.test(fullText[end - 1])) end--;
 
-    // Paragraph boundary snap: if selection starts with a short lead-in or heading ending in : (<= 32 chars)
-    // and spans into the next paragraph, snap start to the second paragraph.
     const rawSlice = fullText.slice(start, end);
     if (rawSlice.includes("\n")) {
       const firstNl = rawSlice.indexOf("\n");
@@ -184,7 +170,6 @@ export function offsetInChunk(
     return { start, end, quote: snappedQuote };
   }
 
-  // Check if selection is inside heading (.chunk-heading, h2)
   const headingEl =
     startEl?.closest<HTMLElement>("h2, .chunk-heading") ||
     (range.commonAncestorContainer instanceof Element
@@ -244,7 +229,6 @@ export function offsetInChunk(
     }
   }
 
-  // If the selection is outside paragraphs and headings (e.g. caption):
   const containerEl =
     startEl?.closest<HTMLElement>("figcaption, .chunk-caption") || chunkEl;
   const containerText = containerEl.textContent || "";
@@ -316,10 +300,6 @@ type SelectionResolution = {
   spans: HighlightSpan[];
 };
 
-/**
- * Resolves a text selection range within containerEl, supporting both single-chunk
- * and cross-chunk selections across adjacent chunks.
- */
 export function resolveSelection(
   containerEl: HTMLElement,
   range: Range
@@ -397,7 +377,6 @@ export function resolveSelection(
   const selectedChunks = allChunks.slice(sIdx, eIdx + 1);
   const spans: HighlightSpan[] = [];
 
-  // 1. startChunkEl: from range.startContainer/startOffset to end of startChunkEl text
   const startMeta = getChunkMeta(startChunkEl);
   const startParagraphs = Array.from(
     startChunkEl.querySelectorAll<HTMLParagraphElement>("p, .chunk-p")
@@ -428,7 +407,6 @@ export function resolveSelection(
   }
   if (startOffset === null) startOffset = 0;
 
-  // Snap startOffset to word boundary at start
   if (
     startOffset > 0 &&
     startOffset < startFullText.length &&
@@ -463,7 +441,6 @@ export function resolveSelection(
     });
   }
 
-  // 2. Intermediate chunks (if any)
   for (let i = 1; i < selectedChunks.length - 1; i++) {
     const midChunk = selectedChunks[i];
     const midMeta = getChunkMeta(midChunk);
@@ -486,7 +463,6 @@ export function resolveSelection(
     }
   }
 
-  // 3. endChunkEl: from 0 to range.endContainer/endOffset
   const endMeta = getChunkMeta(endChunkEl);
   const endParagraphs = Array.from(
     endChunkEl.querySelectorAll<HTMLParagraphElement>("p, .chunk-p")
@@ -517,7 +493,6 @@ export function resolveSelection(
   }
   if (endOffset === null) endOffset = endFullText.length;
 
-  // Snap endOffset to word boundary at end
   if (
     endOffset > 0 &&
     endOffset < endFullText.length &&
@@ -567,10 +542,6 @@ export function resolveSelection(
   };
 }
 
-/**
- * For cross-chunk selections, finds the matching quote span for a chunk playing
- * the "start" or "end" role.
- */
 export function findQuoteSpanForRole(
   chunkText: string,
   quote: string,
@@ -579,7 +550,6 @@ export function findQuoteSpanForRole(
 ): [number, number] | null {
   if (!quote.trim() || !chunkText) return null;
 
-  // First try direct quote span (if the chunk contains the quote)
   const direct = findQuoteSpan(chunkText, quote, nearOffset);
   if (direct) return direct;
 
@@ -589,14 +559,14 @@ export function findQuoteSpanForRole(
   }
 
   if (role === "start") {
-    // Look for the longest prefix of words that matches in chunkText
+
     for (let len = words.length - 1; len >= 1; len--) {
       const prefix = words.slice(0, len).join(" ");
       const span = findQuoteSpan(chunkText, prefix, nearOffset);
       if (span) return span;
     }
   } else {
-    // role === "end": look for the longest suffix of words that matches in chunkText
+
     for (let start = 1; start < words.length; start++) {
       const suffix = words.slice(start).join(" ");
       const span = findQuoteSpan(chunkText, suffix);
@@ -670,10 +640,6 @@ function findWordOverlapSpan(
   return bestSpan;
 }
 
-/**
- * Uses quotePattern(quote) from ./quote to find all matches in rawText,
- * returning [start, end] of the match closest to nearOffset (or first match if nearOffset == null).
- */
 export function findQuoteSpan(
   rawText: string,
   quote: string,
@@ -741,12 +707,6 @@ export function findQuoteSpan(
   return [hit.index, hit.index + hit.length];
 }
 
-/**
- * Splits a paragraph's text at all boundary points falling within
- * [paragraphStart, paragraphStart + text.length] and returns Segment[]
- * so each slice carries highlightColor, highlightId, isGlossAnchor, glossId,
- * isActiveGloss, and isActiveMark.
- */
 export function splitParagraphSegments(
   text: string,
   paragraphStart: number,
@@ -763,7 +723,6 @@ export function splitParagraphSegments(
 
   const cutPoints = new Set<number>([0, text.length]);
 
-  // Collect cut points from user highlights
   for (const h of options.highlights) {
     if (h.start < pEnd && h.end > pStart) {
       const from = Math.max(0, Math.min(text.length, h.start - pStart));
@@ -775,7 +734,6 @@ export function splitParagraphSegments(
     }
   }
 
-  // Collect cut points from gloss ranges
   for (const g of options.glossRanges) {
     if (g.start < pEnd && g.end > pStart) {
       const from = Math.max(0, Math.min(text.length, g.start - pStart));
@@ -787,7 +745,6 @@ export function splitParagraphSegments(
     }
   }
 
-  // Collect cut points from citation range
   if (options.citationRange) {
     const [cStart, cEnd] = options.citationRange;
     if (cStart < pEnd && cEnd > pStart) {
@@ -814,7 +771,6 @@ export function splitParagraphSegments(
     const gFrom = pStart + from;
     const gTo = pStart + to;
 
-    // Check user highlights: pick latest matching highlight
     let highlightColor: MarkerColor | undefined;
     let highlightId: string | undefined;
     for (let j = options.highlights.length - 1; j >= 0; j--) {
@@ -826,7 +782,6 @@ export function splitParagraphSegments(
       }
     }
 
-    // Check gloss ranges
     let isGlossAnchor: boolean | undefined;
     let glossId: string | undefined;
     let isActiveGloss: boolean | undefined;
@@ -840,7 +795,6 @@ export function splitParagraphSegments(
       }
     }
 
-    // Check citation range
     let isActiveMark: boolean | undefined;
     if (options.citationRange) {
       const [cStart, cEnd] = options.citationRange;

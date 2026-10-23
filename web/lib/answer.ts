@@ -1,13 +1,6 @@
 import type { AnswerBody, Citation } from "./engine";
 import { quotePattern } from "./quote";
 
-/** A parsed piece of an answer, in the order it should render.
- *
- *  The engine writes quote-first: `[Ch. N] "…quote…"` then a gloss line, then
- *  any `Asked as:` / `Read as:` disclosures. Reader-first rendering shows the
- *  gloss, then the quote in italics with its chapter chip; the words are the
- *  engine's own, only the order and styling change (owner decision
- *  2026-10-15). */
 type AnswerItem =
   | { kind: "gloss"; text: string }
   | { kind: "quote"; citation: Citation; text: string }
@@ -17,24 +10,12 @@ type AnswerSplit =
   | { ok: true; items: AnswerItem[] }
   | { ok: false; items: AnswerItem[] };
 
-/** The engine's machine-visible disclosures, appended at the answer's end. */
 const DISCLOSURE = /^(Asked as|Read as):/;
-/** The tag closing a quote-first line — `[Ch. 7] "` — removed so the chip is
- *  the only chapter mark left. */
+
 const TAG_BEFORE_QUOTE = /\[Ch\.[^\]]*\]\s*"?$/;
-/** The closing quotation mark right after a quote's span. */
+
 const MARK_AFTER_QUOTE = /^\s*"/;
 
-/**
- * Reorder an answer for reading: gloss first, then its evidence quote.
- *
- * The layout is recovered from the engine's own text: each citation's quote is
- * found in the answer (whitespace-insensitively, in order), and the text
- * between matches is the gloss. When a refusal, a missing quote, or a quote
- * the answer does not contain makes that recovery impossible, `ok` is false
- * and the caller shows the verbatim answer plus the chips row — a citation is
- * never lost.
- */
 export function splitAnswer(body: AnswerBody): AnswerSplit {
   const kept: string[] = [];
   const disclosures: AnswerItem[] = [];
@@ -50,8 +31,6 @@ export function splitAnswer(body: AnswerBody): AnswerSplit {
   const cited = body.citations.filter((citation) => citation.quote.trim());
   if (body.refused || cited.length === 0) return { ok: false, items: [] };
 
-  // Find each quote in the answer, in order; each search starts after the
-  // previous match's end.
   const matches: { citation: Citation; start: number; end: number }[] = [];
   let cursor = 0;
   for (const citation of cited) {
@@ -62,8 +41,6 @@ export function splitAnswer(body: AnswerBody): AnswerSplit {
     cursor = start + match[0].length;
   }
 
-  // Cut the text at the match spans: segments[0] leads the first quote and
-  // segments[i] follows quote i-1 / leads quote i.
   const segments: string[] = [];
   let pos = 0;
   for (const match of matches) {
@@ -82,7 +59,7 @@ export function splitAnswer(body: AnswerBody): AnswerSplit {
   const items: AnswerItem[] = [];
   if (cleaned[0]) items.push({ kind: "gloss", text: cleaned[0] });
   matches.forEach((match, index) => {
-    // The gloss that followed the quote in the engine's text leads it here.
+
     const gloss = cleaned[index + 1];
     if (gloss) items.push({ kind: "gloss", text: gloss });
     items.push({
@@ -110,19 +87,16 @@ export function splitAskAnswer(answer: string): AskAnswerSplit {
   let text = answer || "";
   let disclosure: string | undefined;
 
-  // Capture the first Read as: "..." or Asked as: "..." on a single line
   const discMatch = text.match(/(?:^|\n)((?:Read as|Asked as):[^\n]+)/i);
   if (discMatch) {
     disclosure = discMatch[1].trim();
   }
 
-  // Strip any trailing \nAsked as: ... or \nRead as: ... (even if multi-line)
   text = text.replace(/\n(?:Asked as|Read as):[\s\S]*$/i, "");
 
   const lines = text.split("\n").map((l) => l.trim());
   const firstLine = lines[0] || "";
 
-  // Check if lines has a quote on line 1 ([Ch. N] "quote")
   const quoteMatch = firstLine.match(/^\[(?:ch|chapter)\.?\s*([^\]]+)\]\s*"?([^"]*)"?$/i);
   let quote: string | undefined;
   let chapter: string | undefined;
@@ -134,8 +108,6 @@ export function splitAskAnswer(answer: string): AskAnswerSplit {
     remainingLines = lines.slice(1);
   }
 
-  // gloss is cleanly extracted from the remaining non-empty lines
-  // (ignoring any line starting with Asked as: or Read as: or Technical solutions in style artifacts)
   const glossLines = remainingLines.filter((line) => {
     if (!line) return false;
     if (/^(?:asked as|read as):/i.test(line)) return false;

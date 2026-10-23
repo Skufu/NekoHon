@@ -71,7 +71,6 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
 
   const isRevealed = Boolean(isHovered || focused || draft.trim().length > 0);
 
-  // Global keyboard shortcuts: / or Ctrl+K / Cmd+K
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
@@ -90,7 +89,6 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  // Stop health polling on unmount
   useEffect(() => {
     return () => {
       useAsk.getState().stopHealthPolling?.();
@@ -172,7 +170,6 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
         <kbd className="composer-peek-kbd">/</kbd>
       </button>
 
-      {/* Suggestion pills fan above the composer when focused or typing */}
       {focused && activeSuggestions.length > 0 && (
         <div className="composer-suggestions">
           {activeSuggestions.map((s) => (
@@ -189,7 +186,6 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
         </div>
       )}
 
-      {/* Floating pill bar */}
       <form onSubmit={handleSubmit} className="composer-form">
         {!engineReady && (
           <span className="composer-warming" aria-live="polite">
@@ -203,7 +199,7 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
           onChange={(e) => setDraft(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => {
-            // Delay closing suggestions so click handlers can register
+
             setTimeout(() => setFocused(false), 200);
           }}
           onKeyDown={(e) => {
@@ -217,7 +213,6 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
           className="composer-input"
         />
 
-        {/* Mode toggle chip */}
         <button
           type="button"
           onClick={() => setMode(mode === "answer" ? "ask" : "answer")}
@@ -227,7 +222,6 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
           {mode === "answer" ? "Answer" : "Quote first"}
         </button>
 
-        {/* Quiz button */}
         <button
           type="button"
           onClick={handleQuiz}
@@ -238,7 +232,6 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
           Quiz
         </button>
 
-        {/* Submit arrow button */}
         <button
           type="submit"
           disabled={!engineReady || !draft.trim()}

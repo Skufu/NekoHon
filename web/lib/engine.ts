@@ -56,9 +56,7 @@ type HealthResponse = {
 
 export function engineUrl(): string {
   if (process.env.NEXT_PUBLIC_ENGINE_URL) return process.env.NEXT_PUBLIC_ENGINE_URL;
-  // Next.js dev server runs on :3100 (hot reload). Target the engine on :8000.
-  // When served by the engine (production static export on :8000, :8020, etc.),
-  // the page is same-origin, so use relative URLs ("").
+
   if (typeof window !== "undefined" && window.location.port === "3100") {
     return "http://127.0.0.1:8000";
   }
@@ -162,7 +160,7 @@ export async function askStream(
       const data = await response.json();
       if (data?.error) message = data.error;
     } catch {
-      // the body was not JSON; keep the status line
+
     }
     handlers.onError(message);
     return;
@@ -200,8 +198,7 @@ export async function askStream(
     }
   }
   if (!sawTerminalFrame) {
-    // EOF with no final/error frame (engine crash or dropped socket): without
-    // this the pane stays blank and the store's controller is never cleared.
+
     handlers.onError(
       "The connection dropped before the answer finished — ask again."
     );

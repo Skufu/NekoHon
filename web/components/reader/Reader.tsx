@@ -40,7 +40,6 @@ function paragraphList(text: string): string[] {
     .filter(Boolean);
 }
 
-/** Cubic-bezier ease-out for citation jump scrolling */
 function easeOut(t: number) {
   const x1 = 0.23;
   const y1 = 1;
@@ -108,7 +107,6 @@ function centerDelta(target: Element, box: Element) {
   return mark.top - view.top - (view.height - mark.height) / 2;
 }
 
-/** Fallback markQuote */
 function markQuote(
   paragraphs: string[],
   quote: string,
@@ -169,7 +167,6 @@ export default function Reader({
   const [loadError, setLoadError] = useState(initialLoadError);
   const [loading, setLoading] = useState(false);
 
-  // Re-fetch /chunks?book_id=${activeBookId} whenever activeBookId changes
   useEffect(() => {
     const ac = new AbortController();
     setLoading(true);
@@ -212,7 +209,6 @@ export default function Reader({
   const [scrollProgress, setScrollProgress] = useState(0);
   const [viewportRatio, setViewportRatio] = useState(0.2);
 
-  // Wide screen query (1080px)
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1080px)");
     const update = () => setWide(mq.matches);
@@ -228,7 +224,6 @@ export default function Reader({
 
   const restoredRef = useRef<string | null>(null);
 
-  // Restore saved reading progress on initial book load
   useEffect(() => {
     if (!payload || payload.chunks.length === 0) return;
     if (restoredRef.current === activeBookId) return;
@@ -250,7 +245,6 @@ export default function Reader({
     }
   }, [payload, activeBookId]);
 
-  // Track scroll position, active chapter, active chunk, and progress
   useEffect(() => {
     if (!payload || payload.chunks.length === 0) return;
 
@@ -339,7 +333,6 @@ export default function Reader({
     };
   }, [payload, activeBookId, chunkMap, updateBookProgress]);
 
-  // Keyboard navigation shortcuts: [ and ] cycle glosses, Escape clears
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -384,7 +377,6 @@ export default function Reader({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [setActiveGloss, clearHighlight]);
 
-  // Jump helpers for TopBar & Rail
   const scrollToChunk = useCallback((chunkId: string) => {
     const el = document.querySelector(
       `[data-chunk-id="${CSS.escape(chunkId)}"]`
@@ -408,7 +400,6 @@ export default function Reader({
     }
   }, []);
 
-  // Visible anchor chunk for Composer
   const getVisibleChunk = useCallback(() => {
     if (!payload || payload.chunks.length === 0) {
       return { chunkId: "ch01-001", chapter: "1", heading: "" };
@@ -442,7 +433,6 @@ export default function Reader({
     };
   }, [payload, chunkMap, activeChunkId]);
 
-  // Chapters list for TopBar
   const chapters = useMemo(() => {
     if (!payload) return [];
     const list: { chapter: string; heading: string; chunkId: string }[] = [];
@@ -488,7 +478,7 @@ export default function Reader({
             clearHighlight();
           }}
         >
-          {/* TopBar navigation */}
+
           <TopBar
             bookTitle={currentBookTitle}
             activeChapter={activeChapter}
@@ -499,7 +489,6 @@ export default function Reader({
             onJumpChunk={scrollToChunk}
           />
 
-      {/* Return spot floating pill banner */}
       {returnSpot && (
         <aside className="return-spot-banner" role="status" aria-label="Return to reading position">
           <button
@@ -526,9 +515,8 @@ export default function Reader({
         </aside>
       )}
 
-      {/* Reader Grid */}
       <div className="reader-grid">
-        {/* Left Column: Progress Minimap Rail */}
+
         <div className="rg-rail">
           <div className="rail-sticky">
             {payload ? (
@@ -543,7 +531,6 @@ export default function Reader({
           </div>
         </div>
 
-        {/* Center Column: Prose */}
         <div className="rg-prose" ref={textRef}>
           {loadError ? <p className="meta load-error">{loadError}</p> : null}
           {!loadError && !payload ? (
@@ -554,7 +541,7 @@ export default function Reader({
 
           {payload ? (
             <>
-              {/* Book Header */}
+
               <header className="book-header">
                 <h1 className="book-title">
                   {payload.title || "Fundamentals of Data Engineering"}
@@ -564,7 +551,6 @@ export default function Reader({
                 </p>
               </header>
 
-              {/* Chunks */}
               <div className="prose-chunks">
                 {payload.chunks.map((chunk, index) => {
                   const isChapterStart =
@@ -593,16 +579,13 @@ export default function Reader({
           ) : null}
         </div>
 
-        {/* Right Column: Margin Physics & Cards */}
         <div className="rg-margin">
           <Margin proseRef={textRef} wide={wide} />
         </div>
       </div>
 
-      {/* Floating Selection Lens */}
       <Lens payload={payload} containerRef={readerRef} />
 
-      {/* Whole-book Ask Composer */}
       <Composer getAnchorChunk={getVisibleChunk} chunks={payload?.chunks} />
     </main>
   </div>
@@ -700,7 +683,6 @@ const ChunkBlock = memo(function ChunkBlock({
   const joinedText = useMemo(() => paragraphs.join("\n"), [paragraphs]);
   const ref = useRef<HTMLElement | null>(null);
 
-  // Separate body vs heading highlights and glosses
   const bodyHighlights = useMemo(
     () => highlights.filter((h) => !isHeadingOffset(h.start)),
     [highlights]
@@ -719,7 +701,6 @@ const ChunkBlock = memo(function ChunkBlock({
     [chunkGlosses]
   );
 
-  // Smooth ease-out citation jump with content-visibility late-paint correction
   useEffect(() => {
     if (!focus) return;
     const section = ref.current;
@@ -768,7 +749,7 @@ const ChunkBlock = memo(function ChunkBlock({
         frame = requestAnimationFrame(step);
         return;
       }
-      // Content-visibility late estimation correction
+
       const left = centerDelta(target(), box);
       if (Math.abs(left) > 24) box.scrollTop += left;
     };
@@ -777,7 +758,6 @@ const ChunkBlock = memo(function ChunkBlock({
     return () => cancelAnimationFrame(frame);
   }, [focus, quote, at, highlightNonce]);
 
-  // Compute heading segments using splitParagraphSegments
   const renderedHeading = useMemo(() => {
     const hText = chunk.heading ?? "";
     if (!hText) return null;
@@ -854,7 +834,6 @@ const ChunkBlock = memo(function ChunkBlock({
     highlightNonce,
   ]);
 
-  // Compute paragraph segments using splitParagraphSegments with fallback to markQuote
   const renderedParagraphs = useMemo(() => {
     try {
       const glossRanges = bodyGlosses
@@ -922,7 +901,7 @@ const ChunkBlock = memo(function ChunkBlock({
         );
       });
     } catch {
-      // Fallback to markQuote
+
       const { parts } = markQuote(paragraphs, quote, at);
       return parts.map((part, index) => (
         <p key={index} className="chunk-p">

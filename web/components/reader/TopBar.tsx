@@ -53,7 +53,6 @@ export default function TopBar({
   const bookMenuRef = useRef<HTMLDivElement>(null);
   const aaRef = useRef<HTMLDivElement>(null);
 
-  // Auto-tuck on scroll down, reveal on scroll up
   useEffect(() => {
     let lastY = typeof window !== "undefined" ? window.scrollY : 0;
     const onScroll = () => {
@@ -74,7 +73,6 @@ export default function TopBar({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Dismiss dropdowns on outside click
   useEffect(() => {
     const onPointerDown = (e: PointerEvent) => {
       if (chaptersRef.current && !chaptersRef.current.contains(e.target as Node)) {
@@ -91,7 +89,6 @@ export default function TopBar({
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, []);
 
-  // Circular view transition theme picker
   const pickTheme = (key: (typeof THEMES)[number]["key"], e: MouseEvent<HTMLButtonElement>) => {
     const doc = document as Document & {
       startViewTransition?: (cb: () => void) => {
@@ -168,7 +165,7 @@ export default function TopBar({
       }`}
     >
       <div className="topbar-inner">
-        {/* Left Side: Brand + Library button + Book Switcher + Chapter dropdown */}
+
         <div className="topbar-left" ref={chaptersRef}>
           <button
             type="button"
@@ -192,7 +189,6 @@ export default function TopBar({
             <span className="topbar-library-text">Library</span>
           </button>
 
-          {/* Book Switcher Dropdown */}
           <div className="topbar-book-wrap" ref={bookMenuRef}>
             <button
               type="button"
@@ -232,7 +228,6 @@ export default function TopBar({
             )}
           </div>
 
-          {/* Chapter Selector Dropdown */}
           <div className="topbar-toc-wrap">
             <button
               type="button"
@@ -275,7 +270,6 @@ export default function TopBar({
           </div>
         </div>
 
-        {/* Center: Running header */}
         <div className="topbar-running">
           <button
             type="button"
@@ -290,7 +284,6 @@ export default function TopBar({
           </button>
         </div>
 
-        {/* Right Side: Notes badge + Aa appearance popover */}
         <div className="topbar-right">
           {glossCount > 0 && (
             <button
@@ -306,7 +299,6 @@ export default function TopBar({
             </button>
           )}
 
-          {/* Aa Appearance Button */}
           <div className="topbar-aa-wrap" ref={aaRef}>
             <button
               type="button"
@@ -320,7 +312,7 @@ export default function TopBar({
 
             {aaOpen && (
               <div className="aa-popover">
-                {/* Theme section */}
+
                 <div className="aa-section">
                   <div className="aa-label">
                     Theme
@@ -349,7 +341,6 @@ export default function TopBar({
                   </div>
                 </div>
 
-                {/* Pen section */}
                 <div className="aa-section">
                   <div className="aa-label">
                     Margin Pen
@@ -373,7 +364,6 @@ export default function TopBar({
                   </div>
                 </div>
 
-                {/* Text Size section */}
                 <div className="aa-section">
                   <div className="aa-label">
                     Text Size
@@ -408,7 +398,6 @@ export default function TopBar({
         </div>
       </div>
 
-      {/* Progress hairline */}
       <span
         aria-hidden
         className="topbar-progress"

@@ -37,7 +37,6 @@ export default function LibraryView() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Focus search with '/' key
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (
@@ -64,7 +63,6 @@ export default function LibraryView() {
     return out;
   }, [booksCatalog, getBookStats, activeBookId, highlightsLen, glossesLen, bookProgress]);
 
-  // Filter books by query
   const filteredBooks = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return booksCatalog;
@@ -76,7 +74,6 @@ export default function LibraryView() {
     );
   }, [booksCatalog, searchQuery]);
 
-  // Aggregate stats
   const totalChapters = useMemo(
     () => booksCatalog.reduce((sum, b) => sum + (b.chapter_count || 0), 0),
     [booksCatalog]
@@ -108,7 +105,6 @@ export default function LibraryView() {
         onDismiss={dismissImport}
       />
 
-      {/* Top Editorial Header */}
       <header className="library-hero">
         <div className="library-brand-row">
           <div className="library-mark-wrap">
@@ -120,7 +116,6 @@ export default function LibraryView() {
           </div>
         </div>
 
-        {/* Live Library Stats Ribbon */}
         <div className="library-stats-ribbon">
           <span className="library-stat-pill">
             {booksCatalog.length} volumes shelved
@@ -136,9 +131,8 @@ export default function LibraryView() {
           </span>
         </div>
 
-        {/* Controls Toolbar */}
         <div className="library-controls">
-          {/* Search Bar */}
+
           <div className="library-search-wrap">
             <svg
               viewBox="0 0 24 24"
@@ -166,7 +160,6 @@ export default function LibraryView() {
             <kbd className="library-search-kbd">/</kbd>
           </div>
 
-          {/* View Switcher: Shelf vs Grid */}
           <div className="library-view-switcher">
             <button
               type="button"
@@ -219,7 +212,6 @@ export default function LibraryView() {
             </button>
           </div>
 
-          {/* Theme Quick Toggle */}
           <div className="library-theme-toggle">
             {THEMES.map((t) => (
               <button
@@ -234,7 +226,6 @@ export default function LibraryView() {
             ))}
           </div>
 
-          {/* Primary + Add Book (.epub) */}
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
@@ -246,7 +237,6 @@ export default function LibraryView() {
         </div>
       </header>
 
-      {/* Bookcase / Shelf View */}
       <main className="library-content">
         {filteredBooks.length === 0 ? (
           <div className="empty-shelf">

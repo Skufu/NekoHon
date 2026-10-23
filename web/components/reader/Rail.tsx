@@ -39,7 +39,6 @@ export default function Rail({
     return map;
   }, [chunks]);
 
-  // Chapter boundaries
   const chapterMarks = useMemo(() => {
     const list: { chapter: string; heading: string; index: number; pct: number }[] = [];
     chunks.forEach((chunk, i) => {
@@ -55,7 +54,6 @@ export default function Rail({
     return list;
   }, [chunks, total]);
 
-  // Set of chunk IDs with highlights
   const highlightedChunks = useMemo(() => {
     return highlights
       .map((h) => {
@@ -65,7 +63,6 @@ export default function Rail({
       .filter((v): v is { id: string; pct: number } => v !== null);
   }, [chunkIndexMap, highlights, total]);
 
-  // Set of chunk IDs with glosses
   const glossChunks = useMemo(() => {
     return glossAnchors
       .map((g) => {
@@ -98,7 +95,6 @@ export default function Rail({
       scrub(e.clientY);
     }
 
-    // Determine nearest chapter for tooltip
     if (rect.height > 0) {
       const hoverRatio = Math.max(0, Math.min(1, y / rect.height));
       const chunkIndex = Math.min(chunks.length - 1, Math.floor(hoverRatio * chunks.length));
@@ -139,10 +135,9 @@ export default function Rail({
       onPointerCancel={handlePointerUp}
       onPointerLeave={() => setHoveredChapter(null)}
     >
-      {/* Background track line */}
+
       <div className="rail-track" />
 
-      {/* Chapter boundary tick marks */}
       {chapterMarks.map((m) => (
         <span
           key={`ch-${m.chapter}-${m.index}`}
@@ -152,7 +147,6 @@ export default function Rail({
         />
       ))}
 
-      {/* User highlights indicator (yellow bars) */}
       {highlightedChunks.map((h) => (
         <span
           key={`hl-${h.id}`}
@@ -162,7 +156,6 @@ export default function Rail({
         />
       ))}
 
-      {/* Margin gloss indicators (vermilion dots) */}
       {glossChunks.map((g) => (
         <span
           key={`gl-${g.id}`}
@@ -172,7 +165,6 @@ export default function Rail({
         />
       ))}
 
-      {/* Viewport thumb rectangle */}
       <span
         className="rail-thumb"
         style={{
@@ -182,7 +174,6 @@ export default function Rail({
         aria-hidden
       />
 
-      {/* Hover Chapter Tooltip */}
       {hoveredChapter && (
         <div
           className="rail-tooltip"

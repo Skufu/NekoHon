@@ -1,10 +1,6 @@
 @import "tailwindcss";
 @import "./tokens.css";
 
-/* ==========================================================================
-   ask-this-book - Globals & Reader Layout
-   ========================================================================== */
-
 @layer base {
   html,
   body {
@@ -31,7 +27,6 @@
     transition: background-color 0.35s var(--ease-out), color 0.35s var(--ease-out);
   }
 
-  /* Paper grain overlay: SVG fractalNoise tooth */
   body::before {
     content: "";
     position: fixed;
@@ -68,7 +63,6 @@
     font-weight: 500;
   }
 
-  /* Prevent mobile Safari zoom on input focus */
   @media (pointer: coarse) {
     input:not([type="range"], [type="checkbox"], [type="radio"], [type="file"]),
     textarea,
@@ -78,7 +72,6 @@
   }
 }
 
-/* Circular View Transitions support */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
@@ -90,10 +83,6 @@
 ::view-transition-new(root) {
   z-index: 9999;
 }
-
-/* ==========================================================================
-   Topbar (60px fixed header, scroll tuck, progress hairline, Aa popover)
-   ========================================================================== */
 
 .topbar {
   position: fixed;
@@ -541,13 +530,6 @@
   }
 }
 
-/* ==========================================================================
-   Reader Layout: 3-column .reader-grid
-   Left .rg-rail (>= 1260px)
-   Center .rg-prose (--m: min(calc(var(--read-size, 19px) * 34), 46rem))
-   Right .rg-margin (>= 1080px, 320px wide, 28px gutter)
-   ========================================================================== */
-
 .reader-grid {
   --m: min(calc(var(--read-size, 19px) * 34), 46rem);
   display: grid;
@@ -747,10 +729,6 @@
   min-height: 100%;
 }
 
-/* ==========================================================================
-   Chunks & Typography
-   ========================================================================== */
-
 .chunk {
   position: relative;
   margin-bottom: 2em;
@@ -804,7 +782,6 @@
   margin-top: 6px;
 }
 
-
 .chunk figure {
   margin: 2em 0;
 }
@@ -824,10 +801,6 @@
   color: var(--ink-3);
   margin-top: 8px;
 }
-
-/* ==========================================================================
-   Highlights & Marks
-   ========================================================================== */
 
 .hl-mark {
   --mk: var(--mk-yellow);
@@ -911,10 +884,6 @@ mark {
     background-color: var(--rubric-wash-strong);
   }
 }
-
-/* ==========================================================================
-   The Lens (Floating selection capsule)
-   ========================================================================== */
 
 .lens {
   position: fixed;
@@ -1140,10 +1109,6 @@ mark {
 .lens-submit:active:not(:disabled) {
   transform: scale(0.95);
 }
-
-/* ==========================================================================
-   Margin Notes, Gloss Cards & Mobile Sheet
-   ========================================================================== */
 
 .margin-column {
   position: relative;
@@ -1967,10 +1932,6 @@ mark {
   }
 }
 
-/* ==========================================================================
-   Composer Dock (Sticky bottom floating pill)
-   ========================================================================== */
-
 .composer-dock {
   position: fixed;
   left: 0;
@@ -2229,10 +2190,6 @@ mark.key {
   -webkit-box-decoration-break: clone;
 }
 
-/* ==========================================================================
-   Backwards Compatibility & Answer View
-   ========================================================================== */
-
 .reader {
   min-height: 100dvh;
   padding-top: calc(var(--topbar-h, 60px) + 32px);
@@ -2438,7 +2395,6 @@ mark.key {
   justify-content: flex-end;
 }
 
-/* Return Spot Floating Pill Banner */
 .return-spot-banner {
   position: fixed;
   top: calc(var(--topbar-h, 60px) + 14px);
@@ -2625,10 +2581,6 @@ mark.key {
   margin-top: 4px;
 }
 
-/* ==========================================================================
-   Clean Reduced Motion (Case-by-case without 0.01ms !important)
-   ========================================================================== */
-
 @media (prefers-reduced-motion: reduce) {
   body {
     transition: none;
@@ -2694,10 +2646,6 @@ mark.key {
     animation: none;
   }
 }
-
-/* ==========================================================================
-   NekoHon Rebrand & TopBar Navigation Extensions
-   ========================================================================== */
 
 .topbar-logo-icon {
   flex-shrink: 0;
@@ -2858,10 +2806,6 @@ mark.key {
   margin-top: 2px;
 }
 
-/* ==========================================================================
-   Pane Toggles (Library vs Reader View Switcher)
-   ========================================================================== */
-
 .library-pane,
 .reader-pane {
   width: 100%;
@@ -2879,10 +2823,6 @@ mark.key {
   display: block;
   animation: rise 0.35s var(--ease-out) both;
 }
-
-/* ==========================================================================
-   NekoHon Library Start Menu (Hero, Shelf, Grid, Controls)
-   ========================================================================== */
 
 .library-view {
   min-height: 100vh;
@@ -3094,10 +3034,6 @@ mark.key {
   margin-top: 36px;
 }
 
-/* ==========================================================================
-   Bookcase & Wooden Shelf View
-   ========================================================================== */
-
 .shelf-view {
   padding-top: 20px;
 }
@@ -3224,10 +3160,6 @@ mark.key {
   background: var(--plank-top);
   border-radius: 2px 2px 0 0;
 }
-
-/* ==========================================================================
-   Editorial Grid View
-   ========================================================================== */
 
 .grid-view {
   display: grid;
@@ -3413,10 +3345,6 @@ mark.key {
   font-size: 16px;
   color: var(--ink-3);
 }
-
-/* ==========================================================================
-   3D BookOpen Modal (Ex Libris Bookplate + Right Action Page)
-   ========================================================================== */
 
 .bookopen-modal {
   position: fixed;
@@ -3753,10 +3681,6 @@ mark.key {
   border-radius: 3px;
   border: 1px solid var(--rule-strong);
 }
-
-/* ==========================================================================
-   Drag-and-Drop Overlay & Ingestion Modal
-   ========================================================================== */
 
 .hidden-file-input {
   display: none;
