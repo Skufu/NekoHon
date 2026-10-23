@@ -223,6 +223,7 @@ def main():
             f" | {q['answer'].splitlines()[0][:110]}"
         )
     out = ROOT / "artifacts" / "runs" / "probe-plain" / "probe-plain.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
     log = out.with_suffix(".log")
     out.write_text(json.dumps(rows, indent=2, ensure_ascii=False), encoding="utf-8")
     log.write_text("\n".join(lines) + "\n", encoding="utf-8")
