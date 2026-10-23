@@ -28,6 +28,8 @@ flowchart LR
 
 ## Quickstart
 
+Start Ollama first (the Ollama app, or `ollama serve` in its own terminal).
+
 ```sh
 ollama pull nomic-embed-text                 # embedder (about 274 MB)
 python3 scripts/setup_models.py --install    # answer models from Hugging Face Skufu1/nekohon-x3
@@ -37,7 +39,8 @@ python3 scripts/setup_models.py --status     # check files, hashes, Ollama
 `nekohon_x3` is 1.93 GB (desktop); `nekohon_x3_mobile` is 986 MB. Use
 `--model nekohon_x3_mobile` to install one only.
 
-Add a book. Books are local to your machine (`books/` and `data/` are
+Add a book. A fresh clone has no books, so the Library is empty until you
+import one. Books are local to your machine (`books/` and `data/` are
 gitignored).
 
 - UI: drag an `.epub` onto the Library (`POST /ask` with `mode: "import"`).
@@ -46,16 +49,20 @@ gitignored).
   `python3 -m engine.retrieval.retrieve --book-id <id>` to embed it.
   Short file names give short book ids.
 
-Run it.
+Run it, in one of two ways.
+
+Dev, with hot reload, at http://localhost:3100 (two terminals):
 
 ```sh
-# dev, hot reload: http://localhost:3100
-python3 -m engine.server
-cd web && npm install && npm run dev
+python3 -m engine.server                 # terminal 1, keeps running
+cd web && npm install && npm run dev     # terminal 2
+```
 
-# one URL: http://127.0.0.1:8000
-cd web && npm run build
-python3 scripts/launch.py --open        # or: python3 -m engine.server
+One URL, at http://127.0.0.1:8000:
+
+```sh
+(cd web && npm install && npm run build)
+python3 scripts/launch.py --open         # or: python3 -m engine.server
 ```
 
 Readiness: `python3 scripts/preflight.py` (exit 0 when ready) and
@@ -76,7 +83,7 @@ Readiness: `python3 scripts/preflight.py` (exit 0 when ready) and
 | `GET /chunks` | Reader blocks for a book (`?book_id=`), no vectors. |
 | `GET /figures/{id}` | Figure image. |
 | `GET /health` | Readiness. |
-| `GET /` | Built UI from `web/out`. |
+| `GET /` | Built UI from `web/out` (and `/_next/static/*`); falls back to `window/index.html` when no build exists. |
 
 A refusal is `refused: true` with `answer` exactly `Not in this book.`
 

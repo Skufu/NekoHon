@@ -37,9 +37,10 @@ flowchart LR
 | `POST /ask` with `stream: 1` | NDJSON frames `token`, `reset`, `final`, `error` |
 | `POST /ask` with `mode: "import"` | drag-and-drop `.epub` ingestion |
 | `GET /figures/{id}` | figure images |
+| `GET /health` | engine readiness and the book catalog |
 
-The base URL is `engineUrl()` in `lib/engine.ts`: `http://127.0.0.1:8000` on
-:3100, same-origin otherwise. Call the engine directly; a Next proxy would
+The base URL is `engineUrl()` in `lib/engine.ts`: `NEXT_PUBLIC_ENGINE_URL` when
+set, else `http://127.0.0.1:8000` on :3100, else same-origin. Call the engine directly; a Next proxy would
 buffer the NDJSON stream.
 
 ## File map
