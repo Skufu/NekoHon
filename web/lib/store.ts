@@ -1,26 +1,26 @@
 import { create } from "zustand";
-import {
-  askStream,
-  checkHealth,
-  prefetchChunks,
-  type AnswerBody,
-  type BookCatalogItem,
-  type AskRequest,
-} from "./engine";
+import { checkHealth, prefetchChunks, type BookCatalogItem } from "./engine";
 import type { MarkerColor, UserHighlight } from "./anchor";
+import {
+  loadBookState,
+  loadCatalog,
+  loadProgress,
+  loadSettings,
+  saveBookState,
+  saveCatalog,
+  saveHighlights,
+  saveProgress,
+  saveSettings,
+  type PenName,
+  type ProgressMap,
+  type ThemeName,
+} from "./persist";
+import { abortFlights, runTurnStream, type StreamPayload } from "./stream";
+import { mapTurns, patchGloss, type GlossItem, type GlossTurn, type ThreadTurn } from "./turns";
 
-export type ThemeName = "night" | "paper" | "sepia" | "snow" | "ink";
-type PenName = "vermilion" | "cobalt" | "moss" | "graphite";
+export type { ThemeName } from "./persist";
 export type { MarkerColor, UserHighlight } from "./anchor";
-
-type Status =
-  | "idle"
-  | "loading"
-  | "streaming"
-  | "done"
-  | "refused"
-  | "stopped"
-  | "error";
+export type { GlossItem } from "./turns";
 
 export type Highlight = {
   chunkId: string;
@@ -28,45 +28,6 @@ export type Highlight = {
   quote: string;
   at?: number;
   nonce?: number;
-};
-
-type ThreadTurn = {
-  question: string;
-  answer: string;
-  refused: boolean;
-  citations: { chunk_id: string; chapter: string; quote: string }[];
-};
-
-type GlossTurn = {
-  id: string;
-  mode: "answer" | "ask" | "explain" | "quiz";
-  question: string;
-  status: Status;
-  streamText: string;
-  resetting: boolean;
-  body: AnswerBody | null;
-  error: string;
-  elapsed: number;
-  firstToken: number | null;
-  latency: number | null;
-  showQuizKey?: boolean;
-};
-
-export type GlossItem = {
-  id: string;
-  kind: "selection" | "whole" | "quiz";
-  chunkId: string;
-  endChunkId?: string;
-  chapter: string;
-  heading?: string;
-  quote: string;
-  at?: number;
-  createdAt: number;
-  turns: GlossTurn[];
-  minimized?: boolean;
-  dragOffset?: { x: number; y: number };
-  customWidth?: number;
-  customHeight?: number;
 };
 
 type GlossAnchor = {
@@ -78,32 +39,6 @@ type GlossAnchor = {
   quote: string;
   at?: number;
 };
-
-type InFlightTurn = {
-  controller: AbortController;
-  ticker: ReturnType<typeof setInterval>;
-  pacerTimer: number | null;
-  startedAt: number;
-};
-
-const inFlightMap = new Map<string, InFlightTurn>();
-
-function cleanupFlight(flight: InFlightTurn) {
-  if (flight.pacerTimer !== null) {
-    if (typeof cancelAnimationFrame !== "undefined") {
-      cancelAnimationFrame(flight.pacerTimer);
-    } else {
-      clearTimeout(flight.pacerTimer);
-    }
-    flight.pacerTimer = null;
-  }
-  clearInterval(flight.ticker);
-  flight.controller.abort();
-}
-
-function flightKey(glossId: string, turnId: string) {
-  return `${glossId}:${turnId}`;
-}
 
 function buildGlossAnchors(glosses: GlossItem[]): {
   anchors: GlossAnchor[];
@@ -151,7 +86,7 @@ type AskStore = {
   booksCatalog: BookCatalogItem[];
   setBooksCatalog: (catalog: BookCatalogItem[]) => void;
   addBookToCatalog: (book: BookCatalogItem) => void;
-  bookProgress: Record<string, { pct: number; chapter: string; chunkId: string; lastReadAt: number }>;
+  bookProgress: ProgressMap;
   updateBookProgress: (bookId: string, progress: { pct: number; chapter: string; chunkId: string }) => void;
   getBookStats: (bookId: string) => { highlightsCount: number; notesCount: number; pct: number; lastChapter: string };
 
@@ -230,147 +165,6 @@ type AskStore = {
   }) => void;
 };
 
-function saveSettings(settings: { theme: ThemeName; pen: PenName; marker: MarkerColor; readSize: number }) {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem("atb-settings", JSON.stringify(settings));
-    document.documentElement.dataset.theme = settings.theme;
-    document.documentElement.dataset.pen = settings.pen;
-    document.documentElement.style.setProperty("--read-size", `${settings.readSize}px`);
-  } catch {
-    // ignore quota/storage errors
-  }
-}
-
-function saveHighlights(highlights: UserHighlight[]) {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem("atb-highlights", JSON.stringify(highlights));
-  } catch {
-    // ignore quota/storage errors
-  }
-}
-
-function saveBookState(bookId: string, highlights: UserHighlight[], glosses: GlossItem[]) {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(`nekohon-state-${bookId}`, JSON.stringify({ highlights, glosses }));
-  } catch {
-    // ignore quota/storage errors
-  }
-}
-
-function loadBookState(bookId: string): { highlights: UserHighlight[]; glosses: GlossItem[] } {
-  if (typeof window === "undefined") return { highlights: [], glosses: [] };
-  try {
-    const raw = localStorage.getItem(`nekohon-state-${bookId}`);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      return {
-        highlights: Array.isArray(parsed.highlights) ? parsed.highlights : [],
-        glosses: Array.isArray(parsed.glosses)
-          ? parsed.glosses.map((g: GlossItem) => ({
-              ...g,
-              turns: (g.turns || []).map((t) =>
-                t.status === "loading" || t.status === "streaming"
-                  ? { ...t, status: "stopped" as Status, streamText: "" }
-                  : t
-              ),
-            }))
-          : [],
-      };
-    }
-    // Migration: if book is fde and legacy atb-highlights exists, migrate it
-    if (bookId === "fde") {
-      const legacyHl = localStorage.getItem("atb-highlights");
-      if (legacyHl) {
-        const parsed = JSON.parse(legacyHl);
-        if (Array.isArray(parsed)) {
-          saveBookState("fde", parsed, []);
-          return { highlights: parsed, glosses: [] };
-        }
-      }
-    }
-  } catch {
-    // ignore
-  }
-  return { highlights: [], glosses: [] };
-}
-
-let saveProgressTimer: ReturnType<typeof setTimeout> | null = null;
-let pendingProgress: Record<string, { pct: number; chapter: string; chunkId: string; lastReadAt: number }> | null = null;
-
-export function flushProgress(): void {
-  if (typeof window === "undefined" || !pendingProgress) return;
-  if (saveProgressTimer) {
-    clearTimeout(saveProgressTimer);
-    saveProgressTimer = null;
-  }
-  try {
-    localStorage.setItem("nekohon-progress", JSON.stringify(pendingProgress));
-  } catch {
-    // ignore
-  }
-  pendingProgress = null;
-}
-
-function saveProgress(progress: Record<string, { pct: number; chapter: string; chunkId: string; lastReadAt: number }>) {
-  if (typeof window === "undefined") return;
-  pendingProgress = progress;
-  if (saveProgressTimer) clearTimeout(saveProgressTimer);
-  saveProgressTimer = setTimeout(() => {
-    flushProgress();
-  }, 1000);
-}
-
-if (typeof window !== "undefined") {
-  const onFlush = () => {
-    flushProgress();
-  };
-  const onVisibilityChange = () => {
-    if (document.visibilityState === "hidden") {
-      flushProgress();
-    }
-  };
-  window.addEventListener("pagehide", onFlush);
-  window.addEventListener("beforeunload", onFlush);
-  document.addEventListener("visibilitychange", onVisibilityChange);
-}
-
-function loadProgress(): Record<string, { pct: number; chapter: string; chunkId: string; lastReadAt: number }> {
-  if (typeof window === "undefined") return {};
-  try {
-    const raw = localStorage.getItem("nekohon-progress");
-    if (raw) return JSON.parse(raw);
-  } catch {
-    // ignore
-  }
-  return {};
-}
-
-function saveCatalog(catalog: BookCatalogItem[]) {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem("nekohon-catalog", JSON.stringify(catalog));
-  } catch {
-    // ignore
-  }
-}
-
-function loadCatalog(): BookCatalogItem[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem("nekohon-catalog");
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed;
-    }
-  } catch {
-    // ignore
-  }
-  return [];
-}
-
 function historyPayload(
   thread: ThreadTurn[]
 ): { question: string; answer: string }[] | undefined {
@@ -419,358 +213,8 @@ export const useAsk = create<AskStore>((set, get) => {
     saveBookState(get().activeBookId, get().highlights, glosses);
   }
 
-  function startTurnStream(
-    glossId: string,
-    turnId: string,
-    payload: {
-      mode: string;
-      book_id?: string;
-      question?: string;
-      selection?: string;
-      chunk_id?: string;
-      end_chunk_id?: string;
-      heading?: string;
-      history?: { question: string; answer: string }[];
-    }
-  ) {
-    // Preemptively cancel any existing in-flight turns to eliminate serial Ollama blocking
-    for (const [flightKey, entry] of inFlightMap.entries()) {
-      cleanupFlight(entry);
-      inFlightMap.delete(flightKey);
-    }
-
-    // Mark any still loading or streaming turns across all glosses as "stopped"
-    set((state) => ({
-      glosses: state.glosses.map((g) => ({
-        ...g,
-        turns: g.turns.map((t) =>
-          g.id === glossId && t.id === turnId
-            ? t
-            : t.status === "loading" || t.status === "streaming"
-              ? { ...t, status: "stopped" as Status }
-              : t
-        ),
-      })),
-    }));
-
-    const key = flightKey(glossId, turnId);
-    const controller = new AbortController();
-    const startedAt = performance.now();
-    let shownSecs = 0;
-    const ticker = setInterval(() => {
-      const elapsed = (performance.now() - startedAt) / 1000;
-      const secs = Math.round(elapsed) + (elapsed > 8 ? 0.5 : 0);
-      if (secs === shownSecs) return;
-      shownSecs = secs;
-      set((state) => {
-        const nextGlosses = state.glosses.map((g) => {
-          if (g.id !== glossId) return g;
-          return {
-            ...g,
-            turns: g.turns.map((t) => (t.id === turnId ? { ...t, elapsed } : t)),
-          };
-        });
-        return {
-          glosses: nextGlosses,
-        };
-      });
-    }, 200);
-
-    const flight: InFlightTurn = {
-      controller,
-      ticker,
-      pacerTimer: null,
-      startedAt,
-    };
-    inFlightMap.set(key, flight);
-
-    let targetText = "";
-    let displayedText = "";
-    let finalResult: AnswerBody | null = null;
-
-    const stopPacer = () => {
-      if (flight.pacerTimer !== null) {
-        if (typeof cancelAnimationFrame !== "undefined") {
-          cancelAnimationFrame(flight.pacerTimer);
-        } else {
-          clearTimeout(flight.pacerTimer);
-        }
-        flight.pacerTimer = null;
-      }
-    };
-
-    const pacerStep = () => {
-      flight.pacerTimer = null;
-      if (targetText.startsWith("[")) {
-        const nlIdx = targetText.indexOf("\n");
-        if (nlIdx === -1) {
-          displayedText = targetText;
-        } else if (displayedText.length < nlIdx + 1) {
-          displayedText = targetText.slice(0, nlIdx + 1);
-        }
-      }
-
-      if (displayedText.length < targetText.length) {
-        const remaining = targetText.slice(displayedText.length);
-        const backlog = targetText.length - displayedText.length;
-        let step = 0;
-        const wordMatch = remaining.match(/^\s*\S+\s*/);
-        if (backlog > 40) {
-          const cap = Math.min(remaining.length, Math.max(12, Math.ceil(backlog / 5)));
-          const spaceIdx = remaining.indexOf(" ", cap);
-          if (spaceIdx !== -1 && spaceIdx - cap < 15) {
-            step = spaceIdx + 1;
-          } else {
-            const twoWords = remaining.match(/^(\s*\S+\s*){1,2}/);
-            step = twoWords ? twoWords[0].length : cap;
-          }
-        } else {
-          step = wordMatch ? wordMatch[0].length : Math.min(remaining.length, 6);
-        }
-        if (step <= 0) step = Math.min(remaining.length, 1);
-        displayedText += remaining.slice(0, step);
-
-        set((state) => {
-          const nextGlosses = state.glosses.map((g) => {
-            if (g.id !== glossId) return g;
-            return {
-              ...g,
-              turns: g.turns.map((t) => {
-                if (t.id !== turnId) return t;
-                return {
-                  ...t,
-                  status: "streaming" as Status,
-                  streamText: displayedText,
-                  resetting: false,
-                  firstToken: t.firstToken ?? (performance.now() - startedAt) / 1000,
-                };
-              }),
-            };
-          });
-          return {
-            glosses: nextGlosses,
-          };
-        });
-
-        if (displayedText.length < targetText.length || finalResult !== null) {
-          ensurePacerRunning();
-        }
-      } else if (finalResult !== null) {
-        stopPacer();
-        clearInterval(flight.ticker);
-        inFlightMap.delete(key);
-
-        const latency = (performance.now() - startedAt) / 1000;
-        const body = finalResult;
-        const isRefused = body.refused;
-
-        set((state) => {
-          const targetGloss = state.glosses.find((g) => g.id === glossId);
-          const targetTurn = targetGloss?.turns.find((t) => t.id === turnId);
-
-          const nextGlosses = state.glosses.map((g) => {
-            if (g.id !== glossId) return g;
-            const nextChunkId =
-              g.kind === "quiz" && body.citations?.[0]?.chunk_id
-                ? body.citations[0].chunk_id
-                : g.chunkId;
-            const nextChapter =
-              g.kind === "quiz" && body.citations?.[0]?.chapter
-                ? String(body.citations[0].chapter)
-                : g.chapter;
-            return {
-              ...g,
-              chunkId: nextChunkId,
-              chapter: nextChapter,
-              turns: g.turns.map((t) => {
-                if (t.id !== turnId) return t;
-                return {
-                  ...t,
-                  status: (isRefused ? "refused" : "done") as Status,
-                  body,
-                  streamText: "",
-                  latency,
-                };
-              }),
-            };
-          });
-
-          let nextThread = state.thread;
-          if (targetGloss?.kind === "whole" && targetTurn?.question) {
-            nextThread = [
-              ...state.thread,
-              {
-                question: targetTurn.question,
-                answer: body.answer,
-                refused: body.refused,
-                citations: body.citations,
-              },
-            ];
-          }
-
-          return {
-            glosses: nextGlosses,
-            thread: nextThread,
-          };
-        });
-        saveBookState(get().activeBookId, get().highlights, get().glosses);
-      }
-    };
-
-    const ensurePacerRunning = () => {
-      if (flight.pacerTimer === null) {
-        if (typeof requestAnimationFrame !== "undefined") {
-          flight.pacerTimer = requestAnimationFrame(pacerStep);
-        } else {
-          flight.pacerTimer = setTimeout(pacerStep, 16) as unknown as number;
-        }
-      }
-    };
-
-    const requestPayload: AskRequest = {
-      ...payload,
-      book_id: payload.book_id || get().activeBookId,
-    };
-
-    askStream(
-      requestPayload,
-      {
-        onToken: (text) => {
-          targetText += text;
-          ensurePacerRunning();
-        },
-        onReset: () => {
-          const quoteMatch = targetText.match(
-            /^(\[(?:Ch|Chapter)\.?\s*[^\]]+\]\s*["\u201c][^"\u201d\n]+["\u201d]?)/i
-          );
-          if (quoteMatch) {
-            const preservedQuoteLine = quoteMatch[1] + "\n";
-            targetText = preservedQuoteLine;
-            if (displayedText.length > preservedQuoteLine.length) {
-              displayedText = preservedQuoteLine;
-            }
-            set((state) => {
-              const nextGlosses = state.glosses.map((g) => {
-                if (g.id !== glossId) return g;
-                return {
-                  ...g,
-                  turns: g.turns.map((t) => {
-                    if (t.id !== turnId) return t;
-                    return {
-                      ...t,
-                      streamText: displayedText,
-                      resetting: false,
-                    };
-                  }),
-                };
-              });
-              return {
-                glosses: nextGlosses,
-              };
-            });
-            ensurePacerRunning();
-          } else {
-            targetText = "";
-            displayedText = "";
-            set((state) => {
-              const nextGlosses = state.glosses.map((g) => {
-                if (g.id !== glossId) return g;
-                return {
-                  ...g,
-                  turns: g.turns.map((t) => {
-                    if (t.id !== turnId) return t;
-                    return {
-                      ...t,
-                      streamText: "",
-                      resetting: t.streamText.length > 0,
-                    };
-                  }),
-                };
-              });
-              return {
-                glosses: nextGlosses,
-              };
-            });
-          }
-        },
-        onFinal: (body) => {
-          finalResult = body;
-          if (body.answer && !body.refused && payload.mode !== "quiz") {
-            if (targetText.length === 0) {
-              targetText = body.answer;
-            } else if (
-              body.answer.startsWith(targetText.trimEnd()) &&
-              body.answer.length > targetText.length
-            ) {
-              targetText = body.answer;
-            }
-          }
-          ensurePacerRunning();
-        },
-        onError: (message) => {
-          stopPacer();
-          clearInterval(flight.ticker);
-          inFlightMap.delete(key);
-          const latency = (performance.now() - startedAt) / 1000;
-
-          set((state) => {
-            const nextGlosses = state.glosses.map((g) => {
-              if (g.id !== glossId) return g;
-              return {
-                ...g,
-                turns: g.turns.map((t) => {
-                  if (t.id !== turnId) return t;
-                  return {
-                    ...t,
-                    status: "error" as Status,
-                    error: message,
-                    streamText: "",
-                    latency,
-                  };
-                }),
-              };
-            });
-            return {
-              glosses: nextGlosses,
-            };
-          });
-          saveBookState(get().activeBookId, get().highlights, get().glosses);
-        },
-      },
-      controller.signal
-    ).catch((err: unknown) => {
-      stopPacer();
-      clearInterval(flight.ticker);
-      inFlightMap.delete(key);
-      const latency = (performance.now() - startedAt) / 1000;
-
-      const name = (err as { name?: string })?.name;
-      const isAbort = name === "AbortError";
-
-      set((state) => {
-        const nextGlosses = state.glosses.map((g) => {
-          if (g.id !== glossId) return g;
-          return {
-            ...g,
-            turns: g.turns.map((t) => {
-              if (t.id !== turnId) return t;
-              return {
-                ...t,
-                status: (isAbort ? "stopped" : "error") as Status,
-                error: isAbort ? "" : "Engine unreachable — start it on :8000, then ask again.",
-                streamText: "",
-                latency: isAbort ? latency : null,
-              };
-            }),
-          };
-        });
-        return {
-          glosses: nextGlosses,
-        };
-      });
-      saveBookState(get().activeBookId, get().highlights, get().glosses);
-    });
-  }
+  const startTurnStream = (glossId: string, turnId: string, payload: StreamPayload) =>
+    runTurnStream({ get, set }, glossId, turnId, payload);
 
   return {
     // Navigation & Multi-Book State
@@ -947,25 +391,7 @@ export const useAsk = create<AskStore>((set, get) => {
 
     hydrateStore: () => {
       if (typeof window === "undefined") return;
-      let theme: ThemeName = "night";
-      let pen: PenName = "vermilion";
-      let marker: MarkerColor = "yellow";
-      let readSize = 19;
-
-      try {
-        const rawSettings = localStorage.getItem("atb-settings");
-        if (rawSettings) {
-          const parsed = JSON.parse(rawSettings);
-          if (parsed.theme) theme = parsed.theme;
-          if (parsed.pen) pen = parsed.pen;
-          if (parsed.marker) marker = parsed.marker;
-          if (typeof parsed.readSize === "number") {
-            readSize = Math.max(15, Math.min(26, parsed.readSize));
-          }
-        }
-      } catch {
-        // ignore
-      }
+      const { theme, pen, marker, readSize } = loadSettings();
 
       document.documentElement.dataset.theme = theme;
       document.documentElement.dataset.pen = pen;
@@ -1092,10 +518,7 @@ export const useAsk = create<AskStore>((set, get) => {
 
     setActiveGloss: (id) => {
       if (id) {
-        const next = get().glosses.map((g) =>
-          g.id === id ? { ...g, minimized: false } : g
-        );
-        syncActiveTurn(next, id);
+        syncActiveTurn(patchGloss(get().glosses, id, { minimized: false }), id);
       } else {
         syncActiveTurn(get().glosses, null);
       }
@@ -1106,13 +529,7 @@ export const useAsk = create<AskStore>((set, get) => {
     },
 
     removeGloss: (id) => {
-      // Abort any in-flight turns for this gloss
-      for (const [key, flight] of inFlightMap.entries()) {
-        if (key.startsWith(`${id}:`)) {
-          cleanupFlight(flight);
-          inFlightMap.delete(key);
-        }
-      }
+      abortFlights(id);
       const nextGlosses = get().glosses.filter((g) => g.id !== id);
       const nextActiveId = get().activeGlossId === id
         ? (nextGlosses.length > 0 ? nextGlosses[nextGlosses.length - 1].id : null)
@@ -1122,79 +539,50 @@ export const useAsk = create<AskStore>((set, get) => {
 
     toggleQuizKey: (glossId, turnId) => {
       set((state) => ({
-        glosses: state.glosses.map((g) => {
-          if (g.id !== glossId) return g;
+        glosses: patchGloss(state.glosses, glossId, (g) => {
+          const targetId = turnId || g.turns[g.turns.length - 1]?.id || "";
           let nextQuote = g.quote;
-          const nextTurns = g.turns.map((t, idx) => {
-            if (turnId ? t.id === turnId : idx === g.turns.length - 1) {
-              const nextShow = !t.showQuizKey;
-              if (nextShow) {
-                nextQuote = t.body?.citations?.[0]?.quote || g.quote;
-              }
-              return { ...t, showQuizKey: nextShow };
+          const nextTurns = mapTurns(g.turns, targetId, (t) => {
+            const nextShow = !t.showQuizKey;
+            if (nextShow) {
+              nextQuote = t.body?.citations?.[0]?.quote || g.quote;
             }
-            return t;
+            return { ...t, showQuizKey: nextShow };
           });
-          return {
-            ...g,
-            quote: nextQuote,
-            turns: nextTurns,
-          };
+          return { ...g, quote: nextQuote, turns: nextTurns };
         }),
       }));
     },
 
     stopGloss: (glossId) => {
       const targetId = glossId ?? get().activeGlossId;
-      for (const [key, flight] of inFlightMap.entries()) {
-        if (!targetId || key.startsWith(`${targetId}:`)) {
-          cleanupFlight(flight);
-          inFlightMap.delete(key);
-        }
-      }
+      abortFlights(targetId ?? undefined);
     },
 
     toggleMinimizeGloss: (id) => {
       set((state) => ({
-        glosses: state.glosses.map((g) =>
-          g.id === id ? { ...g, minimized: !g.minimized } : g
-        ),
+        glosses: patchGloss(state.glosses, id, (g) => ({ ...g, minimized: !g.minimized })),
       }));
     },
 
     setGlossDragOffset: (id, offset) => {
-      set((state) => ({
-        glosses: state.glosses.map((g) =>
-          g.id === id ? { ...g, dragOffset: offset } : g
-        ),
-      }));
+      set((state) => ({ glosses: patchGloss(state.glosses, id, { dragOffset: offset }) }));
     },
 
     setGlossWidth: (id, width) => {
-      set((state) => ({
-        glosses: state.glosses.map((g) =>
-          g.id === id ? { ...g, customWidth: width } : g
-        ),
-      }));
+      set((state) => ({ glosses: patchGloss(state.glosses, id, { customWidth: width }) }));
     },
 
     setGlossHeight: (id, height) => {
-      set((state) => ({
-        glosses: state.glosses.map((g) =>
-          g.id === id ? { ...g, customHeight: height } : g
-        ),
-      }));
+      set((state) => ({ glosses: patchGloss(state.glosses, id, { customHeight: height }) }));
     },
 
     removeTurn: (glossId, turnId) => {
       set((state) => ({
-        glosses: state.glosses.map((g) => {
-          if (g.id !== glossId) return g;
-          return {
-            ...g,
-            turns: g.turns.filter((t) => t.id !== turnId),
-          };
-        }),
+        glosses: patchGloss(state.glosses, glossId, (g) => ({
+          ...g,
+          turns: g.turns.filter((t) => t.id !== turnId),
+        })),
       }));
     },
 
@@ -1413,13 +801,10 @@ export const useAsk = create<AskStore>((set, get) => {
         latency: null,
       };
 
-      const nextGlosses = state.glosses.map((g) => {
-        if (g.id !== glossId) return g;
-        return {
-          ...g,
-          turns: [...g.turns, turn],
-        };
-      });
+      const nextGlosses = patchGloss(state.glosses, glossId, (g) => ({
+        ...g,
+        turns: [...g.turns, turn],
+      }));
 
       syncActiveTurn(nextGlosses, glossId);
 

@@ -8,7 +8,7 @@ Enforces:
    - implements poll backoff loop when explicitly ready === false
    - implements hard cap (e.g. 60s) before enabling anyway
    - provides stopHealthPolling to cancel polling
-3. debounced saveProgress in web/lib/store.ts flushes on pagehide, beforeunload, and visibilitychange hidden.
+3. debounced saveProgress in web/lib/persist.ts flushes on pagehide, beforeunload, and visibilitychange hidden.
 4. ChunkBlock in web/components/Reader.tsx scopes activeGlossId subscription so chunks without the gloss do not re-render.
 """
 
@@ -18,6 +18,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 ENGINE_TS = REPO_ROOT / "web" / "lib" / "engine.ts"
 STORE_TS = REPO_ROOT / "web" / "lib" / "store.ts"
+PERSIST_TS = REPO_ROOT / "web" / "lib" / "persist.ts"
 READER_TSX = REPO_ROOT / "web" / "components" / "Reader.tsx"
 COMPOSER_TSX = REPO_ROOT / "web" / "components" / "Composer.tsx"
 
@@ -54,7 +55,7 @@ class FrontendHealthAndProgressRulesTest(unittest.TestCase):
         self.assertIn("stopHealthPolling", content)
 
     def test_save_progress_flush_lifecycle_listeners(self):
-        content = STORE_TS.read_text(encoding="utf-8")
+        content = PERSIST_TS.read_text(encoding="utf-8")
 
         # Synchronous flush function
         self.assertIn("function flushProgress", content)
