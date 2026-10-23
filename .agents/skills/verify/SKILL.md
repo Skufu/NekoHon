@@ -52,8 +52,7 @@ request fails hard (exit 2).
 4. `python3 artifacts/harnesses/step2-battery.py` then
    `BATTERY_MODE=answer python3 artifacts/harnesses/step2-battery.py`. Expect PASS.
    The multicloud cold-run flake: re-run once; only a repeat counts as red.
-5. The battery overwrites tracked evidence under `artifacts/evidence/step2-battery/`.
-   Restore: `git checkout -- artifacts/evidence/step2-battery`, unless updating them is the task.
+5. The battery writes its log and JSON to `artifacts/runs/step2-battery/` (gitignored); nothing tracked changes.
 
 ## 4. Chrome smoke (optional, orchestrator)
 
