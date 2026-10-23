@@ -106,6 +106,19 @@ both batteries.
   `tests/`, kept `artifacts/harnesses/`. Keep the shebang and nothing else.
   - Accept: gate; AST/tokenize scan finds 0 comments/docstrings in scope.
 
+- [ ] **E10 Robustness and security (from checkpoint E review; pre-existing).**
+  `retrieve._lru_get` pop race under ThreadingHTTPServer (use `pop(key, None)`);
+  clear `id(index)`-keyed caches (`retrieve._RANK_CACHE`,
+  `readings._SORTED_WMAP_CACHE`) when an import replaces a book; POST body size
+  limit with 413; `epub_path` import restricted to `books/`; `book_id` query on
+  figure routes normalized. Answers unchanged (cassette identical); new tests
+  for each guard.
+- [ ] **E9 Architecture tidy (from checkpoint E review).** `readings` stops
+  importing `answering` (no lazy cycle); `answer.py` keeps only the public API
+  and tests/harnesses import from defining modules; split `shared.py` by
+  concern; rename `quoteask.py`/`freeanswer.py` to `askmode.py`/`answermode.py`;
+  names used across modules lose the leading underscore. Cassette identical.
+
 ### Checkpoint E
 - [ ] Live gate PASS; review subagent on the whole engine diff; push.
 
