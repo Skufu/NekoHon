@@ -20,6 +20,7 @@ LOGIC = (
     "engine/answering/canonical.py",
     "engine/retrieval/captions.py",
     "engine/figures.py",
+    "engine/llm.py",
     "engine/retrieval/fusion.py",
     "engine/answering/intent.py",
     "engine/retrieval/keywords.py",

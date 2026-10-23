@@ -19,11 +19,11 @@ path now serves what the model was trained on.
 import difflib
 import functools
 import json
-import os
 import random
 import re
 import urllib.request
 
+from engine import llm
 from engine.answering.canonical import STEM_WORDS, canonical_query, is_deictic_question, is_incomplete_stem
 from engine.retrieval.captions import caption_seed
 from engine.figures import cited_numbers, figures_for, number_from_id
@@ -210,7 +210,7 @@ from engine.answering.prompt import (
 from engine.retrieval.readings import llm_second_reading, second_reading
 from engine.retrieval.retrieve import rank_chunks, search
 
-OLLAMA_CHAT = "http://127.0.0.1:11434/api/chat"
+OLLAMA_CHAT = llm.CHAT_URL
 PASSAGE_LIMIT = 5
 # Rewrites per plain answer: one call each, a call budget, not a quality knob
 # (measured citations run at 1-3; the scorecard's answers stayed under five).
@@ -384,38 +384,7 @@ def answer_user_message(question, passages):
 
 def ollama_generate(system, user, model=ANSWER_MODEL, url=OLLAMA_CHAT, timeout=120,
                     prefill=""):
-    # num_predict caps runaway generations: a loop becomes a truncated answer
-    # instead of the 120 s client timeout (loop-mechanism-analysis-2026-10-14).
-    # 512 is far above the longest legal reply (answer targets p90 622 chars).
-    messages = [
-        {"role": "system", "content": system},
-        {"role": "user", "content": user},
-    ]
-    if prefill:
-        # Raw continuation: the trailing assistant turn makes the model
-        # continue from the prefill instead of starting a fresh reply (probed
-        # 2026-10-14: "hello" continued as " world"). The caller prepends it.
-        messages.append({"role": "assistant", "content": prefill})
-    payload = {
-        "model": model,
-        "stream": False,
-        "think": False,
-        "keep_alive": os.environ.get("OLLAMA_KEEP_ALIVE", "24h"),
-        "options": {"temperature": 0, "num_predict": 512},
-        "messages": messages,
-    }
-    request = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-    )
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        body = json.loads(response.read().decode("utf-8"))
-    message = body.get("message") or {}
-    content = message.get("content")
-    if not isinstance(content, str) or not content.strip():
-        raise RuntimeError("empty completion")
-    return content.strip()
+    return llm.generate(system, user, model, url, timeout, prefill)
 
 
 ollama_generate._is_live = True
@@ -423,58 +392,7 @@ ollama_generate._is_live = True
 
 def ollama_generate_stream(system, user, model=ANSWER_MODEL, url=OLLAMA_CHAT,
                            timeout=120, prefill="", on_token=None):
-    """ollama_generate, but each token reaches on_token as it arrives.
-
-    Same request shape (stream=True), same return value (the stripped
-    completion), same empty-completion RuntimeError; on_token receives each
-    non-empty content piece. The server's stream=1 path passes on_token;
-    every other caller keeps using ollama_generate.
-    """
-    messages = [
-        {"role": "system", "content": system},
-        {"role": "user", "content": user},
-    ]
-    if prefill:
-        # Raw continuation; see ollama_generate.
-        messages.append({"role": "assistant", "content": prefill})
-    payload = {
-        "model": model,
-        "stream": True,
-        "think": False,
-        "keep_alive": os.environ.get("OLLAMA_KEEP_ALIVE", "24h"),
-        "options": {"temperature": 0, "num_predict": 512},
-        "messages": messages,
-    }
-    request = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-    )
-    pieces = []
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        if prefill and on_token is not None:
-            # The callers prepend the prefill to the returned continuation; the
-            # token stream carries it so the pane shows the whole text
-            # (`[Ch. 7] …`, not a bare `7] …`). The return value stays the
-            # continuation only.
-            on_token(prefill)
-        for line in response:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                frame = json.loads(line.decode("utf-8"))
-            except (UnicodeDecodeError, ValueError):
-                continue
-            piece = ((frame.get("message") or {}).get("content")) or ""
-            if piece:
-                pieces.append(piece)
-                if on_token is not None:
-                    on_token(piece)
-    content = "".join(pieces)
-    if not content.strip():
-        raise RuntimeError("empty completion")
-    return content.strip()
+    return llm.generate_stream(system, user, model, url, timeout, prefill, on_token)
 
 
 ollama_generate_stream._is_live = True

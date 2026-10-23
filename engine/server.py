@@ -29,6 +29,7 @@ mimetypes.init()
 
 from engine.retrieval.retrieve import DEFAULT_EMBEDDER, INDEX, chunks_payload, format_input, load_index
 from engine.answering.answer import ask, explain, ollama_generate_stream, quiz, respond, sanitize_history
+from engine import llm
 from engine.figures import figure_file
 from engine.retrieval.keywords import postings
 from engine.answering.prompt import ANSWER_GLOSS_SYSTEM, ANSWER_MODEL, EXPLAIN_GLOSS_SYSTEM, FOLLOWUP_GLOSS_SYSTEM, OLLAMA_KEEP_ALIVE, SYSTEM
@@ -80,7 +81,7 @@ def parse_port(argv=None, env=None):
 
 
 PORT = parse_port()
-OLLAMA_URL = "http://127.0.0.1:11434/"
+OLLAMA_URL = llm.BASE + "/"
 DEFAULT_BOOK_ID = "".join(["f", "d", "e"])
 MODES = ("ask", "answer", "explain", "quiz")
 EXTRA_MODES = ("import",)
@@ -690,9 +691,7 @@ def chunks_gzip(book_id=None):
 def _do_warmup():
     t0 = time.time()
     try:
-        # 1. Warm in-process caches (catalog, index, postings, chunks payload & gzip)
-        catalog = get_books_catalog()
-        for b in catalog:
+        for b in get_books_catalog():
             book_id = b.get("book_id") if isinstance(b, dict) else None
             if book_id:
                 idx = get_book_index(book_id)
@@ -700,86 +699,37 @@ def _do_warmup():
                     postings(idx)
                 chunks_body(book_id)
                 chunks_gzip(book_id)
-
-        # 2. Check Ollama reachability
         if not ollama_up():
             WARM_STATUS["done"] = True
             WARM_STATUS["error"] = "ollama offline"
             return
         WARM_STATUS["ollama"] = True
-
-        # 3. Determine models to warm
         answer_model = ANSWER_MODEL
-        fde_idx = get_book_index(DEFAULT_BOOK_ID)
-        embed_model = (fde_idx or {}).get("embedder") or DEFAULT_EMBEDDER
+        embed_model = (get_book_index(DEFAULT_BOOK_ID) or {}).get("embedder") or DEFAULT_EMBEDDER
         WARM_STATUS["answer_model"] = answer_model
         WARM_STATUS["embed_model"] = embed_model
-        keep_alive = os.environ.get("OLLAMA_KEEP_ALIVE", "24h")
-
-        # 4. Warm embedder with SAME options as retrieve.ollama_embed
-        embed_url = "http://127.0.0.1:11434/api/embed"
         try:
             probe_input = format_input(embed_model, "query", "warmup")
         except Exception:
             probe_input = "warmup"
-        embed_payload = {
-            "model": embed_model,
-            "input": [probe_input],
-            "keep_alive": keep_alive,
-        }
-        embed_req = urllib.request.Request(
-            embed_url,
-            data=json.dumps(embed_payload).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-        )
         try:
-            with urllib.request.urlopen(embed_req, timeout=30) as resp:
-                resp.read()
+            llm.embed([probe_input], embed_model, timeout=30)
         except Exception as exc:
             WARM_STATUS["error"] = f"embedder warm failed: {exc}"
-
-        # 5. Warm answer model with SAME options as answer.ollama_generate
-        chat_url = "http://127.0.0.1:11434/api/chat"
-        chat_payload = {
-            "model": answer_model,
-            "stream": False,
-            "think": False,
-            "keep_alive": keep_alive,
-            "options": {"temperature": 0, "num_predict": 1},
-            "messages": [
-                {"role": "user", "content": "1"}
-            ],
-        }
-        chat_req = urllib.request.Request(
-            chat_url,
-            data=json.dumps(chat_payload).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-        )
         try:
-            with urllib.request.urlopen(chat_req, timeout=60) as resp:
-                resp.read()
+            warm_messages = [{"role": "user", "content": "1"}]
+            llm.post_json(llm.CHAT_URL, llm.chat_payload(answer_model, warm_messages, False, 1), 60)
         except Exception as exc:
             if not WARM_STATUS["error"]:
                 WARM_STATUS["error"] = f"answer model warm failed: {exc}"
-
-        # 6. Verify via /api/ps
-        ps_url = "http://127.0.0.1:11434/api/ps"
         try:
-            with urllib.request.urlopen(ps_url, timeout=5) as resp:
-                ps_data = json.loads(resp.read().decode("utf-8"))
-                loaded_names = [m.get("name", "") for m in ps_data.get("models", [])]
-                answer_resident = any(
-                    n == answer_model or n.startswith(answer_model + ":")
-                    for n in loaded_names
-                )
-                embed_resident = any(
-                    n == embed_model or n.startswith(embed_model + ":")
-                    for n in loaded_names
-                )
-                WARM_STATUS["models_resident"] = answer_resident and embed_resident
+            names = llm.loaded_models()
+            WARM_STATUS["models_resident"] = all(
+                any(n == m or n.startswith(m + ":") for n in names)
+                for m in (answer_model, embed_model)
+            )
         except Exception:
             pass
-
         if not WARM_STATUS["error"]:
             WARM_STATUS["ok"] = True
     except Exception as exc:

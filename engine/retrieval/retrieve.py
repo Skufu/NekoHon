@@ -8,17 +8,16 @@ import argparse
 import json
 import math
 import operator
-import os
 import time
-import urllib.request
 from pathlib import Path
 
+from engine import llm
 from engine.figures import cited_numbers, figure_cards
 from engine.retrieval.preprocess import normalize
 
 ROOT = Path(__file__).resolve().parents[2]
 INDEX = ROOT / "data" / "index.json"
-OLLAMA = "http://127.0.0.1:11434/api/embed"
+OLLAMA = llm.EMBED_URL
 DEFAULT_EMBEDDER = "nomic-embed-text"
 GEMMA_EMBEDDER = "embeddinggemma-2:270m-bf16-text"
 TOP_K = 10
@@ -118,21 +117,7 @@ def ollama_embed(texts, model=DEFAULT_EMBEDDER, url=OLLAMA, timeout=120):
         if cache_key in _EMBED_CACHE:
             return [list(v) for v in _EMBED_CACHE[cache_key]]
 
-    payload = json.dumps({
-        "model": model,
-        "input": texts,
-        "keep_alive": os.environ.get("OLLAMA_KEEP_ALIVE", "24h"),
-    }).encode("utf-8")
-    request = urllib.request.Request(
-        url,
-        data=payload,
-        headers={"Content-Type": "application/json"},
-    )
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        body = json.loads(response.read().decode("utf-8"))
-    vectors = body.get("embeddings")
-    if not isinstance(vectors, list) or len(vectors) != len(texts):
-        raise RuntimeError(f"bad embed response for {model}")
+    vectors = llm.embed(texts, model, url, timeout)
 
     if cache_key is not None:
         if len(_EMBED_CACHE) >= _MAX_EMBED_CACHE:
