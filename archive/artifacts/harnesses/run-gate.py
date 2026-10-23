@@ -49,8 +49,8 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 SELF = Path(__file__).resolve()
 
-EVIDENCE = ROOT / "artifacts" / "runs"
-PROBES = ROOT / "archive" / "artifacts" / "probes"
+EVIDENCE = ROOT / "artifacts" / "evidence"
+PROBES = ROOT / "artifacts" / "probes"
 SMOKE_DIR = ROOT / "artifacts" / "scratch" / "gate-smoke"
 OLLAMA_TAGS = "http://127.0.0.1:11434/api/tags"
 OLLAMA_CHAT = "http://127.0.0.1:11434/api/chat"

@@ -41,7 +41,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "artifacts" / "harnesses"))
-sys.path.insert(0, str(ROOT / "archive" / "artifacts" / "probes"))
+sys.path.insert(0, str(ROOT / "artifacts" / "harnesses"))
 
 import answer as A
 import groundedness as G
@@ -55,7 +55,7 @@ COVERAGE_TARGET = 0.2
 
 def load_probe():
     spec = importlib.util.spec_from_file_location(
-        "probe_plain", ROOT / "archive" / "artifacts" / "probes" / "probe-plain.py"
+        "probe_plain", ROOT / "artifacts" / "harnesses" / "probe-plain.py"
     )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

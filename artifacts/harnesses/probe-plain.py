@@ -222,7 +222,7 @@ def main():
             f" | supported {q['grounding']['supported']}/{q['grounding']['sentences']}"
             f" | {q['answer'].splitlines()[0][:110]}"
         )
-    out = ROOT / "artifacts" / "evidence" / "probe-plain" / "probe-plain.json"
+    out = ROOT / "artifacts" / "runs" / "probe-plain" / "probe-plain.json"
     log = out.with_suffix(".log")
     out.write_text(json.dumps(rows, indent=2, ensure_ascii=False), encoding="utf-8")
     log.write_text("\n".join(lines) + "\n", encoding="utf-8")

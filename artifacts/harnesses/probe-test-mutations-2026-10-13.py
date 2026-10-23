@@ -21,7 +21,6 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 sys.path.insert(0, str(ROOT))
-sys.path.insert(0, str(ROOT / "artifacts" / "probes"))
 
 EVIDENCE = ROOT / "artifacts" / "runs" / "probe-test-mutations"
 
