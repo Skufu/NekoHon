@@ -18,8 +18,6 @@
   --ink-4: #aba394;
   --rule: #e5dfd2;
   --rule-strong: #d3cab8;
-  --hl: rgb(242 196 56 / 0.46);
-  --hl-strong: rgb(242 196 56 / 0.7);
   --hl-a: 46%;
   --hl-a-strong: 70%;
   --key-a: 13%;
@@ -29,11 +27,9 @@
   --lens-hover: #34312c;
   --shadow-pop: 0 1px 1px rgb(40 30 20 / 0.04), 0 14px 36px -14px rgb(40 30 20 / 0.3), 0 3px 8px -3px rgb(40 30 20 / 0.1);
   --shadow-card: 0 1px 1px rgb(40 30 20 / 0.03), 0 10px 26px -16px rgb(40 30 20 / 0.24);
-  --bg-pill: #fffdf9;
   --grain-opacity: 0.045;
   --good: #3f7d4e;
   --rubric: var(--pen-l);
-  --rubric-text: var(--pen-l-text);
   color-scheme: light;
 }
 
@@ -47,8 +43,6 @@
   --ink-4: #ae9b78;
   --rule: #e0cfad;
   --rule-strong: #d1bd96;
-  --hl: rgb(236 186 50 / 0.42);
-  --hl-strong: rgb(236 186 50 / 0.66);
   --hl-a: 42%;
   --hl-a-strong: 66%;
   --key-a: 13%;
@@ -58,11 +52,9 @@
   --lens-hover: #463a2a;
   --shadow-pop: 0 1px 1px rgb(40 30 20 / 0.04), 0 14px 36px -14px rgb(40 30 20 / 0.3), 0 3px 8px -3px rgb(40 30 20 / 0.1);
   --shadow-card: 0 1px 1px rgb(40 30 20 / 0.03), 0 10px 26px -16px rgb(40 30 20 / 0.24);
-  --bg-pill: #fbf5e8;
   --grain-opacity: 0.06;
   --good: #3f7d4e;
   --rubric: var(--pen-l);
-  --rubric-text: var(--pen-l-text);
   color-scheme: light;
 }
 
@@ -76,8 +68,6 @@
   --ink-4: #abadb3;
   --rule: #e9e9e6;
   --rule-strong: #d7d7d3;
-  --hl: rgb(250 210 60 / 0.42);
-  --hl-strong: rgb(250 210 60 / 0.66);
   --hl-a: 42%;
   --hl-a-strong: 66%;
   --key-a: 13%;
@@ -87,11 +77,9 @@
   --lens-hover: #2c2e33;
   --shadow-pop: 0 1px 1px rgb(15 20 30 / 0.04), 0 14px 36px -14px rgb(15 20 30 / 0.22), 0 3px 8px -3px rgb(15 20 30 / 0.08);
   --shadow-card: 0 1px 1px rgb(15 20 30 / 0.03), 0 10px 26px -16px rgb(15 20 30 / 0.18);
-  --bg-pill: #ffffff;
   --grain-opacity: 0.02;
   --good: #3f7d4e;
   --rubric: var(--pen-l);
-  --rubric-text: var(--pen-l-text);
   color-scheme: light;
 }
 
@@ -106,8 +94,6 @@
   --ink-4: #5b564d;
   --rule: #2c2a26;
   --rule-strong: #3e3a34;
-  --hl: rgb(240 196 70 / 0.2);
-  --hl-strong: rgb(240 196 70 / 0.34);
   --hl-a: 24%;
   --hl-a-strong: 38%;
   --key-a: 19%;
@@ -115,13 +101,11 @@
   --lens-fg: #f3efe6;
   --lens-mute: #9a9285;
   --lens-hover: #36322c;
-  --bg-pill: #26231f;
   --shadow-pop: 0 1px 1px rgb(0 0 0 / 0.3), 0 18px 44px -14px rgb(0 0 0 / 0.65), 0 3px 8px -3px rgb(0 0 0 / 0.4);
   --shadow-card: 0 1px 1px rgb(0 0 0 / 0.25), 0 12px 30px -16px rgb(0 0 0 / 0.6);
   --grain-opacity: 0.035;
   --good: #79b98a;
   --rubric: var(--pen-d);
-  --rubric-text: var(--pen-d-text);
   color-scheme: dark;
 }
 
@@ -135,8 +119,6 @@
   --ink-4: #505a69;
   --rule: #232b36;
   --rule-strong: #303947;
-  --hl: rgb(240 200 80 / 0.2);
-  --hl-strong: rgb(240 200 80 / 0.34);
   --hl-a: 24%;
   --hl-a-strong: 38%;
   --key-a: 19%;
@@ -146,11 +128,9 @@
   --lens-hover: #2c3545;
   --shadow-pop: 0 1px 1px rgb(0 0 0 / 0.35), 0 18px 44px -14px rgb(0 0 0 / 0.7), 0 3px 8px -3px rgb(0 0 0 / 0.45);
   --shadow-card: 0 1px 1px rgb(0 0 0 / 0.3), 0 12px 30px -16px rgb(0 0 0 / 0.65);
-  --bg-pill: #1e2530;
   --grain-opacity: 0.03;
   --good: #7fbf95;
   --rubric: var(--pen-d);
-  --rubric-text: var(--pen-d-text);
   color-scheme: dark;
 }
 
@@ -158,27 +138,19 @@
 :root,
 [data-pen="vermilion"] {
   --pen-l: #c1401b;
-  --pen-l-text: #a9361a;
   --pen-d: #ef7a50;
-  --pen-d-text: #f28b65;
 }
 [data-pen="cobalt"] {
   --pen-l: #2c58c9;
-  --pen-l-text: #234cb4;
   --pen-d: #86a8ff;
-  --pen-d-text: #9bb7ff;
 }
 [data-pen="moss"] {
   --pen-l: #3b7a3d;
-  --pen-l-text: #316934;
   --pen-d: #8fc68c;
-  --pen-d-text: #a2d29f;
 }
 [data-pen="graphite"] {
   --pen-l: #4b4a47;
-  --pen-l-text: #3a3936;
   --pen-d: #cfc9bd;
-  --pen-d-text: #ddd7cb;
 }
 
 :root {
@@ -195,10 +167,6 @@
   --mk-blue: #6aa8f0;
   --mk-pink: #f084ac;
 
-  --hl-yellow: var(--mk-yellow);
-  --hl-green: var(--mk-green);
-  --hl-blue: var(--mk-blue);
-  --hl-pink: var(--mk-pink);
 
   /* Offline system fonts per GOAL.md */
   --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
@@ -222,13 +190,8 @@
   --swatch-graphite: #4b4a47;
 
   /* Shelving & Woodcraft */
-  --wood: #9a7448;
-  --wood-dark: #6e4e2a;
-  --wood-light: #c29968;
   --plank-top: #dfd4c3;
   --plank-front: #b89872;
-  --plank-lip: #d4bf9f;
-  --plank-shade: rgb(30 20 10 / 0.35);
   --bookend-color: #7d7265;
 
   /* Book Cloth bindings */
@@ -240,16 +203,10 @@
   --cloth-sage-fg: #e8f5ed;
   --cloth-plum: #58334f;
   --cloth-plum-fg: #faeef8;
-  --cloth-ochre: #996e28;
-  --cloth-ochre-fg: #fbf3e0;
-  --cloth-charcoal: #2c2f35;
-  --cloth-charcoal-fg: #f0f2f5;
 
   /* Stamped Foil accents */
   --foil-gold: #e2be67;
   --foil-gold-dim: #9e7f33;
-  --foil-copper: #c9794e;
-  --foil-silver: #d1d8e0;
 
   /* Ex Libris Bookplate */
   --ex-bg: #f8f4ec;
@@ -257,10 +214,6 @@
   --ex-ink: #2b2620;
   --ex-mute: #8c8273;
   --ex-rule: rgb(40 30 20 / 0.16);
-
-  /* Page paper edges */
-  --page-edge-light: #f5eedf;
-  --page-edge-dark: #ded2b9;
 
   /* Shadows */
   --shadow-inset: inset 0 0 0 1px rgb(0 0 0 / 0.2);
@@ -270,46 +223,22 @@
   --shadow-shelf: inset 0 -2px 0 rgb(0 0 0 / 0.1), 0 18px 24px -14px rgb(40 30 20 / 0.45);
   --shadow-spine: inset 0 0 0 1px rgb(0 0 0 / 0.12), 3px 0 6px -3px rgb(0 0 0 / 0.35);
   --shadow-spine-hover: inset 0 0 0 1px rgb(0 0 0 / 0.12), 5px 10px 18px -8px rgb(0 0 0 / 0.45);
-  --shadow-book-cover: 0 1px 1px rgb(0 0 0 / 0.1), 0 20px 32px -18px rgb(40 30 20 / 0.55), 0 4px 10px -4px rgb(40 30 20 / 0.2);
-  --shadow-book-cover-hover: 0 1px 1px rgb(0 0 0 / 0.1), 18px 26px 36px -18px rgb(40 30 20 / 0.6), 0 4px 10px -4px rgb(40 30 20 / 0.2);
   --shadow-book-open: 0 34px 60px -30px rgb(0 0 0 / 0.55);
-  --shadow-book-page: inset 14px 0 18px -14px rgb(0 0 0 / 0.28), 1px 1px 0 rgb(0 0 0 / 0.08);
   --shadow-ex-libris: inset 0 0 0 1px rgb(0 0 0 / 0.12), inset 0 0 0 5px #f8f4ec, inset 0 0 0 6px rgb(0 0 0 / 0.08), 0 12px 24px -14px rgb(0 0 0 / 0.35);
   --shadow-dropzone: 0 0 0 2px var(--rubric), 0 20px 48px -16px rgb(0 0 0 / 0.35);
   --lens-border: color-mix(in oklab, var(--rule-strong) 40%, transparent);
 
   /* Typography & Layout */
-  --font-text: var(--font-serif);
-  --font-ui: var(--font-sans);
-  --font-book: var(--font-serif);
-  --font-legible: var(--font-sans);
   --read-size: 19px;
   --leading: 1.64;
   --topbar-h: 60px;
-  --measure-k: 34;
 
-  /* Backward compatibility tokens */
-  --paper: var(--bg);
-  --ink-muted: var(--ink-3);
-  --accent: var(--rubric);
-  --focus: var(--rubric);
-  --highlight-wash: var(--rubric-wash);
-  --highlight-flash: var(--rubric-wash-strong);
-  --radius: 6px;
-  --measure: 68ch;
-
-  --s1: 4px;
+  /* Spacing */
   --s2: 8px;
   --s3: 12px;
-  --s4: 16px;
-  --s5: 24px;
-  --s6: 32px;
-  --s7: 48px;
-  --s8: 64px;
 
   --dur-fast: 120ms;
   --dur-base: 180ms;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-spring: cubic-bezier(0.34, 1.36, 0.64, 1);
-  --ease-inout: cubic-bezier(0.4, 0, 0.2, 1);
 }
