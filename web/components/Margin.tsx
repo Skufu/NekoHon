@@ -247,7 +247,7 @@ export default function Margin({
       window.removeEventListener("resize", schedule);
       cancelAnimationFrame(raf.current);
     };
-  }, [schedule, proseRef, layoutKey]);
+  }, [schedule, proseRef, layoutKey, wide]);
 
   const activeGloss = glosses.find((g) => g.id === activeGlossId) ?? null;
 
