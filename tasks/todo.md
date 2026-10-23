@@ -94,7 +94,7 @@ both batteries.
 - [x] **E6 Merge `ask`/`respond`.** One shared pipeline with mode-specific
   generate/parse steps.
   - Accept: gate; neither function > 120 lines.
-- [ ] **E7 Hotspots.** `intent.compute_dynamic_followups` into slot builders;
+- [x] **E7 Hotspots.** `intent.compute_dynamic_followups` into slot builders;
   `retrieval_context` into steps; `_resolve_contextual_query` early returns;
   `parse_completion` split; `server.Handler` route bodies into functions;
   remove the `respond.__name__ != "fake_respond"` test hook from production
@@ -177,3 +177,7 @@ both batteries.
   guard) and `engine/ingest.py` (`book_id == "fde"` picks `data/index.json`).
   Making the default book configurable changes paths and the catalog, so it
   is left as is.
+- No test checks that the real answer-mode `SYSTEM` draft is held from the
+  stream (the old `fake_respond` name hook only ever held the fake). E7 kept
+  production behaviour identical (the draft streams live); whether it should
+  be held is a product decision.
