@@ -155,7 +155,7 @@ is pinned by `tests/fixtures/ask_response.json` and `tests/test_contract.py`.
   a figure cite. In `answer` mode the refusal is the model's exact first line;
   in `ask` mode a line that starts that way and keeps talking is not a refusal.
 - Errors: `400` bad mode or missing field (an import `epub_path` outside
-  `books/` is a `400`), `404` unknown book, `413` body over 64 MiB, `500` model or
+  `books/` is a `400`), `404` unknown book, `413` body over 64 MiB, `400` invalid Content-Length, `500` model or
   index failure; body `{"error": "short reason"}`, no stack traces.
 - `stream=1` returns NDJSON frames: `token`, `reset`, `final` (the full body),
   `error`.

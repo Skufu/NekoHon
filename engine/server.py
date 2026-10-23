@@ -157,6 +157,8 @@ def get_book_index(book_id=None):
         book_id = DEFAULT_BOOK_ID
     if book_id in INDEX_CACHE:
         return INDEX_CACHE[book_id]
+    if book_id != DEFAULT_BOOK_ID and _normalize_book_id(book_id) != book_id:
+        return None
 
     index_path = None
     if book_id == DEFAULT_BOOK_ID:
@@ -212,8 +214,7 @@ class Handler(BaseHTTPRequestHandler):
     def _route(self):
         return self.path.partition("?")[0]
 
-    def _read_request(self):
-        length = int(self.headers.get("Content-Length") or 0)
+    def _read_request(self, length):
         raw = self.rfile.read(length) if length else b""
         try:
             return json.loads(raw.decode("utf-8"))
@@ -437,14 +438,18 @@ def _handle_post(h):
         h._send_json(404, _NOT_FOUND)
         return
     try:
-        too_large = int(h.headers.get("Content-Length") or 0) > MAX_BODY_BYTES
+        length = int(h.headers.get("Content-Length") or 0)
     except ValueError:
-        too_large = False
-    if too_large:
+        length = -1
+    if length < 0:
+        h.close_connection = True
+        h._send_json(400, {"error": "invalid Content-Length"})
+        return
+    if length > MAX_BODY_BYTES:
         h.close_connection = True
         h._send_json(413, {"error": "request body too large"})
         return
-    request = h._read_request()
+    request = h._read_request(length)
     if not isinstance(request, dict):
         h._send_json(400, {"error": "invalid json"})
         return

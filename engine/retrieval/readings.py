@@ -39,8 +39,9 @@ _SORTED_WMAP_CACHE = {}
 def _fixes(question, word_map):
     text = question or ""
     wmap_key = id(word_map)
-    if wmap_key in _SORTED_WMAP_CACHE and _SORTED_WMAP_CACHE[wmap_key][0] == len(word_map):
-        vocabulary = _SORTED_WMAP_CACHE[wmap_key][1]
+    entry = _SORTED_WMAP_CACHE.get(wmap_key)
+    if entry is not None and entry[0] == len(word_map):
+        vocabulary = entry[1]
     else:
         vocabulary = sorted(word_map)
         if len(_SORTED_WMAP_CACHE) >= 16:

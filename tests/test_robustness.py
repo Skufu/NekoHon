@@ -1,4 +1,5 @@
 import http.client
+import socket
 import json
 import sys
 import threading
@@ -29,6 +30,12 @@ class LruRaceTest(unittest.TestCase):
         self.assertEqual(list(cache), ["b", "a"])
 
 
+class WmapRaceTest(unittest.TestCase):
+    def test_missing_entry_after_contains_does_not_raise(self):
+        with mock.patch.object(readings, "_SORTED_WMAP_CACHE", RacyCache()):
+            self.assertEqual(readings._fixes("question", {}), [])
+
+
 class ServerGuardsTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -52,6 +59,34 @@ class ServerGuardsTest(unittest.TestCase):
         self.assertEqual(response.status, 413)
         self.assertIn("error", json.loads(response.read()))
         conn.close()
+
+    def raw_post(self, length):
+        sock = socket.create_connection(("127.0.0.1", self.port), timeout=3)
+        sock.sendall(
+            f"POST /ask HTTP/1.1\r\nHost: x\r\nContent-Length: {length}\r\n\r\n".encode()
+        )
+        try:
+            return sock.recv(4096).split(b"\r\n", 1)[0].decode()
+        finally:
+            sock.close()
+
+    def test_negative_content_length_is_400(self):
+        self.assertIn(" 400 ", self.raw_post("-1"))
+
+    def test_non_numeric_content_length_is_400(self):
+        self.assertIn(" 400 ", self.raw_post("abc"))
+
+    def test_chunks_book_id_with_path_chars_never_loads_a_file(self):
+        outer = self.fixture.root / "data" / "index..."
+        outer.mkdir(exist_ok=True)
+        source = self.fixture.root / "data" / "index.json"
+        (outer / "x.json").write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+        conn = http.client.HTTPConnection("127.0.0.1", self.port, timeout=5)
+        conn.request("GET", "/chunks?book_id=../x")
+        response = conn.getresponse()
+        response.read()
+        conn.close()
+        self.assertNotEqual(response.status, 200)
 
     def test_import_rejects_paths_outside_books(self):
         outside = self.fixture.root / "outside.epub"
