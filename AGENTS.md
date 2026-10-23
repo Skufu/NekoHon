@@ -23,9 +23,12 @@ flowchart TD
   answering --> retrieval["engine/retrieval/<br/>search, fusion, text stages"]
   answering --> figures
   answering --> llm["engine/llm.py<br/>Ollama client"]
+  server --> retrieval
+  server --> llm
   retrieval --> llm
+  retrieval --> figures
   retrieval --> vendor["vendor/<br/>stemmer, stopwords"]
-  ingest --> retrieval
+  ingest --> figures
   web["web/ (Next.js)"] -->|"HTTP"| server
 ```
 
@@ -88,12 +91,12 @@ Rules that follow:
   under `data/figures/`. Never base64 images into an index.
 - Only the documented routes (HTTP contract below).
 - Logic modules stay book-agnostic: no chunk ids, figure ids, chapter numbers,
-  query strings, or book ids in `engine/`. Pins and ids belong in tests and
-  datasets. `tests/test_generalization.py` and
-  `tests/test_query_understanding.py` enforce it. A constant is fitted if its
+  query strings, or book ids in the logic modules that
+  `tests/test_generalization.py` lists (with `tests/test_query_understanding.py`
+  for query understanding). Pins and ids belong in tests and datasets. A constant is fitted if its
   only reason is which known test it keeps green; say so when you see one.
-- No code comments or docstrings in our code. Decisions and reasons live in
-  `docs/`.
+- Do not add code comments or docstrings to our code (`vendor/` and `archive/`
+  excepted). Decisions and reasons live in `docs/`.
 - Downloads need an explicit megabyte number first, except model pulls through
   `scripts/setup_models.py`.
 - A server keeps the code and model it loaded at start. After any `engine/`
@@ -150,7 +153,7 @@ is pinned by `tests/fixtures/ask_response.json` and `tests/test_contract.py`.
 - `GET /health` returns `ok`, `book_id`, `ollama`, `books` (the catalog) and
   `warm`. `GET /chunks?book_id=` returns the reader payload (gzip when
   accepted). `GET /figures/{id}` returns image bytes. CORS is open to the dev
-  server on :3100.
+  server on :3100 and :3200.
 
 ## Pipeline rules
 
@@ -162,8 +165,9 @@ stores `chunk_id`, `chapter`, `heading`, `text`, plus metadata (`doc`,
 `section`, `anchor`, `figures`) that never enters the embedded text. Figures
 store `id`, `chapter`, `caption`, `referencing_paragraph`, `file`; the caption
 is the caption element, else the alt text, else empty, never invented. Index
-files are `data/index.<book_id>.json`; figures live under
-`data/figures/<book_id>/`; the catalog is `data/books.json`.
+files are `data/index.<book_id>.json` and figures live under
+`data/figures/<book_id>/`, except the default book `fde`, which uses
+`data/index.json` and `data/figures/`; the catalog is `data/books.json`.
 
 Retrieval (`engine/retrieval/`): embed `heading + text` with the embedder via
 Ollama; search is a dot product over pre-normalized vectors; top 10, and the
@@ -218,7 +222,8 @@ every change and before every commit:
 
 Other harnesses: `hard-bench.py`, `qa-sweep.py`, `groundedness.py`, `eval.py`
 and `judge*.py` (judge calls follow the eval exception), `adrian-eval.py`,
-`crossbook-evil-eval.py`, `eval-plain.py`; check each with `--help`.
+`crossbook-evil-eval.py`, `eval-plain.py`. Read a harness before running it:
+some start live runs at once and have no `--help`.
 Run output goes to `artifacts/runs/` (gitignored).
 
 ## Current state
