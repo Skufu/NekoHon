@@ -121,7 +121,7 @@ type AskStore = {
   setActiveGloss: (id: string | null) => void;
   setHoveredGloss: (id: string | null) => void;
   removeGloss: (id: string) => void;
-  toggleQuizKey: (glossId: string, turnId?: string) => void;
+  toggleQuizKey: (glossId: string, turnId: string) => void;
   stopGloss: (glossId?: string) => void;
   toggleMinimizeGloss: (id: string) => void;
   setGlossDragOffset: (id: string, offset: { x: number; y: number }) => void;
@@ -540,9 +540,8 @@ export const useAsk = create<AskStore>((set, get) => {
     toggleQuizKey: (glossId, turnId) => {
       set((state) => ({
         glosses: patchGloss(state.glosses, glossId, (g) => {
-          const targetId = turnId || g.turns[g.turns.length - 1]?.id || "";
           let nextQuote = g.quote;
-          const nextTurns = mapTurns(g.turns, targetId, (t) => {
+          const nextTurns = mapTurns(g.turns, turnId, (t) => {
             const nextShow = !t.showQuizKey;
             if (nextShow) {
               nextQuote = t.body?.citations?.[0]?.quote || g.quote;
