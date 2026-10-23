@@ -76,7 +76,7 @@ both batteries.
   24 unused regex/set constants in `answer.py`; replace inline copies of
   existing constants (e.g. the `[Ch.` tag regex, 11×) with the constant.
   - Accept: gate; 0 zero-caller functions in engine (grep proof in commit msg).
-- [ ] **E2 One Ollama client.** New `llm.py`: `generate`, `generate_stream`
+- [x] **E2 One Ollama client.** New `llm.py`: `generate`, `generate_stream`
   (shared payload builder), used by `answer.py` (re-exported as
   `ollama_generate*`), `server._do_warmup`; `_is_live` kept on the functions.
   - Accept: gate; `server._do_warmup` < 50 lines.
