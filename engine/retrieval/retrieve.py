@@ -202,11 +202,17 @@ def _lru_put(cache, key, value, max_size=_MAX_LRU):
 
 
 def _lru_get(cache, key):
-    if key in cache:
-        val = cache.pop(key)
+    val = cache.pop(key, None)
+    if val is not None:
         cache[key] = val
-        return val
-    return None
+    return val
+
+
+def clear_index_caches():
+    _RANK_CACHE.clear()
+    _DENSE_RANK_CACHE.clear()
+    from engine.retrieval import readings
+    readings._SORTED_WMAP_CACHE.clear()
 
 
 def _prepare_index(index):

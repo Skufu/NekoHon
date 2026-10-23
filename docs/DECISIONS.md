@@ -342,6 +342,17 @@ and a rerun of the gates (`.agents/skills/verify/SKILL.md`).
   `OLLAMA_NUM_PARALLEL=1` (100% GPU at 2.2 GB vs 2.7 GB at 4; TTFT 38.4 vs
   44.7 ms) and `OLLAMA_FLASH_ATTENTION=1` (median TTFT 72.7 -> 33.4 ms).
   `scripts/launch.py`.
+- **Request limits and import paths.** `POST` bodies over `MAX_BODY_BYTES`
+  (64 MiB) get `413` before the body is read. Base64 inflates 4/3, so the cap
+  admits an EPUB of about 48 MiB, above any book in the catalog; a missing or
+  invalid `Content-Length` keeps the old behavior. Import `epub_path` is
+  resolved and must sit under `books/` (`400` otherwise), so the route cannot
+  read arbitrary files. Figure routes normalize `book_id` with
+  `_normalize_book_id`, so `../` cannot leave the figures root. An import
+  clears the `id(index)`-keyed caches (`retrieve.clear_index_caches`) so a
+  recycled id cannot return a stale ranking. `_lru_get` uses `pop(key, None)`
+  so two threads on one key cannot raise `KeyError`. `server`,
+  `tests/test_robustness.py`.
 - **Preflight is read-only and derives every path and model name from engine
   constants** so it cannot drift from the app. `scripts/preflight.py`.
 - **Index audit** treats a chunk or figure with no vector as dirty, not a

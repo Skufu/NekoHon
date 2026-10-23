@@ -78,7 +78,7 @@ Readiness: `python3 scripts/preflight.py` (exit 0 when ready) and
 
 | Route | Purpose |
 | --- | --- |
-| `POST /ask` | Body has `mode`: `ask`, `answer`, `explain`, `quiz`, or `import` (add an EPUB). |
+| `POST /ask` | Body has `mode`: `ask`, `answer`, `explain`, `quiz`, or `import` (add an EPUB; `epub_path` must be under `books/`). Bodies over 64 MiB get `413`. |
 | `POST /ask` with `stream: 1` | NDJSON frames: `token`, `reset`, `final`, `error`. |
 | `GET /chunks` | Reader blocks for a book (`?book_id=`), no vectors. |
 | `GET /figures/{id}` | Figure image. |

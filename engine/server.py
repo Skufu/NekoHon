@@ -87,6 +87,7 @@ MIME_TYPES = {
 }
 
 INDEX_CACHE = {}
+MAX_BODY_BYTES = 64 * 1024 * 1024
 CHUNKS_JSON_CACHE = {}
 CHUNKS_GZIP_CACHE = {}
 
@@ -305,6 +306,8 @@ def _find_figure(figure_id, book_id, book, figures_dir):
 
 def _serve_figure(h, route, send_body):
     book_id = _query_book_id(h)
+    if book_id != DEFAULT_BOOK_ID:
+        book_id = _normalize_book_id(book_id)
     figure_id = route[len("/figures/"):]
     book = get_book_index(book_id)
     figures_dir = get_figures_dir(book_id)
@@ -433,6 +436,14 @@ def _handle_post(h):
     if h._route() != "/ask":
         h._send_json(404, _NOT_FOUND)
         return
+    try:
+        too_large = int(h.headers.get("Content-Length") or 0) > MAX_BODY_BYTES
+    except ValueError:
+        too_large = False
+    if too_large:
+        h.close_connection = True
+        h._send_json(413, {"error": "request body too large"})
+        return
     request = h._read_request()
     if not isinstance(request, dict):
         h._send_json(400, {"error": "invalid json"})
@@ -493,6 +504,9 @@ def _import_source(request):
         epub_path = Path(epub_path_str)
         if not epub_path.is_absolute():
             epub_path = ROOT / epub_path
+        epub_path = epub_path.resolve()
+        if not epub_path.is_relative_to((ROOT / "books").resolve()):
+            return None, None, "epub_path must be under books/"
         if not epub_path.is_file():
             return None, None, f"file not found: {epub_path_str}"
         return epub_path, _normalize_book_id(request.get("book_id") or epub_path.stem.lower()), None
@@ -501,6 +515,7 @@ def _import_source(request):
 
 def _ingest_import(request, epub_path, book_id):
     from engine.ingest import ingest_epub, update_books_catalog
+    from engine.retrieval import retrieve as retrieve_mod
     from engine.retrieval.retrieve import embed_index, save_index
 
     figures_dir = ROOT / "data" / "figures" / book_id
@@ -530,6 +545,7 @@ def _ingest_import(request, epub_path, book_id):
     )
 
     INDEX_CACHE[book_id] = index
+    retrieve_mod.clear_index_caches()
     CHUNKS_JSON_CACHE.clear()
     CHUNKS_GZIP_CACHE.clear()
     if not request.get("skip_embed"):

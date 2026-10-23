@@ -106,7 +106,7 @@ both batteries.
   `tests/`, kept `artifacts/harnesses/`. Keep the shebang and nothing else.
   - Accept: gate; AST/tokenize scan finds 0 comments/docstrings in scope.
 
-- [ ] **E10 Robustness and security (from checkpoint E review; pre-existing).**
+- [x] **E10 Robustness and security (from checkpoint E review; pre-existing).**
   `retrieve._lru_get` pop race under ThreadingHTTPServer (use `pop(key, None)`);
   clear `id(index)`-keyed caches (`retrieve._RANK_CACHE`,
   `readings._SORTED_WMAP_CACHE`) when an import replaces a book; POST body size
