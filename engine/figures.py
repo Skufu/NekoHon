@@ -8,7 +8,7 @@ import re
 import struct
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 FIGURES = ROOT / "data" / "figures"
 
 FIGURE_RE = re.compile(r"\b(?:Figure|Fig\.)\s+([A-Z]?\d+[-.]\d+)\b", re.I)

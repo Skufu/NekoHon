@@ -13,7 +13,7 @@ Run the gates in order. Stop at the first red one and read "How to read a failur
 |---|---|
 | `python3 -m unittest discover -s tests` | `OK` |
 | `python3 -m unittest tests.test_generalization tests.test_query_understanding` | `OK` |
-| `python3 verify_index.py` | clean, exit 0 |
+| `python3 scripts/verify_index.py` | clean, exit 0 |
 | `cd web && npx tsc --noEmit && npm run build` | exit 0 |
 | `python3 artifacts/harnesses/secret-scan.py` | 0 hits |
 | `git status --short` | only the files you meant to change |
@@ -45,8 +45,8 @@ request fails hard (exit 2).
 ## 3. Live gate (orchestrator only, at checkpoints)
 
 1. For every PID from `lsof -nP -iTCP:8000 -sTCP:LISTEN -t`: kill it only if
-   `ps -o command= -p $PID` contains `server.py`. Leave every other process alone.
-2. `nohup python3 server.py > data/verify/server.log 2>&1 &`
+   `ps -o command= -p $PID` contains `engine.server` or `server.py`. Leave every other process alone.
+2. `nohup python3 -m engine.server > data/verify/server.log 2>&1 &`
 3. Wait for `curl -s 127.0.0.1:8000/health`; confirm the model with
    `curl -s 127.0.0.1:11434/api/ps`.
 4. `python3 artifacts/harnesses/step2-battery.py` then

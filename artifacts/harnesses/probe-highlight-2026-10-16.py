@@ -18,7 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-import answer as A  # noqa: E402
+from engine.answering import answer as A  # noqa: E402
 
 GOLDEN = ROOT / "artifacts" / "datasets" / "highlight-golden-2026-10-16.jsonl"
 INDEX = ROOT / "data" / "index.json"

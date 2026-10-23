@@ -47,10 +47,10 @@ Stdlib only. The embedder is injected so tests never call Ollama.
 import difflib
 import urllib.error
 
-from keywords import postings
-from preprocess import stem, token_spans, tokens
-from prompt import ANSWER_MODEL, SPELL_SYSTEM
-from retrieve import DEFAULT_EMBEDDER, rank_chunks
+from engine.retrieval.keywords import postings
+from engine.retrieval.preprocess import stem, token_spans, tokens
+from engine.answering.prompt import ANSWER_MODEL, SPELL_SYSTEM
+from engine.retrieval.retrieve import DEFAULT_EMBEDDER, rank_chunks
 
 CUTOFF = 0.85
 
@@ -196,7 +196,7 @@ def llm_second_reading(index, question, literal_top, answer_model=ANSWER_MODEL,
     A failed model call is not an error: the literal question stands.
     """
     if generate_fn is None:
-        from answer import ollama_generate
+        from engine.answering.answer import ollama_generate
 
         generate_fn = ollama_generate
     word_map = postings(index) if word_map is None else word_map

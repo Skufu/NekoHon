@@ -19,8 +19,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-from keywords import RARE_DF, postings
-from preprocess import STOPWORDS, stem
+from engine.retrieval.keywords import RARE_DF, postings
+from engine.retrieval.preprocess import STOPWORDS, stem
 
 URL = "http://127.0.0.1:8000/ask"
 MODE = os.environ.get("SWEEP_MODE", "ask")

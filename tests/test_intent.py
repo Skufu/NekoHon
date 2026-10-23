@@ -2,13 +2,13 @@
 
 import unittest
 
-from answer import (
+from engine.answering.answer import (
     _advance_followup_quote,
     _clean_boilerplate_gloss,
     _is_coherent_gloss,
     fix_acronym_casing,
 )
-from intent import (
+from engine.answering.intent import (
     INTENT_AUTHOR_QUESTION,
     INTENT_CONCEPT_TERM,
     INTENT_MULTI_SENTENCE,

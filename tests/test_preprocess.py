@@ -2,9 +2,9 @@
 
 import unittest
 
-from keywords import postings, rare
-from preprocess import normalize, tokens, words
-from retrieve import DEFAULT_EMBEDDER, format_input
+from engine.retrieval.keywords import postings, rare
+from engine.retrieval.preprocess import normalize, tokens, words
+from engine.retrieval.retrieve import DEFAULT_EMBEDDER, format_input
 
 
 class TokenizerTests(unittest.TestCase):

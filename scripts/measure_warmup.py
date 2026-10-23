@@ -73,7 +73,7 @@ def main():
     print(f"Resident models before engine warmup: {get_resident_models()}")
 
     # Trigger server warmup
-    from server import warm_engine
+    from engine.server import warm_engine
     print("Running engine warmup (warm_engine)...")
     t_w0 = time.time()
     warm_engine(block=True)

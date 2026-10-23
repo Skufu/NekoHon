@@ -9,7 +9,7 @@ neighborhood into one of 4 structural intents:
 """
 
 import re
-from preprocess import STOPWORDS, stem, words
+from engine.retrieval.preprocess import STOPWORDS, stem, words
 
 INTENT_CONCEPT_TERM = "CONCEPT_TERM"
 INTENT_VAGUE_FRAGMENT = "VAGUE_FRAGMENT"

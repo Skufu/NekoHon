@@ -13,9 +13,8 @@ import unittest
 from http.server import ThreadingHTTPServer
 from pathlib import Path
 
-import prompt
-import server
-
+from engine.answering import prompt
+from engine import server
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "ask_response.json"
 
 

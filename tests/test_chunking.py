@@ -2,7 +2,7 @@
 
 import unittest
 
-from ingest import CHUNK_MAX_CHARS, _pieces, _sentences, _sentence_tail
+from engine.ingest import CHUNK_MAX_CHARS, _pieces, _sentences, _sentence_tail
 
 
 class SentenceTests(unittest.TestCase):

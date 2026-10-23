@@ -10,7 +10,7 @@ No Ollama. No book-specific chunk IDs or hardcoded book constants.
 
 import unittest
 
-from answer import (
+from engine.answering.answer import (
     _advance_followup_quote,
     _ensure_answer_gloss,
     _extract_query_entities,
@@ -20,7 +20,7 @@ from answer import (
     fix_acronym_casing,
     respond,
 )
-from intent import (
+from engine.answering.intent import (
     INTENT_CONCEPT_TERM,
     analyze_intent,
     compute_dynamic_followups,

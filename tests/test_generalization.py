@@ -16,17 +16,17 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 LOGIC = (
-    "answer.py",
-    "canonical.py",
-    "captions.py",
-    "figures.py",
-    "fusion.py",
-    "intent.py",
-    "keywords.py",
-    "preprocess.py",
-    "prompt.py",
-    "readings.py",
-    "retrieve.py",
+    "engine/answering/answer.py",
+    "engine/answering/canonical.py",
+    "engine/retrieval/captions.py",
+    "engine/figures.py",
+    "engine/retrieval/fusion.py",
+    "engine/answering/intent.py",
+    "engine/retrieval/keywords.py",
+    "engine/retrieval/preprocess.py",
+    "engine/answering/prompt.py",
+    "engine/retrieval/readings.py",
+    "engine/retrieval/retrieve.py",
 )
 FORBIDDEN = (
     (re.compile(r"\bch\d{2}-\d{3}\b"), "chunk id"),

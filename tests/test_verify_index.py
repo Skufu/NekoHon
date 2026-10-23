@@ -2,7 +2,7 @@
 
 import unittest
 
-from verify_index import audit, exit_code
+from scripts.verify_index import audit, exit_code
 
 
 def clean_index():

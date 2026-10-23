@@ -19,12 +19,15 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from pathlib import Path
 
-from ingest import BOOK, ROOT
-from prompt import ANSWER_MODEL
-from retrieve import DEFAULT_EMBEDDER, INDEX, load_index
-from server import ollama_up
-from verify_index import AXES, audit
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from engine.ingest import BOOK, ROOT
+from engine.answering.prompt import ANSWER_MODEL
+from engine.retrieval.retrieve import DEFAULT_EMBEDDER, INDEX, load_index
+from engine.server import ollama_up
+from scripts.verify_index import AXES, audit
 
 MINIMUM_PYTHON = (3, 9)
 TAGS_URL = "http://127.0.0.1:11434/api/tags"

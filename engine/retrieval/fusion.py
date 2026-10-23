@@ -47,8 +47,8 @@ Stdlib only. The embedder is injected so tests never call Ollama.
 
 import math
 
-from preprocess import words
-from retrieve import DEFAULT_EMBEDDER, dense_rank
+from engine.retrieval.preprocess import words
+from engine.retrieval.retrieve import DEFAULT_EMBEDDER, dense_rank
 
 RRF_K = 60
 # A lexical candidate must sit in the dense top RANK_BAND of the corpus.
@@ -106,7 +106,7 @@ def fuse(index, question, passages, word_map=None, ranks=None,
     if not chunks or not passages:
         return passages
     if word_map is None:
-        from keywords import postings
+        from engine.retrieval.keywords import postings
 
         word_map = postings(index)
     if ranks is None:

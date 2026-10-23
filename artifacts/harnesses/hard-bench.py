@@ -29,9 +29,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-import answer as A
-from prompt import ANSWER_MODEL, REFUSAL
-from retrieve import INDEX, format_input, load_index, ollama_embed
+from engine.answering import answer as A
+from engine.answering.prompt import ANSWER_MODEL, REFUSAL
+from engine.retrieval.retrieve import INDEX, format_input, load_index, ollama_embed
 
 DATASET_PATH = ROOT / "artifacts" / "datasets" / "hard-bench-2026-10-17.jsonl"
 EVIDENCE_DIR = ROOT / "artifacts" / "runs" / "hard-bench"

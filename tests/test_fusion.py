@@ -2,8 +2,8 @@
 
 import unittest
 
-from fusion import fuse
-from keywords import postings
+from engine.retrieval.fusion import fuse
+from engine.retrieval.keywords import postings
 
 
 def make_index(texts):

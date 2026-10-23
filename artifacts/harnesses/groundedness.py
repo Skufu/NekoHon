@@ -25,9 +25,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-import answer as A
-from prompt import ANSWER_MODEL, SYSTEM_ANSWER
-from retrieve import INDEX, load_index
+from engine.answering import answer as A
+from engine.answering.prompt import ANSWER_MODEL, SYSTEM_ANSWER
+from engine.retrieval.retrieve import INDEX, load_index
 
 # A sentence whose 4-grams are mostly in the shown passages is supported.
 # Majority is the definition of supported here; the number is not tuned to

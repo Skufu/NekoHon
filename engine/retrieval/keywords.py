@@ -16,7 +16,7 @@ trigger a paragraph expansion (stage 8 of preprocessing, wired 2026-10-13).
 Stdlib only; no model, no download.
 """
 
-from preprocess import STOPWORDS, words
+from engine.retrieval.preprocess import STOPWORDS, words
 
 from types import MappingProxyType
 

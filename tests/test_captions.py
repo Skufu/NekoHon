@@ -2,7 +2,7 @@
 
 import unittest
 
-from captions import caption_seed
+from engine.retrieval.captions import caption_seed
 
 
 def fake_embed(texts, model):

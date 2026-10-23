@@ -26,7 +26,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-from prompt import REFUSAL
+from engine.answering.prompt import REFUSAL
 
 DATASET_PATH = ROOT / "artifacts" / "datasets" / "crossbook-evil-eval-2026-10-18.json"
 EVIDENCE_DIR = ROOT / "artifacts" / "runs" / "crossbook-eval"

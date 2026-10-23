@@ -61,7 +61,7 @@ TYPOGRAPHIC = str.maketrans(
 
 STOPWORDS = frozenset(
     line.strip()
-    for line in (Path(__file__).resolve().parent / "vendor" / "stopwords-en.txt")
+    for line in (Path(__file__).resolve().parents[2] / "vendor" / "stopwords-en.txt")
     .read_text(encoding="utf-8")
     .splitlines()
     if line.strip() and not line.startswith("#")

@@ -8,8 +8,8 @@ why-question keep the exact refusal sentence.
 import re
 import unittest
 
-import answer as A
-from prompt import REFUSAL
+from engine.answering import answer as A
+from engine.answering.prompt import REFUSAL
 
 
 def hit(chunk_id, chapter, text):

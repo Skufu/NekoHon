@@ -35,10 +35,10 @@ ROOT = HERE.parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(HERE))
 
-import answer as A
+from engine.answering import answer as A
 import judge as J
-from canonical import canonical_query
-from retrieve import INDEX, load_index
+from engine.answering.canonical import canonical_query
+from engine.retrieval.retrieve import INDEX, load_index
 
 RATER_FIELDS = ("rating", "persona_rating", "checker_rating")
 

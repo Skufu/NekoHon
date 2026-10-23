@@ -3,7 +3,7 @@
 import re
 import unittest
 
-from readings import llm_second_reading, resolved_reading, second_reading
+from engine.retrieval.readings import llm_second_reading, resolved_reading, second_reading
 
 
 def fake_embed(texts, model):

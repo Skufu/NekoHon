@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from figures import figures_for
+from engine.figures import figures_for
 
 FIGURES = [
     {

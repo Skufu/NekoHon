@@ -13,10 +13,10 @@ import time
 import urllib.request
 from pathlib import Path
 
-from figures import cited_numbers, figure_cards
-from preprocess import normalize
+from engine.figures import cited_numbers, figure_cards
+from engine.retrieval.preprocess import normalize
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2]
 INDEX = ROOT / "data" / "index.json"
 OLLAMA = "http://127.0.0.1:11434/api/embed"
 DEFAULT_EMBEDDER = "nomic-embed-text"
@@ -271,12 +271,12 @@ def _prepare_index(index):
                 f_unit = [y / f_norm for y in f_vec] if f_norm > 0.0 else f_vec
                 figure["_uvec"] = f_unit
 
-    import keywords
+    from engine.retrieval import keywords
     keywords.postings(index)
     if "_postings" in index and "_df" not in index:
         index["_df"] = {w: len(pos) for w, pos in index["_postings"].items()}
 
-    import readings
+    from engine.retrieval import readings
     readings._book_forms(index)
     return index
 

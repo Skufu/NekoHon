@@ -30,9 +30,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-import answer as A
-from retrieve import INDEX, load_index
-from prompt import REFUSAL
+from engine.answering import answer as A
+from engine.retrieval.retrieve import INDEX, load_index
+from engine.answering.prompt import REFUSAL
 
 DATASET_PATH = ROOT / "artifacts" / "datasets" / "adrian-realworld-eval-2026-10-17.json"
 EVIDENCE_DIR = ROOT / "artifacts" / "runs" / "adrian-eval"

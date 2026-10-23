@@ -43,10 +43,10 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "artifacts" / "harnesses"))
 
-import answer as A
+from engine.answering import answer as A
 import groundedness as G
-from prompt import ANSWER_MODEL, SYSTEM_ANSWER
-from retrieve import INDEX, load_index, search
+from engine.answering.prompt import ANSWER_MODEL, SYSTEM_ANSWER
+from engine.retrieval.retrieve import INDEX, load_index, search
 
 SET_PATH = ROOT / "artifacts" / "datasets" / "eval-set.json"
 

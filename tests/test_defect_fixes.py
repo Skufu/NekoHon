@@ -9,7 +9,7 @@ import types
 import unittest
 from unittest.mock import MagicMock, patch
 
-from keywords import _PostingPositions, postings
+from engine.retrieval.keywords import _PostingPositions, postings
 from scripts.launch import clear_port_8000, is_server_process
 
 
@@ -95,6 +95,7 @@ class TestLaunchPortHygiene(unittest.TestCase):
     def test_is_server_process_identifies_python_server(self):
         self.assertTrue(is_server_process("python server.py"))
         self.assertTrue(is_server_process("python.exe server.py"))
+        self.assertTrue(is_server_process("python3 -m engine.server --port 8000"))
         self.assertTrue(is_server_process('"C:\\Python312\\python.exe" server.py --open'))
         self.assertTrue(is_server_process("/usr/bin/python3 /repo/server.py --block-warmup"))
 

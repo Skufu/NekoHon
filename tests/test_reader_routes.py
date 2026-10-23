@@ -16,13 +16,13 @@ import sys
 from pathlib import Path
 from unittest import mock
 
-import answer
-import server
+from engine.answering import answer
+from engine import server
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from fixture_books import FixtureRoot
-from figures import figure_cards
-from prompt import PARAPHRASE_SYSTEM, SPELL_SYSTEM, SYSTEM, SYSTEM_ANSWER
-from retrieve import chunks_payload
+from engine.figures import figure_cards
+from engine.answering.prompt import PARAPHRASE_SYSTEM, SPELL_SYSTEM, SYSTEM, SYSTEM_ANSWER
+from engine.retrieval.retrieve import chunks_payload
 
 FAKE_INDEX = {
     "book_id": "demo",

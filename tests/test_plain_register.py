@@ -12,8 +12,8 @@ Pins and fixtures live only in this test.
 
 import unittest
 
-import answer as A
-from prompt import PARAPHRASE_SYSTEM, SYSTEM, SYSTEM_ANSWER
+from engine.answering import answer as A
+from engine.answering.prompt import PARAPHRASE_SYSTEM, SYSTEM, SYSTEM_ANSWER
 
 REFUSAL = "Not in this book."
 

@@ -8,9 +8,9 @@ book sentence, not a question). No Ollama: recovery is injected.
 
 import unittest
 
-import answer as A
-from canonical import canonical_query, is_deictic_question, is_incomplete_stem
-from prompt import SYSTEM, SYSTEM_ANSWER
+from engine.answering import answer as A
+from engine.answering.canonical import canonical_query, is_deictic_question, is_incomplete_stem
+from engine.answering.prompt import SYSTEM, SYSTEM_ANSWER
 
 
 def hit(chunk_id, chapter, text):
@@ -352,7 +352,7 @@ class ExplainGateTest(unittest.TestCase):
 
 class AnchorEquivalenceTest(unittest.TestCase):
     def test_prefix_stopwords_add_no_anchors(self):
-        from preprocess import STOPWORDS
+        from engine.retrieval.preprocess import STOPWORDS
 
         # "what"/"is" carry in-bound df here, so only the STOPWORDS filter
         # can keep them out of the anchor set; a broken filter fails this.

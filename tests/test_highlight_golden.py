@@ -5,8 +5,8 @@ import re
 import unittest
 from pathlib import Path
 
-from answer import highlight_query, user_message
-from prompt import SYSTEM
+from engine.answering.answer import highlight_query, user_message
+from engine.answering.prompt import SYSTEM
 
 ROOT = Path(__file__).resolve().parent.parent
 HELDOUT = ROOT / "artifacts" / "datasets" / "highlight-golden-2026-10-16.jsonl"

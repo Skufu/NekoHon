@@ -2,7 +2,7 @@
 
 import unittest
 
-from keywords import anchor_words, postings, rare
+from engine.retrieval.keywords import anchor_words, postings, rare
 
 
 def make_index(texts):

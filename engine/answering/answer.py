@@ -24,11 +24,11 @@ import random
 import re
 import urllib.request
 
-from canonical import STEM_WORDS, canonical_query, is_deictic_question, is_incomplete_stem
-from captions import caption_seed
-from figures import cited_numbers, figures_for, number_from_id
-from fusion import fuse
-from intent import (
+from engine.answering.canonical import STEM_WORDS, canonical_query, is_deictic_question, is_incomplete_stem
+from engine.retrieval.captions import caption_seed
+from engine.figures import cited_numbers, figures_for, number_from_id
+from engine.retrieval.fusion import fuse
+from engine.answering.intent import (
     INTENT_AUTHOR_QUESTION,
     INTENT_CONCEPT_TERM,
     INTENT_MULTI_SENTENCE,
@@ -42,8 +42,8 @@ from intent import (
     select_substantive_anchor_sentence,
     split_sentences,
 )
-from keywords import anchor_words, postings, rare
-from preprocess import STOPWORDS, stem as _pre_stem, tokens as _pre_tokens, words as _pre_words
+from engine.retrieval.keywords import anchor_words, postings, rare
+from engine.retrieval.preprocess import STOPWORDS, stem as _pre_stem, tokens as _pre_tokens, words as _pre_words
 
 @functools.lru_cache(maxsize=4096)
 def _cached_words(text):
@@ -217,7 +217,7 @@ FRAMING_WORDS = frozenset((
     "achieve", "achieves", "achieved",
     "perform", "performs", "performed",
 ))
-from prompt import (
+from engine.answering.prompt import (
     ANSWER_GLOSS_SYSTEM,
     ANSWER_MODEL,
     EXPLAIN_GLOSS_SYSTEM,
@@ -228,8 +228,8 @@ from prompt import (
     SYSTEM,
     SYSTEM_ANSWER,
 )
-from readings import llm_second_reading, second_reading
-from retrieve import rank_chunks, search
+from engine.retrieval.readings import llm_second_reading, second_reading
+from engine.retrieval.retrieve import rank_chunks, search
 
 OLLAMA_CHAT = "http://127.0.0.1:11434/api/chat"
 PASSAGE_LIMIT = 5

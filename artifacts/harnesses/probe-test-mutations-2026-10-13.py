@@ -24,9 +24,9 @@ sys.path.insert(0, str(ROOT))
 
 EVIDENCE = ROOT / "artifacts" / "runs" / "probe-test-mutations"
 
-import answer as A
-import keywords
-from preprocess import words
+from engine.answering import answer as A
+from engine.retrieval import keywords
+from engine.retrieval.preprocess import words
 
 import tests.test_canonical as T
 

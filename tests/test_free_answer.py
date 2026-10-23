@@ -10,8 +10,8 @@ Pins and fixtures live only in this test.
 
 import unittest
 
-import answer as A
-from server import MODES
+from engine.answering import answer as A
+from engine.server import MODES
 
 REFUSAL = "Not in this book."
 

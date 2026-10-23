@@ -2,7 +2,7 @@
 
 import unittest
 
-from preflight import audit_clean, model_present, next_steps, version_ok
+from scripts.preflight import audit_clean, model_present, next_steps, version_ok
 
 
 def _state(**overrides):

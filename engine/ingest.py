@@ -11,9 +11,9 @@ from html.parser import HTMLParser
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
-from figures import cited_numbers, number_from_id
+from engine.figures import cited_numbers, number_from_id
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 BOOK = ROOT / "books" / "fde.epub"
 INDEX = ROOT / "data" / "index.json"
 FIGURES = ROOT / "data" / "figures"

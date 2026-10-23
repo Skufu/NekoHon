@@ -7,8 +7,8 @@ is not a list ask leaves a colon sentence alone.
 
 import unittest
 
-import answer as A
-from prompt import REFUSAL
+from engine.answering import answer as A
+from engine.answering.prompt import REFUSAL
 
 
 def hit(chunk_id, chapter, text):

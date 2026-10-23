@@ -27,13 +27,13 @@ from pathlib import Path
 
 mimetypes.init()
 
-from retrieve import DEFAULT_EMBEDDER, INDEX, chunks_payload, format_input, load_index
-from answer import ask, explain, ollama_generate_stream, quiz, respond, sanitize_history
-from figures import figure_file
-from keywords import postings
-from prompt import ANSWER_GLOSS_SYSTEM, ANSWER_MODEL, EXPLAIN_GLOSS_SYSTEM, FOLLOWUP_GLOSS_SYSTEM, OLLAMA_KEEP_ALIVE, SYSTEM
+from engine.retrieval.retrieve import DEFAULT_EMBEDDER, INDEX, chunks_payload, format_input, load_index
+from engine.answering.answer import ask, explain, ollama_generate_stream, quiz, respond, sanitize_history
+from engine.figures import figure_file
+from engine.retrieval.keywords import postings
+from engine.answering.prompt import ANSWER_GLOSS_SYSTEM, ANSWER_MODEL, EXPLAIN_GLOSS_SYSTEM, FOLLOWUP_GLOSS_SYSTEM, OLLAMA_KEEP_ALIVE, SYSTEM
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 WEB_OUT = ROOT / "web" / "out"
 HOST = "127.0.0.1"
 
@@ -258,7 +258,7 @@ class Handler(BaseHTTPRequestHandler):
                 page = WEB_OUT / "index.html"
                 self._send_bytes(200, page.read_bytes(), "text/html; charset=utf-8", headers=headers, send_body=send_body)
                 return
-            page = Path(__file__).resolve().parent / "window" / "index.html"
+            page = Path(__file__).resolve().parents[1] / "window" / "index.html"
             if not page.is_file():
                 self._send_json(404, {"error": "not found"}, send_body=send_body)
                 return
@@ -470,8 +470,8 @@ class Handler(BaseHTTPRequestHandler):
 
     def _handle_import(self, request):
         try:
-            from ingest import ingest_epub, update_books_catalog
-            from retrieve import embed_index, save_index
+            from engine.ingest import ingest_epub, update_books_catalog
+            from engine.retrieval.retrieve import embed_index, save_index
 
             data_b64 = request.get("data_base64")
             epub_path_str = request.get("epub_path")

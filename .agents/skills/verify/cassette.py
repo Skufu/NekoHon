@@ -19,9 +19,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
 
-import answer
-import server
-
+from engine.answering import answer
+from engine import server
 OUT_DIR = ROOT / "data" / "verify"
 CASSETTE = OUT_DIR / "cassette.json"
 SEED = 20261023

@@ -22,8 +22,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from preflight import wait_for_warmup
-from server import HOST, PORT, ollama_up
+from scripts.preflight import wait_for_warmup
+from engine.server import HOST, PORT, ollama_up
 
 # Recommended Ollama environment variables for instant inference (measured 2026-10-18):
 # OLLAMA_NUM_PARALLEL=1 keeps 100% GPU with 2.2 GB VRAM (vs 2.7 GB at 4) and 38.4ms TTFT (vs 44.7ms).
@@ -136,7 +136,7 @@ def is_server_process(cmdline):
     if not cmdline:
         return False
     cmd_lower = cmdline.lower()
-    return "python" in cmd_lower and "server.py" in cmd_lower
+    return "python" in cmd_lower and ("server.py" in cmd_lower or "engine.server" in cmd_lower)
 
 
 def find_listening_pids(port):
@@ -269,7 +269,7 @@ def main():
     err_file = runs_dir / "stage1-server.err"
 
     print(f"[launcher] Starting server on http://{HOST}:{port}...")
-    server_cmd = [sys.executable, "server.py", "--port", str(port)]
+    server_cmd = [sys.executable, "-m", "engine.server", "--port", str(port)]
     server_env = os.environ.copy()
     server_env["PORT"] = str(port)
     flags = 0

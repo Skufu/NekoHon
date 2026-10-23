@@ -2,7 +2,7 @@
 
 import unittest
 
-from retrieve import (
+from engine.retrieval.retrieve import (
     GEMMA_EMBEDDER,
     cosine,
     document_input,

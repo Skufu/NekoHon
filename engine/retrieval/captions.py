@@ -24,8 +24,8 @@ Stdlib only. The embedder is injected so tests never call Ollama.
 
 import math
 
-from figures import cited_numbers, number_from_id
-from retrieve import DEFAULT_EMBEDDER, _dot, cosine, embed_texts, ollama_embed
+from engine.figures import cited_numbers, number_from_id
+from engine.retrieval.retrieve import DEFAULT_EMBEDDER, _dot, cosine, embed_texts, ollama_embed
 
 
 def caption_seed(index, question, passages, model=DEFAULT_EMBEDDER, embed_fn=None):

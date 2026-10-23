@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 from unittest import mock
 
-import server
+from engine import server
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from fixture_books import FixtureRoot
 

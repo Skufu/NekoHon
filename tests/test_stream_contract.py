@@ -14,8 +14,7 @@ import unittest
 from contextlib import redirect_stderr
 from unittest import mock
 
-import server
-
+from engine import server
 BOOK = {
     "chunks": [{
         "chunk_id": "c1",

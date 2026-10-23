@@ -13,8 +13,7 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-import answer as answer_mod
-
+from engine.answering import answer as answer_mod
 index = json.loads((ROOT / "data" / "index.json").read_text(encoding="utf-8"))
 sweep = json.loads((ROOT / "artifacts" / "datasets" / "qa-sweep-default.json").read_text(encoding="utf-8"))
 questions = [row["question"] for row in sweep]

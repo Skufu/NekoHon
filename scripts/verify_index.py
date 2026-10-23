@@ -6,10 +6,13 @@ Exit 0 when clean, exit 1 when dirty. Stdlib only; no model calls.
 
 import argparse
 import math
+import sys
 from collections import Counter
 from pathlib import Path
 
-from retrieve import INDEX, load_index
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from engine.retrieval.retrieve import INDEX, load_index
 
 AXES = ("nonfinite", "zero_norm", "dim_drift")
 

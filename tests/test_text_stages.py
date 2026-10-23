@@ -7,7 +7,7 @@ record is in `artifacts/reports/stage9-preprocessing.md`.
 
 import unittest
 
-from preprocess import STOPWORDS, fold, normalize, stem, stemmed_words, words
+from engine.retrieval.preprocess import STOPWORDS, fold, normalize, stem, stemmed_words, words
 
 
 class FoldTests(unittest.TestCase):

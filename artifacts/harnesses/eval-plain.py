@@ -43,11 +43,11 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "artifacts" / "harnesses"))
 sys.path.insert(0, str(ROOT / "artifacts" / "harnesses"))
 
-import answer as A
+from engine.answering import answer as A
 import groundedness as G
 import judge as J
-from prompt import ANSWER_MODEL, REFUSAL, SYSTEM_ANSWER
-from retrieve import INDEX, load_index
+from engine.answering.prompt import ANSWER_MODEL, REFUSAL, SYSTEM_ANSWER
+from engine.retrieval.retrieve import INDEX, load_index
 
 FK_GATE = 11.0
 COVERAGE_TARGET = 0.2

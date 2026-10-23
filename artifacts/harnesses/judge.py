@@ -38,8 +38,7 @@ import urllib.request
 import uuid
 from pathlib import Path
 
-import answer as A
-
+from engine.answering import answer as A
 # Machine-readable form of the docstring note above: the wobble was measured
 # (3 of 27 rows across two identical method-v2 runs, 2026-10-15), so judge
 # verdicts are a triage dial, not a pass/fail gate.
