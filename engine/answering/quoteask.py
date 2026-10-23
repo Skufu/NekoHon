@@ -38,7 +38,7 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
         embed_fn=embed_fn,
     )
     passages = context["passages"]
-    t.resolved_question, t.asked_form, t.context, t.passages = resolved_question, asked_form, context, passages
+    t.set_retrieval(resolved_question, asked_form, context)
     if not passages:
         return _refusal([])
     completion = generate_fn(

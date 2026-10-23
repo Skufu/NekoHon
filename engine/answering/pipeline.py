@@ -70,6 +70,10 @@ class Turn:
     context: dict = field(default_factory=dict)
     passages: list = field(default_factory=list)
 
+    def set_retrieval(self, resolved_question, asked_form, context):
+        self.resolved_question, self.asked_form, self.context = resolved_question, asked_form, context
+        self.passages = context["passages"]
+
 
 def begin_turn(index, question, generate_fn, history, pin_chunk, selection, heading, model, mode):
     if is_prompt_injection(question):
@@ -88,14 +92,19 @@ def begin_turn(index, question, generate_fn, history, pin_chunk, selection, head
                 pin_chunk, selection, heading, model, generate_fn, is_live, mode)
 
 
-def _unpack(t):
-    return (t.index, t.question, t.history, t.clean_history, t.topic_shift, t.effective_pin,
-            t.pin_chunk, t.selection, t.heading, t.model, t.generate_fn, t.is_live, t.mode)
-
-
 def simplify_shortcut(t):
-    (index, question, history, clean_history, topic_shift, effective_pin, pin_chunk,
-     selection, heading, model, generate_fn, is_live, mode) = _unpack(t)
+    index = t.index
+    question = t.question
+    history = t.history
+    clean_history = t.clean_history
+    topic_shift = t.topic_shift
+    effective_pin = t.effective_pin
+    selection = t.selection
+    heading = t.heading
+    model = t.model
+    generate_fn = t.generate_fn
+    is_live = t.is_live
+    mode = t.mode
     if clean_history and not topic_shift and SIMPLIFY_RE.search(question):
         target_chunk_obj = None
         if effective_pin:
@@ -150,10 +159,12 @@ def simplify_shortcut(t):
 
 
 def advance_followup(t, body):
-    (index, question, history, clean_history, topic_shift, effective_pin, pin_chunk,
-     selection, heading, model, generate_fn, is_live, mode) = _unpack(t)
-    resolved_question, asked_form, passages, context = t.resolved_question, t.asked_form, t.passages, t.context
-    figures = index.get("figures") or []
+    index = t.index
+    question = t.question
+    clean_history = t.clean_history
+    topic_shift = t.topic_shift
+    effective_pin = t.effective_pin
+    passages = t.passages
     if clean_history and not SIMPLIFY_RE.search(question) and not topic_shift:
         prior_turn = clean_history[-1]
         prior_a = (prior_turn.get("answer") or "").strip()
@@ -191,10 +202,9 @@ def advance_followup(t, body):
 
 
 def pin_anchor_quote(t, body):
-    (index, question, history, clean_history, topic_shift, effective_pin, pin_chunk,
-     selection, heading, model, generate_fn, is_live, mode) = _unpack(t)
-    resolved_question, asked_form, passages, context = t.resolved_question, t.asked_form, t.passages, t.context
-    figures = index.get("figures") or []
+    index = t.index
+    pin_chunk = t.pin_chunk
+    selection = t.selection
     if selection and pin_chunk:
         pin_chunk_obj = None
         if isinstance(pin_chunk, dict):
@@ -219,13 +229,17 @@ def pin_anchor_quote(t, body):
                     }]
                     body["answer"] = f'[Ch. {chap}] "{anchor_quote}"'
                     body["figures"] = figures_for([pin_chunk_obj], index.get("figures") or [])
-    return body
 
 
 def history_guards(t, body):
-    (index, question, history, clean_history, topic_shift, effective_pin, pin_chunk,
-     selection, heading, model, generate_fn, is_live, mode) = _unpack(t)
-    resolved_question, asked_form, passages, context = t.resolved_question, t.asked_form, t.passages, t.context
+    index = t.index
+    question = t.question
+    history = t.history
+    clean_history = t.clean_history
+    topic_shift = t.topic_shift
+    heading = t.heading
+    resolved_question = t.resolved_question
+    passages = t.passages
     figures = index.get("figures") or []
     history_subject = _extract_subject_from_history(history)
     if clean_history and (resolved_question != question) and not body.get("refused") and not topic_shift:
@@ -278,13 +292,13 @@ def history_guards(t, body):
                 body = _refusal(passages, figures)
             elif history_subject:
                 subj_tokens = [
-                    t.lower() for t in tokens(history_subject)
-                    if len(t) > 2 and t.lower() not in STEM_WORDS and t.lower() not in FRAMING_WORDS and t.lower() not in STOPWORDS
+                    tok.lower() for tok in tokens(history_subject)
+                    if len(tok) > 2 and tok.lower() not in STEM_WORDS and tok.lower() not in FRAMING_WORDS and tok.lower() not in STOPWORDS
                 ]
                 if subj_tokens:
                     c_text = (cited_chunk.get("heading") or "").lower() + " " + (cited_chunk.get("text") or "").lower()
                     c_stems = {stem(w) for w in words(c_text)}
-                    has_subj = any(t in c_text or stem(t) in c_stems for t in subj_tokens)
+                    has_subj = any(tok in c_text or stem(tok) in c_stems for tok in subj_tokens)
                     last_ans = clean_history[-1].get("answer") or ""
                     last_chap_m = re.search(r"\[Ch\.\s*([^\]]+)\]", last_ans)
                     prior_chap = last_chap_m.group(1).strip().rstrip(".") if last_chap_m else None
@@ -306,10 +320,20 @@ def history_guards(t, body):
 
 
 def finish_answer(t, body, plain):
-    (index, question, history, clean_history, topic_shift, effective_pin, pin_chunk,
-     selection, heading, model, generate_fn, is_live, mode) = _unpack(t)
-    resolved_question, asked_form, passages, context = t.resolved_question, t.asked_form, t.passages, t.context
-    figures = index.get("figures") or []
+    index = t.index
+    question = t.question
+    history = t.history
+    clean_history = t.clean_history
+    selection = t.selection
+    heading = t.heading
+    model = t.model
+    generate_fn = t.generate_fn
+    is_live = t.is_live
+    mode = t.mode
+    resolved_question = t.resolved_question
+    asked_form = t.asked_form
+    passages = t.passages
+    context = t.context
     body = _align_citation_to_query_concepts(body, resolved_question, passages)
     if not selection and not clean_history:
         if (asked_form != resolved_question or is_incomplete_stem(question)) and asked_form != question and not body["refused"]:
