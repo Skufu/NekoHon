@@ -540,7 +540,7 @@ def main():
             if args.book_id is not None:
                 raise FileNotFoundError(
                     f"missing index: {index_path}. "
-                    f"Run 'python ingest.py --epub books/{args.book_id}.epub --book-id {args.book_id}' first."
+                    f"Run 'python3 -m engine.ingest --epub books/{args.book_id}.epub --book-id {args.book_id}' first."
                 )
             raise SystemExit(f"missing index: {index_path}")
     index = load_index(index_path)
@@ -549,7 +549,7 @@ def main():
         if idx_book and idx_book != args.book_id:
             raise FileNotFoundError(
                 f"Index {index_path} has book_id '{idx_book}', expected '{args.book_id}'. "
-                f"Run 'python ingest.py --epub books/{args.book_id}.epub --book-id {args.book_id}' first."
+                f"Run 'python3 -m engine.ingest --epub books/{args.book_id}.epub --book-id {args.book_id}' first."
             )
         if not idx_book:
             index["book_id"] = args.book_id

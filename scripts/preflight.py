@@ -102,16 +102,16 @@ def next_steps(state):
     if not state["book"]:
         steps.append(f"put the EPUB at {BOOK.relative_to(ROOT)}")
     if not state["index"]:
-        steps.append("build the index: python ingest.py, then python retrieve.py")
+        steps.append("build the index: python3 -m engine.ingest, then python3 -m engine.retrieval.retrieve")
     if not state["ollama"]:
         steps.append("start Ollama, then run this script again")
     else:
         for name in state["missing_models"]:
             steps.append(f"pull the model: ollama pull {name}")
     if state["audit_clean"] is False:
-        steps.append("the index failed its vector audit; re-run python retrieve.py")
+        steps.append("the index failed its vector audit; re-run python3 -m engine.retrieval.retrieve")
     if not steps:
-        steps.append("ready: python server.py, then open http://127.0.0.1:8000/")
+        steps.append("ready: python3 -m engine.server, then open http://127.0.0.1:8000/")
     return steps
 
 

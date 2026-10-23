@@ -34,12 +34,12 @@ class PreflightTests(unittest.TestCase):
     def test_ready_state_prints_the_serve_step(self):
         steps = next_steps(_state())
         self.assertEqual(len(steps), 1)
-        self.assertIn("server.py", steps[0])
+        self.assertIn("engine.server", steps[0])
 
     def test_missing_book_comes_before_the_index_build(self):
         steps = next_steps(_state(book=False, index=False, audit_clean=None))
         self.assertTrue(steps[0].startswith("put the EPUB"))
-        self.assertTrue(any("ingest.py" in step for step in steps))
+        self.assertTrue(any("engine.ingest" in step for step in steps))
 
     def test_ollama_down_is_named_and_models_are_not_pulled_blind(self):
         steps = next_steps(
