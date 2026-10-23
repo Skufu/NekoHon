@@ -126,7 +126,7 @@ both batteries.
   rule test's path only if a pinned string moves.
 - [x] **F5 MarginCard.** One `startResize(edge)` + shared move/up handlers for
   the 12 pointer handlers; extract `TurnView`, `FollowUpForm`.
-- [ ] **F6 Shared pieces.** One `THEMES/PENS/MARKERS` module, one `Icon`
+- [x] **F6 Shared pieces.** One `THEMES/PENS/MARKERS` module, one `Icon`
   module for repeated SVGs, `BookCard` in LibraryView, one "Asked as / Read as"
   parser; Reader `markQuote` fallback uses `anchor.ts`.
 - [ ] **F7 Strip web comments** in `web/app`, `web/components`, `web/lib`,
