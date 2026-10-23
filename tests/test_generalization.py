@@ -17,6 +17,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 LOGIC = (
     "engine/answering/answer.py",
+    "engine/answering/comparison.py",
+    "engine/answering/listshape.py",
+    "engine/answering/messages.py",
+    "engine/answering/quotecheck.py",
+    "engine/answering/sanitize.py",
+    "engine/answering/shared.py",
     "engine/answering/canonical.py",
     "engine/retrieval/captions.py",
     "engine/figures.py",

@@ -85,7 +85,7 @@ both batteries.
   `prior_turn_chunk()` replaces the 3 copies; `clean_history` and the
   topic-shift check computed once per request; drop the double LRU on `stem`.
   - Accept: gate; timing replay vs `timing-before.json` not slower (report numbers).
-- [ ] **E4 Split `answer.py` (1/2).** Move to `sanitize.py`, `quotecheck.py`,
+- [x] **E4 Split `answer.py` (1/2).** Move to `sanitize.py`, `quotecheck.py`,
   `listshape.py`, `comparison.py`; message builders into `prompt.py`.
 - [ ] **E5 Split `answer.py` (2/2).** Move to `conversation.py`, `gloss.py`,
   `context.py`, `explain.py`, `quiz.py`, `freeanswer.py`.

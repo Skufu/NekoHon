@@ -45,25 +45,11 @@ from engine.answering.intent import (
 from engine.retrieval.keywords import anchor_words, postings, rare
 from engine.retrieval.preprocess import STOPWORDS, stem as _pre_stem, tokens as _pre_tokens, words as _pre_words
 
-@functools.lru_cache(maxsize=4096)
-def _cached_words(text):
-    return tuple(_pre_words(text))
 
-def words(text):
-    return list(_cached_words(text))
 
-@functools.lru_cache(maxsize=4096)
-def _cached_tokens(text):
-    return tuple(_pre_tokens(text))
 
-def tokens(text):
-    return list(_cached_tokens(text))
 
-stem = _pre_stem
 
-_WHITESPACE_RE = re.compile(r"\s+")
-_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
-_PARAGRAPH_SPLIT_RE = re.compile(r"\n\s*\n")
 _CH_PREFIX_RE = re.compile(r"^\[ch\.", re.I)
 _TAG_AND_QUOTE_RE = re.compile(r"\[Ch\.\s*([^\]]+)\]\s*[\"“](.+?)[\"”]")
 
@@ -135,26 +121,9 @@ _PRICE_QUERY_RE = re.compile(r"\b(how\s+much|cost\s+per\s+hour|charge|price)\b",
 _PRICE_MATCH_RE = re.compile(r"(\$|\b(dollar|dollars|cents|cost|charge|price|per\s+hour)\b)", re.I)
 _CODE_QUERY_RE = re.compile(r"\b(terraform|script|code)\b", re.I)
 _CODE_MATCH_RE = re.compile(r"\b(terraform|resource|provider|hcl|script|def |class |function)\b", re.I)
-_TERMINAL_PUNCT_RE = re.compile(r'[.!?]["\'”’]?$')
-_CHAPTER_PREFIX_RE = re.compile(r"^Chapter\s+\d+\b", re.I)
 _WORD_RE = re.compile(r"\w+")
 _WORD_ALPHA_RE = re.compile(r"\b[a-zA-Z]+\b")
-_NON_WORD_OR_UNDERSCORE_RE = re.compile(r"[^\w\s]|_")
-_REGARDING_PREFIX_RE = re.compile(r"^(?:In\s+.+?,\s+)?[Rr]egarding\s+['\"]?([^:'\"]+)['\"]?\s*:\s*(.+)$")
 _TOPIC_SHIFT_CONCEPT_RE = re.compile(r"^(?:what\s+(?:is|are|was|were)\s+(?:a\s+|an\s+|the\s+)?(?!(?:role|main|key|specific|purpose|point|goal|problem|catch|drawback|advantage|disadvantage|trade-off|difference|reason|stage|step|type|example|takeaway)\b)|define\s+|tell\s+me\s+about\s+)(.+?)\??$", re.I)
-_BOILERPLATE_PROMPT_LEAK_RE = re.compile(r"[,;—–-]?\s*\b(?:do\s+not|don't|never)\s+(?:say|use|repeat|mention|start\s+with|include|write|output)\b[^.?!]*", re.I)
-_IN_THIS_CONTEXT_START_RE = re.compile(r"^[Ii]n this context,?\s*")
-_IN_THIS_CONTEXT_WORD_RE = re.compile(r"\bin this context\b", re.I)
-_HIGHLIGHTED_QUESTION_RE = re.compile(r"\b[Tt]he highlighted question\b")
-_IN_THIS_PASSAGE_START_RE = re.compile(r"^[Ii]n this passage,?\s*")
-_PASSAGE_VERB_RE = re.compile(r"^(?:[Tt]he|[Tt]his)\s+passage\s+(?:states|explains|discusses|describes|refers to|means)\s+")
-_PASSAGE_START_RE = re.compile(r"^(?:[Tt]he|[Tt]his)\s+passage\s+")
-_HIGHLIGHTED_TERM_RE = re.compile(r"\b[Tt]he highlighted (?:text|phrase|sentence|passage|term|concept|word|section)\b")
-_HIGHLIGHTED_NOT_WORD_PHRASE_RE = re.compile(r"\b[Tt]he highlighted(?!\s+(?:word|phrase))\b")
-_REFERS_TO_A_RE = re.compile(r"\brefers to an?\b", re.I)
-_REFERS_TO_THE_RE = re.compile(r"\brefers to the\b", re.I)
-_REFERS_TO_RE = re.compile(r"\brefers to\b", re.I)
-_TRAILING_PREP_WORD_DOT_RE = re.compile(r"\.\s+(?:with|for|in|on|to|by|of|and|or)\s+[A-Za-z0-9_-]+\.$")
 _GIBBERISH_DIGITS_RE = re.compile(r"\b(?:sentence|line|paragraph|passage)\s+\d+\b", re.I)
 _GIBBERISH_NOUN_DIGITS_RE = re.compile(r"\b[A-Za-z]+\s+\d+\s+(?:negative|positive|again|reads?)\b", re.I)
 _ADJACENT_REPEATED_WORD_RE = re.compile(r"\b([A-Za-z]{3,})\s+\1\b", re.I)
@@ -162,12 +131,6 @@ _SENTENCE_DANGLING_END_RE = re.compile(r"\b(?:the|a|an|also|again|to|of|in|for|w
 _META_COMMENTARY_RE = re.compile(r"\b(?:this|the)\s+(?:section|chapter|passage|book|authors?)\s+(?:introduces?|prepares?\s+readers|discusses?|mentions?|is\s+a\s+detour)\b", re.I)
 _POINTER_META_LOCATION_RE = re.compile(r"\b(?:are|is)\s+(?:listed|discussed|covered|described|explained|found|shown|outlined|detailed|introduced)\s+in\s+(?:the|this|chapter|section|figure|part)\b|\b(?:in\s+the\s+introduction|see\s+chapter|see\s+section|see\s+figure|refer\s+to\s+chapter)\b", re.I)
 _PROMPT_LEAKAGE_RE = re.compile(r"\b(?:do\s+not|don't|never)\s+(?:say|use|repeat|mention|start\s+with|include|write|output)\b", re.I)
-_TYPE_2_RE = re.compile(r"\btype[- ]2\b")
-_S3_RE = re.compile(r"\bs3\b")
-_IOPS_RE = re.compile(r"\biops\b")
-_SLA_SLO_RE = re.compile(r"\b(sla|slas|slo|slos)\b")
-_WHO_CREATED_RE = re.compile(r"\bwho\s+(?:created|invented|designed|developed|authored|introduced|wrote|founded|proposed)\b")
-_AUTHOR_NAME_RE = re.compile(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b")
 _REASONS_QUERY_RE = re.compile(r"\b(specific\s+reasons|reasons|reason|why|main\s+stages|stages|key\s+types|types|characteristics|ways)\b")
 _EXAMPLES_QUERY_RE = re.compile(r"\b(example|examples|instance|illustrate)\b")
 _RISKS_QUERY_RE = re.compile(r"\b(risk|risks|pitfall|pitfalls|bottleneck|bottlenecks|cost|costs|expensive|trade-off|trade-offs|limitation|limitations|downside|downsides|ossification|cliff|mistake|failure)\b")
@@ -185,7 +148,6 @@ _EXTRACT_SUBJ_STRIP_ART_RE = re.compile(r"^(a|an|the)\s+", re.I)
 _EXTRACT_SUBJ_WH_START_RE = re.compile(r"^(what|how|why|where|which|should|tell me about|explain)\s+(?:is|are|was|were|does|do|did|can|could|should)?\s*(?:\b(?:a|an|the|teams|engineers|users|we)\b)?\s*", re.I)
 _EXTRACT_SUBJ_VERB_SPLIT_RE = re.compile(r"\s+(?:sit|sits|used|use|stand for|look|differ|consider|covered)\b", re.I)
 
-_PRONOUNS_SET = frozenset({"this", "it", "that", "they", "these", "those"})
 _QUESTION_STARTERS = frozenset({
     "what", "why", "how", "when", "where", "who", "which",
     "is", "are", "was", "were", "do", "does", "did",
@@ -205,30 +167,13 @@ _OPENER_WORDS = ("explain", "describe", "define", "compare", "tell", "show")
 _SUB_PRONOUNS = frozenset({"it", "its", "that", "this", "these", "those"})
 _CAND_PRONOUNS = frozenset({"it", "its", "this", "that"})
 _RISK_KEYWORDS = ("ossification", "cliff", "bottleneck", "bottlenecks", "cost", "costs", "expensive", "risk", "risks", "pitfall", "pitfalls", "trade-off", "trade-offs", "limitation", "limitations", "downside", "downsides")
-_ATTRIBUTION_MARKERS = ("noted", "groundbreaking", "book", "article", "creator", "created", "proposed", "introduced", "author", "by ")
 
-@functools.lru_cache(maxsize=1024)
-def _token_word_pattern(token):
-    return re.compile(rf"\b{re.escape(token)}\b")
 
 @functools.lru_cache(maxsize=512)
 def _selection_word_pattern(sel):
     return re.compile(rf"\b{re.escape(sel)}\b", re.IGNORECASE)
 
-@functools.lru_cache(maxsize=1024)
-def _heading_prefix_pattern(heading):
-    words_list = heading.split()
-    if not words_list:
-        return None
-    pat_str = r"\s*".join(re.escape(w) for w in words_list)
-    return re.compile(rf"\s*{pat_str}[\s:\u2014-]*", re.I)
 
-@functools.lru_cache(maxsize=512)
-def _words_pattern(quote):
-    words_list = (quote or "").split()
-    if not words_list:
-        return None
-    return re.compile(r"\s+".join(re.escape(w) for w in words_list), re.I)
 
 
 FRAMING_WORDS = frozenset((
@@ -263,20 +208,65 @@ from engine.answering.prompt import (
 )
 from engine.retrieval.readings import llm_second_reading, second_reading
 from engine.retrieval.retrieve import rank_chunks, search
+from engine.answering.shared import (
+    PARAGRAPH_CAP,
+    SPAN_MIN_CHARS,
+    _ATTRIBUTION_MARKERS,
+    _AUTHOR_NAME_RE,
+    _SENTENCE_SPLIT_RE,
+    _WHITESPACE_RE,
+    _candidate_sentences,
+    _clean_boilerplate_gloss,
+    _fold,
+    _sentences,
+    fix_acronym_casing,
+    stem,
+    tokens,
+    words,
+)
+from engine.answering.sanitize import (
+    is_prompt_injection,
+    sanitize_history,
+    sanitize_query,
+)
+from engine.answering.listshape import (
+    _after_lead_in,
+    _expand_list,
+    _list_ask,
+    _plural,
+    _synthesize_list_answer,
+    _without_heading,
+)
+from engine.answering.comparison import (
+    _comparison_sides,
+    _half_covered,
+)
+from engine.answering.quotecheck import (
+    _align_citation_to_query_concepts,
+    _complete_truncated_quote,
+    _original_case,
+    _punctuation_plain,
+    _quote_in_passage,
+    _refusal,
+    _reground_alphanumeric_quote,
+    longest_copied_span,
+    parse_completion,
+)
+from engine.answering.messages import (
+    SIMPLIFY_RE,
+    _answer_gloss_user_message,
+    _explain_gloss_user_message,
+    _followup_gloss_user_message,
+    answer_user_message,
+    passages_block,
+    user_message,
+)
 
 OLLAMA_CHAT = llm.CHAT_URL
 PASSAGE_LIMIT = 5
 # Rewrites per plain answer: one call each, a call budget, not a quality knob
 # (measured citations run at 1-3; the scorecard's answers stayed under five).
 PARAPHRASE_LIMIT = 5
-MISS_QUOTE_CHARS = 160
-FIGURE_REFERENCE = re.compile(r"\((?:figure|fig\.)\s*[A-Za-z]?\d+-\d+\)", re.I)
-FORMAT_REMINDER = (
-    "Copy one sentence from a passage. Do not reword it.\n"
-    "Format example, not an answer:\n"
-    "[Ch. 2] \"exact sentence copied from a passage\"\n"
-    "One short line in simple words."
-)
 QUIZ_INSTRUCTION = (
     "Write one question a person could answer with a quote from the single "
     "passage below. Do not include that quote in the question. "
@@ -287,29 +277,8 @@ QUIZ_SYSTEM = (
     "Write exactly one question whose answer is the target sentence. "
     "Do not include [Ch. N] tags, do not quote the sentence verbatim, and do not refuse."
 )
-SIMPLIFY_RE = re.compile(
-    r"\b(simpler\s+words|simplify|break\s+this\s+down|explain\s+this|what\s+does\s+this\s+mean|in\s+simple\s+words)\b",
-    re.IGNORECASE,
-)
 TAG_PATTERN = re.compile(r"\[Ch\.\s*([^\]]+)\]", re.I)
 QUOTE_PATTERN = re.compile(r"[\"“]([^\"“”]+)[\"”]")
-ANSWER_REMINDER = (
-    "Answer the question directly, in your own words. Cite each claim with "
-    "[Ch. N] using the chapter of the passage it came from."
-)
-KEY_MIN_CHARS = 40
-SPAN_MIN_CHARS = 40
-# A complete sentence may answer even when shorter than SPAN_MIN_CHARS:
-# "Everything fails, all the time." is 30 characters. Sentence shape is the
-# test; a fragment or a bare heading stays a refusal.
-MIN_QUOTE_CHARS = 20
-# One screen of quoted text (about 16 lines at 75 chars). A paragraph over this
-# keeps the model's quote instead of the whole paragraph. Chosen for
-# readability; not tuned to any ask.
-PARAGRAPH_CAP = 1200
-HISTORY_TURNS = 2
-HISTORY_QUESTION_CHARS = 200
-HISTORY_ANSWER_CHARS = 400
 
 
 # The plain register's cues. Generic English phrases, not fitted to a test
@@ -349,91 +318,18 @@ def _patch_figures_src(body, index):
     return body
 
 
-def passages_block(passages):
-    blocks = []
-    for hit in passages:
-        blocks.append(
-            f"[Ch. {hit['chapter']}] chunk_id={hit['chunk_id']}\n{hit['text']}"
-        )
-    return "\n\n".join(blocks)
 
 
-INJECTION_PATTERNS = (
-    re.compile(r"\bignore\s+(?:all\s+|previous\s+|prior\s+|your\s+|the\s+|above\s+)*(?:instructions|rules|prompts|directions)\b", re.I),
-    re.compile(r"\b(?:print|show|reveal|output|repeat|display)\s+(?:the\s+|your\s+)?system\s+(?:prompt|instructions)\b", re.I),
-    re.compile(r"\bsystem\s+prompt\s*:", re.I),
-    re.compile(r"\n\s*passages\s*:", re.I),
-    re.compile(r"\bchunk_id\s*=", re.I),
-    re.compile(r"<\|im_(?:start|end)\|>", re.I),
-)
-CONTROL_TOKENS = re.compile(r"<\|im_(?:start|end)\|>", re.I)
-FORGED_HEADERS = re.compile(
-    r"\n\s*(?:passages|question|user|book)\s*:",
-    re.I,
-)
 
 
-def is_prompt_injection(question: str) -> bool:
-    """True when question contains explicit adversarial prompt injection patterns."""
-    if not question or not isinstance(question, str):
-        return False
-    return any(pattern.search(question) for pattern in INJECTION_PATTERNS)
 
 
-def sanitize_query(question: str) -> str:
-    """Strip control tokens and collapse forged section headers to spaces."""
-    if not question or not isinstance(question, str):
-        return ""
-    cleaned = CONTROL_TOKENS.sub("", question)
-    cleaned = FORGED_HEADERS.sub(" ", cleaned)
-    return cleaned.strip()
 
 
-def sanitize_history(history):
-    """Last HISTORY_TURNS turns, clipped. Missing or non-list history is []."""
-    if not isinstance(history, list):
-        return []
-    kept = []
-    for item in history:
-        if not isinstance(item, dict):
-            continue
-        question = item.get("question")
-        answer = item.get("answer")
-        if not isinstance(question, str) or not isinstance(answer, str):
-            continue
-        question = sanitize_query(question)[:HISTORY_QUESTION_CHARS].strip()
-        answer = sanitize_query(answer)[:HISTORY_ANSWER_CHARS].strip()
-        if not question or not answer:
-            continue
-        kept.append({"question": question, "answer": answer})
-    return kept[-HISTORY_TURNS:]
 
 
-def user_message(question, passages, history=None):
-    turns = sanitize_history(history)
-    prefix = ""
-    if turns:
-        lines = ["Earlier in this conversation (not a source — do not quote it):"]
-        for turn in turns:
-            lines.append(f"User: {turn['question']}")
-            lines.append(f"Book: {turn['answer']}")
-        prefix = "\n".join(lines) + "\n\n"
-    return (
-        f"{prefix}"
-        f"Question: {question}\n\n"
-        "Passages:\n"
-        f"{passages_block(passages)}\n\n"
-        f"{FORMAT_REMINDER}"
-    )
 
 
-def answer_user_message(question, passages):
-    return (
-        f"Question: {question}\n\n"
-        "Passages:\n"
-        f"{passages_block(passages)}\n\n"
-        f"{ANSWER_REMINDER}"
-    )
 
 
 def ollama_generate(system, user, model=ANSWER_MODEL, url=OLLAMA_CHAT, timeout=120,
@@ -452,714 +348,73 @@ def ollama_generate_stream(system, user, model=ANSWER_MODEL, url=OLLAMA_CHAT,
 ollama_generate_stream._is_live = True
 
 
-def _strip_quotes(text):
-    text = text.strip()
-    text = text.strip("\"'`“”")
-    return re.sub(r"\s+", " ", text).strip(" .")
-
-
-def _short_sentence(raw, quote):
-    """True when a sub-SPAN_MIN_CHARS quote is a complete sentence.
-
-    Shape, not length: an upper-case start and terminal punctuation in the
-    text the model wrote, plus real cleaned length. "Everything fails, all the
-    time." passes (measured 2026-10-13); a mid-sentence fragment or a bare
-    heading ("Hot, warm, and cold data") does not.
-    """
-    raw = (raw or "").strip()
-    if len(quote) < MIN_QUOTE_CHARS:
-        return False
-    return raw[:1].isupper() and raw.endswith((".", "?", "!"))
-
-
-@functools.lru_cache(maxsize=2048)
-def _strip_figure_refs(text):
-    """Drop "(Figure 6-1)" and the like before a quote is matched.
-
-    The model leaves figure references out when it copies, and the book puts
-    them mid-sentence. Matching with them removed keeps "Storage is the
-    cornerstone ... and underlies its major stages" whole; otherwise the
-    longest copied run starts after the parenthetical. Both sides are stripped,
-    so a quote that keeps its "(Figure 8-8)" still matches.
-    """
-    return FIGURE_REFERENCE.sub(" ", text or "")
-
-
-@functools.lru_cache(maxsize=2048)
-def _punctuation_plain(text):
-    return " ".join(_NON_WORD_OR_UNDERSCORE_RE.sub(" ", (text or "").lower()).split())
-
-
-def _quote_in_passage(quote, text):
-    if not quote:
-        return False
-    folded_quote = re.sub(r"\s+", " ", _strip_figure_refs(quote)).lower()
-    folded_text = re.sub(r"\s+", " ", _strip_figure_refs(text)).lower()
-    if folded_quote in folded_text:
-        return True
-    # Typographic variants are the same sentence: the book writes curly quotes
-    # and interior commas that a copied quote flattens (measured: "data about
-    # data", 2026-10-13). Punctuation is not wording; word order is kept.
-    return (
-        _punctuation_plain(_strip_figure_refs(quote))
-        in _punctuation_plain(_strip_figure_refs(text))
-    )
-
-
-@functools.lru_cache(maxsize=2048)
-def _fold(text):
-    return _WHITESPACE_RE.sub(" ", text or "").lower()
-
-
-def _original_case(span, text):
-    """The span as it is written in the passage, case and all, snapped to whole-word boundaries."""
-    if not span or not text:
-        return span or ""
-    flat = re.sub(r"\s+", " ", text or "")
-    match = re.search(re.escape(span), flat, re.I)
-    if not match:
-        return span
-    start, end = match.start(), match.end()
-    while start > 0 and (flat[start - 1].isalnum() or flat[start - 1] in "-_"):
-        start -= 1
-    while end < len(flat) and (flat[end].isalnum() or flat[end] in "-_"):
-        end += 1
-    snapped = flat[start:end].strip(" .")
-    return snapped if snapped else span
-
-
-def longest_copied_span(completion, passage):
-    """The longest word-for-word run the model copied. The edit is dropped.
-
-    Under 40 characters is not a quote. Short overlap stays a refusal.
-    """
-    folded_passage = _fold(passage)
-    folded_completion = _fold(completion)
-    if not folded_passage or not folded_completion:
-        return ""
-    match = difflib.SequenceMatcher(
-        None, folded_passage, folded_completion, autojunk=False
-    ).find_longest_match(0, len(folded_passage), 0, len(folded_completion))
-    if match.size < SPAN_MIN_CHARS:
-        return ""
-    return folded_passage[match.a:match.a + match.size].strip(" .")
-
-
-def _span_from_chapter(chapter, completion, passages):
-    best = ("", None)
-    for hit in passages:
-        if str(hit["chapter"]) != str(chapter):
-            continue
-        span = longest_copied_span(completion, hit.get("text") or "")
-        if len(span) > len(best[0]):
-            best = (span, hit)
-    if best[1] is None:
-        return None, ""
-    snapped = _original_case(best[0], best[1].get("text") or "")
-    return best[1], snapped
-
-
-DANGLING_END_WORDS = frozenset({
-    "on", "of", "in", "to", "for", "with", "by", "at", "from", "the", "a", "an",
-    "and", "or", "as", "not", "simply", "large", "into", "such", "than", "that",
-    "which", "is", "are",
-})
-
-
-def _complete_truncated_quote(quote: str, passage_text: str) -> str:
-    """Complete a quote if it was cut off mid-sentence or has unbalanced parentheses."""
-    if not quote or not passage_text:
-        return quote
-    q = quote.strip()
-    pos = passage_text.find(q)
-    if pos == -1:
-        idx = passage_text.lower().find(q.lower())
-        if idx != -1:
-            q = passage_text[idx:idx + len(q)]
-            pos = idx
-        else:
-            return quote
-
-    unbalanced_parens = q.count("(") > q.count(")")
-    words_q = re.findall(r"\b[A-Za-z0-9_-]+\b", q)
-    last_word = words_q[-1].lower() if words_q else ""
-    ends_dangling = (last_word in DANGLING_END_WORDS) or bool(re.search(r"[,;:\-—–]\s*$", q))
-
-    if not unbalanced_parens and not ends_dangling:
-        return quote
-
-    start_pos = pos
-    if q and q[0].islower() and start_pos > 0 and (unbalanced_parens or ends_dangling):
-        prev_text = passage_text[:start_pos]
-        m = list(re.finditer(r'(?<=[.!?\n])\s+', prev_text))
-        if m:
-            cand_start = m[-1].end()
-            if start_pos - cand_start < 80:
-                start_pos = cand_start
-
-    open_parens = q.count("(") - q.count(")")
-    cur = pos + len(q)
-    n = len(passage_text)
-    while cur < n:
-        ch = passage_text[cur]
-        if ch == "(":
-            open_parens += 1
-        elif ch == ")":
-            open_parens -= 1
-        elif ch in ".!?\n":
-            if open_parens <= 0:
-                cur += 1
-                while cur < n and passage_text[cur] in '"\'”’)':
-                    cur += 1
-                completed = passage_text[start_pos:cur].strip()
-                if len(completed) <= PARAGRAPH_CAP:
-                    return completed
-                break
-        cur += 1
-
-    return q
-
-
-
-
-def _tagless_citation(text, passages):
-    """A verified citation from a reply that forgot the [Ch. tag, or None.
-
-    Whole text verbatim in a shown passage first (case kept), else the longest
-    word-for-word span across the shown passages. No gloss: without the tag
-    there is no marker for where prose ends and the quote begins.
-    """
-    quote = _strip_quotes(text)
-    hit = _matching_passage_anywhere(quote, passages)
-    if hit is not None and (
-        len(quote) >= SPAN_MIN_CHARS or _short_sentence(text, quote)
-    ):
-        quote = _complete_truncated_quote(quote, hit.get("text") or "")
-        return {
-            "chunk_id": hit["chunk_id"],
-            "chapter": str(hit["chapter"]),
-            "quote": quote,
-        }
-    best = ("", None)
-    for hit in passages:
-        span = longest_copied_span(text, hit.get("text") or "")
-        if len(span) > len(best[0]):
-            best = (span, hit)
-    if best[1] is None:
-        return None
-    snapped = _original_case(best[0], best[1].get("text") or "")
-    snapped = _complete_truncated_quote(snapped, best[1].get("text") or "")
-    return {
-        "chunk_id": best[1]["chunk_id"],
-        "chapter": str(best[1]["chapter"]),
-        "quote": snapped,
-    }
-
-
-def _matching_passage(chapter, quote, passages):
-    for hit in passages:
-        if str(hit["chapter"]) != str(chapter):
-            continue
-        if _quote_in_passage(quote, hit["text"]):
-            return hit
-    return None
-
-
-def _matching_passage_anywhere(quote, passages):
-    """A verbatim quote from any attached passage is still a true quote.
-
-    The model's [Ch. N] tag can slip when the matching passage sits last in
-    a list of mostly one chapter (measured 2026-10-12: tagged [Ch. 1] for a
-    ch04 sentence). The answer's chapter is rebuilt from the matched hit.
-    """
-    for hit in passages:
-        if _quote_in_passage(quote, hit["text"]):
-            return hit
-    return None
-
-
-def _paragraph_around(quote, passage_text):
-    """The passage paragraph that holds the quote, whitespace-normalized."""
-    folded = _fold(quote)
-    if not folded:
-        return ""
-    for paragraph in re.split(r"\n\s*\n", passage_text or ""):
-        if folded in _fold(paragraph):
-            return re.sub(r"\s+", " ", paragraph).strip()
-    return ""
-
-
-def _plural(word):
-    """True when an English word is a regular plural — the list detector.
-
-    Stemming's first step is a suffix rule, not a dictionary; the same works
-    here. "disadvantages", "types", "steps", "categories", "batches" pass;
-    "endpoint", "analysis", "status", "business", "class" do not. Irregulars
-    ("criteria") fall through to the model's own answer, the safe side.
-    """
-    if len(word) < 4 or word.endswith(("ss", "us", "is", "ous")):
-        return False
-    if word.endswith("ies"):
-        return True
-    if word.endswith(("ches", "shes", "xes", "zes", "ses")):
-        return True
-    return word.endswith("s")
-
-
-def _whole_paragraph(anchors, paragraph, quote):
-    """True when the paragraph around a verified quote replaces it.
-
-    Two triggers, both book-general:
-    - the paragraph holds an anchor word the quote lacks: the model quoted
-      near the topic without naming it, so the paragraph is the answering
-      material;
-    - the paragraph holds a plural anchor ("disadvantages", "types",
-      "steps"): a plural question wants the kinds of a thing, and the
-      paragraph is the book's list (measured: "multicloud methodology
-      disadvantages" takes the paragraph while "endpoint" keeps the model's
-      sentence, 2026-10-13).
-    The paragraph must also fit PARAGRAPH_CAP, so an answer quote stays about
-    one screen. The quote is passage text and the paragraph holds it, so the
-    swap can only add book text; the quote check holds by construction.
-    """
-    if not paragraph or len(paragraph) > PARAGRAPH_CAP:
-        return False
-    folded = _fold(paragraph)
-    folded_quote = _fold(quote)
-    for word in anchors:
-        pat = _token_word_pattern(word)
-        if not pat.search(folded):
-            continue
-        if _plural(word) or not pat.search(folded_quote):
-            return True
-    return False
-
-
-# Closed English classes. A list ask names the shape of the answer, not a topic.
-LIST_ASK = re.compile(
-    r"\b(?:what are|which are|what were|list the)\b"
-    r"|\b(?:factors|parts|kinds|types|steps|stages)\b"
-    r"(?:\W+\w+){0,6}\W+(?:of|to)\b",
-    re.I,
-)
-# Digits stay: a version token is one side of a comparison, and splitting on
-# letters alone would fold both numbered sides into the same stem.
-SIDE_SPLIT = re.compile(r"[^a-z0-9]+")
-SIDE_DROP = frozenset({
-    "what", "is", "the", "difference", "between", "and", "vs", "versus",
-    "how", "why", "who", "which", "are", "was", "were", "do", "does", "did",
-    "can", "could", "should", "would", "a", "an", "with", "from", "than", "to",
-    "against", "or",
-})
-COMPARISON_PATTERNS = (
-    # 1) difference between X and Y
-    re.compile(r"\bdifference\s+between\s+(.+?)\s+and\s+(.+?)\s*[?.!]*$", re.I),
-    # 2) how does X stack up against / compare to / compared to / measure up to / differ from Y
-    re.compile(
-        r"\b(?:how\s+(?:does|do|can|is|are)\s+)?(.+?)\s+(?:stack\s+up\s+against|compare\s+(?:to|with|against)|compared\s+(?:to|with|against)|measure\s+up\s+(?:to|against)|differ\s+from)\s+(.+?)\s*[?.!]*$",
-        re.I,
-    ),
-    # 2b) how do X and Y compare
-    re.compile(
-        r"\b(?:how\s+(?:does|do|can|is|are)\s+)?(.+?)\s+and\s+(.+?)\s+compare\s*[?.!]*$",
-        re.I,
-    ),
-    # 3) compare / contrast / distinguish X and/with/to/from/vs Y
-    re.compile(
-        r"\b(?:compare|comparing|contrast|contrasting|distinguish(?:\s+between)?)\s+(.+?)\s+(?:and|with|to|from|vs\.?|versus)\s+(.+?)\s*[?.!]*$",
-        re.I,
-    ),
-    # 4) is/are/was/were X better/worse/faster/slower/cheaper/simpler/more .../less ... than Y
-    re.compile(
-        r"\b(?:is|are|was|were)\s+(.+?)\s+(?:better|worse|faster|slower|cheaper|simpler|more\s+\w+|less\s+\w+)\s+than\s+(.+?)\s*[?.!]*$",
-        re.I,
-    ),
-    # 5) what sets X apart from Y
-    re.compile(r"\bwhat\s+sets\s+(.+?)\s+apart\s+from\s+(.+?)\s*[?.!]*$", re.I),
-)
-ONE_VERSUS = re.compile(r"\bvs\.?(?!\w)|\bversus\b", re.I)
-
-
-def _list_ask(question, asked_form):
-    """True when the question asks for items, not a definition."""
-    for text in (question, asked_form):
-        if text and LIST_ASK.search(text):
-            return True
-    return False
-
-
-def _is_lead_in(quote):
-    """True when a quote only introduces a list and does not hold the items.
-
-    A trailing colon is the printed cue. A sentence that names "the following"
-    is a lead-in only when what follows that phrase is itself a lead-in: no
-    second sentence, no comma or semicolon listing the items.
-    """
-    text = (quote or "").strip()
-    if not text:
-        return False
-    if text.endswith(":"):
-        return True
-    folded = text.lower()
-    marker = folded.find("the following")
-    if marker < 0:
-        return False
-    tail = folded[marker + len("the following"):]
-    if re.search(r"[.!?]\s+\S", tail):
-        return False
-    if "," in tail or ";" in tail:
-        return False
-    return True
-
-
-def _after_lead_in(quote, passage_text):
-    """Verbatim passage text after the lead-in, in the same paragraph.
-
-    Empty when the passage ends at the lead-in. Nothing is added that the
-    passage does not already contain.
-    """
-    pat = _words_pattern(quote)
-    if pat is None or not passage_text:
-        return ""
-    match = pat.search(passage_text)
-    if not match:
-        return ""
-    rest = passage_text[match.end():]
-    paragraphs = [
-        piece.strip() for piece in re.split(r"\n\s*\n", rest) if piece.strip()
-    ]
-    # A colon lead-in is often its own paragraph. The items are the next one.
-    if len(paragraphs) >= 2 and len(paragraphs[0]) < 80 and not paragraphs[0].endswith((".", "!", "?")):
-        items = []
-        for p in paragraphs:
-            if len(p) < 80 and not p.endswith((".", "!", "?")) and not p.startswith(("Chapter ", "Figure ")):
-                items.append(re.sub(r"\s+", " ", p).strip())
-            else:
-                break
-        paragraph = ", ".join(items) if items else (paragraphs[0] if paragraphs else "")
-    else:
-        paragraph = paragraphs[0] if paragraphs else ""
-    continuation = re.sub(r"\s+", " ", paragraph).strip()
-    if len(continuation) > PARAGRAPH_CAP:
-        cut = continuation[:PARAGRAPH_CAP]
-        boundary = cut.rfind(" ")
-        continuation = cut if boundary < 0 else cut[:boundary]
-    return continuation.strip()
-
-
-def _replace_lead_in(answer, lead, continuation):
-    """Swap the lead-in for the items, including inside quotation marks."""
-    if not lead or lead not in answer:
-        return answer
-    return answer.replace(lead, continuation, 1)
-
-
-def _expand_list(body, question, asked_form, passages):
-    """Swap a lead-in quote for the items that follow it in the same passage."""
-    if body.get("refused") or not _list_ask(question, asked_form):
-        return body
-    by_id = {hit.get("chunk_id"): hit for hit in passages}
-    expanded = False
-    for item in body.get("citations") or []:
-        hit = by_id.get(item.get("chunk_id"))
-        if hit is None or not _is_lead_in(item.get("quote")):
-            continue
-        continuation = _after_lead_in(item.get("quote"), hit.get("text") or "")
-        if not continuation:
-            continue
-        lead = item["quote"]
-        item["quote"] = continuation
-        body["answer"] = _replace_lead_in(body["answer"], lead, continuation)
-        if continuation not in body["answer"]:
-            body["answer"] = (
-                body["answer"].rstrip()
-                + f"\n[Ch. {item['chapter']}] \"{continuation}\""
-            )
-        expanded = True
-    # A lead-in can sit in the model's quotes and not match the citation string.
-    def swap(match):
-        lead = match.group(1)
-        if not _is_lead_in(lead):
-            return match.group(0)
-        for hit in passages:
-            continuation = _after_lead_in(lead, hit.get("text") or "")
-            if continuation:
-                return f'"{continuation}"'
-        return match.group(0)
-
-    swapped = re.sub(r'["\u201c]([^"\u201c\u201d]+)["\u201d]', swap, body["answer"])
-    body["answer"] = _drop_lead_in_already_listed(swapped)
-    return body
-
-
-def _drop_lead_in_already_listed(answer):
-    """A lead-in quote line goes when a later quote already holds the items."""
-    lines = answer.splitlines()
-    quote_line = re.compile(
-        r'\[Ch\.\s*[^\]]+\]\s*["\u201c]([^"\u201c\u201d]+)["\u201d]'
-    )
-    later_items = False
-    for line in lines:
-        match = quote_line.match(line.strip())
-        if match and not _is_lead_in(match.group(1)) and len(match.group(1)) >= 40:
-            later_items = True
-            break
-    if not later_items:
-        return answer
-    kept = []
-    seen = []
-    for line in lines:
-        match = quote_line.match(line.strip())
-        if match and _is_lead_in(match.group(1)):
-            continue
-        if match:
-            quote = match.group(1)
-            if any(quote in earlier or earlier in quote for earlier in seen):
-                continue
-            seen.append(quote)
-        kept.append(line)
-    return "\n".join(kept)
-
-
-def _clean_side(text):
-    """Strip question fillers, auxiliaries, and articles from a comparison side."""
-    text = (text or "").strip(" ?.!\"'")
-    text = re.sub(
-        r"^(?:what\s+is|what\s+are|how\s+does|how\s+do|how\s+is|how\s+are|why\s+is|why\s+does)\s+",
-        "",
-        text,
-        flags=re.I,
-    )
-    text = re.sub(
-        r"^(?:is|are|was|were|do|does|did|can|could|should|would)\s+",
-        "",
-        text,
-        flags=re.I,
-    )
-    text = re.sub(r"^(?:the|a|an)\s+", "", text, flags=re.I)
-    return text.strip(" ?.!\"'")
-
-
-def _comparison_sides(*texts):
-    """(left, right) raw sides of a comparison, or None.
-
-    Matches difference-between, comparison predicates, compare/contrast,
-    comparative adjectives, what-sets-apart, or exactly one vs/versus.
-    Either the original question or its canonical rewrite qualifies.
-    """
-    candidates = [text.strip() for text in texts if text and text.strip()]
-    pronouns = _PRONOUNS_SET
-    for text in candidates:
-        prefix_subj = ""
-        q_clean = (text or "").strip()
-        m_reg = _REGARDING_PREFIX_RE.match(q_clean)
-        if m_reg:
-            prefix_subj = m_reg.group(1).strip()
-            q_clean = m_reg.group(2).strip()
-
-        for pat in COMPARISON_PATTERNS:
-            match = pat.search(q_clean)
-            if match:
-                left = _clean_side(match.group(1))
-                right = _clean_side(match.group(2))
-                if left and left.lower() in pronouns:
-                    left = prefix_subj if prefix_subj else None
-                if right and right.lower() in pronouns:
-                    right = prefix_subj if prefix_subj else None
-                if not left or not right:
-                    continue
-                if "regarding " in left.lower() or "regarding " in right.lower():
-                    continue
-                if "how does " in left.lower() or "how does " in right.lower():
-                    continue
-                if left.lower() in pronouns or right.lower() in pronouns:
-                    continue
-                return left, right
-
-        hits = list(ONE_VERSUS.finditer(q_clean))
-        if len(hits) == 1:
-            hit = hits[0]
-            left = _clean_side(q_clean[:hit.start()])
-            right = _clean_side(q_clean[hit.end():])
-            if left and left.lower() in pronouns:
-                left = prefix_subj if prefix_subj else None
-            if right and right.lower() in pronouns:
-                right = prefix_subj if prefix_subj else None
-            if not left or not right:
-                continue
-            if "regarding " in left.lower() or "regarding " in right.lower():
-                continue
-            if "how does " in left.lower() or "how does " in right.lower():
-                continue
-            if left.lower() in pronouns or right.lower() in pronouns:
-                continue
-            return left, right
-
-    return None
-
-
-def _side_tokens(side):
-    """Content tokens of one side. Closed function words and short tokens drop."""
-    cleaned = _clean_side(side)
-    tokens = []
-    for token in SIDE_SPLIT.split((cleaned or "").lower()):
-        if len(token) < 3 or token in SIDE_DROP:
-            continue
-        tokens.append(token)
-    return tokens
-
-
-def _side_covered(tokens, passages):
-    """The shown passage holding every token as a whole word, or None."""
-    if not tokens:
-        return None
-    patterns = [_token_word_pattern(token) for token in tokens]
-    for hit in passages:
-        folded = f"{hit.get('heading') or ''} {hit.get('text') or ''}".lower()
-        if all(pattern.search(folded) for pattern in patterns):
-            return hit
-    return None
-
-
-def _covering_quote(tokens, hit):
-    """A verbatim sentence naming the covered side, else its paragraph.
-
-    Nothing under the quote floor is invented into a sentence. Empty when the
-    passage has no quotable span that names the side.
-    """
-    text = hit.get("text") or ""
-    patterns = [_token_word_pattern(token) for token in tokens]
-    for sentence in _sentences(text):
-        if all(pattern.search(sentence.lower()) for pattern in patterns):
-            return _without_heading(sentence, hit)
-    paragraph = _WHITESPACE_RE.sub(" ", text).strip()
-    if (
-        len(paragraph) <= PARAGRAPH_CAP
-        and len(paragraph) >= SPAN_MIN_CHARS
-        and all(pattern.search(paragraph.lower()) for pattern in patterns)
-    ):
-        return _without_heading(paragraph, hit)
-    return ""
-
-
-def _half_covered(body, question, asked_form, passages, figures):
-    """Answer the covered side of a comparison when only one side is in the passages.
-
-    Fires only when exactly one side is in the shown passages and a verbatim
-    span can be quoted. The other side is named in a gloss, never quoted and
-    never given attributes the passages do not contain.
-    """
-    sides = _comparison_sides(question, asked_form)
-    if sides is None:
-        return body
-    found = []
-    for side in sides:
-        tokens = _side_tokens(side)
-        found.append((side, tokens, _side_covered(tokens, passages)))
-    covered = [item for item in found if item[2] is not None]
-    missing = [item for item in found if item[2] is None]
-    if len(covered) != 1 or len(missing) != 1:
-        return body
-    missing_name = missing[0][0].strip()
-    if missing_name.lower().startswith("regarding") or missing_name.lower().startswith("in "):
-        return body
-    if (not body.get("refused")
-            and missing_name.lower() in body.get("answer", "").lower()
-            and re.search(r"\b(not\s+mention|does\s+not|do\s+not|absent)\b", body.get("answer", ""), re.I)):
-        return body
-    side, tokens, hit = covered[0]
-    quote = _covering_quote(tokens, hit)
-    if not quote:
-        return body
-    chapter = str(hit["chapter"])
-    gloss = f"The passages do not mention {missing_name}."
-    return {
-        "answer": f'[Ch. {chapter}] "{quote}"\n{gloss}',
-        "citations": [{
-            "chunk_id": hit["chunk_id"],
-            "chapter": chapter,
-            "quote": quote,
-        }],
-        "figures": figures_for([hit], figures or []),
-        "refused": False,
-    }
-
-
-def _without_heading(quote, passage):
-    """A quote that opens with the passage's heading line drops it.
-
-    A chunk's first line is its heading, so a model copying across that line
-    writes "Insert-Only The insert-only pattern retains history..." or "Key
-    considerations for the transformation phase Logically, we treat..." —
-    verbatim, but it reads as a fragment.
-
-    The test is what follows the heading: a heading that runs on into its own
-    sentence leaves a lowercase remainder ("Modularity allows engineers..."),
-    and a heading that was the sentence's subject leaves a bracket or lower case
-    ("Modularity (Figure 4-5) is...", "Storage is the cornerstone..."). Only a
-    genuine new sentence after the heading — an upper-case start of real length
-    — gets the heading dropped.
-    """
-    heading = (passage.get("text") or "").split("\n", 1)[0].strip()
-    pat = _heading_prefix_pattern(heading)
-    if pat is None:
-        return quote
-    match = pat.match(quote)
-    if not match:
-        return quote
-    rest = quote[match.end():].strip()
-    if len(rest) < SPAN_MIN_CHARS or not rest[:1].isupper():
-        return quote
-    return rest
-
-
-CANONICAL_ACRONYMS = {
-    "ddr5": "DDR5", "ddr4": "DDR4", "ddr3": "DDR3",
-    "ssds": "SSDs", "ssd": "SSD", "ram": "RAM", "sram": "SRAM", "dram": "DRAM",
-    "nvme": "NVMe", "hdd": "HDD", "hdds": "HDDs", "iops": "IOPS",
-    "cpu": "CPU", "cpus": "CPUs", "gpu": "GPU", "gpus": "GPUs",
-    "vms": "VMs", "vm": "VM", "aws": "AWS", "gcp": "GCP",
-    "s3": "S3", "ec2": "EC2", "emr": "EMR", "rds": "RDS",
-    "sql": "SQL", "nosql": "NoSQL", "newsql": "NewSQL",
-    "oltp": "OLTP", "olap": "OLAP", "htap": "HTAP",
-    "etl": "ETL", "elt": "ELT", "cdc": "CDC",
-    "dag": "DAG", "dags": "DAGs", "api": "API", "apis": "APIs",
-    "sla": "SLA", "slas": "SLAs", "slo": "SLO", "slos": "SLOs", "sli": "SLI",
-    "crud": "CRUD", "acid": "ACID", "base": None,  # skip common English word 'base'
-    "json": "JSON", "csv": "CSV", "xml": "XML", "yaml": "YAML",
-    "http": "HTTP", "https": "HTTPS", "tcp": "TCP", "udp": "UDP",
-    "tls": "TLS", "dns": "DNS", "bgp": "BGP", "iot": "IoT",
-    "3nf": "3NF", "2nf": "2NF", "1nf": "1NF", "bcnf": "BCNF",
-    "fifo": "FIFO", "lifo": "LIFO", "rbac": "RBAC", "iam": "IAM",
-    "pii": "PII", "gdpr": "GDPR", "hipaa": "HIPAA", "ccpa": "CCPA",
-    "roi": "ROI", "tco": "TCO", "capex": "CapEx", "opex": "OpEx",
-    "cicd": "CI/CD", "ci/cd": "CI/CD", "sdk": "SDK", "cli": "CLI",
-    "ml": "ML", "ai": "AI", "bi": "BI", "crm": "CRM", "crms": "CRMs", "cdp": "CDP", "cdps": "CDPs",
-    "erp": "ERP", "erps": "ERPs", "saas": "SaaS", "paas": "PaaS", "iaas": "IaaS",
-    "dbms": "DBMS", "rdbms": "RDBMS", "mpp": "MPP", "eda": "EDA",
-    "mlops": "MLOps", "dataops": "DataOps", "finops": "FinOps", "devops": "DevOps",
-    "llvm": "LLVM", "ssa": "SSA", "bwa": "BWA", "fastq": "FASTQ", "crispr": "CRISPR",
-    "rna": "RNA", "dna": "DNA",
-}
-
-_CANONICAL_ACRONYM_MAP = {k: v for k, v in CANONICAL_ACRONYMS.items() if v}
-_ACRONYM_SORTED_KEYS = sorted(_CANONICAL_ACRONYM_MAP.keys(), key=len, reverse=True)
-_ACRONYM_PATTERN = re.compile(
-    r"\b(" + "|".join(re.escape(k) for k in _ACRONYM_SORTED_KEYS) + r")\b",
-    re.IGNORECASE,
-)
-
-
-def fix_acronym_casing(text: str) -> str:
-    """Normalize casing of common technical acronyms (e.g. Ddr5 -> DDR5, Ssds -> SSDs)."""
-    if not text:
-        return text
-
-    def _sub(m):
-        raw = m.group(0).lower()
-        return _CANONICAL_ACRONYM_MAP.get(raw, m.group(0))
-
-    return _ACRONYM_PATTERN.sub(_sub, text)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def _extract_query_entities(q: str, heading: str = "") -> list[str]:
@@ -1246,35 +501,6 @@ def _has_content_word_overlap(s1: str, s2: str, exclude: str = "") -> bool:
     return bool(w1 & w2)
 
 
-def _clean_boilerplate_gloss(gloss, selection=""):
-    """Clean robotic boilerplate or formulaic crutches from a gloss."""
-    if not gloss:
-        return ""
-    text = (gloss or "").strip()
-    text = _BOILERPLATE_PROMPT_LEAK_RE.sub("", text)
-    text = _IN_THIS_CONTEXT_START_RE.sub("", text)
-    text = _IN_THIS_CONTEXT_WORD_RE.sub("here", text)
-    text = _HIGHLIGHTED_QUESTION_RE.sub("The question", text)
-    text = _IN_THIS_PASSAGE_START_RE.sub("", text)
-    if selection:
-        sel_words = selection.strip().split()
-        replacement = "The highlighted word" if len(sel_words) == 1 else "The highlighted phrase"
-        text = _PASSAGE_VERB_RE.sub(f"{replacement} ", text)
-        text = _PASSAGE_START_RE.sub(f"{replacement} ", text)
-        text = _HIGHLIGHTED_TERM_RE.sub(replacement, text)
-        text = _HIGHLIGHTED_NOT_WORD_PHRASE_RE.sub(replacement, text)
-    else:
-        text = _PASSAGE_START_RE.sub("This section ", text)
-        text = _HIGHLIGHTED_TERM_RE.sub("This section", text)
-        text = _HIGHLIGHTED_NOT_WORD_PHRASE_RE.sub("This section", text)
-    text = _REFERS_TO_A_RE.sub("is a", text)
-    text = _REFERS_TO_THE_RE.sub("is the", text)
-    text = _REFERS_TO_RE.sub("means", text)
-    text = _TRAILING_PREP_WORD_DOT_RE.sub(".", text)
-    text = " ".join(text.split()).strip("\"'“”")
-    if text:
-        text = text[0].upper() + text[1:]
-    return fix_acronym_casing(text)
 
 
 def _is_coherent_gloss(gloss: str, quote: str = "", question: str = "") -> bool:
@@ -1342,59 +568,6 @@ def _is_coherent_gloss(gloss: str, quote: str = "", question: str = "") -> bool:
     return True
 
 
-def _reground_alphanumeric_quote(quote, question, chunk_text):
-    """Ensure quotes for normal forms, SCD types, acronyms, and attributions align to the exact form asked."""
-    q_low = (question or "").lower()
-    text = chunk_text or ""
-    if "3nf" in q_low or "third normal form" in q_low:
-        if "1nf" in quote.lower() and "transitive" not in quote.lower() and "2nf" not in quote.lower():
-            for sent in _sentences(text):
-                if ("transitive" in sent.lower() or "2nf" in sent.lower()) and len(sent) >= 30:
-                    return _complete_truncated_quote(sent, text)
-    elif "2nf" in q_low or "second normal form" in q_low:
-        if "transitive" in quote.lower() or "single value" in quote.lower():
-            for sent in _sentences(text):
-                if ("partial" in sent.lower() or "1nf" in sent.lower()) and len(sent) >= 30:
-                    return _complete_truncated_quote(sent, text)
-    elif "1nf" in q_low or "first normal form" in q_low:
-        if "partial" in quote.lower() or "transitive" in quote.lower():
-            for sent in _sentences(text):
-                if ("single value" in sent.lower() or "primary key" in sent.lower()) and "partial" not in sent.lower() and len(sent) >= 30:
-                    return _complete_truncated_quote(sent, text)
-    elif _TYPE_2_RE.search(q_low):
-        if "type 3" in quote.lower() or ("type 2" not in quote.lower() and "type-2" not in quote.lower() and "effective end date" not in quote.lower()):
-            for sent in _sentences(text):
-                sent_low = sent.lower()
-                if ("type 2" in sent_low or "type-2" in sent_low) and ("new record" in sent_low or "history" in sent_low or "inserted" in sent_low or "full history" in sent_low):
-                    return _complete_truncated_quote(sent, text)
-                if "keep a full history of dimension records" in sent_low or ("effective end date" in sent_low and "new record" in sent_low):
-                    return _complete_truncated_quote(sent, text)
-    elif _S3_RE.search(q_low):
-        if not any(k in quote.lower() for k in ("object", "amazon", "cloud", "storage")):
-            for sent in _sentences(text):
-                sent_low = sent.lower()
-                if "s3" in sent_low and any(k in sent_low for k in ("amazon", "object", "cloud", "storage")):
-                    return _complete_truncated_quote(sent, text)
-    elif _IOPS_RE.search(q_low):
-        if "per second" not in quote.lower() and "input/output" not in quote.lower():
-            for sent in _sentences(text):
-                sent_low = sent.lower()
-                if "iops" in sent_low and any(k in sent_low for k in ("per second", "input/output", "operations", "bottleneck", "limitation")):
-                    return _complete_truncated_quote(sent, text)
-    elif _SLA_SLO_RE.search(q_low):
-        if not _SLA_SLO_RE.search(quote.lower()):
-            for sent in _sentences(text):
-                if _SLA_SLO_RE.search(sent.lower()) and len(sent) >= 30:
-                    return _complete_truncated_quote(sent, text)
-    elif _WHO_CREATED_RE.search(q_low):
-        has_author_name = bool(_AUTHOR_NAME_RE.search(quote))
-        if not has_author_name:
-            for sent in _sentences(text):
-                sent_low = sent.lower()
-                if any(w in sent_low for w in _ATTRIBUTION_MARKERS):
-                    if _AUTHOR_NAME_RE.search(sent):
-                        return _complete_truncated_quote(sent, text)
-    return _complete_truncated_quote(quote, text)
 
 
 def _clean_selection_text(sel: str) -> str:
@@ -1408,20 +581,6 @@ def _clean_selection_text(sel: str) -> str:
     return re.sub(r"\s+", " ", raw).strip()
 
 
-SIMPLIFY_RE = re.compile(
-    r"\b("
-    r"explain\s+(?:it\s+|this\s+|that\s+)?(?:more\s+)?simpl[ey](?:\s+words)?|"
-    r"more\s+simply|simpler\s+words|in\s+simple\s+words|in\s+simpler\s+words|"
-    r"simplify|simplification|make\s+(?:this|it)\s+simpler|put\s+(?:this|it)\s+simply|"
-    r"in\s+plain\s+(?:english|words|terms)|plain\s+english|"
-    r"break\s+(?:this|it|that)\s+down|"
-    r"what\s+does\s+(?:this|that|it)\s+mean|"
-    r"eli5|easier\s+to\s+understand|"
-    r"shorter|in\s+one\s+(?:short\s+)?sentence|one\s+short\s+sentence|"
-    r"main\s+takeaway|key\s+takeaway|summar(?:ize|y)(?:\s+(?:this|it))?|tl;dr"
-    r")\b|^shorter\??$",
-    re.IGNORECASE,
-)
 
 
 GENERIC_FOLLOWUP_RE = re.compile(
@@ -1658,346 +817,10 @@ def _is_topic_shift_followup(question: str, history: list, selection: str = "", 
         return False
 
 
-def parse_completion(completion, passages, figures=None, anchors=None, question=""):
-    """Return a contract body. Unchecked prose is a refusal.
-
-    A figure is attached only when a passage the answer cited names it. When
-    the paragraph around a verified quote holds an anchor word and fits
-    PARAGRAPH_CAP, the paragraph replaces the quote; paragraph text is passage
-    text, so the quote check holds by construction.
-    """
-    text = (completion or "").strip()
-    if text == REFUSAL:
-        return _refusal(passages, figures)
-
-    citations = []
-    gloss = []
-    if not text.startswith("[Ch."):
-        # The model sometimes writes the book's own sentence and forgets the
-        # tag (measured: "Normalization is a database data modeling practice
-        # ...", 2026-10-13). The verification is the same rule as everywhere:
-        # verbatim in a shown passage, or a long enough word-for-word span;
-        # the tag is rebuilt from the matched passage. Unverified prose is
-        # still a refusal.
-        citation = _tagless_citation(text, passages)
-        if citation is None:
-            return _refusal(passages, figures)
-        citations.append(citation)
-    else:
-        for line in text.splitlines():
-            stripped = line.strip()
-            if not stripped:
-                continue
-            match = re.match(r"\[Ch\.\s*([^\]]+)\]\s*(.*)", stripped)
-            if not match:
-                gloss.append(stripped)
-                continue
-            chapter = match.group(1).strip().rstrip(".")
-            rest = match.group(2)
-            quoted = re.search(r"[\"“](.+?)[\"”]", rest)
-            raw = quoted.group(1) if quoted else rest
-            quote = _strip_quotes(raw)
-            if len(quote) < SPAN_MIN_CHARS and not _short_sentence(raw, quote):
-                quote = ""
-            hit = _matching_passage(chapter, quote, passages)
-            if hit is None:
-                hit = _matching_passage_anywhere(quote, passages)
-            if hit is None:
-                hit, quote = _span_from_chapter(chapter, rest, passages)
-            if hit is None:
-                hit, quote = _span_from_chapter(chapter, text, passages)
-            if hit is None:
-                return _refusal(passages, figures)
-            quote = _complete_truncated_quote(quote, hit.get("text") or "")
-            citations.append({
-                "chunk_id": hit["chunk_id"],
-                "chapter": str(hit["chapter"]),
-                "quote": quote,
-            })
-    if not citations:
-        return _refusal(passages, figures)
-    is_process_q = bool(re.search(r"\bhow\s+(?:does|do|can)\b", question or "", re.I))
-    if anchors or is_process_q:
-        for item in citations:
-            spot = next(
-                (hit for hit in passages if hit["chunk_id"] == item["chunk_id"]),
-                None,
-            )
-            if spot is None:
-                continue
-            paragraph = _paragraph_around(item["quote"], spot.get("text") or "")
-            if anchors and _whole_paragraph(anchors, paragraph, item["quote"]):
-                item["quote"] = paragraph
-            elif is_process_q and paragraph and len(paragraph) <= PARAGRAPH_CAP and len(paragraph) >= SPAN_MIN_CHARS:
-                item["quote"] = paragraph
-    # One trim, after every path that can set a quote: the anchor expansion
-    # above replaces the quote with the whole paragraph, heading line included.
-    for item in citations:
-        spot = next(
-            (hit for hit in passages if hit["chunk_id"] == item["chunk_id"]),
-            None,
-        )
-        if spot is not None:
-            item["quote"] = _without_heading(item["quote"], spot)
-            item["quote"] = _reground_alphanumeric_quote(
-                item["quote"], question, spot.get("text", "")
-            )
-
-    # Fully-covered comparison alignment: if query compares two concepts, cite the passage
-    # and sentence mentioning both sides when present.
-    sides = _comparison_sides(question)
-    if sides and len(passages) >= 1:
-        PRONOUNS = frozenset({"this", "it", "that", "they", "these", "those"})
-        left_is_pronoun = sides[0].lower() in PRONOUNS
-        right_is_pronoun = sides[1].lower() in PRONOUNS
-        tokens_left = [] if left_is_pronoun else _side_tokens(sides[0])
-        tokens_right = [] if right_is_pronoun else _side_tokens(sides[1])
-        if (tokens_left or left_is_pronoun) and (tokens_right or right_is_pronoun):
-            dual_hit = None
-            dual_sentence = None
-            best_contrast_score = -1
-            for p in passages:
-                p_text = p.get("text") or ""
-                p_low = p_text.lower()
-                hl = True if left_is_pronoun else all(re.search(rf"\b{re.escape(stem(t))}\w*\b", p_low) for t in tokens_left)
-                hr = True if right_is_pronoun else all(re.search(rf"\b{re.escape(stem(t))}\w*\b", p_low) for t in tokens_right)
-                if hl and hr and (not left_is_pronoun or hr) and (not right_is_pronoun or hl):
-                    c_score = 1
-                    for marker in ("unlike", "versus", "vs.", "vs", "difference between", "differ from", "differ", "compared to", "in contrast"):
-                        if marker in p_low:
-                            c_score += 5
-                    body_start = p_text.split("\n", 1)[1].strip() if "\n" in p_text else p_text
-                    if body_start.startswith("("):
-                        c_score -= 10
-                    if c_score > best_contrast_score:
-                        s_best = None
-                        sents = _candidate_sentences(p_text, p.get("heading") or "")
-                        for i, s in enumerate(sents):
-                            s_low = s.lower()
-                            in_left = True if left_is_pronoun else any(re.search(rf"\b{re.escape(stem(t))}\w*\b", s_low) for t in tokens_left)
-                            in_right = True if right_is_pronoun else any(re.search(rf"\b{re.escape(stem(t))}\w*\b", s_low) for t in tokens_right)
-                            if in_left and in_right:
-                                if len(s) >= SPAN_MIN_CHARS:
-                                    s_cand = _without_heading(s, p)
-                                    if len(s_cand) < 100:
-                                        if i > 0:
-                                            prev_s = _without_heading(sents[i - 1], p)
-                                            if len(prev_s) + 1 + len(s_cand) <= PARAGRAPH_CAP and _quote_in_passage(f"{prev_s} {s_cand}", p_text):
-                                                s_cand = f"{prev_s} {s_cand}"
-                                        elif i + 1 < len(sents):
-                                            next_s = _without_heading(sents[i + 1], p)
-                                            if len(s_cand) + 1 + len(next_s) <= PARAGRAPH_CAP and _quote_in_passage(f"{s_cand} {next_s}", p_text):
-                                                s_cand = f"{s_cand} {next_s}"
-                                    s_best = s_cand
-                                    break
-                            elif (in_left or in_right) and any(m in s_low for m in ("unlike", "difference", "versus", "differ")):
-                                if len(s) >= SPAN_MIN_CHARS and not s_best:
-                                    s_best = _without_heading(s, p)
-                        if not s_best:
-                            s_best = _without_heading(p_text.split("\n\n")[0], p)
-                        if s_best:
-                            best_contrast_score = c_score
-                            dual_hit = p
-                            dual_sentence = s_best
-            if dual_hit and dual_sentence:
-                cur_quote = citations[0]["quote"].lower() if citations else ""
-                cur_has_left = True if left_is_pronoun else any(re.search(rf"\b{re.escape(stem(t))}\w*\b", cur_quote) for t in tokens_left)
-                cur_has_right = True if right_is_pronoun else any(re.search(rf"\b{re.escape(stem(t))}\w*\b", cur_quote) for t in tokens_right)
-                if not (cur_has_left and cur_has_right) or dual_hit["chunk_id"] != citations[0]["chunk_id"]:
-                    citations = [{
-                        "chunk_id": dual_hit["chunk_id"],
-                        "chapter": str(dual_hit["chapter"]),
-                        "quote": dual_sentence,
-                    }]
-    answer_lines = [
-        f"[Ch. {item['chapter']}] \"{item['quote']}\"" for item in citations
-    ]
-    if gloss:
-        gloss_cleaned = _clean_boilerplate_gloss(" ".join(gloss))
-        if gloss_cleaned:
-            answer_lines.append(gloss_cleaned)
-    cited = {item["chunk_id"] for item in citations}
-    named = [hit for hit in passages if hit["chunk_id"] in cited] or passages
-    body = {
-        "answer": "\n".join(answer_lines),
-        "citations": citations,
-        "figures": figures_for(named, figures or []),
-        "refused": False,
-    }
-    return _align_citation_to_query_concepts(body, question, passages)
 
 
-def _align_citation_to_query_concepts(body, question, passages):
-    """Realign citations to passages that actually discuss the query's core acronyms or topic concepts."""
-    if not body or body.get("refused") or not body.get("citations") or not passages:
-        return body
-    citations = body["citations"]
-    cur_chunk_id = citations[0].get("chunk_id")
-
-    q_words = words(question)
-    raw_acronyms = [w.lower() for w in re.findall(r"\b[A-Za-z0-9]+\b", question) if (w.isupper() and len(w) >= 2) or w.lower() in ("s3", "iops", "aimd", "sla", "slo", "cdc")]
-    q_acronyms = sorted(raw_acronyms, key=lambda a: (0 if a in ("tcp", "ip", "udp") else 1, len(a)), reverse=True)
-    primary_ac = []
-    cur_has_acronym = False
-    if q_acronyms:
-        cur_hit = next((p for p in passages if p.get("chunk_id") == cur_chunk_id), None)
-        cur_text = ((cur_hit.get("heading") or "") + " " + (cur_hit.get("text") or "")).lower() if cur_hit else ""
-        # Does current cited passage have the specific acronyms?
-        primary_ac = [ac for ac in q_acronyms if ac not in ("tcp", "ip", "udp")] or q_acronyms
-        cur_has_acronym = any(re.search(rf"\b{re.escape(ac)}s?\b", cur_text) for ac in primary_ac)
-        if "iops" in primary_ac and cur_chunk_id != passages[0].get("chunk_id"):
-            p0_text = (passages[0].get("text") or "").lower()
-            if "operations per second" in p0_text and "operations per second" not in cur_text:
-                cur_has_acronym = False
-        if not cur_has_acronym:
-            best_hit = None
-            best_count = -100
-            for p in passages:
-                p_text = ((p.get("heading") or "") + " " + (p.get("text") or "")).lower()
-                head_text = (p.get("heading") or "").lower()
-                is_example = head_text.startswith("example:") or head_text.startswith("example ")
-                count = sum(2 if ac in primary_ac else 1 for ac in q_acronyms if re.search(rf"\b{re.escape(ac)}s?\b", p_text))
-                if is_example:
-                    count -= 3
-                if count > best_count:
-                    best_count = count
-                    best_hit = p
-            if best_hit:
-                b_text = best_hit.get("text") or ""
-                best_sent = ""
-                for ac in primary_ac:
-                    for s in _sentences(b_text):
-                        s_clean = _without_heading(s, best_hit)
-                        if re.search(rf"\b{re.escape(ac)}s?\b", s_clean.lower()) and len(s_clean) >= SPAN_MIN_CHARS:
-                            best_sent = s_clean
-                            break
-                    if best_sent:
-                        break
-                if not best_sent:
-                    for ac in primary_ac:
-                        para = _paragraph_around(ac, b_text)
-                        if para and len(para) <= PARAGRAPH_CAP and len(para) >= SPAN_MIN_CHARS:
-                            best_sent = _without_heading(para, best_hit)
-                            break
-                if best_sent:
-                    best_sent = _reground_alphanumeric_quote(best_sent, question, b_text)
-                    chap = str(best_hit["chapter"])
-                    return {
-                        "answer": f'[Ch. {chap}] "{best_sent}"\n{best_sent}',
-                        "citations": [{
-                            "chunk_id": best_hit["chunk_id"],
-                            "chapter": chap,
-                            "quote": best_sent,
-                        }],
-                        "figures": figures_for([best_hit], body.get("figures") or []),
-                        "refused": False,
-                    }
-
-    content_verbs = [w.lower() for w in q_words if w.lower() in ("extract", "extracting", "replicate", "ingest")]
-    if content_verbs:
-        cur_hit = next((p for p in passages if p.get("chunk_id") == cur_chunk_id), None)
-        cur_text = ((cur_hit.get("heading") or "") + " " + (cur_hit.get("text") or "")).lower() if cur_hit else ""
-        if not any(v in cur_text for v in content_verbs):
-            for p in passages:
-                p_text = ((p.get("heading") or "") + " " + (p.get("text") or "")).lower()
-                if any(v in p_text for v in content_verbs):
-                    for s in _sentences(p.get("text") or ""):
-                        s_clean = _without_heading(s, p)
-                        if any(v in s_clean.lower() for v in content_verbs) and len(s_clean) >= SPAN_MIN_CHARS:
-                            chap = str(p["chapter"])
-                            return {
-                                "answer": f'[Ch. {chap}] "{s_clean}"\n{s_clean}',
-                                "citations": [{
-                                    "chunk_id": p["chunk_id"],
-                                    "chapter": chap,
-                                    "quote": s_clean,
-                                }],
-                                "figures": figures_for([p], body.get("figures") or []),
-                                "refused": False,
-                            }
-
-    tokens = re.findall(r"\b[a-zA-Z0-9_-]+\b", question.lower())
-    phrases = []
-    for i in range(len(tokens) - 1):
-        w1, w2 = tokens[i], tokens[i + 1]
-        if w1 not in STOPWORDS and w1 not in STEM_WORDS and len(w1) >= 3:
-            if w2 not in STOPWORDS and w2 not in STEM_WORDS and len(w2) >= 3:
-                phrases.append(f"{w1} {w2}")
-    if phrases and passages and cur_chunk_id != passages[0].get("chunk_id") and not (primary_ac and cur_has_acronym):
-        cur_hit = next((p for p in passages if p.get("chunk_id") == cur_chunk_id), None)
-        cur_text = ((cur_hit.get("heading") or "") + " " + (cur_hit.get("text") or "")).lower() if cur_hit else ""
-        top_text = ((passages[0].get("heading") or "") + " " + (passages[0].get("text") or "")).lower()
-        matched_phrase = next((ph for ph in phrases if re.search(rf"\b{re.escape(ph)}\b", top_text)), None)
-        if matched_phrase and not re.search(rf"\b{re.escape(matched_phrase)}\b", cur_text):
-            p = passages[0]
-            for s in _sentences(p.get("text") or ""):
-                s_clean = _without_heading(s, p)
-                if re.search(rf"\b{re.escape(matched_phrase)}\b", s_clean.lower()) and len(s_clean) >= SPAN_MIN_CHARS:
-                    chap = str(p["chapter"])
-                    return {
-                        "answer": f'[Ch. {chap}] "{s_clean}"\n{s_clean}',
-                        "citations": [{
-                            "chunk_id": p["chunk_id"],
-                            "chapter": chap,
-                            "quote": s_clean,
-                        }],
-                        "figures": figures_for([p], body.get("figures") or []),
-                        "refused": False,
-                    }
-
-    creator_match = re.search(r"\bwho\s+(?:created|invented|designed|developed|authored|introduced|wrote|founded|proposed)\b", question, re.I)
-    if creator_match:
-        cur_quote = citations[0].get("quote", "") if citations else ""
-        has_author = bool(re.search(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", cur_quote)) or any(w in cur_quote.lower() for w in ("author", "creator", "created", "invented", "wrote", "book"))
-        if not has_author:
-            for p in passages:
-                p_text = p.get("text") or ""
-                for s in _sentences(p_text):
-                    s_clean = _without_heading(s, p)
-                    if len(s_clean) >= SPAN_MIN_CHARS and re.search(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", s_clean):
-                        if any(w in s_clean.lower() for w in ("noted", "book", "article", "creator", "created", "invented", "introduced", "proposed", "authored")):
-                            chap = str(p["chapter"])
-                            return {
-                                "answer": f'[Ch. {chap}] "{s_clean}"\n{s_clean}',
-                                "citations": [{
-                                    "chunk_id": p["chunk_id"],
-                                    "chapter": chap,
-                                    "quote": s_clean,
-                                }],
-                                "figures": figures_for([p], body.get("figures") or []),
-                                "refused": False,
-                            }
-
-    cur_hit = next((p for p in passages if p.get("chunk_id") == cur_chunk_id), None)
-    if cur_hit:
-        cur_q = citations[0].get("quote", "")
-        regrounded = _reground_alphanumeric_quote(cur_q, question, cur_hit.get("text", ""))
-        if regrounded and regrounded != cur_q:
-            citations[0]["quote"] = regrounded
-            lines = (body.get("answer") or "").splitlines()
-            if lines and lines[0].startswith("[Ch."):
-                lines[0] = f'[Ch. {citations[0]["chapter"]}] "{regrounded}"'
-                body["answer"] = "\n".join(lines)
-
-    return body
 
 
-def _refusal(passages, figures=None):
-    misses = []
-    for hit in passages[:3]:
-        snippet = re.sub(r"\s+", " ", hit.get("text") or "").strip()
-        misses.append({
-            "chunk_id": hit["chunk_id"],
-            "chapter": str(hit["chapter"]),
-            "quote": snippet[:MISS_QUOTE_CHARS],
-        })
-    return {
-        "answer": REFUSAL,
-        "citations": misses,
-        "figures": figures_for(passages[:3], figures or []),
-        "refused": True,
-        "followups": [],
-    }
 
 
 def _rank_seq_chunks(seq_chunks, question, history_subject=None):
@@ -2321,55 +1144,7 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
     return context
 
 
-@functools.lru_cache(maxsize=1024)
-def _candidate_sentences_cached(text, heading=""):
-    raw = (text or "").strip()
-    if not raw:
-        return ()
-    raw = raw.replace("\r\n", "\n").replace("\r", "\n")
-    paragraphs = [p.strip() for p in raw.split("\n\n") if p.strip()]
-    raw_candidates = []
-    for para in paragraphs:
-        lines = [line.strip() for line in para.splitlines() if line.strip()]
-        if not lines:
-            continue
-        body_lines = []
-        for i, line in enumerate(lines):
-            if i == 0 and len(lines) > 1 and not line.endswith((".", "?", "!", ":", ";", '"', "'", "”")):
-                raw_candidates.append(line)
-            else:
-                body_lines.append(line)
-        if body_lines:
-            body_text = " ".join(body_lines)
-            parts = [s.strip() for s in _SENTENCE_SPLIT_RE.split(body_text) if s.strip()]
-            raw_candidates.extend(parts)
 
-    if not raw_candidates:
-        return ()
-
-    head_norm = (heading or "").strip().lower()
-    has_terminal = any(_TERMINAL_PUNCT_RE.search(s.strip()) for s in raw_candidates)
-
-    filtered = []
-    for s in raw_candidates:
-        s_strip = s.strip()
-        if not s_strip:
-            continue
-        # a) matches heading.strip() (case-insensitive)
-        if head_norm and s_strip.lower() == head_norm:
-            continue
-        # b) matches r"^Chapter\s+\d+\b" and does not end with ., !, or ?
-        if _CHAPTER_PREFIX_RE.match(s_strip) and not _TERMINAL_PUNCT_RE.search(s_strip):
-            continue
-        # c) does not end with terminal punctuation when there are other sentences that DO
-        if has_terminal and not _TERMINAL_PUNCT_RE.search(s_strip):
-            continue
-        filtered.append(s_strip)
-
-    return tuple(filtered if filtered else raw_candidates)
-
-def _candidate_sentences(text, heading=""):
-    return list(_candidate_sentences_cached(text, heading))
 
 
 def _resolve_contextual_query(index, question, pin_chunk=None, selection="",
@@ -2488,62 +1263,8 @@ def _resolve_contextual_query(index, question, pin_chunk=None, selection="",
     return question
 
 
-def _followup_gloss_user_message(history, question, quote, chunk, neighbors=None):
-    clean_history = [
-        h for h in (history or [])
-        if isinstance(h, dict) and (h.get("question") or h.get("answer"))
-    ]
-    parts = []
-    if clean_history:
-        last = clean_history[-1]
-        parts.append(f"Previous reader question: {last.get('question', '')}")
-        last_a = (last.get("answer") or "").strip()
-        if last_a:
-            parts.append(f"Previous answer: {last_a}")
-    parts.append(f"Current reader follow-up question: {question}")
-    parts.append(f"Cited passage quote: {quote}")
-    if chunk.get("heading"):
-        parts.append(f"Section heading: {chunk['heading']}")
-    parts.append(f"\nPassage context:\n{chunk.get('text', '')}")
-    if neighbors:
-        for n in neighbors:
-            if n and n.get("text"):
-                parts.append(f"\nRelated context ({n.get('heading', '')}):\n{n['text']}")
-    if SIMPLIFY_RE.search(question):
-        q_low = question.lower()
-        if any(w in q_low for w in ("shorter", "one sentence", "one short sentence", "tl;dr")):
-            parts.append(
-                "\nRewrite the previous explanation in ONE short, punchy sentence (under 18 words) using plain everyday language."
-            )
-        else:
-            parts.append(
-                "\nRewrite and simplify the previous explanation in 1 to 2 plain, everyday sentences without technical jargon so any reader can immediately understand it."
-            )
-    else:
-        parts.append(
-            "\nWrite a direct 1 to 2 sentence answer that explicitly answers the follow-up question "
-            "and connects it to the previous turn. Ground strictly in the passage context."
-        )
-    return "\n".join(parts)
 
 
-def _answer_gloss_user_message(question, quote, chunk):
-    parts = [
-        f"Reader question: {question}",
-        f"Cited sentence from the book: {quote}",
-    ]
-    if chunk.get("heading"):
-        parts.append(f"Section heading: {chunk['heading']}")
-    parts.append(f"\nPassage context:\n{chunk.get('text', '')}")
-    if _list_ask(question, question):
-        parts.append(
-            "\nExplicitly name the specific items, stages, components, or types in your answer."
-        )
-    parts.append(
-        "\nWrite a direct 1 to 2 sentence answer in plain words that answers the reader's question "
-        "based on the passage context."
-    )
-    return "\n".join(parts)
 
 
 def _synthesize_grounded_gloss(selection, quote, pin_chunk_obj, neighbors, generate_fn, model):
@@ -2775,71 +1496,6 @@ def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_
     return None
 
 
-def _synthesize_list_answer(question: str, quote: str, chunk_obj: dict) -> str:
-    """Deterministically synthesize a crisp list answer naming specific items."""
-    raw_text = (chunk_obj.get("text") or "") if isinstance(chunk_obj, dict) else ""
-    items = []
-    if quote and "," in quote:
-        quote_src = quote
-        if ":" in quote:
-            quote_src = quote.split(":")[-1].strip().rstrip(".?!")
-        cand_items = [p.strip() for p in quote_src.split(",") if p.strip()]
-        if len(cand_items) >= 2:
-            items = cand_items
-    if not items and raw_text:
-        list_lines = [
-            line.strip() for line in raw_text.splitlines()
-            if 2 <= len(line.strip()) < 80
-            and not line.strip().endswith((".", "!", "?", ":"))
-            and not line.strip().startswith(("Chapter ", "Figure "))
-            and (line.strip()[0].isupper() or line.strip()[0].isdigit())
-        ]
-        if len(list_lines) >= 2:
-            items = list_lines
-    if not items:
-        return ""
-
-    def _fmt_item(item):
-        it = item.strip()
-        if it.isupper() or any(c.isupper() for c in it[1:]):
-            return it
-        return it[0].lower() + it[1:] if it else it
-
-    formatted = [_fmt_item(it) for it in items]
-    if formatted[-1].lower().startswith("and "):
-        formatted[-1] = formatted[-1][4:].strip()
-    if len(formatted) == 2:
-        items_str = f"{formatted[0]} and {formatted[1]}"
-    else:
-        items_str = ", ".join(formatted[:-1]) + f", and {formatted[-1]}"
-
-    lead = ""
-    m_q = re.search(r"\b(?:what|which)\s+(?:are|were)\s+the\s+(.+?)\s*\??$", question or "", re.I)
-    if m_q:
-        subj = m_q.group(1).strip()
-        lead = f"The {subj} are"
-    else:
-        m_list = re.search(r"\b(?:list|name)\s+the\s+(.+?)\s*\??$", question or "", re.I)
-        if m_list:
-            subj = m_list.group(1).strip()
-            lead = f"The {subj} are"
-        else:
-            for line in raw_text.splitlines():
-                l_s = line.strip()
-                if l_s.endswith(":") and len(l_s) >= 15:
-                    cleaned_lead = re.sub(r"\s*\([^)]*figure[^)]*\)", "", l_s, flags=re.I).rstrip(":").strip()
-                    if cleaned_lead:
-                        lead = f"{cleaned_lead}:"
-                        break
-            if not lead:
-                lead = "These include"
-
-    if lead.endswith(":"):
-        return f"{lead} {items_str}."
-    elif lead.endswith(("are", "is", "include")):
-        return f"{lead} {items_str}."
-    else:
-        return f"{lead}: {items_str}."
 
 
 def _ensure_answer_gloss(index, body, question, passages, is_live=False,
@@ -4105,95 +2761,6 @@ def _anchor_sentence_for_selection(chunk, selection):
     return best
 
 
-def _explain_gloss_user_message(selection, quote, pin_chunk, neighbors=None):
-    heading = (pin_chunk.get("heading") or "") if pin_chunk else ""
-    intent_info = analyze_intent(selection, heading, pin_chunk, neighbors) if pin_chunk else {}
-    intent_type = intent_info.get("intent_type") or classify_intent(selection, heading, pin_chunk)
-
-    if intent_type == INTENT_MULTI_SENTENCE:
-        parts = [
-            f"Passage to explain:\n{selection.strip()}",
-        ]
-        if heading:
-            parts.append(f"Section heading: {heading}")
-        parts.append(
-            "Explain in 1 to 2 plain, direct sentences the core takeaway of this passage and what it means for the reader."
-        )
-        return "\n\n".join(parts)
-
-    if intent_type == INTENT_CONCEPT_TERM:
-        core_concept = intent_info.get("core_concept") or extract_core_concept(selection, heading)
-        if intent_info.get("is_passing_mention"):
-            parts = [
-                f"Core concept: {core_concept}",
-                f"Sentence mentioning concept: {quote}",
-            ]
-            if heading:
-                parts.append(f"Section heading: {heading}")
-            if pin_chunk and pin_chunk.get("text"):
-                parts.append(f"Section context:\n{pin_chunk['text']}")
-            parts.append(
-                f"Explain in 1 to 2 plain, direct sentences how '{core_concept}' relates to {heading or 'this topic'} and what the cited sentence says about it based strictly on this passage."
-            )
-            return "\n\n".join(parts)
-        parts = [
-            f"Core concept to define: {core_concept}",
-            f"Sentence mentioning concept: {quote}",
-        ]
-        if heading:
-            parts.append(f"Section heading: {heading}")
-        if pin_chunk and pin_chunk.get("text"):
-            parts.append(f"Section context:\n{pin_chunk['text']}")
-        if neighbors:
-            for n in neighbors:
-                if n and n.get("text"):
-                    parts.append(f"Related context ({n.get('heading', '')}):\n{n['text']}")
-        parts.append(
-            f"Define and explain what '{core_concept}' is and how it works in 1 to 2 plain, direct sentences based on this section."
-        )
-        return "\n\n".join(parts)
-
-    if intent_type == INTENT_VAGUE_FRAGMENT:
-        subject = extract_enclosing_subject(quote, selection)
-        parts = [
-            f"Highlighted phrase: {selection}",
-            f"Full sentence: {quote}",
-        ]
-        if subject:
-            parts.append(f"Subject being described: {subject}")
-        if heading:
-            parts.append(f"Section heading: {heading}")
-        if pin_chunk and pin_chunk.get("text"):
-            parts.append(f"Passage context:\n{pin_chunk['text']}")
-        subj_note = f" ({subject})" if subject else ""
-        parts.append(
-            f"Explain in 1 to 2 plain sentences what the authors mean. "
-            f"Start with 'The highlighted phrase refers to ...' naming the specific subject{subj_note} in the sentence, "
-            f"and explain why the authors describe it as '{selection}'."
-        )
-        return "\n\n".join(parts)
-
-    parts = [
-        f"Highlighted text: {selection}",
-        f"Sentence containing highlight: {quote}",
-    ]
-    if heading:
-        parts.append(f"Section heading: {heading}")
-    if pin_chunk and pin_chunk.get("text"):
-        parts.append(f"Passage context:\n{pin_chunk['text']}")
-    if neighbors:
-        for n in neighbors:
-            if n and n.get("text"):
-                parts.append(f"Related context ({n.get('heading', '')}):\n{n['text']}")
-    if intent_type == INTENT_AUTHOR_QUESTION:
-        parts.append(
-            "Explain in 1 to 2 plain, direct sentences what the authors are asking the reader to evaluate and why it matters in this section."
-        )
-    else:
-        parts.append(
-            "Explain in 1 to 2 plain, direct sentences what the selected text means and why it is discussed here."
-        )
-    return "\n\n".join(parts)
 
 
 def _cross_chunk_quotes(chunk1, chunk2, selection):
@@ -4495,39 +3062,9 @@ def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MOD
     return _patch_figures_src(body, index)
 
 
-# A footnote marker glued to the citing line ("Maxime Beauchemin4") has no
-# sentence-ending punctuation, so whitespace collapse runs the attribution
-# into the next sentence. The split view only: the chunk text is untouched.
-FOOTNOTE_GLUE = re.compile(r"\b[A-Z][a-z]{2,}(\d{1,3})(?=\s+[A-Z][a-z])")
 
 
-@functools.lru_cache(maxsize=1024)
-def _sentences_cached(text):
-    raw = (text or "").strip()
-    lines = raw.splitlines()
-    if len(lines) > 1 and not lines[0].strip().endswith((".", "?", "!")):
-        raw = "\n".join(lines[1:])
-    paragraphs = [p.strip() for p in _PARAGRAPH_SPLIT_RE.split(raw) if p.strip()]
-    parts = []
-    for para in paragraphs:
-        flat = _WHITESPACE_RE.sub(" ", para).strip()
-        for run in _SENTENCE_SPLIT_RE.split(flat):
-            cursor = 0
-            for match in FOOTNOTE_GLUE.finditer(run):
-                parts.append(run[cursor:match.end()])
-                cursor = match.end()
-            parts.append(run[cursor:])
-    sentences = []
-    for part in parts:
-        sentence = part.strip()
-        if len(sentence) < KEY_MIN_CHARS:
-            continue
-        if sentence[0].isupper() and sentence.endswith((".", "?", "!")):
-            sentences.append(sentence)
-    return tuple(sentences)
 
-def _sentences(text):
-    return list(_sentences_cached(text))
 
 
 WEAK_QUIZ_PREFIXES = (
