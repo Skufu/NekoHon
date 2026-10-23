@@ -351,119 +351,114 @@ def _has_contrast_in_passage(term: str, text: str) -> bool:
     return False
 
 
-def compute_dynamic_followups(
-    chunk: dict,
-    neighbors: list = None,
-    selection: str = "",
-    question: str = "",
-    answer_text: str = "",
-    mode: str = "explain",
-) -> list[str]:
-    """Compute 3 context-connected, dynamic follow-up questions from a passage and its neighborhood.
+_GENERIC_FOLLOWUPS = [
+    "What is the main takeaway?",
+    "What problem does this solve?",
+    "Explain this in simpler words",
+]
 
-    100% book-agnostic, stdlib-only, sub-millisecond execution.
-    Generates compact questions (<= 42 chars) answerable from the chunk and its neighbors.
-    """
-    if not chunk or not isinstance(chunk, dict):
-        return [
-            "What is the main takeaway?",
-            "What problem does this solve?",
-            "Explain this in simpler words",
-        ]
+_SKIP_PAREN_MARKERS = (
+    " or ", " and ", "otherwise", "e.g", "i.e", "chapter", "figure", "section", "top", "bottom", "left", "right"
+)
 
-    chunk_text = chunk.get("text") or ""
-    chunk_heading = (chunk.get("heading") or "").strip()
-    clean_sel = (selection or "").strip()
-    clean_q = (question or "").strip()
-    exclude_text = f"{clean_sel} {clean_q}".lower()
+_SPECIFIC_PHRASES = (
+    "enterprise ossification", "evaluation of trade-offs", "change management",
+    "simple lift and shift", "lease cliff", "types of windows", "dataflow model",
+)
 
-    # Quote from answer_text if present
-    quote_text = ""
-    if answer_text:
-        m_q = re.search(r'\[Ch\.\s*[^\]]+\]\s*["\u201c](.+?)["\u201d]', answer_text)
-        if m_q:
-            quote_text = m_q.group(1).strip()
+_DISCARD_OPENERS = frozenset({
+    "figure", "fig", "table", "chapter", "ch", "section", "part", "page",
+    "what", "why", "how", "when", "where", "who", "which",
+    "is", "are", "was", "were", "do", "does", "did",
+    "can", "could", "should", "would", "will",
+    "let", "see", "note",
+})
 
-    lead_context = f"{clean_sel} {quote_text}".strip()
-    lead_low = lead_context.lower()
-    chunk_low = chunk_text.lower()
+_DROP_OPENERS = frozenset({
+    "in", "on", "at", "for", "to", "with", "by", "the", "a", "an", "this",
+    "that", "these", "those", "we", "our", "you", "here", "as", "such",
+    "unlike", "against", "between",
+    "while", "although", "though", "when", "since", "if", "where", "because",
+    "after", "before", "during", "despite", "given", "unless", "until", "once",
+    "whether", "whereas",
+})
 
-    # Strip heading line from chunk_text and neighbor text
-    def _body_no_heading(t: str, h: str = "") -> str:
-        if not t:
-            return ""
-        lines = t.splitlines()
-        if not lines:
-            return ""
-        first = lines[0].strip()
-        if h and first.lower() == h.lower():
+_TRADEOFF_SIGNALS = (
+    "trade-off", "trade-offs", "tradeoffs", "cost", "expensive", "pricing",
+    "pay-as-you-go", "limitation", "limitations", "downside", "downsides",
+    "bottleneck", "bottlenecks", "overhead", "latency", "throughput",
+    "versus", "vs", "drawback", "drawbacks", "compromise", "sacrifice",
+)
+
+_PLURAL_EXCEPTIONS = ("SSDs", "HDDs", "CPUs", "GPUs", "VMs", "DAGs", "APIs")
+_NON_PLURAL_ENDINGS = ("ss", "us", "is", "as", "os", "ics")
+_TERM_STRIP = " \t\r\n—–-,:;\"'“”()[]"
+_PAREN_TERM_RE = r"\(([A-Za-z0-9 \t_-]{2,30})\)"
+
+
+def _body_no_heading(t: str, h: str = "") -> str:
+    if not t:
+        return ""
+    lines = t.splitlines()
+    if not lines:
+        return ""
+    first = lines[0].strip()
+    if h and first.lower() == h.lower():
+        return "\n".join(lines[1:])
+    if len(lines) > 1 and not first.endswith((".", "?", "!", ":", ";", '"', "'", "”")):
+        if h and (first.lower() in h.lower() or h.lower() in first.lower()):
             return "\n".join(lines[1:])
-        if len(lines) > 1 and not first.endswith((".", "?", "!", ":", ";", '"', "'", "”")):
-            if h and (first.lower() in h.lower() or h.lower() in first.lower()):
-                return "\n".join(lines[1:])
-            if len(first) <= 60 and first[:1].isupper():
-                return "\n".join(lines[1:])
-        return t
+        if len(first) <= 60 and first[:1].isupper():
+            return "\n".join(lines[1:])
+    return t
 
-    body_text_no_heading = _body_no_heading(chunk_text, chunk_heading)
 
-    # a) Extract candidate technical terms / concepts from chunk and neighbors[0]
-    raw_terms = []
-    skip_paren_markers = (
-        " or ", " and ", "otherwise", "e.g", "i.e", "chapter", "figure", "section", "top", "bottom", "left", "right"
-    )
-    # Parenthetical acronyms or terms: (IOPS), (Apache Beam), etc.
-    for m in re.finditer(r"\(([A-Za-z0-9 \t_-]{2,30})\)", body_text_no_heading):
+def _neighbor_raw_terms(chunk: dict, neighbors: list) -> list[str]:
+    terms = []
+    for n in neighbors:
+        if n and str(n.get("chapter")) == str(chunk.get("chapter")):
+            n_body = _body_no_heading(n.get("text") or "", (n.get("heading") or "").strip())
+            for m in re.finditer(_PAREN_TERM_RE, n_body):
+                val = m.group(1)
+                if not any(sm in val.lower() for sm in _SKIP_PAREN_MARKERS) and not any(w.lower() in ("or", "and", "otherwise", "etc") for w in val.split()):
+                    terms.append(val)
+            for m in re.finditer(r"\b([A-Z][A-Za-z0-9]+(?:[ \t]+[A-Z][A-Za-z0-9]+){1,2})\b", n_body):
+                terms.append(m.group(1))
+            break
+    return terms
+
+
+def _raw_terms(chunk: dict, neighbors: list, chunk_heading: str) -> list[str]:
+    chunk_low = (chunk.get("text") or "").lower()
+    body = _body_no_heading(chunk.get("text") or "", chunk_heading)
+    terms = []
+    for m in re.finditer(_PAREN_TERM_RE, body):
         val = m.group(1)
-        if not any(sm in val.lower() for sm in skip_paren_markers):
-            raw_terms.append(val)
-
-    # Capitalized multi-word technical terms / frameworks (2-3 words):
-    for m in re.finditer(r"\b([A-Z][A-Za-z0-9]+(?:[ \t]+(?:and[ \t]+)?[A-Z][A-Za-z0-9]+){1,2})\b", body_text_no_heading):
-        raw_terms.append(m.group(1))
-
-    # Named / defined terms: "known as ...", "called ...", in quotes
-    for m in re.finditer(r"\b(?:known as|called|termed)[ \t]+([a-zA-Z0-9 \t_-]{3,30})[—–,\.\)]", body_text_no_heading, re.I):
-        raw_terms.append(m.group(1))
-
-    # Specific technical phrases in the chunk:
-    for phrase in (
-        "enterprise ossification", "evaluation of trade-offs", "change management",
-        "simple lift and shift", "lease cliff", "types of windows", "dataflow model",
-    ):
+        if not any(sm in val.lower() for sm in _SKIP_PAREN_MARKERS):
+            terms.append(val)
+    for m in re.finditer(r"\b([A-Z][A-Za-z0-9]+(?:[ \t]+(?:and[ \t]+)?[A-Z][A-Za-z0-9]+){1,2})\b", body):
+        terms.append(m.group(1))
+    for m in re.finditer(r"\b(?:known as|called|termed)[ \t]+([a-zA-Z0-9 \t_-]{3,30})[—–,\.\)]", body, re.I):
+        terms.append(m.group(1))
+    for phrase in _SPECIFIC_PHRASES:
         if phrase in chunk_low:
-            raw_terms.append(phrase)
-
-    # Standalone list-item lines from chunk_text:
-    for line in body_text_no_heading.splitlines():
+            terms.append(phrase)
+    for line in body.splitlines():
         l_strip = line.strip()
         if (
             3 <= len(l_strip) <= 25
             and l_strip[0].isupper()
             and not l_strip.endswith((".", "?", "!", ":"))
             and l_strip.lower() != chunk_heading.lower()
+            and 1 <= len(l_strip.split()) <= 3
         ):
-            w = l_strip.split()
-            if 1 <= len(w) <= 3:
-                raw_terms.append(l_strip)
+            terms.append(l_strip)
+    if not terms and neighbors:
+        terms.extend(_neighbor_raw_terms(chunk, neighbors))
+    return terms
 
-    # Neighbor terms ONLY when the current chunk does not yield candidate terms:
-    if not raw_terms and neighbors:
-        for n in neighbors:
-            if n and str(n.get("chapter")) == str(chunk.get("chapter")):
-                n_text = n.get("text") or ""
-                n_head = (n.get("heading") or "").strip()
-                n_body = _body_no_heading(n_text, n_head)
-                for m in re.finditer(r"\(([A-Za-z0-9 \t_-]{2,30})\)", n_body):
-                    val = m.group(1)
-                    if not any(sm in val.lower() for sm in skip_paren_markers) and not any(w.lower() in ("or", "and", "otherwise", "etc") for w in val.split()):
-                        raw_terms.append(val)
-                for m in re.finditer(r"\b([A-Z][A-Za-z0-9]+(?:[ \t]+[A-Z][A-Za-z0-9]+){1,2})\b", n_body):
-                    raw_terms.append(m.group(1))
-                break
 
-    # Direct author questions (?...) in chunk between 15 and 42 chars
-    author_q = ""
+def _author_question(chunk_text: str, exclude_text: str, clean_q: str, clean_sel: str) -> str:
     for s in split_sentences(chunk_text):
         s_strip = s.strip()
         if (
@@ -472,224 +467,208 @@ def compute_dynamic_followups(
             and s_strip.lower() not in exclude_text
             and not _is_redundant_followup(s_strip, clean_q, clean_sel)
         ):
-            author_q = s_strip
-            break
+            return s_strip
+    return ""
 
-    # Clean and filter candidate terms
-    candidate_terms = []
-    seen_terms = set()
-    DISCARD_OPENERS = frozenset({
-        "figure", "fig", "table", "chapter", "ch", "section", "part", "page",
-        "what", "why", "how", "when", "where", "who", "which",
-        "is", "are", "was", "were", "do", "does", "did",
-        "can", "could", "should", "would", "will",
-        "let", "see", "note",
-    })
-    DROP_OPENERS = frozenset({
-        "in", "on", "at", "for", "to", "with", "by", "the", "a", "an", "this",
-        "that", "these", "those", "we", "our", "you", "here", "as", "such",
-        "unlike", "against", "between",
-        "while", "although", "though", "when", "since", "if", "where", "because",
-        "after", "before", "during", "despite", "given", "unless", "until", "once",
-        "whether", "whereas",
-    })
-    for t in raw_terms:
-        t_clean = re.sub(r"\s+", " ", t).strip(" \t\r\n—–-,:;\"'“”()[]")
+
+def _clean_term(t: str) -> str:
+    t_clean = re.sub(r"\s+", " ", t).strip(_TERM_STRIP)
+    t_words = t_clean.split()
+    if not (2 <= len(t_clean) <= 28) or len(t_words) > 4:
+        return ""
+    if t_words and (t_words[0].lower() in _DISCARD_OPENERS or (len(t_words) == 1 and t_words[0].lower() in _DROP_OPENERS)):
+        return ""
+    while t_words and t_words[0].lower() in _DROP_OPENERS and len(t_words) > 1:
+        t_clean = re.sub(r"\s+", " ", " ".join(t_words[1:])).strip(_TERM_STRIP)
         t_words = t_clean.split()
-        if not (2 <= len(t_clean) <= 28) or len(t_words) > 4:
-            continue
-        if t_words and (t_words[0].lower() in DISCARD_OPENERS or (len(t_words) == 1 and t_words[0].lower() in DROP_OPENERS)):
-            continue
-        while t_words and t_words[0].lower() in DROP_OPENERS and len(t_words) > 1:
-            t_clean = re.sub(r"\s+", " ", " ".join(t_words[1:])).strip(" \t\r\n—–-,:;\"'“”()[]")
-            t_words = t_clean.split()
-        if not t_clean or len(t_clean) < 2:
-            continue
-        if re.search(r"\b\d+[-–.]\d+\b", t_clean):
-            continue
-        if not any(len(w) >= 3 and any(c.isalpha() for c in w) for w in t_words):
+    if not t_clean or len(t_clean) < 2:
+        return ""
+    if re.search(r"\b\d+[-–.]\d+\b", t_clean):
+        return ""
+    if not any(len(w) >= 3 and any(c.isalpha() for c in w) for w in t_words):
+        return ""
+    return t_clean
+
+
+def _candidate_terms(raw_terms: list[str], exclude_text: str, clean_q: str, clean_sel: str) -> list[str]:
+    candidates = []
+    seen = set()
+    for t in raw_terms:
+        t_clean = _clean_term(t)
+        if not t_clean:
             continue
         t_low = t_clean.lower()
-        if t_low in seen_terms or t_low in exclude_text:
+        if t_low in seen or t_low in exclude_text:
             continue
         if _is_redundant_followup(t_clean, clean_q, clean_sel):
             continue
-        if all(w.lower() in STOPWORDS for w in t_words):
+        if all(w.lower() in STOPWORDS for w in t_clean.split()):
             continue
-        seen_terms.add(t_low)
-        candidate_terms.append(t_clean)
+        seen.add(t_low)
+        candidates.append(t_clean)
+    return [
+        t for t in candidates
+        if not any(t.lower() != other.lower() and t.lower() in other.lower() for other in candidates)
+    ]
 
-    deduped_candidates = []
-    for t in candidate_terms:
-        if any(t.lower() != other.lower() and t.lower() in other.lower() for other in candidate_terms):
-            continue
-        deduped_candidates.append(t)
-    candidate_terms = deduped_candidates
 
-    TRADEOFF_SIGNALS = (
-        "trade-off", "trade-offs", "tradeoffs", "cost", "expensive", "pricing",
-        "pay-as-you-go", "limitation", "limitations", "downside", "downsides",
-        "bottleneck", "bottlenecks", "overhead", "latency", "throughput",
-        "versus", "vs", "drawback", "drawbacks", "compromise", "sacrifice",
-    )
-    has_tradeoff_signal = any(w in chunk_low for w in TRADEOFF_SIGNALS) or any(
-        any(w in (n.get("text") or "").lower() for w in TRADEOFF_SIGNALS)
+def _has_tradeoff_signal(chunk_low: str, neighbors: list) -> bool:
+    return any(w in chunk_low for w in _TRADEOFF_SIGNALS) or any(
+        any(w in (n.get("text") or "").lower() for w in _TRADEOFF_SIGNALS)
         for n in (neighbors or []) if n and isinstance(n, dict)
     )
 
-    # Slot 1: Mechanism / Reason / Specifics in the passage
-    slot1 = ""
-    used_term = ""
+
+def _is_plural_term(t: str) -> bool:
+    return (t.endswith("s") and not t.lower().endswith(_NON_PLURAL_ENDINGS)) or t in _PLURAL_EXCEPTIONS
+
+
+def _pattern_slot1(lead_low: str, chunk_low: str, clean_q: str, exclude_text: str) -> str:
+    q_low = clean_q.lower()
     if (
         (
             re.search(r"\b(two\s+reasons|three\s+reasons|several\s+reasons)\b", lead_low)
             or ("reason" in lead_low and any(num in lead_low for num in ("two", "three", "several", "essential")))
             or ("two reasons" in chunk_low or "three reasons" in chunk_low)
         )
-        and "reason" not in clean_q.lower()
+        and "reason" not in q_low
     ):
-        slot1 = "What are the specific reasons?"
-    elif re.search(r"\b(main\s+stages|several\s+stages|stages)\b", lead_low) and "stage" not in clean_q.lower():
-        slot1 = "What are the main stages?"
-    elif re.search(r"\b(key\s+types|several\s+types|types\s+of)\b", lead_low) and "type" not in clean_q.lower():
-        slot1 = "What are the key types?"
-    elif re.search(r"\b(characteristics|common\s+threads)\b", lead_low) and "characteristic" not in clean_q.lower():
-        slot1 = "What are the key characteristics?"
-    elif re.search(r"\b(several\s+ways|ways\s+to)\b", lead_low) and "way" not in clean_q.lower():
-        slot1 = "What are the specific ways?"
-    elif "antipattern" in chunk_low and "antipattern" not in exclude_text:
-        slot1 = "Why was this viewed as an antipattern?"
-    elif "overlap" in chunk_low and "overlap" not in exclude_text:
-        slot1 = "What fields overlap here?"
-    elif ("manual" in chunk_low or "primitive" in chunk_low) and "manual" not in exclude_text and "primitive" not in exclude_text:
-        slot1 = "What manual process does this replace?"
-    else:
-        for t in candidate_terms:
-            if _is_example_or_tool_mention(t, chunk_text):
-                q_cand = f"What is the role of {t}?"
-                if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
-                    slot1 = q_cand
-                    used_term = t
-                    break
-                q_cand = f"How is {t} used here?"
-                if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
-                    slot1 = q_cand
-                    used_term = t
-                    break
-            is_plural = (t.endswith("s") and not t.lower().endswith(("ss", "us", "is", "as", "os", "ics"))) or t in ("SSDs", "HDDs", "CPUs", "GPUs", "VMs", "DAGs", "APIs")
-            aux = "do" if is_plural else "does"
-            q_cand = f"How {aux} {t} relate to this?"
-            if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
-                slot1 = q_cand
-                used_term = t
-                break
-            q_cand = f"What is {t}?" if not is_plural else f"What are {t}?"
-            if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
-                slot1 = q_cand
-                used_term = t
-                break
+        return "What are the specific reasons?"
+    if re.search(r"\b(main\s+stages|several\s+stages|stages)\b", lead_low) and "stage" not in q_low:
+        return "What are the main stages?"
+    if re.search(r"\b(key\s+types|several\s+types|types\s+of)\b", lead_low) and "type" not in q_low:
+        return "What are the key types?"
+    if re.search(r"\b(characteristics|common\s+threads)\b", lead_low) and "characteristic" not in q_low:
+        return "What are the key characteristics?"
+    if re.search(r"\b(several\s+ways|ways\s+to)\b", lead_low) and "way" not in q_low:
+        return "What are the specific ways?"
+    if "antipattern" in chunk_low and "antipattern" not in exclude_text:
+        return "Why was this viewed as an antipattern?"
+    if "overlap" in chunk_low and "overlap" not in exclude_text:
+        return "What fields overlap here?"
+    if ("manual" in chunk_low or "primitive" in chunk_low) and "manual" not in exclude_text and "primitive" not in exclude_text:
+        return "What manual process does this replace?"
+    return ""
 
-        if not slot1:
-            core_concept = extract_core_concept(clean_sel, chunk_heading)
-            if core_concept and core_concept.lower() not in exclude_text:
-                q_cand = f"How does {core_concept} work?"
-                if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
-                    slot1 = q_cand
-        if not slot1:
-            slot1 = "How does this work in practice?"
 
-    # Slot 2: Contrast / Trade-off / Risk / Pitfall in the passage
-    slot2 = ""
+def _first_fitting(options: list[str], clean_q: str, clean_sel: str) -> str:
+    for q_cand in options:
+        if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
+            return q_cand
+    return ""
+
+
+def _term_slot1(candidate_terms: list[str], chunk_text: str, clean_q: str, clean_sel: str) -> tuple[str, str]:
+    for t in candidate_terms:
+        options = []
+        if _is_example_or_tool_mention(t, chunk_text):
+            options = [f"What is the role of {t}?", f"How is {t} used here?"]
+        plural = _is_plural_term(t)
+        options.append(f"How {'do' if plural else 'does'} {t} relate to this?")
+        options.append(f"What is {t}?" if not plural else f"What are {t}?")
+        q = _first_fitting(options, clean_q, clean_sel)
+        if q:
+            return q, t
+    return "", ""
+
+
+def _slot1(candidate_terms, chunk_text, chunk_low, lead_low, chunk_heading, clean_q, clean_sel, exclude_text) -> tuple[str, str]:
+    slot = _pattern_slot1(lead_low, chunk_low, clean_q, exclude_text)
+    if slot:
+        return slot, ""
+    slot, used_term = _term_slot1(candidate_terms, chunk_text, clean_q, clean_sel)
+    if slot:
+        return slot, used_term
+    core_concept = extract_core_concept(clean_sel, chunk_heading)
+    if core_concept and core_concept.lower() not in exclude_text:
+        slot = _first_fitting([f"How does {core_concept} work?"], clean_q, clean_sel)
+        if slot:
+            return slot, ""
+    return "How does this work in practice?", ""
+
+
+def _slot2(candidate_terms, chunk_text, chunk_low, slot1, used_term, exclude_text, clean_q, clean_sel, tradeoff) -> str:
     if "ossification" in chunk_low and "ossification" not in exclude_text:
-        slot2 = "What are the risks of ossification?"
-    elif "lease cliff" in chunk_low or "cliff" in chunk_low:
-        slot2 = "What is the risk of a lease cliff?"
-    elif any(w in chunk_low for w in ("cost", "expensive", "pricing", "pay-as-you-go")):
-        slot2 = "What are the cost trade-offs?"
-    elif any(w in chunk_low for w in ("bottleneck", "bottlenecks")):
-        slot2 = "What are the main bottlenecks?"
-    elif any(w in chunk_low for w in ("limitation", "limitations", "downside", "downsides")):
-        slot2 = "What are the main limitations?"
-    elif any(w in chunk_low for w in ("risk", "risks", "mistake", "mistakes", "failure")):
-        slot2 = "What are the risks or pitfalls?"
-    elif any(w in chunk_low for w in ("trade-off", "trade-offs", "tradeoffs")):
-        slot2 = "What are the key trade-offs?"
-    elif "antipattern" in chunk_low and "antipattern" not in exclude_text and not slot1.startswith("Why was this viewed"):
-        slot2 = "Why was this viewed as an antipattern?"
-    elif "overlap" in chunk_low and not slot1.startswith("What fields overlap"):
-        slot2 = "What fields overlap here?"
-    elif ("manual" in chunk_low or "primitive" in chunk_low) and not slot1.startswith("What manual process"):
-        slot2 = "What manual process does this replace?"
-    else:
-        for t2 in candidate_terms:
-            if t2.lower() != used_term.lower() and t2.lower() not in used_term.lower() and used_term.lower() not in t2.lower():
-                if _has_contrast_in_passage(t2, chunk_text):
-                    q_cand = f"How does this compare to {t2}?"
-                    if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
-                        slot2 = q_cand
-                        used_term = t2
-                        break
-        if not slot2:
-            if has_tradeoff_signal:
-                slot2 = "What are the key trade-offs?"
-            else:
-                slot2 = "What problem does this solve?"
+        return "What are the risks of ossification?"
+    if "lease cliff" in chunk_low or "cliff" in chunk_low:
+        return "What is the risk of a lease cliff?"
+    if any(w in chunk_low for w in ("cost", "expensive", "pricing", "pay-as-you-go")):
+        return "What are the cost trade-offs?"
+    if any(w in chunk_low for w in ("bottleneck", "bottlenecks")):
+        return "What are the main bottlenecks?"
+    if any(w in chunk_low for w in ("limitation", "limitations", "downside", "downsides")):
+        return "What are the main limitations?"
+    if any(w in chunk_low for w in ("risk", "risks", "mistake", "mistakes", "failure")):
+        return "What are the risks or pitfalls?"
+    if any(w in chunk_low for w in ("trade-off", "trade-offs", "tradeoffs")):
+        return "What are the key trade-offs?"
+    if "antipattern" in chunk_low and "antipattern" not in exclude_text and not slot1.startswith("Why was this viewed"):
+        return "Why was this viewed as an antipattern?"
+    if "overlap" in chunk_low and not slot1.startswith("What fields overlap"):
+        return "What fields overlap here?"
+    if ("manual" in chunk_low or "primitive" in chunk_low) and not slot1.startswith("What manual process"):
+        return "What manual process does this replace?"
+    for t2 in candidate_terms:
+        if t2.lower() != used_term.lower() and t2.lower() not in used_term.lower() and used_term.lower() not in t2.lower():
+            if _has_contrast_in_passage(t2, chunk_text):
+                q = _first_fitting([f"How does this compare to {t2}?"], clean_q, clean_sel)
+                if q:
+                    return q
+    return "What are the key trade-offs?" if tradeoff else "What problem does this solve?"
 
-    # Slot 3: Concrete Example / Next Concept in Section
-    slot3 = ""
+
+def _next_heading_question(chunk, neighbors, chunk_heading, chunk_low, exclude_text, clean_q, clean_sel) -> str:
+    for n in neighbors:
+        if not n or str(n.get("chapter")) != str(chunk.get("chapter")):
+            continue
+        cid_n = str(n.get("chunk_id", ""))
+        cid_cur = str(chunk.get("chunk_id", ""))
+        if cid_n and cid_cur and cid_n <= cid_cur:
+            continue
+        n_head = (n.get("heading") or "").strip()
+        if not n_head or n_head.lower() == chunk_heading.lower() or n_head.lower() in exclude_text:
+            continue
+        clean_next = extract_core_concept(n_head)
+        if not (
+            clean_next
+            and len(clean_next) <= 28
+            and clean_next.lower() not in STRUCTURAL_HEADINGS
+            and clean_next.lower() not in chunk_low
+            and not _is_redundant_followup(clean_next, clean_q, clean_sel)
+        ):
+            continue
+        is_plural = clean_next.endswith("s") and not clean_next.lower().endswith(_NON_PLURAL_ENDINGS)
+        q = _first_fitting([f"What is {clean_next}?" if not is_plural else f"What are {clean_next}?"], clean_q, clean_sel)
+        if q:
+            return q
+    return ""
+
+
+def _slot3(chunk, neighbors, chunk_heading, chunk_low, author_q, slot1, slot2, exclude_text, clean_q, clean_sel) -> str:
     if author_q and author_q.lower() not in (slot1.lower(), slot2.lower()):
-        slot3 = author_q
+        return author_q
+    if "everyday use case" in chunk_low or "use cases" in chunk_low or "use case" in chunk_low:
+        return "What are the main use cases?"
+    if any(marker in chunk_low for marker in ("for instance", "for example", "consider", "such as", "examples of")):
+        return "What example do the authors give?"
+    if neighbors:
+        q = _next_heading_question(chunk, neighbors, chunk_heading, chunk_low, exclude_text, clean_q, clean_sel)
+        if q:
+            return q
+    return "Explain this in simpler words"
 
-    # Prefer concrete passage-grounded questions if passage has use case or example markers:
-    if not slot3:
-        if "everyday use case" in chunk_low or "use cases" in chunk_low or "use case" in chunk_low:
-            slot3 = "What are the main use cases?"
-        elif any(marker in chunk_low for marker in ("for instance", "for example", "consider", "such as", "examples of")):
-            slot3 = "What example do the authors give?"
 
-    if not slot3 and neighbors:
-        for n in neighbors:
-            if not n or str(n.get("chapter")) != str(chunk.get("chapter")):
-                continue
-            # Forward neighbor check: only inspect n if it is forward of chunk
-            cid_n = str(n.get("chunk_id", ""))
-            cid_cur = str(chunk.get("chunk_id", ""))
-            if cid_n and cid_cur and cid_n <= cid_cur:
-                continue
-            n_head = (n.get("heading") or "").strip()
-            if n_head and n_head.lower() != chunk_heading.lower() and n_head.lower() not in exclude_text:
-                clean_next = extract_core_concept(n_head)
-                if (
-                    clean_next
-                    and len(clean_next) <= 28
-                    and clean_next.lower() not in STRUCTURAL_HEADINGS
-                    and clean_next.lower() not in chunk_low
-                    and not _is_redundant_followup(clean_next, clean_q, clean_sel)
-                ):
-                    is_plural = clean_next.endswith("s") and not clean_next.lower().endswith(("ss", "us", "is", "as", "os", "ics"))
-                    q_cand = f"What is {clean_next}?" if not is_plural else f"What are {clean_next}?"
-                    if len(q_cand) <= 42 and not _is_redundant_followup(q_cand, clean_q, clean_sel):
-                        slot3 = q_cand
-                        break
-
-    if not slot3:
-        slot3 = "Explain this in simpler words"
-
-    # Assemble, deduplicate, and enforce <= 42 chars
+def _assemble_followups(slots, tradeoff: bool, clean_q: str, clean_sel: str) -> list[str]:
     followups = []
     seen_q = set()
-    for q in (slot1, slot2, slot3):
+    for q in slots:
         q_clean = re.sub(r"\s+", " ", (q or "")).strip()
-        if len(q_clean) > 42:
-            if len(q_clean) > 45:
-                q_clean = q_clean[:41].rstrip(" ?.,-") + "?"
+        if len(q_clean) > 45:
+            q_clean = q_clean[:41].rstrip(" ?.,-") + "?"
         if q_clean and q_clean.lower() not in seen_q and not _is_redundant_followup(q_clean, clean_q, clean_sel):
             seen_q.add(q_clean.lower())
             followups.append(q_clean)
-
-    fallbacks = []
-    if has_tradeoff_signal:
-        fallbacks.append("What are the key trade-offs?")
+    fallbacks = ["What are the key trade-offs?"] if tradeoff else []
     fallbacks.extend([
         "What problem does this solve?",
         "What is the main takeaway?",
@@ -703,6 +682,40 @@ def compute_dynamic_followups(
         if fb.lower() not in seen_q and not _is_redundant_followup(fb, clean_q, clean_sel):
             seen_q.add(fb.lower())
             followups.append(fb)
-
     return followups[:3]
 
+
+def compute_dynamic_followups(
+    chunk: dict,
+    neighbors: list = None,
+    selection: str = "",
+    question: str = "",
+    answer_text: str = "",
+    mode: str = "explain",
+) -> list[str]:
+    if not chunk or not isinstance(chunk, dict):
+        return list(_GENERIC_FOLLOWUPS)
+
+    chunk_text = chunk.get("text") or ""
+    chunk_heading = (chunk.get("heading") or "").strip()
+    clean_sel = (selection or "").strip()
+    clean_q = (question or "").strip()
+    exclude_text = f"{clean_sel} {clean_q}".lower()
+
+    quote_text = ""
+    if answer_text:
+        m_q = re.search(r'\[Ch\.\s*[^\]]+\]\s*["“](.+?)["”]', answer_text)
+        if m_q:
+            quote_text = m_q.group(1).strip()
+
+    lead_low = f"{clean_sel} {quote_text}".strip().lower()
+    chunk_low = chunk_text.lower()
+
+    candidate_terms = _candidate_terms(_raw_terms(chunk, neighbors, chunk_heading), exclude_text, clean_q, clean_sel)
+    author_q = _author_question(chunk_text, exclude_text, clean_q, clean_sel)
+    tradeoff = _has_tradeoff_signal(chunk_low, neighbors)
+
+    slot1, used_term = _slot1(candidate_terms, chunk_text, chunk_low, lead_low, chunk_heading, clean_q, clean_sel, exclude_text)
+    slot2 = _slot2(candidate_terms, chunk_text, chunk_low, slot1, used_term, exclude_text, clean_q, clean_sel, tradeoff)
+    slot3 = _slot3(chunk, neighbors, chunk_heading, chunk_low, author_q, slot1, slot2, exclude_text, clean_q, clean_sel)
+    return _assemble_followups((slot1, slot2, slot3), tradeoff, clean_q, clean_sel)

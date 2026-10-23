@@ -147,7 +147,7 @@ class ReaderRouteTest(unittest.TestCase):
         after its reset. Before the fix the draft streamed first and the pane
         wiped and re-streamed it."""
         def fake_respond(index, question, generate_fn=None, **kwargs):
-            generate_fn(SYSTEM, "user", "model")
+            generate_fn(SYSTEM_ANSWER, "user", "model")
             generate_fn(SYSTEM, "user", "model", prefill="[Ch. ")
             return {"answer": "A graph is dots and lines. [Ch. 1]",
                     "citations": [], "figures": [], "refused": False}

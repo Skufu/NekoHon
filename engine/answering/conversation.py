@@ -359,6 +359,100 @@ def _rank_seq_chunks(seq_chunks, question, history_subject=None):
     return sorted(seq_chunks, key=score_chunk, reverse=True)
 
 
+_HISTORY_DEICTIC_WORDS = {"it", "its", "this", "that", "these", "those", "they", "them", "such"}
+
+
+def _resolve_from_history(q, subject):
+    q_lower = q.lower()
+    q_words = set(re.findall(r"\b[a-zA-Z]+\b", q_lower))
+    deictic = q_words & _HISTORY_DEICTIC_WORDS
+    if re.search(r"\b(its\s+downsides|its\s+disadvantages|its\s+pros\s+and\s+cons|its\s+drawbacks)\b", q_lower):
+        return re.sub(r"\bits\b", f"the {subject}'s", q, flags=re.IGNORECASE)
+    if re.search(r"\b(warn\s+against\s+that|warn\s+about\s+that|caution\s+against\s+that)\b", q_lower):
+        return re.sub(r"\bthat\b", f"{subject}", q, flags=re.IGNORECASE)
+    if re.search(r"\b(handle\s+late\s+data|handles\s+late\s+data)\b", q_lower) and "it" in q_words:
+        return re.sub(r"\bit\b", f"{subject}", q, flags=re.IGNORECASE)
+    if re.search(r"\b(that\s+stage|that\s+phase|that\s+step)\b", q_lower):
+        return re.sub(r"\bthat\s+stage\b", f"the {subject} stage", q, flags=re.IGNORECASE)
+    if re.search(r"\b(this\s+architectural\s+pattern|this\s+pattern|this\s+architecture)\b", q_lower):
+        return re.sub(r"\bthis\s+(architectural\s+pattern|pattern|architecture)\b", f"{subject}", q, flags=re.IGNORECASE)
+    if re.search(r"\busing\s+it\b", q_lower):
+        return re.sub(r"\busing\s+it\b", f"using {subject}", q, flags=re.IGNORECASE)
+    if re.search(r"\bfor\s+(this|that)\b", q_lower):
+        return re.sub(r"\bfor\s+(this|that)\b", f"for {subject}", q, flags=re.IGNORECASE)
+    if re.search(r"\bopen-source\s+it\b", q_lower):
+        return re.sub(r"\bopen-source\s+it\b", f"open-source {subject}", q, flags=re.IGNORECASE)
+    if deictic:
+        if re.search(r"\b(how\s+does|how\s+is|what\s+is|what\s+are|why\s+does|why\s+is)\s+it\b", q_lower):
+            return re.sub(r"\bit\b", f"{subject}", q, count=1, flags=re.IGNORECASE)
+        if re.search(r"\b(what\s+are|what\s+is)\s+its\b", q_lower):
+            return re.sub(r"\bits\b", f"{subject}'s", q, count=1, flags=re.IGNORECASE)
+        return f"Regarding {subject}: {q}"
+    if subject.lower() not in q_lower and (
+        _is_generic_followup(q) or
+        is_incomplete_stem(q) or
+        bool(re.search(r"\b(type|tier|stage|phase|step)\s*\d+\b", q_lower)) or
+        bool(GENERIC_FACETS_RE.search(q_lower))
+    ):
+        return f"Regarding {subject}: {q}"
+    return None
+
+
+def _resolve_from_selection(q, sel, head):
+    if sel.lower() in q.lower():
+        return None
+    if is_deictic_question(q):
+        if q.lower().startswith(("why", "how")):
+            return f"{q.rstrip('?').strip()} ('{sel}')?"
+        return f"What does '{sel}' mean in this passage?"
+    if is_incomplete_stem(q):
+        return f"{q.rstrip('?').strip()} {sel}?"
+    if head:
+        return f"In {head}, regarding '{sel}': {q}"
+    return f"Regarding '{sel}': {q}"
+
+
+def _stem_sentence(chunks, stem):
+    for chunk in chunks:
+        for sent in _candidate_sentences(chunk.get("text") or "", chunk.get("heading") or ""):
+            if sent.lower().startswith(stem + " ") and len(sent) >= 20:
+                return sent
+    return None
+
+
+def _pin_search_pool(index, pin_chunk_obj):
+    chunks = index.get("chunks") or []
+    pool = [pin_chunk_obj]
+    try:
+        idx = chunks.index(pin_chunk_obj)
+    except ValueError:
+        return pool
+    if idx > 0 and chunks[idx - 1].get("chapter") == pin_chunk_obj.get("chapter"):
+        pool.append(chunks[idx - 1])
+    if idx + 1 < len(chunks) and chunks[idx + 1].get("chapter") == pin_chunk_obj.get("chapter"):
+        pool.append(chunks[idx + 1])
+    return pool
+
+
+def _resolve_incomplete_stem(index, q, head, pin_chunk_obj):
+    stem = re.sub(r"[?!.,]", "", q.lower()).strip()
+    if pin_chunk_obj is not None:
+        sent = _stem_sentence(_pin_search_pool(index, pin_chunk_obj), stem)
+        if sent:
+            return sent
+        h = head or pin_chunk_obj.get("heading", "")
+        if h:
+            return f"{q.rstrip('?')} {h}?"
+    sent = _stem_sentence(index.get("chunks") or [], stem)
+    if sent:
+        return sent
+    first_chunk = (index.get("chunks") or [{}])[0]
+    first_head = first_chunk.get("heading") or head
+    if first_head:
+        return f"{q.rstrip('?')} {first_head}?"
+    return None
+
+
 def _resolve_contextual_query(index, question, pin_chunk=None, selection="",
                               heading="", history=None):
     """Resolve incomplete, fragment, deictic, or selection-backed queries.
@@ -371,108 +465,117 @@ def _resolve_contextual_query(index, question, pin_chunk=None, selection="",
     head = re.sub(r"\s+", " ", (heading or "")).strip()
 
     pin_chunk_obj = None
-    if pin_chunk:
-        if isinstance(pin_chunk, dict):
-            pin_chunk_obj = pin_chunk
-        elif isinstance(pin_chunk, str):
-            pin_chunk_obj = chunk_by_id(index, pin_chunk)
+    if pin_chunk and isinstance(pin_chunk, dict):
+        pin_chunk_obj = pin_chunk
+    elif pin_chunk and isinstance(pin_chunk, str):
+        pin_chunk_obj = chunk_by_id(index, pin_chunk)
 
     clean_history = [
         h for h in (history or [])
         if isinstance(h, dict) and (h.get("question") or h.get("answer"))
     ]
 
-    # Case 1b: Multi-turn history coreference resolution (Turn 2+)
     if clean_history:
         subject = _extract_subject_from_history(clean_history) or sel
         if subject:
-            q_lower = q.lower()
-            q_words = set(re.findall(r"\b[a-zA-Z]+\b", q_lower))
-            deictic = q_words & {"it", "its", "this", "that", "these", "those", "they", "them", "such"}
-            if re.search(r"\b(its\s+downsides|its\s+disadvantages|its\s+pros\s+and\s+cons|its\s+drawbacks)\b", q_lower):
-                return re.sub(r"\bits\b", f"the {subject}'s", q, flags=re.IGNORECASE)
-            elif re.search(r"\b(warn\s+against\s+that|warn\s+about\s+that|caution\s+against\s+that)\b", q_lower):
-                return re.sub(r"\bthat\b", f"{subject}", q, flags=re.IGNORECASE)
-            elif re.search(r"\b(handle\s+late\s+data|handles\s+late\s+data)\b", q_lower) and "it" in q_words:
-                return re.sub(r"\bit\b", f"{subject}", q, flags=re.IGNORECASE)
-            elif re.search(r"\b(that\s+stage|that\s+phase|that\s+step)\b", q_lower):
-                return re.sub(r"\bthat\s+stage\b", f"the {subject} stage", q, flags=re.IGNORECASE)
-            elif re.search(r"\b(this\s+architectural\s+pattern|this\s+pattern|this\s+architecture)\b", q_lower):
-                return re.sub(r"\bthis\s+(architectural\s+pattern|pattern|architecture)\b", f"{subject}", q, flags=re.IGNORECASE)
-            elif re.search(r"\busing\s+it\b", q_lower):
-                return re.sub(r"\busing\s+it\b", f"using {subject}", q, flags=re.IGNORECASE)
-            elif re.search(r"\bfor\s+(this|that)\b", q_lower):
-                return re.sub(r"\bfor\s+(this|that)\b", f"for {subject}", q, flags=re.IGNORECASE)
-            elif re.search(r"\bopen-source\s+it\b", q_lower):
-                return re.sub(r"\bopen-source\s+it\b", f"open-source {subject}", q, flags=re.IGNORECASE)
-            elif deictic:
-                if re.search(r"\b(how\s+does|how\s+is|what\s+is|what\s+are|why\s+does|why\s+is)\s+it\b", q_lower):
-                    return re.sub(r"\bit\b", f"{subject}", q, count=1, flags=re.IGNORECASE)
-                elif re.search(r"\b(what\s+are|what\s+is)\s+its\b", q_lower):
-                    return re.sub(r"\bits\b", f"{subject}'s", q, count=1, flags=re.IGNORECASE)
-                else:
-                    return f"Regarding {subject}: {q}"
-            elif subject.lower() not in q_lower and (
-                _is_generic_followup(q) or
-                is_incomplete_stem(q) or
-                bool(re.search(r"\b(type|tier|stage|phase|step)\s*\d+\b", q_lower)) or
-                bool(GENERIC_FACETS_RE.search(q_lower))
-            ):
-                return f"Regarding {subject}: {q}"
+            resolved = _resolve_from_history(q, subject)
+            if resolved is not None:
+                return resolved
 
-    # Case 1: Selection is non-empty and question is contextual / deictic / incomplete (Turn 1 askSelection)
     if sel and not clean_history and len(sel.split()) <= 45:
-        if sel.lower() not in q.lower():
-            if is_deictic_question(q):
-                if q.lower().startswith(("why", "how")):
-                    return f"{q.rstrip('?').strip()} ('{sel}')?"
-                return f"What does '{sel}' mean in this passage?"
-            if is_incomplete_stem(q):
-                base = q.rstrip("?").strip()
-                return f"{base} {sel}?"
-            q_words = set(re.findall(r"\w+", q.lower()))
-            deictic = q_words & {"this", "that", "it", "these", "those"}
-            if deictic or q.lower().rstrip("?") in ("why", "explain", "how", "what") or _is_generic_followup(q) or bool(GENERIC_FACETS_RE.search(q.lower())):
-                if head:
-                    return f"In {head}, regarding '{sel}': {q}"
-                return f"Regarding '{sel}': {q}"
-            if head:
-                return f"In {head}, regarding '{sel}': {q}"
-            return f"Regarding '{sel}': {q}"
+        resolved = _resolve_from_selection(q, sel, head)
+        if resolved is not None:
+            return resolved
 
-    # Case 2: Incomplete stem / wh-prefix (e.g. "what are the", "how is", "why do")
     if is_incomplete_stem(q):
-        stem = re.sub(r"[?!.,]", "", q.lower()).strip()
-        if pin_chunk_obj is not None:
-            chunks = index.get("chunks") or []
-            search_pool = [pin_chunk_obj]
-            try:
-                idx = chunks.index(pin_chunk_obj)
-                if idx > 0 and chunks[idx - 1].get("chapter") == pin_chunk_obj.get("chapter"):
-                    search_pool.append(chunks[idx - 1])
-                if idx + 1 < len(chunks) and chunks[idx + 1].get("chapter") == pin_chunk_obj.get("chapter"):
-                    search_pool.append(chunks[idx + 1])
-            except ValueError:
-                pass
-            for chunk in search_pool:
-                for sent in _candidate_sentences(chunk.get("text") or "", chunk.get("heading") or ""):
-                    if sent.lower().startswith(stem + " ") and len(sent) >= 20:
-                        return sent
-            h = head or pin_chunk_obj.get("heading", "")
-            if h:
-                return f"{q.rstrip('?')} {h}?"
-
-        for chunk in (index.get("chunks") or []):
-            for sent in _candidate_sentences(chunk.get("text") or "", chunk.get("heading") or ""):
-                if sent.lower().startswith(stem + " ") and len(sent) >= 20:
-                    return sent
-
-        first_chunk = (index.get("chunks") or [{}])[0]
-        first_head = first_chunk.get("heading") or head
-        if first_head:
-            return f"{q.rstrip('?')} {first_head}?"
+        resolved = _resolve_incomplete_stem(index, q, head, pin_chunk_obj)
+        if resolved is not None:
+            return resolved
 
     return question
+
+
+def _followup_pool(chunk_obj, neighbors):
+    pool = [chunk_obj]
+    for n in neighbors or []:
+        if n and n != chunk_obj and n not in pool:
+            pool.append(n)
+    return pool
+
+
+def _followup_sentence_score(s_clean, norm_s, norm_prior, c_text, q_low, q_tokens, query_entities, followup_question):
+    s_low = s_clean.lower()
+    score = 0
+
+    if _REASONS_QUERY_RE.search(q_low):
+        if s_low.startswith(("first,", "first ", "1.", "one reason")):
+            score += 35
+        elif s_low.startswith(("second,", "second ", "2.", "third,", "third ", "another reason")):
+            score += 25
+        elif any(w in s_low for w in ("first,", "second,", "third,", "because", "due to")):
+            score += 20
+        if norm_prior and norm_prior in c_text.lower():
+            m_pos = c_text.lower().find(norm_prior)
+            s_pos = c_text.lower().find(norm_s)
+            if m_pos != -1 and s_pos > m_pos and s_pos - (m_pos + len(norm_prior)) < 400:
+                score += 15
+
+    if _EXAMPLES_QUERY_RE.search(q_low):
+        if s_low.startswith(("for instance", "for example", "consider", "such as")):
+            score += 35
+        elif any(m in s_low for m in ("for instance", "for example", "such as")):
+            score += 25
+        elif "example" in s_low or "examples" in s_low:
+            score += 15
+
+    if _RISKS_QUERY_RE.search(q_low):
+        for kw in _RISK_KEYWORDS:
+            if kw in q_low and kw in s_low:
+                score += 30
+            elif kw in s_low:
+                score += 10
+
+    if _ATTRIBUTION_QUERY_RE.search(q_low):
+        for marker in _ATTRIBUTION_MARKERS:
+            if marker in s_low:
+                score += 15
+        if _AUTHOR_NAME_RE.search(s_clean):
+            score += 20
+
+    for t in q_tokens:
+        if t in s_low:
+            score += 5
+
+    for ent in query_entities or ():
+        if ent.lower() in s_low:
+            score += 30 * len(ent.split())
+
+    if _list_ask(followup_question, followup_question) and ":" in s_clean and "," in s_clean:
+        score += 25
+    return score
+
+
+def _expand_short_quote(sents, i, s_clean, c_text):
+    s_low = s_clean.lower()
+    is_short_or_continuation = (
+        s_low.startswith(("first,", "second,", "for example", "for instance", "advertising platforms are another"))
+        or len(s_clean) < 100
+    )
+    if not is_short_or_continuation:
+        return s_clean
+    if i + 1 < len(sents):
+        next_s = sents[i + 1].strip()
+        if len(next_s) >= 20 and not next_s.lower().startswith(("second,", "third,", "finally,")):
+            combined = f"{s_clean} {next_s}"
+            if len(combined) <= PARAGRAPH_CAP and _quote_in_passage(combined, c_text):
+                return combined
+    elif i > 0:
+        prev_s = sents[i - 1].strip()
+        if len(prev_s) >= 20:
+            combined = f"{prev_s} {s_clean}"
+            if len(combined) <= PARAGRAPH_CAP and _quote_in_passage(combined, c_text):
+                return combined
+    return s_clean
 
 
 def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_question=""):
@@ -485,26 +588,18 @@ def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_
     if SIMPLIFY_RE.search(followup_question):
         return None
 
-    pool = [chunk_obj]
-    if neighbors:
-        for n in neighbors:
-            if n and n != chunk_obj and n not in pool:
-                pool.append(n)
-
     q_low = followup_question.lower()
     q_tokens = [
         w.lower() for w in words(q_low)
         if w.lower() not in STOPWORDS and w.lower() not in FRAMING_WORDS and len(w) >= 3
     ]
     query_entities = _extract_query_entities(followup_question, chunk_obj.get("heading", ""))
-
     norm_prior = re.sub(r"[\s\"'“”]+", " ", prior_quote or "").strip().lower()
 
     scored_cands = []
-    for c in pool:
+    for c in _followup_pool(chunk_obj, neighbors):
         c_text = c.get("text") or ""
-        c_head = c.get("heading") or ""
-        sents = _candidate_sentences(c_text, c_head)
+        sents = _candidate_sentences(c_text, c.get("heading") or "")
         for i, s in enumerate(sents):
             s_clean = s.strip()
             if len(s_clean) < 30:
@@ -514,90 +609,13 @@ def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_
                 continue
             if META_TRANSITION_RE.search(s_clean):
                 continue
-
-            s_low = s_clean.lower()
-            score = 0
-
-            # A) Reasons / Specifics / Steps / Types / Stages / Ways
-            if _REASONS_QUERY_RE.search(q_low):
-                if s_low.startswith(("first,", "first ", "1.", "one reason")):
-                    score += 35
-                elif s_low.startswith(("second,", "second ", "2.", "third,", "third ", "another reason")):
-                    score += 25
-                elif any(w in s_low for w in ("first,", "second,", "third,", "because", "due to")):
-                    score += 20
-                if norm_prior and norm_prior in c_text.lower():
-                    m_pos = c_text.lower().find(norm_prior)
-                    s_pos = c_text.lower().find(norm_s)
-                    if m_pos != -1 and s_pos > m_pos and s_pos - (m_pos + len(norm_prior)) < 400:
-                        score += 15
-
-            # B) Concrete Examples
-            if _EXAMPLES_QUERY_RE.search(q_low):
-                if s_low.startswith(("for instance", "for example", "consider", "such as")):
-                    score += 35
-                elif any(m in s_low for m in ("for instance", "for example", "such as")):
-                    score += 25
-                elif "example" in s_low or "examples" in s_low:
-                    score += 15
-
-            # C) Risks / Pitfalls / Bottlenecks / Costs / Trade-offs / Ossification / Cliff
-            if _RISKS_QUERY_RE.search(q_low):
-                for kw in _RISK_KEYWORDS:
-                    if kw in q_low and kw in s_low:
-                        score += 30
-                    elif kw in s_low:
-                        score += 10
-
-            # C2) Attribution / Authorship / Creator
-            if _ATTRIBUTION_QUERY_RE.search(q_low):
-                for marker in _ATTRIBUTION_MARKERS:
-                    if marker in s_low:
-                        score += 15
-                if _AUTHOR_NAME_RE.search(s_clean):
-                    score += 20
-
-            # D) Term / Concept extraction from followup_question
-            for t in q_tokens:
-                if t in s_low:
-                    score += 5
-
-            # E) Exact matches of specific query entities / proper nouns (+30 per entity word)
-            if query_entities:
-                for ent in query_entities:
-                    if ent.lower() in s_low:
-                        score += 30 * len(ent.split())
-
-            if _list_ask(followup_question, followup_question):
-                if ":" in s_clean and "," in s_clean:
-                    score += 25
-
-            # Bias towards primary chunk
+            score = _followup_sentence_score(
+                s_clean, norm_s, norm_prior, c_text, q_low, q_tokens, query_entities, followup_question,
+            )
             if c == chunk_obj:
                 score += 2
-
             if score > 0:
-                # Check for 2-sentence combination if first sentence is short (e.g. "First, ...")
-                # or continuation (e.g. "Advertising platforms are another...")
-                adv_quote = s_clean
-                is_short_or_continuation = (
-                    s_low.startswith(("first,", "second,", "for example", "for instance", "advertising platforms are another"))
-                    or len(s_clean) < 100
-                )
-                if is_short_or_continuation:
-                    if i + 1 < len(sents):
-                        next_s = sents[i + 1].strip()
-                        if len(next_s) >= 20 and not next_s.lower().startswith(("second,", "third,", "finally,")):
-                            combined = f"{s_clean} {next_s}"
-                            if len(combined) <= PARAGRAPH_CAP and _quote_in_passage(combined, c_text):
-                                adv_quote = combined
-                    elif i > 0:
-                        prev_s = sents[i - 1].strip()
-                        if len(prev_s) >= 20:
-                            combined = f"{prev_s} {s_clean}"
-                            if len(combined) <= PARAGRAPH_CAP and _quote_in_passage(combined, c_text):
-                                adv_quote = combined
-                scored_cands.append((score, -i, adv_quote, c))
+                scored_cands.append((score, -i, _expand_short_quote(sents, i, s_clean, c_text), c))
 
     if not scored_cands:
         return None

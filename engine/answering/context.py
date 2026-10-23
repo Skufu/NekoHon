@@ -111,6 +111,211 @@ def _prioritize_phrase_matches(passages, question):
     return passages
 
 
+def _clean_history(history):
+    return [
+        h for h in (history or [])
+        if isinstance(h, dict) and (h.get("question") or h.get("answer"))
+    ]
+
+
+def _effective_pin(index, question, history, selection, pin_chunk):
+    topic_shift = _is_topic_shift_followup(question, history, selection, pin_chunk=pin_chunk, index=index)
+    effective_pin = None if (topic_shift and not selection) else pin_chunk
+    if effective_pin is not None or not history or topic_shift:
+        return topic_shift, effective_pin
+    clean_history = _clean_history(history)
+    if not clean_history:
+        return topic_shift, effective_pin
+    m_concept = _TOPIC_SHIFT_CONCEPT_RE.match(question.strip())
+    if not m_concept:
+        return topic_shift, effective_pin
+    concept_target = m_concept.group(1).strip()
+    target_words = {w.lower() for w in words(concept_target) if w.lower() not in STOPWORDS and len(w) >= 2}
+    prior_a = (clean_history[-1].get("answer") or "").strip()
+    if len(target_words) >= 3 and prior_a and all(w in prior_a.lower() for w in target_words):
+        prior_pos = prior_turn_chunk_position(index, prior_a)
+        if prior_pos is not None:
+            effective_pin = index["chunks"][prior_pos].get("chunk_id")
+    return topic_shift, effective_pin
+
+
+def _initial_passages(index, question, search_fn, embed_fn):
+    if search_fn is not None:
+        return search_fn(index, question, k=PASSAGE_LIMIT), None
+    ranked = rank_chunks(index, question, embed_fn=embed_fn)
+    passages = [
+        {
+            "score": score,
+            "chunk_id": chunk["chunk_id"],
+            "chapter": chunk["chapter"],
+            "heading": chunk.get("heading", ""),
+            "text": chunk.get("text", ""),
+            "source": chunk.get("source", ""),
+        }
+        for score, chunk in ranked[:PASSAGE_LIMIT]
+    ]
+    ranks = {chunk["chunk_id"]: i for i, (_, chunk) in enumerate(ranked, start=1)}
+    return passages, ranks
+
+
+def _find_reading(index, question, best_score, word_map, generate_fn, embed_fn):
+    try:
+        reading = second_reading(index, question, best_score, word_map=word_map, embed_fn=embed_fn)
+    except TypeError:
+        reading = second_reading(index, question, best_score, word_map=word_map)
+    if reading is not None:
+        return reading
+    try:
+        return llm_second_reading(
+            index, question, best_score,
+            generate_fn=generate_fn, word_map=word_map,
+            embed_fn=embed_fn,
+        )
+    except TypeError:
+        return llm_second_reading(
+            index, question, best_score,
+            generate_fn=generate_fn, word_map=word_map,
+        )
+
+
+def _fuse_passages(index, question, asked, passages, word_map, ranks, embed_fn):
+    if not rare(asked, word_map):
+        return passages
+    if ranks is not None and asked == question:
+        try:
+            return fuse(index, asked, passages, word_map, ranks=ranks, embed_fn=embed_fn)
+        except TypeError:
+            try:
+                return fuse(index, asked, passages, word_map, ranks=ranks)
+            except TypeError:
+                return fuse(index, asked, passages, word_map)
+    try:
+        return fuse(index, asked, passages, word_map, embed_fn=embed_fn)
+    except TypeError:
+        return fuse(index, asked, passages, word_map)
+
+
+def _seed_captions(index, asked, passages, embed_fn):
+    try:
+        passages = caption_seed(index, asked, passages, embed_fn=embed_fn)
+    except TypeError:
+        passages = caption_seed(index, asked, passages)
+    return _prioritize_phrase_matches(passages, asked)
+
+
+def _pin_id(effective_pin):
+    return effective_pin.get("chunk_id") if isinstance(effective_pin, dict) else effective_pin
+
+
+def _inject_history_sequence(index, question, passages, clean_history, effective_pin):
+    chunks = index.get("chunks") or []
+    target_idx = None
+    if effective_pin:
+        p_id = _pin_id(effective_pin)
+        if p_id:
+            target_idx = chunk_position(index, p_id)
+    if target_idx is None:
+        target_idx = prior_turn_chunk_position(index, clean_history[-1].get("answer") or "")
+    if target_idx is None:
+        return passages
+    seq_chunks = []
+    for offset in (0, 1, -1, 2):
+        cand_idx = target_idx + offset
+        if 0 <= cand_idx < len(chunks):
+            cand = chunks[cand_idx]
+            if str(cand.get("chapter")) == str(chunks[target_idx].get("chapter")) and cand not in seq_chunks:
+                seq_chunks.append(cand)
+    if not seq_chunks:
+        return passages
+    ranked_seq = _rank_seq_chunks(seq_chunks, question, _extract_subject_from_history(clean_history))
+    p0_s = passages[0].get("score") if passages else 1.0
+    base_score = float(p0_s) if p0_s is not None else 1.0
+    injected = []
+    for idx_offset, c in enumerate(ranked_seq):
+        c_dict = dict(c)
+        c_s = c.get("score")
+        c_dict["score"] = float(c_s) if c_s is not None else (base_score - 0.001 * (idx_offset + 1))
+        injected.append(c_dict)
+    injected_ids = {c["chunk_id"] for c in injected}
+    passages = injected + [p for p in passages if p.get("chunk_id") not in injected_ids]
+    return passages[:PASSAGE_LIMIT]
+
+
+def _adjacent_same_chapter(chunks, p_idx, p_obj):
+    neighbors = []
+    if p_idx + 1 < len(chunks) and chunks[p_idx + 1].get("chapter") == p_obj.get("chapter"):
+        neighbors.append(chunks[p_idx + 1])
+    if p_idx > 0 and chunks[p_idx - 1].get("chapter") == p_obj.get("chapter"):
+        neighbors.append(chunks[p_idx - 1])
+    return neighbors
+
+
+def _append_missing(passages, extras):
+    current_ids = {p.get("chunk_id") for p in passages}
+    for n in extras:
+        if n.get("chunk_id") not in current_ids:
+            passages.append(n)
+
+
+def _same_chapter_window(index, passages, p_id, p_obj):
+    chunks = index.get("chunks") or []
+    try:
+        p_idx = chunk_position(index, p_id)
+    except ValueError:
+        return passages
+    p_chap = str(p_obj.get("chapter"))
+    same_chap_seq = []
+    for offset in (0, 1, -1, 2, -2):
+        cand_idx = p_idx + offset
+        if 0 <= cand_idx < len(chunks):
+            cand = chunks[cand_idx]
+            if str(cand.get("chapter")) == p_chap and cand.get("chunk_id") not in {c.get("chunk_id") for c in same_chap_seq}:
+                same_chap_seq.append(cand)
+    seen_ids = {c.get("chunk_id") for c in same_chap_seq}
+    same_chap_dense = [p for p in passages if str(p.get("chapter")) == p_chap and p.get("chunk_id") not in seen_ids]
+    for p in same_chap_dense:
+        seen_ids.add(p.get("chunk_id"))
+    other_passages = [p for p in passages if p.get("chunk_id") not in seen_ids]
+    return (same_chap_seq + same_chap_dense + other_passages)[:PASSAGE_LIMIT]
+
+
+def _chapter_query_neighbors(index, passages, p_id, p_obj, clean_history):
+    chunks = index.get("chunks") or []
+    try:
+        p_idx = chunk_position(index, p_id)
+    except ValueError:
+        return passages
+    p_neighbors = _adjacent_same_chapter(chunks, p_idx, p_obj)
+    if clean_history:
+        p_n_ids = {n.get("chunk_id") for n in p_neighbors}
+        passages = [p for p in passages if p.get("chunk_id") not in p_n_ids]
+        return p_neighbors + passages
+    _append_missing(passages, p_neighbors)
+    return passages
+
+
+def _pin_neighbors(index, passages, p_id, p_obj):
+    chunks = index.get("chunks") or []
+    try:
+        p_idx = chunk_position(index, p_id)
+    except ValueError:
+        return passages
+    _append_missing(passages, _adjacent_same_chapter(chunks, p_idx, p_obj))
+    return passages
+
+
+def _inject_pin_context(index, question, passages, effective_pin, topic_shift, clean_history):
+    p_id = _pin_id(effective_pin)
+    p_obj = chunk_by_id(index, p_id)
+    if not p_obj:
+        return passages
+    if topic_shift:
+        return _pin_neighbors(index, passages, p_id, p_obj)
+    if re.search(r"\b(which\s+chapter|where\s+in\s+the\s+book|chapter\s+\d+|across\s+chapters)\b", question, re.I):
+        return _chapter_query_neighbors(index, passages, p_id, p_obj, clean_history)
+    return _same_chapter_window(index, passages, p_id, p_obj)
+
+
 def retrieval_context(index, question, search_fn=None, generate_fn=None,
                       pin_chunk=None, end_chunk_id=None, history=None, selection="",
                       embed_fn=None):
@@ -123,41 +328,8 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
     the LLM enhancer is the fallback under the same gate, so a typo difflib
     cannot see still gets one honest attempt.
     """
-    topic_shift = _is_topic_shift_followup(question, history, selection, pin_chunk=pin_chunk, index=index)
-    effective_pin = None if (topic_shift and not selection) else pin_chunk
-    if effective_pin is None and history and not topic_shift:
-        clean_history = [
-            h for h in (history or [])
-            if isinstance(h, dict) and (h.get("question") or h.get("answer"))
-        ]
-        if clean_history:
-            m_concept = _TOPIC_SHIFT_CONCEPT_RE.match(question.strip())
-            if m_concept:
-                concept_target = m_concept.group(1).strip()
-                target_words = {w.lower() for w in words(concept_target) if w.lower() not in STOPWORDS and len(w) >= 2}
-                prior_turn = clean_history[-1]
-                prior_a = (prior_turn.get("answer") or "").strip()
-                if len(target_words) >= 3 and prior_a and all(w in prior_a.lower() for w in target_words):
-                    prior_pos = prior_turn_chunk_position(index, prior_a)
-                    if prior_pos is not None:
-                        effective_pin = index["chunks"][prior_pos].get("chunk_id")
-    ranks = None
-    if search_fn is None:
-        ranked = rank_chunks(index, question, embed_fn=embed_fn)
-        passages = [
-            {
-                "score": score,
-                "chunk_id": chunk["chunk_id"],
-                "chapter": chunk["chapter"],
-                "heading": chunk.get("heading", ""),
-                "text": chunk.get("text", ""),
-                "source": chunk.get("source", ""),
-            }
-            for score, chunk in ranked[:PASSAGE_LIMIT]
-        ]
-        ranks = {chunk["chunk_id"]: i for i, (_, chunk) in enumerate(ranked, start=1)}
-    else:
-        passages = search_fn(index, question, k=PASSAGE_LIMIT)
+    topic_shift, effective_pin = _effective_pin(index, question, history, selection, pin_chunk)
+    passages, ranks = _initial_passages(index, question, search_fn, embed_fn)
     passages = _pin_chunk(index, passages, effective_pin, end_chunk_id=end_chunk_id)
 
     context = {
@@ -171,167 +343,21 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
         return context
     word_map = postings(index)
     context["word_map"] = word_map
-    # A word the book does not contain may be a typo. One self-proving reading
-    # becomes the question when it scores strictly better, and the answer says
-    # which reading it answered. Nothing is repaired silently.
-    best_score = passages[0].get("score", 0.0)
-    try:
-        reading = second_reading(index, question, best_score, word_map=word_map, embed_fn=embed_fn)
-    except TypeError:
-        reading = second_reading(index, question, best_score, word_map=word_map)
-    if reading is None:
-        # The difflib reading cannot see every typo (measured 2026-10-13:
-        # "normilazation", "ingestoin"); the model proposes and the same
-        # strict-improvement gate decides. A failed call leaves the literal
-        # question standing.
-        try:
-            reading = llm_second_reading(
-                index, question, best_score,
-                generate_fn=generate_fn, word_map=word_map,
-                embed_fn=embed_fn,
-            )
-        except TypeError:
-            reading = llm_second_reading(
-                index, question, best_score,
-                generate_fn=generate_fn, word_map=word_map,
-            )
+    reading = _find_reading(index, question, passages[0].get("score", 0.0), word_map, generate_fn, embed_fn)
     if reading is not None:
         context["reading"] = reading
         context["asked"] = reading["reading"]
-        present = any(
-            hit["chunk_id"] == reading["chunk"]["chunk_id"] for hit in passages
-        )
-        if not present:
+        if not any(hit["chunk_id"] == reading["chunk"]["chunk_id"] for hit in passages):
             passages = [reading["chunk"]] + passages[:-1]
     asked = context["asked"]
-    # Fusion pays one embed plus a full cosine pass. The lexical channel joins
-    # only when the question carries a rare book word, the trigger the boost
-    # used; other asks do not pay.
-    if rare(asked, word_map):
-        if ranks is not None and asked == question:
-            try:
-                passages = fuse(index, asked, passages, word_map, ranks=ranks, embed_fn=embed_fn)
-            except TypeError:
-                try:
-                    passages = fuse(index, asked, passages, word_map, ranks=ranks)
-                except TypeError:
-                    passages = fuse(index, asked, passages, word_map)
-        else:
-            try:
-                passages = fuse(index, asked, passages, word_map, embed_fn=embed_fn)
-            except TypeError:
-                passages = fuse(index, asked, passages, word_map)
-    # Caption seeding runs last: its measured effect is which chunk leads, and
-    # fusion would otherwise be free to demote that lead.
-    try:
-        passages = caption_seed(index, asked, passages, embed_fn=embed_fn)
-    except TypeError:
-        passages = caption_seed(index, asked, passages)
-    passages = _prioritize_phrase_matches(passages, asked)
+    passages = _fuse_passages(index, question, asked, passages, word_map, ranks, embed_fn)
+    passages = _seed_captions(index, asked, passages, embed_fn)
 
-    clean_history = [
-        h for h in (history or [])
-        if isinstance(h, dict) and (h.get("question") or h.get("answer"))
-    ]
+    clean_history = _clean_history(history)
     if clean_history and not topic_shift:
-        chunks = index.get("chunks") or []
-        target_idx = None
-        if effective_pin:
-            p_id = effective_pin.get("chunk_id") if isinstance(effective_pin, dict) else effective_pin
-            if p_id:
-                target_idx = chunk_position(index, p_id)
-
-        last_turn = clean_history[-1]
-        last_ans = last_turn.get("answer") or ""
-        if target_idx is None:
-            target_idx = prior_turn_chunk_position(index, last_ans)
-        if target_idx is not None:
-            cand_offsets = (0, 1, -1, 2)
-            seq_chunks = []
-            for offset in cand_offsets:
-                cand_idx = target_idx + offset
-                if 0 <= cand_idx < len(chunks):
-                    cand = chunks[cand_idx]
-                    if str(cand.get("chapter")) == str(chunks[target_idx].get("chapter")):
-                        if cand not in seq_chunks:
-                            seq_chunks.append(cand)
-            if seq_chunks:
-                history_subject = _extract_subject_from_history(clean_history)
-                ranked_seq = _rank_seq_chunks(seq_chunks, question, history_subject)
-                p0_s = passages[0].get("score") if passages else 1.0
-                base_score = float(p0_s) if p0_s is not None else 1.0
-                injected = []
-                for idx_offset, c in enumerate(ranked_seq):
-                    c_dict = dict(c)
-                    c_s = c.get("score")
-                    c_dict["score"] = float(c_s) if c_s is not None else (base_score - 0.001 * (idx_offset + 1))
-                    injected.append(c_dict)
-                injected_ids = {c["chunk_id"] for c in injected}
-                passages = injected + [p for p in passages if p.get("chunk_id") not in injected_ids]
-                passages = passages[:PASSAGE_LIMIT]
-
-    if effective_pin and not topic_shift:
-        chunks = index.get("chunks") or []
-        p_id = effective_pin.get("chunk_id") if isinstance(effective_pin, dict) else effective_pin
-        p_obj = chunk_by_id(index, p_id)
-        if p_obj:
-            is_chapter_query = bool(re.search(r"\b(which\s+chapter|where\s+in\s+the\s+book|chapter\s+\d+|across\s+chapters)\b", question, re.I))
-            if not is_chapter_query:
-                try:
-                    p_idx = chunk_position(index, p_id)
-                    p_chap = str(p_obj.get("chapter"))
-                    same_chap_seq = []
-                    for offset in (0, 1, -1, 2, -2):
-                        cand_idx = p_idx + offset
-                        if 0 <= cand_idx < len(chunks):
-                            cand = chunks[cand_idx]
-                            if str(cand.get("chapter")) == p_chap and cand.get("chunk_id") not in {c.get("chunk_id") for c in same_chap_seq}:
-                                same_chap_seq.append(cand)
-                    seen_ids = {c.get("chunk_id") for c in same_chap_seq}
-                    same_chap_dense = [p for p in passages if str(p.get("chapter")) == p_chap and p.get("chunk_id") not in seen_ids]
-                    for p in same_chap_dense:
-                        seen_ids.add(p.get("chunk_id"))
-                    other_passages = [p for p in passages if p.get("chunk_id") not in seen_ids]
-                    passages = (same_chap_seq + same_chap_dense + other_passages)[:PASSAGE_LIMIT]
-                except ValueError:
-                    pass
-            else:
-                try:
-                    p_idx = chunk_position(index, p_id)
-                    p_neighbors = []
-                    if p_idx + 1 < len(chunks) and chunks[p_idx + 1].get("chapter") == p_obj.get("chapter"):
-                        p_neighbors.append(chunks[p_idx + 1])
-                    if p_idx > 0 and chunks[p_idx - 1].get("chapter") == p_obj.get("chapter"):
-                        p_neighbors.append(chunks[p_idx - 1])
-                    if clean_history:
-                        p_n_ids = {n.get("chunk_id") for n in p_neighbors}
-                        passages = [p for p in passages if p.get("chunk_id") not in p_n_ids]
-                        passages = p_neighbors + passages
-                    else:
-                        p_curr_ids = {p.get("chunk_id") for p in passages}
-                        for n in p_neighbors:
-                            if n.get("chunk_id") not in p_curr_ids:
-                                passages.append(n)
-                except ValueError:
-                    pass
-    elif effective_pin:
-        chunks = index.get("chunks") or []
-        p_id = effective_pin.get("chunk_id") if isinstance(effective_pin, dict) else effective_pin
-        p_obj = chunk_by_id(index, p_id)
-        if p_obj:
-            try:
-                p_idx = chunk_position(index, p_id)
-                p_neighbors = []
-                if p_idx + 1 < len(chunks) and chunks[p_idx + 1].get("chapter") == p_obj.get("chapter"):
-                    p_neighbors.append(chunks[p_idx + 1])
-                if p_idx > 0 and chunks[p_idx - 1].get("chapter") == p_obj.get("chapter"):
-                    p_neighbors.append(chunks[p_idx - 1])
-                p_curr_ids = {p.get("chunk_id") for p in passages}
-                for n in p_neighbors:
-                    if n.get("chunk_id") not in p_curr_ids:
-                        passages.append(n)
-            except ValueError:
-                pass
+        passages = _inject_history_sequence(index, question, passages, clean_history, effective_pin)
+    if effective_pin:
+        passages = _inject_pin_context(index, question, passages, effective_pin, topic_shift, clean_history)
 
     if effective_pin or end_chunk_id:
         passages = _pin_chunk(index, passages, effective_pin, end_chunk_id=end_chunk_id)

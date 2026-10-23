@@ -306,6 +306,197 @@ def _reground_alphanumeric_quote(quote, question, chunk_text):
     return _complete_truncated_quote(quote, text)
 
 
+def _citation_from_line(stripped, text, passages):
+    match = re.match(r"\[Ch\.\s*([^\]]+)\]\s*(.*)", stripped)
+    if not match:
+        return None, False
+    chapter = match.group(1).strip().rstrip(".")
+    rest = match.group(2)
+    quoted = re.search(r"[\"“](.+?)[\"”]", rest)
+    raw = quoted.group(1) if quoted else rest
+    quote = _strip_quotes(raw)
+    if len(quote) < SPAN_MIN_CHARS and not _short_sentence(raw, quote):
+        quote = ""
+    hit = _matching_passage(chapter, quote, passages)
+    if hit is None:
+        hit = _matching_passage_anywhere(quote, passages)
+    if hit is None:
+        hit, quote = _span_from_chapter(chapter, rest, passages)
+    if hit is None:
+        hit, quote = _span_from_chapter(chapter, text, passages)
+    if hit is None:
+        return None, True
+    quote = _complete_truncated_quote(quote, hit.get("text") or "")
+    return {
+        "chunk_id": hit["chunk_id"],
+        "chapter": str(hit["chapter"]),
+        "quote": quote,
+    }, False
+
+
+def _parse_citations(text, passages):
+    if not text.startswith("[Ch."):
+        citation = _tagless_citation(text, passages)
+        if citation is None:
+            return None
+        return [citation], []
+    citations = []
+    gloss = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        citation, failed = _citation_from_line(stripped, text, passages)
+        if failed:
+            return None
+        if citation is None:
+            gloss.append(stripped)
+        else:
+            citations.append(citation)
+    return citations, gloss
+
+
+def _passage_for_id(passages, chunk_id):
+    return next((p for p in passages if p.get("chunk_id") == chunk_id), None)
+
+
+def _expand_to_paragraphs(citations, passages, anchors, question):
+    is_process_q = bool(re.search(r"\bhow\s+(?:does|do|can)\b", question or "", re.I))
+    if not (anchors or is_process_q):
+        return
+    for item in citations:
+        spot = _passage_for_id(passages, item["chunk_id"])
+        if spot is None:
+            continue
+        paragraph = _paragraph_around(item["quote"], spot.get("text") or "")
+        if anchors and _whole_paragraph(anchors, paragraph, item["quote"]):
+            item["quote"] = paragraph
+        elif is_process_q and paragraph and len(paragraph) <= PARAGRAPH_CAP and len(paragraph) >= SPAN_MIN_CHARS:
+            item["quote"] = paragraph
+
+
+def _trim_citations(citations, passages, question):
+    for item in citations:
+        spot = _passage_for_id(passages, item["chunk_id"])
+        if spot is not None:
+            item["quote"] = _without_heading(item["quote"], spot)
+            item["quote"] = _reground_alphanumeric_quote(
+                item["quote"], question, spot.get("text", "")
+            )
+
+
+_COMPARISON_PRONOUNS = frozenset({"this", "it", "that", "they", "these", "those"})
+_CONTRAST_MARKERS = ("unlike", "versus", "vs.", "vs", "difference between", "differ from", "differ", "compared to", "in contrast")
+
+
+def _side_matches(is_pronoun, tokens, text, combine):
+    if is_pronoun:
+        return True
+    return combine(re.search(rf"\b{re.escape(stem(t))}\w*\b", text) for t in tokens)
+
+
+def _expand_pair_quote(sents, i, s, p, p_text):
+    s_cand = _without_heading(s, p)
+    if len(s_cand) >= 100:
+        return s_cand
+    if i > 0:
+        prev_s = _without_heading(sents[i - 1], p)
+        if len(prev_s) + 1 + len(s_cand) <= PARAGRAPH_CAP and _quote_in_passage(f"{prev_s} {s_cand}", p_text):
+            return f"{prev_s} {s_cand}"
+    elif i + 1 < len(sents):
+        next_s = _without_heading(sents[i + 1], p)
+        if len(s_cand) + 1 + len(next_s) <= PARAGRAPH_CAP and _quote_in_passage(f"{s_cand} {next_s}", p_text):
+            return f"{s_cand} {next_s}"
+    return s_cand
+
+
+def _comparison_sentence(p, p_text, left_pr, right_pr, tokens_left, tokens_right):
+    s_best = None
+    sents = _candidate_sentences(p_text, p.get("heading") or "")
+    for i, s in enumerate(sents):
+        s_low = s.lower()
+        in_left = _side_matches(left_pr, tokens_left, s_low, any)
+        in_right = _side_matches(right_pr, tokens_right, s_low, any)
+        if in_left and in_right:
+            if len(s) >= SPAN_MIN_CHARS:
+                s_best = _expand_pair_quote(sents, i, s, p, p_text)
+                break
+        elif (in_left or in_right) and any(m in s_low for m in ("unlike", "difference", "versus", "differ")):
+            if len(s) >= SPAN_MIN_CHARS and not s_best:
+                s_best = _without_heading(s, p)
+    if not s_best:
+        s_best = _without_heading(p_text.split("\n\n")[0], p)
+    return s_best
+
+
+def _best_dual_passage(passages, left_pr, right_pr, tokens_left, tokens_right):
+    dual_hit = None
+    dual_sentence = None
+    best_contrast_score = -1
+    for p in passages:
+        p_text = p.get("text") or ""
+        p_low = p_text.lower()
+        if not (_side_matches(left_pr, tokens_left, p_low, all) and _side_matches(right_pr, tokens_right, p_low, all)):
+            continue
+        c_score = 1
+        for marker in _CONTRAST_MARKERS:
+            if marker in p_low:
+                c_score += 5
+        body_start = p_text.split("\n", 1)[1].strip() if "\n" in p_text else p_text
+        if body_start.startswith("("):
+            c_score -= 10
+        if c_score > best_contrast_score:
+            s_best = _comparison_sentence(p, p_text, left_pr, right_pr, tokens_left, tokens_right)
+            if s_best:
+                best_contrast_score = c_score
+                dual_hit = p
+                dual_sentence = s_best
+    return dual_hit, dual_sentence
+
+
+def _align_comparison(citations, passages, question):
+    sides = _comparison_sides(question)
+    if not (sides and len(passages) >= 1):
+        return citations
+    left_pr = sides[0].lower() in _COMPARISON_PRONOUNS
+    right_pr = sides[1].lower() in _COMPARISON_PRONOUNS
+    tokens_left = [] if left_pr else _side_tokens(sides[0])
+    tokens_right = [] if right_pr else _side_tokens(sides[1])
+    if not ((tokens_left or left_pr) and (tokens_right or right_pr)):
+        return citations
+    dual_hit, dual_sentence = _best_dual_passage(passages, left_pr, right_pr, tokens_left, tokens_right)
+    if not (dual_hit and dual_sentence):
+        return citations
+    cur_quote = citations[0]["quote"].lower() if citations else ""
+    cur_has_left = _side_matches(left_pr, tokens_left, cur_quote, any)
+    cur_has_right = _side_matches(right_pr, tokens_right, cur_quote, any)
+    if not (cur_has_left and cur_has_right) or dual_hit["chunk_id"] != citations[0]["chunk_id"]:
+        return [{
+            "chunk_id": dual_hit["chunk_id"],
+            "chapter": str(dual_hit["chapter"]),
+            "quote": dual_sentence,
+        }]
+    return citations
+
+
+def _assemble_body(citations, gloss, passages, figures):
+    answer_lines = [
+        f"[Ch. {item['chapter']}] \"{item['quote']}\"" for item in citations
+    ]
+    if gloss:
+        gloss_cleaned = _clean_boilerplate_gloss(" ".join(gloss))
+        if gloss_cleaned:
+            answer_lines.append(gloss_cleaned)
+    cited = {item["chunk_id"] for item in citations}
+    named = [hit for hit in passages if hit["chunk_id"] in cited] or passages
+    return {
+        "answer": "\n".join(answer_lines),
+        "citations": citations,
+        "figures": figures_for(named, figures or []),
+        "refused": False,
+    }
+
+
 def parse_completion(completion, passages, figures=None, anchors=None, question=""):
     """Return a contract body. Unchecked prose is a refusal.
 
@@ -318,161 +509,180 @@ def parse_completion(completion, passages, figures=None, anchors=None, question=
     if text == REFUSAL:
         return _refusal(passages, figures)
 
-    citations = []
-    gloss = []
-    if not text.startswith("[Ch."):
-        # The model sometimes writes the book's own sentence and forgets the
-        # tag (measured: "Normalization is a database data modeling practice
-        # ...", 2026-10-13). The verification is the same rule as everywhere:
-        # verbatim in a shown passage, or a long enough word-for-word span;
-        # the tag is rebuilt from the matched passage. Unverified prose is
-        # still a refusal.
-        citation = _tagless_citation(text, passages)
-        if citation is None:
-            return _refusal(passages, figures)
-        citations.append(citation)
-    else:
-        for line in text.splitlines():
-            stripped = line.strip()
-            if not stripped:
-                continue
-            match = re.match(r"\[Ch\.\s*([^\]]+)\]\s*(.*)", stripped)
-            if not match:
-                gloss.append(stripped)
-                continue
-            chapter = match.group(1).strip().rstrip(".")
-            rest = match.group(2)
-            quoted = re.search(r"[\"“](.+?)[\"”]", rest)
-            raw = quoted.group(1) if quoted else rest
-            quote = _strip_quotes(raw)
-            if len(quote) < SPAN_MIN_CHARS and not _short_sentence(raw, quote):
-                quote = ""
-            hit = _matching_passage(chapter, quote, passages)
-            if hit is None:
-                hit = _matching_passage_anywhere(quote, passages)
-            if hit is None:
-                hit, quote = _span_from_chapter(chapter, rest, passages)
-            if hit is None:
-                hit, quote = _span_from_chapter(chapter, text, passages)
-            if hit is None:
-                return _refusal(passages, figures)
-            quote = _complete_truncated_quote(quote, hit.get("text") or "")
-            citations.append({
-                "chunk_id": hit["chunk_id"],
-                "chapter": str(hit["chapter"]),
-                "quote": quote,
-            })
-    if not citations:
+    parsed = _parse_citations(text, passages)
+    if parsed is None or not parsed[0]:
         return _refusal(passages, figures)
-    is_process_q = bool(re.search(r"\bhow\s+(?:does|do|can)\b", question or "", re.I))
-    if anchors or is_process_q:
-        for item in citations:
-            spot = next(
-                (hit for hit in passages if hit["chunk_id"] == item["chunk_id"]),
-                None,
-            )
-            if spot is None:
-                continue
-            paragraph = _paragraph_around(item["quote"], spot.get("text") or "")
-            if anchors and _whole_paragraph(anchors, paragraph, item["quote"]):
-                item["quote"] = paragraph
-            elif is_process_q and paragraph and len(paragraph) <= PARAGRAPH_CAP and len(paragraph) >= SPAN_MIN_CHARS:
-                item["quote"] = paragraph
-    # One trim, after every path that can set a quote: the anchor expansion
-    # above replaces the quote with the whole paragraph, heading line included.
-    for item in citations:
-        spot = next(
-            (hit for hit in passages if hit["chunk_id"] == item["chunk_id"]),
-            None,
-        )
-        if spot is not None:
-            item["quote"] = _without_heading(item["quote"], spot)
-            item["quote"] = _reground_alphanumeric_quote(
-                item["quote"], question, spot.get("text", "")
-            )
+    citations, gloss = parsed
+    _expand_to_paragraphs(citations, passages, anchors, question)
+    _trim_citations(citations, passages, question)
+    citations = _align_comparison(citations, passages, question)
+    body = _assemble_body(citations, gloss, passages, figures)
+    return _align_citation_to_query_concepts(body, question, passages)
 
-    # Fully-covered comparison alignment: if query compares two concepts, cite the passage
-    # and sentence mentioning both sides when present.
-    sides = _comparison_sides(question)
-    if sides and len(passages) >= 1:
-        PRONOUNS = frozenset({"this", "it", "that", "they", "these", "those"})
-        left_is_pronoun = sides[0].lower() in PRONOUNS
-        right_is_pronoun = sides[1].lower() in PRONOUNS
-        tokens_left = [] if left_is_pronoun else _side_tokens(sides[0])
-        tokens_right = [] if right_is_pronoun else _side_tokens(sides[1])
-        if (tokens_left or left_is_pronoun) and (tokens_right or right_is_pronoun):
-            dual_hit = None
-            dual_sentence = None
-            best_contrast_score = -1
-            for p in passages:
-                p_text = p.get("text") or ""
-                p_low = p_text.lower()
-                hl = True if left_is_pronoun else all(re.search(rf"\b{re.escape(stem(t))}\w*\b", p_low) for t in tokens_left)
-                hr = True if right_is_pronoun else all(re.search(rf"\b{re.escape(stem(t))}\w*\b", p_low) for t in tokens_right)
-                if hl and hr and (not left_is_pronoun or hr) and (not right_is_pronoun or hl):
-                    c_score = 1
-                    for marker in ("unlike", "versus", "vs.", "vs", "difference between", "differ from", "differ", "compared to", "in contrast"):
-                        if marker in p_low:
-                            c_score += 5
-                    body_start = p_text.split("\n", 1)[1].strip() if "\n" in p_text else p_text
-                    if body_start.startswith("("):
-                        c_score -= 10
-                    if c_score > best_contrast_score:
-                        s_best = None
-                        sents = _candidate_sentences(p_text, p.get("heading") or "")
-                        for i, s in enumerate(sents):
-                            s_low = s.lower()
-                            in_left = True if left_is_pronoun else any(re.search(rf"\b{re.escape(stem(t))}\w*\b", s_low) for t in tokens_left)
-                            in_right = True if right_is_pronoun else any(re.search(rf"\b{re.escape(stem(t))}\w*\b", s_low) for t in tokens_right)
-                            if in_left and in_right:
-                                if len(s) >= SPAN_MIN_CHARS:
-                                    s_cand = _without_heading(s, p)
-                                    if len(s_cand) < 100:
-                                        if i > 0:
-                                            prev_s = _without_heading(sents[i - 1], p)
-                                            if len(prev_s) + 1 + len(s_cand) <= PARAGRAPH_CAP and _quote_in_passage(f"{prev_s} {s_cand}", p_text):
-                                                s_cand = f"{prev_s} {s_cand}"
-                                        elif i + 1 < len(sents):
-                                            next_s = _without_heading(sents[i + 1], p)
-                                            if len(s_cand) + 1 + len(next_s) <= PARAGRAPH_CAP and _quote_in_passage(f"{s_cand} {next_s}", p_text):
-                                                s_cand = f"{s_cand} {next_s}"
-                                    s_best = s_cand
-                                    break
-                            elif (in_left or in_right) and any(m in s_low for m in ("unlike", "difference", "versus", "differ")):
-                                if len(s) >= SPAN_MIN_CHARS and not s_best:
-                                    s_best = _without_heading(s, p)
-                        if not s_best:
-                            s_best = _without_heading(p_text.split("\n\n")[0], p)
-                        if s_best:
-                            best_contrast_score = c_score
-                            dual_hit = p
-                            dual_sentence = s_best
-            if dual_hit and dual_sentence:
-                cur_quote = citations[0]["quote"].lower() if citations else ""
-                cur_has_left = True if left_is_pronoun else any(re.search(rf"\b{re.escape(stem(t))}\w*\b", cur_quote) for t in tokens_left)
-                cur_has_right = True if right_is_pronoun else any(re.search(rf"\b{re.escape(stem(t))}\w*\b", cur_quote) for t in tokens_right)
-                if not (cur_has_left and cur_has_right) or dual_hit["chunk_id"] != citations[0]["chunk_id"]:
-                    citations = [{
-                        "chunk_id": dual_hit["chunk_id"],
-                        "chapter": str(dual_hit["chapter"]),
-                        "quote": dual_sentence,
-                    }]
-    answer_lines = [
-        f"[Ch. {item['chapter']}] \"{item['quote']}\"" for item in citations
-    ]
-    if gloss:
-        gloss_cleaned = _clean_boilerplate_gloss(" ".join(gloss))
-        if gloss_cleaned:
-            answer_lines.append(gloss_cleaned)
-    cited = {item["chunk_id"] for item in citations}
-    named = [hit for hit in passages if hit["chunk_id"] in cited] or passages
-    body = {
-        "answer": "\n".join(answer_lines),
-        "citations": citations,
-        "figures": figures_for(named, figures or []),
+
+def _heading_text(p):
+    return ((p.get("heading") or "") + " " + (p.get("text") or "")).lower()
+
+
+def _current_text(passages, cur_chunk_id):
+    cur_hit = _passage_for_id(passages, cur_chunk_id)
+    return _heading_text(cur_hit) if cur_hit else ""
+
+
+def _single_citation_body(p, quote, body):
+    chap = str(p["chapter"])
+    return {
+        "answer": f'[Ch. {chap}] "{quote}"\n{quote}',
+        "citations": [{
+            "chunk_id": p["chunk_id"],
+            "chapter": chap,
+            "quote": quote,
+        }],
+        "figures": figures_for([p], body.get("figures") or []),
         "refused": False,
     }
-    return _align_citation_to_query_concepts(body, question, passages)
+
+
+def _first_matching_sentence(p, predicate):
+    for s in _sentences(p.get("text") or ""):
+        s_clean = _without_heading(s, p)
+        if predicate(s_clean):
+            return s_clean
+    return None
+
+
+def _acronym_sentence(best_hit, primary_ac, question):
+    b_text = best_hit.get("text") or ""
+    best_sent = ""
+    for ac in primary_ac:
+        for s in _sentences(b_text):
+            s_clean = _without_heading(s, best_hit)
+            if re.search(rf"\b{re.escape(ac)}s?\b", s_clean.lower()) and len(s_clean) >= SPAN_MIN_CHARS:
+                best_sent = s_clean
+                break
+        if best_sent:
+            break
+    if not best_sent:
+        for ac in primary_ac:
+            para = _paragraph_around(ac, b_text)
+            if para and len(para) <= PARAGRAPH_CAP and len(para) >= SPAN_MIN_CHARS:
+                best_sent = _without_heading(para, best_hit)
+                break
+    if best_sent:
+        best_sent = _reground_alphanumeric_quote(best_sent, question, b_text)
+    return best_sent
+
+
+def _best_acronym_passage(passages, q_acronyms, primary_ac):
+    best_hit = None
+    best_count = -100
+    for p in passages:
+        p_text = _heading_text(p)
+        head_text = (p.get("heading") or "").lower()
+        is_example = head_text.startswith("example:") or head_text.startswith("example ")
+        count = sum(2 if ac in primary_ac else 1 for ac in q_acronyms if re.search(rf"\b{re.escape(ac)}s?\b", p_text))
+        if is_example:
+            count -= 3
+        if count > best_count:
+            best_count = count
+            best_hit = p
+    return best_hit
+
+
+def _align_to_acronyms(body, question, passages, cur_chunk_id):
+    raw_acronyms = [w.lower() for w in re.findall(r"\b[A-Za-z0-9]+\b", question) if (w.isupper() and len(w) >= 2) or w.lower() in ("s3", "iops", "aimd", "sla", "slo", "cdc")]
+    q_acronyms = sorted(raw_acronyms, key=lambda a: (0 if a in ("tcp", "ip", "udp") else 1, len(a)), reverse=True)
+    if not q_acronyms:
+        return None, [], False
+    cur_text = _current_text(passages, cur_chunk_id)
+    primary_ac = [ac for ac in q_acronyms if ac not in ("tcp", "ip", "udp")] or q_acronyms
+    cur_has_acronym = any(re.search(rf"\b{re.escape(ac)}s?\b", cur_text) for ac in primary_ac)
+    if "iops" in primary_ac and cur_chunk_id != passages[0].get("chunk_id"):
+        p0_text = (passages[0].get("text") or "").lower()
+        if "operations per second" in p0_text and "operations per second" not in cur_text:
+            cur_has_acronym = False
+    if cur_has_acronym:
+        return None, primary_ac, cur_has_acronym
+    best_hit = _best_acronym_passage(passages, q_acronyms, primary_ac)
+    if best_hit:
+        best_sent = _acronym_sentence(best_hit, primary_ac, question)
+        if best_sent:
+            return _single_citation_body(best_hit, best_sent, body), primary_ac, cur_has_acronym
+    return None, primary_ac, cur_has_acronym
+
+
+def _align_to_content_verbs(body, question, passages, cur_chunk_id):
+    content_verbs = [w.lower() for w in words(question) if w.lower() in ("extract", "extracting", "replicate", "ingest")]
+    if not content_verbs:
+        return None
+    if any(v in _current_text(passages, cur_chunk_id) for v in content_verbs):
+        return None
+    for p in passages:
+        if any(v in _heading_text(p) for v in content_verbs):
+            s_clean = _first_matching_sentence(
+                p, lambda s: any(v in s.lower() for v in content_verbs) and len(s) >= SPAN_MIN_CHARS
+            )
+            if s_clean is not None:
+                return _single_citation_body(p, s_clean, body)
+    return None
+
+
+def _align_to_top_phrase(body, question, passages, cur_chunk_id, primary_ac, cur_has_acronym):
+    tokens = re.findall(r"\b[a-zA-Z0-9_-]+\b", question.lower())
+    phrases = []
+    for i in range(len(tokens) - 1):
+        w1, w2 = tokens[i], tokens[i + 1]
+        if w1 not in STOPWORDS and w1 not in STEM_WORDS and len(w1) >= 3:
+            if w2 not in STOPWORDS and w2 not in STEM_WORDS and len(w2) >= 3:
+                phrases.append(f"{w1} {w2}")
+    if not (phrases and passages and cur_chunk_id != passages[0].get("chunk_id") and not (primary_ac and cur_has_acronym)):
+        return None
+    cur_text = _current_text(passages, cur_chunk_id)
+    top_text = _heading_text(passages[0])
+    matched_phrase = next((ph for ph in phrases if re.search(rf"\b{re.escape(ph)}\b", top_text)), None)
+    if not matched_phrase or re.search(rf"\b{re.escape(matched_phrase)}\b", cur_text):
+        return None
+    p = passages[0]
+    s_clean = _first_matching_sentence(
+        p, lambda s: re.search(rf"\b{re.escape(matched_phrase)}\b", s.lower()) and len(s) >= SPAN_MIN_CHARS
+    )
+    if s_clean is not None:
+        return _single_citation_body(p, s_clean, body)
+    return None
+
+
+def _align_to_creator(body, question, passages, citations):
+    if not re.search(r"\bwho\s+(?:created|invented|designed|developed|authored|introduced|wrote|founded|proposed)\b", question, re.I):
+        return None
+    cur_quote = citations[0].get("quote", "") if citations else ""
+    has_author = bool(re.search(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", cur_quote)) or any(w in cur_quote.lower() for w in ("author", "creator", "created", "invented", "wrote", "book"))
+    if has_author:
+        return None
+    for p in passages:
+        s_clean = _first_matching_sentence(
+            p,
+            lambda s: len(s) >= SPAN_MIN_CHARS
+            and re.search(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", s)
+            and any(w in s.lower() for w in ("noted", "book", "article", "creator", "created", "invented", "introduced", "proposed", "authored")),
+        )
+        if s_clean is not None:
+            return _single_citation_body(p, s_clean, body)
+    return None
+
+
+def _reground_current_citation(body, question, passages, cur_chunk_id):
+    citations = body["citations"]
+    cur_hit = _passage_for_id(passages, cur_chunk_id)
+    if not cur_hit:
+        return
+    cur_q = citations[0].get("quote", "")
+    regrounded = _reground_alphanumeric_quote(cur_q, question, cur_hit.get("text", ""))
+    if regrounded and regrounded != cur_q:
+        citations[0]["quote"] = regrounded
+        lines = (body.get("answer") or "").splitlines()
+        if lines and lines[0].startswith("[Ch."):
+            lines[0] = f'[Ch. {citations[0]["chapter"]}] "{regrounded}"'
+            body["answer"] = "\n".join(lines)
 
 
 def _align_citation_to_query_concepts(body, question, passages):
@@ -482,151 +692,17 @@ def _align_citation_to_query_concepts(body, question, passages):
     citations = body["citations"]
     cur_chunk_id = citations[0].get("chunk_id")
 
-    q_words = words(question)
-    raw_acronyms = [w.lower() for w in re.findall(r"\b[A-Za-z0-9]+\b", question) if (w.isupper() and len(w) >= 2) or w.lower() in ("s3", "iops", "aimd", "sla", "slo", "cdc")]
-    q_acronyms = sorted(raw_acronyms, key=lambda a: (0 if a in ("tcp", "ip", "udp") else 1, len(a)), reverse=True)
-    primary_ac = []
-    cur_has_acronym = False
-    if q_acronyms:
-        cur_hit = next((p for p in passages if p.get("chunk_id") == cur_chunk_id), None)
-        cur_text = ((cur_hit.get("heading") or "") + " " + (cur_hit.get("text") or "")).lower() if cur_hit else ""
-        # Does current cited passage have the specific acronyms?
-        primary_ac = [ac for ac in q_acronyms if ac not in ("tcp", "ip", "udp")] or q_acronyms
-        cur_has_acronym = any(re.search(rf"\b{re.escape(ac)}s?\b", cur_text) for ac in primary_ac)
-        if "iops" in primary_ac and cur_chunk_id != passages[0].get("chunk_id"):
-            p0_text = (passages[0].get("text") or "").lower()
-            if "operations per second" in p0_text and "operations per second" not in cur_text:
-                cur_has_acronym = False
-        if not cur_has_acronym:
-            best_hit = None
-            best_count = -100
-            for p in passages:
-                p_text = ((p.get("heading") or "") + " " + (p.get("text") or "")).lower()
-                head_text = (p.get("heading") or "").lower()
-                is_example = head_text.startswith("example:") or head_text.startswith("example ")
-                count = sum(2 if ac in primary_ac else 1 for ac in q_acronyms if re.search(rf"\b{re.escape(ac)}s?\b", p_text))
-                if is_example:
-                    count -= 3
-                if count > best_count:
-                    best_count = count
-                    best_hit = p
-            if best_hit:
-                b_text = best_hit.get("text") or ""
-                best_sent = ""
-                for ac in primary_ac:
-                    for s in _sentences(b_text):
-                        s_clean = _without_heading(s, best_hit)
-                        if re.search(rf"\b{re.escape(ac)}s?\b", s_clean.lower()) and len(s_clean) >= SPAN_MIN_CHARS:
-                            best_sent = s_clean
-                            break
-                    if best_sent:
-                        break
-                if not best_sent:
-                    for ac in primary_ac:
-                        para = _paragraph_around(ac, b_text)
-                        if para and len(para) <= PARAGRAPH_CAP and len(para) >= SPAN_MIN_CHARS:
-                            best_sent = _without_heading(para, best_hit)
-                            break
-                if best_sent:
-                    best_sent = _reground_alphanumeric_quote(best_sent, question, b_text)
-                    chap = str(best_hit["chapter"])
-                    return {
-                        "answer": f'[Ch. {chap}] "{best_sent}"\n{best_sent}',
-                        "citations": [{
-                            "chunk_id": best_hit["chunk_id"],
-                            "chapter": chap,
-                            "quote": best_sent,
-                        }],
-                        "figures": figures_for([best_hit], body.get("figures") or []),
-                        "refused": False,
-                    }
+    realigned, primary_ac, cur_has_acronym = _align_to_acronyms(body, question, passages, cur_chunk_id)
+    if realigned is None:
+        realigned = _align_to_content_verbs(body, question, passages, cur_chunk_id)
+    if realigned is None:
+        realigned = _align_to_top_phrase(body, question, passages, cur_chunk_id, primary_ac, cur_has_acronym)
+    if realigned is None:
+        realigned = _align_to_creator(body, question, passages, citations)
+    if realigned is not None:
+        return realigned
 
-    content_verbs = [w.lower() for w in q_words if w.lower() in ("extract", "extracting", "replicate", "ingest")]
-    if content_verbs:
-        cur_hit = next((p for p in passages if p.get("chunk_id") == cur_chunk_id), None)
-        cur_text = ((cur_hit.get("heading") or "") + " " + (cur_hit.get("text") or "")).lower() if cur_hit else ""
-        if not any(v in cur_text for v in content_verbs):
-            for p in passages:
-                p_text = ((p.get("heading") or "") + " " + (p.get("text") or "")).lower()
-                if any(v in p_text for v in content_verbs):
-                    for s in _sentences(p.get("text") or ""):
-                        s_clean = _without_heading(s, p)
-                        if any(v in s_clean.lower() for v in content_verbs) and len(s_clean) >= SPAN_MIN_CHARS:
-                            chap = str(p["chapter"])
-                            return {
-                                "answer": f'[Ch. {chap}] "{s_clean}"\n{s_clean}',
-                                "citations": [{
-                                    "chunk_id": p["chunk_id"],
-                                    "chapter": chap,
-                                    "quote": s_clean,
-                                }],
-                                "figures": figures_for([p], body.get("figures") or []),
-                                "refused": False,
-                            }
-
-    tokens = re.findall(r"\b[a-zA-Z0-9_-]+\b", question.lower())
-    phrases = []
-    for i in range(len(tokens) - 1):
-        w1, w2 = tokens[i], tokens[i + 1]
-        if w1 not in STOPWORDS and w1 not in STEM_WORDS and len(w1) >= 3:
-            if w2 not in STOPWORDS and w2 not in STEM_WORDS and len(w2) >= 3:
-                phrases.append(f"{w1} {w2}")
-    if phrases and passages and cur_chunk_id != passages[0].get("chunk_id") and not (primary_ac and cur_has_acronym):
-        cur_hit = next((p for p in passages if p.get("chunk_id") == cur_chunk_id), None)
-        cur_text = ((cur_hit.get("heading") or "") + " " + (cur_hit.get("text") or "")).lower() if cur_hit else ""
-        top_text = ((passages[0].get("heading") or "") + " " + (passages[0].get("text") or "")).lower()
-        matched_phrase = next((ph for ph in phrases if re.search(rf"\b{re.escape(ph)}\b", top_text)), None)
-        if matched_phrase and not re.search(rf"\b{re.escape(matched_phrase)}\b", cur_text):
-            p = passages[0]
-            for s in _sentences(p.get("text") or ""):
-                s_clean = _without_heading(s, p)
-                if re.search(rf"\b{re.escape(matched_phrase)}\b", s_clean.lower()) and len(s_clean) >= SPAN_MIN_CHARS:
-                    chap = str(p["chapter"])
-                    return {
-                        "answer": f'[Ch. {chap}] "{s_clean}"\n{s_clean}',
-                        "citations": [{
-                            "chunk_id": p["chunk_id"],
-                            "chapter": chap,
-                            "quote": s_clean,
-                        }],
-                        "figures": figures_for([p], body.get("figures") or []),
-                        "refused": False,
-                    }
-
-    creator_match = re.search(r"\bwho\s+(?:created|invented|designed|developed|authored|introduced|wrote|founded|proposed)\b", question, re.I)
-    if creator_match:
-        cur_quote = citations[0].get("quote", "") if citations else ""
-        has_author = bool(re.search(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", cur_quote)) or any(w in cur_quote.lower() for w in ("author", "creator", "created", "invented", "wrote", "book"))
-        if not has_author:
-            for p in passages:
-                p_text = p.get("text") or ""
-                for s in _sentences(p_text):
-                    s_clean = _without_heading(s, p)
-                    if len(s_clean) >= SPAN_MIN_CHARS and re.search(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b", s_clean):
-                        if any(w in s_clean.lower() for w in ("noted", "book", "article", "creator", "created", "invented", "introduced", "proposed", "authored")):
-                            chap = str(p["chapter"])
-                            return {
-                                "answer": f'[Ch. {chap}] "{s_clean}"\n{s_clean}',
-                                "citations": [{
-                                    "chunk_id": p["chunk_id"],
-                                    "chapter": chap,
-                                    "quote": s_clean,
-                                }],
-                                "figures": figures_for([p], body.get("figures") or []),
-                                "refused": False,
-                            }
-
-    cur_hit = next((p for p in passages if p.get("chunk_id") == cur_chunk_id), None)
-    if cur_hit:
-        cur_q = citations[0].get("quote", "")
-        regrounded = _reground_alphanumeric_quote(cur_q, question, cur_hit.get("text", ""))
-        if regrounded and regrounded != cur_q:
-            citations[0]["quote"] = regrounded
-            lines = (body.get("answer") or "").splitlines()
-            if lines and lines[0].startswith("[Ch."):
-                lines[0] = f'[Ch. {citations[0]["chapter"]}] "{regrounded}"'
-                body["answer"] = "\n".join(lines)
-
+    _reground_current_citation(body, question, passages, cur_chunk_id)
     return body
 
 

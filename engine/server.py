@@ -198,6 +198,12 @@ def get_book_index(book_id=None):
     return None
 
 
+_DISCONNECTS = (BrokenPipeError, ConnectionResetError, ConnectionAbortedError)
+_NOT_FOUND = {"error": "not found"}
+_JSON_TYPE = "application/json; charset=utf-8"
+_HTML_TYPE = "text/html; charset=utf-8"
+
+
 class Handler(BaseHTTPRequestHandler):
     server_version = "nekohon/0.1"
     disable_nagle_algorithm = True
@@ -212,7 +218,7 @@ class Handler(BaseHTTPRequestHandler):
     def _send_json(self, status, payload, send_body=True):
         body = json.dumps(payload).encode("utf-8")
         self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Type", _JSON_TYPE)
         self.send_header("Content-Length", str(len(body)))
         self._cors()
         self.end_headers()
@@ -242,414 +248,397 @@ class Handler(BaseHTTPRequestHandler):
         if send_body:
             self.wfile.write(payload)
 
-    def _handle_get_or_head(self, send_body=True):
-        route = self._route()
-        if route == "/health":
-            self._send_json(200, {
-                "ok": True,
-                "book_id": DEFAULT_BOOK_ID,
-                "ollama": ollama_up(),
-                "books": get_books_catalog(),
-                "warm": dict(WARM_STATUS),
-            }, send_body=send_body)
-            return
-        if route == "/":
-            headers = {"Cache-Control": "no-store"}
-            if (WEB_OUT / "index.html").is_file():
-                page = WEB_OUT / "index.html"
-                self._send_bytes(200, page.read_bytes(), "text/html; charset=utf-8", headers=headers, send_body=send_body)
-                return
-            page = Path(__file__).resolve().parents[1] / "window" / "index.html"
-            if not page.is_file():
-                self._send_json(404, {"error": "not found"}, send_body=send_body)
-                return
-            self._send_bytes(200, page.read_bytes(), "text/html; charset=utf-8", headers=headers, send_body=send_body)
-            return
-        if route.startswith("/figures/"):
-            parsed = urllib.parse.urlparse(self.path)
-            query = urllib.parse.parse_qs(parsed.query)
-            book_id = query.get("book_id", [""])[0] or DEFAULT_BOOK_ID
-            figure_id = route[len("/figures/"):]
-            book = get_book_index(book_id)
-            figures_dir = get_figures_dir(book_id)
-
-            if figure_id == "cover":
-                path = None
-                cover_name = (book or {}).get("cover_file")
-                if cover_name and (figures_dir / cover_name).is_file():
-                    path = figures_dir / cover_name
-                else:
-                    for ext in (".png", ".jpg", ".jpeg", ".webp", ".svg"):
-                        cand = figures_dir / f"cover{ext}"
-                        if cand.is_file():
-                            path = cand
-                            break
-                if path is None and book_id == DEFAULT_BOOK_ID:
-                    cand = ROOT / "data" / "figures" / "cover.png"
-                    if cand.is_file():
-                        path = cand
-                if path is None:
-                    self._send_json(404, {"error": "not found"}, send_body=send_body)
-                    return
-                suffix = path.suffix.lower()
-                kind = MIME_TYPES.get(suffix, "application/octet-stream")
-                self._send_bytes(200, path.read_bytes(), kind, send_body=send_body)
-                return
-
-            path = figure_file(figure_id, (book or {}).get("figures") or [], figures_dir=figures_dir)
-            if path is None and book_id == DEFAULT_BOOK_ID:
-                for cat in get_books_catalog():
-                    other_id = cat.get("book_id")
-                    if other_id and other_id != DEFAULT_BOOK_ID:
-                        other_book = get_book_index(other_id)
-                        other_dir = get_figures_dir(other_id)
-                        cand = figure_file(figure_id, (other_book or {}).get("figures") or [], figures_dir=other_dir)
-                        if cand:
-                            path = cand
-                            break
-            if path is None:
-                self._send_json(404, {"error": "not found"}, send_body=send_body)
-                return
-            suffix = path.suffix.lower()
-            kind = MIME_TYPES.get(suffix, "application/octet-stream")
-            self._send_bytes(200, path.read_bytes(), kind, send_body=send_body)
-            return
-
-        if route == "/chunks":
-            parsed = urllib.parse.urlparse(self.path)
-            query = urllib.parse.parse_qs(parsed.query)
-            book_id = query.get("book_id", [""])[0] or DEFAULT_BOOK_ID
-            accept_encoding = self.headers.get("Accept-Encoding") or ""
-            if "gzip" in accept_encoding:
-                gz_body = chunks_gzip(book_id)
-                if gz_body is None:
-                    self._send_json(500, {"error": "missing index"}, send_body=send_body)
-                    return
-                self.send_response(200)
-                self.send_header("Content-Type", "application/json; charset=utf-8")
-                self.send_header("Content-Encoding", "gzip")
-                self.send_header("Vary", "Accept-Encoding")
-                self.send_header("Content-Length", str(len(gz_body)))
-                self._cors()
-                self.end_headers()
-                if send_body:
-                    self.wfile.write(gz_body)
-                return
-
-            body = chunks_body(book_id)
-            if body is None:
-                self._send_json(500, {"error": "missing index"}, send_body=send_body)
-                return
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json; charset=utf-8")
-            self.send_header("Vary", "Accept-Encoding")
-            self.send_header("Content-Length", str(len(body)))
-            self._cors()
-            self.end_headers()
-            if send_body:
-                self.wfile.write(body)
-            return
-
-        # Static asset serving for web/out Next.js export
-        if (WEB_OUT / "index.html").is_file():
-            try:
-                base = WEB_OUT.resolve()
-                unquoted = urllib.parse.unquote(route)
-                if "\x00" in unquoted:
-                    self._send_json(404, {"error": "not found"}, send_body=send_body)
-                    return
-                clean_rel = unquoted.replace("\\", "/").lstrip("/")
-                if ":" in clean_rel or clean_rel.startswith("/"):
-                    self._send_json(404, {"error": "not found"}, send_body=send_body)
-                    return
-                candidate = (base / clean_rel).resolve()
-                if candidate.is_file() and candidate.is_relative_to(base):
-                    suffix = candidate.suffix.lower()
-                    guessed_type, _ = mimetypes.guess_type(str(candidate))
-                    content_type = guessed_type or MIME_TYPES.get(suffix, "application/octet-stream")
-                    if content_type.startswith("text/") or content_type in ("application/javascript", "application/json"):
-                        content_type = f"{content_type}; charset=utf-8"
-                    extra_headers = {}
-                    if route.startswith("/_next/static/"):
-                        extra_headers["Cache-Control"] = "public, max-age=31536000, immutable"
-                    self._send_bytes(200, candidate.read_bytes(), content_type, headers=extra_headers, send_body=send_body)
-                    return
-            except Exception:
-                pass
-
-        self._send_json(404, {"error": "not found"}, send_body=send_body)
-
     def do_GET(self):
-        self._handle_get_or_head(send_body=True)
+        _handle_get_or_head(self, send_body=True)
 
     def do_HEAD(self):
-        self._handle_get_or_head(send_body=False)
+        _handle_get_or_head(self, send_body=False)
 
     def do_OPTIONS(self):
-        self.send_response(204)
-        self._cors()
-        self.send_header("Access-Control-Allow-Methods", "GET, HEAD, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
-        self.send_header("Access-Control-Max-Age", "600")
-        self.send_header("Content-Length", "0")
-        self.end_headers()
+        _handle_options(self)
 
     def do_POST(self):
-        if self._route() != "/ask":
-            self._send_json(404, {"error": "not found"})
-            return
-        request = self._read_request()
-        if not isinstance(request, dict):
-            self._send_json(400, {"error": "invalid json"})
-            return
-        mode = request.get("mode")
-        if mode not in MODES and mode not in EXTRA_MODES:
-            self._send_json(400, {"error": "bad mode"})
-            return
-        if mode == "import":
-            self._handle_import(request)
-            return
-        if mode in ("ask", "answer") and not request.get("question"):
-            self._send_json(400, {"error": "missing question"})
-            return
-        if mode == "explain" and not request.get("selection"):
-            self._send_json(400, {"error": "missing selection"})
-            return
-        book_id = request.get("book_id") or DEFAULT_BOOK_ID
-        book = get_book_index(book_id)
-        if book is None:
-            if request.get("book_id"):
-                self._send_json(404, {"error": f"unknown book {book_id}"})
-            else:
-                self._send_json(500, {"error": "missing index"})
-            return
-        if request.get("stream"):
-            self._stream_ask(request, book)
-            return
-        try:
-            history = sanitize_history(request.get("history"))
-            chunk_id = request.get("chunk_id")
-            end_chunk_id = request.get("end_chunk_id") or None
-            if mode == "ask":
-                body = ask(
-                    book, request["question"], history=history,
-                    pin_chunk=chunk_id,
-                    end_chunk_id=end_chunk_id,
-                    selection=request.get("selection") or "",
-                    heading=request.get("heading") or "",
-                )
-            elif mode == "answer":
-                body = respond(
-                    book, request["question"], history=history,
-                    pin_chunk=chunk_id,
-                    end_chunk_id=end_chunk_id,
-                    selection=request.get("selection") or "",
-                    heading=request.get("heading") or "",
-                )
-            elif mode == "explain":
-                body = explain(
-                    book, request.get("selection") or "",
-                    chunk_id=chunk_id,
-                    end_chunk_id=end_chunk_id,
-                    heading=request.get("heading") or "",
-                )
-            else:
-                body = quiz(book, chunk_id=chunk_id)
-        except ValueError as exc:
-            self._send_json(400, {"error": str(exc)})
-            return
-        except (urllib.error.URLError, TimeoutError, RuntimeError):
-            self._send_json(500, {"error": "answer model unavailable"})
-            return
-        except SystemExit as exc:
-            # rank_chunks / caption_seed refuse a bad index or a zero query
-            # with SystemExit. Uncaught, that kills the handler thread and the
-            # client never gets a body.
-            self._send_json(500, {"error": f"index error: {exc}"})
-            return
-        self._send_json(200, body)
-
-    def _handle_import(self, request):
-        try:
-            from engine.ingest import ingest_epub, update_books_catalog
-            from engine.retrieval.retrieve import embed_index, save_index
-
-            data_b64 = request.get("data_base64")
-            epub_path_str = request.get("epub_path")
-            filename = request.get("filename") or ""
-
-            if data_b64:
-                try:
-                    raw_data = base64.b64decode(data_b64)
-                except Exception as exc:
-                    self._send_json(400, {"error": f"invalid base64: {exc}"})
-                    return
-                book_id = request.get("book_id") or Path(filename).stem.lower()
-                book_id = re.sub(r"[^a-zA-Z0-9_-]", "-", book_id).lower().strip("-") or "imported"
-                books_dir = ROOT / "books"
-                books_dir.mkdir(parents=True, exist_ok=True)
-                epub_path = books_dir / f"{book_id}.epub"
-                epub_path.write_bytes(raw_data)
-            elif epub_path_str:
-                epub_path = Path(epub_path_str)
-                if not epub_path.is_absolute():
-                    epub_path = ROOT / epub_path
-                if not epub_path.is_file():
-                    self._send_json(400, {"error": f"file not found: {epub_path_str}"})
-                    return
-                book_id = request.get("book_id") or epub_path.stem.lower()
-                book_id = re.sub(r"[^a-zA-Z0-9_-]", "-", book_id).lower().strip("-") or "imported"
-            else:
-                self._send_json(400, {"error": "missing data_base64 or epub_path"})
-                return
-
-            figures_dir = ROOT / "data" / "figures" / book_id
-            figures_dir.mkdir(parents=True, exist_ok=True)
-
-            index = ingest_epub(epub_path, figures_dir=figures_dir, write_images=True, book_id=book_id)
-            if request.get("title"):
-                index["title"] = request["title"]
-            if request.get("author"):
-                index["author"] = request["author"]
-
-            if not request.get("skip_embed"):
-                embed_index(index)
-
-            index_path = ROOT / "data" / f"index.{book_id}.json"
-            save_index(index_path, index)
-
-            catalog_entry = update_books_catalog(
-                book_id,
-                index.get("title", ""),
-                index.get("author", ""),
-                index_path,
-                figures_dir,
-                index.get("chunks", []),
-                index.get("figures", []),
-                cover_file=index.get("cover_file", "cover.png"),
-            )
-
-            INDEX_CACHE[book_id] = index
-            CHUNKS_JSON_CACHE.clear()
-            CHUNKS_GZIP_CACHE.clear()
-            if not request.get("skip_embed"):
-                chunks_body(book_id)
-
-            self._send_json(200, {
-                "ok": True,
-                "book_id": book_id,
-                "book": catalog_entry,
-                "books": get_books_catalog(),
-            })
-        except Exception as exc:
-            traceback.print_exc()
-            self._send_json(500, {"error": f"import failed: {exc}"})
+        _handle_post(self)
 
     def _stream_ask(self, request, book):
-        """NDJSON frames: token as the model writes, reset when a draft is
-        discarded, final with the same body the non-stream path returns."""
-        mode = request["mode"]
-        calls = {"n": 0}
+        _stream_response(self, request, book)
 
-        def frame(payload):
-            self.wfile.write((json.dumps(payload) + "\n").encode("utf-8"))
-            self.wfile.flush()
 
-        def generate(system, user, model=ANSWER_MODEL, prefill=""):
-            calls["n"] += 1
-            if calls["n"] > 1:
-                # A later generation replaces whatever ran before it. Emitted
-                # even when nothing was shown: the UI keeps the frame as its
-                # "a draft was discarded" signal and no-ops on empty text.
-                frame({"type": "reset"})
-            # Only the generation whose text becomes the answer streams live.
-            live = bool(prefill) or (
-                system in (EXPLAIN_GLOSS_SYSTEM, ANSWER_GLOSS_SYSTEM, FOLLOWUP_GLOSS_SYSTEM)
-            ) or (
-                system == SYSTEM and mode != "quiz" and getattr(respond, "__name__", "") != "fake_respond"
-            )
+def _query_book_id(h):
+    query = urllib.parse.parse_qs(urllib.parse.urlparse(h.path).query)
+    return query.get("book_id", [""])[0] or DEFAULT_BOOK_ID
 
-            def on_token(text):
-                frame({"type": "token", "text": text})
 
-            return ollama_generate_stream(
-                system, user, model=model, prefill=prefill,
-                on_token=on_token if live else None,
-            )
+def _serve_health(h, send_body):
+    h._send_json(200, {
+        "ok": True,
+        "book_id": DEFAULT_BOOK_ID,
+        "ollama": ollama_up(),
+        "books": get_books_catalog(),
+        "warm": dict(WARM_STATUS),
+    }, send_body=send_body)
 
-        generate._is_live = True
 
-        self.send_response(200)
-        self.send_header("Content-Type", "application/x-ndjson; charset=utf-8")
-        self.send_header("Cache-Control", "no-store")
-        self.send_header("Connection", "close")
-        self._cors()
-        self.end_headers()
+def _serve_index_page(h, send_body):
+    headers = {"Cache-Control": "no-store"}
+    page = WEB_OUT / "index.html"
+    if not page.is_file():
+        page = Path(__file__).resolve().parents[1] / "window" / "index.html"
+        if not page.is_file():
+            h._send_json(404, _NOT_FOUND, send_body=send_body)
+            return
+    h._send_bytes(200, page.read_bytes(), _HTML_TYPE, headers=headers, send_body=send_body)
+
+
+def _find_cover(book_id, book, figures_dir):
+    cover_name = (book or {}).get("cover_file")
+    if cover_name and (figures_dir / cover_name).is_file():
+        return figures_dir / cover_name
+    for ext in (".png", ".jpg", ".jpeg", ".webp", ".svg"):
+        cand = figures_dir / f"cover{ext}"
+        if cand.is_file():
+            return cand
+    if book_id == DEFAULT_BOOK_ID:
+        cand = ROOT / "data" / "figures" / "cover.png"
+        if cand.is_file():
+            return cand
+    return None
+
+
+def _find_figure(figure_id, book_id, book, figures_dir):
+    path = figure_file(figure_id, (book or {}).get("figures") or [], figures_dir=figures_dir)
+    if path is not None or book_id != DEFAULT_BOOK_ID:
+        return path
+    for cat in get_books_catalog():
+        other_id = cat.get("book_id")
+        if other_id and other_id != DEFAULT_BOOK_ID:
+            other_book = get_book_index(other_id)
+            other_dir = get_figures_dir(other_id)
+            cand = figure_file(figure_id, (other_book or {}).get("figures") or [], figures_dir=other_dir)
+            if cand:
+                return cand
+    return None
+
+
+def _serve_figure(h, route, send_body):
+    book_id = _query_book_id(h)
+    figure_id = route[len("/figures/"):]
+    book = get_book_index(book_id)
+    figures_dir = get_figures_dir(book_id)
+    if figure_id == "cover":
+        path = _find_cover(book_id, book, figures_dir)
+    else:
+        path = _find_figure(figure_id, book_id, book, figures_dir)
+    if path is None:
+        h._send_json(404, _NOT_FOUND, send_body=send_body)
+        return
+    kind = MIME_TYPES.get(path.suffix.lower(), "application/octet-stream")
+    h._send_bytes(200, path.read_bytes(), kind, send_body=send_body)
+
+
+def _serve_chunks(h, send_body):
+    book_id = _query_book_id(h)
+    gzipped = "gzip" in (h.headers.get("Accept-Encoding") or "")
+    body = chunks_gzip(book_id) if gzipped else chunks_body(book_id)
+    if body is None:
+        h._send_json(500, {"error": "missing index"}, send_body=send_body)
+        return
+    h.send_response(200)
+    h.send_header("Content-Type", _JSON_TYPE)
+    if gzipped:
+        h.send_header("Content-Encoding", "gzip")
+    h.send_header("Vary", "Accept-Encoding")
+    h.send_header("Content-Length", str(len(body)))
+    h._cors()
+    h.end_headers()
+    if send_body:
+        h.wfile.write(body)
+
+
+def _serve_static(h, route, send_body):
+    if not (WEB_OUT / "index.html").is_file():
+        return False
+    try:
+        base = WEB_OUT.resolve()
+        unquoted = urllib.parse.unquote(route)
+        if "\x00" in unquoted:
+            h._send_json(404, _NOT_FOUND, send_body=send_body)
+            return True
+        clean_rel = unquoted.replace("\\", "/").lstrip("/")
+        if ":" in clean_rel or clean_rel.startswith("/"):
+            h._send_json(404, _NOT_FOUND, send_body=send_body)
+            return True
+        candidate = (base / clean_rel).resolve()
+        if not (candidate.is_file() and candidate.is_relative_to(base)):
+            return False
+        guessed_type, _ = mimetypes.guess_type(str(candidate))
+        content_type = guessed_type or MIME_TYPES.get(candidate.suffix.lower(), "application/octet-stream")
+        if content_type.startswith("text/") or content_type in ("application/javascript", "application/json"):
+            content_type = f"{content_type}; charset=utf-8"
+        extra_headers = {}
+        if route.startswith("/_next/static/"):
+            extra_headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        h._send_bytes(200, candidate.read_bytes(), content_type, headers=extra_headers, send_body=send_body)
+        return True
+    except Exception:
+        return False
+
+
+def _handle_get_or_head(h, send_body=True):
+    route = h._route()
+    if route == "/health":
+        _serve_health(h, send_body)
+    elif route == "/":
+        _serve_index_page(h, send_body)
+    elif route.startswith("/figures/"):
+        _serve_figure(h, route, send_body)
+    elif route == "/chunks":
+        _serve_chunks(h, send_body)
+    elif not _serve_static(h, route, send_body):
+        h._send_json(404, _NOT_FOUND, send_body=send_body)
+
+
+def _handle_options(h):
+    h.send_response(204)
+    h._cors()
+    h.send_header("Access-Control-Allow-Methods", "GET, HEAD, POST, OPTIONS")
+    h.send_header("Access-Control-Allow-Headers", "Content-Type")
+    h.send_header("Access-Control-Max-Age", "600")
+    h.send_header("Content-Length", "0")
+    h.end_headers()
+
+
+def _validate_ask_request(request):
+    mode = request.get("mode")
+    if mode not in MODES and mode not in EXTRA_MODES:
+        return 400, "bad mode"
+    if mode in ("ask", "answer") and not request.get("question"):
+        return 400, "missing question"
+    if mode == "explain" and not request.get("selection"):
+        return 400, "missing selection"
+    return None
+
+
+def _run_mode(mode, book, request, generate_fn=None):
+    extra = {} if generate_fn is None else {"generate_fn": generate_fn}
+    history = sanitize_history(request.get("history"))
+    chunk_id = request.get("chunk_id")
+    end_chunk_id = request.get("end_chunk_id") or None
+    selection = request.get("selection") or ""
+    heading = request.get("heading") or ""
+    if mode == "ask":
+        return ask(
+            book, request["question"], history=history,
+            pin_chunk=chunk_id, end_chunk_id=end_chunk_id,
+            selection=selection, heading=heading, **extra,
+        )
+    if mode == "answer":
+        return respond(
+            book, request["question"], history=history,
+            pin_chunk=chunk_id, end_chunk_id=end_chunk_id,
+            selection=selection, heading=heading, **extra,
+        )
+    if mode == "explain":
+        return explain(
+            book, selection, chunk_id=chunk_id,
+            end_chunk_id=end_chunk_id, heading=heading, **extra,
+        )
+    return quiz(book, chunk_id=chunk_id, **extra)
+
+
+def _handle_post(h):
+    if h._route() != "/ask":
+        h._send_json(404, _NOT_FOUND)
+        return
+    request = h._read_request()
+    if not isinstance(request, dict):
+        h._send_json(400, {"error": "invalid json"})
+        return
+    mode = request.get("mode")
+    if mode == "import":
+        _handle_import(h, request)
+        return
+    invalid = _validate_ask_request(request)
+    if invalid:
+        h._send_json(invalid[0], {"error": invalid[1]})
+        return
+    book_id = request.get("book_id") or DEFAULT_BOOK_ID
+    book = get_book_index(book_id)
+    if book is None:
+        if request.get("book_id"):
+            h._send_json(404, {"error": f"unknown book {book_id}"})
+        else:
+            h._send_json(500, {"error": "missing index"})
+        return
+    if request.get("stream"):
+        _stream_response(h, request, book)
+        return
+    try:
+        body = _run_mode(mode, book, request)
+    except ValueError as exc:
+        h._send_json(400, {"error": str(exc)})
+        return
+    except (urllib.error.URLError, TimeoutError, RuntimeError):
+        h._send_json(500, {"error": "answer model unavailable"})
+        return
+    except SystemExit as exc:
+        h._send_json(500, {"error": f"index error: {exc}"})
+        return
+    h._send_json(200, body)
+
+
+def _normalize_book_id(raw):
+    return re.sub(r"[^a-zA-Z0-9_-]", "-", raw).lower().strip("-") or "imported"
+
+
+def _import_source(request):
+    data_b64 = request.get("data_base64")
+    epub_path_str = request.get("epub_path")
+    if data_b64:
         try:
-            history = sanitize_history(request.get("history"))
-            chunk_id = request.get("chunk_id")
-            end_chunk_id = request.get("end_chunk_id") or None
-            if mode == "ask":
-                body = ask(
-                    book, request["question"], generate_fn=generate,
-                    history=history,
-                    pin_chunk=chunk_id,
-                    end_chunk_id=end_chunk_id,
-                    selection=request.get("selection") or "",
-                    heading=request.get("heading") or "",
-                )
-            elif mode == "answer":
-                body = respond(
-                    book, request["question"], generate_fn=generate,
-                    history=history,
-                    pin_chunk=chunk_id,
-                    end_chunk_id=end_chunk_id,
-                    selection=request.get("selection") or "",
-                    heading=request.get("heading") or "",
-                )
-            elif mode == "explain":
-                body = explain(
-                    book, request.get("selection") or "",
-                    generate_fn=generate,
-                    chunk_id=chunk_id,
-                    end_chunk_id=end_chunk_id,
-                    heading=request.get("heading") or "",
-                )
-            else:
-                body = quiz(book, generate_fn=generate, chunk_id=chunk_id)
-        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
-            return
-        except ValueError as exc:
-            try:
-                frame({"type": "error", "error": str(exc)})
-            except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
-                pass
-            return
-        except (urllib.error.URLError, TimeoutError, RuntimeError):
-            try:
-                frame({"type": "error", "error": "answer model unavailable"})
-            except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
-                pass
-            return
-        except SystemExit as exc:
-            try:
-                frame({"type": "error", "error": f"index error: {exc}"})
-            except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
-                pass
-            return
+            raw_data = base64.b64decode(data_b64)
         except Exception as exc:
-            # The stream contract: every start ends with final or error, so the
-            # client never sits on a blank pane. Traceback goes to the console.
-            traceback.print_exc()
-            try:
-                frame({"type": "error", "error": f"engine error: {exc}"})
-            except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
-                pass
+            return None, None, f"invalid base64: {exc}"
+        filename = request.get("filename") or ""
+        book_id = _normalize_book_id(request.get("book_id") or Path(filename).stem.lower())
+        books_dir = ROOT / "books"
+        books_dir.mkdir(parents=True, exist_ok=True)
+        epub_path = books_dir / f"{book_id}.epub"
+        epub_path.write_bytes(raw_data)
+        return epub_path, book_id, None
+    if epub_path_str:
+        epub_path = Path(epub_path_str)
+        if not epub_path.is_absolute():
+            epub_path = ROOT / epub_path
+        if not epub_path.is_file():
+            return None, None, f"file not found: {epub_path_str}"
+        return epub_path, _normalize_book_id(request.get("book_id") or epub_path.stem.lower()), None
+    return None, None, "missing data_base64 or epub_path"
+
+
+def _ingest_import(request, epub_path, book_id):
+    from engine.ingest import ingest_epub, update_books_catalog
+    from engine.retrieval.retrieve import embed_index, save_index
+
+    figures_dir = ROOT / "data" / "figures" / book_id
+    figures_dir.mkdir(parents=True, exist_ok=True)
+
+    index = ingest_epub(epub_path, figures_dir=figures_dir, write_images=True, book_id=book_id)
+    if request.get("title"):
+        index["title"] = request["title"]
+    if request.get("author"):
+        index["author"] = request["author"]
+
+    if not request.get("skip_embed"):
+        embed_index(index)
+
+    index_path = ROOT / "data" / f"index.{book_id}.json"
+    save_index(index_path, index)
+
+    catalog_entry = update_books_catalog(
+        book_id,
+        index.get("title", ""),
+        index.get("author", ""),
+        index_path,
+        figures_dir,
+        index.get("chunks", []),
+        index.get("figures", []),
+        cover_file=index.get("cover_file", "cover.png"),
+    )
+
+    INDEX_CACHE[book_id] = index
+    CHUNKS_JSON_CACHE.clear()
+    CHUNKS_GZIP_CACHE.clear()
+    if not request.get("skip_embed"):
+        chunks_body(book_id)
+
+    return {
+        "ok": True,
+        "book_id": book_id,
+        "book": catalog_entry,
+        "books": get_books_catalog(),
+    }
+
+
+def _handle_import(h, request):
+    try:
+        epub_path, book_id, error = _import_source(request)
+        if error:
+            h._send_json(400, {"error": error})
             return
-        try:
-            frame({"type": "final", "body": body})
-        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
-            return
+        h._send_json(200, _ingest_import(request, epub_path, book_id))
+    except Exception as exc:
+        traceback.print_exc()
+        h._send_json(500, {"error": f"import failed: {exc}"})
+
+
+def _write_frame(h, payload):
+    h.wfile.write((json.dumps(payload) + "\n").encode("utf-8"))
+    h.wfile.flush()
+
+
+def _stream_generate(h, mode):
+    calls = {"n": 0}
+
+    def generate(system, user, model=ANSWER_MODEL, prefill=""):
+        calls["n"] += 1
+        if calls["n"] > 1:
+            _write_frame(h, {"type": "reset"})
+        live = bool(prefill) or (
+            system in (EXPLAIN_GLOSS_SYSTEM, ANSWER_GLOSS_SYSTEM, FOLLOWUP_GLOSS_SYSTEM)
+        ) or (
+            system == SYSTEM and mode != "quiz"
+        )
+
+        def on_token(text):
+            _write_frame(h, {"type": "token", "text": text})
+
+        return ollama_generate_stream(
+            system, user, model=model, prefill=prefill,
+            on_token=on_token if live else None,
+        )
+
+    generate._is_live = True
+    return generate
+
+
+def _frame_quietly(h, payload):
+    try:
+        _write_frame(h, payload)
+    except _DISCONNECTS:
+        pass
+
+
+def _stream_response(h, request, book):
+    """NDJSON frames: token as the model writes, reset when a draft is
+    discarded, final with the same body the non-stream path returns."""
+    mode = request["mode"]
+    generate = _stream_generate(h, mode)
+
+    h.send_response(200)
+    h.send_header("Content-Type", "application/x-ndjson; charset=utf-8")
+    h.send_header("Cache-Control", "no-store")
+    h.send_header("Connection", "close")
+    h._cors()
+    h.end_headers()
+    try:
+        body = _run_mode(mode, book, request, generate_fn=generate)
+    except _DISCONNECTS:
+        return
+    except ValueError as exc:
+        _frame_quietly(h, {"type": "error", "error": str(exc)})
+        return
+    except (urllib.error.URLError, TimeoutError, RuntimeError):
+        _frame_quietly(h, {"type": "error", "error": "answer model unavailable"})
+        return
+    except SystemExit as exc:
+        _frame_quietly(h, {"type": "error", "error": f"index error: {exc}"})
+        return
+    except Exception as exc:
+        traceback.print_exc()
+        _frame_quietly(h, {"type": "error", "error": f"engine error: {exc}"})
+        return
+    _frame_quietly(h, {"type": "final", "body": body})
 
 
 def load_book():

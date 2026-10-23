@@ -56,6 +56,68 @@ def pick_quiz_chunk(index, rng=None):
     return rng.choice(usable)
 
 
+def _chunk_with_sentences(index, chunk_id, rng):
+    chunks = index.get("chunks") or []
+    found_chunk = chunk_by_id(index, chunk_id)
+    if found_chunk is None:
+        return None
+    if quiz_sentences(found_chunk.get("text") or ""):
+        return found_chunk
+    try:
+        idx = chunks.index(found_chunk)
+        for offset in (1, -1, 2, -2):
+            cand_idx = idx + offset
+            if 0 <= cand_idx < len(chunks):
+                cand = chunks[cand_idx]
+                if cand.get("chapter") == found_chunk.get("chapter") and quiz_sentences(cand.get("text") or ""):
+                    return cand
+    except ValueError:
+        pass
+    chapter_chunks = [
+        c for c in chunks
+        if c.get("chapter") == found_chunk.get("chapter") and quiz_sentences(c.get("text") or "")
+    ]
+    return rng.choice(chapter_chunks) if chapter_chunks else None
+
+
+def _leaks_key(key, completion):
+    return _quote_in_passage(key, completion) or key.lower() in completion.lower()
+
+
+def _content_stems(text):
+    return {
+        stem(w.lower()) for w in words(text)
+        if len(w) > 2 and w.lower() not in STOPWORDS and w.lower() not in STEM_WORDS
+    }
+
+
+def _needs_quiz_retry(comp, key, chunk):
+    if not comp or comp == REFUSAL or "[Ch." in comp:
+        return True
+    if _leaks_key(key, comp):
+        return True
+    key_content = _content_stems(key + " " + (chunk.get("heading") or ""))
+    q_stems = _content_stems(comp.splitlines()[0].strip())
+    return bool(key_content and not (key_content & q_stems))
+
+
+def _retry_completion(generate_fn, model, key, chunk, completion):
+    retry_user = (
+        f"{QUIZ_INSTRUCTION}\n\n"
+        f"Target answer sentence (write a question that is directly answered by this specific sentence):\n"
+        f'"{key}"\n\n'
+        f"Topic: {chunk.get('heading', '')}"
+    )
+    try:
+        retry_comp = generate_fn(QUIZ_SYSTEM, retry_user, model).strip()
+        if retry_comp and retry_comp != REFUSAL and "[Ch." not in retry_comp:
+            if not _leaks_key(key, retry_comp):
+                return retry_comp
+    except Exception:
+        pass
+    return completion
+
+
 def quiz(index, generate_fn=None, model=ANSWER_MODEL, rng=None, chunk=None,
          chunk_id=None):
     """One question. The key is one sentence from one chunk. No score.
@@ -67,29 +129,7 @@ def quiz(index, generate_fn=None, model=ANSWER_MODEL, rng=None, chunk=None,
     rng = rng or random.Random()
     chunks = index.get("chunks") or []
     if chunk is None and chunk_id:
-        found_chunk = chunk_by_id(index, chunk_id)
-        if found_chunk is not None:
-            if quiz_sentences(found_chunk.get("text") or ""):
-                chunk = found_chunk
-            else:
-                try:
-                    idx = chunks.index(found_chunk)
-                    for offset in (1, -1, 2, -2):
-                        cand_idx = idx + offset
-                        if 0 <= cand_idx < len(chunks):
-                            cand = chunks[cand_idx]
-                            if cand.get("chapter") == found_chunk.get("chapter") and quiz_sentences(cand.get("text") or ""):
-                                chunk = cand
-                                break
-                except ValueError:
-                    pass
-                if chunk is None:
-                    chapter_chunks = [
-                        c for c in chunks
-                        if c.get("chapter") == found_chunk.get("chapter") and quiz_sentences(c.get("text") or "")
-                    ]
-                    if chapter_chunks:
-                        chunk = rng.choice(chapter_chunks)
+        chunk = _chunk_with_sentences(index, chunk_id, rng)
     chunk = chunk or pick_quiz_chunk(index, rng)
     if chunk is None:
         return _refusal([])
@@ -106,53 +146,17 @@ def quiz(index, generate_fn=None, model=ANSWER_MODEL, rng=None, chunk=None,
     )
     completion = generate_fn(SYSTEM, user, model).strip()
 
-    if is_live:
-        def _needs_quiz_retry(comp):
-            if not comp or comp == REFUSAL or "[Ch." in comp:
-                return True
-            if _quote_in_passage(key, comp) or key.lower() in comp.lower():
-                return True
-            q_line = comp.splitlines()[0].strip()
-            key_content = {
-                stem(w.lower()) for w in words(key + " " + (chunk.get("heading") or ""))
-                if len(w) > 2 and w.lower() not in STOPWORDS and w.lower() not in STEM_WORDS
-            }
-            q_stems = {
-                stem(w.lower()) for w in words(q_line)
-                if len(w) > 2 and w.lower() not in STOPWORDS and w.lower() not in STEM_WORDS
-            }
-            if key_content and not (key_content & q_stems):
-                return True
-            return False
+    if is_live and _needs_quiz_retry(completion, key, chunk):
+        completion = _retry_completion(generate_fn, model, key, chunk, completion)
 
-        if _needs_quiz_retry(completion):
-            retry_user = (
-                f"{QUIZ_INSTRUCTION}\n\n"
-                f"Target answer sentence (write a question that is directly answered by this specific sentence):\n"
-                f'"{key}"\n\n'
-                f"Topic: {chunk.get('heading', '')}"
-            )
-            try:
-                retry_comp = generate_fn(QUIZ_SYSTEM, retry_user, model).strip()
-                if retry_comp and retry_comp != REFUSAL and "[Ch." not in retry_comp:
-                    if not (_quote_in_passage(key, retry_comp) or key.lower() in retry_comp.lower()):
-                        completion = retry_comp
-            except Exception:
-                pass
-
-    if not completion or completion == REFUSAL or "[Ch." in completion:
-        return _refusal([chunk], index.get("figures") or [])
-    if _quote_in_passage(key, completion) or key.lower() in completion.lower():
+    if not completion or completion == REFUSAL or "[Ch." in completion or _leaks_key(key, completion):
         return _refusal([chunk], index.get("figures") or [])
 
     quiz_neighbors = []
     if chunk in chunks:
-        try:
-            idx = chunks.index(chunk)
-            if idx + 1 < len(chunks):
-                quiz_neighbors.append(chunks[idx + 1])
-        except ValueError:
-            pass
+        idx = chunks.index(chunk)
+        if idx + 1 < len(chunks):
+            quiz_neighbors.append(chunks[idx + 1])
 
     return {
         "answer": completion,
