@@ -82,8 +82,7 @@ export async function checkHealth(signal?: AbortSignal): Promise<HealthResponse>
 }
 
 export async function fetchChunks(
-  bookId = "fde",
-  signal?: AbortSignal
+  bookId = "fde"
 ): Promise<ChunksPayload> {
   const cached = chunksCache.get(bookId);
   if (cached) return cached;
@@ -93,7 +92,7 @@ export async function fetchChunks(
 
   const promise = (async () => {
     const query = bookId ? `?book_id=${encodeURIComponent(bookId)}` : "";
-    const response = await fetch(`${engineUrl()}/chunks${query}`, { signal });
+    const response = await fetch(`${engineUrl()}/chunks${query}`);
     if (!response.ok) {
       const data = await response.json().catch(() => null);
       throw new Error(data?.error || `engine returned ${response.status}`);

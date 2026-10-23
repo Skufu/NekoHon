@@ -175,8 +175,9 @@ export default function Reader({
     setLoading(true);
     setLoadError("");
 
-    fetchChunks(activeBookId, ac.signal)
+    fetchChunks(activeBookId)
       .then((data) => {
+        if (ac.signal.aborted) return;
         setPayload(data);
         setLoading(false);
         if (data.books && Array.isArray(data.books)) {
