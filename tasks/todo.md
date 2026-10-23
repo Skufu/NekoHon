@@ -34,7 +34,7 @@ both batteries.
 
 ## Phase 1: History (parallel with Phases 2–3)
 
-- [ ] **A1 Archive history.** `git mv` to `archive/`: `artifacts/reports`,
+- [x] **A1 Archive history.** `git mv` to `archive/`: `artifacts/reports`,
   `artifacts/evidence`, `artifacts/probes` (except probes the live docs name as
   verification: `probe-highlight-2026-10-16.py`, `probe-test-mutations-*` —
   move those to `artifacts/harnesses/`), `artifacts/validate`, loose top-level
@@ -89,7 +89,7 @@ both batteries.
 
 ## Phase 3: Frontend (parallel with Phase 2)
 
-- [ ] **F1 Dead code.** Remove the 15 store mirror fields + `syncActiveTurn`
+- [x] **F1 Dead code.** Remove the 15 store mirror fields + `syncActiveTurn`
   mirror writes, `getCachedChunks`, needless `export`s, stale
   `next.config.ts` comment. Keep `thread`. Keep `saveHighlights`' legacy key only
   if it is still read for migration (check), else remove.
