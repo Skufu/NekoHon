@@ -35,18 +35,14 @@ def _patch_figures_src(body, index):
 
 
 def _should_include_chunk_figures(chunk, selection, quote, all_figures):
-    """Determine whether a chunk's figures should attach to an explain selection."""
     if not chunk:
         return False
-    # 1) cited_numbers(quote) is non-empty
     if cited_numbers(quote):
         return True
-    # 2) selection in heading or heading in selection
     heading = (chunk.get("heading") or "").strip().lower()
     sel_low = (selection or "").strip().lower()
     if heading and sel_low and (sel_low in heading or heading in sel_low):
         return True
-    # 3) Any figure in chunk has a caption sharing content words with selection or quote
     chunk_fig_nums = cited_numbers(chunk.get("text") or "")
     if chunk_fig_nums and all_figures:
         sel_quote_words = {
@@ -67,7 +63,6 @@ def _should_include_chunk_figures(chunk, selection, quote, all_figures):
 
 
 def _prioritize_phrase_matches(passages, question):
-    """Prioritize passages containing exact multi-word non-stopword phrases or acronym definitions from the query."""
     if not passages or not question:
         return passages
     tokens = re.findall(r"\b[a-zA-Z0-9_-]+\b", question.lower())
@@ -319,15 +314,6 @@ def _inject_pin_context(index, question, passages, effective_pin, topic_shift, c
 def retrieval_context(index, question, search_fn=None, generate_fn=None,
                       pin_chunk=None, end_chunk_id=None, history=None, selection="",
                       embed_fn=None):
-    """The passages the model is shown, after reading, fusion, and seeding.
-
-    Shared by ask and respond so both modes see the same evidence; the
-    groundedness meter (artifacts/harnesses/groundedness.py) calls this to compare an
-    answer against exactly the passages it was given. When a question word is
-    not in the book, the reading repair runs first (difflib, self-proving);
-    the LLM enhancer is the fallback under the same gate, so a typo difflib
-    cannot see still gets one honest attempt.
-    """
     topic_shift, effective_pin = _effective_pin(index, question, history, selection, pin_chunk)
     passages, ranks = _initial_passages(index, question, search_fn, embed_fn)
     passages = _pin_chunk(index, passages, effective_pin, end_chunk_id=end_chunk_id)
@@ -366,11 +352,6 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
 
 
 def _pin_chunk(index, passages, chunk_id, end_chunk_id=None):
-    """The chunk the reader was looking at leads. Search does not replace it.
-
-    When end_chunk_id is provided and differs from chunk_id, chunk_id leads at
-    index 0 and end_chunk_id sits at index 1.
-    """
     if not chunk_id and not end_chunk_id:
         return passages
     c1 = chunk_by_id(index, chunk_id) if chunk_id else None

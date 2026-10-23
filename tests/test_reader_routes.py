@@ -1,10 +1,3 @@
-"""Reader routes: GET /chunks, CORS for the dev UI, and stream=1 frames.
-
-The frame protocol is exercised with stubbed generation — no Ollama, no
-index. The /chunks payload is a pure projection of an index dict; the live
-route is checked against the real index when it exists on disk.
-"""
-
 import http.client
 import json
 import struct
@@ -142,10 +135,6 @@ class ReaderRouteTest(unittest.TestCase):
                 for line in data.decode("utf-8").splitlines() if line]
 
     def test_stream_frames(self):
-        """Mode answer: the SYSTEM draft is held (the retry may discard it),
-        so the retry is the first and only live generation and tokens arrive
-        after its reset. Before the fix the draft streamed first and the pane
-        wiped and re-streamed it."""
         def fake_respond(index, question, generate_fn=None, **kwargs):
             generate_fn(SYSTEM_ANSWER, "user", "model")
             generate_fn(SYSTEM, "user", "model", prefill="[Ch. ")
@@ -165,15 +154,12 @@ class ReaderRouteTest(unittest.TestCase):
                 {"mode": "answer", "question": "what is a graph?", "stream": 1})
         types = [frame["type"] for frame in frames]
         self.assertEqual(types, ["reset", "token", "token", "final"])
-        # No token frame may precede the reset: that is the load-back-again bug.
         self.assertEqual(types.index("reset"), 0)
         self.assertEqual(frames[1]["text"], "A graph ")
         self.assertEqual(frames[-1]["body"]["answer"],
                          "A graph is dots and lines. [Ch. 1]")
 
     def test_ask_mode_streams_the_main_generation_from_the_first_frame(self):
-        """Ask mode has no retry: its single SYSTEM generation is the answer
-        and streams live from the first frame, with no reset before it."""
         def fake_ask(index, question, generate_fn=None, **kwargs):
             generate_fn(SYSTEM, "user", "model")
             return {"answer": "A graph is dots. [Ch. 1]", "citations": [],
@@ -195,8 +181,6 @@ class ReaderRouteTest(unittest.TestCase):
         self.assertEqual(frames[0]["text"], "A graph ")
 
     def test_the_prefill_retry_streams_live(self):
-        """The `[Ch. ` retry is live even as the first generation: its
-        continuation is what the parse turns into the body."""
         seen = {}
 
         def fake_respond(index, question, generate_fn=None, **kwargs):
@@ -221,8 +205,6 @@ class ReaderRouteTest(unittest.TestCase):
                          ["token", "token", "final"])
 
     def test_plain_register_draft_and_rewrites_are_held(self):
-        """The plain-register draft (SYSTEM_ANSWER) and its rewrites
-        (PARAPHRASE_SYSTEM) are assembled at the end: no token frames."""
         calls = []
 
         def fake_respond(index, question, generate_fn=None, **kwargs):
@@ -250,9 +232,6 @@ class ReaderRouteTest(unittest.TestCase):
         self.assertTrue(all(on_token is None for _, on_token in calls))
 
     def test_the_reading_repair_is_held_and_the_ask_that_follows_streams(self):
-        """The spelling repair (SPELL_SYSTEM) runs before the answer in ask
-        mode; it is provisional, so it emits no tokens — the SYSTEM call that
-        follows streams after its reset."""
         def fake_ask(index, question, generate_fn=None, **kwargs):
             generate_fn(SPELL_SYSTEM, 'User query: "grahp"', "model")
             generate_fn(SYSTEM, "user", "model")
@@ -309,8 +288,6 @@ class FigureCardsTest(unittest.TestCase):
 
 
 class PrefillStreamTest(unittest.TestCase):
-    """The token stream carries the prefill; the return stays the continuation."""
-
     class FakeResponse:
         def __init__(self, lines):
             self._lines = lines
@@ -338,9 +315,7 @@ class PrefillStreamTest(unittest.TestCase):
             text = answer.ollama_generate_stream(
                 "system", "user", "model", prefill="[Ch. ", on_token=seen.append
             )
-        # The pane shows the whole text ([Ch. 7]…), never a bare `7]…`.
         self.assertEqual(seen, ["[Ch. ", "7] A graph is dots."])
-        # The callers still prepend the prefill themselves.
         self.assertEqual(text, "7] A graph is dots.")
 
 

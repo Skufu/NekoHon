@@ -1,13 +1,4 @@
 #!/usr/bin/env python3
-"""Cross-platform application launcher and warmup orchestrator for ask-this-book (NekoHon).
-
-Handles runtime preparation, Ollama environment optimization, port hygiene,
-background server initialization, and readiness blocking.
-
-Usage:
-    python scripts/launch.py
-    python scripts/launch.py --open
-"""
 
 import argparse
 import os
@@ -25,9 +16,6 @@ sys.path.insert(0, str(REPO_ROOT))
 from scripts.preflight import wait_for_warmup
 from engine.server import HOST, PORT, ollama_up
 
-# Recommended Ollama environment variables for instant inference (measured 2026-10-18):
-# OLLAMA_NUM_PARALLEL=1 keeps 100% GPU with 2.2 GB VRAM (vs 2.7 GB at 4) and 38.4ms TTFT (vs 44.7ms).
-# OLLAMA_FLASH_ATTENTION=1 cuts median TTFT from 72.7ms to 33.4ms and total time 1338.5ms to 224.3ms.
 RECOMMENDED_ENV = {
     "OLLAMA_KEEP_ALIVE": "24h",
     "OLLAMA_MAX_LOADED_MODELS": "4",
@@ -37,21 +25,18 @@ RECOMMENDED_ENV = {
 
 
 def apply_recommended_env():
-    """Ensure Ollama environment settings are applied to the process and children."""
     for key, val in RECOMMENDED_ENV.items():
         if key not in os.environ:
             os.environ[key] = val
 
 
 def ensure_ollama_running(timeout=10.0):
-    """Verify Ollama is reachable on localhost:11434; attempt start if down."""
     if ollama_up():
         return True
 
     print("[launcher] Ollama service is not responding. Attempting to start...")
     started = False
 
-    # Check Windows local app data install
     local_app_data = os.environ.get("LOCALAPPDATA", "")
     win_ollama = os.path.join(local_app_data, "Programs", "Ollama", "ollama.exe")
     if os.path.isfile(win_ollama):
@@ -81,7 +66,6 @@ def ensure_ollama_running(timeout=10.0):
 
 
 def get_process_cmdline(pid):
-    """Retrieve command line for a given process ID."""
     if sys.platform == "win32":
         if shutil.which("wmic"):
             try:
@@ -132,7 +116,6 @@ def get_process_cmdline(pid):
 
 
 def is_server_process(cmdline):
-    """Check if command line is a Python process running server.py."""
     if not cmdline:
         return False
     cmd_lower = cmdline.lower()
@@ -140,7 +123,6 @@ def is_server_process(cmdline):
 
 
 def find_listening_pids(port):
-    """Find unique PIDs listening on the specified port."""
     pids = set()
     if sys.platform == "win32":
         try:
@@ -195,11 +177,6 @@ def find_listening_pids(port):
 
 
 def clear_port_8000(port=None, dry_run=False):
-    """Ensure no stale process is listening on server port.
-
-    Only kills a process if it is a python process whose command line includes server.py.
-    Otherwise prints a clear error message naming the PID and exits non-zero.
-    """
     if port is None:
         port = int(os.environ.get("PORT", PORT))
     else:
@@ -250,19 +227,16 @@ def main():
     print(" ask-this-book | Launching Engine with Resident Warmup")
     print("=" * 76)
 
-    # 1. Ensure Ollama is up
     if not args.dry_run:
         ensure_ollama_running()
     else:
         print(f"[launcher] [dry-run] Ollama status: {'running' if ollama_up() else 'down'}")
 
-    # 2. Port hygiene
     clear_port_8000(port=port, dry_run=args.dry_run)
     if args.dry_run:
         print(f"[launcher] [dry-run] Port {port} hygiene check completed successfully.")
         return 0
 
-    # 3. Start server.py in background
     runs_dir = REPO_ROOT / "artifacts" / "runs"
     runs_dir.mkdir(parents=True, exist_ok=True)
     out_file = runs_dir / "stage1-server.out"
@@ -285,7 +259,6 @@ def main():
             creationflags=flags,
         )
 
-    # 4. Block readiness until warmup completes
     print("[launcher] Waiting for startup warm-up (in-process caches + model residency)...")
     ok, warm = wait_for_warmup(server_url=f"http://{HOST}:{port}/health", timeout=60.0)
 

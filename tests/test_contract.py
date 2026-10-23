@@ -1,11 +1,3 @@
-"""Contract test: the window builds against this fixture before the live server.
-
-The 200 body is locked in AGENTS.md ("HTTP contract"): keys answer, citations,
-figures, refused. This test fails if the fixture drifts from that shape. It also
-pins the route shape (only the documented routes answer) and the exact
-refusal sentence, so server.py and prompt.py do not restate those rules.
-"""
-
 import http.client
 import json
 import threading
@@ -46,8 +38,6 @@ class AskResponseContractTest(unittest.TestCase):
 
 
 class RouteShapeTest(unittest.TestCase):
-    """Only the documented routes answer; everything else is 404."""
-
     @classmethod
     def setUpClass(cls):
         cls.httpd = ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)

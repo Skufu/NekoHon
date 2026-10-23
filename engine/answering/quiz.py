@@ -43,7 +43,6 @@ def quiz_sentences(text):
 
 
 def pick_quiz_chunk(index, rng=None):
-    """One real teaching chunk. Not a part title. Not the index."""
     rng = rng or random.Random()
     usable = []
     for chunk in index.get("chunks") or []:
@@ -120,10 +119,6 @@ def _retry_completion(generate_fn, model, key, chunk, completion):
 
 def quiz(index, generate_fn=None, model=ANSWER_MODEL, rng=None, chunk=None,
          chunk_id=None):
-    """One question. The key is one sentence from one chunk. No score.
-
-    The question must not contain the key. A leak is a refusal.
-    """
     is_live = (generate_fn is None) or bool(getattr(generate_fn, "_is_live", False))
     generate_fn = generate_fn or ollama_generate
     rng = rng or random.Random()

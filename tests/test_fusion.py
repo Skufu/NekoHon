@@ -1,5 +1,3 @@
-"""Rank-fusion checks. Fake index, injected ranks. No Ollama."""
-
 import unittest
 
 from engine.retrieval.fusion import fuse

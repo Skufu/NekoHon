@@ -1,29 +1,3 @@
-"""The form canonicalizer: a bare phrase asks the question it means.
-
-Measured 2026-10-13 (`probe-class-variance-2026-10-13.*`): a bare topic
-label reaches the model untyped, and the model answers labels with surveys
-— the label pulled neighbor passages and three figures, while its question
-form stayed on the one naming chunk. The prefix applies before retrieval
-and the prompt, so both see the same string; a prefix that reaches only the
-prompt refused the ask-mode question in the same probe.
-
-Structural only: no "?", no wh-word anywhere, first token not an auxiliary
-or an opener/imperative/list marker, no pronoun anywhere. Those are closed
-English classes, not topic lists; a question the trigger does not recognize
-passes through byte-for-byte. The rewrite is visible in the answer
-(`Asked as:`), the readings-repair precedent.
-
-Measured 2026-10-15 (owner-rated row 27): a comparison label the owner wrote
-as `Monolith Versus Modular` was asked as `What is Monolith Versus Modular?`
-— a definition, when the reader wanted the comparison. So a text with
-exactly one comparator (vs / vs. / versus) is asked as `the difference
-between X and Y`, before the bare-phrase rules; that also catches the
-question-shaped form (`What is data science vs data engineering?`), which
-the old order answered as a definition. Anything else the connector sits
-in — two or more connectors, a sentence, an already-spelled-out
-difference question — passes through byte-for-byte.
-"""
-
 import functools
 import re
 
@@ -47,9 +21,6 @@ AUX = frozenset((
     "is", "are", "was", "were", "do", "does", "did", "can", "could",
     "should", "would", "will", "has", "have", "had",
 ))
-# Openers, imperatives, and list markers already carry a shape the model
-# acts on; prefixing would mangle them ("explain …", "types of …",
-# "hey can you tell me about …").
 OPENERS = frozenset((
     "hey", "hi", "hello", "please", "pls", "tell", "show", "give",
     "explain", "describe", "define", "compare", "contrast", "list",
@@ -70,14 +41,10 @@ DEICTIC_QUESTION_RE = re.compile(
 
 
 def is_deictic_question(q):
-    """True when q is a self-contained deictic question (e.g. 'what is this',
-    'what does this mean', 'how does this work', 'why is this')."""
     return bool(DEICTIC_QUESTION_RE.match(q or ""))
 
 
 def is_incomplete_stem(text):
-    """True when text is an incomplete question prefix composed entirely of
-    wh-words, auxiliaries, articles, and prepositions."""
     if is_deictic_question(text):
         return False
     cleaned = re.sub(r"[?!.,]", "", (text or "").lower()).strip()
@@ -89,11 +56,6 @@ def is_incomplete_stem(text):
 
 @functools.lru_cache(maxsize=512)
 def canonical_query(question):
-    """The question the phrase means, or the phrase unchanged.
-
-    Returns the original text (not stripped) when the trigger does not
-    fire, so a caller can compare identity to know whether it did.
-    """
     text = (question or "").strip()
     words = text.lower().split()
     if not words:
@@ -120,14 +82,6 @@ def canonical_query(question):
 
 
 def _comparison_query(question, text):
-    """Exactly one comparator: ask the comparison, or pass through.
-
-    Fires for the bare label (`X versus Y`, `X compared to Y`, `compare X with Y`)
-    and the definition-shaped question (`What is X versus Y?`, whose `?` and wh-word
-    head the caller would otherwise return on). Everything else keeps its shape:
-    two comparators, a sentence the connector merely appears in, a comparison
-    already spelled out with `difference between`, or a dangling side.
-    """
     body = text
     if text.endswith("?"):
         body = text[:-1].rstrip()

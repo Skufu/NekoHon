@@ -1,10 +1,3 @@
-"""Guard audit: every swap the coherence guard made across the sweep set (2026-10-13).
-
-Run: python artifacts/harnesses/guard-audit.py
-Reads artifacts/datasets/qa-sweep-default.json (the sweep set).
-Writes artifacts/runs/guard-audit/guard-audit.json.
-"""
-
 import json
 import sys
 from pathlib import Path

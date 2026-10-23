@@ -1,5 +1,3 @@
-"""Phase 4 answer checks. Fake generator. No Ollama."""
-
 import tempfile
 import unittest
 from pathlib import Path
@@ -240,10 +238,6 @@ class AnswerTests(unittest.TestCase):
         )
 
     def test_a_plural_anchor_the_quote_holds_still_expands(self):
-        # The quote already names the question's word; a plural ask still takes
-        # the paragraph, because a plural question wants the kinds of a thing
-        # (measured: the multicloud list, 2026-10-12; narrowed to plurals
-        # 2026-10-13 after "endpoint" over-expanded).
         passage = {
             "chunk_id": "ch04-038",
             "chapter": "4",
@@ -723,7 +717,6 @@ class ConversationHistoryTests(unittest.TestCase):
         self.assertNotIn("Moving data", seen["question"])
 
 
-
 class PromptInjectionTests(unittest.TestCase):
     def test_detect_prompt_injection(self):
         from engine.answering.answer import is_prompt_injection
@@ -846,7 +839,6 @@ class PinChunkAndCrossChunkTests(unittest.TestCase):
 
         book = {"chunks": [], "figures": []}
         request = {"mode": "ask", "question": "What is data?", "stream": 1}
-        # Should return silently without raising or crashing
         handler._stream_ask(request, book)
 
     def test_clean_selection_text_drops_lead_in_and_collapses_whitespace(self):
@@ -1136,10 +1128,8 @@ class PinChunkAndCrossChunkTests(unittest.TestCase):
     def test_is_coherent_gloss_list_itemless_non_answers(self):
         q = "What are the stages of the data engineering lifecycle?"
         quote = "Generation, Storage, Ingestion, Transformation, Serving data"
-        # Itemless / summary statements failing to name items:
         self.assertFalse(_is_coherent_gloss("The data engineering process is split into five main steps.", quote, question=q))
         self.assertFalse(_is_coherent_gloss("There are several important stages to understand.", quote, question=q))
-        # Valid answer explicitly naming the items:
         valid = "The five stages of the data engineering lifecycle are generation, storage, ingestion, transformation, and serving data."
         self.assertTrue(_is_coherent_gloss(valid, quote, question=q))
 
@@ -1193,15 +1183,12 @@ class PinChunkAndCrossChunkTests(unittest.TestCase):
         all_figures = [
             {"figure_id": "figure-4-2", "chapter": "4", "caption": "The reverse ETL data pipeline from data warehouse to operational systems."},
         ]
-        # Direct mention of Figure in quote -> True
         quote_with_fig = "Reverse ETL syncs warehouse tables to operational tools. (Figure 4-2) shows the pipeline."
         self.assertTrue(_should_include_chunk_figures(chunk, "Reverse ETL", quote_with_fig, all_figures))
 
-        # Selection matches heading -> True
         quote_plain = "Reverse ETL syncs warehouse tables to operational tools."
         self.assertTrue(_should_include_chunk_figures(chunk, "Reverse ETL Architecture", quote_plain, all_figures))
 
-        # Passing mention with no figure reference and no caption overlap -> False (suppresses unrelated figure)
         quote_passing = "ML engineers consume this data."
         self.assertFalse(_should_include_chunk_figures(chunk, "ML engineers", quote_passing, all_figures))
 

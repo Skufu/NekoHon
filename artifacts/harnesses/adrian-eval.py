@@ -1,22 +1,3 @@
-"""Adrian Real-World Adversarial Multi-Turn Eval Harness 2026-10-17.
-
-Tests realistic user patterns from real browser usage:
-- Highlight mid-sentence clause / term / heading -> Explain -> follow-up refinements ('Explain more simply', 'why?', 'give an example')
-- Highlight -> Explain -> clicking generated followups pills (checking topic adherence vs chapter jumping)
-- Highlight -> Ask box with lazy 2-4 word queries ('what is this', 'why', 'how') -> follow-ups
-- Multi-turn whole-book queries mixing short follow-ups and genuine topic shifts (e.g. DDR5 -> SSD -> RAM)
-- Evil/adversarial follow-ups (passing mention tools, ungrounded pills, unobtainable details, vague 1-word queries, prompt injections)
-
-Simulates the EXACT payload construction of `web/lib/store.ts` (explainSelection, askSelection, submitWholeBook, askFollowUp).
-No gamed 100% pass rates: tests for true system robustness and documents all failures honestly.
-
-Usage:
-    python artifacts/harnesses/adrian-eval.py
-    python artifacts/harnesses/adrian-eval.py --id adrian-01
-    python artifacts/harnesses/adrian-eval.py --category highlight_refine
-    python artifacts/harnesses/adrian-eval.py --limit 10
-"""
-
 import argparse
 import json
 import os
@@ -40,7 +21,6 @@ SERVER_URL = "http://127.0.0.1:8000/ask"
 
 
 def is_self_contained_new_topic(question: str) -> bool:
-    """Replication of web/lib/store.ts isSelfContainedNewTopic()."""
     q = question.strip()
     lower = q.lower()
     starts_with_def = bool(re.match(r"^(?:what is|what are|define|who is)\b", q, re.I))
@@ -108,8 +88,6 @@ def evaluate_turn(turn_idx, turn_spec, response, expected, finished_turns=None, 
         reasons.append(f"Answer refused with '{REFUSAL}'")
         return reasons
 
-    # Strict Automatic Quality Gates on every non-refused answer:
-    # 1. Truncated Quote Gate
     quote = ""
     if citations and isinstance(citations, list) and len(citations) > 0:
         first_cite = citations[0]
@@ -120,7 +98,6 @@ def evaluate_turn(turn_idx, turn_spec, response, expected, finished_turns=None, 
             if re.search(r"\b(?:on|of|in|to|for|with|by|at|from|the|a|an|and|or|as|not|simply|large|into|such|than)\s*$", quote, re.I):
                 reasons.append(f"Truncated quote: dangling word at end ({quote!r})")
 
-    # 2. Leaky Internal Prefix / Boilerplate Gate
     leaky_phrases = [
         "The passages do not mention Regarding",
         "Regarding ",
@@ -137,7 +114,6 @@ def evaluate_turn(turn_idx, turn_spec, response, expected, finished_turns=None, 
         if gloss.lower().startswith(("[ch.", "[chapter")):
             reasons.append(f"Leaky 2nd-line gloss starts with chapter citation: '{gloss[:35]}...'")
 
-    # 3. Quote-Repeating Gloss Gate
     if len(lines) < 2:
         reasons.append("Missing 2nd-line gloss")
     else:
@@ -149,7 +125,6 @@ def evaluate_turn(turn_idx, turn_spec, response, expected, finished_turns=None, 
         if norm_quote_ws and (norm_gloss_ws == norm_quote_ws or (len(norm_gloss_ws) > 30 and norm_gloss_ws in norm_quote_ws)):
             reasons.append("Gloss repeats quote verbatim")
 
-    # 4. Generated Pill Quality Gate
     followups = response.get("followups") or []
     cited_cid = citations[0].get("chunk_id") if citations else None
     chunk_text = ""
@@ -170,7 +145,6 @@ def evaluate_turn(turn_idx, turn_spec, response, expected, finished_turns=None, 
                     reasons.append(f"Bad generated pill '{pill}': 3+ capitalized words glued across newlines ('{m.group(0)}')")
                     break
 
-    # Chapter checks
     exp_chapter = expected.get("chapter")
     allowed_chapters = expected.get("allowed_chapters")
     if exp_chapter:
@@ -193,31 +167,26 @@ def evaluate_turn(turn_idx, turn_spec, response, expected, finished_turns=None, 
                 if not any(ch in prev_chapters for ch in cited_chapters):
                     reasons.append(f"Chapter drift: cited {cited_chapters}, expected same chapter as previous turn ({prev_chapters})")
 
-    # Forbidden chapters (e.g. jumping from Ch. 1 to Ch. 6)
     forbidden_chaps = expected.get("forbidden_chapters") or []
     for fch in forbidden_chaps:
         if any(ch == str(fch) for ch in cited_chapters):
             reasons.append(f"Hallucinatory chapter jump: cited forbidden Ch. {fch} (from {cited_chunks})")
 
-    # Must contain strings
     must_contain = expected.get("must_contain") or []
     for mc in must_contain:
         if mc.lower() not in answer_text.lower():
             reasons.append(f"Answer missing required concept '{mc}'")
 
-    # Forbidden terms (e.g. rosetta stone, schema in data maturity)
     forbidden_terms = expected.get("forbidden_terms") or []
     for ft in forbidden_terms:
         if ft.lower() in answer_text.lower():
             reasons.append(f"Answer contains off-topic/forbidden term '{ft}'")
 
-    # Forbidden answers (e.g. cop-out phrases)
     forbidden_answers = expected.get("forbidden_answers") or []
     for fa in forbidden_answers:
         if fa.lower() in answer_text.lower():
             reasons.append(f"Answer contains forbidden cop-out phrase '{fa}'")
 
-    # Forbidden hallucinations
     forbidden_hal = expected.get("forbidden_hallucinations") or []
     for fh in forbidden_hal:
         if fh.lower() in answer_text.lower():
@@ -241,7 +210,6 @@ def run_scenario(scenario, index, use_http=True):
         expected = t_spec.get("expected") or {}
         pre_reasons = []
 
-        # Build payload according to store.ts logic
         if action == "explainSelection":
             gloss_kind = "selection"
             gloss_chunk_id = t_spec.get("chunk_id")
@@ -351,7 +319,6 @@ def run_scenario(scenario, index, use_http=True):
         else:
             raise ValueError(f"Unknown action: {action}")
 
-        # Execute
         t0 = time.perf_counter()
         try:
             if use_http:
@@ -476,7 +443,6 @@ def main():
         pct = (stats["passed"] / stats["total"] * 100) if stats["total"] else 0
         print(f"  {cat:<26}: {stats['passed']:>2}/{stats['total']:<2} ({pct:>5.1f}% pass | {100-pct:>5.1f}% fail)")
 
-    # Save evidence
     ev_json_path = EVIDENCE_DIR / "adrian-eval-2026-10-17.json"
     ev_json_path.parent.mkdir(parents=True, exist_ok=True)
     ev_json_path.write_text(json.dumps(results, indent=2), encoding="utf-8")

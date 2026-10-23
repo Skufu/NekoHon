@@ -72,7 +72,6 @@ def main():
     evict_models()
     print(f"Resident models before engine warmup: {get_resident_models()}")
 
-    # Trigger server warmup
     from engine.server import warm_engine
     print("Running engine warmup (warm_engine)...")
     t_w0 = time.time()

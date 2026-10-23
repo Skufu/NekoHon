@@ -1,34 +1,3 @@
-"""LLM judge for the eval harness. Artifact, not engine.
-
-Two backends, one interface, the same one-word verdicts at temperature 0:
-
-- `openai` (default since 2026-10-15, user direction): `muse-spark-1.3-contributor`
-  over the OpenCode Zen/Go relay — an OpenAI-compatible `/responses` wire that
-  pins requests with `x-opencode-session` (a random stable session per process
-  unless `JUDGE_OPENCODE_SESSION` is set). Needs the network and a key:
-  `JUDGE_API_KEY` or `JUDGE_API_KEY_FILE`, defaulting to the gitignored
-  `.judge-key` in the repo root.
-- `ollama` (offline fallback): `granite4.1:8b` — cross-family with the
-  answerer (qwen2.5:7b), no key, one model swap per eval run. The one-line
-  revert from the new default is `JUDGE_BACKEND=ollama`.
-- Any other provider exposing an OpenAI-compatible `/chat/completions` or
-  `/responses` wire (OpenAI, Anthropic's compat endpoint, Gemini's compat
-  endpoint, OpenRouter, DeepSeek, Groq, Mistral) works via the same
-  `JUDGE_BASE_URL` / `JUDGE_MODEL` / `JUDGE_WIRE` knobs. A frontier judge is
-  the stronger oracle for validating the local one. The engine, the server,
-  and the batteries never use this path.
-
-Model identity is recorded in every judged output (`judge_name()`): a judge
-swap without a version pin would silently drift the metric series.
-
-The verdicts are UNVALIDATED against human labels; a stronger judge is a
-better prior, not ground truth.
-
-Measured 2026-10-15: two identical method-v2 runs wobbled 3 of 27 rows on
-single 2-1 vote flips. These verdicts are a triage dial, not a pass/fail
-gate — see `NOT_A_GATE`.
-"""
-
 import json
 import os
 import re
@@ -39,9 +8,6 @@ import uuid
 from pathlib import Path
 
 from engine.answering import answer as A
-# Machine-readable form of the docstring note above: the wobble was measured
-# (3 of 27 rows across two identical method-v2 runs, 2026-10-15), so judge
-# verdicts are a triage dial, not a pass/fail gate.
 NOT_A_GATE = True
 
 JUDGE_BACKEND = os.environ.get("JUDGE_BACKEND", "openai")
@@ -53,7 +19,7 @@ JUDGE_BASE_URL = os.environ.get("JUDGE_BASE_URL", "https://opencode.ai/zen/go/v1
 JUDGE_WIRE = os.environ.get("JUDGE_WIRE", "responses")
 JUDGE_REASONING = os.environ.get("JUDGE_REASONING", "minimal")
 JUDGE_MAX_OUTPUT = int(os.environ.get("JUDGE_MAX_OUTPUT", "2048"))
-PASSAGE_CHARS = 2000  # prompt-size guard, not a quality knob
+PASSAGE_CHARS = 2000
 ANSWER_CHARS = 2000
 CLOUD_TIMEOUT = 60.0
 CHAT_MAX_TOKENS = 16
@@ -85,8 +51,6 @@ EXAMPLE_SYSTEM = (
     "No other words."
 )
 
-# Ordered: the negative phrasings are checked before the bare positive word,
-# so "not relevant" cannot match "relevant".
 RELEVANCE_KEYS = [
     ("not_relevant", ["not relevant", "irrelevant", "no", "false"]),
     ("relevant", ["relevant", "yes", "true"]),
@@ -201,8 +165,6 @@ def _cloud_text(body):
 
 
 def _cloud_complete(system, user, model, timeout):
-    """One cloud judge call on the configured wire. Up to three attempts for
-    transients (the relay rate-limits bursts; 503 measured 2026-10-15)."""
     if not model:
         raise RuntimeError("JUDGE_MODEL is required for JUDGE_BACKEND=openai")
     if not _api_key():
@@ -233,7 +195,7 @@ def _cloud_complete(system, user, model, timeout):
                 time.sleep(2 * attempt)
                 continue
             raise RuntimeError(f"judge unreachable: {exc}") from exc
-    raise RuntimeError("judge failed")  # unreachable; the loop returns or raises
+    raise RuntimeError("judge failed")
 
 
 def _complete(system, user, model, timeout):
@@ -242,7 +204,7 @@ def _complete(system, user, model, timeout):
     return A.ollama_generate(system, user, model, timeout=timeout)
 
 
-LAST_REPLY = {"text": ""}  # the last raw judge reply, for harness debugging
+LAST_REPLY = {"text": ""}
 
 
 def _match(text, keys):
@@ -260,9 +222,6 @@ def _one_word(system, user, keys, model=None, timeout=None):
     reply = _complete(system, user, judge_model, judge_timeout)
     label = _match(reply, keys)
     if label is None:
-        # One strict retry: cloud judges do not always echo one of our words
-        # (measured 2026-10-13: 19 of 20 Muse fidelity replies paraphrased
-        # past the key list). The retry fires only on a miss.
         strict = (
             system
             + " Reply with exactly one of: "
@@ -276,13 +235,11 @@ def _one_word(system, user, keys, model=None, timeout=None):
 
 
 def _digit_match(text):
-    """The one 0-3 digit in a judge reply, or None. "10" has no digit."""
     match = re.search(r"\b([0-3])\b", text or "")
     return match.group(1) if match else None
 
 
 def _digit_one_word(system, user, model=None, timeout=None):
-    """One 0-3 digit, same strict-retry idiom as _one_word."""
     judge_model = model or JUDGE_MODEL
     judge_timeout = timeout or CLOUD_TIMEOUT
     reply = _complete(system, user, judge_model, judge_timeout)
@@ -308,7 +265,6 @@ def judge_key_fact(question, key_fact, answer, model=None, timeout=None):
 
 
 def judge_book_fidelity(question, passages_text, answer, model=None, timeout=None):
-    """supported / unsupported: the answer adds no fact outside the passages."""
     user = (
         f"Question: {question}\n\nPassages:\n{passages_text[:4000]}\n\n"
         f"System answer:\n{answer[:ANSWER_CHARS]}"
@@ -317,18 +273,12 @@ def judge_book_fidelity(question, passages_text, answer, model=None, timeout=Non
 
 
 def judge_plain_example(question, passages_text, answer, model=None, timeout=None):
-    """example / none: the answer uses a concrete example from the passages."""
     user = (
         f"Question: {question}\n\nPassages:\n{passages_text[:4000]}\n\n"
         f"System answer:\n{answer[:ANSWER_CHARS]}"
     )
     return _one_word(EXAMPLE_SYSTEM, user, EXAMPLE_KEYS, model, timeout)
 
-
-# --- answer-quality rubric (plan: answer-quality-judge-plan-2026-10-15) ------
-# Axes are 0-3 single digits at temperature 0; the defect verdict is one
-# label. No blended score by design — the harness reports the axes separately
-# and ranks only for triage.
 
 RESPONSIVE_SYSTEM = (
     "You check how well a system answer addresses the question asked. "
@@ -381,9 +331,6 @@ DEFECT_SYSTEM = (
     "Reply with exactly one label from the list. No other words."
 )
 
-# Digits are parsed by their own helper below (_digit_one_word): _match
-# normalizes to letters only, which would strip them.
-# Ordered: specific phrases first, "none" last.
 DEFECT_KEYS = [
     ("wrong-asked-form", ["wrong asked form", "wrong question form", "mangled question"]),
     ("incomplete-comparison", ["incomplete comparison", "one sided", "one-sided comparison"]),
@@ -401,13 +348,11 @@ DEFECT_KEYS = [
 
 
 def judge_responsive(question, answer, model=None, timeout=None):
-    """0-3: does the answer address the question asked."""
     user = f"Question: {question}\n\nSystem answer:\n{answer[:ANSWER_CHARS]}"
     return _digit_one_word(RESPONSIVE_SYSTEM, user, model, timeout)
 
 
 def judge_complete(question, passages_text, answer, model=None, timeout=None):
-    """0-3: does the answer carry what the question asks for."""
     user = (
         f"Question: {question}\n\nPassages:\n{passages_text[:4000]}\n\n"
         f"System answer:\n{answer[:ANSWER_CHARS]}"
@@ -416,23 +361,17 @@ def judge_complete(question, passages_text, answer, model=None, timeout=None):
 
 
 def judge_form(question, answer, model=None, timeout=None):
-    """0-3: output contract shape (quote + gloss; no filler/recitation)."""
     user = f"Question: {question}\n\nSystem answer:\n{answer[:ANSWER_CHARS]}"
     return _digit_one_word(FORM_SYSTEM, user, model, timeout)
 
 
 def judge_defect(question, passages_text, answer, model=None, timeout=None):
-    """One defect label (or none) for the answer."""
     user = (
         f"Question: {question}\n\nPassages:\n{passages_text[:4000]}\n\n"
         f"System answer:\n{answer[:ANSWER_CHARS]}"
     )
     return _one_word(DEFECT_SYSTEM, user, DEFECT_KEYS, model, timeout)
 
-
-# --- rating method v2: voted yes/no bits (plan section "Rating method v2") --
-# Each bit is asked three times and the majority decides; binary + repetition
-# is the stable form after the scale-labeling runs wobbled (2026-10-15).
 
 YES_NO_KEYS = [
     ("no", ["no", "false"]),
@@ -468,7 +407,6 @@ BIT_SYSTEMS = {
 
 
 def judge_bit(name, question, passages_text, answer, model=None, timeout=None):
-    """One yes/no bit; callers vote three times and take the majority."""
     system = BIT_SYSTEMS[name]
     user = (
         f"Question: {question}\n\nPassages:\n{passages_text[:4000]}\n\n"

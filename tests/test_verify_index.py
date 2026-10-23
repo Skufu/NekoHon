@@ -1,5 +1,3 @@
-"""Index hygiene audit. Synthetic indexes. No book, no Ollama."""
-
 import unittest
 
 from scripts.verify_index import audit, exit_code

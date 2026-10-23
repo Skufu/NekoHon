@@ -1,8 +1,3 @@
-"""Attach a figure when a kept passage names it.
-
-The answer still must not describe the pixels. This module only names the file.
-"""
-
 import functools
 import re
 import struct
@@ -12,8 +7,6 @@ ROOT = Path(__file__).resolve().parents[1]
 FIGURES = ROOT / "data" / "figures"
 
 FIGURE_RE = re.compile(r"\b(?:Figure|Fig\.)\s+([A-Z]?\d+[-.]\d+)\b", re.I)
-# Same token cited_numbers emits, so figure-a1-2 attaches to "Figure A1-2"
-# and does not collide with figure-1-2.
 NUMBER_RE = re.compile(r"(?:figure-|fig-)?([a-z]?\d+[-.]\d+)", re.I)
 
 
@@ -31,10 +24,6 @@ def cited_numbers(text):
 
 @functools.lru_cache(maxsize=512)
 def number_from_id(figure_id):
-    """The figure number a passage would cite, letter prefix included.
-
-    `figure-a1-2` and `figure-1-2` stay distinct. A bare `1-2` still matches.
-    """
     match = NUMBER_RE.search(figure_id or "")
     return match.group(1).lower().replace(".", "-") if match else ""
 
@@ -98,10 +87,6 @@ def _figure_path_and_src(figure, figures_dir, book_id=None):
 
 
 def figures_for(passages, figures, limit=5, figures_dir=None, book_id=None):
-    """A figure attaches only if a top passage names its number.
-
-    The embedding score floor is not set. Do not attach by vector score.
-    """
     named = set()
     for hit in passages[:limit]:
         named.update(cited_numbers(hit.get("text")))
@@ -127,7 +112,6 @@ def figures_for(passages, figures, limit=5, figures_dir=None, book_id=None):
 
 
 def _png_size(path):
-    """(width, height) from a PNG header, or None. No decode, stdlib only."""
     try:
         with open(path, "rb") as handle:
             head = handle.read(24)
@@ -139,12 +123,6 @@ def _png_size(path):
 
 
 def figure_cards(ids, figures, figures_dir=None, book_id=None):
-    """The reader's figures: every id the chunk carries, caption, src, size.
-
-    Unlike figures_for, nothing is gated on the passage naming the figure —
-    the reader shows what the chunk holds. width/height come from the PNG
-    header so the pane can reserve the aspect and never jump on load.
-    """
     figures_dir = Path(figures_dir) if figures_dir else FIGURES
     by_id = {figure.get("id"): figure for figure in figures or []}
     cards = []

@@ -1,15 +1,3 @@
-"""The plain register: cue detection and the paraphrase path.
-
-A question that asks for simple words routes `respond` through `_plain_body`:
-the draft selects evidence sentences (its citations' quotes are passage text
-by construction), each is rewritten one-in-one-out, and the citation keeps the
-original book sentence as evidence. Nothing is written from scratch, so the
-register cannot invent — that is the measured architecture
-(artifacts/evidence/eval-plain/eval-plain-v6: 8/10 scorecard pass under the release judge).
-
-Pins and fixtures live only in this test.
-"""
-
 import unittest
 
 from engine.answering import answer as A
@@ -128,9 +116,6 @@ class PlainRespondTest(unittest.TestCase):
             calls.append({"system": system, "user": user})
             if system == PARAPHRASE_SYSTEM:
                 return rewrite
-            # 2026-10-15: the ordinary answer path serves SYSTEM (ask-shaped,
-            # the prompt the student is trained on); the plain register's
-            # draft call still uses SYSTEM_ANSWER.
             if system in (SYSTEM_ANSWER, SYSTEM):
                 return draft
             return ""

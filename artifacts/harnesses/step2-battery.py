@@ -1,14 +1,3 @@
-"""Post-v1 step 2 battery over HTTP: 10 golden + the 2 typos + France.
-
-Run: python artifacts/harnesses/step2-battery.py    (server.py must be up on :8000)
-With BATTERY_MODE=answer the same asks run through the free-generation mode
-and four coherence probes are added; output goes to step2-battery-answer.*.
-Writes artifacts/runs/step2-battery/step2-battery.json and
-artifacts/runs/step2-battery/step2-battery.log.
-Chunk pins come from the measured demo sheet artifacts/datasets/demo-questions.md
-(2026-10-12); the typo asks also pin the phrase their quote must carry.
-"""
-
 import json
 import os
 import re
@@ -30,7 +19,6 @@ OUT = ROOT / "artifacts" / "runs" / "step2-battery" / (
 )
 LOG = OUT.with_suffix(".log")
 
-# (question, pinned chunk or None for the expected refusal)
 GOLDEN_PINS = [
     ("What does CRUD stand for?", "ch05-019"),
     ("What is data ingestion?", "ch07-002"),
@@ -43,23 +31,17 @@ GOLDEN_PINS = [
     ("What happens to data after it is extracted in ETL?", "ch08-094"),
     ("What do transformations do in the data engineering lifecycle?", "ch02-025"),
 ]
-# (question, expected chunk, required phrase)
 PROBES = [
     ("what does data engineers need to be pragmatic about", "ch04-012", "pragmatic about flexibility"),
     ("Data engineers need to be pragmatic about?", "ch04-012", "pragmatic about flexibility"),
     ("MAD data landscape", "ch04-020", "ML, AI, and data (MAD) landscape"),
     ("multicloud methodology disadvantages", "ch04-037", "dizzying array"),
 ]
-# (question, required chunk, required phrase)
 TYPOS = [
     ("What does CRU stand for?", "ch05-029", "crud"),
     ("What happens to data after it is extracted in ET?", "ch08-120", "extracted"),
     ("what is a atermark?", "ch08-039", "watermark"),
 ]
-# The user's coherence bar: the answer must carry the question's own subject.
-# The phrase is a regex; the book's own wording wins where it differs from a
-# paraphrase (ch08-051 says "Codd introduced the idea of normal forms", so
-# both namings are correct). Answer mode only.
 COHERENCE = [
     ("what is MAD data landscape", "ch04-020", r"\bmad\b"),
     ("what is data mesh", "ch03-099", r"data mesh"),
@@ -91,7 +73,6 @@ def answered_with(body, phrase):
 
 
 def judge(question, body):
-    """(pass, notes) for one ask against the pins."""
     if MODE != "ask":
         return judge_answer(question, body)
     notes = []
@@ -130,16 +111,6 @@ _SHOWN = {}
 
 
 def shown_ids(question):
-    """The passages the engine shows for this question, recomputed locally.
-
-    Answer mode's contract is grounded-in-retrieved: a citation must point
-    at a shown passage, and the pinned chunk must be among them. Which shown
-    passage the model's tags land on is the model's call, so it is a note,
-    not a pass condition (measured 2026-10-13: on three golden asks the model
-    cited the sibling chunk whose wording it echoed while the pinned chunk sat
-    in the same shown set — strict pin-in-citations was 7/10, this judge is
-    10/10 with the drift visible in the notes).
-    """
     global _INDEX
     if _INDEX is None:
         _INDEX = load_index(INDEX)
@@ -152,11 +123,6 @@ def shown_ids(question):
 
 
 def judge_answer(question, body):
-    """Answer mode: free prose. Pass = answered, with citations pointing
-    only at shown passages and the pinned chunk among them. The coherence
-    probes also fail when the answer does not carry the question's subject;
-    for the other asks a missing phrase is a note, because a free answer may
-    paraphrase."""
     notes = []
     if question == FRANCE:
         if body["refused"] and body["answer"] == REFUSAL:

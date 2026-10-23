@@ -1,20 +1,3 @@
-"""Adversarial checker for the plain-register edge probe (read-only).
-
-Run from the repo root: python artifacts/harnesses/plain-edge-check.py
-
-Checks every artifacts/runs/plain-edge/plain-edge-NN-*.json response against the frozen
-contract:
-- refused:true means answer is exactly "Not in this book."
-- answered: answer non-empty; every [Ch. n] tag has a citation entry
-  (tag coverage enforced only for files on the expected plain list, whose
-  contract makes that guaranteed; elsewhere a mismatch is reported as NOTE)
-- citations have chunk_id/chapter/quote and the quote appears in the book
-  chunk text (whitespace/case folded)
-- every attached figure's number is named in the text of a cited passage
-  (the attachment rule's promise) and the figure id exists in the index
-No file is written; exit 1 when a checked rule fails.
-"""
-
 import json
 import re
 import sys
@@ -59,7 +42,7 @@ def main():
         except Exception:
             continue
         if not isinstance(body, dict) or "refused" not in body:
-            continue  # not a response file (timing file, request captures)
+            continue
         checked += 1
         stem = path.stem
         problems = []
@@ -107,7 +90,6 @@ def main():
             if cid in chunks and quote:
                 text = fold(chunks[cid]["text"])
                 if fold(quote) not in text:
-                    # quote may be reconstructed, try looser punctuation fold
                     loose_q = re.sub(r"[^a-z0-9 ]+", " ", fold(quote))
                     loose_t = re.sub(r"[^a-z0-9 ]+", " ", text)
                     if loose_q not in loose_t:

@@ -1,21 +1,3 @@
-"""Artifacts pruner — planner, read-only. Artifact, not engine.
-
-Checks the rules in `artifacts/README.md`:
-
-- unindexed: tracked files under artifacts/ not covered by a name or family
-  row in the README index (rule 4).
-- unreferenced: tracked files no repo doc/code names (candidates only; the
-  index row's reason can still keep them).
-- over-versioned: families holding more than two run files from different
-  dates (rule 3).
-- stale: tracked files whose last commit is older than STALE_DAYS (default
-  2). Stale is a stop sign for agents: re-run, or ask the user (rule 5).
-- missing: README rows whose file names no longer exist.
-
-Run: python artifacts/prune.py [--plan] [--stale-days N]
-Exit code is 0 always — this plans, it does not delete.
-"""
-
 import argparse
 import re
 import subprocess
@@ -29,7 +11,6 @@ ROOT = HERE.parent
 
 TEXT_EXTS = (".py", ".md", ".html", ".json", ".txt", ".sh")
 SKIP_PARTS = {"books", "data", "node_modules", ".git", "archive"}
-# The gate itself and dir markers are infrastructure, not evidence.
 SKIP_NAMES = {"README.md", "prune.py", ".gitkeep"}
 
 
@@ -74,7 +55,6 @@ def main():
     dates = last_commit_dates()
     index_text = (HERE / "README.md").read_text(encoding="utf-8")
 
-    # corpus of references (exclude books/data); self-references never count
     corpus = {}
     for path in ROOT.rglob("*"):
         if (

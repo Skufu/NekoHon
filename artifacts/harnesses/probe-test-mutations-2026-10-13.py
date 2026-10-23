@@ -1,17 +1,3 @@
-"""Mutation check for tests/test_canonical.py: every plausible break must
-turn the suite red. In-memory patches, no file edits, no Ollama.
-
-Mutations:
-  M1 no-op canonicalization (trigger never fires)
-  M2 over-firing trigger (fires on everything)
-  M3 wiring dropped in quoteask.py and freeanswer.py (canonical module intact)
-  M4 filterless anchors (stopword filter removed)
-  M5 explain gate open (explain canonicalizes like ask)
-
-Run: python artifacts/probes/probe-test-mutations-2026-10-13.py
-Writes artifacts/runs/probe-test-mutations/probe-test-mutations-2026-10-13.{json,log}.
-"""
-
 import io
 import json
 import sys

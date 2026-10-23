@@ -1,14 +1,3 @@
-"""ask-this-book engine. stdlib only.
-
-POST /ask in mode "ask" retrieves from the nomic index and checks the quote.
-Mode "answer" is free generation from the same passages with a measured
-quote check (artifacts/harnesses/groundedness.py), not an enforced one. explain
-and quiz use the same index.
-
-GET /chunks serves the reader's blocks. stream=1 on POST /ask answers in
-NDJSON frames: token, reset (a draft was discarded), final, error.
-"""
-
 import base64
 import gzip
 import json
@@ -40,10 +29,6 @@ HOST = "127.0.0.1"
 
 
 def parse_port(argv=None, env=None):
-    """Parse and validate server port: --port N CLI arg, else $PORT, else 8000.
-
-    Validates integer in range 1..65535.
-    """
     if argv is None:
         argv = sys.argv[1:]
     if env is None:
@@ -117,7 +102,6 @@ WARM_STATUS = {
 
 
 def ollama_up(timeout=1.0):
-    """True if a local Ollama answers on its port. Never raises."""
     try:
         with urllib.request.urlopen(OLLAMA_URL, timeout=timeout):
             return True
@@ -209,7 +193,6 @@ class Handler(BaseHTTPRequestHandler):
     disable_nagle_algorithm = True
 
     def _cors(self):
-        """Echo the dev UI's origin; the built UI is same-origin, needs none."""
         origin = self.headers.get("Origin") or ""
         if origin in ORIGINS:
             self.send_header("Access-Control-Allow-Origin", origin)
@@ -610,8 +593,6 @@ def _frame_quietly(h, payload):
 
 
 def _stream_response(h, request, book):
-    """NDJSON frames: token as the model writes, reset when a draft is
-    discarded, final with the same body the non-stream path returns."""
     mode = request["mode"]
     generate = _stream_generate(h, mode)
 
@@ -642,7 +623,6 @@ def _stream_response(h, request, book):
 
 
 def load_book():
-    """Backward compatibility for single-book callers."""
     global BOOK
     book = get_book_index(DEFAULT_BOOK_ID)
     if book is not None:
@@ -729,11 +709,6 @@ def _do_warmup():
 
 
 def warm_engine(block=False):
-    """Run startup warm-up for in-process caches and Ollama models.
-
-    If block=True, executes synchronously. If block=False, executes in a
-    background daemon thread so the server can begin listening immediately.
-    """
     if block:
         _do_warmup()
         return None

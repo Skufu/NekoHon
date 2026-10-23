@@ -1,19 +1,3 @@
-"""Groundedness meter for the answer mode. Artifact, not engine.
-
-Answer mode measures hallucination instead of refusing it. For each question
-this runner recomputes the passages the model is shown (the same
-answer.retrieval_context the server uses), generates the same free answer,
-and reports how much of each answer sentence is a word-for-word run from
-those passages: a sentence is supported when at least SUPPORT of its 4-grams
-appear in the shown passages. It also counts quotation marks the passages
-cannot back — the marks the engine strips — so the raw completion is measured
-before the strip.
-
-Run: python artifacts/harnesses/groundedness.py --label answer [--limit N]
-     python artifacts/harnesses/groundedness.py --battery        (the battery questions)
-Writes artifacts/runs/groundedness/groundedness-<label>.{json,log}.
-"""
-
 import argparse
 import importlib.util
 import json
@@ -29,15 +13,11 @@ from engine.answering import answer as A
 from engine.answering.prompt import ANSWER_MODEL, SYSTEM_ANSWER
 from engine.retrieval.retrieve import INDEX, load_index
 
-# A sentence whose 4-grams are mostly in the shown passages is supported.
-# Majority is the definition of supported here; the number is not tuned to
-# any question.
 SUPPORT = 0.5
 NGRAM = 4
 
 
 def content_tokens(text):
-    """Tag-stripped, punctuation-plain words. [Ch. 2] must not count."""
     plain = A.TAG_PATTERN.sub(" ", text or "")
     return A._punctuation_plain(plain).split()
 
@@ -47,12 +27,6 @@ def grams(tokens, n=NGRAM):
 
 
 def answer_sentences(answer):
-    """Testable sentences: the model's prose, no Read-as line, 4-gram-able.
-
-    Tags are removed before the sentence split: "Ch." holds a period and
-    would otherwise end a sentence inside the tag (the same trap
-    answer._sentence_claims masks around).
-    """
     lines = [
         line for line in (answer or "").splitlines()
         if not line.strip().startswith("Read as:")
@@ -70,7 +44,6 @@ def sentence_coverage(sentence, passage_grams):
 
 
 def fake_quotes(completion, passages):
-    """Quotation spans no shown passage contains, measured pre-strip."""
     spans = []
     for match in A.QUOTE_PATTERN.finditer(completion or ""):
         inner = match.group(1)
@@ -82,7 +55,6 @@ def fake_quotes(completion, passages):
 
 
 def battery_questions():
-    """The battery's own lists, one source of truth."""
     path = ROOT / "artifacts" / "harnesses" / "step2-battery.py"
     spec = importlib.util.spec_from_file_location("step2_battery", path)
     module = importlib.util.module_from_spec(spec)
@@ -166,8 +138,6 @@ def main():
     )
     args = parser.parse_args()
 
-    # Default here is SYSTEM_ANSWER. The live server path is SYSTEM
-    # (answer.py respond / ask). Pass --system-text to measure the live prompt.
     system = SYSTEM_ANSWER
     if args.system_text:
         system = Path(args.system_text).read_text(encoding="utf-8").strip()

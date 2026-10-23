@@ -1,5 +1,3 @@
-"""Phase 3 retrieval. Fake embedder. No Ollama, no real book."""
-
 import unittest
 
 from engine.retrieval.retrieve import (

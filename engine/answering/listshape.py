@@ -11,7 +11,6 @@ from engine.answering.shared import (
 
 
 def _paragraph_around(quote, passage_text):
-    """The passage paragraph that holds the quote, whitespace-normalized."""
     folded = _fold(quote)
     if not folded:
         return ""
@@ -22,13 +21,6 @@ def _paragraph_around(quote, passage_text):
 
 
 def _plural(word):
-    """True when an English word is a regular plural — the list detector.
-
-    Stemming's first step is a suffix rule, not a dictionary; the same works
-    here. "disadvantages", "types", "steps", "categories", "batches" pass;
-    "endpoint", "analysis", "status", "business", "class" do not. Irregulars
-    ("criteria") fall through to the model's own answer, the safe side.
-    """
     if len(word) < 4 or word.endswith(("ss", "us", "is", "ous")):
         return False
     if word.endswith("ies"):
@@ -39,21 +31,6 @@ def _plural(word):
 
 
 def _whole_paragraph(anchors, paragraph, quote):
-    """True when the paragraph around a verified quote replaces it.
-
-    Two triggers, both book-general:
-    - the paragraph holds an anchor word the quote lacks: the model quoted
-      near the topic without naming it, so the paragraph is the answering
-      material;
-    - the paragraph holds a plural anchor ("disadvantages", "types",
-      "steps"): a plural question wants the kinds of a thing, and the
-      paragraph is the book's list (measured: "multicloud methodology
-      disadvantages" takes the paragraph while "endpoint" keeps the model's
-      sentence, 2026-10-13).
-    The paragraph must also fit PARAGRAPH_CAP, so an answer quote stays about
-    one screen. The quote is passage text and the paragraph holds it, so the
-    swap can only add book text; the quote check holds by construction.
-    """
     if not paragraph or len(paragraph) > PARAGRAPH_CAP:
         return False
     folded = _fold(paragraph)
@@ -67,7 +44,6 @@ def _whole_paragraph(anchors, paragraph, quote):
     return False
 
 
-# Closed English classes. A list ask names the shape of the answer, not a topic.
 LIST_ASK = re.compile(
     r"\b(?:what are|which are|what were|list the)\b"
     r"|\b(?:factors|parts|kinds|types|steps|stages)\b"
@@ -77,7 +53,6 @@ LIST_ASK = re.compile(
 
 
 def _list_ask(question, asked_form):
-    """True when the question asks for items, not a definition."""
     for text in (question, asked_form):
         if text and LIST_ASK.search(text):
             return True
@@ -85,12 +60,6 @@ def _list_ask(question, asked_form):
 
 
 def _is_lead_in(quote):
-    """True when a quote only introduces a list and does not hold the items.
-
-    A trailing colon is the printed cue. A sentence that names "the following"
-    is a lead-in only when what follows that phrase is itself a lead-in: no
-    second sentence, no comma or semicolon listing the items.
-    """
     text = (quote or "").strip()
     if not text:
         return False
@@ -109,11 +78,6 @@ def _is_lead_in(quote):
 
 
 def _after_lead_in(quote, passage_text):
-    """Verbatim passage text after the lead-in, in the same paragraph.
-
-    Empty when the passage ends at the lead-in. Nothing is added that the
-    passage does not already contain.
-    """
     pat = _words_pattern(quote)
     if pat is None or not passage_text:
         return ""
@@ -124,7 +88,6 @@ def _after_lead_in(quote, passage_text):
     paragraphs = [
         piece.strip() for piece in re.split(r"\n\s*\n", rest) if piece.strip()
     ]
-    # A colon lead-in is often its own paragraph. The items are the next one.
     if len(paragraphs) >= 2 and len(paragraphs[0]) < 80 and not paragraphs[0].endswith((".", "!", "?")):
         items = []
         for p in paragraphs:
@@ -144,14 +107,12 @@ def _after_lead_in(quote, passage_text):
 
 
 def _replace_lead_in(answer, lead, continuation):
-    """Swap the lead-in for the items, including inside quotation marks."""
     if not lead or lead not in answer:
         return answer
     return answer.replace(lead, continuation, 1)
 
 
 def _expand_list(body, question, asked_form, passages):
-    """Swap a lead-in quote for the items that follow it in the same passage."""
     if body.get("refused") or not _list_ask(question, asked_form):
         return body
     by_id = {hit.get("chunk_id"): hit for hit in passages}
@@ -172,7 +133,6 @@ def _expand_list(body, question, asked_form, passages):
                 + f"\n[Ch. {item['chapter']}] \"{continuation}\""
             )
         expanded = True
-    # A lead-in can sit in the model's quotes and not match the citation string.
     def swap(match):
         lead = match.group(1)
         if not _is_lead_in(lead):
@@ -189,7 +149,6 @@ def _expand_list(body, question, asked_form, passages):
 
 
 def _drop_lead_in_already_listed(answer):
-    """A lead-in quote line goes when a later quote already holds the items."""
     lines = answer.splitlines()
     quote_line = re.compile(
         r'\[Ch\.\s*[^\]]+\]\s*["\u201c]([^"\u201c\u201d]+)["\u201d]'
@@ -218,20 +177,6 @@ def _drop_lead_in_already_listed(answer):
 
 
 def _without_heading(quote, passage):
-    """A quote that opens with the passage's heading line drops it.
-
-    A chunk's first line is its heading, so a model copying across that line
-    writes "Insert-Only The insert-only pattern retains history..." or "Key
-    considerations for the transformation phase Logically, we treat..." —
-    verbatim, but it reads as a fragment.
-
-    The test is what follows the heading: a heading that runs on into its own
-    sentence leaves a lowercase remainder ("Modularity allows engineers..."),
-    and a heading that was the sentence's subject leaves a bracket or lower case
-    ("Modularity (Figure 4-5) is...", "Storage is the cornerstone..."). Only a
-    genuine new sentence after the heading — an upper-case start of real length
-    — gets the heading dropped.
-    """
     heading = (passage.get("text") or "").split("\n", 1)[0].strip()
     pat = _heading_prefix_pattern(heading)
     if pat is None:
@@ -246,7 +191,6 @@ def _without_heading(quote, passage):
 
 
 def _synthesize_list_answer(question: str, quote: str, chunk_obj: dict) -> str:
-    """Deterministically synthesize a crisp list answer naming specific items."""
     raw_text = (chunk_obj.get("text") or "") if isinstance(chunk_obj, dict) else ""
     items = []
     if quote and "," in quote:

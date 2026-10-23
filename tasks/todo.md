@@ -100,7 +100,7 @@ both batteries.
   remove the `respond.__name__ != "fake_respond"` test hook from production
   code (tests patch differently).
   - Accept: gate; no engine function > 120 lines (AST check in commit msg).
-- [ ] **E8 Strip engine comments.** First copy every measured reason (dated
+- [x] **E8 Strip engine comments.** First copy every measured reason (dated
   docstrings, constant reasons, negative results) into `docs/DECISIONS.md`;
   then remove all `#` comments and docstrings from root `*.py`, `scripts/`,
   `tests/`, kept `artifacts/harnesses/`. Keep the shebang and nothing else.

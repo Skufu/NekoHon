@@ -1,13 +1,3 @@
-"""Unit tests for server packaging, static asset serving, and path traversal protection.
-
-Validates:
-1. GET / serves web/out/index.html when present.
-2. GET / falls back to window/index.html when web/out is absent.
-3. Static assets under /_next/static/ serve with correct MIME type and immutable cache control.
-4. Traversal attempts (..%2f, absolute, backslashes, %2e%2e, drive letters) fail with 404.
-5. Standard engine routes (/ask, /health, /figures/, /chunks) are never shadowed.
-"""
-
 import http.client
 import json
 import tempfile
@@ -29,7 +19,6 @@ class ServerPackagingTest(unittest.TestCase):
     def setUpClass(cls):
         cls.fixture = FixtureRoot().__enter__()
         cls.addClassCleanup(cls.fixture.__exit__, None, None, None)
-        # Spin up test server on an ephemeral port
         cls.server = ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)
         cls.port = cls.server.server_address[1]
         cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
@@ -83,33 +72,28 @@ class ServerPackagingTest(unittest.TestCase):
             js_file.write_text("console.log('test');", encoding="utf-8")
 
             with mock.patch.object(server, "WEB_OUT", tmp_path):
-                # /health HEAD
                 h_status, h_headers, h_body = self._head("/health")
                 self.assertEqual(h_status, 200)
                 self.assertEqual(h_body, b"")
                 self.assertGreater(int(h_headers.get("content-length", 0)), 0)
                 self.assertIn("application/json", h_headers.get("content-type", ""))
 
-                # / HEAD
                 r_status, r_headers, r_body = self._head("/")
                 self.assertEqual(r_status, 200)
                 self.assertEqual(r_body, b"")
                 self.assertGreater(int(r_headers.get("content-length", 0)), 0)
                 self.assertEqual(r_headers.get("cache-control"), "no-store")
 
-                # /chunks HEAD
                 c_status, c_headers, c_body = self._head("/chunks")
                 self.assertEqual(c_status, 200)
                 self.assertEqual(c_body, b"")
                 self.assertGreater(int(c_headers.get("content-length", 0)), 0)
 
-                # Static asset HEAD
                 s_status, s_headers, s_body = self._head("/_next/static/chunks/bundle.js")
                 self.assertEqual(s_status, 200)
                 self.assertEqual(s_body, b"")
                 self.assertEqual(int(s_headers.get("content-length", 0)), len("console.log('test');".encode("utf-8")))
 
-                # Unknown / unserved route HEAD returns 404 with empty body
                 n_status, _, n_body = self._head("/nope")
                 self.assertEqual(n_status, 404)
                 self.assertEqual(n_body, b"")
@@ -124,7 +108,6 @@ class ServerPackagingTest(unittest.TestCase):
             with mock.patch.object(server, "WEB_OUT", empty_path):
                 status, headers, body = self._get("/")
                 self.assertEqual(status, 200)
-                # window/index.html content
                 self.assertIn("NekoHon", body.decode("utf-8"))
                 self.assertIn("text/html", headers.get("content-type", "").lower())
                 self.assertEqual(headers.get("cache-control"), "no-store")
@@ -181,19 +164,16 @@ class ServerPackagingTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
             (tmp_path / "index.html").write_text("index", encoding="utf-8")
-            # Create files with same names as routes inside web/out
             (tmp_path / "health").write_text("shadow-health", encoding="utf-8")
             (tmp_path / "chunks").write_text("shadow-chunks", encoding="utf-8")
 
             with mock.patch.object(server, "WEB_OUT", tmp_path):
-                # /health should return JSON health from engine, NOT shadow-health file
                 status, headers, body = self._get("/health")
                 self.assertEqual(status, 200)
                 data = json.loads(body.decode("utf-8"))
                 self.assertIn("ok", data)
                 self.assertIn("ollama", data)
 
-                # /chunks should return chunks payload, NOT shadow-chunks file
                 status, headers, body = self._get("/chunks")
                 self.assertEqual(status, 200)
                 chunks_data = json.loads(body.decode("utf-8"))

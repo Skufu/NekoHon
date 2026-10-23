@@ -39,13 +39,6 @@ def _strip_quotes(text):
 
 
 def _short_sentence(raw, quote):
-    """True when a sub-SPAN_MIN_CHARS quote is a complete sentence.
-
-    Shape, not length: an upper-case start and terminal punctuation in the
-    text the model wrote, plus real cleaned length. "Everything fails, all the
-    time." passes (measured 2026-10-13); a mid-sentence fragment or a bare
-    heading ("Hot, warm, and cold data") does not.
-    """
     raw = (raw or "").strip()
     if len(quote) < MIN_QUOTE_CHARS:
         return False
@@ -54,14 +47,6 @@ def _short_sentence(raw, quote):
 
 @functools.lru_cache(maxsize=2048)
 def _strip_figure_refs(text):
-    """Drop "(Figure 6-1)" and the like before a quote is matched.
-
-    The model leaves figure references out when it copies, and the book puts
-    them mid-sentence. Matching with them removed keeps "Storage is the
-    cornerstone ... and underlies its major stages" whole; otherwise the
-    longest copied run starts after the parenthetical. Both sides are stripped,
-    so a quote that keeps its "(Figure 8-8)" still matches.
-    """
     return FIGURE_REFERENCE.sub(" ", text or "")
 
 
@@ -77,9 +62,6 @@ def _quote_in_passage(quote, text):
     folded_text = re.sub(r"\s+", " ", _strip_figure_refs(text)).lower()
     if folded_quote in folded_text:
         return True
-    # Typographic variants are the same sentence: the book writes curly quotes
-    # and interior commas that a copied quote flattens (measured: "data about
-    # data", 2026-10-13). Punctuation is not wording; word order is kept.
     return (
         _punctuation_plain(_strip_figure_refs(quote))
         in _punctuation_plain(_strip_figure_refs(text))
@@ -87,7 +69,6 @@ def _quote_in_passage(quote, text):
 
 
 def _original_case(span, text):
-    """The span as it is written in the passage, case and all, snapped to whole-word boundaries."""
     if not span or not text:
         return span or ""
     flat = re.sub(r"\s+", " ", text or "")
@@ -104,10 +85,6 @@ def _original_case(span, text):
 
 
 def longest_copied_span(completion, passage):
-    """The longest word-for-word run the model copied. The edit is dropped.
-
-    Under 40 characters is not a quote. Short overlap stays a refusal.
-    """
     folded_passage = _fold(passage)
     folded_completion = _fold(completion)
     if not folded_passage or not folded_completion:
@@ -142,7 +119,6 @@ DANGLING_END_WORDS = frozenset({
 
 
 def _complete_truncated_quote(quote: str, passage_text: str) -> str:
-    """Complete a quote if it was cut off mid-sentence or has unbalanced parentheses."""
     if not quote or not passage_text:
         return quote
     q = quote.strip()
@@ -196,12 +172,6 @@ def _complete_truncated_quote(quote: str, passage_text: str) -> str:
 
 
 def _tagless_citation(text, passages):
-    """A verified citation from a reply that forgot the [Ch. tag, or None.
-
-    Whole text verbatim in a shown passage first (case kept), else the longest
-    word-for-word span across the shown passages. No gloss: without the tag
-    there is no marker for where prose ends and the quote begins.
-    """
     quote = _strip_quotes(text)
     hit = _matching_passage_anywhere(quote, passages)
     if hit is not None and (
@@ -239,12 +209,6 @@ def _matching_passage(chapter, quote, passages):
 
 
 def _matching_passage_anywhere(quote, passages):
-    """A verbatim quote from any attached passage is still a true quote.
-
-    The model's [Ch. N] tag can slip when the matching passage sits last in
-    a list of mostly one chapter (measured 2026-10-12: tagged [Ch. 1] for a
-    ch04 sentence). The answer's chapter is rebuilt from the matched hit.
-    """
     for hit in passages:
         if _quote_in_passage(quote, hit["text"]):
             return hit
@@ -252,7 +216,6 @@ def _matching_passage_anywhere(quote, passages):
 
 
 def _reground_alphanumeric_quote(quote, question, chunk_text):
-    """Ensure quotes for normal forms, SCD types, acronyms, and attributions align to the exact form asked."""
     q_low = (question or "").lower()
     text = chunk_text or ""
     if "3nf" in q_low or "third normal form" in q_low:
@@ -498,13 +461,6 @@ def _assemble_body(citations, gloss, passages, figures):
 
 
 def parse_completion(completion, passages, figures=None, anchors=None, question=""):
-    """Return a contract body. Unchecked prose is a refusal.
-
-    A figure is attached only when a passage the answer cited names it. When
-    the paragraph around a verified quote holds an anchor word and fits
-    PARAGRAPH_CAP, the paragraph replaces the quote; paragraph text is passage
-    text, so the quote check holds by construction.
-    """
     text = (completion or "").strip()
     if text == REFUSAL:
         return _refusal(passages, figures)
@@ -686,7 +642,6 @@ def _reground_current_citation(body, question, passages, cur_chunk_id):
 
 
 def _align_citation_to_query_concepts(body, question, passages):
-    """Realign citations to passages that actually discuss the query's core acronyms or topic concepts."""
     if not body or body.get("refused") or not body.get("citations") or not passages:
         return body
     citations = body["citations"]

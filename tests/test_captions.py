@@ -1,5 +1,3 @@
-"""Caption-seeded recall checks. Fake embedder. No Ollama."""
-
 import unittest
 
 from engine.retrieval.captions import caption_seed

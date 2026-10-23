@@ -1,34 +1,3 @@
-"""Plain-register evaluation scorecard. Artifact, not engine.
-
-Ten questions ask for simple explanations; both registers (the current answer
-prompt and the plain prompt from probe-plain.py) answer the SAME shown
-passages per question, so the comparison is prompt-only. Components, kept
-separate on purpose (no blended score — the same reason the main eval keeps
-recall and precision apart):
-
-Gates (a question "plain-passes" only when all hold):
-- the answer is not a refusal;
-- zero unbacked quote spans (raw completion);
-- the judge says the answer is book-supported (no claim beyond the passages);
-- Flesch-Kincaid grade <= 11 (the readability bar the register promises).
-
-Dials (reported, not pass/fail):
-- groundedness coverage (4-gram rule; target >= 0.2 after the probe showed
-  the plain register drops wording fidelity);
-- cited share (how much of the shown set the answer used);
-- judge: does the answer use a concrete example from the passages;
-- unmatched tags (claims tagged [Ch. N] that matched no shown passage);
-- length.
-
-Run:
-    python artifacts/harnesses/eval-plain.py [--limit N] [--variants current,plain,plain3]
-        [--label v3]                                      (muse judge — default)
-    JUDGE_BACKEND=ollama python artifacts/harnesses/eval-plain.py \
-        --variants plain,plain3 --label v3                 (offline granite judge)
-
-Writes artifacts/runs/eval-plain/eval-plain-<label>-<judge-slug>.{json,log}.
-"""
-
 import argparse
 import importlib.util
 import json
@@ -76,8 +45,6 @@ SYSTEMS = {
         "system": SYSTEM_ANSWER,
         "paraphrase": probe.PARAPHRASE_SYSTEM,
     },
-    # The shipped path: answer.respond routes a cue question through
-    # _plain_body. Same shown passages (stubbed search), real engine code.
     "wired": {"wired": True},
 }
 
@@ -111,7 +78,6 @@ def clean_rewrite(text):
 
 
 def score(question, answer, fake_source, body, passages, started):
-    """The shared post-checks: readability, grounding, judges, gates."""
     shown = [hit["chunk_id"] for hit in passages]
     passages_text = "\n\n".join(hit.get("text") or "" for hit in passages)
     readability = probe.stats(answer)
@@ -157,9 +123,6 @@ def measure(index, question, spec, passages):
         )
         completion = A.ollama_generate(spec["revise"], revise_user, ANSWER_MODEL)
     if spec.get("paraphrase"):
-        # The draft supplies verified evidence sentences (passage text by
-        # construction); each is rewritten one-in-one-out and keeps its
-        # source chunk's tag. A draft refusal is the register's refusal.
         draft = A.parse_answered(completion, passages, index.get("figures") or [])
         if draft["refused"]:
             completion = REFUSAL
@@ -181,13 +144,6 @@ def measure(index, question, spec, passages):
 
 
 def measure_wired(index, question, passages):
-    """The shipped path: answer.respond with the scorecard's shown passages.
-
-    A stubbed search returns the same shown set, so the comparison stays
-    prompt-only; retrieval_context still runs readings/fusion/caption seeding
-    on it, exactly as it does in the app. `same_shown` records whether the
-    recomputed shown set matches the scorecard's.
-    """
     started = time.perf_counter()
 
     def stub_search(idx, query, k=10):

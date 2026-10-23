@@ -1,7 +1,6 @@
 import re
 
 
-
 HISTORY_TURNS = 2
 HISTORY_QUESTION_CHARS = 200
 HISTORY_ANSWER_CHARS = 400
@@ -23,14 +22,12 @@ FORGED_HEADERS = re.compile(
 
 
 def is_prompt_injection(question: str) -> bool:
-    """True when question contains explicit adversarial prompt injection patterns."""
     if not question or not isinstance(question, str):
         return False
     return any(pattern.search(question) for pattern in INJECTION_PATTERNS)
 
 
 def sanitize_query(question: str) -> str:
-    """Strip control tokens and collapse forged section headers to spaces."""
     if not question or not isinstance(question, str):
         return ""
     cleaned = CONTROL_TOKENS.sub("", question)
@@ -39,7 +36,6 @@ def sanitize_query(question: str) -> str:
 
 
 def sanitize_history(history):
-    """Last HISTORY_TURNS turns, clipped. Missing or non-list history is []."""
     if not isinstance(history, list):
         return []
     kept = []

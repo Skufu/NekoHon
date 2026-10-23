@@ -1,5 +1,3 @@
-"""Phase 5. A figure attaches only when a passage names it."""
-
 import tempfile
 import unittest
 from pathlib import Path

@@ -1,9 +1,3 @@
-"""Embed frozen chunks and search them. No chunking changes.
-
-Stdlib only. Vectors live in the JSON index. Cosine is plain Python.
-The embedder is injected so tests never call Ollama.
-"""
-
 import argparse
 import json
 import math
@@ -23,12 +17,6 @@ GEMMA_EMBEDDER = "embeddinggemma-2:270m-bf16-text"
 TOP_K = 10
 BATCH = 16
 
-# The task prefix each model expects, written here because Ollama's Modelfile
-# does not add them. Unknown models fail closed. nomic: from its model card,
-# "search_document: " / "search_query: ". gemma: the Hugging Face card for
-# google/embeddinggemma-2, "Task Instruction Prefixes"; it is web search, not
-# question-answering, and prompt_name="Document" is only "title: none", so a
-# real heading must be written into the text.
 PREFIXES = {
     DEFAULT_EMBEDDER: {
         "document": "search_document: ",
@@ -49,7 +37,6 @@ else:
 
 
 def cosine(a, b):
-    """Length-normalized similarity. Zero-length vectors score 0."""
     if len(a) != len(b) or not a:
         return 0.0
     dot = _dot(a, b)
@@ -66,11 +53,6 @@ def figure_body(figure):
 
 
 def format_input(model, kind, text, title=""):
-    """kind is 'document' or 'query'. Unknown models fail closed.
-
-    The text passes through preprocess.normalize first: that is the one seam
-    where the dense channel's view of a text is decided, and both sides use it.
-    """
     text = normalize(text)
     prefix = PREFIXES.get(model, {}).get(kind)
     if prefix is None:
@@ -91,7 +73,6 @@ def chunk_title(chunk):
 
 
 def document_input(model, record, kind):
-    """kind is 'chunk' or 'figure'."""
     if kind == "chunk":
         title, body = chunk_title(record)
         if model == DEFAULT_EMBEDDER:
@@ -141,7 +122,6 @@ def _needs_vector(record, dims):
 
 
 def _vector_problem(vector, width):
-    """Reason a response vector must not be stored, or None when it may."""
     if not isinstance(vector, list) or len(vector) != width:
         got = len(vector) if isinstance(vector, list) else "not a list"
         return f"width {got}, expected {width}"
@@ -153,7 +133,6 @@ def _vector_problem(vector, width):
 
 
 def embed_index(index, model=DEFAULT_EMBEDDER, embed_fn=None, batch=BATCH, dims=None):
-    """Add vectors to chunks and figures. Skip records that already match."""
     embed_fn = embed_fn or ollama_embed
     if dims:
         width = dims
@@ -231,7 +210,6 @@ def _lru_get(cache, key):
 
 
 def _prepare_index(index):
-    """Derive and attach unit vectors, postings, and book forms."""
     if not isinstance(index, dict):
         return index
     chunks = index.get("chunks") or []
@@ -267,7 +245,6 @@ def _prepare_index(index):
 
 
 def rank_chunks(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
-    """Every chunk with a vector, best cosine first. The math search uses."""
     embed_fn = embed_fn or ollama_embed
     if index.get("embedder") != model:
         raise SystemExit(f"index was embedded with {index.get('embedder')}, not {model}")
@@ -353,14 +330,7 @@ def search(index, question, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K, retu
     return passages
 
 
-
-
 def dense_rank(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
-    """chunk_id -> 1-based dense rank over every chunk. No embedder: empty.
-
-    An index with no embedder has no evidence to offer, so a caller that needs
-    evidence fails closed instead of guessing.
-    """
     if not index.get("embedder"):
         return {}
     use_cache = (embed_fn is None or embed_fn is ollama_embed)
@@ -381,7 +351,6 @@ def dense_rank(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
 
 
 def smoke(index, questions, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K):
-    """A hit is the right chapter in the top k, and the phrase is in that chunk."""
     hits = 0
     lines = []
     for item in questions:
@@ -418,8 +387,6 @@ def load_index(path):
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
-
-
 def save_index(path, index):
     clean_index = dict(index)
     clean_index.pop("_book_forms", None)
@@ -445,14 +412,6 @@ def save_index(path, index):
 
 
 def chunks_payload(index):
-    """The reader's view of the index: reading order, no vectors, reader-ready text.
-
-    One block per chunk — measured 2026-10-15: no two consecutive chunks in
-    this book overlap, so nothing needs merging. Every chunk text repeats its
-    heading as the first line (1042/1042), so that line is dropped here and
-    the heading travels as its own field; the reader renders it when it
-    changes. Figures arrive as cards for the ids the chunk carries.
-    """
     figures = index.get("figures") or []
     book_id = index.get("book_id") or ""
     chunks = []

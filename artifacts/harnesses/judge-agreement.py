@@ -1,14 +1,3 @@
-"""Agreement between two judged eval runs. Artifact, not engine.
-
-The calibration step for judges: replay the same answers under a second
-judge and compare verdicts. A local judge is good enough for the routine
-loop only where it agrees with the stronger judge; disagreements are printed
-for inspection, never averaged away.
-
-Run: python artifacts/harnesses/judge-agreement.py eval-v1 eval-v1-openai-<model>
-Writes artifacts/runs/judge-agreement/judge-agreement-<a>-vs-<b>.log.
-"""
-
 import json
 import sys
 from pathlib import Path

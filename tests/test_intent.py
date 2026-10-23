@@ -1,5 +1,3 @@
-"""Unit tests for the Intent Engine and Anti-Gibberish guards. No Ollama."""
-
 import unittest
 
 from engine.answering.answer import (
@@ -209,9 +207,7 @@ class DynamicFollowupPillTests(unittest.TestCase):
         for pill in followups:
             self.assertLessEqual(len(pill), 45, f"Pill too long: {pill!r}")
             self.assertTrue(pill.endswith("?") or pill.lower().startswith("explain"), f"Pill should be a question or explanation request: {pill!r}")
-        # Slot 1 should recognize "essential for two reasons"
         self.assertIn("What are the specific reasons?", followups)
-        # Slot 2 should recognize pricing/bottlenecks/trade-offs
         self.assertTrue(any(kw in followups[1].lower() for kw in ("trade-offs", "bottlenecks", "risks")))
 
     def test_compute_dynamic_followups_term_extraction_and_neighbors(self):
@@ -376,7 +372,6 @@ class AdvanceFollowupQuoteTests(unittest.TestCase):
             ),
         }
         followups = compute_dynamic_followups(chunk, neighbors=[], mode="ask")
-        # Check that any question mentioning SSDs uses 'How do SSDs' and never 'How does SSDs'
         for q in followups:
             if "SSDs" in q:
                 self.assertNotIn("How does SSDs", q)
@@ -419,11 +414,9 @@ class AdvanceFollowupQuoteTests(unittest.TestCase):
             mode="answer",
         )
         self.assertEqual(len(followups), 3)
-        # ZERO newline-glued terms (like "Generation Storage Ingestion")
         for q in followups:
             self.assertNotIn("Generation Storage", q)
             self.assertNotIn("Storage Ingestion", q)
-            # ZERO duplicate question pills repeating the user question
             self.assertNotEqual(q.lower(), user_q.lower())
             self.assertNotIn("what are the main stages", q.lower())
             self.assertNotIn("what is the data engineering lifecycle", q.lower())
@@ -456,14 +449,10 @@ class AdvanceFollowupQuoteTests(unittest.TestCase):
         self.assertEqual(len(followups), 3)
         for q in followups:
             self.assertLessEqual(len(q), 42)
-            # No stripped figure numbers like '7-2'
             self.assertNotIn("7-2", q)
-            # No partial heading matches like 'What Is Data'
             self.assertNotIn("What Is Data", q)
-            # No unstripped chapter prefixes or redundant section repeats
             self.assertNotIn("Chapter 7", q)
             self.assertNotEqual(q.lower(), "what is ingestion?")
-
 
 
 class QueryUnderstandingAndIntentTests(unittest.TestCase):
@@ -523,10 +512,8 @@ class QueryUnderstandingAndIntentTests(unittest.TestCase):
             "text": "Transformation Pipelines\nTransformations reshape data for consumption.",
         }
         followups = compute_dynamic_followups(chunk, neighbors=[prev_neighbor, next_neighbor], mode="explain")
-        # Slot 3 should never ask about the backwards neighbor (Storage Fundamentals)
         for q in followups:
             self.assertNotIn("Storage Fundamentals", q)
-        # It should propose the forward neighbor (Transformation Pipelines)
         self.assertTrue(any("Transformation" in q for q in followups))
 
     def test_dynamic_followups_gating_contrast_vs_example(self):
@@ -542,7 +529,6 @@ class QueryUnderstandingAndIntentTests(unittest.TestCase):
         }
         followups = compute_dynamic_followups(chunk, neighbors=[], mode="explain")
         for q in followups:
-            # Must NOT produce 'How does this compare to Google Ads?'
             self.assertNotIn("How does this compare to Google Ads?", q)
             self.assertNotIn("compare to Google Ads", q)
 

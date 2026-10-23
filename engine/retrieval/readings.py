@@ -1,49 +1,3 @@
-"""A self-proving second reading when a question word is not in the book.
-
-`spelling.py` repaired the question in two places: one path rewrote the string
-the model saw, another re-searched and kept the result when the top score
-improved. The reader was answered a question they never asked, and the repair
-lived outside the retriever that could judge it.
-
-What is left is one reading. A word absent from the book is swapped for the one
-book word it is closest to, the question is read again with that word, and the
-reading is kept only when its best dense score strictly beats the literal one.
-The reading becomes the question the model answers, and the answer says so in
-one line (`Read as: ...`). Nothing is repaired silently.
-
-Measured 2026-10-12 on why the disclosure is a line and not a hint: six shapes
-of hint (a plain note, a quoted note, a system-level rule, and a bracket on the
-question line) all returned exactly `Not in this book.` for "What does CRU
-stand for?" while five passages were attached, because the model will not map
-`CRU [book: "CRUD"]` onto the passage's `CRUD`. The reading as the question
-does answer. Retrieval alone never needed the swap for CRU (ch05-019 is dense
-rank 1); the *answer* did.
-
-Measured 2026-10-12 (nomic, data/index.json):
-- "what is a atermark?" 0.573 ch03-006 -> "what is a watermark?" 0.817 ch08-040,
-  kept (+0.244),
-- "What is the capital of France?" 0.544 -> "... of Franca?" 0.530, dropped
-  (-0.014) even though the swap is one letter away,
-- "What does CRU stand for?" 0.675 ch05-019 -> "... CRUD ...?" 0.785, same chunk.
-  Retrieval never needed the swap; the answer did. Untouched, the model reads
-  "CRU", does not find it in the passage, and refuses.
-
-The improvement gate is the safety, not the similarity cutoff: the France
-reading loses, so it cannot inject a passage about franca.
-
-The fallback when the difflib reading finds nothing: `llm_second_reading`,
-a local model's correction under the same strict-improvement gate plus two
-structural guards. Measured 2026-10-13 (`artifacts/evidence/probe-llm-spell/probe-llm-spell`): it wins
-the two cases difflib cannot see ("normilazation", "ingestoin" — both kept,
-both hit the pin); the gate discarded its one confident wrong fix ("CRU" ->
-"CRC"); a case-only change ("iops" -> "IOPS") is rejected by the guards
-before embedding, and an expansion cannot pass the token-count guard. The
-generator is injected so tests never call Ollama; a failed call leaves the
-literal question standing.
-
-Stdlib only. The embedder is injected so tests never call Ollama.
-"""
-
 import difflib
 import urllib.error
 
@@ -56,7 +10,6 @@ CUTOFF = 0.85
 
 
 def _closest(word, vocabulary):
-    """(score, word, runner_up) for the closest book word."""
     best_score = 0.0
     best_word = ""
     runner_up = 0.0
@@ -84,10 +37,6 @@ _SORTED_WMAP_CACHE = {}
 
 
 def _fixes(question, word_map):
-    """[(start, end, word as typed, book word)] for words worth re-reading.
-
-    A swap needs one candidate over CUTOFF and no tie at the top.
-    """
     text = question or ""
     wmap_key = id(word_map)
     if wmap_key in _SORTED_WMAP_CACHE and _SORTED_WMAP_CACHE[wmap_key][0] == len(word_map):
@@ -109,11 +58,6 @@ def _fixes(question, word_map):
         word = token.lower()
         if word in word_map or word in seen:
             continue
-        # Proper-noun and mixed-case guard:
-        # 1. Skip mid-sentence capitalized words (Titlecase proper nouns like "Polars", "France").
-        # 2. Skip camelCase/PascalCase tokens (like "ActiveMQ", "DuckDB", "PostgreSQL").
-        # 3. Skip alphanumeric tokens containing digits (e.g. "DDR4", "3NF") - version numbers are not typos.
-        # Keep all-uppercase acronym typos ("CRU" -> "CRUD", "ET" -> "ETL") and lowercase typos.
         is_mid_title = start > 0 and token[0].isupper() and token[1:].islower()
         is_mixed_case = any(c.isupper() for c in token) and any(c.islower() for c in token) and any(c.isupper() for c in token[1:])
         has_digit = any(c.isdigit() for c in token)
@@ -141,21 +85,11 @@ def _applied(text, fixes):
 
 
 def resolved_reading(question, word_map):
-    """The question with out-of-book words swapped for their closest book word.
-
-    The question comes back unchanged when nothing resolves, so callers can
-    compare strings.
-    """
     text = question or ""
     return _applied(text, _fixes(text, word_map))
 
 
 def _book_forms(index):
-    """folded word -> the spelling the book uses, first occurrence.
-
-    postings() folds case, and an acronym must go back to the question in the
-    book's own shape: "CRUD", not "crud".
-    """
     if isinstance(index, dict) and "_book_forms" in index:
         return index["_book_forms"]
     forms = {}
@@ -170,7 +104,6 @@ def _book_forms(index):
 
 
 def _clean_completion(text):
-    """The model's query, unquoted and whitespace-folded."""
     text = (text or "").strip()
     if len(text) >= 2 and text[0] == text[-1] and text[0] in "\"'“”":
         text = text[1:-1].strip()
@@ -180,21 +113,6 @@ def _clean_completion(text):
 def llm_second_reading(index, question, literal_top, answer_model=ANSWER_MODEL,
                        generate_fn=None, embed_model=DEFAULT_EMBEDDER,
                        embed_fn=None, word_map=None):
-    """{"reading", "chunk", "swaps"} from an LLM correction, or None.
-
-    The fallback for out-of-book words the difflib reading cannot resolve
-    (measured 2026-10-13: "normilazation", "ingestoin" — it keeps both). The
-    model proposes a corrected query; the same proof as second_reading
-    decides: kept only when the corrected query's best dense score strictly
-    beats the literal one. Two structural guards enforce the prompt's own
-    rule instead of trusting it, both from measured failures:
-    - the folded words must actually change: "iops" -> "IOPS" passed the
-      score gate on embedding jitter and is noise, not a fix;
-    - the token count must not change: no additions, removals, or reorders —
-      an expansion cannot slip through, and a same-count wrong fix ("CRU"
-      -> "CRC") still has to survive the score gate.
-    A failed model call is not an error: the literal question stands.
-    """
     if generate_fn is None:
         from engine.answering.answer import ollama_generate
 
@@ -237,11 +155,6 @@ def llm_second_reading(index, question, literal_top, answer_model=ANSWER_MODEL,
 
 def second_reading(index, question, literal_top, model=DEFAULT_EMBEDDER,
                    embed_fn=None, word_map=None):
-    """{"reading": question, "chunk": passage, "swaps": {typed: book}} or None.
-
-    literal_top is the best score the literal question already produced, so the
-    literal ranking is never computed twice.
-    """
     word_map = postings(index) if word_map is None else word_map
     if not word_map:
         return None

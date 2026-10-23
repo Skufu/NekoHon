@@ -1,10 +1,3 @@
-"""Parsing pins for the answer-quality rubric verdicts (offline, no judge calls).
-
-The judge itself needs Ollama or the cloud relay; its parse layer is pure —
-these tests pin what the harness trusts: digit extraction (with the word
-boundary guard), defect labels, negation order, and unknown-reply handling.
-"""
-
 import importlib.util
 import io
 import sys
@@ -16,15 +9,10 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "artifacts" / "harnesses"))
 
-import judge as J  # noqa: E402
+import judge as J
 
 
 def load_rank_answers():
-    """rank-answers.py is not importable by name (hyphen); load it by path.
-
-    Importing it only defines constants and binds engine functions — no
-    judge call, no network.
-    """
     spec = importlib.util.spec_from_file_location(
         "rank_answers_harness", ROOT / "artifacts" / "harnesses" / "rank-answers.py"
     )
@@ -83,13 +71,6 @@ class DefectKeysTest(unittest.TestCase):
 
 
 class NotAGateTest(unittest.TestCase):
-    """Lock the measured limitation (2026-10-15): the judge's numbers are a
-    triage dial, not a pass/fail gate. Two identical method-v2 runs wobbled
-    3 of 27 rows on single 2-1 vote flips, and only rows 25-27 carry owner
-    labels. Nobody may turn the verdicts into an exit-code gate without a
-    new owner decision.
-    """
-
     def test_judge_module_declares_not_a_gate(self):
         self.assertTrue(J.NOT_A_GATE)
 
@@ -118,7 +99,6 @@ class NotAGateTest(unittest.TestCase):
 
     def test_written_log_banner_lines_are_greppable(self):
         mod = load_rank_answers()
-        # The rejection text and the banner must state the same limitation.
         self.assertIn("NOT A GATE", mod.GATE_REJECTION)
         src = (ROOT / "artifacts" / "harnesses" / "rank-answers.py").read_text(
             encoding="utf-8"

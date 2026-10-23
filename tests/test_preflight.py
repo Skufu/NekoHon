@@ -1,5 +1,3 @@
-"""Preflight helper tests. Pure logic only: no Ollama, no server, no index."""
-
 import unittest
 
 from scripts.preflight import audit_clean, model_present, next_steps, version_ok

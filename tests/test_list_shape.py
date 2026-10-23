@@ -1,10 +1,3 @@
-"""A list question must quote the items, not only the lead-in. No Ollama.
-
-The model's quote is the colon sentence that introduces the list. The repair
-moves the shown passage's own following text into that quote. A question that
-is not a list ask leaves a colon sentence alone.
-"""
-
 import unittest
 
 from engine.answering import answer as A

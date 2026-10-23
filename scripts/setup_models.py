@@ -1,13 +1,4 @@
 #!/usr/bin/env python3
-"""
-One-command model setup, verification, and release packaging utility for ask-this-book.
-Python standard library only. No external pip dependencies.
-
-Usage:
-    python scripts/setup_models.py --status
-    python scripts/setup_models.py --install
-    python scripts/setup_models.py --package-release
-"""
 
 import argparse
 import hashlib
@@ -61,7 +52,6 @@ OLLAMA_API_BASE = "http://127.0.0.1:11434"
 
 
 def compute_sha256(filepath, chunk_size=1024 * 1024):
-    """Compute SHA-256 digest of a local file in 1MB chunks."""
     h = hashlib.sha256()
     with open(filepath, "rb") as f:
         while chunk := f.read(chunk_size):
@@ -70,7 +60,6 @@ def compute_sha256(filepath, chunk_size=1024 * 1024):
 
 
 def get_ollama_tags():
-    """Query local Ollama instance for registered models."""
     url = f"{OLLAMA_API_BASE}/api/tags"
     req = urllib.request.Request(url, headers={"User-Agent": "ask-this-book-setup/1.0"})
     try:
@@ -89,7 +78,6 @@ def get_ollama_tags():
 
 
 def probe_ollama_generate(model_tag, prompt="Hello"):
-    """Quick generation probe to verify loaded model execution."""
     url = f"{OLLAMA_API_BASE}/api/generate"
     payload = json.dumps({"model": model_tag, "prompt": prompt, "stream": False}).encode("utf-8")
     req = urllib.request.Request(
@@ -104,7 +92,6 @@ def probe_ollama_generate(model_tag, prompt="Hello"):
 
 
 def download_file(url, target_path, expected_bytes=None):
-    """Download a remote file with explicit MB progress tracking."""
     os.makedirs(os.path.dirname(target_path), exist_ok=True)
     tmp_path = target_path + ".tmp"
 
@@ -143,13 +130,11 @@ def download_file(url, target_path, expected_bytes=None):
 
 
 def ensure_local_modelfile(model_cfg):
-    """Ensure data/models/<model>/Modelfile exists pointing to the GGUF."""
     model_dir = model_cfg["dir"]
     os.makedirs(model_dir, exist_ok=True)
     local_mf = os.path.join(model_dir, "Modelfile")
     gguf_name = model_cfg["gguf_filename"]
 
-    # Read committed Modelfile template if available
     committed_mf = model_cfg["committed_modelfile"]
     if os.path.exists(committed_mf):
         with open(committed_mf, "r", encoding="utf-8") as f:
@@ -170,7 +155,6 @@ def ensure_local_modelfile(model_cfg):
             "PARAMETER num_ctx 4096\n"
         )
 
-    # Use forward-slashed relative or absolute path
     lines = content.splitlines()
     if lines and lines[0].startswith("FROM"):
         lines[0] = f"FROM ./{gguf_name}"
@@ -182,14 +166,12 @@ def ensure_local_modelfile(model_cfg):
 
 
 def import_into_ollama(model_cfg):
-    """Import local GGUF into Ollama via ollama create."""
     model_name = model_cfg["name"]
     model_dir = model_cfg["dir"]
     local_mf = ensure_local_modelfile(model_cfg)
 
     ollama_bin = shutil.which("ollama")
     if not ollama_bin:
-        # Check standard Windows location
         local_app_data = os.environ.get("LOCALAPPDATA", "")
         win_ollama = os.path.join(local_app_data, "Programs", "Ollama", "ollama.exe")
         if os.path.exists(win_ollama):
@@ -207,12 +189,10 @@ def import_into_ollama(model_cfg):
 
 
 def run_status():
-    """Print comprehensive status of local GGUFs, SHA256 checksums, and Ollama tags."""
     print("=" * 76)
     print(" ask-this-book | Model & Runtime Status Check")
     print("=" * 76)
 
-    # 1. Ollama daemon check
     ollama_tags = get_ollama_tags()
     if ollama_tags is not None:
         print(f"Ollama Service  : ONLINE ({OLLAMA_API_BASE})")
@@ -222,7 +202,6 @@ def run_status():
         print("                  (Start Ollama before running engine or imports)")
     print("-" * 76)
 
-    # 2. Check each model
     all_ok = True
     for key, cfg in MODELS.items():
         name = cfg["name"]
@@ -233,14 +212,12 @@ def run_status():
         print(f"\n[{name.upper()}] - {role}")
         print(f"  Target File   : {os.path.relpath(gguf_path, REPO_ROOT)}")
 
-        # Check committed Modelfile
         if os.path.exists(committed_mf):
             print(f"  Modelfile     : PRESENT ({os.path.relpath(committed_mf, REPO_ROOT)})")
         else:
             print(f"  Modelfile     : MISSING ({os.path.relpath(committed_mf, REPO_ROOT)})")
             all_ok = False
 
-        # Check GGUF on disk
         if os.path.exists(gguf_path):
             size_bytes = os.path.getsize(gguf_path)
             size_mb = size_bytes / (1024 * 1024)
@@ -257,7 +234,6 @@ def run_status():
             print(f"  Disk Status   : NOT DOWNLOADED ({cfg['size_display']} needed)")
             all_ok = False
 
-        # Check Ollama registration
         if ollama_tags is not None:
             if name in ollama_tags or cfg["tag_full"] in ollama_tags:
                 tag_info = ollama_tags.get(name) or ollama_tags.get(cfg["tag_full"])
@@ -269,7 +245,6 @@ def run_status():
         else:
             print(f"  Ollama Tag    : UNKNOWN (Ollama offline)")
 
-    # 3. Check nomic-embed-text
     print("\n[NOMIC-EMBED-TEXT] - Embedding Model")
     if ollama_tags is not None:
         if "nomic-embed-text" in ollama_tags or "nomic-embed-text:latest" in ollama_tags:
@@ -290,7 +265,6 @@ def run_status():
 
 
 def run_install(target="all"):
-    """Download missing models and import into Ollama."""
     print("=" * 76)
     print(" ask-this-book | Model Installation & Ollama Registration")
     print("=" * 76)
@@ -304,13 +278,11 @@ def run_install(target="all"):
 
         print(f"\nProcessing {name} ({cfg['role']})...")
 
-        # 1. Download if missing
         if not os.path.exists(gguf_path) or os.path.getsize(gguf_path) != cfg["expected_bytes"]:
             download_url = os.environ.get(cfg["env_var_url"]) or os.environ.get("NEKOHON_MODEL_URL") or os.environ.get("SMALLBOOK_MODEL_URL") or cfg["hf_url"]
             print(f"GGUF artifact not found locally. Initiating download for {name} ({cfg['size_display']})...")
             download_file(download_url, gguf_path, expected_bytes=cfg["expected_bytes"])
 
-        # 2. Verify checksum
         print("Verifying SHA-256 digest...")
         sha = compute_sha256(gguf_path)
         if sha != cfg["expected_sha256"]:
@@ -319,10 +291,8 @@ def run_install(target="all"):
             )
         print(f"SHA-256 verified: {sha[:16]}... (MATCH)")
 
-        # 3. Import into Ollama
         import_into_ollama(cfg)
 
-        # 4. Probe inference
         print("Probing model generation over HTTP...")
         ok, res = probe_ollama_generate(name, "What is data engineering?")
         if ok:
@@ -341,13 +311,11 @@ DEFAULT_EMBEDDER = "nomic-embed-text"
 
 
 def warmup_models(target_answer_model="nekohon_x3", embed_model=DEFAULT_EMBEDDER):
-    """Preload models into Ollama VRAM/memory with exact option parity."""
     print("\n" + "=" * 76)
     print(" Warming Ollama models into memory (zero cold-load latency)...")
     print("=" * 76)
     keep_alive = os.environ.get("OLLAMA_KEEP_ALIVE", "24h")
 
-    # 1. Warm embedder
     embed_url = f"{OLLAMA_API_BASE}/api/embed"
     embed_payload = {
         "model": embed_model,
@@ -367,7 +335,6 @@ def warmup_models(target_answer_model="nekohon_x3", embed_model=DEFAULT_EMBEDDER
     except Exception as e:
         print(f"  [Embedder] Warning: failed to warm {embed_model}: {e}")
 
-    # 2. Warm answer model(s)
     models_to_warm = [target_answer_model] if target_answer_model != "all" else ["nekohon_x3"]
     chat_url = f"{OLLAMA_API_BASE}/api/chat"
     for m in models_to_warm:
@@ -392,7 +359,6 @@ def warmup_models(target_answer_model="nekohon_x3", embed_model=DEFAULT_EMBEDDER
         except Exception as e:
             print(f"  [Answerer] Warning: failed to warm {m}: {e}")
 
-    # 3. Verify /api/ps
     ps_url = f"{OLLAMA_API_BASE}/api/ps"
     try:
         with urllib.request.urlopen(ps_url, timeout=5.0) as resp:
@@ -407,7 +373,6 @@ def warmup_models(target_answer_model="nekohon_x3", embed_model=DEFAULT_EMBEDDER
 
 
 def run_package_release():
-    """Package release manifest with exact sizes, checksums, and distribution instructions."""
     print("=" * 76)
     print(" ask-this-book | Generating Model Release Manifest")
     print("=" * 76)
@@ -468,7 +433,6 @@ def run_package_release():
             "recommended_for": "Desktop (8GB+ RAM / 4GB+ VRAM)" if "3B" in cfg["role"] else "Mobile / Laptop (4GB RAM / 2GB VRAM)",
         }
 
-        # Check for LoRA zip
         lora_zip = os.path.join(cfg["dir"], f"{key}_lora.zip")
         if os.path.exists(lora_zip):
             manifest_data["lora_archives"][key] = {

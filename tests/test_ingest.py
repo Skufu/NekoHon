@@ -1,5 +1,3 @@
-"""Phase 2 ingest. Tiny fake EPUB, not the real book."""
-
 import tempfile
 import unittest
 import zipfile
@@ -48,7 +46,6 @@ OPF = """<?xml version="1.0" encoding="utf-8"?>
 </package>
 """
 
-# 1x1 png
 PNG = (
     b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01"
     b"\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\x0cIDATx\x9cc\xf8\xcf\xc0"
@@ -73,8 +70,6 @@ class IngestTests(unittest.TestCase):
             figures = tmp / "figures"
             _write_epub(epub)
             index = ingest_epub(epub, figures, write_images=True)
-            # Keyed by figure id, not the zip basename, so two chapters that
-            # both ship images/fig.png do not overwrite each other.
             written_name = index["figures"][0]["file"]
             image_written = written_name != "fig-7-3.png" and (figures / written_name).is_file()
 
@@ -125,7 +120,6 @@ class IngestTests(unittest.TestCase):
         for chunk in index["chunks"]:
             if " > " in chunk["section"]:
                 self.assertNotIn(chunk["section"], chunk["text"])
-        # The table sits under the h2, so its trail holds both headings.
         tables = [c for c in index["chunks"] if "row by row" in c["text"]][0]
         self.assertEqual(
             tables["section"], "Chapter 7. Ingestion > Batch and streaming"
@@ -135,8 +129,6 @@ class IngestTests(unittest.TestCase):
 
 class ChapterNumberTests(unittest.TestCase):
     def test_doc_ids_like_chapter_4_keep_only_the_number(self):
-        # The second book's spine ids are `chapter-4` (measured 2026-10-14):
-        # the prompt tag must read `[Ch. 4]`, not `[Ch. chapter-4]`.
         self.assertEqual(_chapter_number("chapter-4", ""), "4")
         self.assertEqual(_chapter_number("chapter-12", ""), "12")
 

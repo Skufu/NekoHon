@@ -1,18 +1,3 @@
-"""Preflight: is this machine ready to run the engine? Read-only, stdlib.
-
-Run this before anything else, and again whenever something stops working:
-
-    python preflight.py        # Windows
-    python3 preflight.py       # macOS
-
-Checks, in order: Python version, the EPUB, the index, Ollama, the two
-models, and the index's stored vectors. Prints the first thing to do next.
-Exit 0 when ready to serve, 1 otherwise. No model call, no server, no writes.
-
-Every path and model name comes from the engine's own constants, so this
-script cannot drift from the app. Works unchanged on Windows and macOS.
-"""
-
 import json
 import os
 import sys
@@ -36,7 +21,6 @@ HEALTH_URL = "http://127.0.0.1:8000/health"
 
 
 def resident_models(timeout=2.0):
-    """Tag names currently resident in Ollama VRAM/memory, or None."""
     try:
         with urllib.request.urlopen(PS_URL, timeout=timeout) as response:
             body = json.loads(response.read().decode("utf-8"))
@@ -46,7 +30,6 @@ def resident_models(timeout=2.0):
 
 
 def wait_for_warmup(server_url=HEALTH_URL, timeout=60.0, poll_interval=0.5):
-    """Block until engine server reports warmup complete and models resident."""
     deadline = time.time() + timeout
     last_err = None
     while time.time() < deadline:
@@ -70,19 +53,16 @@ def version_ok(version, minimum=MINIMUM_PYTHON):
 
 
 def model_present(names, wanted):
-    """A wanted name matches itself, or any tag of it ('name:tag')."""
     return any(name == wanted or name.startswith(wanted + ":") for name in names)
 
 
 def audit_clean(report):
-    """True when verify_index.audit's report has nothing to flag."""
     if report.get("no_declared_dims") or report.get("missing"):
         return False
     return not any(report.get(axis) for axis in AXES)
 
 
 def ollama_models(timeout=2.0):
-    """Tag names on the local Ollama, or None when it cannot be asked."""
     try:
         with urllib.request.urlopen(TAGS_URL, timeout=timeout) as response:
             body = json.loads(response.read().decode("utf-8"))
@@ -92,7 +72,6 @@ def ollama_models(timeout=2.0):
 
 
 def next_steps(state):
-    """The ordered actions left, one per line. Empty means ready to serve."""
     steps = []
     if not state["python_ok"]:
         steps.append(

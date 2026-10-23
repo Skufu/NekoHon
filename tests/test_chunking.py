@@ -1,5 +1,3 @@
-"""Sentence packing checks. No EPUB, no Ollama."""
-
 import unittest
 
 from engine.ingest import CHUNK_MAX_CHARS, _pieces, _sentences, _sentence_tail

@@ -1,5 +1,3 @@
-"""One text seam checks. No Ollama."""
-
 import unittest
 
 from engine.retrieval.keywords import postings, rare
@@ -13,8 +11,6 @@ class TokenizerTests(unittest.TestCase):
         self.assertEqual(words("The Pragmatic Lead"), ["the", "pragmatic", "lead"])
 
     def test_punctuation_is_not_a_token_and_digits_are_not_one_either(self):
-        # Pure digits are not tokens: "1/17" reads as nothing.
-        # Alphanumeric terms with letters ("S3", "3NF", "DDR4") stay intact.
         self.assertEqual(words("S3 stores 1/17 of it."), ["s3", "stores", "of", "it"])
 
 

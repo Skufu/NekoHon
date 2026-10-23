@@ -1,11 +1,3 @@
-"""The form canonicalizer: trigger table, the seam, the explain gate.
-
-canonical_query turns a bare topic phrase into "What is <phrase>?" before
-retrieval and the prompt; ask/respond use the same string everywhere and
-add the visible `Asked as:` line; explain is gated off (its highlight is a
-book sentence, not a question). No Ollama: recovery is injected.
-"""
-
 import unittest
 
 from engine.answering import answer as A
@@ -135,11 +127,6 @@ class DeicticStemTest(unittest.TestCase):
 
 
 class ComparisonTest(unittest.TestCase):
-    """Rows 27 and 8 of the 2026-10-15 owner sample: a versus text asked
-    as `What is X versus Y?` — rated wrong; a comparison asks as a
-    comparison. Generic tokens only: the rule is structural English.
-    """
-
     def test_bare_label_rewrites(self):
         self.assertEqual(
             canonical_query("Monolith Versus Modular"),
@@ -213,8 +200,6 @@ class ComparisonTest(unittest.TestCase):
 
 
 class _SeamBase(unittest.TestCase):
-    """Patches the model/seed seams so the suite never calls Ollama."""
-
     def setUp(self):
         self.index = {"chunks": PASSAGES, "figures": []}
         self.calls = {}
@@ -289,8 +274,6 @@ class SeamTest(_SeamBase):
             generate_fn=generate, search_fn=self.search_recorder(), model="m",
         )
         self.assertEqual(self.calls["search"], "What is CDC?")
-        # 2026-10-15 prompt alignment: answer mode serves SYSTEM (ask-shaped),
-        # the prompt the student is trained on.
         self.assertEqual(self.calls["system"], SYSTEM)
         self.assertIn("What is CDC?", self.calls["user"])
         self.assertIn('Asked as: "What is CDC?"', body["answer"])
@@ -306,7 +289,6 @@ class SeamTest(_SeamBase):
         )
         self.assertEqual(self.calls["search"], "CDC")
         self.assertNotIn("Asked as:", body["answer"])
-
 
     def test_question_form_passes_through_untouched(self):
         def generate(system, user, model):
@@ -329,8 +311,6 @@ class ExplainGateTest(unittest.TestCase):
         C.second_reading = lambda *a, **kw: None
         C.llm_second_reading = lambda *a, **kw: None
         highlight = CDC_QUOTE.rstrip(".")
-        # The highlight must be trigger-eligible, or this test proves nothing:
-        # if a future trigger stops matching it, the gate would go untested.
         self.assertNotEqual(canonical_query(highlight), highlight)
         try:
             def search(index, question, k=10):
@@ -355,8 +335,6 @@ class AnchorEquivalenceTest(unittest.TestCase):
     def test_prefix_stopwords_add_no_anchors(self):
         from engine.retrieval.preprocess import STOPWORDS
 
-        # "what"/"is" carry in-bound df here, so only the STOPWORDS filter
-        # can keep them out of the anchor set; a broken filter fails this.
         self.assertIn("what", STOPWORDS)
         self.assertIn("is", STOPWORDS)
         word_map = {"watermark": [0], "what": [0], "is": [0]}

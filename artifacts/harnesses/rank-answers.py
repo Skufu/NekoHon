@@ -1,27 +1,3 @@
-"""Answer-quality ranking, rating method v2 (checkables + voted yes/no bits).
-
-Plan: artifacts/plans/answer-quality-judge-plan-2026-10-15.md, "Rating method
-v2". Layer 1 is machine-checkable and deterministic (refusal correct, gold
-chapter cited, key fact present, quoted spans verbatim in the shown
-passages). Layer 2 is four yes/no bits, each asked three times, majority
-decides; the defect label is derived from the first failed check, not asked
-of the judge in one shot.
-
-Run:
-    python artifacts/harnesses/rank-answers.py --set artifacts/datasets/owner-rated-2026-10-15.jsonl --label owner-sample-m2
-    JUDGE_BACKEND=ollama python ... (offline granite judge)
-
-Writes artifacts/runs/answer-quality/answer-quality-<label>-<judge-slug>.{json,log}.
-Verdicts are UNVALIDATED against human labels; rater agreement is reported
-when rows carry rating / persona_rating / checker_rating fields.
-
-This ranking is a list, not a verdict — NOT A GATE. Measured 2026-10-15:
-two identical method-v2 runs wobbled 3 of 27 rows on single 2-1 vote flips,
-and only rows 25-27 carry owner labels (the rest are persona/checker
-stand-ins). A --gate flag is rejected; adopting one needs a new owner
-decision. main() with the normal flags exits 0 regardless of defect counts.
-"""
-
 import argparse
 import json
 import re
@@ -42,9 +18,6 @@ from engine.retrieval.retrieve import INDEX, load_index
 
 RATER_FIELDS = ("rating", "persona_rating", "checker_rating")
 
-# The judged numbers are a triage dial, not a pass/fail gate (see the module
-# docstring for the measured wobble). Any attempt to turn them into an exit
-# code via a flag is rejected before a single row is judged.
 GATE_FLAGS = ("--gate", "--gate-on-defects", "--fail-on-defects")
 GATE_REJECTION = (
     "NOT A GATE: judged numbers are a triage dial, not a pass/fail gate.\n"
@@ -62,11 +35,6 @@ DISCLOSURE_PATTERN = re.compile(r"^(Asked as:|Read as:)", re.I)
 
 
 def content_text(answer):
-    """The answer minus disclosure lines — the text the reader judges.
-
-    Precedent: groundedness.answer_sentences drops the Read-as line the same
-    way; a disclosure is product furniture, not a claim about the book.
-    """
     lines = [
         line for line in (answer or "").splitlines()
         if not DISCLOSURE_PATTERN.match(line.strip())
@@ -116,7 +84,7 @@ def judge_row(index, row, timeout):
     try:
         passages = A.retrieval_context(index, asked)["passages"]
         passages_text = A.passages_block(passages) if passages else ""
-    except Exception:  # noqa: BLE001 - a probe must not die on one row
+    except Exception:
         passages_text = ""
 
     expect = row.get("expect")
@@ -151,7 +119,7 @@ def judge_row(index, row, timeout):
                 J.judge_bit(bit, row["question"], passages_text, answer_text, timeout=timeout)
                 for _ in range(VOTES)
             ]
-            time.sleep(0.25)  # pace the relay; 503 on bursts measured 2026-10-15
+            time.sleep(0.25)
             out["votes"][bit] = votes
             out[bit] = majority(votes)
     else:
@@ -177,7 +145,6 @@ def judge_row(index, row, timeout):
 
 
 def flagged(row):
-    """Any failed check or bit — the machine's 'not clean'."""
     if row.get("refusal_ok") is False:
         return True
     for field in ("gold_cited", "key_fact_present", "quote_ok"):
@@ -219,7 +186,7 @@ def rater_summary(rows):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description="Rank answers with checkable rules and voted yes/no judge bits. A triage list, not a gate.")
     parser.add_argument("--set", required=True)
     parser.add_argument("--label", default="run")
     parser.add_argument("--limit", type=int, default=0)
@@ -250,7 +217,7 @@ def main():
         started = time.time()
         try:
             out = judge_row(index, row, args.timeout)
-        except Exception as exc:  # noqa: BLE001 - record and keep going
+        except Exception as exc:
             out = dict(row)
             out["defect"] = "judge_error"
             print(f'{row.get("id"):>3} judge_error: {exc!r}')

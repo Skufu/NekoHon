@@ -1,5 +1,3 @@
-"""Pins the highlight golden set. Reads jsonl. No builder, no Ollama."""
-
 import json
 import re
 import unittest

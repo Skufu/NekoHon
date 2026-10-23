@@ -1,18 +1,3 @@
-"""Plain-register A/B: does an explicit "simple words" instruction actually
-simplify the answer, and at what cost to grounding? Artifact, not engine.
-
-Both variants see the same shown passages for each question; only the system
-prompt differs. Deterministic metrics:
-
-- Flesch-Kincaid grade (naive syllable count), mean sentence length, share of
-  words with three or more syllables, answer length;
-- the groundedness meter's support ratio (4-gram rule) and unbacked quote
-  spans, because plainness that drifts off the book is not a win.
-
-Run: python artifacts/probes/probe-plain.py
-Writes artifacts/evidence/probe-plain/probe-plain.{json,log}.
-"""
-
 import json
 import re
 import sys
@@ -37,8 +22,6 @@ PLAIN_ADDITION = (
 )
 PLAIN_SYSTEM = SYSTEM_ANSWER + "\n" + PLAIN_ADDITION
 
-# Variant 2: book wording first (keeps the 4-gram grounding up), plain words
-# after. The shape a definition-first reader already knows from ask mode.
 PLAIN2_ADDITION = (
     "The person asked for a simple explanation. Build it in this order: "
     "(1) copy the passage's own definition sentence for the term, exactly, "
@@ -49,9 +32,6 @@ PLAIN2_ADDITION = (
 )
 PLAIN2_SYSTEM = SYSTEM_ANSWER + "\n" + PLAIN2_ADDITION
 
-# Variant 3: the scorecard's findings applied — no imagined scenarios (Muse
-# caught "imagine you have..."), and an explicit sentence-length cap because
-# v2 shortened without dropping the grade under the bar.
 PLAIN3_ADDITION = (
     "The person asked for a simple explanation. Answer only with what the "
     "passages state: no imagined scenarios, no comparisons, no examples the "
@@ -62,9 +42,6 @@ PLAIN3_ADDITION = (
 )
 PLAIN3_SYSTEM = SYSTEM_ANSWER + "\n" + PLAIN3_ADDITION
 
-# The revise pass: draft with PLAIN3, then one local call edits the draft
-# against the passages. Draft for content, edit for style and honesty — the
-# same verify-and-fix shape as the reading gate and the judge.
 REVISE_SYSTEM = """You edit a draft answer about a book for a newcomer. You see the passages from the book and a draft answer. Rewrite the draft:
 1. Remove any claim the passages do not state. Do not add facts.
 2. Split every sentence longer than fifteen words into shorter sentences.
@@ -72,9 +49,6 @@ REVISE_SYSTEM = """You edit a draft answer about a book for a newcomer. You see 
 4. Keep the [Ch. N] tags. When a passage holds a concrete example and the draft has none, add that example.
 Output only the revised answer, nothing else."""
 
-# The sentence-aligned paraphrase register: the draft answer supplies the
-# evidence sentences (passage text by construction); each is rewritten
-# one-in-one-out. Invention has nowhere to go — nothing is written freely.
 PARAPHRASE_SYSTEM = """Rewrite one sentence from a book in simpler words for a newcomer. Rewrite the whole sentence and keep all of its meaning: do not summarize it, do not drop any part, and do not add any fact, comparison, or example that is not in the sentence. Keep the subject: every sentence must say who or what does the action — never output a fragment. Use short sentences of fifteen words or fewer. Use common words; keep technical terms that are necessary. Output only the rewritten sentence, nothing else."""
 
 QUESTIONS = [

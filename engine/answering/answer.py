@@ -1,22 +1,3 @@
-"""Answers from retrieved passages: the ask and answer modes.
-
-ask: the model quotes, the quote is checked; a failed check is a refusal.
-answer: the model answers from the passages in the same quote-first shape
-(SYSTEM + user_message — the exact prompts the student is trained on); its
-[Ch. n] tags become citations, quotation marks the passages cannot back are
-stripped, and the quote check demotes from gate to meter
-(artifacts/harnesses/groundedness.py). An uncited answer gets one `[Ch. `
-prefill retry, kept only when a citation validates (`_retry_uncited`).
-
-Prompt alignment (2026-10-15): answer mode used to send SYSTEM_ANSWER ("a few
-sentences ... in your own words"). The training data has always been
-ask-shaped (quote-first); x2d masked the mismatch by over-memorizing
-(loss 0.006), while x2e followed the served prompt, paraphrased, and failed
-the verbatim check (40/160 vs 111/160, probe-fragment evidence). The default
-path now serves what the model was trained on.
-"""
-
-
 from engine.answering.comparison import _comparison_sides
 from engine.answering.context import _pin_chunk, _should_include_chunk_figures, retrieval_context
 from engine.answering.conversation import (

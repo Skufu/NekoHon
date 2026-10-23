@@ -1,10 +1,3 @@
-"""A comparison the model refused still answers the covered side. No Ollama.
-
-Exactly one side in the shown passages: quote that side, name the missing
-side in a gloss, refuse neither. Both sides, neither side, and a non-comparison
-why-question keep the exact refusal sentence.
-"""
-
 import re
 import unittest
 
@@ -59,7 +52,6 @@ class HalfCoveredTests(unittest.TestCase):
         body = self._respond("ddr4 vs ddr5", passages)
         self.assertFalse(body["refused"])
         self.assertNotEqual(body["answer"], REFUSAL)
-        # The Asked as line quotes the rewritten question, not a passage.
         shown = body["answer"].split("\nAsked as:", 1)[0]
         quotes = _quoted(shown)
         self.assertTrue(quotes, body["answer"])

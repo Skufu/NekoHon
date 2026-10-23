@@ -27,13 +27,6 @@ from engine.figures import figures_for
 
 
 def highlight_query(selection, heading=""):
-    """The question a highlight means.
-
-    A sentence is already a question for search. A word or a short phrase is
-    not: "splashed" and "because" retrieve neighbor chapters. Those become
-    "What is …?", the same rewrite canonical_query uses for a typed label,
-    with the heading so the search knows which "time" the reader marked.
-    """
     text = (selection or "").strip()
     if not text:
         return text
@@ -47,7 +40,6 @@ def highlight_query(selection, heading=""):
 
 
 def _cross_chunk_quotes(chunk1, chunk2, selection):
-    """Extract boundary quotes from chunk1 and chunk2 for a cross-chunk selection."""
     if not chunk1 or not chunk2:
         return None, None
     text1 = chunk1.get("text") or ""
@@ -262,11 +254,6 @@ def _grounded_explain(index, body, selection, chunk_id, pin_chunk_obj, sec_chunk
 
 def explain(index, selection, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
             chunk_id=None, heading="", end_chunk_id=None, embed_fn=None):
-    """The highlight is the question. The neighborhood is the passages.
-
-    A short highlight is asked as a question. The chunk the reader selected
-    stays in the passages even when dense search prefers another chapter.
-    """
     if is_prompt_injection(selection):
         return _refusal([])
     selection = sanitize_query(selection)

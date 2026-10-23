@@ -210,16 +210,10 @@ CONVERSATIONAL_DIRECTIVES = frozenset({
 
 
 def _has_deictic_reference(question: str) -> bool:
-    """Check if question contains any deictic pronouns or backward references."""
     return bool(DEICTIC_REF_RE.search(question or ""))
 
 
 def _is_topic_shift_followup(question: str, history: list, selection: str = "", pin_chunk=None, index=None) -> bool:
-    """True when question is a self-contained topic shift rather than an in-topic follow-up.
-
-    Book-agnostic: verifies absence of deictic references/generic follow-up stems,
-    and requires non-overlapping content words between question and conversation history.
-    """
     if not history:
         return False
     if (
@@ -312,7 +306,6 @@ def _is_topic_shift_followup(question: str, history: list, selection: str = "", 
 
 
 def _rank_seq_chunks(seq_chunks, question, history_subject=None):
-    """Rank sequential neighbor chunks by keyword relevance to the follow-up question."""
     q_lower = (question or "").lower()
     q_words = set(re.findall(r"\b[a-zA-Z0-9]+\b", q_lower))
 
@@ -455,11 +448,6 @@ def _resolve_incomplete_stem(index, q, head, pin_chunk_obj):
 
 def _resolve_contextual_query(index, question, pin_chunk=None, selection="",
                               heading="", history=None):
-    """Resolve incomplete, fragment, deictic, or selection-backed queries.
-
-    Book-agnostic: uses the reader's active chunk, selection, heading, or the
-    index's sentence postings to turn fragments into self-contained queries.
-    """
     q = re.sub(r"\s+", " ", (question or "")).strip()
     sel = _clean_selection_text(selection)
     head = re.sub(r"\s+", " ", (heading or "")).strip()
@@ -579,9 +567,6 @@ def _expand_short_quote(sents, i, s_clean, c_text):
 
 
 def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_question=""):
-    """Select the sentence in chunk_obj or neighbors that answers the follow-up question,
-    advancing past prior_quote when Turn 1 cited a lead-in sentence.
-    """
     if not chunk_obj or not followup_question:
         return None
 

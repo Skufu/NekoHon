@@ -14,8 +14,6 @@ from engine.answering.shared import (
 from engine.answering.listshape import _without_heading
 
 
-# Digits stay: a version token is one side of a comparison, and splitting on
-# letters alone would fold both numbered sides into the same stem.
 SIDE_SPLIT = re.compile(r"[^a-z0-9]+")
 SIDE_DROP = frozenset({
     "what", "is", "the", "difference", "between", "and", "vs", "versus",
@@ -24,36 +22,29 @@ SIDE_DROP = frozenset({
     "against", "or",
 })
 COMPARISON_PATTERNS = (
-    # 1) difference between X and Y
     re.compile(r"\bdifference\s+between\s+(.+?)\s+and\s+(.+?)\s*[?.!]*$", re.I),
-    # 2) how does X stack up against / compare to / compared to / measure up to / differ from Y
     re.compile(
         r"\b(?:how\s+(?:does|do|can|is|are)\s+)?(.+?)\s+(?:stack\s+up\s+against|compare\s+(?:to|with|against)|compared\s+(?:to|with|against)|measure\s+up\s+(?:to|against)|differ\s+from)\s+(.+?)\s*[?.!]*$",
         re.I,
     ),
-    # 2b) how do X and Y compare
     re.compile(
         r"\b(?:how\s+(?:does|do|can|is|are)\s+)?(.+?)\s+and\s+(.+?)\s+compare\s*[?.!]*$",
         re.I,
     ),
-    # 3) compare / contrast / distinguish X and/with/to/from/vs Y
     re.compile(
         r"\b(?:compare|comparing|contrast|contrasting|distinguish(?:\s+between)?)\s+(.+?)\s+(?:and|with|to|from|vs\.?|versus)\s+(.+?)\s*[?.!]*$",
         re.I,
     ),
-    # 4) is/are/was/were X better/worse/faster/slower/cheaper/simpler/more .../less ... than Y
     re.compile(
         r"\b(?:is|are|was|were)\s+(.+?)\s+(?:better|worse|faster|slower|cheaper|simpler|more\s+\w+|less\s+\w+)\s+than\s+(.+?)\s*[?.!]*$",
         re.I,
     ),
-    # 5) what sets X apart from Y
     re.compile(r"\bwhat\s+sets\s+(.+?)\s+apart\s+from\s+(.+?)\s*[?.!]*$", re.I),
 )
 ONE_VERSUS = re.compile(r"\bvs\.?(?!\w)|\bversus\b", re.I)
 
 
 def _clean_side(text):
-    """Strip question fillers, auxiliaries, and articles from a comparison side."""
     text = (text or "").strip(" ?.!\"'")
     text = re.sub(
         r"^(?:what\s+is|what\s+are|how\s+does|how\s+do|how\s+is|how\s+are|why\s+is|why\s+does)\s+",
@@ -72,12 +63,6 @@ def _clean_side(text):
 
 
 def _comparison_sides(*texts):
-    """(left, right) raw sides of a comparison, or None.
-
-    Matches difference-between, comparison predicates, compare/contrast,
-    comparative adjectives, what-sets-apart, or exactly one vs/versus.
-    Either the original question or its canonical rewrite qualifies.
-    """
     candidates = [text.strip() for text in texts if text and text.strip()]
     pronouns = _PRONOUNS_SET
     for text in candidates:
@@ -130,7 +115,6 @@ def _comparison_sides(*texts):
 
 
 def _side_tokens(side):
-    """Content tokens of one side. Closed function words and short tokens drop."""
     cleaned = _clean_side(side)
     tokens = []
     for token in SIDE_SPLIT.split((cleaned or "").lower()):
@@ -141,7 +125,6 @@ def _side_tokens(side):
 
 
 def _side_covered(tokens, passages):
-    """The shown passage holding every token as a whole word, or None."""
     if not tokens:
         return None
     patterns = [_token_word_pattern(token) for token in tokens]
@@ -153,11 +136,6 @@ def _side_covered(tokens, passages):
 
 
 def _covering_quote(tokens, hit):
-    """A verbatim sentence naming the covered side, else its paragraph.
-
-    Nothing under the quote floor is invented into a sentence. Empty when the
-    passage has no quotable span that names the side.
-    """
     text = hit.get("text") or ""
     patterns = [_token_word_pattern(token) for token in tokens]
     for sentence in _sentences(text):
@@ -174,12 +152,6 @@ def _covering_quote(tokens, hit):
 
 
 def _half_covered(body, question, asked_form, passages, figures):
-    """Answer the covered side of a comparison when only one side is in the passages.
-
-    Fires only when exactly one side is in the shown passages and a verbatim
-    span can be quoted. The other side is named in a gloss, never quoted and
-    never given attributes the passages do not contain.
-    """
     sides = _comparison_sides(question, asked_form)
     if sides is None:
         return body

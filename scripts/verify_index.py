@@ -1,9 +1,3 @@
-"""Audit the index's stored vectors. Read-only.
-
-Non-finite / all-zero / width-drift / missing vectors, every offender named.
-Exit 0 when clean, exit 1 when dirty. Stdlib only; no model calls.
-"""
-
 import argparse
 import math
 import sys
@@ -23,7 +17,6 @@ def _label(kind, record, position):
 
 
 def audit(index):
-    """A report dict; every problem list is empty on a clean index."""
     rows = [
         ("chunk", record, position)
         for position, record in enumerate(index.get("chunks", []))
@@ -67,11 +60,6 @@ def audit(index):
 
 
 def exit_code(report):
-    """0 when clean, 1 when any stored vector is bad or missing.
-
-    Matches the module docstring and preflight.audit_clean: a chunk or figure
-    with no vector is dirty, not a warning the CLI can ignore.
-    """
     if report["missing"] or report["no_declared_dims"]:
         return 1
     if any(report[axis] for axis in AXES):

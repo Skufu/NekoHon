@@ -1,5 +1,3 @@
-"""Second-reading checks. Fake embedder. No Ollama."""
-
 import re
 import unittest
 
@@ -10,11 +8,11 @@ def fake_embed(texts, model):
     vectors = []
     for text in texts:
         lowered = text.lower()
-        if re.search(r"\bwatermark\b", lowered):     # the book word
+        if re.search(r"\bwatermark\b", lowered):
             vectors.append([1.0, 0.0])
-        elif re.search(r"\bwaremark\b", lowered):    # a typo the literal read wins
+        elif re.search(r"\bwaremark\b", lowered):
             vectors.append([1.0, 0.0])
-        elif re.search(r"\batermark\b", lowered):    # the typo, a muddled vector
+        elif re.search(r"\batermark\b", lowered):
             vectors.append([0.6, 0.8])
         else:
             vectors.append([0.0, 1.0])
@@ -90,8 +88,6 @@ class SecondReadingTests(unittest.TestCase):
         self.assertEqual(reading["swaps"], {"atermark": "watermark"})
 
     def test_a_reading_that_only_matches_is_dropped(self):
-        # "waremark" reads as well as "watermark", and equality is not an
-        # improvement, so the literal question stands.
         index = make_index()
         self.assertIsNone(
             second_reading(index, "what is a waremark?", 1.0, embed_fn=fake_embed)

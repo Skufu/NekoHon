@@ -1,7 +1,3 @@
-"""Unit tests for DEFECT-1 (keywords.postings immutability & cache ratio)
-and DEFECT-2 (scripts/launch.py safe port hygiene).
-"""
-
 import os
 import sys
 import time
@@ -68,13 +64,11 @@ class TestPostingsImmutabilityAndPerf(unittest.TestCase):
 
     def test_postings_cached_time_under_sane_bound_ratio(self):
         index = make_sample_index(50)
-        # Cold build / rebuild without using cached _postings:
         rebuild_index = {"chunks": list(index["chunks"])}
         t0 = time.perf_counter()
         postings(rebuild_index)
         t_rebuild = max(time.perf_counter() - t0, 1e-6)
 
-        # Repeated cached calls:
         iterations = 1000
         t0 = time.perf_counter()
         for _ in range(iterations):
@@ -83,7 +77,6 @@ class TestPostingsImmutabilityAndPerf(unittest.TestCase):
         t_cached_per_call = t_cached_total / iterations
 
         ratio = t_cached_per_call / t_rebuild
-        # Cached lookup must be at least 10x faster than rebuild (ratio < 0.10)
         self.assertLess(
             ratio,
             0.10,

@@ -1,23 +1,3 @@
-"""Hard Benchmark 2026-10-17: 60-item un-saturated evaluation harness.
-
-Evaluates 6 challenging, un-saturated dimensions (10 items each = 60 items total):
-1. multi_turn: Coreference resolution across turns and out-of-book follow-up refusals.
-2. varied_comparison: Natural comparisons without 'vs' or 'difference between' (half & fully covered).
-3. alphanumeric_acronyms: Alphanumeric and acronym precision (S3, 3NF, 1NF, 2NF, DDR5, Type-2, IOPS, etc.).
-4. adversarial_injection: Prompt injection and plausible out-of-book technical refusal traps.
-5. hard_explain_anti_boilerplate: Challenging explain() calls scored on verbatim citation and anti-boilerplate gate.
-6. zero_shot_unseen_book: Completely unseen 8-chunk textbook on networking and consensus protocols.
-
-Usage:
-    python artifacts/harnesses/hard-bench.py [model]
-    python artifacts/harnesses/hard-bench.py --model smallbook_x2g --category multi_turn
-    python artifacts/harnesses/hard-bench.py --limit 10
-
-Writes evidence to:
-    artifacts/runs/hard-bench/hard-bench-2026-10-17.model-<model>.json
-    artifacts/runs/hard-bench/hard-bench-2026-10-17.model-<model>.log
-"""
-
 import argparse
 import json
 import os
@@ -260,7 +240,6 @@ def evaluate_item(item, fde_index, unseen_index, model, chunk_map):
             reasons.append(f"anti-boilerplate failure: {bp_reason}")
 
     else:
-        # ask mode
         question = item["question"]
         idx = unseen_index if cat == "zero_shot_unseen_book" else fde_index
         res = A.ask(
@@ -282,7 +261,6 @@ def evaluate_item(item, fde_index, unseen_index, model, chunk_map):
             if answer_text != REFUSAL:
                 reasons.append(f"answer text '{answer_text[:50]}' != exact '{REFUSAL}'")
         else:
-            # expect answer
             if refused:
                 reasons.append("expected answer but got refusal")
             if gold_chunks:
@@ -383,7 +361,6 @@ def run_benchmark(model=ANSWER_MODEL, category_filter=None, limit=None):
     print(f"{'TOTAL':<32} {f'{total_passed} / {total_items}':<18} {f'{total_rate:.1f}%':<12} {f'{mean_total_latency:.2f}s':<15}")
     print("=" * 88)
 
-    # Save evidence
     EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
     slug = model.replace(":", "-").replace("/", "-")
     json_path = EVIDENCE_DIR / f"hard-bench-2026-10-17.model-{slug}.json"

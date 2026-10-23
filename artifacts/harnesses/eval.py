@@ -1,37 +1,3 @@
-"""Answer-engine evaluation over the labeled set. Artifact, not engine.
-
-The metrics are deliberately separate — one blended F1 number would hide
-which side failed:
-
-- dense recall@10: a gold chunk in the raw dense top 10. The retrieval net.
-- shown recall@5: a gold chunk among the passages the model is shown (after
-  the reading, fusion, and caption seeding). The fatal false negative: if the
-  gold is absent here, the model cannot answer it.
-- MRR@10: mean 1/rank of the best-placed gold in the dense list (0 if absent).
-- gold precision@5: gold shown / shown. Strict: only labeled gold counts;
-  unlabeled-but-relevant passages count as misses, so read it as a floor.
-- cited share: cited chunks / shown — how much of the shown context the answer
-  actually used.
-- refusal behavior: expect=refuse but answered (false answer) and
-  expect=answer but refused (false refusal) counted separately — the error
-  classes from the user's review.
-- key fact: regex hit first; misses go to the cross-family judge (granite)
-  for a paraphrase check.
-- relevance judge (--judge): every shown passage judged relevant/not by
-  the configured judge (`muse-spark-1.3-contributor` by default since
-  2026-10-15; `JUDGE_BACKEND=ollama` = granite4.1:8b). The direct precision
-  reading. Verdicts are UNVALIDATED
-  against human labels; the gold-not-relevant list is the judge-vs-pin
-  disagreement, the strongest calibration signal this run can show.
-
-Run: python artifacts/harnesses/eval.py --label v1 [--judge] [--limit N]
-Judge-only replay under another judge (same answers, new verdicts):
-  JUDGE_BACKEND=openai JUDGE_MODEL=<m> JUDGE_BASE_URL=<u> JUDGE_API_KEY=<k> \
-    python artifacts/harnesses/eval.py --judge-only --label v1
-Agreement between two judged runs: python artifacts/harnesses/judge-agreement.py <a> <b>
-Writes artifacts/runs/eval-v1/eval-<label>[-<judge-slug>].{json,log}.
-"""
-
 import argparse
 import json
 import re
@@ -64,8 +30,6 @@ def eval_item(index, item, timeout):
     question = item["question"]
     dense = search(index, question, k=10)
     dense_ids = [hit["chunk_id"] for hit in dense]
-    # Not the server path. respond/ask serve SYSTEM + user_message.
-    # This harness still measures SYSTEM_ANSWER unless you pass another prompt.
     measured = G.measure(index, question, run_generate, timeout, SYSTEM_ANSWER)
     passages = A.retrieval_context(index, question)["passages"]
     shown = [hit["chunk_id"] for hit in passages]
@@ -111,12 +75,6 @@ def eval_item(index, item, timeout):
 
 
 def judge_phase(rows, timeout):
-    """The judge phase: relevance for every shown passage, key-fact rescue.
-
-    Runs after all answering is done, so the two model families load once each
-    (this box holds one of them in 8 GB at a time). Rows carry the judge's
-    identity so an agreement run can tell two verdict sets apart.
-    """
     import judge as J
 
     for row in rows:

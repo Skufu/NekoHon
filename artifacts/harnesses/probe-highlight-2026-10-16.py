@@ -1,14 +1,3 @@
-"""Golden held-out highlight eval: smallbook_x2f vs smallbook_x2d.
-
-Runs the 24 held-out highlight rows through `answer.explain` with the real
-index and the production generate path (in-process, no server). Scores:
-not refused, the pinned chunk cited, a quote verbatim from the pinned chunk,
-and that quote contains the marked word.
-
-Usage:
-  python artifacts/probes/probe-highlight-2026-10-16.py smallbook_x2d smallbook_x2f
-"""
-
 import json
 import re
 import sys
@@ -18,7 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from engine.answering import answer as A  # noqa: E402
+from engine.answering import answer as A
 
 GOLDEN = ROOT / "artifacts" / "datasets" / "highlight-golden-2026-10-16.jsonl"
 INDEX = ROOT / "data" / "index.json"
@@ -77,7 +66,7 @@ def run_model(index, rows, model):
             body["_pin"] = chunk_id
             scored = score(body, pin.get("text", ""), selection)
             scored["error"] = None
-        except Exception as exc:  # noqa: BLE001 - record and keep going
+        except Exception as exc:
             scored = {
                 "refused": None, "pin_cited": None,
                 "quote_verbatim_in_pin": None, "word_in_quoted_span": None,

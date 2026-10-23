@@ -1,10 +1,3 @@
-"""Stages 5-9 of the text seam: fold, stop words, stemming. No Ollama.
-
-Expected stemming values are the vendored Snowball English (Porter2)
-implementation's measured output for published example families; the full
-record is in `artifacts/reports/stage9-preprocessing.md`.
-"""
-
 import unittest
 
 from engine.retrieval.preprocess import STOPWORDS, fold, normalize, stem, stemmed_words, words
@@ -29,7 +22,6 @@ class FoldTests(unittest.TestCase):
         self.assertEqual(fold(once), once)
 
     def test_normalize_keeps_case_and_typography(self):
-        # The dense view must not adopt the matching fold.
         self.assertEqual(normalize("The ﬁle’s “name”"), "The file’s “name”")
 
 
@@ -43,7 +35,6 @@ class StopwordTests(unittest.TestCase):
             self.assertNotIn(word, STOPWORDS)
 
     def test_the_list_is_lowercase_ascii_words(self):
-        # The SMART list is 571 lines with "would" twice; the set is 570.
         self.assertEqual(len(STOPWORDS), 570)
         for word in STOPWORDS:
             self.assertEqual(word, word.lower())
@@ -71,8 +62,6 @@ class StemmerTests(unittest.TestCase):
             self.assertEqual(stem(word), expected, word)
 
     def test_documented_porter2_exceptions(self):
-        # The algorithm's published exception family: ties/tied/tying,
-        # skies/skis, sky, news, dying/lying.
         for word, expected in (
             ("ties", "tie"),
             ("tied", "tie"),
@@ -106,7 +95,6 @@ class StemmerTests(unittest.TestCase):
             self.assertEqual(stem(once), once, word)
 
     def test_stemmed_words_folds_before_tokenizing(self):
-        # The ligature only becomes "fi" if the fold runs before the tokenizer.
         self.assertEqual(
             stemmed_words("Extracting the ﬁle"), ["extract", "the", "file"]
         )

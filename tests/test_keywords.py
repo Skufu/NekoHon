@@ -1,5 +1,3 @@
-"""Rare-word gate checks. Fake index. No Ollama."""
-
 import unittest
 
 from engine.retrieval.keywords import anchor_words, postings, rare
@@ -43,8 +41,6 @@ class AnchorTests(unittest.TestCase):
         self.assertEqual(anchor_words("what is pragmatic", postings(index)), {"pragmatic"})
 
     def test_a_stopword_never_anchors_even_when_rare_in_book(self):
-        # "actually" is rare in this fake book, but it is a stopword: the
-        # question's rare function words must not expand a paragraph.
         index = make_index(["it actually matters"] + ["filler words here"] * 9)
         self.assertEqual(anchor_words("what does it actually do", postings(index)), set())
 

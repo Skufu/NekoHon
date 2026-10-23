@@ -1,26 +1,3 @@
-"""Judge verdict flip-rate probe. Artifact, not engine.
-
-Re-judges one stored eval-plain answer N times on a frozen prompt and reports
-whether the verdict is stable. Motivated 2026-10-13: the wired-vs-probe
-scorecard delta (6/10 vs 8/10) traced to single verdict flips on identical
-answers, and a frozen-prompt probe then measured ['supported', 'supported',
-'unsupported'] in three consecutive Muse calls at temperature 0 on the same
-borderline item. Single-draw scorecard numbers carry that noise on borderline
-items; run this before claiming a one-question A/B difference.
-
-Run (cloud judge):
-    JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor \\
-    JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key \\
-    python artifacts/harnesses/judge-stability.py \
-        --file evidence/eval-plain/eval-plain-v6-openai-muse-spark-1-3-contributor.json \
-        --match ingestion --n 3
-(a bare basename is auto-found under artifacts/runs/*/)
-
-    --all judges every question in the file (per-question flip rate).
-
-Run (local judge, offline): omit the env, the granite default is used.
-"""
-
 import argparse
 import json
 import sys

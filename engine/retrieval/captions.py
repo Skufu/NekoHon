@@ -1,27 +1,3 @@
-"""Caption-seeded passage recall. Post-v1 retrieval step.
-
-A figure caption is a short, dense name for an artifact. Dense chunk search
-buries the long chunk that names the figure, and the lexical channel can pick
-the wrong neighbor on a tie. When a figure caption matches the question better
-than the best chunk, the best-scoring chunk that names that figure leads the
-passage set. Phase 5 then attaches the figure by its own naming rule.
-
-This runs after fusion (answer.ask): the comparison base is the best chunk
-score in the set, not the first passage's, because fusion reorders and
-position no longer tracks the score. A naming chunk that is already in the
-set is left alone — that guard is load-bearing: measured 2026-10-12, moving
-a present naming chunk to the front broke the transformations golden, because
-a caption outscored the set and fronted a chunk that was already there.
-
-Measured 2026-10-12 ("MAD data landscape"):
-- best chunk ch03-102 "Data Mesh" scores 0.671,
-- figure-4-1 caption "Matt Turck's 2021 MAD data landscape" scores 0.751,
-- ch04-020 names Figure 4-1 and holds the (MAD) landscape sentence; with it
-  leading, the ask quotes it and attaches the figure.
-
-Stdlib only. The embedder is injected so tests never call Ollama.
-"""
-
 import math
 
 from engine.figures import cited_numbers, number_from_id
@@ -29,18 +5,10 @@ from engine.retrieval.retrieve import DEFAULT_EMBEDDER, _dot, cosine, embed_text
 
 
 def caption_seed(index, question, passages, model=DEFAULT_EMBEDDER, embed_fn=None):
-    """Passages with the figure-naming chunk prepended, or unchanged.
-
-    Fires only when a figure caption scores above the best chunk score. A
-    naming chunk already in the passages is left where it is, never
-    duplicated or reordered.
-    """
     figures = index.get("figures") or []
     chunks = index.get("chunks") or []
     if not figures or not chunks or not passages:
         return passages
-    # Fusion reorders, so the base is the best chunk score in the set, not the
-    # first passage's.
     top_score = max((hit.get("score") or 0.0) for hit in passages)
     embed_fn = embed_fn or ollama_embed
     query = embed_texts([question], model, embed_fn, "query")[0]

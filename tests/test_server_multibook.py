@@ -1,5 +1,3 @@
-"""Tests for multi-book server routing, gzip compression, MIME figures, and import."""
-
 import base64
 import gzip
 import http.client
@@ -67,14 +65,12 @@ class ServerMultiBookTest(unittest.TestCase):
         self.assertIn("books", payload)
         self.assertTrue(payload["chunks"])
 
-        # Check quantization book
         status, _, data = self.request("GET", "/chunks?book_id=quantization")
         self.assertEqual(status, 200)
         payload = json.loads(data.decode("utf-8"))
         self.assertEqual(payload["book_id"], "quantization")
         self.assertTrue(payload["chunks"])
 
-        # Check ddia book
         status, _, data = self.request("GET", "/chunks?book_id=ddia")
         self.assertEqual(status, 200)
         payload = json.loads(data.decode("utf-8"))
@@ -93,19 +89,16 @@ class ServerMultiBookTest(unittest.TestCase):
         self.assertTrue(len(data) < len(decompressed))
 
     def test_figures_cover_mime_types(self):
-        # Default FDE cover is PNG
         status, headers, data = self.request("GET", "/figures/cover")
         self.assertEqual(status, 200)
         self.assertEqual(headers.get("Content-Type"), "image/png")
         self.assertTrue(len(data) > 0)
 
-        # Quantization cover is JPG
         status, headers, data = self.request("GET", "/figures/cover?book_id=quantization")
         self.assertEqual(status, 200)
         self.assertEqual(headers.get("Content-Type"), "image/jpeg")
         self.assertTrue(len(data) > 0)
 
-        # DDIA cover is JPG
         status, headers, data = self.request("GET", "/figures/cover?book_id=ddia")
         self.assertEqual(status, 200)
         self.assertEqual(headers.get("Content-Type"), "image/jpeg")
@@ -146,7 +139,6 @@ class ServerMultiBookTest(unittest.TestCase):
             self.assertEqual(seen_books[-1], "ddia")
 
     def test_import_mode_epub(self):
-        # Create a minimal valid EPUB zip in memory
         with tempfile.TemporaryDirectory() as tmpdir:
             epub_path = Path(tmpdir) / "testbook.epub"
             with zipfile.ZipFile(epub_path, "w") as zf:

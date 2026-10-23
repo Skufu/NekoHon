@@ -1,13 +1,3 @@
-"""The answer mode: free generation from the retrieved passages.
-
-parse_answered turns the model's prose and [Ch. tags into the contract body.
-The quote check is a meter here, not a gate: unbacked quotation marks are
-stripped, a zero-overlap sentence is left uncited rather than pinned to a
-guess, and a refusal is prompted, never fabricated from a failed check.
-
-Pins and fixtures live only in this test.
-"""
-
 import unittest
 
 from engine.answering import answer as A
@@ -110,8 +100,6 @@ class ParseAnsweredTest(unittest.TestCase):
         self.assertEqual(len(body["citations"]), 1)
 
     def test_two_chapter_tag_still_cites(self):
-        # The mask clears the period in the tag's second "Ch."; a split inside
-        # the mask would drop the claim and empty the citations.
         body = A.parse_answered(
             "The endpoint streams data straight past a database [Ch. 2, Ch. 7].",
             PASSAGES,
@@ -120,8 +108,6 @@ class ParseAnsweredTest(unittest.TestCase):
         self.assertEqual([c["chunk_id"] for c in body["citations"]], ["c1-001"])
 
     def test_mid_sentence_span_expands_to_the_whole_sentence(self):
-        # The copied run starts mid-sentence; the quote is the sentence that
-        # holds it, never the bare run (a lowercase fragment).
         body = A.parse_answered(
             "The CDC approach focuses on row-level changes from a database "
             "so downstream systems stay in sync. [Ch. 1]",
@@ -134,8 +120,6 @@ class ParseAnsweredTest(unittest.TestCase):
         )
 
     def test_span_outside_any_sentence_keeps_the_old_run(self):
-        # The only sentence holding the run is under KEY_MIN_CHARS, so the
-        # sentence list drops it; the run itself is the fallback.
         short = [hit("c9-009", "9", "Sync note\nrow-level changes from a database")]
         body = A.parse_answered(
             "The approach focuses on row-level changes from a database here. [Ch. 9]",
@@ -144,9 +128,6 @@ class ParseAnsweredTest(unittest.TestCase):
         self.assertIn("row-level changes from a database", body["citations"][0]["quote"])
 
     def test_footnote_glue_does_not_merge_into_the_next_sentence(self):
-        # "Maxime Beauchemin4" has no sentence end, so the attribution used to
-        # run into the next sentence; the split drops the attribution piece
-        # and the quote is the definition itself.
         glued = hit(
             "c1-003",
             "1",
@@ -165,14 +146,7 @@ class ParseAnsweredTest(unittest.TestCase):
             "management of data.",
         )
 
-
     def test_a_stray_run_does_not_beat_the_defining_sentence(self):
-        # Measured 2026-10-13 on "explain data engineering in simple words":
-        # the draft paraphrased ch01-005's definition, but its longest copied
-        # run ("by data scientists, analysts, and other", 41 chars) sits in
-        # the enumeration sentence, so the quote -- and with it the plain
-        # register's rewrite source -- was the enumeration. The quote must be
-        # the sentence the claim overlaps most, span or no span.
         chunk = hit(
             "c1-004",
             "1",
@@ -235,9 +209,6 @@ class RespondTest(unittest.TestCase):
         )
         self.assertFalse(body["refused"])
         self.assertIn("Not in this book.", seen["system"])
-        # 2026-10-15 prompt alignment: answer mode serves the ask-shaped
-        # prompt (the student is trained on it); it used to ask for "your
-        # own words", which the student followed when not over-memorized.
         self.assertIn("Quote first.", seen["system"])
         self.assertIn("Copy one sentence from a passage", seen["user"])
         self.assertIn("chunk_id=c1-001", seen["user"])
@@ -264,8 +235,6 @@ class RespondTest(unittest.TestCase):
         self.assertEqual(called, [])
 
     def test_plain_register_rewrites_the_whole_sentence(self):
-        # A citation quote can never be a bare copied run, so the rewriter is
-        # never asked to rewrite a fragment into a fragment.
         seen = []
 
         def fake_search(index, question, k=10):
@@ -294,7 +263,6 @@ class RespondTest(unittest.TestCase):
             ],
         )
 
-
     def test_an_uncited_answer_gets_one_prefilled_retry(self):
         calls = []
 
@@ -303,7 +271,7 @@ class RespondTest(unittest.TestCase):
 
         def fake_generate(system, user, model, prefill=""):
             if user.startswith('User query: "'):
-                return "keep in sync"  # the spell probe: not a same-count fix
+                return "keep in sync"
             calls.append(prefill)
             if prefill:
                 return '1] "streams row-level changes from a database"'
@@ -347,7 +315,7 @@ class RespondTest(unittest.TestCase):
 
         def fake_generate(system, user, model, prefill=""):
             if user.startswith('User query: "'):
-                return "what does cdc do?"  # the spell probe: no change
+                return "what does cdc do?"
             calls.append(prefill)
             return REFUSAL
 

@@ -69,7 +69,6 @@ _PROMPT_LEAKAGE_RE = re.compile(r"\b(?:do\s+not|don't|never)\s+(?:say|use|repeat
 
 
 def _has_content_word_overlap(s1: str, s2: str, exclude: str = "") -> bool:
-    """True if s1 and s2 share at least one non-stopword content word outside exclude."""
     if not s1 or not s2:
         return False
     ex_words = {w.lower() for w in words(exclude)} if exclude else set()
@@ -79,20 +78,15 @@ def _has_content_word_overlap(s1: str, s2: str, exclude: str = "") -> bool:
 
 
 def _is_coherent_gloss(gloss: str, quote: str = "", question: str = "") -> bool:
-    """Strict guard rejecting gibberish, token repetition loops, meta-commentary, or fragments."""
     if not gloss or not isinstance(gloss, str):
         return False
     text = gloss.strip()
-    # a) len < 25
     if len(text) < 25:
         return False
-    # b) gibberish markers: sentence digits or stray standalone digits after nouns
     if _GIBBERISH_DIGITS_RE.search(text):
         return False
     if _GIBBERISH_NOUN_DIGITS_RE.search(text):
         return False
-    # c) any non-stopword content word (len >= 4) appears >= 4 times in a single sentence
-    #    or >= 4 times in a 25-word window
     sentences = [s.strip() for s in _SENTENCE_SPLIT_RE.split(text) if s.strip()]
     for s in sentences:
         s_words = [w.lower() for w in words(s) if len(w) >= 4 and w.lower() not in STOPWORDS]
@@ -110,22 +104,16 @@ def _is_coherent_gloss(gloss: str, quote: str = "", question: str = "") -> bool:
             counts[w] = counts.get(w, 0) + 1
             if counts[w] >= 4:
                 return False
-    # d) adjacent repeated words
     if _ADJACENT_REPEATED_WORD_RE.search(text):
         return False
-    # e) sentence ends with auxiliary/determiner/preposition
     if _SENTENCE_DANGLING_END_RE.search(text):
         return False
-    # f) meta-commentary non-answer
     if _META_COMMENTARY_RE.search(text):
         return False
-    # Pointer / meta-location non-answers that tell the reader where something is instead of answering
     if _POINTER_META_LOCATION_RE.search(text):
         return False
-    # Prompt leakage non-answers:
     if not text.lower().startswith("the passages do not mention") and _PROMPT_LEAKAGE_RE.search(text):
         return False
-    # List enumeration questions check
     if question and _list_ask(question, question):
         if "," not in text and " and " not in text.lower() and ";" not in text:
             return False
@@ -134,7 +122,6 @@ def _is_coherent_gloss(gloss: str, quote: str = "", question: str = "") -> bool:
             t_words = {w.lower() for w in words(text) if len(w) >= 3 and w.lower() not in STOPWORDS}
             if len(q_words & t_words) < 2:
                 return False
-    # Quote repetition:
     if quote:
         norm_t = re.sub(r"[\s\"'“”]+", " ", text).strip().lower()
         norm_q = re.sub(r"[\s\"'“”]+", " ", quote).strip().lower()
@@ -407,7 +394,6 @@ def _plain_answer_gloss(question, quote, chunk_obj, is_live, generate_fn, model)
 def _ensure_answer_gloss(index, body, question, passages, is_live=False,
                          history=None, selection="", heading="", model=ANSWER_MODEL,
                          generate_fn=None):
-    """Ensure every non-refused answer has a crisp, informative 2nd line gloss."""
     if not body or body.get("refused") or not body.get("citations") or not passages:
         return body
 

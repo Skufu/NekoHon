@@ -1,25 +1,3 @@
-"""Secret scan for this repo. Artifact, not engine.
-
-Every blob in git history and every tracked file is checked against two sets:
-
-- the actual secret values on this machine, read in-process and never
-  printed: `.judge-key` in the repo, `~/.config/opencode/opencode.json`,
-  `~/.local/share/opencode/auth.json`, `~/.hermes/.env` (only values whose
-  field name says key/token/secret/auth);
-- the common credential formats: `sk-`, `gh*_`, `github_pat_`, `AIza`,
-  `AKIA`, `hf_`, `gsk_`, `xox*`, `xai-`, `glpat-`, PEM private keys,
-  key/token/secret assignments, `Bearer <token>`.
-
-Hits are printed masked (first 4 chars + length). Exit 1 when anything is
-found, 0 otherwise, so the scan can gate a commit.
-
-Blind spot, stated honestly: a key with no recognizable prefix that is also
-not among this machine's known values is not caught. Extend `known_values`
-when a new provider key lands on the box.
-
-Run: python artifacts/harnesses/secret-scan.py [--repo PATH]
-"""
-
 import argparse
 import json
 import re

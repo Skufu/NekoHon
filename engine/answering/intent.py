@@ -1,13 +1,3 @@
-"""Intent Engine: Book-agnostic highlight and query intent classification. stdlib only.
-
-Classifies any reader highlight and optional query inside an active chunk and its
-neighborhood into one of 4 structural intents:
-1. CONCEPT_TERM: short noun phrase, technical term, acronym, or section heading.
-2. VAGUE_FRAGMENT: clause or predicate fragment starting with copula/auxiliary/preposition.
-3. MULTI_SENTENCE_PASSAGE: multi-sentence selection or passage (>= 140 chars).
-4. AUTHOR_QUESTION: rhetorical or evaluative question ending with '?'.
-"""
-
 import re
 from engine.retrieval.preprocess import STOPWORDS, stem, words
 
@@ -63,7 +53,6 @@ STRUCTURAL_HEADINGS = frozenset({
 
 
 def extract_core_concept(selection: str, heading: str = "") -> str:
-    """Extract substantive core concept from a highlight or heading by stripping structural prefixes."""
     text = (selection or "").strip().strip("\"'“”")
     if not text and heading:
         text = heading.strip().strip("\"'“”")
@@ -79,7 +68,6 @@ def extract_core_concept(selection: str, heading: str = "") -> str:
 
 
 def split_sentences(text: str) -> list[str]:
-    """Split text into sentences, honoring paragraph and sentence boundaries."""
     raw = (text or "").strip()
     if not raw:
         return []
@@ -105,22 +93,17 @@ def split_sentences(text: str) -> list[str]:
 
 
 def classify_intent(selection: str, heading: str = "", chunk: dict = None) -> str:
-    """Classify the highlight into CONCEPT_TERM, VAGUE_FRAGMENT, MULTI_SENTENCE_PASSAGE, or AUTHOR_QUESTION."""
     sel = (selection or "").strip()
     if not sel:
         return INTENT_CONCEPT_TERM
 
-    # 1. Author question: ends with '?'
     if sel.endswith("?"):
         return INTENT_AUTHOR_QUESTION
 
-    # 2. Multi-sentence passage: >= 140 chars or 2+ distinct sentences
     sents = [s for s in re.split(r"(?<=[.!?])\s+", sel) if len(s.strip()) > 10]
     if len(sel) >= 140 or len(sents) >= 2:
         return INTENT_MULTI_SENTENCE
 
-    # 3. Vague fragment: clause/predicate fragment (2–10 words) starting with copula/aux/prep
-    # or containing an evaluative predicate
     sel_words = sel.split()
     word_count = len(sel_words)
     if 2 <= word_count <= 10:
@@ -128,7 +111,6 @@ def classify_intent(selection: str, heading: str = "", chunk: dict = None) -> st
         if first_word in COPULA_AUX_PREP or EVALUATIVE_PREDICATE_RE.search(sel):
             return INTENT_VAGUE_FRAGMENT
 
-    # 4. Concept term: short noun phrase/term/acronym (1-6 words) or in heading
     head = (heading or (chunk.get("heading") if chunk else "") or "").strip().lower()
     if head and (sel.lower() in head or head in sel.lower()):
         return INTENT_CONCEPT_TERM
@@ -139,7 +121,6 @@ def classify_intent(selection: str, heading: str = "", chunk: dict = None) -> st
 
 
 def extract_enclosing_subject(sentence: str, selection: str) -> str:
-    """Find selection inside sentence and extract the grammatical subject before it."""
     if not sentence or not selection:
         return ""
     m = re.search(re.escape(selection.strip()), sentence, re.IGNORECASE)
@@ -158,7 +139,6 @@ def extract_enclosing_subject(sentence: str, selection: str) -> str:
 
 
 def select_substantive_anchor_sentence(chunk: dict, neighbors: list, selection: str, core_concept: str = "") -> tuple[dict, str]:
-    """Select the most substantive definitional anchor sentence, rejecting meta-transition sentences."""
     if not chunk:
         return {}, ""
 
@@ -220,7 +200,6 @@ def select_substantive_anchor_sentence(chunk: dict, neighbors: list, selection: 
 
 
 def analyze_intent(selection: str, heading: str = "", chunk: dict = None, neighbors: list = None) -> dict:
-    """Analyze reader selection and context to return complete structural intent metadata."""
     intent_type = classify_intent(selection, heading, chunk)
     core_concept = extract_core_concept(selection, heading)
     chosen_chunk = chunk
@@ -288,7 +267,6 @@ def analyze_intent(selection: str, heading: str = "", chunk: dict = None, neighb
 
 
 def _is_redundant_followup(cand_q: str, clean_q: str, clean_sel: str = "") -> bool:
-    """True when cand_q has >= 60% stemmed content-word overlap with the user question/selection."""
     if not cand_q:
         return True
     c_words = [w.lower() for w in words(cand_q) if len(w) >= 3 and w.lower() not in STOPWORDS]
@@ -305,7 +283,6 @@ def _is_redundant_followup(cand_q: str, clean_q: str, clean_sel: str = "") -> bo
 
 
 def _is_example_or_tool_mention(term: str, text: str) -> bool:
-    """True if term appears in a sentence with example, tool, platform, or vendor cues."""
     if not term or not text:
         return False
     t_low = term.lower()
@@ -329,7 +306,6 @@ def _is_example_or_tool_mention(term: str, text: str) -> bool:
 
 
 def _has_contrast_in_passage(term: str, text: str) -> bool:
-    """True if term appears in a sentence (or adjacent sentence) containing contrast markers."""
     if not term or not text:
         return False
     t_low = term.lower()

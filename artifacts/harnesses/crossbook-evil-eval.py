@@ -1,18 +1,3 @@
-"""Cross-Book Evil Stress Eval Harness 2026-10-18.
-
-Evaluates multi-turn scenarios across multiple books (`quantization`, `ddia`)
-and adversarial cross-book traps.
-Simulates the exact payload construction of `web/lib/store.ts` with `book_id`.
-Enforces strict quality gates, cross-book isolation, false-premise defense,
-and transparently documents all passes and failures.
-
-Usage:
-    python artifacts/harnesses/crossbook-evil-eval.py
-    python artifacts/harnesses/crossbook-evil-eval.py --id crossbook-01
-    python artifacts/harnesses/crossbook-evil-eval.py --category crossbook_isolation_and_shifts
-    python artifacts/harnesses/crossbook-evil-eval.py --limit 10
-"""
-
 import argparse
 import json
 import os
@@ -34,7 +19,6 @@ SERVER_URL = "http://127.0.0.1:8000/ask"
 
 
 def is_self_contained_new_topic(question: str) -> bool:
-    """Replication of web/lib/store.ts isSelfContainedNewTopic()."""
     q = question.strip()
     lower = q.lower()
     starts_with_def = bool(re.match(r"^(?:what is|what are|define|who is)\b", q, re.I))
@@ -85,8 +69,6 @@ def evaluate_turn(turn_idx, turn_spec, response, expected, finished_turns=None):
         reasons.append(f"Answer refused with '{REFUSAL}'")
         return reasons
 
-    # Strict Automatic Quality Gates on every non-refused answer:
-    # 1. Truncated Quote Gate
     quote = ""
     if citations and isinstance(citations, list) and len(citations) > 0:
         first_cite = citations[0]
@@ -97,7 +79,6 @@ def evaluate_turn(turn_idx, turn_spec, response, expected, finished_turns=None):
             if re.search(r"\b(?:on|of|in|to|for|with|by|at|from|the|a|an|and|or|as|not|simply|large|into|such|than)\s*$", quote, re.I):
                 reasons.append(f"Truncated quote: dangling word at end ({quote!r})")
 
-    # 2. Leaky Internal Prefix / Boilerplate Gate
     leaky_phrases = [
         "The passages do not mention Regarding",
         "Regarding ",
@@ -114,7 +95,6 @@ def evaluate_turn(turn_idx, turn_spec, response, expected, finished_turns=None):
         if gloss.lower().startswith(("[ch.", "[chapter")):
             reasons.append(f"Leaky 2nd-line gloss starts with chapter citation: '{gloss[:35]}...'")
 
-    # 3. Quote-Repeating Gloss Gate
     if len(lines) < 2:
         reasons.append("Missing 2nd-line gloss")
     else:
@@ -126,7 +106,6 @@ def evaluate_turn(turn_idx, turn_spec, response, expected, finished_turns=None):
         if norm_quote_ws and (norm_gloss_ws == norm_quote_ws or (len(norm_gloss_ws) > 30 and norm_gloss_ws in norm_quote_ws)):
             reasons.append("Gloss repeats quote verbatim")
 
-    # 4. Chapter checks
     exp_chapter = expected.get("chapter")
     if exp_chapter:
         if not cited_chapters:
@@ -134,19 +113,16 @@ def evaluate_turn(turn_idx, turn_spec, response, expected, finished_turns=None):
         elif not any(ch == exp_chapter for ch in cited_chapters):
             reasons.append(f"Cited chapter(s) {cited_chapters} != expected Ch. {exp_chapter}")
 
-    # 5. Must contain strings
     must_contain = expected.get("must_contain") or []
     for mc in must_contain:
         if mc.lower() not in answer_text.lower():
             reasons.append(f"Answer missing required concept '{mc}'")
 
-    # 6. Forbidden terms
     forbidden_terms = expected.get("forbidden_terms") or []
     for ft in forbidden_terms:
         if ft.lower() in answer_text.lower():
             reasons.append(f"Answer contains forbidden term/phrase '{ft}'")
 
-    # 7. Figure attachment check
     exp_figure = expected.get("figure_attached")
     if exp_figure:
         if not any(f_id == exp_figure for f_id in attached_fig_ids):
@@ -247,7 +223,6 @@ def run_scenario(scenario):
         else:
             raise ValueError(f"Unknown action: {action}")
 
-        # Execute
         t0 = time.perf_counter()
         try:
             resp = post_http(payload)
@@ -303,7 +278,6 @@ def main():
     scenarios = json.loads(DATASET_PATH.read_text(encoding="utf-8"))
     print(f"Loaded {len(scenarios)} cross-book evil scenarios from {DATASET_PATH.name}")
 
-    # Check server health
     try:
         req = urllib.request.Request("http://127.0.0.1:8000/health")
         with urllib.request.urlopen(req, timeout=5) as resp:

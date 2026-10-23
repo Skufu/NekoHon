@@ -1,8 +1,3 @@
-"""EPUB -> data/index.json + data/figures/. No vectors, no Ollama.
-
-Stdlib only. Records are JSON. Pictures stay files. No pickle.
-"""
-
 import argparse
 import json
 import re
@@ -28,10 +23,6 @@ SKIP_TAGS = {"script", "style", "head"}
 HEADING_TAGS = {"h1", "h2", "h3", "h4"}
 BLOCK_TAGS = {"p", "li", "blockquote", "pre", "h1", "h2", "h3", "h4", "h5"}
 
-# Non-teaching docs: the index and front matter steal search slots. Preface,
-# part openers, chapters, and appendices stay.
-# Non-teaching docs: the index and front matter steal search slots. Preface,
-# part openers, chapters, and appendices stay.
 NON_TEACHING_IDS = {
     "cover",
     "dedication01",
@@ -47,12 +38,8 @@ NON_TEACHING_HEADING_RE = re.compile(
     re.I,
 )
 
-# A hidden marker wraps a figure's xref href so the citing-paragraph search can
-# find the figure. Stored text drops it and keeps the link words.
 MARKER = "\x00"
 _MARKER_RE = re.compile(f"{MARKER}[^{MARKER}]*{MARKER}")
-
-
 
 
 def _unmarked(text):
@@ -60,12 +47,6 @@ def _unmarked(text):
 
 
 class ChapterParser(HTMLParser):
-    """Walk one spine document into blocks, tables, and figure records.
-
-    A block is a heading or a paragraph. A table is one whole block, never split.
-    A figure keeps its caption (h6 inside the figure, else img alt, else "").
-    """
-
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.blocks = []
@@ -368,9 +349,6 @@ def _mentions_figure(text):
 
 
 SENTENCE_END = re.compile(r"(?<=[.!?])\s+")
-# A sentence does not end inside these. Being liberal here is the safe side:
-# a missed merge only makes a piece longer, while a false split becomes a
-# chunk that starts mid-sentence.
 ABBREVIATIONS = (
     "e.g.", "i.e.", "et al.", "vs.", "etc.", "cf.", "approx.", "Fig.", "Figs.",
     "Dr.", "Mr.", "Ms.", "Mrs.", "Jr.", "Sr.", "St.", "Inc.", "Ltd.", "Co.",
@@ -379,11 +357,6 @@ INITIAL = re.compile(r"(?:^|\s)[A-Z]\.$")
 
 
 def _sentences(text):
-    """Sentences of a block. Known abbreviations and initials do not end one.
-
-    A false boundary here matters: pieces are cut only where this function says
-    a sentence ends, so a wrong split becomes a chunk that starts mid-sentence.
-    """
     sentences = []
     for part in SENTENCE_END.split((text or "").strip()):
         part = part.strip()
@@ -399,7 +372,6 @@ def _sentences(text):
 
 
 def _by_words(text):
-    """Fallback for one sentence past the cap: it has to be cut somewhere."""
     pieces = []
     start = 0
     while start < len(text):
@@ -416,7 +388,6 @@ def _by_words(text):
 
 
 def _pieces(text):
-    """Text as pieces no longer than the cap, cut only at sentence ends."""
     if len(text) <= CHUNK_MAX_CHARS:
         return [text]
     pieces = []
@@ -439,13 +410,6 @@ def _pieces(text):
 
 
 def _sentence_tail(text, limit):
-    """Trailing whole sentences, up to the limit. Never a mid-sentence cut.
-
-    A single trailing sentence longer than the limit yields nothing. A citation
-    list has no sentence ends at all, so its whole text reads as one sentence;
-    taking that as the overlap made every chunk the previous chunk plus more,
-    which is how chunks grew past 5000 characters.
-    """
     kept = []
     size = 0
     for sentence in reversed(_sentences(text)):
@@ -459,15 +423,9 @@ def _sentence_tail(text, limit):
 
 
 def _section_chunks(heading, body_blocks):
-    """One section. Overlap only when the section is longer than the cap.
-
-    Tables stay one piece even if they are longer than the cap.
-    """
     pieces = []
     for block in body_blocks:
         text = _stored(block["text"])
-        # A table stays one piece even past the cap: a cut table is worse than
-        # a long chunk.
         if block["kind"] == "table":
             pieces.append(text)
             continue
@@ -500,9 +458,6 @@ def _section_chunks(heading, body_blocks):
         extra = len(piece) + (2 if current else 0)
         if current and current_len + extra > budget:
             flush()
-            # Overlap only because this section did not fit in one chunk. The
-            # tail comes from the body, not the chunk: a heading in the
-            # overlap would repeat the heading inside the next chunk.
             if chunks:
                 tail = _sentence_tail(last_body, CHUNK_OVERLAP_CHARS)
                 if tail:
@@ -524,12 +479,6 @@ def _trail_text(trail):
 
 
 def _chunk_chapter(blocks):
-    """Sections as units: the chunk text plus where it came from.
-
-    `section` is the heading trail and `anchor` is the heading's own id. Both
-    are metadata only: joining them to the text would move every vector that
-    was built from it.
-    """
     sections = []
     trail = []
     heading = ""
@@ -558,11 +507,6 @@ def _chunk_chapter(blocks):
 
 
 def _attach_paragraphs(figures, blocks):
-    """Nearest paragraph that points at the figure, else empty.
-
-    A pointer is an xref href matching the figure anchor, or the words
-    Figure / Fig. in the same stretch of text.
-    """
     paras = [b for b in blocks if b["kind"] == "para"]
     for figure in figures:
         anchor = figure["anchor"]
@@ -632,7 +576,6 @@ def update_books_catalog(book_id, title, author, index_path, figures_dir, chunks
 
 
 def ingest_epub(epub_path=BOOK, figures_dir=None, write_images=True, book_id=None):
-    """Return the index dict. Write images when figures_dir is set."""
     epub_path = Path(epub_path)
     if book_id is None:
         if str(epub_path.resolve()) == str(BOOK.resolve()):
@@ -651,7 +594,6 @@ def ingest_epub(epub_path=BOOK, figures_dir=None, write_images=True, book_id=Non
         names = set(zf.namelist())
         spine_docs, meta = _spine(zf)
 
-        # Cover extraction
         cover_relpath = meta.get("cover_relpath")
         if cover_relpath and cover_relpath in names:
             cover_ext = Path(cover_relpath).suffix.lower() or ".png"
@@ -670,7 +612,6 @@ def ingest_epub(epub_path=BOOK, figures_dir=None, write_images=True, book_id=Non
 
             raw = zf.read(path).decode("utf-8")
 
-            # Skip non-teaching sections by data-type or heading/title
             if re.search(r'data-type=["\'](?:titlepage|copyright-page|dedication|colophon|toc)["\']', raw[:1500], re.I):
                 continue
 

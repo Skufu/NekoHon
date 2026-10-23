@@ -1,14 +1,3 @@
-"""Guard: the logic modules must not be fitted to one book. No Ollama.
-
-A retrieval or answer module that names a chunk id, a figure id, or a book id
-has stopped being a system and become a lookup table. Those literals belong in
-tests, pins, and the battery. Docstrings are exempt: the repo records measured
-evidence there, including chunk ids.
-
-ingest.py is deliberately not guarded. Naming the book file and the book id is
-its job.
-"""
-
 import ast
 import re
 import unittest
@@ -52,7 +41,6 @@ FORBIDDEN = (
 
 
 def _docstrings(tree):
-    """The id() of every Constant that is a module, class, or function docstring."""
     found = set()
     holders = (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)
     for node in ast.walk(tree):
@@ -69,7 +57,6 @@ def _docstrings(tree):
 
 
 def code_literals(source):
-    """(text, line) for every string literal that is not a docstring."""
     tree = ast.parse(source)
     skip = _docstrings(tree)
     for node in ast.walk(tree):

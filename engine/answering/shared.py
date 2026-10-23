@@ -89,13 +89,7 @@ FIGURE_REFERENCE = re.compile(r"\((?:figure|fig\.)\s*[A-Za-z]?\d+-\d+\)", re.I)
 
 KEY_MIN_CHARS = 40
 SPAN_MIN_CHARS = 40
-# A complete sentence may answer even when shorter than SPAN_MIN_CHARS:
-# "Everything fails, all the time." is 30 characters. Sentence shape is the
-# test; a fragment or a bare heading stays a refusal.
 MIN_QUOTE_CHARS = 20
-# One screen of quoted text (about 16 lines at 75 chars). A paragraph over this
-# keeps the model's quote instead of the whole paragraph. Chosen for
-# readability; not tuned to any ask.
 PARAGRAPH_CAP = 1200
 
 
@@ -116,7 +110,7 @@ CANONICAL_ACRONYMS = {
     "etl": "ETL", "elt": "ELT", "cdc": "CDC",
     "dag": "DAG", "dags": "DAGs", "api": "API", "apis": "APIs",
     "sla": "SLA", "slas": "SLAs", "slo": "SLO", "slos": "SLOs", "sli": "SLI",
-    "crud": "CRUD", "acid": "ACID", "base": None,  # skip common English word 'base'
+    "crud": "CRUD", "acid": "ACID", "base": None,
     "json": "JSON", "csv": "CSV", "xml": "XML", "yaml": "YAML",
     "http": "HTTP", "https": "HTTPS", "tcp": "TCP", "udp": "UDP",
     "tls": "TLS", "dns": "DNS", "bgp": "BGP", "iot": "IoT",
@@ -142,7 +136,6 @@ _ACRONYM_PATTERN = re.compile(
 
 
 def fix_acronym_casing(text: str) -> str:
-    """Normalize casing of common technical acronyms (e.g. Ddr5 -> DDR5, Ssds -> SSDs)."""
     if not text:
         return text
 
@@ -154,7 +147,6 @@ def fix_acronym_casing(text: str) -> str:
 
 
 def _clean_boilerplate_gloss(gloss, selection=""):
-    """Clean robotic boilerplate or formulaic crutches from a gloss."""
     if not gloss:
         return ""
     text = (gloss or "").strip()
@@ -218,13 +210,10 @@ def _candidate_sentences_cached(text, heading=""):
         s_strip = s.strip()
         if not s_strip:
             continue
-        # a) matches heading.strip() (case-insensitive)
         if head_norm and s_strip.lower() == head_norm:
             continue
-        # b) matches r"^Chapter\s+\d+\b" and does not end with ., !, or ?
         if _CHAPTER_PREFIX_RE.match(s_strip) and not _TERMINAL_PUNCT_RE.search(s_strip):
             continue
-        # c) does not end with terminal punctuation when there are other sentences that DO
         if has_terminal and not _TERMINAL_PUNCT_RE.search(s_strip):
             continue
         filtered.append(s_strip)
@@ -235,9 +224,6 @@ def _candidate_sentences(text, heading=""):
     return list(_candidate_sentences_cached(text, heading))
 
 
-# A footnote marker glued to the citing line ("Maxime Beauchemin4") has no
-# sentence-ending punctuation, so whitespace collapse runs the attribution
-# into the next sentence. The split view only: the chunk text is untouched.
 FOOTNOTE_GLUE = re.compile(r"\b[A-Z][a-z]{2,}(\d{1,3})(?=\s+[A-Z][a-z])")
 
 
@@ -412,12 +398,10 @@ FRAMING_WORDS = frozenset((
 
 
 def _extract_query_entities(q: str, heading: str = "") -> list[str]:
-    """Extract specific multi-word entities, acronyms, or non-framing proper nouns from query."""
     if not q:
         return []
     normalized_q = fix_acronym_casing(q)
     entities = []
-    # 1. Multi-word capitalized phrases or hyphenated / numbered terms: "Google Ads", "Type 2", "TLS 1.3", "BWA-MEM"
     for m in _ENTITY_PHRASE_RE.finditer(normalized_q):
         val = m.group(1).strip()
         parts = val.split()
@@ -429,12 +413,10 @@ def _extract_query_entities(q: str, heading: str = "") -> list[str]:
                 entities.append(val)
         elif len(parts) == 1 and parts[0].lower() not in STOPWORDS and parts[0].lower() not in _QUESTION_STARTERS and parts[0].lower() not in _GENERIC_ENTITY_WORDS:
             entities.append(parts[0])
-    # 2. Acronyms (e.g. ML, ETL, CRM, CDP, API)
     for m in _ACRONYM_MATCH_RE.finditer(normalized_q):
         val = m.group(1).strip()
         if val.lower() not in STOPWORDS and val not in entities:
             entities.append(val)
-    # 3. Capitalized single words or technical terms (not starters/stopwords/generic category words)
     words_list = normalized_q.split()
     for w in words_list:
         w_clean = _STRIP_PUNCT_RE.sub("", w)
@@ -448,7 +430,6 @@ def _extract_query_entities(q: str, heading: str = "") -> list[str]:
         ):
             if not any(w_clean in ent for ent in entities):
                 entities.append(w_clean)
-    # Filter out entities that are completely inside heading
     head_low = heading.lower() if heading else ""
     return [e for e in entities if not head_low or e.lower() not in head_low]
 
