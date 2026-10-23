@@ -5,7 +5,7 @@ import { formatChapter } from "@/lib/anchor";
 import type { Chunk } from "@/lib/engine";
 import { useAsk } from "@/lib/store";
 
-export type RailProps = {
+type RailProps = {
   chunks: Chunk[];
   activeChunkId: string;
   scrollProgress: number;

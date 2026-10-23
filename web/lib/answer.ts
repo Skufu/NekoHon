@@ -8,12 +8,12 @@ import { quotePattern } from "./quote";
  *  gloss, then the quote in italics with its chapter chip; the words are the
  *  engine's own, only the order and styling change (owner decision
  *  2026-10-15). */
-export type AnswerItem =
+type AnswerItem =
   | { kind: "gloss"; text: string }
   | { kind: "quote"; citation: Citation; text: string }
   | { kind: "disclosure"; text: string };
 
-export type AnswerSplit =
+type AnswerSplit =
   | { ok: true; items: AnswerItem[] }
   | { ok: false; items: AnswerItem[] };
 

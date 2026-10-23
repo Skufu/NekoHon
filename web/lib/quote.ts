@@ -1,7 +1,7 @@
 /** Quote matching, shared by the reader's highlight and the answer parser.
  *  Pure functions: a regex for a verbatim quote, whitespace-insensitive. */
 
-export function escapeRegExp(text: string) {
+function escapeRegExp(text: string) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 

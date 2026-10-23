@@ -5,7 +5,7 @@ import AnswerView from "@/components/AnswerView";
 import { formatChapter } from "@/lib/anchor";
 import { useAsk, type GlossItem } from "@/lib/store";
 
-export type MarginCardProps = {
+type MarginCardProps = {
   gloss: GlossItem;
   top: number;
   placed: boolean;

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import type { Chunk } from "@/lib/engine";
 import { useAsk } from "@/lib/store";
 
-export type ComposerProps = {
+type ComposerProps = {
   getAnchorChunk: () => { chunkId: string; chapter: string; heading?: string };
   chunks?: Chunk[];
 };

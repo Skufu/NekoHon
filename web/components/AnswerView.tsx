@@ -18,14 +18,14 @@ function chipLabel(citation: Citation, index: number, numbered: boolean) {
   return numbered ? `${index} \u00b7 ${chapter}` : chapter;
 }
 
-export type AskAnswerSplit = {
+type AskAnswerSplit = {
   quote?: string;
   chapter?: string;
   gloss: string;
   disclosure?: string;
 };
 
-export function splitAskAnswer(answer: string): AskAnswerSplit {
+function splitAskAnswer(answer: string): AskAnswerSplit {
   let text = answer || "";
   let disclosure: string | undefined;
 

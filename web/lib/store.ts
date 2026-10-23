@@ -10,10 +10,10 @@ import {
 import type { MarkerColor, UserHighlight } from "./anchor";
 
 export type ThemeName = "night" | "paper" | "sepia" | "snow" | "ink";
-export type PenName = "vermilion" | "cobalt" | "moss" | "graphite";
+type PenName = "vermilion" | "cobalt" | "moss" | "graphite";
 export type { MarkerColor, UserHighlight } from "./anchor";
 
-export type Status =
+type Status =
   | "idle"
   | "loading"
   | "streaming"
@@ -30,21 +30,14 @@ export type Highlight = {
   nonce?: number;
 };
 
-export type Anchor = {
-  chunkId: string;
-  chapter: string;
-  quote: string;
-  question: string;
-};
-
-export type ThreadTurn = {
+type ThreadTurn = {
   question: string;
   answer: string;
   refused: boolean;
   citations: { chunk_id: string; chapter: string; quote: string }[];
 };
 
-export type GlossTurn = {
+type GlossTurn = {
   id: string;
   mode: "answer" | "ask" | "explain" | "quiz";
   question: string;
@@ -76,7 +69,7 @@ export type GlossItem = {
   customHeight?: number;
 };
 
-export type GlossAnchor = {
+type GlossAnchor = {
   id: string;
   chunkId: string;
   endChunkId?: string;
@@ -112,7 +105,7 @@ function flightKey(glossId: string, turnId: string) {
   return `${glossId}:${turnId}`;
 }
 
-export function buildGlossAnchors(glosses: GlossItem[]): {
+function buildGlossAnchors(glosses: GlossItem[]): {
   anchors: GlossAnchor[];
   byChunk: Record<string, GlossAnchor[]>;
 } {
@@ -139,7 +132,7 @@ export function buildGlossAnchors(glosses: GlossItem[]): {
   return { anchors, byChunk };
 }
 
-export function buildHighlightsByChunk(highlights: UserHighlight[]): Record<string, UserHighlight[]> {
+function buildHighlightsByChunk(highlights: UserHighlight[]): Record<string, UserHighlight[]> {
   const byChunk: Record<string, UserHighlight[]> = {};
   for (const h of highlights) {
     if (!byChunk[h.chunkId]) byChunk[h.chunkId] = [];
@@ -222,31 +215,12 @@ type AskStore = {
   startQuiz: (anchorChunkId: string, anchorChapter: string) => string;
   askFollowUp: (glossId: string, followUpQuestion: string) => void;
 
-  // Top-level backwards-compatible fields
   mode: "answer" | "ask";
-  question: string;
-  status: Status;
-  streamText: string;
-  resetting: boolean;
-  body: AnswerBody | null;
-  error: string;
-  elapsed: number;
-  firstToken: number | null;
-  latency: number | null;
   highlight: Highlight | null;
-  highlightNote: string;
-  anchor: Anchor | null;
-  anchored: boolean;
-  marginRoom: boolean;
   thread: ThreadTurn[];
-  busyNote: string;
 
   setMode: (mode: "answer" | "ask") => void;
-  setQuestion: (question: string) => void;
-  setMarginRoom: (room: boolean) => void;
-  setHighlightNote: (note: string) => void;
   clearHighlight: () => void;
-  clearThread: () => void;
   showCitation: (citation: {
     chunk_id: string;
     chapter: string;
@@ -254,8 +228,6 @@ type AskStore = {
     at?: number;
     nonce?: number;
   }) => void;
-  stop: () => void;
-  submit: () => void;
 };
 
 function saveSettings(settings: { theme: ThemeName; pen: PenName; marker: MarkerColor; readSize: number }) {
@@ -416,9 +388,6 @@ export function stopHealthPolling(): void {
 export const useAsk = create<AskStore>((set, get) => {
   function syncActiveTurn(glosses: GlossItem[], activeGlossId: string | null) {
     const activeGloss = glosses.find((g) => g.id === activeGlossId) ?? null;
-    const activeTurn = activeGloss && activeGloss.turns.length > 0
-      ? activeGloss.turns[activeGloss.turns.length - 1]
-      : null;
     const { anchors, byChunk } = buildGlossAnchors(glosses);
 
     set({
@@ -426,24 +395,6 @@ export const useAsk = create<AskStore>((set, get) => {
       glossAnchors: anchors,
       glossAnchorsByChunk: byChunk,
       activeGlossId,
-      status: activeTurn ? activeTurn.status : "idle",
-      streamText: activeTurn ? activeTurn.streamText : "",
-      resetting: activeTurn ? activeTurn.resetting : false,
-      body: activeTurn ? activeTurn.body : null,
-      error: activeTurn ? activeTurn.error : "",
-      elapsed: activeTurn ? activeTurn.elapsed : 0,
-      firstToken: activeTurn ? activeTurn.firstToken : null,
-      latency: activeTurn ? activeTurn.latency : null,
-      anchor:
-        activeGloss && activeGloss.kind === "selection"
-          ? {
-              chunkId: activeGloss.chunkId,
-              chapter: activeGloss.chapter,
-              quote: activeGloss.quote,
-              question: activeTurn ? activeTurn.question : "",
-            }
-          : null,
-      anchored: activeGloss ? activeGloss.kind === "selection" : false,
       highlight:
         activeGlossId === get().activeGlossId && get().highlight?.nonce
           ? get().highlight
@@ -506,11 +457,8 @@ export const useAsk = create<AskStore>((set, get) => {
             turns: g.turns.map((t) => (t.id === turnId ? { ...t, elapsed } : t)),
           };
         });
-        const activeGloss = nextGlosses.find((g) => g.id === state.activeGlossId);
-        const activeTurn = activeGloss?.turns.find((t) => t.id === turnId);
         return {
           glosses: nextGlosses,
-          elapsed: activeTurn ? elapsed : state.elapsed,
         };
       });
     }, 200);
@@ -586,14 +534,8 @@ export const useAsk = create<AskStore>((set, get) => {
               }),
             };
           });
-          const activeGloss = nextGlosses.find((g) => g.id === state.activeGlossId);
-          const activeTurn = activeGloss?.turns.find((t) => t.id === turnId);
           return {
             glosses: nextGlosses,
-            status: activeTurn ? "streaming" : state.status,
-            streamText: activeTurn ? displayedText : state.streamText,
-            resetting: activeTurn ? false : state.resetting,
-            firstToken: activeTurn ? activeTurn.firstToken : state.firstToken,
           };
         });
 
@@ -653,17 +595,9 @@ export const useAsk = create<AskStore>((set, get) => {
             ];
           }
 
-          const activeGloss = nextGlosses.find((g) => g.id === state.activeGlossId);
-          const activeTurn = activeGloss?.turns.find((t) => t.id === turnId);
-
           return {
             glosses: nextGlosses,
             thread: nextThread,
-            busyNote: "",
-            status: activeTurn ? (isRefused ? "refused" : "done") : state.status,
-            body: activeTurn ? body : state.body,
-            streamText: activeTurn ? "" : state.streamText,
-            latency: activeTurn ? latency : state.latency,
           };
         });
       }
@@ -716,12 +650,8 @@ export const useAsk = create<AskStore>((set, get) => {
                   }),
                 };
               });
-              const activeGloss = nextGlosses.find((g) => g.id === state.activeGlossId);
-              const activeTurn = activeGloss?.turns.find((t) => t.id === turnId);
               return {
                 glosses: nextGlosses,
-                streamText: activeTurn ? displayedText : state.streamText,
-                resetting: false,
               };
             });
             ensurePacerRunning();
@@ -743,12 +673,8 @@ export const useAsk = create<AskStore>((set, get) => {
                   }),
                 };
               });
-              const activeGloss = nextGlosses.find((g) => g.id === state.activeGlossId);
-              const activeTurn = activeGloss?.turns.find((t) => t.id === turnId);
               return {
                 glosses: nextGlosses,
-                streamText: activeTurn ? "" : state.streamText,
-                resetting: activeTurn ? activeTurn.resetting : state.resetting,
               };
             });
           }
@@ -790,15 +716,8 @@ export const useAsk = create<AskStore>((set, get) => {
                 }),
               };
             });
-            const activeGloss = nextGlosses.find((g) => g.id === state.activeGlossId);
-            const activeTurn = activeGloss?.turns.find((t) => t.id === turnId);
             return {
               glosses: nextGlosses,
-              busyNote: "",
-              status: activeTurn ? "error" : state.status,
-              error: activeTurn ? message : state.error,
-              streamText: activeTurn ? "" : state.streamText,
-              latency: activeTurn ? latency : state.latency,
             };
           });
         },
@@ -830,15 +749,8 @@ export const useAsk = create<AskStore>((set, get) => {
             }),
           };
         });
-        const activeGloss = nextGlosses.find((g) => g.id === state.activeGlossId);
-        const activeTurn = activeGloss?.turns.find((t) => t.id === turnId);
         return {
           glosses: nextGlosses,
-          busyNote: "",
-          status: activeTurn ? (isAbort ? "stopped" : "error") : state.status,
-          error: activeTurn && !isAbort ? "Engine unreachable — start it on :8000, then ask again." : state.error,
-          streamText: activeTurn ? "" : state.streamText,
-          latency: activeTurn ? (isAbort ? latency : null) : state.latency,
         };
       });
     });
@@ -928,11 +840,7 @@ export const useAsk = create<AskStore>((set, get) => {
         glossAnchorsByChunk: glossByChunk,
         activeGlossId: null,
         highlight: null,
-        anchor: null,
         thread: [],
-        error: "",
-        status: "idle",
-        streamText: "",
       });
     },
 
@@ -954,11 +862,7 @@ export const useAsk = create<AskStore>((set, get) => {
           glossAnchorsByChunk: glossByChunk,
           activeGlossId: null,
           highlight: null,
-          anchor: null,
           thread: [],
-          error: "",
-          status: "idle",
-          streamText: "",
         });
       } else {
         set({ viewMode: "reader" });
@@ -1359,10 +1263,9 @@ export const useAsk = create<AskStore>((set, get) => {
       anchorHeading = ""
     ) => {
       const state = get();
-      const question = (questionOverride ?? state.question).trim();
+      const question = (questionOverride ?? "").trim();
       if (!question) return null;
 
-      set({ question: "" });
       const glossId = `gloss-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
       const turnId = "turn-1";
       const turnMode = state.mode;
@@ -1520,33 +1423,14 @@ export const useAsk = create<AskStore>((set, get) => {
       startTurnStream(glossId, turnId, payload);
     },
 
-    // Top-level backwards-compatible fields
     mode: "answer",
-    question: "",
-    status: "idle",
-    streamText: "",
-    resetting: false,
-    body: null,
-    error: "",
-    elapsed: 0,
-    firstToken: null,
-    latency: null,
     highlight: null,
-    highlightNote: "",
     returnSpot: null,
     clearReturnSpot: () => set({ returnSpot: null }),
-    anchor: null,
-    anchored: false,
-    marginRoom: false,
     thread: [],
-    busyNote: "",
 
     setMode: (mode) => set({ mode }),
-    setQuestion: (question) => set({ question }),
-    setMarginRoom: (marginRoom) => set({ marginRoom }),
-    setHighlightNote: (highlightNote) => set({ highlightNote }),
-    clearHighlight: () => set({ highlight: null, highlightNote: "", anchor: null }),
-    clearThread: () => set({ thread: [] }),
+    clearHighlight: () => set({ highlight: null }),
 
     showCitation: (citation) => {
       let returnSpot: { scrollY: number; label: string } | null = null;
@@ -1567,18 +1451,7 @@ export const useAsk = create<AskStore>((set, get) => {
           at: citation.at,
           nonce: citation.nonce ?? Date.now(),
         },
-        highlightNote: "",
       });
-    },
-
-    stop: () => {
-      get().stopGloss();
-    },
-
-    submit: () => {
-      const q = get().question.trim();
-      if (!q) return;
-      get().submitWholeBook(get().anchor?.chunkId || "", get().anchor?.chapter || "");
     },
   };
 });

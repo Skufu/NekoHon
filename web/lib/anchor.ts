@@ -305,7 +305,7 @@ export type HighlightSpan = {
   quote: string;
 };
 
-export type SelectionResolution = {
+type SelectionResolution = {
   startChunkId: string;
   endChunkId?: string;
   chapter: string;

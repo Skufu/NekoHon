@@ -150,7 +150,7 @@ function markQuote(
   return { parts, found: true };
 }
 
-export type ReaderProps = {
+type ReaderProps = {
   payload?: ChunksPayload | null;
   loadError?: string;
 };

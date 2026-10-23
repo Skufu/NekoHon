@@ -19,9 +19,9 @@ import {
 } from "@/lib/anchor";
 import { useAsk } from "@/lib/store";
 
-export type Marker = "yellow" | "green" | "blue" | "pink";
+type Marker = "yellow" | "green" | "blue" | "pink";
 
-export const MARKERS: { key: Marker; label: string; color: string }[] = [
+const MARKERS: { key: Marker; label: string; color: string }[] = [
   { key: "yellow", label: "Yellow", color: "var(--mk-yellow)" },
   { key: "green", label: "Green", color: "var(--mk-green)" },
   { key: "blue", label: "Blue", color: "var(--mk-blue)" },

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { formatChapter } from "@/lib/anchor";
 import { useAsk } from "@/lib/store";
 
-export type TopBarProps = {
+type TopBarProps = {
   bookTitle: string;
   activeChapter: string;
   activeHeading: string;

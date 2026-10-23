@@ -1,4 +1,4 @@
-export type FigureCard = {
+type FigureCard = {
   id: string;
   chapter: string;
   caption: string;
@@ -46,7 +46,7 @@ export type ChunksPayload = {
   books?: BookCatalogItem[];
 };
 
-export type HealthResponse = {
+type HealthResponse = {
   ok?: boolean;
   ready?: boolean;
   ollama?: boolean;
@@ -67,10 +67,6 @@ export function engineUrl(): string {
 
 const chunksCache = new Map<string, ChunksPayload>();
 const chunksInFlight = new Map<string, Promise<ChunksPayload>>();
-
-export function getCachedChunks(bookId = "fde"): ChunksPayload | undefined {
-  return chunksCache.get(bookId);
-}
 
 export function prefetchChunks(bookId = "fde"): void {
   if (chunksCache.has(bookId) || chunksInFlight.has(bookId)) return;
