@@ -30,6 +30,10 @@ export default function LibraryView() {
   const addBookToCatalog = useAsk((s) => s.addBookToCatalog);
   const openBook = useAsk((s) => s.openBook);
   const getBookStats = useAsk((s) => s.getBookStats);
+  const activeBookId = useAsk((s) => s.activeBookId);
+  const highlightsLen = useAsk((s) => s.highlights.length);
+  const glossesLen = useAsk((s) => s.glosses.length);
+  const bookProgress = useAsk((s) => s.bookProgress);
   const theme = useAsk((s) => s.theme);
   const setTheme = useAsk((s) => s.setTheme);
 
@@ -66,6 +70,12 @@ export default function LibraryView() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [selectedBook]);
+
+  const statsMap = useMemo(() => {
+    const out: Record<string, ReturnType<typeof getBookStats>> = {};
+    for (const b of booksCatalog) out[b.book_id] = getBookStats(b.book_id);
+    return out;
+  }, [booksCatalog, getBookStats, activeBookId, highlightsLen, glossesLen, bookProgress]);
 
   // Filter books by query
   const filteredBooks = useMemo(() => {
@@ -419,7 +429,7 @@ export default function LibraryView() {
               <div className="shelf-run">
                 {filteredBooks.map((book) => {
                   const cloth = bookCloth(book.book_id);
-                  const stats = getBookStats(book.book_id);
+                  const stats = statsMap[book.book_id];
                   return (
                     <div key={book.book_id} className="shelf-book-item">
                       <button
@@ -478,7 +488,7 @@ export default function LibraryView() {
           <div className="grid-view">
             {filteredBooks.map((book) => {
               const cloth = bookCloth(book.book_id);
-              const stats = getBookStats(book.book_id);
+              const stats = statsMap[book.book_id];
               return (
                 <div key={book.book_id} className="grid-card">
                   {/* Generative Typographic Cloth Cover */}
@@ -646,7 +656,7 @@ export default function LibraryView() {
 
                   {/* Reading Progress */}
                   {(() => {
-                    const stats = getBookStats(selectedBook.book_id);
+                    const stats = statsMap[selectedBook.book_id];
                     return (
                       <>
                         <div className="bookopen-progress-section">

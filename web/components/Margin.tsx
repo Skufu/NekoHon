@@ -99,6 +99,15 @@ export default function Margin({
     height: 0,
   });
 
+  const glossesRef = useRef(glosses);
+  glossesRef.current = glosses;
+  const layoutKey = glosses
+    .map(
+      (g) =>
+        `${g.id}|${g.chunkId}|${g.minimized ? 1 : 0}|${g.turns.length}|${g.turns.some((t) => t.status === "loading" || t.status === "streaming") ? 1 : 0}`
+    )
+    .join(",");
+
   const raf = useRef(0);
   const placed = useRef(new Set<string>());
 
@@ -117,7 +126,7 @@ export default function Margin({
     const items: Item[] = [];
     const glossMap = new Map<string, GlossItem>();
 
-    for (const g of glosses) {
+    for (const g of glossesRef.current) {
       glossMap.set(g.id, g);
       let desired = 0;
       let anchorY = 18;
@@ -209,7 +218,7 @@ export default function Margin({
         ? prev
         : { tops, anchors, mini, height };
     });
-  }, [glosses, activeGlossId, proseRef]);
+  }, [layoutKey, activeGlossId, proseRef]);
 
   const schedule = useCallback(() => {
     cancelAnimationFrame(raf.current);
@@ -238,7 +247,7 @@ export default function Margin({
       window.removeEventListener("resize", schedule);
       cancelAnimationFrame(raf.current);
     };
-  }, [schedule, proseRef, glosses]);
+  }, [schedule, proseRef, layoutKey]);
 
   const activeGloss = glosses.find((g) => g.id === activeGlossId) ?? null;
 

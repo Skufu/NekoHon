@@ -255,6 +255,7 @@ export default function Reader({
     if (!payload || payload.chunks.length === 0) return;
 
     let raf = 0;
+    let lastWritten = "";
     const measure = () => {
       raf = 0;
       const scrollY = window.scrollY;
@@ -313,6 +314,9 @@ export default function Reader({
           return;
         }
 
+        const writeKey = `${Math.round(progress * 1000)}|${currentChunk.chapter}|${currentChunk.chunk_id}`;
+        if (writeKey === lastWritten) return;
+        lastWritten = writeKey;
         updateBookProgress(activeBookId, {
           pct: progress,
           chapter: currentChunk.chapter,

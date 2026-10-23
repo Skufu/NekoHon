@@ -447,8 +447,12 @@ export const useAsk = create<AskStore>((set, get) => {
     const key = flightKey(glossId, turnId);
     const controller = new AbortController();
     const startedAt = performance.now();
+    let shownSecs = 0;
     const ticker = setInterval(() => {
       const elapsed = (performance.now() - startedAt) / 1000;
+      const secs = Math.round(elapsed) + (elapsed > 8 ? 0.5 : 0);
+      if (secs === shownSecs) return;
+      shownSecs = secs;
       set((state) => {
         const nextGlosses = state.glosses.map((g) => {
           if (g.id !== glossId) return g;
