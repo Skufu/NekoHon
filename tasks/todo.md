@@ -136,7 +136,7 @@ both batteries.
     highlight persists after reload) when Chrome is available.
 
 ### Checkpoint F
-- [ ] Gate + build + smoke; review subagent on the whole web diff; push.
+- [x] Gate + build + Chrome smoke green; checkpoint review PASS (fixed: stream lost on book switch, dead onOpen, empty catches); pushed.
 
 ## Phase 4: Docs (after Phases 1–3)
 
