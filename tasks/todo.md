@@ -91,7 +91,7 @@ both batteries.
   `context.py`, `explain.py`, `quiz.py`, `freeanswer.py`.
   - Accept (E4, E5): gate; `answer.py` re-exports moved names used by tests and
     kept harnesses; `test_generalization` guards cover every new module.
-- [ ] **E6 Merge `ask`/`respond`.** One shared pipeline with mode-specific
+- [x] **E6 Merge `ask`/`respond`.** One shared pipeline with mode-specific
   generate/parse steps.
   - Accept: gate; neither function > 120 lines.
 - [ ] **E7 Hotspots.** `intent.compute_dynamic_followups` into slot builders;
