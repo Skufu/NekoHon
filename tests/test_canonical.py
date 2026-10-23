@@ -9,6 +9,7 @@ book sentence, not a question). No Ollama: recovery is injected.
 import unittest
 
 from engine.answering import answer as A
+from engine.answering import context as C
 from engine.answering.canonical import canonical_query, is_deictic_question, is_incomplete_stem
 from engine.answering.prompt import SYSTEM, SYSTEM_ANSWER
 
@@ -218,7 +219,7 @@ class _SeamBase(unittest.TestCase):
         self.index = {"chunks": PASSAGES, "figures": []}
         self.calls = {}
         self.saved = {
-            name: getattr(A, name)
+            name: getattr(C, name)
             for name in ("fuse", "caption_seed", "second_reading", "llm_second_reading")
         }
 
@@ -230,14 +231,14 @@ class _SeamBase(unittest.TestCase):
             self.calls["caption"] = question
             return passages
 
-        A.fuse = fuse
-        A.caption_seed = caption_seed
-        A.second_reading = lambda *a, **kw: None
-        A.llm_second_reading = lambda *a, **kw: None
+        C.fuse = fuse
+        C.caption_seed = caption_seed
+        C.second_reading = lambda *a, **kw: None
+        C.llm_second_reading = lambda *a, **kw: None
 
     def tearDown(self):
         for name, fn in self.saved.items():
-            setattr(A, name, fn)
+            setattr(C, name, fn)
 
     def search_recorder(self):
         def search(index, question, k=10):
@@ -324,9 +325,9 @@ class ExplainGateTest(unittest.TestCase):
     def test_a_bare_highlight_is_not_canonicalized(self):
         index = {"chunks": PASSAGES, "figures": []}
         calls = {}
-        saved = (A.second_reading, A.llm_second_reading)
-        A.second_reading = lambda *a, **kw: None
-        A.llm_second_reading = lambda *a, **kw: None
+        saved = (C.second_reading, C.llm_second_reading)
+        C.second_reading = lambda *a, **kw: None
+        C.llm_second_reading = lambda *a, **kw: None
         highlight = CDC_QUOTE.rstrip(".")
         # The highlight must be trigger-eligible, or this test proves nothing:
         # if a future trigger stops matching it, the gate would go untested.
@@ -344,7 +345,7 @@ class ExplainGateTest(unittest.TestCase):
                 index, highlight, generate_fn=generate, search_fn=search, model="m"
             )
         finally:
-            A.second_reading, A.llm_second_reading = saved
+            C.second_reading, C.llm_second_reading = saved
         self.assertEqual(calls["search"], highlight)
         self.assertNotIn("Asked as:", body["answer"])
         self.assertNotIn("What is", calls["user"])

@@ -25,6 +25,8 @@ sys.path.insert(0, str(ROOT))
 EVIDENCE = ROOT / "artifacts" / "runs" / "probe-test-mutations"
 
 from engine.answering import answer as A
+from engine.answering import freeanswer as F
+from engine.answering import quoteask as Q
 from engine.retrieval import keywords
 from engine.retrieval.preprocess import words
 
@@ -67,29 +69,39 @@ def main():
     assert baseline_result.wasSuccessful(), baseline_names
 
     mutations = []
-    tq, aq, aw, ex = T.canonical_query, A.canonical_query, A.anchor_words, A.explain
+    tq, aq, aw, ex = T.canonical_query, F.canonical_query, F.anchor_words, A.explain
     try:
         T.canonical_query = identity
-        A.canonical_query = identity
+        for m in (Q, F):
+            m.canonical_query = identity
         mutations.append(("M1 no-op canonicalization", run_suite()))
     finally:
-        T.canonical_query, A.canonical_query = tq, aq
+        T.canonical_query = tq
+        for m in (Q, F):
+            m.canonical_query = aq
     try:
         T.canonical_query = fire_all
-        A.canonical_query = fire_all
+        for m in (Q, F):
+            m.canonical_query = fire_all
         mutations.append(("M2 over-firing trigger", run_suite()))
     finally:
-        T.canonical_query, A.canonical_query = tq, aq
+        T.canonical_query = tq
+        for m in (Q, F):
+            m.canonical_query = aq
     try:
-        A.canonical_query = identity
+        for m in (Q, F):
+            m.canonical_query = identity
         mutations.append(("M3 wiring dropped in answer.py", run_suite()))
     finally:
-        A.canonical_query = aq
+        for m in (Q, F):
+            m.canonical_query = aq
     try:
-        A.anchor_words = filterless_anchors
+        for m in (A, Q, F):
+            m.anchor_words = filterless_anchors
         mutations.append(("M4 filterless anchors", run_suite()))
     finally:
-        A.anchor_words = aw
+        for m in (A, Q, F):
+            m.anchor_words = aw
     try:
         A.explain = open_gate_explain
         mutations.append(("M5 explain gate open", run_suite()))

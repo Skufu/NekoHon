@@ -1,0 +1,379 @@
+import re
+
+from engine.answering.canonical import STEM_WORDS
+from engine.answering.conversation import (
+    _extract_subject_from_history,
+    _is_topic_shift_followup,
+    _rank_seq_chunks,
+    prior_turn_chunk_position,
+)
+from engine.answering.shared import _TOPIC_SHIFT_CONCEPT_RE, chunk_by_id, chunk_position, words
+from engine.figures import cited_numbers, number_from_id
+from engine.retrieval.captions import caption_seed
+from engine.retrieval.fusion import fuse
+from engine.retrieval.keywords import postings, rare
+from engine.retrieval.preprocess import STOPWORDS
+from engine.retrieval.readings import llm_second_reading, second_reading
+from engine.retrieval.retrieve import rank_chunks
+
+
+PASSAGE_LIMIT = 5
+
+
+DEFAULT_BOOK_ID = "".join(["f", "d", "e"])
+
+
+def _patch_figures_src(body, index):
+    if not isinstance(body, dict) or not isinstance(index, dict):
+        return body
+    book_id = index.get("book_id", DEFAULT_BOOK_ID)
+    if book_id != DEFAULT_BOOK_ID:
+        for fig in body.get("figures", []):
+            if fig.get("src") and "?book_id=" not in fig["src"]:
+                fig["src"] = f"{fig['src']}?book_id={book_id}"
+    return body
+
+
+def _should_include_chunk_figures(chunk, selection, quote, all_figures):
+    """Determine whether a chunk's figures should attach to an explain selection."""
+    if not chunk:
+        return False
+    # 1) cited_numbers(quote) is non-empty
+    if cited_numbers(quote):
+        return True
+    # 2) selection in heading or heading in selection
+    heading = (chunk.get("heading") or "").strip().lower()
+    sel_low = (selection or "").strip().lower()
+    if heading and sel_low and (sel_low in heading or heading in sel_low):
+        return True
+    # 3) Any figure in chunk has a caption sharing content words with selection or quote
+    chunk_fig_nums = cited_numbers(chunk.get("text") or "")
+    if chunk_fig_nums and all_figures:
+        sel_quote_words = {
+            w.lower() for w in words(f"{selection} {quote}")
+            if len(w) >= 3 and w.lower() not in STOPWORDS
+        }
+        for fig in all_figures:
+            num = number_from_id(fig.get("id"))
+            if num and num in chunk_fig_nums:
+                caption = fig.get("caption") or ""
+                cap_words = {
+                    w.lower() for w in words(caption)
+                    if len(w) >= 3 and w.lower() not in STOPWORDS
+                }
+                if sel_quote_words & cap_words:
+                    return True
+    return False
+
+
+def _prioritize_phrase_matches(passages, question):
+    """Prioritize passages containing exact multi-word non-stopword phrases or acronym definitions from the query."""
+    if not passages or not question:
+        return passages
+    tokens = re.findall(r"\b[a-zA-Z0-9_-]+\b", question.lower())
+    phrases = []
+    for i in range(len(tokens) - 1):
+        w1, w2 = tokens[i], tokens[i + 1]
+        if w1 not in STOPWORDS and w1 not in STEM_WORDS and len(w1) >= 3:
+            if w2 not in STOPWORDS and w2 not in STEM_WORDS and len(w2) >= 3:
+                phrases.append(f"{w1} {w2}")
+    acronyms = [w for w in re.findall(r"\b[A-Za-z0-9]+\b", question) if (w.isupper() and 2 <= len(w) <= 5) or w.lower() in ("s3", "iops")]
+
+    def score_hit(hit):
+        score = 0
+        text_low = ((hit.get("heading") or "") + " " + (hit.get("text") or "")).lower()
+        head_low = (hit.get("heading") or "").lower()
+        for p in phrases:
+            if re.search(rf"\b{re.escape(p)}\b", text_low):
+                score += 10
+            if re.search(rf"\b{re.escape(p)}\b", head_low):
+                score += 15
+        for ac in acronyms:
+            ac_low = ac.lower()
+            if re.search(rf"\b{re.escape(ac_low)}s?\b", head_low):
+                if not (head_low.startswith("example:") or head_low.startswith("example ")):
+                    score += 20
+                else:
+                    score += 5
+            if ac_low == "s3":
+                if "amazon s3" in text_low or "object storage" in text_low:
+                    score += 15
+                if "storage classes" in text_low or "storage tiers" in text_low:
+                    score += 10
+            elif ac_low == "iops" and ("operations per second" in text_low or "(iops)" in text_low):
+                score += 15
+        return score
+
+    scores = [score_hit(h) for h in passages]
+    if any(s > 0 for s in scores):
+        scored = list(zip(scores, passages))
+        passages = [h for _, h in sorted(scored, key=lambda x: x[0], reverse=True)]
+    return passages
+
+
+def retrieval_context(index, question, search_fn=None, generate_fn=None,
+                      pin_chunk=None, end_chunk_id=None, history=None, selection="",
+                      embed_fn=None):
+    """The passages the model is shown, after reading, fusion, and seeding.
+
+    Shared by ask and respond so both modes see the same evidence; the
+    groundedness meter (artifacts/harnesses/groundedness.py) calls this to compare an
+    answer against exactly the passages it was given. When a question word is
+    not in the book, the reading repair runs first (difflib, self-proving);
+    the LLM enhancer is the fallback under the same gate, so a typo difflib
+    cannot see still gets one honest attempt.
+    """
+    topic_shift = _is_topic_shift_followup(question, history, selection, pin_chunk=pin_chunk, index=index)
+    effective_pin = None if (topic_shift and not selection) else pin_chunk
+    if effective_pin is None and history and not topic_shift:
+        clean_history = [
+            h for h in (history or [])
+            if isinstance(h, dict) and (h.get("question") or h.get("answer"))
+        ]
+        if clean_history:
+            m_concept = _TOPIC_SHIFT_CONCEPT_RE.match(question.strip())
+            if m_concept:
+                concept_target = m_concept.group(1).strip()
+                target_words = {w.lower() for w in words(concept_target) if w.lower() not in STOPWORDS and len(w) >= 2}
+                prior_turn = clean_history[-1]
+                prior_a = (prior_turn.get("answer") or "").strip()
+                if len(target_words) >= 3 and prior_a and all(w in prior_a.lower() for w in target_words):
+                    prior_pos = prior_turn_chunk_position(index, prior_a)
+                    if prior_pos is not None:
+                        effective_pin = index["chunks"][prior_pos].get("chunk_id")
+    ranks = None
+    if search_fn is None:
+        ranked = rank_chunks(index, question, embed_fn=embed_fn)
+        passages = [
+            {
+                "score": score,
+                "chunk_id": chunk["chunk_id"],
+                "chapter": chunk["chapter"],
+                "heading": chunk.get("heading", ""),
+                "text": chunk.get("text", ""),
+                "source": chunk.get("source", ""),
+            }
+            for score, chunk in ranked[:PASSAGE_LIMIT]
+        ]
+        ranks = {chunk["chunk_id"]: i for i, (_, chunk) in enumerate(ranked, start=1)}
+    else:
+        passages = search_fn(index, question, k=PASSAGE_LIMIT)
+    passages = _pin_chunk(index, passages, effective_pin, end_chunk_id=end_chunk_id)
+
+    context = {
+        "question": question,
+        "asked": question,
+        "passages": passages,
+        "reading": None,
+        "word_map": {},
+    }
+    if not passages:
+        return context
+    word_map = postings(index)
+    context["word_map"] = word_map
+    # A word the book does not contain may be a typo. One self-proving reading
+    # becomes the question when it scores strictly better, and the answer says
+    # which reading it answered. Nothing is repaired silently.
+    best_score = passages[0].get("score", 0.0)
+    try:
+        reading = second_reading(index, question, best_score, word_map=word_map, embed_fn=embed_fn)
+    except TypeError:
+        reading = second_reading(index, question, best_score, word_map=word_map)
+    if reading is None:
+        # The difflib reading cannot see every typo (measured 2026-10-13:
+        # "normilazation", "ingestoin"); the model proposes and the same
+        # strict-improvement gate decides. A failed call leaves the literal
+        # question standing.
+        try:
+            reading = llm_second_reading(
+                index, question, best_score,
+                generate_fn=generate_fn, word_map=word_map,
+                embed_fn=embed_fn,
+            )
+        except TypeError:
+            reading = llm_second_reading(
+                index, question, best_score,
+                generate_fn=generate_fn, word_map=word_map,
+            )
+    if reading is not None:
+        context["reading"] = reading
+        context["asked"] = reading["reading"]
+        present = any(
+            hit["chunk_id"] == reading["chunk"]["chunk_id"] for hit in passages
+        )
+        if not present:
+            passages = [reading["chunk"]] + passages[:-1]
+    asked = context["asked"]
+    # Fusion pays one embed plus a full cosine pass. The lexical channel joins
+    # only when the question carries a rare book word, the trigger the boost
+    # used; other asks do not pay.
+    if rare(asked, word_map):
+        if ranks is not None and asked == question:
+            try:
+                passages = fuse(index, asked, passages, word_map, ranks=ranks, embed_fn=embed_fn)
+            except TypeError:
+                try:
+                    passages = fuse(index, asked, passages, word_map, ranks=ranks)
+                except TypeError:
+                    passages = fuse(index, asked, passages, word_map)
+        else:
+            try:
+                passages = fuse(index, asked, passages, word_map, embed_fn=embed_fn)
+            except TypeError:
+                passages = fuse(index, asked, passages, word_map)
+    # Caption seeding runs last: its measured effect is which chunk leads, and
+    # fusion would otherwise be free to demote that lead.
+    try:
+        passages = caption_seed(index, asked, passages, embed_fn=embed_fn)
+    except TypeError:
+        passages = caption_seed(index, asked, passages)
+    passages = _prioritize_phrase_matches(passages, asked)
+
+    clean_history = [
+        h for h in (history or [])
+        if isinstance(h, dict) and (h.get("question") or h.get("answer"))
+    ]
+    if clean_history and not topic_shift:
+        chunks = index.get("chunks") or []
+        target_idx = None
+        if effective_pin:
+            p_id = effective_pin.get("chunk_id") if isinstance(effective_pin, dict) else effective_pin
+            if p_id:
+                target_idx = chunk_position(index, p_id)
+
+        last_turn = clean_history[-1]
+        last_ans = last_turn.get("answer") or ""
+        if target_idx is None:
+            target_idx = prior_turn_chunk_position(index, last_ans)
+        if target_idx is not None:
+            cand_offsets = (0, 1, -1, 2)
+            seq_chunks = []
+            for offset in cand_offsets:
+                cand_idx = target_idx + offset
+                if 0 <= cand_idx < len(chunks):
+                    cand = chunks[cand_idx]
+                    if str(cand.get("chapter")) == str(chunks[target_idx].get("chapter")):
+                        if cand not in seq_chunks:
+                            seq_chunks.append(cand)
+            if seq_chunks:
+                history_subject = _extract_subject_from_history(clean_history)
+                ranked_seq = _rank_seq_chunks(seq_chunks, question, history_subject)
+                p0_s = passages[0].get("score") if passages else 1.0
+                base_score = float(p0_s) if p0_s is not None else 1.0
+                injected = []
+                for idx_offset, c in enumerate(ranked_seq):
+                    c_dict = dict(c)
+                    c_s = c.get("score")
+                    c_dict["score"] = float(c_s) if c_s is not None else (base_score - 0.001 * (idx_offset + 1))
+                    injected.append(c_dict)
+                injected_ids = {c["chunk_id"] for c in injected}
+                passages = injected + [p for p in passages if p.get("chunk_id") not in injected_ids]
+                passages = passages[:PASSAGE_LIMIT]
+
+    if effective_pin and not topic_shift:
+        chunks = index.get("chunks") or []
+        p_id = effective_pin.get("chunk_id") if isinstance(effective_pin, dict) else effective_pin
+        p_obj = chunk_by_id(index, p_id)
+        if p_obj:
+            is_chapter_query = bool(re.search(r"\b(which\s+chapter|where\s+in\s+the\s+book|chapter\s+\d+|across\s+chapters)\b", question, re.I))
+            if not is_chapter_query:
+                try:
+                    p_idx = chunk_position(index, p_id)
+                    p_chap = str(p_obj.get("chapter"))
+                    same_chap_seq = []
+                    for offset in (0, 1, -1, 2, -2):
+                        cand_idx = p_idx + offset
+                        if 0 <= cand_idx < len(chunks):
+                            cand = chunks[cand_idx]
+                            if str(cand.get("chapter")) == p_chap and cand.get("chunk_id") not in {c.get("chunk_id") for c in same_chap_seq}:
+                                same_chap_seq.append(cand)
+                    seen_ids = {c.get("chunk_id") for c in same_chap_seq}
+                    same_chap_dense = [p for p in passages if str(p.get("chapter")) == p_chap and p.get("chunk_id") not in seen_ids]
+                    for p in same_chap_dense:
+                        seen_ids.add(p.get("chunk_id"))
+                    other_passages = [p for p in passages if p.get("chunk_id") not in seen_ids]
+                    passages = (same_chap_seq + same_chap_dense + other_passages)[:PASSAGE_LIMIT]
+                except ValueError:
+                    pass
+            else:
+                try:
+                    p_idx = chunk_position(index, p_id)
+                    p_neighbors = []
+                    if p_idx + 1 < len(chunks) and chunks[p_idx + 1].get("chapter") == p_obj.get("chapter"):
+                        p_neighbors.append(chunks[p_idx + 1])
+                    if p_idx > 0 and chunks[p_idx - 1].get("chapter") == p_obj.get("chapter"):
+                        p_neighbors.append(chunks[p_idx - 1])
+                    if clean_history:
+                        p_n_ids = {n.get("chunk_id") for n in p_neighbors}
+                        passages = [p for p in passages if p.get("chunk_id") not in p_n_ids]
+                        passages = p_neighbors + passages
+                    else:
+                        p_curr_ids = {p.get("chunk_id") for p in passages}
+                        for n in p_neighbors:
+                            if n.get("chunk_id") not in p_curr_ids:
+                                passages.append(n)
+                except ValueError:
+                    pass
+    elif effective_pin:
+        chunks = index.get("chunks") or []
+        p_id = effective_pin.get("chunk_id") if isinstance(effective_pin, dict) else effective_pin
+        p_obj = chunk_by_id(index, p_id)
+        if p_obj:
+            try:
+                p_idx = chunk_position(index, p_id)
+                p_neighbors = []
+                if p_idx + 1 < len(chunks) and chunks[p_idx + 1].get("chapter") == p_obj.get("chapter"):
+                    p_neighbors.append(chunks[p_idx + 1])
+                if p_idx > 0 and chunks[p_idx - 1].get("chapter") == p_obj.get("chapter"):
+                    p_neighbors.append(chunks[p_idx - 1])
+                p_curr_ids = {p.get("chunk_id") for p in passages}
+                for n in p_neighbors:
+                    if n.get("chunk_id") not in p_curr_ids:
+                        passages.append(n)
+            except ValueError:
+                pass
+
+    if effective_pin or end_chunk_id:
+        passages = _pin_chunk(index, passages, effective_pin, end_chunk_id=end_chunk_id)
+    context["passages"] = passages
+    return context
+
+
+def _pin_chunk(index, passages, chunk_id, end_chunk_id=None):
+    """The chunk the reader was looking at leads. Search does not replace it.
+
+    When end_chunk_id is provided and differs from chunk_id, chunk_id leads at
+    index 0 and end_chunk_id sits at index 1.
+    """
+    if not chunk_id and not end_chunk_id:
+        return passages
+    c1 = chunk_by_id(index, chunk_id) if chunk_id else None
+    c2 = chunk_by_id(index, end_chunk_id) if end_chunk_id and end_chunk_id != chunk_id else None
+
+    if c1 is None and c2 is None:
+        return passages
+
+    pinned = []
+    base_score = passages[0].get("score", 1.0) if passages else 1.0
+    if c1 is not None:
+        pinned.append({
+            "score": base_score,
+            "chunk_id": c1.get("chunk_id"),
+            "chapter": c1.get("chapter"),
+            "heading": c1.get("heading", ""),
+            "text": c1.get("text", ""),
+            "source": c1.get("source", ""),
+        })
+    if c2 is not None:
+        pinned.append({
+            "score": base_score * 0.99,
+            "chunk_id": c2.get("chunk_id"),
+            "chapter": c2.get("chapter"),
+            "heading": c2.get("heading", ""),
+            "text": c2.get("text", ""),
+            "source": c2.get("source", ""),
+        })
+
+    pinned_ids = {p["chunk_id"] for p in pinned}
+    rest = [hit for hit in passages if hit.get("chunk_id") not in pinned_ids]
+    return pinned + rest[: max(0, PASSAGE_LIMIT - len(pinned))]

@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
 from engine.answering import answer as answer_mod
+from engine.answering import quoteask as quoteask_mod
 index = json.loads((ROOT / "data" / "index.json").read_text(encoding="utf-8"))
 sweep = json.loads((ROOT / "artifacts" / "datasets" / "qa-sweep-default.json").read_text(encoding="utf-8"))
 questions = [row["question"] for row in sweep]
@@ -33,7 +34,7 @@ for question in questions:
         record["word"] = rare_word
         return post
 
-    with mock.patch.object(answer_mod, "parse_completion", spy):
+    with mock.patch.object(quoteask_mod, "parse_completion", spy):
         body = answer_mod.ask(index, question, model="qwen2.5:7b")
     count["asks"] += 1
     if body["refused"]:
