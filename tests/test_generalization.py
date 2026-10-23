@@ -24,6 +24,7 @@ LOGIC = (
     "engine/answering/generate.py",
     "engine/answering/gloss.py",
     "engine/answering/quiz.py",
+    "engine/answering/pipeline.py",
     "engine/answering/quoteask.py",
     "engine/answering/comparison.py",
     "engine/answering/listshape.py",
