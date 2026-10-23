@@ -368,8 +368,6 @@ def search(index, question, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K, retu
     return passages
 
 
-def search_with_ranks(index, question, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K):
-    return search(index, question, model=model, embed_fn=embed_fn, k=k, return_ranks=True)
 
 
 def dense_rank(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
@@ -435,12 +433,6 @@ def load_index(path):
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
-def warm_caches(index_path=INDEX, embedder=DEFAULT_EMBEDDER):
-    """Preload index, unit vectors, postings, book forms, and primed caches."""
-    p = Path(index_path).resolve()
-    if p.is_file():
-        return load_index(p)
-    return None
 
 
 def save_index(path, index):

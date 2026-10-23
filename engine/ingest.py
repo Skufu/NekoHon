@@ -53,8 +53,6 @@ MARKER = "\x00"
 _MARKER_RE = re.compile(f"{MARKER}[^{MARKER}]*{MARKER}")
 
 
-def _marked(machine_id):
-    return f"{MARKER}{machine_id}{MARKER}"
 
 
 def _unmarked(text):

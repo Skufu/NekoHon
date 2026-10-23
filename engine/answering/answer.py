@@ -67,12 +67,7 @@ _WHITESPACE_RE = re.compile(r"\s+")
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
 _PARAGRAPH_SPLIT_RE = re.compile(r"\n\s*\n")
 _CH_PREFIX_RE = re.compile(r"^\[ch\.", re.I)
-_CH_TAG_STRIP_RE = re.compile(r"\[Ch\.\s*[^\]]+\]\s*", re.I)
 _TAG_AND_QUOTE_RE = re.compile(r"\[Ch\.\s*([^\]]+)\]\s*[\"“](.+?)[\"”]")
-_TAG_SEARCH_RE = re.compile(r"\[Ch\.\s*([^\]]+)\]", re.I)
-_QUOTE_EXTRACT_RE = re.compile(r"[\"“]([^\"“”]+)[\"”]")
-_NORMALIZED_QUOTE_CHARS_RE = re.compile(r"[\s\"'“”]+")
-_TRAP_QUERY_RE = re.compile(r"\b(how\s+much|charge|price|cost\s+per\s+hour|what\s+year|when\s+did|in\s+what\s+year|terraform|script|code|install|download)\b", re.I)
 _WHICH_CHAPTER_RE = re.compile(r"\b(which\s+chapter|where\s+in\s+the\s+book)\b", re.I)
 _CHAPTER_NUM_RE = re.compile(r"\bchapter\s+\d+\b", re.I)
 _CHAPTER_DIGITS_RE = re.compile(r"\bchapter\s+(\d+)\b", re.I)
@@ -81,6 +76,7 @@ _OVERHEAD_RE = re.compile(r"\b(overhead|trade-offs|tradeoffs)\b", re.I)
 _OVERHEAD_EXPANDED_RE = re.compile(r"\b(overhead|trade-offs|tradeoffs|latency|throughput)\b", re.I)
 _YEAR_QUERY_RE = re.compile(r"\b(what\s+year|when\s+did|in\s+what\s+year)\b", re.I)
 _YEAR_MATCH_RE = re.compile(r"\b(19|20)\d{2}\b")
+_TRAP_QUERY_RE = re.compile(r"\b(how\s+much|charge|price|cost\s+per\s+hour|what\s+year|when\s+did|in\s+what\s+year|terraform|script|code|install|download)\b", re.I)
 _PRICE_QUERY_RE = re.compile(r"\b(how\s+much|cost\s+per\s+hour|charge|price)\b", re.I)
 _PRICE_MATCH_RE = re.compile(r"(\$|\b(dollar|dollars|cents|cost|charge|price|per\s+hour)\b)", re.I)
 _CODE_QUERY_RE = re.compile(r"\b(terraform|script|code)\b", re.I)
@@ -89,7 +85,6 @@ _TERMINAL_PUNCT_RE = re.compile(r'[.!?]["\'”’]?$')
 _CHAPTER_PREFIX_RE = re.compile(r"^Chapter\s+\d+\b", re.I)
 _WORD_RE = re.compile(r"\w+")
 _WORD_ALPHA_RE = re.compile(r"\b[a-zA-Z]+\b")
-_WORD_ALPHANUM_RE = re.compile(r"\b[a-zA-Z0-9]+\b")
 _NON_WORD_OR_UNDERSCORE_RE = re.compile(r"[^\w\s]|_")
 _REGARDING_PREFIX_RE = re.compile(r"^(?:In\s+.+?,\s+)?[Rr]egarding\s+['\"]?([^:'\"]+)['\"]?\s*:\s*(.+)$")
 _TOPIC_SHIFT_CONCEPT_RE = re.compile(r"^(?:what\s+(?:is|are|was|were)\s+(?:a\s+|an\s+|the\s+)?(?!(?:role|main|key|specific|purpose|point|goal|problem|catch|drawback|advantage|disadvantage|trade-off|difference|reason|stage|step|type|example|takeaway)\b)|define\s+|tell\s+me\s+about\s+)(.+?)\??$", re.I)
@@ -119,17 +114,6 @@ _IOPS_RE = re.compile(r"\biops\b")
 _SLA_SLO_RE = re.compile(r"\b(sla|slas|slo|slos)\b")
 _WHO_CREATED_RE = re.compile(r"\bwho\s+(?:created|invented|designed|developed|authored|introduced|wrote|founded|proposed)\b")
 _AUTHOR_NAME_RE = re.compile(r"\b[A-Z][a-z]+\s+[A-Z][a-z]+\b")
-_DOWNSIDES_RE = re.compile(r"\b(its\s+downsides|its\s+disadvantages|its\s+pros\s+and\s+cons|its\s+drawbacks)\b")
-_WARN_AGAINST_RE = re.compile(r"\b(warn\s+against\s+that|warn\s+about\s+that|caution\s+against\s+that)\b")
-_LATE_DATA_RE = re.compile(r"\b(handle\s+late\s+data|handles\s+late\s+data)\b")
-_THAT_STAGE_RE = re.compile(r"\b(that\s+stage|that\s+phase|that\s+step)\b")
-_THIS_PATTERN_RE = re.compile(r"\b(this\s+architectural\s+pattern|this\s+pattern|this\s+architecture)\b")
-_USING_IT_RE = re.compile(r"\busing\s+it\b")
-_FOR_THIS_THAT_RE = re.compile(r"\bfor\s+(this|that)\b")
-_OPEN_SOURCE_IT_RE = re.compile(r"\bopen-source\s+it\b")
-_HOW_WHAT_IT_RE = re.compile(r"\b(how\s+does|how\s+is|what\s+is|what\s+are|why\s+does|why\s+is)\s+it\b")
-_WHAT_ITS_RE = re.compile(r"\b(what\s+are|what\s+is)\s+its\b")
-_TIER_STAGE_NUM_RE = re.compile(r"\b(type|tier|stage|phase|step)\s*\d+\b")
 _REASONS_QUERY_RE = re.compile(r"\b(specific\s+reasons|reasons|reason|why|main\s+stages|stages|key\s+types|types|characteristics|ways)\b")
 _EXAMPLES_QUERY_RE = re.compile(r"\b(example|examples|instance|illustrate)\b")
 _RISKS_QUERY_RE = re.compile(r"\b(risk|risks|pitfall|pitfalls|bottleneck|bottlenecks|cost|costs|expensive|trade-off|trade-offs|limitation|limitations|downside|downsides|ossification|cliff|mistake|failure)\b")
@@ -140,8 +124,6 @@ _STRIP_PUNCT_RE = re.compile(r"^[^\w]+|[^\w]+$")
 _PUNCT_SPLIT_RE = re.compile(r"[.!?]")
 _MASK_TAG_RE = re.compile(r"\x01([^\x02]*)\x02")
 _DIGITS_RE = re.compile(r"\d+")
-_STRIP_LIST_NUM_RE = re.compile(r"^\s*\d+[.)]\s*")
-_EXAMPLE_PREFIX_STRIP_RE = re.compile(r"^(?:for example|for instance|in addition|specifically),?\s*", re.I)
 _EXTRACT_SUBJ_CAND_RE = re.compile(r"^\s*(?:A|An|The)?\s*([A-Za-z0-9\s_-]{3,40}?)\s+(?:is|are|was|were|provides|serves|enables|means|refers|consists|helps|acts|describes)\b")
 _EXTRACT_SUBJ_WHEN_RE = re.compile(r"\b(?:when|while)\s+(.+)", re.I)
 _EXTRACT_SUBJ_STRIP_ACTION_RE = re.compile(r"^(selecting|evaluating|choosing|designing|building)\s+", re.I)
@@ -150,8 +132,6 @@ _EXTRACT_SUBJ_WH_START_RE = re.compile(r"^(what|how|why|where|which|should|tell 
 _EXTRACT_SUBJ_VERB_SPLIT_RE = re.compile(r"\s+(?:sit|sits|used|use|stand for|look|differ|consider|covered)\b", re.I)
 
 _PRONOUNS_SET = frozenset({"this", "it", "that", "they", "these", "those"})
-_DEICTIC_SET_1 = frozenset({"it", "its", "this", "that", "these", "those", "they", "them", "such"})
-_DEICTIC_SET_2 = frozenset({"this", "that", "it", "these", "those"})
 _QUESTION_STARTERS = frozenset({
     "what", "why", "how", "when", "where", "who", "which",
     "is", "are", "was", "were", "do", "does", "did",
@@ -172,7 +152,6 @@ _SUB_PRONOUNS = frozenset({"it", "its", "that", "this", "these", "those"})
 _CAND_PRONOUNS = frozenset({"it", "its", "this", "that"})
 _RISK_KEYWORDS = ("ossification", "cliff", "bottleneck", "bottlenecks", "cost", "costs", "expensive", "risk", "risks", "pitfall", "pitfalls", "trade-off", "trade-offs", "limitation", "limitations", "downside", "downsides")
 _ATTRIBUTION_MARKERS = ("noted", "groundbreaking", "book", "article", "creator", "created", "proposed", "introduced", "author", "by ")
-_WH_QUERY_SET = frozenset({"why", "explain", "how", "what"})
 
 @functools.lru_cache(maxsize=1024)
 def _token_word_pattern(token):
@@ -669,11 +648,6 @@ def _complete_truncated_quote(quote: str, passage_text: str) -> str:
     return q
 
 
-def check_quote(quote: str, passage_text: str) -> str:
-    """Verify and complete a quote against a passage."""
-    if not _quote_in_passage(quote, passage_text):
-        return ""
-    return _complete_truncated_quote(quote, passage_text)
 
 
 def _tagless_citation(text, passages):
@@ -830,10 +804,6 @@ COMPARISON_PATTERNS = (
     ),
     # 5) what sets X apart from Y
     re.compile(r"\bwhat\s+sets\s+(.+?)\s+apart\s+from\s+(.+?)\s*[?.!]*$", re.I),
-)
-COMPARISON = re.compile(
-    r"\bdifference\s+between\s+(.+?)\s+and\s+(.+?)\s*\??\s*$",
-    re.I,
 )
 ONE_VERSUS = re.compile(r"\bvs\.?(?!\w)|\bversus\b", re.I)
 
@@ -1598,10 +1568,6 @@ GENERIC_FACETS_RE = re.compile(
     re.IGNORECASE,
 )
 
-EXPLICIT_CONCEPT_RE = re.compile(
-    r"^(?:what\s+(?:is|are|was|were)\s+|define\s+|explain\s+|tell\s+me\s+about\s+|how\s+(?:does|do|did|can|could)\s+.+?\s+work\??)",
-    re.IGNORECASE,
-)
 
 CONVERSATIONAL_DIRECTIVES = frozenset({
     "simply", "simpler", "simple", "simplify", "shorter", "plain", "english", "summary",
@@ -2185,7 +2151,7 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
                 prior_turn = clean_history[-1]
                 prior_a = (prior_turn.get("answer") or "").strip()
                 if len(target_words) >= 3 and prior_a and all(w in prior_a.lower() for w in target_words):
-                    m_q = re.search(r"\[Ch\.\s*([^\]]+)\]\s*[\"“](.+?)[\"”]", prior_a)
+                    m_q = _TAG_AND_QUOTE_RE.search(prior_a)
                     if m_q:
                         prior_chap = m_q.group(1).strip().rstrip(".")
                         prior_snippet = m_q.group(2).strip()[:50].lower()
@@ -2303,7 +2269,7 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
 
         last_turn = clean_history[-1]
         last_ans = last_turn.get("answer") or ""
-        m = re.search(r"\[Ch\.\s*([^\]]+)\]\s*[\"“](.+?)[\"”]", last_ans)
+        m = _TAG_AND_QUOTE_RE.search(last_ans)
         if target_idx is None and m:
             prior_chap = m.group(1).strip().rstrip(".")
             prior_quote = m.group(2).strip()
@@ -3112,9 +3078,6 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
     return body
 
 
-def _maybe_enrich_contextual_gloss(index, body, resolved_question, passages,
-                                   generate_fn, model):
-    return body
 
 
 def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
@@ -3145,7 +3108,7 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
         if target_chunk_obj is None and clean_history:
             prior_turn = clean_history[-1]
             prior_a = (prior_turn.get("answer") or "").strip()
-            m_q = re.search(r"\[Ch\.\s*([^\]]+)\]\s*[\"“](.+?)[\"”]", prior_a)
+            m_q = _TAG_AND_QUOTE_RE.search(prior_a)
             if m_q:
                 prior_chap = m_q.group(1).strip().rstrip(".")
                 prior_snippet = m_q.group(2).strip()[:50].lower()
@@ -3161,7 +3124,7 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
         if target_chunk_obj is not None:
             prior_turn = clean_history[-1]
             prior_a = (prior_turn.get("answer") or "").strip()
-            m_q = re.search(r"\[Ch\.\s*([^\]]+)\]\s*[\"“](.+?)[\"”]", prior_a)
+            m_q = _TAG_AND_QUOTE_RE.search(prior_a)
             prior_quote = m_q.group(2).strip() if m_q else ""
             chunk_text = target_chunk_obj.get("text") or ""
             chosen_quote = ""
@@ -3231,7 +3194,7 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
             body = retry
             body = _align_citation_to_query_concepts(body, resolved_question, passages)
     elif body.get("refused") and clean_history and (resolved_question != question):
-        is_trap = bool(re.search(r"\b(how\s+much|charge|price|cost\s+per\s+hour|what\s+year|when\s+did|in\s+what\s+year|terraform|script|code|install|download)\b", question, re.I))
+        is_trap = bool(_TRAP_QUERY_RE.search(question))
         if not is_trap and passages:
             retry = _retry_uncited(
                 context["asked"], passages, figures, generate_fn, model,
@@ -3589,7 +3552,7 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
         if target_chunk_obj is None and clean_history:
             prior_turn = clean_history[-1]
             prior_a = (prior_turn.get("answer") or "").strip()
-            m_q = re.search(r"\[Ch\.\s*([^\]]+)\]\s*[\"“](.+?)[\"”]", prior_a)
+            m_q = _TAG_AND_QUOTE_RE.search(prior_a)
             if m_q:
                 prior_chap = m_q.group(1).strip().rstrip(".")
                 prior_snippet = m_q.group(2).strip()[:50].lower()
@@ -3605,7 +3568,7 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
         if target_chunk_obj is not None:
             prior_turn = clean_history[-1]
             prior_a = (prior_turn.get("answer") or "").strip()
-            m_q = re.search(r"\[Ch\.\s*([^\]]+)\]\s*[\"“](.+?)[\"”]", prior_a)
+            m_q = _TAG_AND_QUOTE_RE.search(prior_a)
             prior_quote = m_q.group(2).strip() if m_q else ""
             chunk_text = target_chunk_obj.get("text") or ""
             chosen_quote = ""
@@ -3677,7 +3640,7 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
         elif body.get("refused"):
             can_retry = False
             if clean_history and (resolved_question != question):
-                is_trap = bool(re.search(r"\b(how\s+much|charge|price|cost\s+per\s+hour|what\s+year|when\s+did|in\s+what\s+year|terraform|script|code|install|download)\b", question, re.I))
+                is_trap = bool(_TRAP_QUERY_RE.search(question))
                 if not is_trap and passages:
                     can_retry = True
             elif len(passages) >= 3 and _has_passage_evidence(context["asked"], passages, context.get("word_map", {})):
