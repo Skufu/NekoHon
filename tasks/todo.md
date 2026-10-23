@@ -115,16 +115,16 @@ both batteries.
   mirror writes, `getCachedChunks`, needless `export`s, stale
   `next.config.ts` comment. Keep `thread`. Keep `saveHighlights`' legacy key only
   if it is still read for migration (check), else remove.
-- [ ] **F2 Dead CSS.** Remove the 26 dead classes / 39 rule blocks and 40
+- [x] **F2 Dead CSS.** Remove the 26 dead classes / 39 rule blocks and 40
   unused tokens; grep template strings before each deletion.
-- [ ] **F3 Performance.** Margin `compute` / ResizeObserver no longer re-run per
+- [x] **F3 Performance.** Margin `compute` / ResizeObserver no longer re-run per
   streaming frame (depend on gloss ids + chunk ids, read glosses via ref);
   elapsed ticker stops rebuilding `glosses`; memoize `getBookStats`; scroll
   progress throttled to change-only store writes.
 - [ ] **F4 Split `store.ts`.** `lib/persist.ts`, `lib/stream.ts`, one
   `patchTurn` helper for the 19 nested updates. Keys/shapes frozen; update the
   rule test's path only if a pinned string moves.
-- [ ] **F5 MarginCard.** One `startResize(edge)` + shared move/up handlers for
+- [x] **F5 MarginCard.** One `startResize(edge)` + shared move/up handlers for
   the 12 pointer handlers; extract `TurnView`, `FollowUpForm`.
 - [ ] **F6 Shared pieces.** One `THEMES/PENS/MARKERS` module, one `Icon`
   module for repeated SVGs, `BookCard` in LibraryView, one "Asked as / Read as"
