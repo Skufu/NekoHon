@@ -140,11 +140,11 @@ both batteries.
 
 ## Phase 4: Docs (after Phases 1–3)
 
-- [ ] **D1 `AGENTS.md`.** Also group root docs: `README.md` and `AGENTS.md` stay at the root; `GOAL.md` and `GLOSSARY.md` move to `docs/` (content unchanged; update every link). Rewrite to ~10–15K: hard rules, artifacts policy,
+- [x] **D1 `AGENTS.md`.** Also group root docs: `README.md` and `AGENTS.md` stay at the root; `GOAL.md` and `GLOSSARY.md` move to `docs/` (content unchanged; update every link). Rewrite to ~10–15K: hard rules, artifacts policy,
   verify commands, one short current-state block. Merge BUILD_PLAN's contract,
   ingest/retrieval/generation/figure rules; `git mv BUILD_PLAN.md archive/`.
   Keep the constitution copy in sync with `GOAL.md`. `web/AGENTS.md` checked.
-- [ ] **D2 `README.md`.** Rewrite: what it is, quickstart (Ollama,
+- [x] **D2 `README.md`.** Rewrite: what it is, quickstart (Ollama,
   `setup_models.py --install`, UI import or `ingest.py`, `launch.py --open` /
   dev mode), tests, contract, repo-relative links only; carry over the
   useful Mac notes from the removed SETUP-MACOS.md (git history: python.org
@@ -172,3 +172,8 @@ both batteries.
 - `_reground_alphanumeric_quote` and `_TYPE_2_RE`/`_S3_RE`/`_IOPS_RE`/`_SLA_SLO_RE`
   hard-code this book's terms (breaks the "generalize" hard rule). Kept; removal
   changes output.
+- The default book id `fde` is hard-coded outside the guarded logic modules:
+  `engine/server.py` (`DEFAULT_BOOK_ID`, built with `"".join` to dodge the
+  guard) and `engine/ingest.py` (`book_id == "fde"` picks `data/index.json`).
+  Making the default book configurable changes paths and the catalog, so it
+  is left as is.
