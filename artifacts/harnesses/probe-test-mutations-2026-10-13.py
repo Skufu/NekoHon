@@ -4,7 +4,7 @@ turn the suite red. In-memory patches, no file edits, no Ollama.
 Mutations:
   M1 no-op canonicalization (trigger never fires)
   M2 over-firing trigger (fires on everything)
-  M3 wiring dropped in answer.py (canonical module intact)
+  M3 wiring dropped in quoteask.py and freeanswer.py (canonical module intact)
   M4 filterless anchors (stopword filter removed)
   M5 explain gate open (explain canonicalizes like ask)
 
@@ -91,7 +91,7 @@ def main():
     try:
         for m in (Q, F):
             m.canonical_query = identity
-        mutations.append(("M3 wiring dropped in answer.py", run_suite()))
+        mutations.append(("M3 wiring dropped in quoteask.py and freeanswer.py", run_suite()))
     finally:
         for m in (Q, F):
             m.canonical_query = aq

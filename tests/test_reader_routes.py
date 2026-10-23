@@ -11,6 +11,7 @@ import struct
 import tempfile
 import threading
 import unittest
+import urllib.request
 from http.server import ThreadingHTTPServer
 import sys
 from pathlib import Path
@@ -330,7 +331,7 @@ class PrefillStreamTest(unittest.TestCase):
         ]
         seen = []
         with mock.patch.object(
-            answer.urllib.request,
+            urllib.request,
             "urlopen",
             return_value=self.FakeResponse(lines),
         ):

@@ -16,7 +16,6 @@ the verbatim check (40/160 vs 111/160, probe-fragment evidence). The default
 path now serves what the model was trained on.
 """
 
-import urllib.request
 
 from engine.answering.comparison import _comparison_sides
 from engine.answering.context import _pin_chunk, _should_include_chunk_figures, retrieval_context
