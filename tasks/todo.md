@@ -129,7 +129,7 @@ both batteries.
 - [x] **F6 Shared pieces.** One `THEMES/PENS/MARKERS` module, one `Icon`
   module for repeated SVGs, `BookCard` in LibraryView, one "Asked as / Read as"
   parser; Reader `markQuote` fallback uses `anchor.ts`.
-- [ ] **F7 Strip web comments** in `web/app`, `web/components`, `web/lib`,
+- [x] **F7 Strip web comments** in `web/app`, `web/components`, `web/lib`,
   config files.
   - Accept (F1–F7): `tsc` 0 errors, `next build` OK, frontend rule tests OK,
     Chrome smoke (open book, select → Explain → stream, citation jump,
