@@ -255,7 +255,6 @@ export const useAsk = create<AskStore>((set, get) => {
           stopHealthPolling();
           set({ engineReady: true });
         } catch {
-
           stopHealthPolling();
           set({ engineReady: true });
         }

@@ -48,7 +48,10 @@ class FrontendHealthAndProgressRulesTest(unittest.TestCase):
         self.assertIn("stopHealthPolling", content)
 
         # 5. Fetch error / catch enables input
-        self.assertIn("Failed /health fetch", content)
+        self.assertRegex(
+            content,
+            r"\}\s*catch\s*\{\s*stopHealthPolling\(\);\s*set\(\{\s*engineReady:\s*true\s*\}\);",
+        )
 
     def test_composer_cleans_up_health_polling_on_unmount(self):
         content = COMPOSER_TSX.read_text(encoding="utf-8")
