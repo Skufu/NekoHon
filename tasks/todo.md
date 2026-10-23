@@ -163,7 +163,7 @@ both batteries.
   useful Mac notes from the removed SETUP-MACOS.md (git history: python.org
   `Install Certificates.command`, `lsof` port check, why not Docker).
   `web/README.md` run-it section and file map updated.
-- [ ] **D3 Engineering docs.** `docs/ENGINEERING.md` (architecture + why, no
+- [x] **D3 Engineering docs.** `docs/ENGINEERING.md` (architecture + why, no
   dated numbers, current module names, mermaid), `docs/DECISIONS.md` finalized,
   `GLOSSARY.md` definitions only, `.agents/skills/book-companion-ui/SKILL.md`
   current, `artifacts/README.md` index of kept files only,
