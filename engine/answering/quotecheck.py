@@ -357,7 +357,7 @@ def _parse_citations(text, passages):
 
 
 def _passage_for_id(passages, chunk_id):
-    return next((p for p in passages if p.get("chunk_id") == chunk_id), None)
+    return next((p for p in passages if p["chunk_id"] == chunk_id), None)
 
 
 def _expand_to_paragraphs(citations, passages, anchors, question):
