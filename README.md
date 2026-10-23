@@ -96,6 +96,13 @@ A refusal is `refused: true` with `answer` exactly `Not in this book.`
 - On an 8 GB machine, use `ANSWER_MODEL=nekohon_x3_mobile python3 -m engine.server`.
 - Run Ollama natively, not in Docker: containers on macOS have no Metal GPU.
 
-## Links
+## Docs
 
-[Goal](docs/GOAL.md) · [Agent rules](AGENTS.md) · [Glossary](docs/GLOSSARY.md) · [Frontend](web/README.md) · [License](LICENSE)
+- [Goal and constitution](docs/GOAL.md)
+- [Engineering: how it works](docs/ENGINEERING.md)
+- [Decisions: why it is built this way](docs/DECISIONS.md)
+- [Glossary](docs/GLOSSARY.md)
+- [Agent rules](AGENTS.md)
+- [Frontend](web/README.md)
+- [Artifacts index](artifacts/README.md)
+- [License](LICENSE)

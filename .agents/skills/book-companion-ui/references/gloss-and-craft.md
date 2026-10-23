@@ -1,9 +1,6 @@
-# Gloss + the craft references (condensed 2026-10-15)
+# Gloss and craft references
 
-Condensed from three read-only audits (2026-10-15). Full notes:
-`artifacts/reports/frontend-phase1-2026-10-15.md`. Phase order:
-`artifacts/plans/frontend-build-plan-2026-10-15.md`. Implementation:
-`web/README.md`.
+Design research the reader UI draws on. Implementation: `web/README.md`.
 
 ## Gloss (github.com/Nutlope/gloss, main @ 54b13b8) — copy / skip
 
@@ -11,8 +8,7 @@ COPY:
 
 - The anchor model `{start:{b,o}, end:{b,o}, quote}` + `spanIn`/`segments()`
   mark splitting — offsets over plain block text survive marks, fonts, themes.
-  (Phase 1 stand-in: whitespace-insensitive quote search over the rendered
-  paragraphs; char offsets are the later step, per the navigation plan.)
+  (Implemented in `web/lib/anchor.ts` as character offsets over block text.)
 - `Margin.compute`/`place`: document-relative geometry; the active card pinned
   at its anchor, others pushed forward/pulled back; 16 px gaps (4 px between
   mini cards); passages starting within 88 px collapse to mini; SVG bezier
@@ -63,7 +59,7 @@ refusal only from `final.refused`, never from partial tokens.
 ## Our engine's extra state: reset / the hold
 
 The engine holds provisional generations — tokens stream only for the
-generation whose text becomes the answer (`server.py:_stream_ask`) — so the
+generation whose text becomes the answer (`engine/server.py:_stream_response`) — so the
 pane shows one continuous stream. `reset` still marks that a draft was
 discarded and usually arrives before anything was shown (no-op it); the `[Ch. `
 retry's stream leads with the prefill. On every `final`, replace what is

@@ -1,172 +1,90 @@
-# artifacts/ — what lives here, and the rules
+# artifacts/
 
-This directory holds evidence, harnesses, and datasets. It is **not** a dump.
-Read the rules, then the index.
-
-## Where to put what (zones)
-
-New files must land in a zone. The ~260 flat files at this level are
-grandfathered history: they stay until a doc supersedes them. Do not move
-them speculatively — 48 scripts hardcode `ROOT / "artifacts" / <name>`
-and `sys.path` entries pointing at bare `artifacts/`; a move without a
-same-commit code fix breaks the battery.
-
-| Kind | Zone | Naming | Example |
-| --- | --- | --- | --- |
-| Stable runners (reused across sessions) | `artifacts/harnesses/` | stable undated name | `artifacts/harnesses/eval.py` |
-| One-off probes | `artifacts/probes/` | `probe-*-YYYY-MM-DD.py`, outputs beside it | `artifacts/probes/probe-foo-2026-10-15.py` |
-| Datasets, question lists | `artifacts/datasets/` | `family-YYYY-MM-DD[-label].json` | `artifacts/datasets/eval-set-2026-10-15.json` |
-| Findings, decisions, plans | `artifacts/reports/` | `family-YYYY-MM-DD[-label].md` | `artifacts/reports/answer-mode-2026-10-15.md` |
-| Run outputs (json/log/txt) | `artifacts/evidence/<family>/` | dated outputs, one live twin per family (rule 3) | `artifacts/evidence/eval-plain/eval-plain-2026-10-15-v7.json` |
-| Scratch | `artifacts/runs/` or `artifacts/scratch/` | anything; gitignored, never indexed | `artifacts/runs/tmp-2026-10-15.log` |
-
-New scripts resolve paths as `ROOT / "artifacts" / "<zone>" / <name>`
-(not bare `artifacts/`), and any `sys.path` insert points at the zone dir
-(e.g. `ROOT / "artifacts" / "harnesses"`). `prune.py` understands zone
-paths; index rows cover them by full relative path
-(e.g. `probes/probe-foo-2026-10-15.py`).
+Live measuring tools, their datasets, and forward-looking plans. Dated reports,
+raw evidence, one-off probes and superseded plans are history: they live in
+`../archive/`, never edited, tested or imported.
 
 ## Rules
 
-1. **Scratch vs evidence.** Run outputs go to `artifacts/runs/` (gitignored).
-   A run is promoted into `artifacts/` only when a document or commit
-   references it by name.
-2. **Names carry a date.** Any new doc or benchmark output is named
-   `family-YYYY-MM-DD[-label].ext` (e.g. `eval-plain-2026-10-14-quotealign`).
-   Older files keep their historical names; their dates are in this index.
-3. **One live twin per family.** A benchmark family keeps the latest run plus
-   any run a document names. Superseding a run means deleting the old one in
-   the same commit that supersedes it (numbers folded into the doc first).
-4. **Index rule.** If a tracked file here is not covered by a row below, it is
-   prunable. The index is the gate.
-5. **Staleness gate — future agents, read this.** Any benchmark or doc whose
-   date is **two or more days old is stale**. Do not treat it as current, do
-   not build on its numbers, do not "fix" code to match it. Re-run it, or
-   **ask the user first**. The dated names and the dates in this index are
-   how you check.
-6. **Prune before docs commits.** `python artifacts/prune.py --plan` reports
-   unindexed, unreferenced, over-versioned, and stale files.
-7. **Deletion is recoverable.** Git history keeps everything; deleting is a
-   commit, not a loss. `.git` size only grows via history (no rewrites).
+1. Run output goes to `runs/` or `scratch/` (both gitignored). Promote a run
+   only when a document names it, and index it here.
+2. New files carry their date in the name: `family-YYYY-MM-DD[-label].ext`.
+   Reusable runners keep a stable undated name.
+3. One live twin per family: the latest run plus any run a document names.
+4. Every tracked file below `artifacts/` needs a row in the index. The index is
+   the gate: `python3 artifacts/prune.py --plan` must report 0 unindexed and 0
+   missing.
+5. A benchmark or document dated two or more days ago is stale. Re-run it before
+   building on it.
+6. Judge calls (the cloud judge) are an eval-only exception to the local-only
+   rule. The engine, server and batteries never use them.
 
-Untracked files (concurrent writers' scratch, `runs/`, logs) are not indexed;
-their owner decides. Files from the 2026-10-13 query-form session are
-indexed in the rows below (undated probe names predate this index; the row
-date is the date). `mad-ask-ceiling.md` and `query-normalization.md` are
-referenced by `AGENTS.md` and committed (2026-10-13).
+`prune.py` is read-only. Flags: `--plan` (print the plan), `--stale-days N`
+(default 2).
 
 ## Index
 
-Dates are first-commit dates (`2026-10-11/12/13`). Paths are relative to `artifacts/`.
+Paths are relative to `artifacts/`. "Engine" means a running `engine.server` on
+:8000; "Ollama" means the local models are installed and serving; "judge" means
+the judge backend is configured (`JUDGE_BACKEND`, key in `.judge-key`, see
+`harnesses/judge.py`).
 
-### Harnesses (code, in use)
+### Harnesses
 
-| File | What it is |
-| --- | --- |
-| `harnesses/eval.py` | labeled-set evaluation (recall/MRR/refusals/key facts/relevance) |
-| `harnesses/eval-plain.py` | plain-register scorecard (imports `probe-plain.py`) |
-| `harnesses/step2-battery.py` | the commit-gate battery, both modes |
-| `harnesses/qa-sweep.py` | bulk sweep runner over `datasets/qa-questions-overnight.json` |
-| `harnesses/groundedness.py` | 4-gram support meter |
-| `harnesses/judge.py` | LLM judge (default `muse-spark-1.3-contributor`; `JUDGE_BACKEND=ollama` offline fallback) |
-| `harnesses/rank-answers.py` | answer-quality ranking (method v2: machine checkables + yes/no bits voted ×3; worst-first triage dial) |
-| `harnesses/judge-agreement.py`, `probes/probe-judge-scale.py` | judge calibration |
-| `harnesses/judge-stability.py` | verdict flip-rate probe |
-| `harnesses/secret-scan.py` | git-history secret scan (must stay clean) |
-| `harnesses/plain-edge-check.py` | contract checker over `evidence/plain-edge/plain-edge-*.json` |
-| `probes/probe-agentic.py`, `probes/probe-plain.py`, `probes/probe-llm-spell.py`, `probes/probe-mad-phrasing.py`, `probes/probe-codd.py`, `probes/probe-refusal.py`, `probes/probe-stages.py` | named probes with committed findings below |
-| `probes/probe-prefix-rule.py`, `probes/probe-prefix-bare-terms.py`, `probes/probe-class-variance-2026-10-13.py`, `probes/probe-canonical-retest-2026-10-13.py`, `probes/probe-test-mutations-2026-10-13.py`, `probes/probe-fold-ab-2026-10-13.py`, `probes/probe-finetune-verify-2026-10-13.py`, `probes/probe-small-ask-2026-10-13.py`, `probes/probe-small-refuse-2026-10-13.py`, `probes/probe-llm-loop-2026-10-13.py`, `probes/probe-trial-queries-2026-10-14.py`, `probes/probe-contamination-2026-10-14.py`, `probes/probe-query-normalize.py`, `probes/probe-nonrelational-ask.py`, `probes/probe-quote-fix.py`, `probes/probe-plain-diagnose.py`, `probes/probe-quote-choice.py`, `probes/probe-mad-quote.py`, `probes/probe-mad-seed.py`, `probes/probe-mad-caption.py`, `probes/probe-gloss-steer.py`, `probes/probe-gloss-steer-control.py`, `probes/probe-epub-links.py` | 2026-10-13 session probes (query form, quote choice, MAD ceiling, fold A/B, test mutations, dataset verify, small-model bench); findings in the rows below |
-| `probes/multihop-probe.py`, `probes/multihop-explore.py`, `probes/multihop-forced-keyword.py` | agentic multi-hop experiments |
-| `probes/bakeoff-digest.py` | bake-off log digester |
-| `prune.py` | this directory's planner (rule 6) |
-| `harnesses/guard-audit.py` | guard-word audit (json next to it) |
-| `harnesses/hard-bench.py` | 60-item un-saturated hard benchmark harness |
-| `harnesses/crossbook-evil-eval.py` | cross-book adversarial multi-turn evaluation harness (30 scenarios, 66 requests across fde, quantization, ddia) |
-| `probes/build-finetune-data-2026-10-13.py`, `probes/build-finetune-x2g-2026-10-16.py`, `probes/build-finetune-x3-2026-10-17.py`, `probes/build-highlight-golden-2026-10-16.py`, `probes/eval_x2g_gates.py`, `probes/run_step2_battery_comparison.py`, `probes/probe-highlight-2026-10-16.py`, `probes/probe-answer-shape-2026-10-16.py`, `probes/probe-query-limit-2026-10-15.py`, `probes/probe-find-scenario-chunks-2026-10-18.py`, `probes/probe-inspect-chunks-2026-10-18.py`, `probes/probe-multibook-verify-2026-10-18.py`, `probes/probe-verify-scenario-chunks-2026-10-18.py` | quote-or-refuse SFT builders, highlight builders, multi-book probes, and evaluation probes |
+| File | What it is | Needs |
+| --- | --- | --- |
+| `harnesses/step2-battery.py` | The commit-gate battery: golden questions with pinned chunks, typo probes, coherence probes, France refusal. `BATTERY_MODE=answer` runs answer mode. | Engine, Ollama |
+| `harnesses/hard-bench.py` | Hard-question benchmark over `datasets/hard-bench-2026-10-17.jsonl`. | Ollama (in-process) |
+| `harnesses/qa-sweep.py` | Bulk question sweep over `datasets/qa-questions-overnight.json` with refusal classification. `SWEEP_MODE=answer` for answer mode. | Engine, Ollama |
+| `harnesses/groundedness.py` | 4-gram support meter: the share of answer sentences supported by the shown passages. | Ollama (in-process) |
+| `harnesses/adrian-eval.py` | Multi-turn conversational scenarios (highlights, follow-ups, adversarial edges) from `datasets/adrian-realworld-eval-2026-10-17.json`. | Engine, Ollama |
+| `harnesses/crossbook-evil-eval.py` | Cross-book multi-turn scenarios from `datasets/crossbook-evil-eval-2026-10-18.json`. Needs the books it names to be ingested. | Engine, Ollama |
+| `harnesses/probe-highlight-2026-10-16.py` | Runs the held-out highlight golden set (`datasets/highlight-golden-2026-10-16.jsonl`) against one or more model tags. | Ollama (in-process) |
+| `harnesses/probe-test-mutations-2026-10-13.py` | Mutation check: breaks canonicalization in memory five ways; the suite must go red each time. | none |
+| `harnesses/eval.py` | Labeled-set evaluation (recall, MRR, refusals, key facts, relevance) over `datasets/eval-set.json`. | Ollama, judge |
+| `harnesses/eval-plain.py` | Plain-words register scorecard over `datasets/eval-set-plain.json` (imports `harnesses/probe-plain.py`). | Ollama, judge |
+| `harnesses/probe-plain.py` | Plain-register probe used by the scorecard. | Ollama (in-process) |
+| `harnesses/plain-edge-check.py` | Contract checker for saved plain-register edge responses. | none |
+| `harnesses/rank-answers.py` | Answer-quality ranking: machine checks plus yes/no bits voted three times; worst-first triage, never a gate. | judge |
+| `harnesses/judge.py` | The judge client (default cloud `muse-spark-1.3-contributor`; `JUDGE_BACKEND=ollama` uses local `granite4.1:8b`). | judge or Ollama |
+| `harnesses/judge-agreement.py` | Agreement between two saved judged runs. | none |
+| `harnesses/judge-stability.py` | Verdict flip-rate probe for one judged item. | Ollama, judge |
+| `harnesses/secret-scan.py` | Scans git history and the tracked tree for credentials; must exit 0. | none |
 
 ### Datasets
 
 | File | What it is |
 | --- | --- |
-| `datasets/eval-set.json` | 24 labeled items (22 answer, 2 refuse) |
-| `datasets/eval-set-plain.json` | 10 plain-register items |
-| `datasets/qa-questions-overnight.json` | 124 sweep questions |
-| `datasets/demo-questions.md` | the demo sheet + pins (2026-10-12) |
-| `datasets/owner-rated-2026-10-15.jsonl` | 27 live answers with machine pins + owner/persona/checker ratings — answer-quality judge sample (never trained) |
-| `datasets/highlight-golden-2026-10-16.jsonl`, `datasets/highlight-train-2026-10-16.jsonl` | 24 held-out golden highlights + 72 training highlights (pinned by `tests/test_highlight_golden.py`) |
-| `datasets/hard-bench-2026-10-17.jsonl` | 60 challenging stress items (multi-turn, natural comparisons, alphanumeric, adversarial, explain, unseen book) |
-| `datasets/crossbook-evil-eval-2026-10-18.json` | 30 cross-book multi-turn evaluation scenarios (lazy queries, topic shifts, highlight refines, adversarial nuance traps) |
+| `datasets/eval-set.json` | Labeled questions for `harnesses/eval.py`. |
+| `datasets/eval-set-plain.json` | Questions for the plain-register scorecard. |
+| `datasets/qa-questions-overnight.json` | Sweep and groundedness question set. |
+| `datasets/hard-bench-2026-10-17.jsonl` | Hard-question benchmark items with pins. |
+| `datasets/highlight-golden-2026-10-16.jsonl` | 24 held-out highlight cases, pinned by `tests/test_highlight_golden.py`. |
+| `datasets/highlight-train-2026-10-16.jsonl` | Highlight training rows kept as the golden set's counterpart. |
+| `datasets/adrian-realworld-eval-2026-10-17.json` | Multi-turn scenarios for `harnesses/adrian-eval.py`. |
+| `datasets/crossbook-evil-eval-2026-10-18.json` | Cross-book scenarios for `harnesses/crossbook-evil-eval.py`. |
+| `datasets/owner-rated-2026-10-15.jsonl` | Owner-rated answer rows used by the ranking and judge checks. |
+| `datasets/sealed-forms.json` | Sealed question forms never used for training. |
+| `datasets/demo-questions.md` | Demo questions for a first run of the app. |
 
-### Evidence — current claims
+### Plans
 
-| Family | What it backs | Status |
-| --- | --- | --- |
-| `reports/answer-model-bakeoff-plan.md`, `reports/answer-model-bakeoff-results.md`, `reports/answer-model-decision.md`, `reports/answer-model-search.md`, `reports/ollama-quote-model-table.md` | model choice (qwen2.5:7b stays); `evidence/bakeoff/` survivors: `evidence/bakeoff/bakeoff-granite4.1-3b-v2.{json,log}`, `evidence/bakeoff/bakeoff-side-asks.txt`, `evidence/bakeoff/bakeoff-side-asks-v2.txt`, `evidence/bakeoff/bakeoff-qwen3-4b-instruct-retries.txt`, `evidence/bakeoff/bakeoff-qwen3-4b-instruct-cru-retries-v2.txt` | kept (2026-10-11/12) |
-| `evidence/step2-battery/step2-battery.{json,log}`, `evidence/step2-battery/step2-battery-answer.{json,log}`, `evidence/step2-battery/step2-battery-flaked.{json,log}` | latest battery runs + preserved cold-start flake | LIVE |
-| `evidence/eval-v1/eval-v1*.{json,log}` | labeled-set baseline + granite/Muse replays (`eval-v1.json` is `probe-judge-scale.py` input) | kept |
-| `evidence/eval-plain/eval-plain-*` | register history: baseline (granite/muse), v4/v4b (invalidated-run evidence), v6 (cited in AGENTS), wired/replay/quotealign/quotealign2 (post-wiring draws) | kept |
-| `evidence/groundedness/groundedness-authored*.*`, `evidence/groundedness/groundedness-battery.*`, `evidence/groundedness/groundedness-closephrase.*`, `evidence/groundedness/groundedness-sweep303.*` | groundedness meter numbers in `answer-mode-overnight.md` | kept |
-| `evidence/answer-quality/answer-quality-owner-sample{,-v2,-v3,-m2a,-m2b}-openai-muse-spark-1-3-contributor.{json,log}` | rubric calibration: scale era v1-v3 (persona 16 → 19 → 16/24, v3 reverted) + method v2 checkables/voted-bits runs (wobble 3/27 rows on 2–1 votes; persona 20/24 in both; #7 quote_ok harness fix recorded) — dials only (`plans/answer-quality-judge-plan-2026-10-15.md`) | LIVE |
-| `evidence/judge-grade/judge-grade-*`, `evidence/judge-scale/judge-scale-*.log`, `evidence/judge-agreement/judge-agreement-*.log` | graded-scale and agreement findings | kept |
-| `reports/agentic-design.md`, `probes/probe-agentic.py` | agentic prototype design + live probe | kept (2026-10-13) |
-| `evidence/multihop/multihop-*` | agentic no-win evidence + forced-keyword follow-up | kept (2026-10-13) |
-| `evidence/plain-edge/plain-edge-*.json` (17), `evidence/plain-edge/plain-edge-timing.txt`, `reports/plain-edge-findings.md` | wired-register edge probes; raw responses checked by `plain-edge-check.py` | kept (2026-10-13) |
-| `evidence/plain-http/plain-http-{check,control}.json`, `evidence/plain-fix-check/plain-fix-check-{1,2}.json` | live route checks + fragment-fix outputs | kept (2026-10-13) |
-| `reports/plain-register-night-2026-10-13.md` | the night run report (register draws, judge drift, fixes) | kept (2026-10-13) |
-| `reports/answer-mode-overnight.md` | answer-mode overnight findings | kept (2026-10-13) |
-| `reports/mad-caption-probe.md`, `reports/mad-phrasing-probe.md`, `evidence/mad-phrasing/mad-phrasing-postrevert.txt`, `reports/mad-ask-ceiling.md` (untracked) | MAD retrieval history | kept (2026-10-12/13) |
-| `reports/query-canonicalization-2026-10-13.md`, `evidence/probe-class-variance/probe-class-variance-2026-10-13.{json,log}` (Stage 1 rerun), `evidence/probe-class-variance/probe-class-variance-2026-10-13-stage0.{json,log}` (baseline), `evidence/probe-canonical-retest/probe-canonical-retest-2026-10-13.{json,log}`, `evidence/probe-test-mutations/probe-test-mutations-2026-10-13.{json,log}` (5 breaks, 0 survivors), `evidence/probe-prefix-rule/probe-prefix-rule.{json,log}`, `evidence/probe-prefix-bare-terms/probe-prefix-bare-terms.{json,log}` | canonicalization plan + baselines + retest + test mutation check; R1 landed 2026-10-13 | kept (2026-10-13) |
-| `reports/query-normalization.md`, `evidence/probe-nonrelational-ask/probe-nonrelational-ask.*`, `evidence/probe-query-normalize/probe-query-normalize.{log,json}` | one-`?` flip evidence: model-side at identical pool order; blanket punctuation strip net 0 (2/23 opposite) | kept (2026-10-13) |
-| `evidence/probe-quote-fix/probe-quote-fix.{json,log}`, `evidence/probe-quote-choice/probe-quote-choice.log`, `evidence/probe-plain-diagnose/probe-plain-diagnose*.{json,log}` | answer-mode quote-choice fix evidence (cited in AGENTS) | kept (2026-10-13) |
-| `evidence/probe-mad-quote/probe-mad-quote.*`, `evidence/probe-mad-seed/probe-mad-seed.*`, `evidence/probe-mad-caption/probe-mad-caption.*`, `evidence/probe-gloss-steer/probe-gloss-steer*.*`, `evidence/probe-epub-links/probe-epub-links.log` | MAD ask ceiling; steer #4 negative; EPUB link graph | kept (2026-10-13) |
-| `evidence/probe-fold-ab/probe-fold-ab-2026-10-13.{json,log}` | embedded-book typography-fold A/B (full re-embed): 0/21 top-1 flips, fold unproven -> no index rebuild; corrects figure-vector composition and the 1042-chunk count | kept (2026-10-13) |
-| `reports/finetune-data-prep-2026-10-13.md`, `reports/finetune-loop-eval-2026-10-13.md`, `reports/finetune-colab-recipe-2026-10-13.md`, `reports/finetune-colab-2026-10-13.ipynb`, `evidence/probe-finetune-verify/probe-finetune-verify-2026-10-13.{json,log}`, `evidence/probe-small-ask/probe-small-ask-2026-10-13*.{json,log}`, `evidence/probe-small-refuse/probe-small-refuse-2026-10-13*.{json,log}`, `evidence/probe-llm-loop/probe-llm-loop-2026-10-13.*.log` | quote-or-refuse dataset + ratio variants (train x3 194 / x2 167 / x1 140, bench 45; verifier PASS each); x3 checkpoints: refusals fixed on both, 3B loops on some answers (draw-process measured, sampler fixes rejected), Qwen3 parked; Colab recipe v4 (two ratios, one session) | kept (2026-10-13) |
-| `reports/x2-trial-2026-10-14.md`, `evidence/probe-trial-queries/probe-trial-queries-2026-10-14.{json,log}`, `evidence/probe-contamination/probe-contamination-2026-10-14.{json,log}` | smallbook_x2 live trial: fragment-pattern results vs the 7B (3 false-refusal classes grounded; engine backlog logged); contamination audit (0 exact, 4 bench near-twins in train); x2 = app trial default | kept (2026-10-14) |
-| `reports/loop-mechanism-analysis-2026-10-14.md` (sources, now the pre-retry twins: `evidence/probe-fragment/probe-fragment-2026-10-14.model-smallbook_x2.gate.{json,log}`, `.model-qwen2.5-7b.gate.{json,log}`) | x2 loop forensics: the File Formats transcript is a context recital with zero n-gram repetition, EOS is a near-tie at a passage boundary (suite 10/10 length-stops; one fresh-load live run stopped at 243 tokens); template/stops identical to qwen2.5:7b; sampler fixes stay rejected; x2c/q8 gate hygiene + engine num_predict cap proposed | kept (2026-10-14) |
-| `reports/finetune-expert-review-2026-10-14.md`, `reports/eval-harness-audit-2026-10-14.md`, `reports/finetune-dataset-verification-2026-10-14.md`, `reports/judge-status-2026-10-14.md`, `evidence/user-query-probes-2026-10-14.md` | 2026-10-14 pre-run review batch: x2c swaps corrected and rebuilt (24 swaps, hash 27a84899, re-verified PASS, contamination 0 exact / 11 pairs), equal-draws + q8 + seed-control gate amendments, muse relay re-verified live (outside the gate), raw user query-test log | kept (2026-10-14) |
-| `evidence/step2-battery/step2-battery-revert-rehearsal-2026-10-14.{json,log}`, `evidence/step2-battery/start-revert-rehearsal-2026-10-14.bat` | gate item 6 rehearsal: the `ANSWER_MODEL=qwen2.5:7b` env seam starts the server and passes the battery once (golden 10/10, typos/probes/France PASS); default engine restored after | kept (2026-10-14) |
-| `evidence/x2c-session-2026-10-14/run-log-smallbook_x2c.json`, `run-log-smallbook_x2_seed1234.json`; `evidence/probe-fragment/probe-fragment-2026-10-14.model-{smallbook_x2c,smallbook_x2c_q8,smallbook_x2_seed1234}.{json,log}`; `evidence/probe-small-ask/probe-small-ask-2026-10-13.model-smallbook_x2c{,q8}*.{json,log}`; `evidence/probe-small-refuse/probe-small-refuse-2026-10-13.model-smallbook_x2c{,q8}*.log`; same `…model-smallbook_x2_seed1234*.log`; `evidence/probe-llm-loop/probe-llm-loop-2026-10-13.{x2c,x2-seed1234,x2c-q8}-battery-sweep5.log`, `evidence/probe-trial-queries/probe-trial-queries-2026-10-14.model-smallbook_x2c{,q8}.{json,log}` | x2c session (A100): Colab run-logs + every gate probe; verdict in `reports/x2-trial-2026-10-14.md` (not adopted — suite bar vs 7B; seed control diverged; q8 quant effect measured) | kept (2026-10-14) |
-| `evidence/smallbook_x2/Modelfile-2026-10-14.txt`, `evidence/x2c-session-2026-10-14/Modelfile-smallbook_x2c-2026-10-14.txt` | Ollama import recipes (FROM path + template/stops) for `smallbook_x2` (on disk as the revert seam) and the non-adopted `smallbook_x2c` | kept (2026-10-14) |
-| `reports/how-it-works.md` | pipeline mental image | kept (2026-10-12) |
-| `reports/system-map-2026-10-13.md` | pipeline map; the mermaid example `AGENTS.md` points at | kept (2026-10-13) |
-| `reports/stage9-preprocessing.md` | preprocessing stages 5-9 | kept (2026-10-13) |
-| `evidence/refusal-fixes-evidence/refusal-fixes-evidence.txt` | refusal fixes evidence | kept (2026-10-13) |
-| `evidence/embedding-audit/embedding-audit-2026-10-13.txt` | vector audit numbers | kept (2026-10-13) |
-| `evidence/phase7-offline/phase7-offline*` | wifi-off gate evidence | kept (2026-10-12) |
-| `plans/README.md`, `plans/frontend-build-plan-2026-10-15.md`, `plans/frontend-navigation-plan.md` | the plans folder (2026-10-15): forward-looking plans, one file per track with its status; the frontend build plan is **approved** (follow Gloss's patterns — margin answers, citation chips that jump + peek, select-then-type; **stack: Next.js under `web/`** — the frontend exception; phases 1-4; phase 1 engine side + scaffold landed 2026-10-15); the older navigation direction keeps the locator design | kept (2026-10-15) |
-| `.agents/skills/book-companion-ui/` (`SKILL.md` + `references/tokens.css`, `references/gloss-and-craft.md`) | the project-local UI skill (2026-10-15): the quiet-book taste layer adapted from taste-skill (MIT, Leonxlnx) plus this repo's bindings — the two-toolchain rule (Next.js under `web/`), local-only, the frozen `POST /ask` shape, citation click → jump + exact-quote highlight, the states checklist (loading/refusal/error/empty/figure/reset), the anti-slop list, and the screenshot review loop at three widths; `references/gloss-and-craft.md` is the condensed Gloss/prompt-kit/interior.dev teardown; loads for any window/reader/frontend work | kept (2026-10-15) |
-| `plans/figure-understanding-plan-2026-10-15.md` | figure-understanding plan (**parked 2026-10-15**, user decision): the two live screenshots ("explain figure 4.4" -> refusal) traced to (a) no figure-number normalization ("4.4" vs the book's "4-4"; `canonical_query` leaves the dot form untouched) and (b) figure content absent from the index (only caption + referencing paragraph). Verdict on the VL proposal: pre-describe figures **at ingest** (build-time reader, 111 figures), keep the shipped runtime text-only — vision at inference buys nothing and costs the footprint promise. Phases: 0 = number normalization (cheap, independent); 1 = ingest-time VL+OCR reader with label cross-checks; 2 = retrieval + display; 3 = the generated-text citation policy (open decision: labeled block vs a distinct `[Fig. N]` class) | kept (2026-10-15) |
-| `reports/golden-growth-plan-2026-10-13.md` | labeled-set growth plan: statistical targets (24 -> ~100), strata, book-first labeling protocol, 4-batch rollout (not approved) | kept (2026-10-13) |
-| `reports/x-research-2026-10-12.md`, `reports/planning-context.md`, `reports/post-v1-plan.md` | session planning notes | kept (2026-10-12) |
-| `evidence/probe-plain/probe-plain.{json,log}`, `evidence/probe-llm-spell/probe-llm-spell.{json,log}` | spell/plain probe evidence | kept (2026-10-13) |
-| `evidence/guard-audit/guard-audit.json` | guard-word audit output | kept (2026-10-13) |
-| `evidence/judge-stability/judge-stability-all-wired.txt` | per-question flip map | kept (2026-10-13) |
-| `reports/x2d-forms-2026-10-14.md`, `probes/gen-x2d-forms-2026-10-14.py` | x2d step 1 run: v1 66 forms; v2 widening (same doc) **171 forms** (swap 24 / bare 38 / restate 32 / explain 27 / heading 25 / greet 23 / named 2) through suite + bench + retrieval preflight; projected dataset 338 rows, 254 steps; output `data/finetune/x2d-forms-2026-10-14.json` | kept (2026-10-14) |
-| `reports/x2d-plan-2026-10-14.md`, `reports/x2d-refusal-mining-2026-10-14.md`, `reports/x2d-builder-notes-2026-10-14.md`, `reports/x2d-plan-audit-2026-10-14.md`, `reports/gate-driver-notes-2026-10-14.md`, `datasets/sealed-forms.json`, `evidence/finetune-data-prep/*-x2d.{json,log}`, `harnesses/run-gate.py`, `probes/mine-x2d-refusals-2026-10-14.py`, `probes/build-finetune-x2d-2026-10-14.py` | x2d build run (2026-10-14): 27 new refusals (54 unique union), teacher capture -> **373 rows kept / 328 train (274 answer + 54 refusal)**, bench byte-identical (`174afd18…`), verifier PASS, contamination 0 exact / 13 pairs, seal clean, manifest, notebook v7 (`EXPECTED_X2D=328`), gate driver smoke-tested; Colab slot pending | kept (2026-10-14) |
-| `evidence/x2d-session-2026-10-14/run-log-smallbook_x2d.json`, `evidence/probe-fragment/probe-fragment-2026-10-14.model-smallbook_x2d{,_q8}.{json,log}`, `evidence/probe-small-ask/probe-small-ask-2026-10-13.model-smallbook_x2d*.{json,log}`, `…model-x2d-q8.run*.*`, `evidence/probe-small-refuse/probe-small-refuse-2026-10-13.model-smallbook_x2d.run*.log`, `evidence/probe-trial-queries/probe-trial-queries-2026-10-14.model-smallbook_x2d.{json,log}`, `evidence/probe-llm-loop/probe-llm-loop-2026-10-13.smallbook_x2d-battery-sweep5.log` | x2d gate session: battery **20/21 (best recorded)** + source-systems/ETL pin-misses fixed, refusals 10/10, loops 0; suite-citing classes still under the 7B bar (uncited prose on unseen forms) — not adopted under gate item 2; verdict in `reports/x2d-plan-2026-10-14.md` | kept (2026-10-14) |
-| `reports/second-book-2026-10-14.md`, `probes/probe-second-book-2026-10-14.py`, `evidence/probe-second-book/probe-second-book-2026-10-14.{json,log}`, `evidence/probe-second-book/probe-second-book-2026-10-14.chapternum.{json,log}` | second-book portability probe ("Quantization and Fast Inference", 506 chunks / 0 figures, `data/index.quantbook.json`): refusal boundary transfers (0 false refusals, controls exact); citations did not transfer (2/11 tagged) — fixed same day (`_chapter_number`: `chapter-4` -> `4`, index rebuilt) and retested: x2 9/11 tagged / 3 PASS, x2d 8/11 / 5 PASS, all tags verbatim, controls exact; 7B France hallucination with a fabricated pin (teacher only); figure path untested | kept (2026-10-14) |
-| `reports/retry-safety-net-2026-10-14.md`, `evidence/probe-fragment/probe-fragment-2026-10-14.model-smallbook_x2{,d}{,.gate}.{json,log}`, `evidence/probe-fragment/probe-fragment-2026-10-14.model-qwen2.5-7b{,.gate}.{json,log}`, `evidence/probe-trial-queries/probe-trial-queries-2026-10-14.model-smallbook_x2d{,.gate}.{json,log}`, `evidence/probe-second-book/probe-second-book-2026-10-14.retry.{json,log}` | validation-gated `[Ch. ` retry landed in `answer.py` (x2d verdict option c): uncited answer-mode replies are retried once and kept only on a verbatim-quote citation; suite at 10 draws x2 60->111/160, x2d 21->111/160 (x2d 0 loops, x2 20); x2d still short of gate item 2 (bare 41/50, order 20/40); visible-ten uncited three not rescued; second book rescued 2/10 (x2) and 1/10 (x2d); 7B bar refreshed under the retry — **unchanged 140/160**, classes identical (pre-retry twin `…model-qwen2.5-7b.gate.*`), controls 10/20 (violin leak pre-dates the retry) vs x2d 20/20 | kept (2026-10-14) |
-| `datasets/training-list-2026-10-14.md` | next-training list: x2d's five remaining sealed-suite failures with teachers' scores (4 targets, `why does` is a 7B ceiling) + the visible-ten uncited three; sealed items never trained | kept (2026-10-14) |
-| `reports/owner-pattern-2026-10-15.md` | mined owner likes/dislikes (cited to the record) — the persona rater's brief for the answer-quality judge sample | kept (2026-10-15) |
-| `reports/session-handoff-2026-10-15.md` | answer-quality lane handoff: what was built + measured, ranked concerns, decisions waiting — written while the repo-wide churn is in flight (frozen copy under `runs/`) | kept (2026-10-15) |
-| `reports/query-coverage-gaps-2026-10-14.md`, `probes/probe-user-forms-2026-10-14.py`, `evidence/probe-user-forms/probe-user-forms-2026-10-14.model-smallbook_x2d.{json,log}` | owner-style query surface: coverage audit (30 new items, screened against the sealed 21 and 1365 asked forms) + first exploratory run (x2d, 1 draw): cited items 14 PASS / 6 PARTIAL / 1 FAIL (`why's` contraction false refusal — the 7B ceiling too); contamination 3/3 exact refusals; `lambda vs kappa` and `why is kafka so popular?` answer uncited (targets vs ceilings); `tco`/`cdc` shorthands, both typos, possessives, punctuation PASS; whitespace-only input answers an arbitrary quote (record; engine backlog) | kept (2026-10-14) |
-| `probes/export-teacher-probe-2026-10-15.py`, `probes/gen-new-forms-2026-10-15.py`, `probes/gen-new-forms-v2-2026-10-15.py`, `probes/build-teacher-capture-2026-10-15.py`, `reports/teacher-capture-colab-2026-10-15.ipynb`, `reports/coach-handoff-2026-10-15.md`, `reports/coach-review-response-2026-10-15.md` | teacher capture kit (build-time): the exporter freezes the 9 probe prompts; v1 gen produced 227 forms, then the external review (handoff doc, sent 2026-10-15) measured the variant explosion and the v2 gen rebalanced to **187 forms** — the capture file was rebuilt to **515 rows** (328 re-captures + 187 new; **396 cited / 119 refusal**; no duplicate prompts — `data/finetune/teacher-capture-2026-10-15.jsonl`, gitignored); notebook **v3**: Qwen3.8-27B UD-Q4_K_XL default (~16 GB; HF filename verified 2026-10-15; Saluki 2-bit demoted to fallback), 4-slot serving (`-c 16384 --parallel 4 --cache-reuse 256`), behavioral pre-gate (9 probe + 5 capture rows; hard stops: thinking leaks/empties/cap-hits; ceilings printed only), 4-worker capture at max 250 tokens, resume by row id, Drive copy; review answers (recapture prefixes 274 `[Ch.` + 54 refusal; both column/row directions retrieve the same chunks; 7B `what about` = uncited prose; x2d Turn-1 21/160 vs retry-rescued 90/160) and the adopted/rejected list live in the response doc. Colab quirks measured live 2026-10-15 and baked into the notebook: port 8080 is occupied in the Colab VM (bind error, then 404s) so the server runs on **8000**; and the CUDA plugin silently drops to CPU unless **/usr/lib64-nvidia** (`libcuda.so.1`, the driver lib) is on `LD_LIBRARY_PATH` — measured: 1.9 tok/s and GPU RAM 0.0/40 GB on an idle A100 before the fix, `dlopen OK` after; first session reached the pre-gate, capture run pending | kept (2026-10-15) |
-| `probes/gen-new-forms-v2-2026-10-15.py` | rebalanced Part A (2026-10-15, external review of the 227-row distribution): deficit cards cut to max 3 gold-pinned forms each (column/row gold = ch06-066 or app01-008), + 30 bare topics from the book's headings, + 16 order-flipped pair rows on non-sealed comparisons, + 32 causal rows (`why does X matter` / `why do data engineers care about X` / `why is X important` / `how come X` / `what makes X important` + bare causals), fragments 20, refusals 65 -> **187 accepted** (122 cited / 65 refusal; same guards as v1; seal margins: causal vs `why does` max r=0.556, vs probed kafka strings max r=0.545; `eventual vs strong consistency` stays a probe item — only its flipped direction trains); output `data/finetune/new-forms-v2-2026-10-15.json` | kept (2026-10-15) |
-| `probes/patch-finetune-epochs-2026-10-15.py` | finetune-notebook patch from the external review: cell 4 derives epochs from the row count to hold total presentations near x2d's 328x6 = 1968 (a bigger dataset at fixed 6 epochs raises total gradient steps ~50%), per-epoch checkpoints saved in-session; cell 3's comment records the EXPECTED_X2D patch procedure for the next build; re-runnable, idempotent | kept (2026-10-15) |
-| `reports/colab-capture-session-2026-10-15.md` | Colab capture-session runbook (first 27B session, 2026-10-15): port 8080 is occupied in the VM (bind error, then 404s) -> serve on 8000; the CUDA plugin silently falls back to CPU unless `/usr/lib64-nvidia` (`libcuda.so.1`) is on `LD_LIBRARY_PATH` (measured: 1.9 tok/s, GPU RAM 0.0/40 GB on an idle A100; `dlopen OK` after) + the 5-step diagnostic ladder; upload-widget reconnect trap and Colab's `(n)` rename (re-uploads do NOT replace the file the cell reads); "Resuming execution" is not a restart (`pkill` before re-serve); the empty-`q` builder bug (meta nesting) and the crash-proof print; cold-start semantics; and the two-seam finding (recapture rows are ask-shaped, new forms were answer-shaped -> prose targets) with the ask-seam re-capture fix (e: copy weights to local disk instead of symlinking from Drive — a symlinked GGUF made the load take 7+ min with flat VRAM; patch scripts b/c/d/e pruned); cell 0 now carries the symptom checklist | kept (2026-10-15) |
-| `probes/build-teacher-capture-ask-2026-10-15.py` | ask-seam rebuild of the 187 v2 new forms (`data/finetune/teacher-capture-ask-2026-10-15.jsonl`, 122 cited / 65 refusal) after the first capture's mode split: recapture rows re-used the old ask-shaped prompts and came back quote-first 274/274, while `answer.respond`-built new forms came back as prose (86/96 without a quote). The second short Colab pass produces one consistent quote-first target shape for the build | kept (2026-10-15) |
-| `reports/x2e-build-2026-10-15.md`, `reports/x2e-plan-2026-10-15.md`, `probes/build-finetune-27b-2026-10-15.py`, `probes/patch-finetune-x2e-2026-10-15.py` | x2e build + pre-registered gate (2026-10-15): 27B capture -> verified train set **475 rows (395 cited + 81 refusal, 17.1%)**, refusals downsampled from 111; drops 9 (1 cited-refused; 8 out-of-book answered with the preface-disclaimer quote), 1 duplicate dropped, 1 owner-decision repair (ddr4 boundary gloss); seal 0 violations (2 declared twins noted); contamination 33 near-twins all inherited recapture (0 from new forms; 0 exact case-sensitive); sha `55a291bc…`; gate: battery both modes + sealed suite vs the standing 140/160 bar, 0 loops, controls exact, Turn-1/retry split reported; finetune notebook patched to v8 (EXPECTED 475, export `smallbook_x2e`, epochs derive to 4) | kept (2026-10-15) |
-| `reports/highlight-finetune-2026-10-16.md`, `datasets/highlight-{golden,train}-2026-10-16.jsonl`, `probes/build-highlight-golden-2026-10-16.py`, `probes/probe-highlight-2026-10-16.py`, `evidence/highlight-golden/probe-highlight-2026-10-16.model-smallbook_{x2d,x2f}.{json,log}` | x2f highlight trial (2026-10-16): highlight golden 24 held-out / 72 train; trained 417 rows (x2d + 72 highlight + refusal oversample); highlights 13/24 vs x2d 7/24 full pass, but answer-mode battery **FAIL** (`Codd…` refused 5/5) -> **not adopted**, x2d stays; superseded x2d/x2f run logs pruned | kept (2026-10-16) |
-| `reports/x2e-verdict-2026-10-15.md` (+ aligned-run evidence: `evidence/probe-fragment/…model-smallbook_{x2d,x2e,qwen2.5-7b}.{json,log}` and `.prealign` pre-fix twins, `evidence/probe-user-forms/…model-smallbook_x2{e,d}.*`, `evidence/probe-trial-queries/…{json,log}`, `evidence/step2-battery/step2-battery{,-answer}.{json,log}`, `evidence/x2e-session-2026-10-15/run-log-smallbook_x2e.json`) | x2e verdict (2026-10-15): the gate exposed an engine bug — answer mode served `SYSTEM_ANSWER` ("in your own words") while every training row carries the ask-shaped prompt; x2d masked it by over-memorizing (loss 0.006), x2e followed the served prompt and lost citations (40/160). **Fix adopted**: `answer.respond`/`_retry_uncited` serve `SYSTEM` + `user_message`. Under the fix: 7B 160/160, **x2d 160/160 (was 111)**, x2e 150/160, 0 loops, controls 20/20; batteries: x2d ask 9/10 PASS / answer coherence 21/22, x2e ask 7/10 FAIL / answer 10/10 PASS; owner probe x2e 17 vs x2d 13 PASS; visible-ten x2d 8 cited vs x2e 6 (false refusals on `DE Lifecycle` + `ddr4 vs ddr5`) -> **x2e not adopted**, x2d stays default (x2e + LoRA + run log kept as evidence); backlog: anchor-word quote preference, pin-curation audit, the persistent false refusals | kept (2026-10-15) |
-| `reports/frontend-phase1-2026-10-15.md` | frontend phase 1 (2026-10-15): engine side landed — `GET /chunks` (1042 chunks, no vectors, heading-line strip, figure cards with real PNG width/height — 118/118, payload 1,190,570 bytes) + `stream=1` NDJSON on `POST /ask` (token/reset/final/error; live checks: `final.body` equal to the non-stream body; the `[Ch. ` retry fires on answer-mode asks) + CORS/OPTIONS for :3100; the reader + ask panes landed later the same day (`web/`, live at `http://localhost:3100`: streaming with the reset explained, citation chips jump + quote mark — 3/3 real quotes found by the matcher replica, figures sized from PNG headers); `npm run build` green; 233 tests OK; the look is unverified (no browser automation on this box); Gloss/prompt-kit research notes + ask-flow state machine + reader block rules; **second pass same day**: the one-stream hold in `_stream_ask` (tokens only for the answer's generation — live: answer `reset×1, token×45, final×1` with the first token `[Ch. `, ask `token×48, final×1` from frame 0, quiz `final×1`), the `[Ch. ` prefill now leads the token stream, the selection lens + a single margin card landed, the ask pane resizes (288–720px), and a third-agent review's six findings were fixed (stale pill, mark-based pill placement, viewport clamp, ARIA/pointercancel, the pane/card answer duplication) | kept (2026-10-15) |
-| `reports/explain-and-x2g-2026-10-16.md`, `evidence/eval-x2g-gates-2026-10-16.json`, `evidence/battery-comparison-x2g-2026-10-16.json`, `evidence/highlight-golden/probe-highlight-2026-10-16.model-smallbook_x2g*.{json,log}` | explain UX architecture + technical audit of Bonsai-2-small + x2g dual-student distillation (521 rows, 449 cited + 72 refusals; 3.1B desktop + 1.5B mobile GGUFs) -> adopted as default answer model (smallbook_x2g); 24/24 highlight pass, 22/22 HTTP battery PASS, all 7 gates PASS across both models and modes | kept (2026-10-16) |
-| `reports/x3-architecture-and-hard-bench-2026-10-17.md`, `reports/x3-architecture-and-distillation-2026-10-17.md`, `reports/architecture-and-x3-2026-10-17.md`, `evidence/hard-bench/hard-bench-2026-10-17.model-*.{json,log}`, `evidence/highlight-golden/probe-highlight-2026-10-16.model-smallbook_x3*.{json,log}` | x3 architecture + 7-layer distillation (844 rows, 707 cited + 137 refusals) + Wide-LoRA (r=32, lora_alpha=64) on A100 -> adopted as default engine answer model (smallbook_x3 3B and smallbook_x3_mobile 1.5B); Hard Bench 60/60 (100.0%, 0.71s mean), highlight golden 24/24 (100.0%, 0 boilerplate), HTTP battery 22/22 (100.0%); seamless follow-up synthesis, intent classification engine (`intent.py`), anti-gibberish guard, 60fps streaming pacer (2–8 chars/tick), movable/resizable/minimizable MarginCards (`.gloss-node-indicator`), collapsible `.source-pill` drawer, heading offset encoding, animated rubric citations, open-source model packaging (`models/*/Modelfile`, `scripts/setup_models.py`); 356 tests green | LIVE |
-| `finetuned-models-2026.md`, `pipeline-audit.md`, `rag-methods-2026.md`, `doc-cleanup-notes.md`, `test-and-dead-code.md`, `ui-review.md` | architectural and model evaluation research records (2026-10-17) | kept |
-| `plans/conversation-map.md`, `plans/thread-finetune.md`, `plans/ux-possibilities.md`, `plans/pane-now.md`, `plans/companion-track.md`, `plans/distill-*.md`, `plans/refusal-*.md`, `plans/validate-*.md`, `plans/all-frictions.md`, `plans/gap-to-goal.md`, `plans/what-to-do.md`, `plans/packaging-*.md` | forward-looking roadmap and design specifications across reader, intent, and thread synthesis tracks | kept |
-| `validate/*` (`validate/thread-probe.py`, `validate/thread-turn*.json`, `validate/ask-one.py`, `validate/live-*.json`, `validate/refusal-fixture.html`) | validation probes and fixtures for multi-turn thread synthesis and refusal contracts | kept |
-| `harnesses/adrian-eval.py`, `datasets/adrian-realworld-eval-2026-10-17.json`, `evidence/adrian-eval/adrian-eval-2026-10-17.json`, `datasets/followup-evil-train-2026-10-17.jsonl` | Adrian real-world adversarial multi-turn evaluation suite (35 scenarios across highlight refinements, live pill clicking, lazy queries, whole-book topic shifts, ungrounded false premises, and prompt injections) + 100-row evil follow-up training dataset | LIVE (2026-10-17) |
-| `data/books.json`, `docs/ENGINEERING_AND_BENCHMARKS.md` | Multi-book catalog (fde 1,042 chunks / 111 figs, quantization 473 chunks / 76 figs, ddia 1,307 chunks / 90 figs) + Manning div.figure-container + dot figure normalization + heading-based non-teaching filter (151 ddia index chunks) + R15 measured speedups (_POSTINGS_CACHE 45,000x, _uvec 2.6x, _SORTED_WMAP_CACHE 3.5x, GZIP chunks 71.7% smaller) | LIVE (2026-10-17) |
-| `harnesses/crossbook-evil-eval.py`, `datasets/crossbook-evil-eval-2026-10-18.json`, `evidence/crossbook-eval/crossbook-eval-2026-10-18.json` | Cross-book adversarial multi-turn evaluation suite (30 scenarios, 66 requests across fde, quantization, ddia: lazy queries, topic shifts, highlight refines, adversarial traps; 23/30 passed, 76.7%) | LIVE (2026-10-18) |
-| `reports/nekohon-multibook-and-perf-2026-10-18.md` | NekoHon (猫本) multi-book library (fde 1,042, quantization 473, ddia 1,307 chunks), Start Menu (Shelf/Grid/3D Ex Libris), R15 speedups (_POSTINGS_CACHE 45,000x, _uvec 2.6x, _SORTED_WMAP_CACHE 3.5x, GZIP 71.7%), follow-up state machine fix, adrian-eval (32/35 = 91.4%), crossbook-evil-eval (23/30 = 76.7%) | LIVE (2026-10-18) |
-| `reports/fix-wave-status-2026-10-18.md` | fix-wave verification status (interrupted by agent quota; owner direction to commit as-is and record the state): wave-1 verified items (50/50 identical rankings, 60-question stub identical, battery matches, refusals exact, FCP 76 -> 36 ms, streaming re-renders 0), locally re-measured 407 tests OK in 4.325 s, fixed-but-unverified list (postings immutability, launcher port guard, /health recovery, progress flush, web/out serving, Ollama env), still open (true cold start, final interleaved A/B, static path traversal) | LIVE (2026-10-18) |
+| File | What it is |
+| --- | --- |
+| `plans/backlog.md` | Open and parked work: figure understanding, conversational clarify, caption quoting, and items that need an owner decision. |
+| `plans/companion-track.md` | The live multi-turn companion path and where each piece lives. |
+| `plans/conversation-map.md` | Read before touching history or the thread: what may change, what breaks the quote check. |
+| `plans/pane-now.md` | What the reader, library and margin do today, with the file for each behavior. |
+| `plans/figure-understanding-plan-2026-10-15.md` | Design for answering questions about figures (not built). |
 
+### Tooling
+
+| File | What it is |
+| --- | --- |
+| `prune.py` | Read-only rot check: stale, unindexed, missing, unreferenced and over-versioned files. |
+
+## History
+
+`../archive/` holds the dated reports, evidence, probes, plans and the original
+build plan. Use `git log` and the archive to see how a decision was reached;
+`../docs/DECISIONS.md` holds the current reasons.

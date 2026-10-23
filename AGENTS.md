@@ -2,8 +2,16 @@
 
 Rules-and-state authority for agents and contributors. Read `docs/GOAL.md`
 first (the goal and the constitution; only they can block work), then this
-file. `README.md` is the human front page; `docs/GLOSSARY.md` explains the
-vocabulary; `docs/ENGINEERING_AND_BENCHMARKS.md` explains the design.
+file. `README.md` is the human front page.
+
+## Docs
+
+- `docs/GOAL.md` — goal and constitution.
+- `docs/ENGINEERING.md` — how the system works, module by module.
+- `docs/DECISIONS.md` — why it is built this way; measured reasons and negative results.
+- `docs/GLOSSARY.md` — vocabulary.
+- `web/README.md` — frontend file map and conventions.
+- `artifacts/README.md` — index of harnesses, datasets and plans.
 
 ## What this is
 
@@ -37,8 +45,8 @@ flowchart TD
   resolution from the filesystem), `llm.py` (Ollama chat and embed calls),
   `retrieval/` (index search, rank fusion, keyword gate, caption seeding, typo
   readings, text preprocessing), `answering/` (the four modes, prompts, query
-  canonicalization, highlight intent; the internal module split is in
-  progress, so import from the package, not from a module path in docs).
+  canonicalization, highlight intent; `answer.py` re-exports the public names,
+  module roles are in `docs/ENGINEERING.md`).
 - `scripts/` — `launch.py` (start Ollama and engine, optional browser),
   `setup_models.py` (install and verify the models), `preflight.py` (readiness),
   `verify_index.py` (index hygiene), `measure_warmup.py`.
@@ -55,7 +63,7 @@ flowchart TD
 - `models/` — Ollama Modelfiles for the two student models.
 - `vendor/` — vendored text-preprocessing tools with their licenses.
 - `window/` — legacy no-build page.
-- `docs/` — `GOAL.md`, `GLOSSARY.md`, `ENGINEERING_AND_BENCHMARKS.md`.
+- `docs/` — `GOAL.md`, `GLOSSARY.md`, `ENGINEERING.md`, `DECISIONS.md`.
 - `.agents/skills/` — `book-companion-ui/` (load it for any UI work) and
   `verify/` (the gate, see Verify).
 - Gitignored, machine-local: `books/` (EPUBs), `data/` (indexes, figures,
@@ -237,8 +245,6 @@ Run output goes to `artifacts/runs/` (gitignored).
 - Live: all four modes, streaming, the reader with margin cards, selection
   explain, follow-up chips, multi-book library, EPUB import.
 - Not wired: the agentic retrieval prototype (archived).
-- The cleanup tracked in `tasks/` is in progress; `engine/answering/` is being
-  split into smaller modules.
 
 ## Artifacts policy
 
@@ -254,7 +260,7 @@ Run output goes to `artifacts/runs/` (gitignored).
 
 ## Open items
 
-Forward-looking work and the backlog live in `artifacts/plans/`.
+Forward-looking work and the backlog live in `artifacts/plans/` (`backlog.md`).
 
 ## Owner decisions that still constrain work
 

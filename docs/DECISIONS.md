@@ -43,9 +43,10 @@ and a rerun of the gates (`.agents/skills/verify/SKILL.md`).
   distinct; a bare `1-2` still matches. `figures` number token.
 - **Figure size comes from the PNG header** (no decode, stdlib only) so the
   reader reserves the aspect ratio and never jumps on load. `figures`.
-- **Figures attach only when a kept passage names the number.** There is no
-  embedding score floor; do not attach by vector score. The answer never
-  describes pixels. `figures.figures_for`.
+- **A figure attaches from a given passage only when that passage names its
+  number, and only when the figure file exists.** There is no embedding score
+  floor; do not attach by vector score. The answer never describes pixels.
+  `figures.figures_for`.
 
 ## Retrieval
 
@@ -155,6 +156,19 @@ and a rerun of the gates (`.agents/skills/verify/SKILL.md`).
   "uncited and passages present", not an anchors gate: anchors missed half of
   the non-control suite items. A generator seam without prefill support keeps
   the original answer. `freeanswer._retry_uncited`.
+- **Ask mode retries a refusal once, with the same prefill.** `ask` parses
+  strictly (`parse_completion`: a `[Ch. N]` tag, then a quote that is verbatim
+  passage text), so a reply that skips the tag or paraphrases becomes a refusal
+  even though the book holds the answer. When that refusal happens and every
+  content word of the question is present in the shown passages and the book's
+  word map, `_retry_uncited` regenerates once with `[Ch. ` prefilled and keeps
+  the result only if each citation quote is verbatim passage text. A follow-up
+  whose question was rewritten from history may also retry, unless the question
+  matches the trap pattern (`_TRAP_QUERY_RE`). If the retry yields nothing and at
+  least three passages are shown with the same evidence test, the last resort is
+  the lead passage's sentence with the most question-word overlap, quoted as
+  is. Out-of-book questions fail the evidence test and keep the exact refusal.
+  `quoteask.ask`, `freeanswer._retry_uncited`, `freeanswer._has_passage_evidence`.
 - **A retry for false refusals needs grounding.** It fires only when every
   content word in the query is in the shown passages and the book's word map
   (stem-level, alphanumerics preserved). Out-of-book questions (France) fail
@@ -276,10 +290,8 @@ and a rerun of the gates (`.agents/skills/verify/SKILL.md`).
 
 - **Refusal is exactly `Not in this book.`** Period included, nothing else; in
   answer mode the first line must be the exact sentence. `prompt`.
-- **Default model `nekohon_x3`** (renamed from `smallbook_x3`, 2026-10-17; the
-  old tag stays registered as an alias). Revert without editing:
-  `ANSWER_MODEL=qwen2.5:7b`. Granite was tried and dropped 2026-10-13.
-  `prompt.ANSWER_MODEL`.
+- **Default model `nekohon_x3`.** Revert without editing:
+  `ANSWER_MODEL=qwen2.5:7b`. `prompt.ANSWER_MODEL`.
 - **Steering a student by instruction failed repeatedly** (definition verbs,
   spelling notes, gloss forcing, multi-quote, a narrow gloss-content steer): each
   either skipped the format or broke goldens by turning answers into refusals.
@@ -311,14 +323,14 @@ and a rerun of the gates (`.agents/skills/verify/SKILL.md`).
   `reset` frame signals a discarded draft and is emitted even when nothing was
   shown; the UI keeps the frame as its discard signal and no-ops on empty text.
   The retry's continuation is live as the first generation. `server._stream_ask`.
-- **CORS echoes the dev UI origin only;** the built UI is same-origin.
-  `server`.
+- **CORS echoes only the dev UI origins (:3100, :3200);** the built UI is
+  same-origin. `server.ORIGINS`.
 - **Static export serving.** `web/out` is served at `GET /` when present,
   falling back to `window/index.html`; traversal attempts (encoded, absolute,
   backslash, drive letter) 404, and engine routes are never shadowed.
   `server`.
 - **`DEFAULT_BOOK_ID`** (`server`, `context`) is kept for single-book callers; its literal is built so
-  the generalization guard does not trip. Open owner item in `tasks/todo.md`.
+  the generalization guard does not trip. Open item in `artifacts/plans/backlog.md`.
 - **Warm-up** primes in-process caches (catalog, index, postings, chunks
   payload and gzip) and Ollama models with the same options as the real calls,
   then verifies `/api/ps`; it may run in a background thread so the server
@@ -336,8 +348,6 @@ and a rerun of the gates (`.agents/skills/verify/SKILL.md`).
   warning. `scripts/verify_index.py`.
 
 ## Frontend
-
-(Source: `web/`, folded from the F7 comment removal.)
 
 - **Static export.** `next build` writes `web/out/`, which the engine serves at
   `GET /`. Dev runs `next dev -p 3100` against the engine on :8000. The
@@ -416,10 +426,10 @@ and a rerun of the gates (`.agents/skills/verify/SKILL.md`).
   machine's known key values and common credential formats; the blind spot is a
   prefix-less key not among known values. `secret-scan.py`.
 - **Artifacts pruner** is read-only (exit 0 always); a file older than
-  `STALE_DAYS` is a stop sign. `artifacts/prune.py`.
+  `--stale-days` (default 2) is a stop sign. `artifacts/prune.py`.
 - **Test guards.** `tests/__init__.py` must stay: a user-site `tests` package
   shadows the directory without it. `test_generalization.py` bans chunk, figure
-  and book ids in logic modules (docstrings were exempt; now there are none).
+  and book ids in logic modules.
   The frontend rules test pins no colour literals outside `tokens.css`, no raw
   shadows, no monospace, no emoji, every class has a rule.
 
@@ -432,7 +442,7 @@ Do not retry these without a new reason or a model change.
   'The passage'" gloss steer. All refused or broke batteries (gloss reminder:
   golden 10 -> 6; multi-quote: watermark and atermark refused).
 - **A deterministic definition-first mover** reordered passages and changed
-  nothing: the model still skipped the definition. Deleted.
+  nothing: the model still skipped the definition.
 - **The coherence swap guard** fixed known cases but misfired 19 times in 21
   swaps (the word picker cannot tell a subject from vocabulary); reverted
   2026-10-13.

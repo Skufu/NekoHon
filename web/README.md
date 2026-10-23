@@ -15,7 +15,7 @@ engine and tests stay stdlib Python.
    then serves it at `http://127.0.0.1:8000/` (or use `python3 scripts/launch.py --open`
    from the repo root). Judge speed on this build; dev mode is much slower.
 
-The engine allows CORS only for `localhost:3100` and `127.0.0.1:3100`.
+The engine allows CORS only for the dev origins on ports 3100 and 3200 (`localhost` and `127.0.0.1`).
 
 ## Architecture
 
