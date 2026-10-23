@@ -174,10 +174,16 @@ both batteries.
 
 ## Phase 5: Final
 
-- [ ] **Z Final gate.** Live gate, timing after vs before (report table),
-  success-criteria checklist from `SPEC.md` with evidence, `git mv SPEC.md tasks archive/`,
-  final summary in the last commit message, push.
-
+- [x] **Z Final gate.** 414 tests OK; guards OK; verify_index clean;
+  secret scan 0 hits; cassette 67 cases identical, drop-one exit 2; tsc +
+  next build OK; live batteries PASS (ask golden 10/10 answered, 8/10 pass,
+  bar 8; answer 10/10, coherence PASS; France exact); Chrome smoke: library,
+  reader 1042 chunks, Explain streams, Jump marks the quote with a return
+  banner, notes persist across reload. Timing (cassette, 67 cases, 3 passes):
+  before 1.039/1.058/1.006 s, after 1.194/0.962/0.963 s (best pass -4%,
+  median per case 0 ms). Python: 94 files, 0 comments, 0 docstrings; web: 0
+  comments; longest engine function 114 lines; answer.py 6 lines.
+  Open items moved to artifacts/plans/backlog.md.
 ## Needs owner
 
 (Items that would change engine output, deletions, `vendor/`, `GOAL.md`.)
