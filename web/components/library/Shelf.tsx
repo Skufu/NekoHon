@@ -5,10 +5,9 @@ type ShelfProps = {
   books: BookCatalogItem[];
   statsMap: Record<string, BookStats>;
   onSelect: (book: BookCatalogItem) => void;
-  onOpen: (bookId: string) => void;
 };
 
-export default function Shelf({ books, statsMap, onSelect, onOpen }: ShelfProps) {
+export default function Shelf({ books, statsMap, onSelect }: ShelfProps) {
   return (
     <div className="shelf-view">
       <div className="shelf-bookcase">
@@ -20,7 +19,6 @@ export default function Shelf({ books, statsMap, onSelect, onOpen }: ShelfProps)
               stats={statsMap[book.book_id]}
               variant="shelf"
               onSelect={onSelect}
-              onOpen={onOpen}
             />
           ))}
 

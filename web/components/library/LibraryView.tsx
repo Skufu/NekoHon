@@ -249,7 +249,6 @@ export default function LibraryView() {
             books={filteredBooks}
             statsMap={statsMap}
             onSelect={setSelectedBook}
-            onOpen={openBook}
           />
         ) : (
           <Grid

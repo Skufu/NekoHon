@@ -16,8 +16,7 @@ export function saveSettings(settings: Settings) {
     document.documentElement.dataset.theme = settings.theme;
     document.documentElement.dataset.pen = settings.pen;
     document.documentElement.style.setProperty("--read-size", `${settings.readSize}px`);
-  } catch {
-  }
+  } catch {}
 }
 
 export function loadSettings(): Settings {
@@ -33,8 +32,7 @@ export function loadSettings(): Settings {
         settings.readSize = Math.max(15, Math.min(26, parsed.readSize));
       }
     }
-  } catch {
-  }
+  } catch {}
   return settings;
 }
 
@@ -42,16 +40,14 @@ export function saveHighlights(highlights: UserHighlight[]) {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem("atb-highlights", JSON.stringify(highlights));
-  } catch {
-  }
+  } catch {}
 }
 
 export function saveBookState(bookId: string, highlights: UserHighlight[], glosses: GlossItem[]) {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(`nekohon-state-${bookId}`, JSON.stringify({ highlights, glosses }));
-  } catch {
-  }
+  } catch {}
 }
 
 export function loadBookState(bookId: string): { highlights: UserHighlight[]; glosses: GlossItem[] } {
@@ -84,15 +80,14 @@ export function loadBookState(bookId: string): { highlights: UserHighlight[]; gl
         }
       }
     }
-  } catch {
-  }
+  } catch {}
   return { highlights: [], glosses: [] };
 }
 
 let saveProgressTimer: ReturnType<typeof setTimeout> | null = null;
 let pendingProgress: ProgressMap | null = null;
 
-export function flushProgress(): void {
+function flushProgress(): void {
   if (typeof window === "undefined" || !pendingProgress) return;
   if (saveProgressTimer) {
     clearTimeout(saveProgressTimer);
@@ -100,8 +95,7 @@ export function flushProgress(): void {
   }
   try {
     localStorage.setItem("nekohon-progress", JSON.stringify(pendingProgress));
-  } catch {
-  }
+  } catch {}
   pendingProgress = null;
 }
 
@@ -133,8 +127,7 @@ export function loadProgress(): ProgressMap {
   try {
     const raw = localStorage.getItem("nekohon-progress");
     if (raw) return JSON.parse(raw);
-  } catch {
-  }
+  } catch {}
   return {};
 }
 
@@ -142,8 +135,7 @@ export function saveCatalog(catalog: BookCatalogItem[]) {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem("nekohon-catalog", JSON.stringify(catalog));
-  } catch {
-  }
+  } catch {}
 }
 
 export function loadCatalog(): BookCatalogItem[] {
@@ -154,7 +146,6 @@ export function loadCatalog(): BookCatalogItem[] {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) return parsed;
     }
-  } catch {
-  }
+  } catch {}
   return [];
 }

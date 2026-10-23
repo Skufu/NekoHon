@@ -279,6 +279,7 @@ export const useAsk = create<AskStore>((set, get) => {
     setActiveBookId: (bookId) => {
       const prevBookId = get().activeBookId;
       if (prevBookId === bookId) return;
+      abortFlights();
       saveBookState(prevBookId, get().highlights, get().glosses);
       const nextState = loadBookState(bookId);
       const { anchors, byChunk: glossByChunk } = buildGlossAnchors(nextState.glosses);
@@ -301,6 +302,7 @@ export const useAsk = create<AskStore>((set, get) => {
       const prevBookId = get().activeBookId;
       prefetchChunks(bookId);
       if (prevBookId !== bookId) {
+        abortFlights();
         saveBookState(prevBookId, get().highlights, get().glosses);
         const nextState = loadBookState(bookId);
         const { anchors, byChunk: glossByChunk } = buildGlossAnchors(nextState.glosses);

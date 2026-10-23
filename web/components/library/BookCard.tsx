@@ -21,7 +21,7 @@ type BookCardProps = {
   stats: BookStats;
   variant: "shelf" | "grid";
   onSelect: (book: BookCatalogItem) => void;
-  onOpen: (bookId: string) => void;
+  onOpen?: (bookId: string) => void;
 };
 
 export default function BookCard({ book, stats, variant, onSelect, onOpen }: BookCardProps) {
@@ -110,7 +110,7 @@ export default function BookCard({ book, stats, variant, onSelect, onOpen }: Boo
           </button>
           <button
             type="button"
-            onClick={() => onOpen(book.book_id)}
+            onClick={() => onOpen?.(book.book_id)}
             className="grid-read-btn"
           >
             <span>Open & Read</span>
