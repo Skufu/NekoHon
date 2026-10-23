@@ -1,8 +1,6 @@
 # ask-this-book
 
-Read `GOAL.md` first (the goal + constitution — the only thing that can block
-work), then `AGENTS.md` at the repo root: hard rules, current phase state,
-machine facts, and verify commands. `BUILD_PLAN.md` is the living plan
-(tactics that expire; renamed from `README.md`); `README.md` is the human-facing
-overview; `GLOSSARY.md` translates the repo's vocabulary (sealed suite, gate,
-capture, retry, ...) into plain words when a term is unclear.
+Read `docs/GOAL.md` first (the goal and constitution; only they can block
+work), then `AGENTS.md` at the repo root: repo map, hard rules, HTTP contract,
+run and verify commands. `README.md` is the human-facing overview;
+`docs/GLOSSARY.md` translates the repo's vocabulary into plain words.

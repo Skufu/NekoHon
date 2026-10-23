@@ -1,6 +1,6 @@
 # GOAL — ask-this-book
 
-The stable layer. `BUILD_PLAN.md` and the dated reports under `artifacts/` are
+The stable layer. `AGENTS.md` and the dated reports under `artifacts/` are
 tactics — hypotheses that expire. This file is the only thing that rarely
 changes.
 

@@ -3,7 +3,7 @@
 Status: 2026-10-18. Live multi-turn companion in **NekoHon (`猫本`)**. Read this file first. Pointers, not copies.
 Conversation map (history / thread / quote-check bounds): `conversation-map.md` — read before touching conversation.
 
-`GOAL.md` covers multi-turn synthesis: simpler words, the cited passage, the figure, and cross-book multi-volume navigation. Refusal stays exactly `Not in this book.`
+`docs/GOAL.md` covers multi-turn synthesis: simpler words, the cited passage, the figure, and cross-book multi-volume navigation. Refusal stays exactly `Not in this book.`
 
 ## Live path
 

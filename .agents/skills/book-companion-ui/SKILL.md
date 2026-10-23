@@ -5,9 +5,9 @@ description: Use when doing UI, reader, window, or frontend work in ask-this-boo
 
 # book-companion-ui
 
-UI work in `ask-this-book`. Read `GOAL.md` first — only the constitution there can
+UI work in `ask-this-book`. Read `docs/GOAL.md` first — only the constitution there can
 block work — then the hard rules in `AGENTS.md`. This skill is a tactic; the goal
-it serves is one line of `GOAL.md`: **the reader is the judge**. A window that
+it serves is one line of `docs/GOAL.md`: **the reader is the judge**. A window that
 reads as broken (a refusal that looks like an error, a miss that looks like a
 citation) is a failure even when every mechanism is green.
 

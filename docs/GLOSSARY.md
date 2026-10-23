@@ -14,7 +14,7 @@ authoritative doc is named.
 - **ask mode** — the highlight path: the model must quote one sentence
   verbatim; a failed check is a refusal (`answer.py: ask`).
 - **refusal** — exactly `Not in this book.` It means "the book does not cover
-  this" — never "I didn't understand you" (`GOAL.md`).
+  this" — never "I didn't understand you" (`docs/GOAL.md`).
 - **citation** — `[Ch. N]` plus a quote that must appear verbatim in the named
   passage.
 - **passage / chunk** — one indexed piece of the book; `chunk_id` like
