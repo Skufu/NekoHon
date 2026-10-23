@@ -15,15 +15,20 @@ import threading
 import unittest
 import urllib.parse
 from http.server import ThreadingHTTPServer
+import sys
 from pathlib import Path
 from unittest import mock
 
 import server
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from fixture_books import FixtureRoot
 
 
 class ServerPackagingTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        cls.fixture = FixtureRoot().__enter__()
+        cls.addClassCleanup(cls.fixture.__exit__, None, None, None)
         # Spin up test server on an ephemeral port
         cls.server = ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)
         cls.port = cls.server.server_address[1]

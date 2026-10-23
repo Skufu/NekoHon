@@ -12,11 +12,14 @@ import tempfile
 import threading
 import unittest
 from http.server import ThreadingHTTPServer
+import sys
 from pathlib import Path
 from unittest import mock
 
 import answer
 import server
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from fixture_books import FixtureRoot
 from figures import figure_cards
 from prompt import PARAPHRASE_SYSTEM, SPELL_SYSTEM, SYSTEM, SYSTEM_ANSWER
 from retrieve import chunks_payload
@@ -74,6 +77,8 @@ class ChunksPayloadTest(unittest.TestCase):
 class ReaderRouteTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        cls.fixture = FixtureRoot().__enter__()
+        cls.addClassCleanup(cls.fixture.__exit__, None, None, None)
         cls.httpd = ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)
         cls.thread = threading.Thread(target=cls.httpd.serve_forever, daemon=True)
         cls.thread.start()

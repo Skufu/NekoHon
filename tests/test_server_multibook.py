@@ -9,10 +9,13 @@ import threading
 import unittest
 import zipfile
 from http.server import ThreadingHTTPServer
+import sys
 from pathlib import Path
 from unittest import mock
 
 import server
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from fixture_books import FixtureRoot
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -20,6 +23,8 @@ ROOT = Path(__file__).resolve().parent.parent
 class ServerMultiBookTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        cls.fixture = FixtureRoot().__enter__()
+        cls.addClassCleanup(cls.fixture.__exit__, None, None, None)
         cls.httpd = ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)
         cls.thread = threading.Thread(target=cls.httpd.serve_forever, daemon=True)
         cls.thread.start()
@@ -200,23 +205,7 @@ class ServerMultiBookTest(unittest.TestCase):
             self.assertTrue(payload.get("ok"))
             self.assertEqual(payload.get("book_id"), "testmini")
             self.assertEqual(payload.get("book", {}).get("title"), "Test Book")
-
-            # Clean up test artifacts
-            test_idx = ROOT / "data" / "index.testmini.json"
-            if test_idx.is_file():
-                test_idx.unlink()
-            test_epub = ROOT / "books" / "testmini.epub"
-            if test_epub.is_file():
-                test_epub.unlink()
-            test_fig = ROOT / "data" / "figures" / "testmini"
-            if test_fig.is_dir():
-                for f in test_fig.iterdir():
-                    f.unlink()
-                test_fig.rmdir()
-            # Clean books.json
-            cat = server.get_books_catalog()
-            filtered = [b for b in cat if b.get("book_id") != "testmini"]
-            (ROOT / "data" / "books.json").write_text(json.dumps(filtered, indent=2), encoding="utf-8")
+            self.assertTrue((server.ROOT / "data" / "index.testmini.json").is_file())
 
 
 if __name__ == "__main__":
