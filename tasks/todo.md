@@ -49,7 +49,7 @@ both batteries.
 
 ## Phase 2: Engine (sequential)
 
-- [ ] **E0 Group files by role (owner direction 2026-10-23).** Move the 13
+- [x] **E0 Group files by role (owner direction 2026-10-23).** Move the 13
   engine modules from the repo root into a package, with `git mv` and
   absolute imports:
   ```
