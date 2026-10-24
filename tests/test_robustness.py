@@ -1,4 +1,5 @@
 import http.client
+import io
 import socket
 import json
 import sys
@@ -130,6 +131,25 @@ class ServerGuardsTest(unittest.TestCase):
         self.assertFalse(retrieve._RANK_CACHE)
         self.assertFalse(retrieve._DENSE_RANK_CACHE)
         self.assertFalse(readings._SORTED_WMAP_CACHE)
+
+
+class DisconnectLogTest(unittest.TestCase):
+    def _stderr_after_error(self, exc):
+        httpd = server.EngineServer(("127.0.0.1", 0), server.Handler)
+        self.addCleanup(httpd.server_close)
+        with mock.patch("sys.stderr", new_callable=io.StringIO) as err:
+            try:
+                raise exc
+            except Exception:
+                httpd.handle_error(None, ("127.0.0.1", 1))
+        return err.getvalue()
+
+    def test_client_disconnect_is_not_logged(self):
+        for exc in (BrokenPipeError(), ConnectionResetError(), ConnectionAbortedError()):
+            self.assertEqual(self._stderr_after_error(exc), "")
+
+    def test_other_errors_are_still_logged(self):
+        self.assertIn("ValueError", self._stderr_after_error(ValueError("boom")))
 
 
 if __name__ == "__main__":

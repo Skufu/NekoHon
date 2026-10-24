@@ -192,6 +192,13 @@ _JSON_TYPE = "application/json; charset=utf-8"
 _HTML_TYPE = "text/html; charset=utf-8"
 
 
+class EngineServer(ThreadingHTTPServer):
+    def handle_error(self, request, client_address):
+        if isinstance(sys.exc_info()[1], _DISCONNECTS):
+            return
+        super().handle_error(request, client_address)
+
+
 class Handler(BaseHTTPRequestHandler):
     server_version = "nekohon/0.1"
     disable_nagle_algorithm = True
@@ -749,7 +756,7 @@ def main():
         sys.exit(1)
     block = "--block-warmup" in sys.argv or os.environ.get("WARMUP_BLOCK") == "1"
     warm_engine(block=block)
-    server = ThreadingHTTPServer((HOST, port), Handler)
+    server = EngineServer((HOST, port), Handler)
     print(f"nekohon: http://{HOST}:{port}  (GET /health, POST /ask; ctrl-c to stop)")
     try:
         server.serve_forever()
