@@ -1,0 +1,158 @@
+{
+ "rows": 12,
+ "per_book": {
+  "quantization": 6,
+  "ddia": 6
+ },
+ "ids": [
+  "trap-xb-01",
+  "trap-xb-02",
+  "trap-xb-03",
+  "trap-xb-04",
+  "trap-xb-05",
+  "trap-xb-06",
+  "trap-xb-07",
+  "trap-xb-08",
+  "trap-xb-09",
+  "trap-xb-10",
+  "trap-xb-11",
+  "trap-xb-12"
+ ],
+ "rows_detail": [
+  {
+   "id": "trap-xb-01",
+   "book": "quantization",
+   "heading": "Per-Channel quantization",
+   "target_chunk": "chapter-2-034",
+   "anchor_question": "What does each filter in a CNN get under per-channel quantization?",
+   "fabricated": [
+    "Miriam Halvorsen",
+    "2044"
+   ]
+  },
+  {
+   "id": "trap-xb-02",
+   "book": "ddia",
+   "heading": "Advantages of LSM-trees",
+   "target_chunk": "text00008-030",
+   "anchor_question": "Do LSM-trees take less disk space than B-trees?",
+   "fabricated": [
+    "Ingrid Solberg",
+    "2052"
+   ]
+  },
+  {
+   "id": "trap-xb-03",
+   "book": "quantization",
+   "heading": "Per-tensor quantization: the simplest baseline",
+   "target_chunk": "chapter-3-024",
+   "anchor_question": "How is one scale computed for a whole weight tensor?",
+   "fabricated": [
+    "Owen Mbeki",
+    "2047"
+   ]
+  },
+  {
+   "id": "trap-xb-04",
+   "book": "ddia",
+   "heading": "Avro",
+   "target_chunk": "text00009-024",
+   "anchor_question": "Why must a reader hold the writer's schema to decode Avro bytes?",
+   "fabricated": [
+    "Lucia Ferrante",
+    "2049"
+   ]
+  },
+  {
+   "id": "trap-xb-05",
+   "book": "quantization",
+   "heading": "Why groups matter more at low bit-widths",
+   "target_chunk": "chapter-3-071",
+   "anchor_question": "Why does a 4-bit weight need smaller groups than an 8-bit one?",
+   "fabricated": [
+    "Kenji Obarra",
+    "2051"
+   ]
+  },
+  {
+   "id": "trap-xb-06",
+   "book": "ddia",
+   "heading": "Reading Your Own Writes",
+   "target_chunk": "text00011-033",
+   "anchor_question": "How does a client avoid reading a stale replica after its own write?",
+   "fabricated": [
+    "Marta Zelenka",
+    "2055"
+   ]
+  },
+  {
+   "id": "trap-xb-07",
+   "book": "quantization",
+   "heading": "Static vs. dynamic quantization",
+   "target_chunk": "chapter-3-043",
+   "anchor_question": "When are scale factors fixed under static quantization?",
+   "fabricated": [
+    "Perrin Achebe",
+    "2057"
+   ]
+  },
+  {
+   "id": "trap-xb-08",
+   "book": "ddia",
+   "heading": "Write Skew and Phantoms",
+   "target_chunk": "text00013-060",
+   "anchor_question": "How do you stop dirty writes and lost updates from corrupting data?",
+   "fabricated": [
+    "Yusuf Adeyemi",
+    "2059"
+   ]
+  },
+  {
+   "id": "trap-xb-09",
+   "book": "quantization",
+   "heading": "The straight-through estimator: a useful lie",
+   "target_chunk": "chapter-5-021",
+   "anchor_question": "Why does the straight-through estimator still train a network?",
+   "fabricated": [
+    "Celia Marchetti",
+    "2061"
+   ]
+  },
+  {
+   "id": "trap-xb-10",
+   "book": "ddia",
+   "heading": "The Truth Is Defined by the Majority",
+   "target_chunk": "text00014-074",
+   "anchor_question": "Who decides whether a node is really dead?",
+   "fabricated": [
+    "Greta Lindqvist",
+    "2063"
+   ]
+  },
+  {
+   "id": "trap-xb-11",
+   "book": "quantization",
+   "heading": "The random rotation trick",
+   "target_chunk": "chapter-7-061",
+   "anchor_question": "Does multiplying by a random orthogonal matrix throw information away?",
+   "fabricated": [
+    "Nadia Erdos",
+    "2065"
+   ]
+  },
+  {
+   "id": "trap-xb-12",
+   "book": "ddia",
+   "heading": "The CAP theorem",
+   "target_chunk": "text00015-037",
+   "anchor_question": "What does CAP force you to give up during a partition?",
+   "fabricated": [
+    "Hollis Vantreight",
+    "2068"
+   ]
+  }
+ ],
+ "drops": [],
+ "leak_corpus_questions": 1072,
+ "out": "data\\finetune\\trap-crossbook-seeds-2026-10-24.jsonl"
+}

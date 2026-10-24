@@ -4,6 +4,7 @@ import unittest
 
 from retrieve import (
     GEMMA_EMBEDDER,
+    NOMIC_EMBEDDER,
     cosine,
     document_input,
     embed_index,
@@ -75,15 +76,17 @@ class RetrieveTests(unittest.TestCase):
             return fake_embed(texts, model)
 
         index = tiny_index()
-        first_chunks, first_figures = embed_index(index, embed_fn=recording, dims=DIMS)
+        first_chunks, first_figures = embed_index(
+            index, model=NOMIC_EMBEDDER, embed_fn=recording, dims=DIMS)
         self.assertEqual(first_chunks, 2)
         self.assertEqual(first_figures, 1)
         self.assertTrue(seen[0].startswith("search_document: "))
         self.assertIn("Change data capture", " ".join(seen))
         self.assertEqual(len(index["chunks"][0]["embedding"]), DIMS)
-        self.assertEqual(index["embedder"], "nomic-embed-text")
+        self.assertEqual(index["embedder"], NOMIC_EMBEDDER)
         seen.clear()
-        second_chunks, second_figures = embed_index(index, embed_fn=recording, dims=DIMS)
+        second_chunks, second_figures = embed_index(
+            index, model=NOMIC_EMBEDDER, embed_fn=recording, dims=DIMS)
         self.assertEqual((second_chunks, second_figures), (0, 0))
         self.assertEqual(seen, [])
 
@@ -146,8 +149,9 @@ class RetrieveTests(unittest.TestCase):
             return fake_embed(texts, model)
 
         index = tiny_index()
-        embed_index(index, embed_fn=recording, dims=DIMS)
-        search(index, "change data capture", embed_fn=recording, k=1)
+        embed_index(index, model=NOMIC_EMBEDDER, embed_fn=recording, dims=DIMS)
+        search(index, "change data capture", model=NOMIC_EMBEDDER,
+               embed_fn=recording, k=1)
         self.assertTrue(seen[-1].startswith("search_query: "))
 
     def test_embed_index_refuses_a_non_finite_vector(self):
@@ -175,12 +179,12 @@ class RetrieveTests(unittest.TestCase):
             return [[0.0, 0.0] for _ in texts]
 
         index = {
-            "embedder": "nomic-embed-text",
+            "embedder": NOMIC_EMBEDDER,
             "embedding_dims": 2,
             "chunks": [{"chunk_id": "c1", "text": "a row", "embedding": [1.0, 0.0]}],
         }
         with self.assertRaises(SystemExit) as caught:
-            rank_chunks(index, "anything", embed_fn=zero_query)
+            rank_chunks(index, "anything", NOMIC_EMBEDDER, embed_fn=zero_query)
         self.assertIn("all-zero", str(caught.exception))
 
     def test_embed_index_refuses_a_wrong_width_response(self):

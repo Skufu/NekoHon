@@ -21,6 +21,7 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
 import answer as A
+import fair_cite
 from retrieve import INDEX, load_index
 
 URL = "http://127.0.0.1:8000/ask"
@@ -30,32 +31,21 @@ OUT = ROOT / "artifacts" / "evidence" / "step2-battery" / (
 )
 LOG = OUT.with_suffix(".log")
 
-# (question, pinned chunk or None for the expected refusal)
-GOLDEN_PINS = [
-    ("What does CRUD stand for?", "ch05-019"),
-    ("What is data ingestion?", "ch07-002"),
-    ("What is a watermark?", "ch08-039"),
-    ("When is an insert-only table useful?", "ch08-107"),
-    ("Where does storage sit in the data engineering lifecycle?", "ch06-001"),
-    ("What do source systems provide to the rest of the lifecycle?", "ch05-004"),
-    ("How does data architecture relate to enterprise architecture?", "ch03-013"),
-    ("What is the difference between batch and streaming?", "ch02-019"),
-    ("What happens to data after it is extracted in ETL?", "ch08-094"),
-    ("What do transformations do in the data engineering lifecycle?", "ch02-025"),
-]
-# (question, expected chunk, required phrase)
-PROBES = [
-    ("what does data engineers need to be pragmatic about", "ch04-012", "pragmatic about flexibility"),
-    ("Data engineers need to be pragmatic about?", "ch04-012", "pragmatic about flexibility"),
-    ("MAD data landscape", "ch04-020", "ML, AI, and data (MAD) landscape"),
-    ("multicloud methodology disadvantages", "ch04-037", "dizzying array"),
-]
-# (question, required chunk, required phrase)
-TYPOS = [
-    ("What does CRU stand for?", "ch05-029", "crud"),
-    ("What happens to data after it is extracted in ET?", "ch08-120", "extracted"),
-    ("what is a atermark?", "ch08-039", "watermark"),
-]
+# Pins, terms and expected phrases live in one JSON file so the fairness test
+# can check them without importing this script (its name has a hyphen).
+# A citation passes when the cited passage carries the question's terms; `pin`
+# is the historical chunk and is a note, not the gate. See fair_cite.py.
+PIN_FILE = ROOT / "artifacts" / "datasets" / "battery-pins.json"
+_PINS = json.loads(PIN_FILE.read_text(encoding="utf-8"))
+
+GOLDEN_PINS = [(item["question"], item["pin"]) for item in _PINS["golden"]]
+PROBES = [(item["question"], item["pin"], item["phrase"]) for item in _PINS["probes"]]
+TYPOS = [(item["question"], item["pin"], item["phrase"]) for item in _PINS["typos"]]
+
+TERMS = {item["question"]: item.get("terms") or [] for group in ("golden", "probes", "typos")
+         for item in _PINS[group]}
+PINNED = {item["question"]: item["pin"] for group in ("golden", "probes", "typos")
+          for item in _PINS[group]}
 # The user's coherence bar: the answer must carry the question's own subject.
 # The phrase is a regex; the book's own wording wins where it differs from a
 # paraphrase (ch08-051 says "Codd introduced the idea of normal forms", so
@@ -91,41 +81,45 @@ def answered_with(body, phrase):
 
 
 def judge(question, body):
-    """(pass, notes) for one ask against the pins."""
+    """(pass, notes) for one ask against the pins.
+
+    Fair rule (2026-10-24): the cited passage must answer the question. The
+    historical pin is a note. A model that quotes a different valid passage is
+    not failed for it; a model that quotes a passage without the subject is.
+    """
     if MODE != "ask":
         return judge_answer(question, body)
     notes = []
-    first = body["citations"][0]["chunk_id"] if body["citations"] else "-"
-    pins = dict(GOLDEN_PINS)
-    if question in pins:
-        chunk = pins[question]
-        if chunk is None:
-            if body["refused"]:
-                return True, notes
-            notes.append("answered where 2026-10-12 refused")
-            return True, notes
-        if body["refused"]:
-            return False, ["refused"]
-        if first != chunk:
-            return False, [f"chunk {first} != {chunk}"]
-        return True, notes
-    for q, chunk, phrase in TYPOS + PROBES:
-        if q == question:
-            if body["refused"] or phrase.lower() not in body["answer"].lower():
-                return False, ["pinned ask must answer with the pin phrase"]
-            if first != chunk:
-                return False, [f"chunk {first} != {chunk}"]
-            return True, notes
     if question == FRANCE:
         if body["refused"] and body["answer"] == REFUSAL:
             return True, notes
         return False, ["France must be the exact refusal"]
-    return False, ["no pin for this question"]
+    if body["refused"]:
+        return False, ["refused"]
+    cited = [c.get("chunk_id") for c in body["citations"] if c.get("chunk_id")]
+    if not cited:
+        return False, ["no citations"]
+    shown = shown_ids(question)
+    stray = [cid for cid in cited if cid not in shown]
+    if stray:
+        return False, [f"citation not among the shown passages: {stray}"]
+    terms = TERMS.get(question) or []
+    ok, detail = fair_cite.judge_citation(cited, text_of, terms)
+    if not ok:
+        return False, [detail]
+    pin = PINNED.get(question)
+    if pin and pin not in cited:
+        notes.append(f"pin {pin} not cited (cites {cited}); cited passage carries {terms}")
+    for q, _, phrase in TYPOS + PROBES:
+        if q == question and phrase.lower() not in body["answer"].lower():
+            return False, [f"answer misses pinned phrase {phrase!r}"]
+    return True, notes
 
 
 ANSWER_PINS = {q: chunk for q, chunk in GOLDEN_PINS}
 ANSWER_PINS.update({q: chunk for q, chunk, _ in TYPOS + PROBES + COHERENCE})
 _INDEX = None
+_TEXT_OF = None
 _SHOWN = {}
 
 
@@ -133,22 +127,29 @@ def shown_ids(question):
     """The passages the engine shows for this question, recomputed locally.
 
     Answer mode's contract is grounded-in-retrieved: a citation must point
-    at a shown passage, and the pinned chunk must be among them. Which shown
-    passage the model's tags land on is the model's call, so it is a note,
-    not a pass condition (measured 2026-10-13: on three golden asks the model
-    cited the sibling chunk whose wording it echoed while the pinned chunk sat
-    in the same shown set — strict pin-in-citations was 7/10, this judge is
-    10/10 with the drift visible in the notes).
+    at a shown passage. Ask mode now uses the same rule, so a model that
+    quotes one of the shown passages is not failed for picking a different
+    one than the 2026-10-12 pin.
     """
-    global _INDEX
+    global _INDEX, _TEXT_OF
     if _INDEX is None:
         _INDEX = load_index(INDEX)
+        _TEXT_OF = fair_cite.text_lookup(_INDEX)
     if question not in _SHOWN:
         _SHOWN[question] = [
             hit["chunk_id"]
             for hit in A.retrieval_context(_INDEX, question)["passages"]
         ]
     return _SHOWN[question]
+
+
+def text_of(chunk_id):
+    """Chunk text for the fair citation rule; builds the index on first use."""
+    global _INDEX, _TEXT_OF
+    if _TEXT_OF is None:
+        _INDEX = load_index(INDEX)
+        _TEXT_OF = fair_cite.text_lookup(_INDEX)
+    return _TEXT_OF(chunk_id)
 
 
 def judge_answer(question, body):

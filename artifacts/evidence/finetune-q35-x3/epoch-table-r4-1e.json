@@ -1,0 +1,7 @@
+[
+ {
+  "epoch": 1,
+  "train_loss": 0.4486,
+  "eval_loss": 0.4483
+ }
+]

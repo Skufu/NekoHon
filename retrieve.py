@@ -19,8 +19,14 @@ from preprocess import normalize
 ROOT = Path(__file__).resolve().parent
 INDEX = ROOT / "data" / "index.json"
 OLLAMA = "http://127.0.0.1:11434/api/embed"
-DEFAULT_EMBEDDER = "nomic-embed-text"
+NOMIC_EMBEDDER = "nomic-embed-text"
 GEMMA_EMBEDDER = "embeddinggemma-2:270m-bf16-text"
+# Gemma was tried as the default 2026-10-23 and reverted the same day: recall on
+# the 57-question wide net rose (43/57 vs 38/57 at @5) but the hard bench fell
+# 60/60 -> 53/60 and adrian 32/35 -> 29/35, both on citation mismatches. A
+# wide-net win does not buy a gate regression. Evidence:
+# artifacts/reports/reranking-bakeoff-2026-10-23.md.
+DEFAULT_EMBEDDER = NOMIC_EMBEDDER
 TOP_K = 10
 BATCH = 16
 
@@ -31,7 +37,7 @@ BATCH = 16
 # question-answering, and prompt_name="Document" is only "title: none", so a
 # real heading must be written into the text.
 PREFIXES = {
-    DEFAULT_EMBEDDER: {
+    NOMIC_EMBEDDER: {
         "document": "search_document: ",
         "query": "search_query: ",
     },
@@ -95,12 +101,12 @@ def document_input(model, record, kind):
     """kind is 'chunk' or 'figure'."""
     if kind == "chunk":
         title, body = chunk_title(record)
-        if model == DEFAULT_EMBEDDER:
+        if model == NOMIC_EMBEDDER:
             return format_input(model, "document", record.get("text") or "")
         return format_input(model, "document", body, title)
     caption = (record.get("caption") or "").strip()
     cite = (record.get("referencing_paragraph") or "").strip()
-    if model == DEFAULT_EMBEDDER:
+    if model == NOMIC_EMBEDDER:
         return format_input(model, "document", figure_body(record))
     if cite:
         return format_input(model, "document", cite, caption)

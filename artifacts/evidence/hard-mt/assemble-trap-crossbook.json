@@ -1,0 +1,87 @@
+{
+ "seeds": 12,
+ "answers": 12,
+ "kept": 11,
+ "drops": {
+  "trap_answered": 1
+ },
+ "by_class": {
+  "premise_trap": 12
+ },
+ "kept_by_class": {
+  "premise_trap": 11
+ },
+ "detail": [
+  {
+   "id": "trap-xb-01",
+   "class": "premise_trap",
+   "question": "What does each filter in a CNN get under per-channel quantization?",
+   "answer_head": "Not in this book."
+  },
+  {
+   "id": "trap-xb-02",
+   "class": "premise_trap",
+   "question": "Do LSM-trees take less disk space than B-trees?",
+   "answer_head": "Not in this book."
+  },
+  {
+   "id": "trap-xb-03",
+   "class": "premise_trap",
+   "question": "How is one scale computed for a whole weight tensor?",
+   "answer_head": "Not in this book."
+  },
+  {
+   "id": "trap-xb-04",
+   "class": "premise_trap",
+   "question": "Why must a reader hold the writer's schema to decode Avro bytes?",
+   "answer_head": "Not in this book."
+  },
+  {
+   "id": "trap-xb-05",
+   "class": "premise_trap",
+   "dropped": "trap_answered"
+  },
+  {
+   "id": "trap-xb-06",
+   "class": "premise_trap",
+   "question": "How does a client avoid reading a stale replica after its own write?",
+   "answer_head": "Not in this book."
+  },
+  {
+   "id": "trap-xb-07",
+   "class": "premise_trap",
+   "question": "When are scale factors fixed under static quantization?",
+   "answer_head": "Not in this book."
+  },
+  {
+   "id": "trap-xb-08",
+   "class": "premise_trap",
+   "question": "How do you stop dirty writes and lost updates from corrupting data?",
+   "answer_head": "Not in this book."
+  },
+  {
+   "id": "trap-xb-09",
+   "class": "premise_trap",
+   "question": "Why does the straight-through estimator still train a network?",
+   "answer_head": "Not in this book."
+  },
+  {
+   "id": "trap-xb-10",
+   "class": "premise_trap",
+   "question": "Who decides whether a node is really dead?",
+   "answer_head": "Not in this book."
+  },
+  {
+   "id": "trap-xb-11",
+   "class": "premise_trap",
+   "question": "Does multiplying by a random orthogonal matrix throw information away?",
+   "answer_head": "Not in this book."
+  },
+  {
+   "id": "trap-xb-12",
+   "class": "premise_trap",
+   "question": "What does CAP force you to give up during a partition?",
+   "answer_head": "Not in this book."
+  }
+ ]
+}

@@ -1,0 +1,10 @@
+simplify-31 KEEP ok | Simple restatement of data engineer role; cited sentence supports gloss.
+simplify-32 KEEP ok | Explains separation/complement via upstream relationship; gloss supported.
+simplify-33 KEEP ok | Defines internal-facing work from cited sentence; gloss supported.
+simplify-34 KEEP ok | Simplifies data maturity accurately; cited sentence supports gloss.
+highlight-35 KEEP ok | Answers conventions with cited definition; gloss supported.
+highlight-36 KEEP ok | Answers contact with cited instruction; gloss supported.
+highlight-37 KEEP ok | Defines contemporary as current form built on early innovations; supported.
+highlight-38 KEEP ok | Answers activities from cited work examples; gloss supported.
+highlight-39 KEEP ok | Defines maturity correctly from cited sentence; gloss supported.
+highlight-40 KEEP ok | Lists skills from cited sentence; gloss supported.

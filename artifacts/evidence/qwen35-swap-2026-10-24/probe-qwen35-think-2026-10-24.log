@@ -1,0 +1,3 @@
+default          {"wall_sec": 9.54, "content_chars": 0, "thinking_chars": 1037, "tag_leak": false, "eval_count": 256, "prompt_eval_count": 57, "eval_sec": 1.5, "done_reason": "length", "content_head": ""}
+think_false      {"wall_sec": 0.18, "content_chars": 80, "thinking_chars": 0, "tag_leak": false, "eval_count": 17, "prompt_eval_count": 59, "eval_sec": 0.1, "done_reason": "stop", "content_head": "A data pipeline is a set of steps to transform raw data into usable information."}
+template_kwarg   {"wall_sec": 1.58, "content_chars": 0, "thinking_chars": 1037, "tag_leak": false, "eval_count": 256, "prompt_eval_count": 57, "eval_sec": 1.52, "done_reason": "length", "content_head": ""}

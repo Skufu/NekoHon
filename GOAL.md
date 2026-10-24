@@ -30,8 +30,13 @@ Only these can block work. Nothing else in the repo can.
   — default `muse-spark-1.3-contributor` since 2026-10-15, `JUDGE_BACKEND=ollama`
   restores the offline granite judge — testing only, for smarter
   testing; the engine, server, and batteries never take this path.
-- **Stdlib only.** No package installs. The single vendored-preprocessing
-  exception is in `AGENTS.md`.
+- **Stdlib by default; a dependency must earn its place.** No package installs
+  on a hunch. Third-party code is allowed when a measured run shows the stdlib
+  version loses on the reader's terms, with the cost recorded next to the win:
+  install size, RAM, offline story, and a one-line revert. The vendored
+  preprocessing exception in `AGENTS.md` is the first case. Reranking is an
+  open candidate — untested as of 2026-10-23 (user direction: a hard rule may
+  not veto an untested improvement).
 - **Grounded.** Every quoted word comes from the book's passages. Repairs move
   *which* passage text is shown; they never invent text.
 - **Refusal is exactly** `Not in this book.`

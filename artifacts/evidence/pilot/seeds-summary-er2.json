@@ -1,0 +1,16 @@
+{
+ "rows": 18,
+ "mix": {
+  "entity_relation": 18,
+  "premise_trap": 0,
+  "simplify": 0,
+  "highlight": 0
+ },
+ "built": {
+  "er_no_sibling": 13,
+  "entity_relation": 18,
+  "er_no_entity": 6
+ },
+ "missing": {},
+ "out": "data\\finetune\\pilot-er2-seeds-2026-10-24.jsonl"
+}

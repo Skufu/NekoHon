@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-24",
+  "model": "nekohon_x3",
+  "questions": [
+    "What is a watermark?",
+    "What is data ingestion?",
+    "What does CRUD stand for?",
+    "What is the difference between batch and streaming?",
+    "Where does storage sit in the data engineering lifecycle?",
+    "How does data architecture relate to enterprise architecture?"
+  ],
+  "explain_items": [
+    {
+      "selection": "Data maturity is the progression toward higher data utilization,",
+      "chunk_id": "ch01-025",
+      "heading": "Data Maturity and the Data Engineer"
+    },
+    {
+      "selection": "Change data capture (CDC) is a method for extracting each change event",
+      "chunk_id": "ch05-013",
+      "heading": "Change Data Capture"
+    },
+    {
+      "selection": "Storage is the cornerstone of the data engineering lifecycle",
+      "chunk_id": "ch06-001",
+      "heading": "Storage"
+    },
+    {
+      "selection": "A source system is the origin of the data used in the data engineering lifecycle.",
+      "chunk_id": "ch02-005",
+      "heading": "Generation: Source Systems"
+    }
+  ],
+  "stages": {
+    "ask": {
+      "mean_ms": 961.7,
+      "median_ms": 921.0,
+      "min_ms": 767,
+      "max_ms": 1226,
+      "n": 6
+    },
+    "answer": {
+      "mean_ms": 542.8,
+      "median_ms": 526.0,
+      "min_ms": 428,
+      "max_ms": 727,
+      "n": 6
+    },
+    "explain": {
+      "mean_ms": 545.5,
+      "median_ms": 528.5,
+      "min_ms": 273,
+      "max_ms": 852,
+      "n": 4
+    },
+    "retrieval": {
+      "mean_ms": 29.3,
+      "median_ms": 31.5,
+      "min_ms": 2,
+      "max_ms": 42,
+      "n": 6
+    }
+  },
+  "generation_ms": {
+    "ask": 932.4,
+    "answer": 513.5,
+    "explain": 545.5
+  },
+  "resident_bytes": 2159374499
+}

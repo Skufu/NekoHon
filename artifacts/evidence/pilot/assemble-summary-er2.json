@@ -1,0 +1,122 @@
+{
+ "seeds": 18,
+ "answers": 18,
+ "kept": 18,
+ "drops": {},
+ "by_class": {
+  "entity_relation": 18
+ },
+ "kept_by_class": {
+  "entity_relation": 18
+ },
+ "detail": [
+  {
+   "id": "entity_relation-01",
+   "class": "entity_relation",
+   "question": "what does a data engineer actually do",
+   "answer_head": "[Ch. 1] \"Data engineering sits upstream from data science (Figure 1-4), meaning data engineers provide the inputs used by data scientists (downstream from data "
+  },
+  {
+   "id": "entity_relation-02",
+   "class": "entity_relation",
+   "question": "What is internal facing vs external facing data engineering?",
+   "answer_head": "[Ch. 1] \"An external-facing data engineer typically aligns with the users of external-facing applications, such as social media apps, Internet of Things (IoT) d"
+  },
+  {
+   "id": "entity_relation-03",
+   "class": "entity_relation",
+   "question": "What is source systems?",
+   "answer_head": "[Ch. 2] \"Figure 2-4 illustrates an IoT swarm: a fleet of devices (circles) sends data messages (rectangles) to a central collection system.\"\nIoT devices act as "
+  },
+  {
+   "id": "entity_relation-04",
+   "class": "entity_relation",
+   "question": "what is data ingestion",
+   "answer_head": "[Ch. 7] \"In the data engineering space, a good deal of ceremony occurs around data movement and processing patterns, with established patterns such as ETL, newe"
+  },
+  {
+   "id": "entity_relation-05",
+   "class": "entity_relation",
+   "question": "what is data management",
+   "answer_head": "[Ch. 2] \"Data engineers need a broader perspective of data\u2019s utility across the organization, from the source systems to the C-suite, and everywhere in between."
+  },
+  {
+   "id": "entity_relation-06",
+   "class": "entity_relation",
+   "question": "what is orchestration in the data engineering lifecycle",
+   "answer_head": "[Ch. 2] \"For instance, people often refer to orchestration tools like Apache Airflow as schedulers.\"\nThe text notes that Airflow is often called a scheduler, th"
+  },
+  {
+   "id": "entity_relation-07",
+   "class": "entity_relation",
+   "question": "types of metadata",
+   "answer_head": "[Ch. 2] \"Technical metadata describes the data created and used by systems across the data engineering lifecycle. It includes the data model and schema, data li"
+  },
+  {
+   "id": "entity_relation-08",
+   "class": "entity_relation",
+   "question": "what is data quality",
+   "answer_head": "[Ch. 2] \"In the Google paper introducing the Dataflow model, the authors give the example of an offline video platform that displays ads.\"\nGoogle's paper uses a"
+  },
+  {
+   "id": "entity_relation-09",
+   "class": "entity_relation",
+   "question": "what is observability",
+   "answer_head": "[Ch. 2] \"We recommend you incorporate SPC to understand whether events being monitored are out of line and which incidents are worth responding to.\"\nSPC helps y"
+  },
+  {
+   "id": "entity_relation-10",
+   "class": "entity_relation",
+   "question": "what are the undercurrents of the data engineering lifecycle",
+   "answer_head": "[Ch. 2] \"In general, the middle stages\u2014storage, ingestion, transformation\u2014can get a bit jumbled.\"\nIngestion is one of the middle steps that often mixes with sto"
+  },
+  {
+   "id": "entity_relation-11",
+   "class": "entity_relation",
+   "question": "togaf defines data architecture as what",
+   "answer_head": "[Ch. 3] \"Test Data Quality at Scale with Deequ\u201d by Dustin Lange et al.\"\nThis is a suggested reading about checking data quality."
+  },
+  {
+   "id": "entity_relation-12",
+   "class": "entity_relation",
+   "question": "what does finops help a data team do",
+   "answer_head": "[Ch. 3] \"First, the FinOps Foundation offers this:16\"\nThe FinOps Foundation is the source of the definition quoted in the previous answer."
+  },
+  {
+   "id": "entity_relation-13",
+   "class": "entity_relation",
+   "question": "What is loosely coupled systems?",
+   "answer_head": "[Ch. 3] \"Teams must communicate with each other through these interfaces.\"\nThis rule forces teams to use separate connections, which keeps the system parts loos"
+  },
+  {
+   "id": "entity_relation-14",
+   "class": "entity_relation",
+   "question": "What is multicloud disadvantages?",
+   "answer_head": "[Ch. 4] \"For example, a company might want to handle its Google Ads and Analytics data on Google Cloud and deploy Kubernetes through GKE.\"\nGoogle Ads is an exam"
+  },
+  {
+   "id": "entity_relation-15",
+   "class": "entity_relation",
+   "question": "what is total cost of ownership",
+   "answer_head": "[Ch. 4] \"This is capex, a significant capital outlay with a long-term plan to achieve a positive ROI on the effort and expense put forth.\"\nROI is the positive r"
+  },
+  {
+   "id": "entity_relation-16",
+   "class": "entity_relation",
+   "question": "What is containers?",
+   "answer_head": "[Ch. 4] \"And services such as AWS Fargate and Google App Engine run containers without managing a compute cluster required for Kubernetes.\"\nGoogle App Engine le"
+  },
+  {
+   "id": "entity_relation-17",
+   "class": "entity_relation",
+   "question": "what is change data capture",
+   "answer_head": "[Ch. 5] \"Relational databases often generate an event log stored directly on the database server that can be processed to create a stream.\"\nRelational databases"
+  },
+  {
+   "id": "entity_relation-18",
+   "class": "entity_relation",
+   "question": "types of nosql databases",
+   "answer_head": "[Ch. 5] \"NoSQL, which stands for not only SQL, refers to a whole class of databases that abandon the relational paradigm.\"\nNoSQL means \"not only SQL\" and descri"
+  }
+ ]
+}

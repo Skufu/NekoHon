@@ -1,0 +1,8 @@
+entity_relation-11 DROP history_not_needed | Gloss only identifies a suggested reading; does not link Test Data Quality to the TOGAF/data architecture sentence.
+entity_relation-12 KEEP ok | Quote identifies FinOps Foundation as the source of the definition, supporting the gloss.
+entity_relation-13 KEEP ok | Interface rule is connected to loose coupling of system parts.
+entity_relation-14 DROP history_not_needed | Google Ads example is about multicloud service choice, not the quoted disadvantages sentence.
+entity_relation-15 DROP wrong_relation | ROI/capex gloss does not connect ROI to the Total Cost of Ownership topic or quoted TCO definition.
+entity_relation-16 KEEP ok | Google App Engine running containers connects to the containers topic and the gloss is supported.
+entity_relation-17 KEEP ok | Event-log sentence and gloss connect database logs as the change-stream mechanism for CDC.
+entity_relation-18 DROP history_not_needed | NoSQL acronym gloss does not connect SQL to the quoted list of NoSQL database types.

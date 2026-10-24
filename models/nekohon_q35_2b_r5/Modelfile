@@ -1,0 +1,5 @@
+# nekohon_q35_2b_r5 - Qwen3.5-2B, r5 corpus (870 rows), 2 epochs, Q4_K_M.
+# Validation loss: 0.4726 -> 0.4777.
+# Evidence: artifacts/reports/r5-2026-10-25.md
+FROM ./nekohon_q35_2b_r5.Q4_K_M.gguf
+PARAMETER num_ctx 4096

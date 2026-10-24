@@ -1,0 +1,260 @@
+{
+ "seeds": 40,
+ "answers": 40,
+ "kept": 40,
+ "drops": {},
+ "by_class": {
+  "entity_relation": 18,
+  "premise_trap": 10,
+  "simplify": 6,
+  "highlight": 6
+ },
+ "kept_by_class": {
+  "entity_relation": 18,
+  "premise_trap": 10,
+  "simplify": 6,
+  "highlight": 6
+ },
+ "detail": [
+  {
+   "id": "entity_relation-01",
+   "class": "entity_relation",
+   "question": "What is internal facing vs external facing data engineering?",
+   "answer_head": "[Ch. 1] \"An external-facing data engineer typically aligns with the users of external-facing applications, such as social media apps, Internet of Things (IoT) d"
+  },
+  {
+   "id": "entity_relation-02",
+   "class": "entity_relation",
+   "question": "What is source systems?",
+   "answer_head": "[Ch. 2] \"Figure 2-4 illustrates an IoT swarm: a fleet of devices (circles) sends data messages (rectangles) to a central collection system.\"\nIoT acts as a sourc"
+  },
+  {
+   "id": "entity_relation-03",
+   "class": "entity_relation",
+   "question": "what is data ingestion",
+   "answer_head": "[Ch. 7] \"In the data engineering space, a good deal of ceremony occurs around data movement and processing patterns, with established patterns such as ETL, newe"
+  },
+  {
+   "id": "entity_relation-04",
+   "class": "entity_relation",
+   "question": "what is data management",
+   "answer_head": "[Ch. 2] \"Data engineers need a broader perspective of data\u2019s utility across the organization, from the source systems to the C-suite, and everywhere in between."
+  },
+  {
+   "id": "entity_relation-05",
+   "class": "entity_relation",
+   "question": "what is orchestration in the data engineering lifecycle",
+   "answer_head": "[Ch. 2] \"people often refer to orchestration tools like Apache Airflow as schedulers.\"\nApache Airflow is a tool used for orchestration, though it is more than j"
+  },
+  {
+   "id": "entity_relation-06",
+   "class": "entity_relation",
+   "question": "types of metadata",
+   "answer_head": "[Ch. 2] \"Technical metadata describes the data created and used by systems across the data engineering lifecycle. It includes the data model and schema, data li"
+  },
+  {
+   "id": "entity_relation-07",
+   "class": "entity_relation",
+   "question": "what is data quality",
+   "answer_head": "[Ch. 2] \"In the Google paper introducing the Dataflow model, the authors give the example of an offline video platform that displays ads.\"\nGoogle's paper uses a"
+  },
+  {
+   "id": "entity_relation-08",
+   "class": "entity_relation",
+   "question": "what are the undercurrents of the data engineering lifecycle",
+   "answer_head": "[Ch. 2] \"We divide the data engineering lifecycle into five stages (Figure 2-1, top):\"\nIngestion is one of the five main steps in the data engineering process."
+  },
+  {
+   "id": "entity_relation-09",
+   "class": "entity_relation",
+   "question": "togaf defines data architecture as what",
+   "answer_head": "[Ch. 3] \"Test Data Quality at Scale with Deequ\u201d by Dustin Lange et al.\"\nIt is listed as a recommended reading under the Additional Resources section."
+  },
+  {
+   "id": "entity_relation-10",
+   "class": "entity_relation",
+   "question": "what does finops help a data team do",
+   "answer_head": "[Ch. 3] \"First, the FinOps Foundation offers this:16\"\nThe FinOps Foundation provides the definition for FinOps."
+  },
+  {
+   "id": "entity_relation-11",
+   "class": "entity_relation",
+   "question": "What is loosely coupled systems?",
+   "answer_head": "[Ch. 3] \"All teams will henceforth expose their data and functionality through service interfaces.\"\nTeams must use specific service connections to talk to each "
+  },
+  {
+   "id": "entity_relation-12",
+   "class": "entity_relation",
+   "question": "what is total cost of ownership",
+   "answer_head": "[Ch. 4] \"This is capex, a significant capital outlay with a long-term plan to achieve a positive ROI on the effort and expense put forth.\"\nBig upfront spending "
+  },
+  {
+   "id": "entity_relation-13",
+   "class": "entity_relation",
+   "question": "what is change data capture",
+   "answer_head": "[Ch. 5] \"Relational databases often generate an event log stored directly on the database server that can be processed to create a stream.\"\nCDC uses the databas"
+  },
+  {
+   "id": "entity_relation-14",
+   "class": "entity_relation",
+   "question": "types of nosql databases",
+   "answer_head": "[Ch. 5] \"NoSQL, which stands for not only SQL, refers to a whole class of databases that abandon the relational paradigm.\"\nNoSQL means \"not only SQL\" and descri"
+  },
+  {
+   "id": "entity_relation-15",
+   "class": "entity_relation",
+   "question": "What is advantages of insert-only tables?",
+   "answer_head": "[Ch. 5] \"With the insert-only pattern, a new address record is inserted with the same customer ID.\"\nThe Record ID stays the same for different versions of the s"
+  },
+  {
+   "id": "entity_relation-16",
+   "class": "entity_relation",
+   "question": "what is data sharing between organizations",
+   "answer_head": "[Ch. 9] \"Data sharing is increasingly a core feature of major data platforms like Snowflake, Redshift, and BigQuery allowing companies to share data safely and "
+  },
+  {
+   "id": "entity_relation-17",
+   "class": "entity_relation",
+   "question": "what is object storage",
+   "answer_head": "[Ch. 6] \"Since then, systems such as Apache Hudi and Delta Lake have emerged to manage this complexity, and privacy regulations such as GDPR and CCPA have made "
+  },
+  {
+   "id": "entity_relation-18",
+   "class": "entity_relation",
+   "question": "what is a data lakehouse",
+   "answer_head": "[Ch. 6] \"A variety of new competitors to Delta Lake have emerged, including Apache Hudi and Apache Iceberg.\"\nDelta Lake is one of several competing technologies"
+  },
+  {
+   "id": "premise_trap-19",
+   "class": "premise_trap",
+   "question": "What is data engineering lifecycle?",
+   "answer_head": "Not in this book."
+  },
+  {
+   "id": "premise_trap-20",
+   "class": "premise_trap",
+   "question": "what is data engineering",
+   "answer_head": "Not in this book."
+  },
+  {
+   "id": "premise_trap-21",
+   "class": "premise_trap",
+   "question": "what does a data engineer actually do",
+   "answer_head": "Not in this book."
+  },
+  {
+   "id": "premise_trap-22",
+   "class": "premise_trap",
+   "question": "What is data science vs data engineering?",
+   "answer_head": "Not in this book."
+  },
+  {
+   "id": "premise_trap-23",
+   "class": "premise_trap",
+   "question": "What is internal facing vs external facing data engineering?",
+   "answer_head": "Not in this book."
+  },
+  {
+   "id": "premise_trap-24",
+   "class": "premise_trap",
+   "question": "what is data maturity",
+   "answer_head": "Not in this book."
+  },
+  {
+   "id": "premise_trap-25",
+   "class": "premise_trap",
+   "question": "what is the data engineering lifecycle",
+   "answer_head": "Not in this book."
+  },
+  {
+   "id": "premise_trap-26",
+   "class": "premise_trap",
+   "question": "What is source systems?",
+   "answer_head": "Not in this book."
+  },
+  {
+   "id": "premise_trap-27",
+   "class": "premise_trap",
+   "question": "what is data ingestion",
+   "answer_head": "Not in this book."
+  },
+  {
+   "id": "premise_trap-28",
+   "class": "premise_trap",
+   "question": "what is data management",
+   "answer_head": "Not in this book."
+  },
+  {
+   "id": "simplify-29",
+   "class": "simplify",
+   "question": "What is data engineering lifecycle?",
+   "answer_head": "[Ch. 2] \"The data engineering lifecycle comprises stages that turn raw data ingredients into a useful end product, ready for consumption by analysts, data scien"
+  },
+  {
+   "id": "simplify-30",
+   "class": "simplify",
+   "question": "what is data engineering",
+   "answer_head": "[Ch. 1] \"Data engineering is the development, implementation, and maintenance of systems and processes that take in raw data and produce high-quality, consisten"
+  },
+  {
+   "id": "simplify-31",
+   "class": "simplify",
+   "question": "what does a data engineer actually do",
+   "answer_head": "[Ch. 1] \"a data engineer gets data, stores it, and prepares it for consumption by data scientists, analysts, and others.\"\nData engineers collect, save, and clea"
+  },
+  {
+   "id": "simplify-32",
+   "class": "simplify",
+   "question": "What is data science vs data engineering?",
+   "answer_head": "[Ch. 1] \"Data engineering sits upstream from data science (Figure 1-4), meaning data engineers provide the inputs used by data scientists (downstream from data "
+  },
+  {
+   "id": "simplify-33",
+   "class": "simplify",
+   "question": "What is internal facing vs external facing data engineering?",
+   "answer_head": "[Ch. 1] \"An internal-facing data engineer typically focuses on activities crucial to the needs of the business and internal stakeholders (Figure 1-11).\"\nInterna"
+  },
+  {
+   "id": "simplify-34",
+   "class": "simplify",
+   "question": "what is data maturity",
+   "answer_head": "[Ch. 1] \"Data maturity is the progression toward higher data utilization, capabilities, and integration across the organization, but data maturity does not simp"
+  },
+  {
+   "id": "highlight-35",
+   "class": "highlight",
+   "question": null,
+   "answer_head": "[Ch. preface01] \"The following typographical conventions are used in this book:\"\nThese are the special symbols and styles used to show different types of inform"
+  },
+  {
+   "id": "highlight-36",
+   "class": "highlight",
+   "question": null,
+   "answer_head": "[Ch. preface01] \"Please address comments and questions concerning this book to the publisher:\"\nContact means sending your comments or questions to the publisher"
+  },
+  {
+   "id": "highlight-37",
+   "class": "highlight",
+   "question": null,
+   "answer_head": "[Ch. 1] \"The modern data landscape\u2014and data engineering as we know it now\u2014would not exist without these innovations.\"\nContemporary data engineering is the curre"
+  },
+  {
+   "id": "highlight-38",
+   "class": "highlight",
+   "question": null,
+   "answer_head": "[Ch. 1] \"Their work would be devoted to cluster administration and maintenance, managing overhead, and writing pipeline and transformation jobs, among other tas"
+  },
+  {
+   "id": "highlight-39",
+   "class": "highlight",
+   "question": null,
+   "answer_head": "[Ch. 1] \"Data maturity is the progression toward higher data utilization, capabilities, and integration across the organization, but data maturity does not simp"
+  },
+  {
+   "id": "highlight-40",
+   "class": "highlight",
+   "question": null,
+   "answer_head": "[Ch. 1] \"The skill set of a data engineer encompasses the \u201cundercurrents\u201d of data engineering: security, data management, DataOps, data architecture, and softwa"
+  }
+ ]
+}

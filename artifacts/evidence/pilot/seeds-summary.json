@@ -1,0 +1,23 @@
+{
+ "rows": 40,
+ "mix": {
+  "entity_relation": 18,
+  "premise_trap": 10,
+  "simplify": 6,
+  "highlight": 6
+ },
+ "built": {
+  "er_no_sibling": 18,
+  "er_thin_overlap": 5,
+  "er_no_entity": 6,
+  "entity_relation": 18,
+  "premise_trap": 10,
+  "simplify": 6,
+  "hl_miss": 1,
+  "hl_no_term": 39,
+  "highlight": 6,
+  "dup": 4
+ },
+ "missing": {},
+ "out": "data\\finetune\\pilot-seeds-2026-10-24.jsonl"
+}

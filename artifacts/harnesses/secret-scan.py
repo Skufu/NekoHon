@@ -74,6 +74,9 @@ def known_values(repo):
     if judge_key.is_file():
         found.append((".judge-key", judge_key.read_text(encoding="utf-8").strip()))
     home = Path.home()
+    home_judge_key = home / ".judge-key"
+    if home_judge_key.is_file():
+        found.append(("~/.judge-key", home_judge_key.read_text(encoding="utf-8").strip()))
     for path, label in (
         (home / ".config" / "opencode" / "opencode.json", "opencode.json"),
         (home / ".local" / "share" / "opencode" / "auth.json", "auth.json"),

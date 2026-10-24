@@ -130,8 +130,17 @@ def _api_key():
         return key.strip()
     path = os.environ.get("JUDGE_API_KEY_FILE")
     if not path:
-        default = Path(__file__).resolve().parent.parent.parent / ".judge-key"
-        path = str(default) if default.is_file() else ""
+        repo_default = Path(__file__).resolve().parent.parent.parent / ".judge-key"
+        try:
+            home_default = Path.home() / ".judge-key"
+        except Exception:
+            home_default = None
+        if repo_default.is_file():
+            path = str(repo_default)
+        elif home_default and home_default.is_file():
+            path = str(home_default)
+        else:
+            path = ""
     if path:
         return Path(path).read_text(encoding="utf-8").strip()
     return ""

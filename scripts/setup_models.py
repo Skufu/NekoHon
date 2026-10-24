@@ -27,7 +27,7 @@ MODELS = {
         "name": "nekohon_x3",
         "tag": "nekohon_x3",
         "tag_full": "nekohon_x3:latest",
-        "role": "Primary Desktop Answerer (3B Q4_K_M)",
+        "role": "Previous Desktop Answerer (3B Q4_K_M); the revert",
         "base_model": "Qwen/Qwen2.5-3B-Instruct",
         "gguf_filename": "nekohon_x3.Q4_K_M.gguf",
         "dir": os.path.join(REPO_ROOT, "data", "models", "nekohon_x3"),
@@ -38,6 +38,7 @@ MODELS = {
         "ollama_digest": "5a9525f8d0ac",
         "hf_url": "https://huggingface.co/Skufu1/nekohon-x3/resolve/main/nekohon_x3.Q4_K_M.gguf",
         "env_var_url": "NEKOHON_X3_URL",
+        "recommended_for": "Desktop (8GB+ RAM / 4GB+ VRAM) — previous default, one flag away",
     },
     "nekohon_x3_mobile": {
         "name": "nekohon_x3_mobile",
@@ -54,6 +55,41 @@ MODELS = {
         "ollama_digest": "89e6798ed288",
         "hf_url": "https://huggingface.co/Skufu1/nekohon-x3/resolve/main/nekohon_x3_mobile.Q4_K_M.gguf",
         "env_var_url": "NEKOHON_X3_MOBILE_URL",
+        "recommended_for": "Mobile / Laptop (4GB RAM / 2GB VRAM)",
+    },
+    "nekohon_q35_2b": {
+        "name": "nekohon_q35_2b",
+        "tag": "nekohon_q35_2b",
+        "tag_full": "nekohon_q35_2b:latest",
+        "role": "Candidate Desktop Answerer (Qwen3.5-2B, 417-row run)",
+        "base_model": "Qwen/Qwen3.5-2B",
+        "gguf_filename": "nekohon_q35_2b.Q4_K_M.gguf",
+        "dir": os.path.join(REPO_ROOT, "data", "models", "nekohon_q35_2b"),
+        "committed_modelfile": os.path.join(REPO_ROOT, "models", "nekohon_q35_2b", "Modelfile"),
+        "expected_sha256": "5b2b573a921a0dac3d564393911dc3f0da5c12179394ac922167187cd0ed5309",
+        "expected_bytes": 1312164768,
+        "size_display": "1.31 GB (1,251.3 MiB; 1,312,164,768 bytes)",
+        "ollama_digest": "f17a0478a7d1",
+        "hf_url": "https://huggingface.co/Skufu1/nekohon-q35-2b/resolve/main/nekohon_q35_2b.Q4_K_M.gguf",
+        "env_var_url": "NEKOHON_Q35_2B_URL",
+        "recommended_for": "Candidate: 417-row x2f corpus, sealed 25/30",
+    },
+    "nekohon_q35_2b_x3_2e": {
+        "name": "nekohon_q35_2b_x3_2e",
+        "tag": "nekohon_q35_2b_x3_2e",
+        "tag_full": "nekohon_q35_2b_x3_2e:latest",
+        "role": "Primary Desktop Answerer (Qwen3.5-2B, 844-row corpus, 2 epochs)",
+        "base_model": "Qwen/Qwen3.5-2B",
+        "gguf_filename": "nekohon_q35_2b_x3_2e.Q4_K_M.gguf",
+        "dir": os.path.join(REPO_ROOT, "data", "models", "nekohon_q35_2b_x3_2e"),
+        "committed_modelfile": os.path.join(REPO_ROOT, "models", "nekohon_q35_2b_x3_2e", "Modelfile"),
+        "expected_sha256": "1621bcb3911489bf8296bae7703f1ca4c0678444c8497128393dcf151717526e",
+        "expected_bytes": 1312164768,
+        "size_display": "1.31 GB (1,251.3 MiB; 1,312,164,768 bytes)",
+        "ollama_digest": "cba00d4abf1f",
+        "hf_url": "https://huggingface.co/Skufu1/nekohon-q35-2b/resolve/main/nekohon_q35_2b_x3_2e.Q4_K_M.gguf",
+        "env_var_url": "NEKOHON_Q35_2B_X3_2E_URL",
+        "recommended_for": "Desktop (8GB+ RAM / 3GB+ VRAM), default since 2026-10-24",
     },
 }
 
@@ -422,6 +458,7 @@ def run_package_release():
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "repo": "https://github.com/Skufu/ask-this-book",
         "huggingface_repo": "https://huggingface.co/Skufu1/nekohon-x3",
+        "huggingface_repo_q35": "https://huggingface.co/Skufu1/nekohon-q35-2b",
         "models": {},
         "lora_archives": {},
         "instructions": {
@@ -429,10 +466,14 @@ def run_package_release():
                 "# 1. Install Hugging Face Hub CLI",
                 "pip install huggingface_hub",
                 "# 2. Log in with your write token",
-                "huggingface-cli login",
+                "hf auth login",
                 "# 3. Upload model artifacts to repository",
-                "huggingface-cli upload Skufu1/nekohon-x3 data/models/nekohon_x3/nekohon_x3.Q4_K_M.gguf nekohon_x3.Q4_K_M.gguf",
-                "huggingface-cli upload Skufu1/nekohon-x3 data/models/nekohon_x3_mobile/nekohon_x3_mobile.Q4_K_M.gguf nekohon_x3_mobile.Q4_K_M.gguf",
+                "hf upload Skufu1/nekohon-q35-2b data/models/nekohon_q35_2b_x3_2e/nekohon_q35_2b_x3_2e.Q4_K_M.gguf nekohon_q35_2b_x3_2e.Q4_K_M.gguf",
+                "hf upload Skufu1/nekohon-q35-2b models/nekohon_q35_2b_x3_2e/Modelfile Modelfile",
+                "hf upload Skufu1/nekohon-q35-2b data/models/nekohon_q35_2b/nekohon_q35_2b.Q4_K_M.gguf nekohon_q35_2b.Q4_K_M.gguf",
+                "hf upload Skufu1/nekohon-q35-2b models/nekohon_q35_2b/Modelfile Modelfile.417",
+                "hf upload Skufu1/nekohon-x3 data/models/nekohon_x3/nekohon_x3.Q4_K_M.gguf nekohon_x3.Q4_K_M.gguf",
+                "hf upload Skufu1/nekohon-x3 data/models/nekohon_x3_mobile/nekohon_x3_mobile.Q4_K_M.gguf nekohon_x3_mobile.Q4_K_M.gguf",
             ],
             "github_release_upload": [
                 "# 1. Create a GitHub release tag",
@@ -465,7 +506,7 @@ def run_package_release():
             "sha256": actual_sha,
             "ollama_tag": cfg["tag_full"],
             "ollama_digest": tag_digest,
-            "recommended_for": "Desktop (8GB+ RAM / 4GB+ VRAM)" if "3B" in cfg["role"] else "Mobile / Laptop (4GB RAM / 2GB VRAM)",
+            "recommended_for": cfg["recommended_for"],
         }
 
         # Check for LoRA zip
@@ -495,7 +536,7 @@ def main():
     group.add_argument("--install", action="store_true", help="Download missing models and import into local Ollama")
     group.add_argument("--package-release", action="store_true", help="Generate release manifest (data/models/release-manifest.json)")
     group.add_argument("--warmup", action="store_true", help="Warm models into Ollama memory without reinstalling")
-    parser.add_argument("--model", choices=["all", "nekohon_x3", "nekohon_x3_mobile"], default="all", help="Target model")
+    parser.add_argument("--model", choices=["all"] + list(MODELS), default="all", help="Target model")
 
     args = parser.parse_args()
 

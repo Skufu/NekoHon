@@ -68,22 +68,24 @@ rules follow:
   the gates.
 
 **Constitution (short copy of `GOAL.md` — keep in sync):** local only (Ollama
-on localhost; one eval-only cloud-judge exception) · stdlib only (one vendored
-preprocessing exception) · grounded (quotes come from the book; repairs never
-invent text) · refusal is exactly `Not in this book.` · measured, not asserted.
-Only this list can block work.
+on localhost; one eval-only cloud-judge exception) · stdlib by default, a
+dependency must show a measured win · grounded (quotes come from the book;
+repairs never invent text) · refusal is exactly `Not in this book.` · measured,
+not asserted. Only this list can block work.
 
 ## Hard rules (do not break)
 
-- Python stdlib by default — the whole standard library is fair game, e.g.
-  `zipfile`, `json`, `html.parser`, `xml.etree.ElementTree`, `urllib`,
-  `http.server`, `pathlib`, `re`. One exception (user decision 2026-10-13):
-  text preprocessing may use standard third-party tools — stemmers, stopword
-  lists, normalization tables — vendored into the repo with their license
-  (a `vendor/` copy beats a pip dependency; the app stays offline). Record a
-  download's megabyte count before pulling. Everything else stays stdlib: no
-  `requirements.txt`, no numpy. If a non-preprocessing task seems to need a
-  package, the task is wrong — redesign it.
+- **Stdlib by default; a dependency must earn its place.** The whole standard
+  library is fair game, e.g. `zipfile`, `json`, `html.parser`,
+  `xml.etree.ElementTree`, `urllib`, `http.server`, `pathlib`, `re`. Third-party
+  code is allowed only when a measured run shows the stdlib version loses on
+  the reader's terms; record the cost next to the win — install size, RAM, the
+  offline story — and a one-line revert. Two standing cases: text preprocessing
+  may vendor stemmers, stopword lists, or normalization tables into the repo
+  with their license (user decision 2026-10-13; a `vendor/` copy beats a pip
+  dependency, and the app stays offline), and reranking is an open candidate
+  as of 2026-10-23 (user direction: a hard rule may not veto an untested
+  improvement). Record a download's megabyte count before pulling.
   `urllib` may talk only to this machine: Ollama at `127.0.0.1:11434`, and the
   engine itself. No other host — one exception, evaluation only (user
   direction 2026-10-13; judge default moved to the cloud 2026-10-15, user
@@ -95,10 +97,10 @@ Only this list can block work.
   path.
 - Frontend exception (user decision 2026-10-15): the UI is a **Next.js app
   under `web/`** — Node 22 + npm + a build step are allowed there and nowhere
-  else; the engine, server, and tests stay stdlib. The runtime stays
-  local-only: the built UI makes no external requests (no webfonts, CDNs,
-  analytics), and in production the engine serves the built assets so the
-  user still opens one URL.
+  else; the engine, server, and tests follow the dependency rule above. The
+  runtime stays local-only: the built UI makes no external requests (no
+  webfonts, CDNs, analytics), and in production the engine serves the built
+  assets so the user still opens one URL.
 - No pickle, no marshal, no shelve, no sqlite. Records are JSON. Reload with
   the stdlib `json` module. Pictures stay as files under `data/figures/`.
   Bake-off indexes are `data/index.<model>.json`. After the bake-off,
@@ -112,7 +114,8 @@ Only this list can block work.
   `GET /` — plus the frontend plan's approved reader additions (2026-10-15):
   `GET /chunks` and `stream=1` on `POST /ask` (NDJSON: token, reset, final,
   error). No other route. `POST /ask` request/response shape is frozen (README
-  "Contract"); `mode` is `ask`, `answer`, `explain`, or `quiz`. When
+  "Contract"); `mode` is `ask`, `answer`, `explain`, `quiz`, or `import`
+  (drag-and-drop EPUB; `server.py` `EXTRA_MODES`). When
   `refused: true`, `answer` is exactly `Not in this book.` — that sentence,
   period included, and nothing else. In `answer` mode the model's first line
   must be that exact sentence for a refusal; in `ask` mode a line that starts
@@ -122,8 +125,9 @@ Only this list can block work.
   pins). Reordering or skipping a phase to serve the goal is allowed; you owe
   the repo a re-run and a plan update, not a permission request (see "Goal vs
   plan").
-- `rag-template/` is read-only reference. Never touch its `.venv`. Do not port
-  numpy, pickle, BM25, rerankers, or agentic/multimodal code from it.
+- `rag-template/` is read-only reference. Never touch its `.venv`. Porting code
+  from it follows the dependency rule above: a measured win recorded first, or
+  it does not land.
 - Do not commit unless the human asks.
 - Reset the engine with the model (user rule 2026-10-14): anytime the answer
   model changes — a new `ANSWER_MODEL` default, an env seam, a new Ollama tag
@@ -157,6 +161,20 @@ Only this list can block work.
   `len(PERTURB_SWAPS)`) before quoting metrics from markdown reports. Treat
   documentation, ADRs, status files, and READMEs as unverified claims until the
   source code agrees.
+- **A plausible example is not evidence.** Before repeating a quote, an example,
+  or a failure count, open the source and check it. Owner question 2026-10-24
+  ("but in this one is there really an ACID term?") found what the summary had
+  not: an old follow-up row attached a rewritten ACID quote to an OLTP passage,
+  and 10 of that set's 15 quotes exist nowhere in the books. The engine was
+  fine; the data factory was not. A sentence that reads right is not a sentence
+  that has been checked.
+- **Scope the checker before believing its number.** A first pass reported 88
+  unverifiable quotes in the 400 assembled rows. Scoped to in-book chunk ids and
+  including figure captions, the count is 0; the misses were other-domain rows
+  and captions the check never read. State the scope next to the count. A red
+  number from an unscoped checker is a bug in the checker until proven
+  otherwise. `tests/test_training_quotes.py` is the mechanical half of this
+  rule: every in-book quote in `data/finetune/*.jsonl` must be verbatim.
 - Verify disk state first: check `git status` or inspect target directories
   before proposing a build action, to avoid proposing work that has already
   shipped or files already built.
@@ -194,6 +212,42 @@ Only this list can block work.
 
 ## Current state (update this block when a phase lands)
 
+- **Hard multi-turn bench added; default holds 12/12 after three engine fixes** (2026-10-25). Twelve authored items (elision / pronoun / distraction / trap), frozen by sha256 and guarded by `tests/test_hard_mt_leakage.py`: no overlap with the 844-row corpus, and every fabricated name and year absent from all three books. First run 8/12, one item was replaced for having two correct answers (9/12), then three fixes took it to 12/12 on `nekohon_q35_2b_x3_2e`: four missing plain-register cues in `answer.SIMPLE_CUES`; `answer._prior_quote_chunk`, which collapses whitespace before matching the prior quote (stored text has `consistency\r\n refers`, so every wrapped phrase missed and an elided follow-up lost its subject — the same bug lived in the concept-pin path); and `answer.names_absent_person`, which refuses "who/what did <Name> say|write|claim" when the surname appears in no book, in both `ask` and `respond`. Controls: a real author passes, an ordinary question does not match. Sealed 27/30, hard bench 59/60, adrian 32/35 all unchanged. Tests: `tests/test_followup_subject.py`, `tests/test_fabricated_attribution.py`. Report: `artifacts/reports/hard-mt-2026-10-24.md`.
+
+- **Round 5 (cross-book traps) tried and not adopted** (2026-10-25). 12 traps on quantization and ddia (11 kept; one answered), merged with 15 audited pilot rows into an 870-row corpus (`probes/build-r5-corpus-2026-10-25.py`, sha256 `584b49e1…`, 158 refusals). Two epochs: val 0.4726 → 0.4777. Gates: hard-mt **10/12** (a new distraction failure, `mt-distract-03`, quoted a chapter-12 railway-gauge sentence) and sealed 27/30. Not adopted: a tie on sealed does not buy back a bench loss, and `mt-trap-02` still answered. Third round in a row where extra rows moved failures instead of removing them. The trap was then fixed in the engine, not the model. Model kept on disk as `nekohon_q35_2b_r5`; the default is unchanged. Report: `artifacts/reports/r5-2026-10-25.md`.
+
+- **Answer-model gates made content-based** (2026-10-24). The ask battery required the first citation to equal one stored chunk. Four of ten pins were not the top-ranked passage and two were wrong on their own text: `ch05-004` is a section intro that never says what source systems provide, and `ch06-001` answers importance rather than where storage sits. Both are re-pinned in `datasets/battery-pins.json` with the reason. Every gate now judges a citation by whether the cited passage carries the question's terms (`harnesses/fair_cite.py`); the pin is a note and retrieval is scored separately. `tests/test_harness_fairness.py` fails if a pin stops carrying its terms, if a replaced pin starts passing, or if identity gating comes back. Re-measured on all six gates: `nekohon_x3` 161/175, `nekohon_q35_2b` 161/175, tied and split by gate. Report: `artifacts/reports/test-fairness-2026-10-24.md`.
+
+- **Round 4 (history rows) tried and not adopted** (2026-10-24). 400 multi-turn rows were assembled from existing teacher answers (250 history-conditioned, 150 coreference) with `probes/build-history-rows-2026-10-24.py`; corpus 1,521 rows, 32% with history. Two epochs overfits (val 0.4325 → 0.4597); the 1-epoch export measures hard bench 59/60 (`multi_turn_02` fixed, `_07` still failing), adrian 32/35, sealed **26/30** against the default's 27 and round 3's 28. Not adopted: assembled targets were written for standalone questions, so they teach "ignore history" but not "condition on history". A real history capture needs the 27B to see the history and write the final turn. Report: `artifacts/reports/finetune-round4-history-2026-10-24.md`.
+
+- **Round 3 tried and not adopted** (2026-10-24). 277 unused teacher rows were assembled from the 2026-10-15 captures and x2g leftovers (`probes/build-round3-rows-2026-10-24.py`; 6 eval leaks dropped), giving a 1,121-row corpus on round 2's held-out questions. Validation 0.4341 → 0.4350, lower and flatter than round 2. Gates: sealed **28/30** (ties the 3B), adrian 32/35, battery 10/10 both modes, but hard bench 58/60 with two deterministic multi-turn misses (`multi_turn_02`, `multi_turn_07`). Not adopted: +1 sealed for -1 multi-turn is a regression. Only 85 of 1,121 rows carry conversation history, which is why multi-turn is the fragile gate; the next lever is history rows. Report: `artifacts/reports/finetune-round3-2026-10-24.md`.
+
+- **Qwen3.5-2B round 2 adopted: 844-row corpus, 2 epochs** (2026-10-24). `nekohon_q35_2b_x3_2e` (Qwen3.5-2B, Q4_K_M, 1.31 GB, tag digest `cba00d4abf1f`) runs the x2f recipe on the 3B's 844-row corpus (`quote-refuse-2026-10-17.train-x3.jsonl`, sha256 `fd06f981…`, 137 refusals, 790 distinct questions) with 10% held out by question (760 train / 84 valid). The 3-epoch run overfits: validation 0.4754 → 0.4643 → 0.5438; the 2-epoch export reads 0.4785 → 0.4830. Against the 417-row run: sealed 27/30 vs 25/30, adrian 32/35 vs 31/35, hard bench 59/60 both, battery 10/10 both modes. The 3B still leads the sealed set 28/30. Reverts: `ANSWER_MODEL=nekohon_q35_2b`, then `=nekohon_x3`. Report: `artifacts/reports/finetune-round2-x3-2026-10-24.md`.
+
+- **Battery typo retired; the 14 s latency was VRAM churn** (2026-10-24). The "ET" typo was not a typo: "et" appears 12 times in "et al", so the engine applies no repair, and the item passed only when retrieval landed on a passage containing `extracted`. Retired with the reason in `datasets/battery-pins.json` and replaced by `What is ingestoin?` (0 chunks, repairs to `ingestion`, passes 2/2 on both models). Separately, the 4.78 s mean and 21/60 slow asks on the 3-epoch export were three answerers resident on one 8 GB card: isolated, mean 0.62 s, p50 0.65 s, p90 0.82 s. Run `ollama stop` on the other answerers before any latency measurement.
+
+- **Qwen3.5-2B adopted as the desktop answer model** (2026-10-24). `nekohon_q35_2b` (Q4_K_M, 1.31 GB, tag digest `f17a0478a7d1`, GGUF sha256 `5b2b573a…`) was finetuned on the x2f recipe exactly (417 rows, r=16/alpha=32, 5 epochs, seed 3407, responses-only) on Colab L4. Gate totals under the content rule: `nekohon_x3` 161/175 and `nekohon_q35_2b` 161/175, split by gate (q35 leads ask 10/10 vs 9/10 and cross-book 26/30 vs 24/30; x3 leads the sealed unseen set 28/30 vs 25/30; hard bench 59/60 and adrian 31/35 tie). Revert with `ANSWER_MODEL=nekohon_x3`; that tag stays registered. Report: `artifacts/reports/qwen35-swap-2026-10-24.md`.
+
+- **Gemma embedder tried and reverted** (2026-10-23). `embeddinggemma-2:270m-bf16-text`
+  was installed as the default and re-embedded all three books
+  (`probes/reembed-gemma-2026-10-23.py`; fde 77.9s, quantization 37.4s, ddia
+  98.5s). It won on the hand-written wide net (recall@5 43/57 vs 38/57, @10
+  48/57 vs 40/57, mean rank 11.5 vs 27.1) but lost on both shipped gates:
+  hard bench 53/60 and adrian 29/35, against nomic's 59-60/60 and 32/35, all
+  on citation mismatches. Owner note: `nekohon_x3` was distilled on
+  nomic-retrieved passages, so a gemma retriever with a nomic-trained student
+  may be measuring that mismatch rather than embedder quality. Gemma is a
+  **candidate** pending either a student finetune on gemma passages or an audit
+  of the seven cited-chunk failures. `DEFAULT_EMBEDDER` is nomic; the indexes
+  were re-embedded back (13.1s / 6.6s / 15.7s). The index files are not tracked
+  by git, so a revert is a re-embed, never a checkout. `document_input` branches
+  on `NOMIC_EMBEDDER` (not the default), so a future default cannot silently
+  change how nomic records are built. Report:
+  `artifacts/reports/reranking-bakeoff-2026-10-23.md`.
+- **Judge models must be free** (owner direction 2026-10-23): any LLM judge run
+  uses `opencode/deepseek-v4.1-flash-free` or `opencode/glm-5.3-flash-free`.
+  Do not spend on a larger judge model. The existing `muse-spark` default in
+  `harnesses/judge.py` is only for replaying an old run that used it.
 - Done: Phase 0 (book at `books/fde.epub`), 0b (README corrected for this
   book), 1 (fixture + `server.py` + contract test — green), 2 (ingest).
 - Phase 3 nomic smoke is done. `data/index.json` has 1065 chunk vectors and
@@ -243,7 +297,7 @@ Only this list can block work.
 - All 10 golden questions run end-to-end over HTTP 2026-10-12: 8 answered with
   a chunk and quote, 2 refused (`Not in this book.`): the storage-cornerstone
   and transformations questions. Retrieval stayed 10/10; the refusals are the
-  answer layer. Demo sheet: `artifacts/demo-questions.md`.
+  answer layer. Demo sheet: `artifacts/datasets/demo-questions.md`.
 - Window shows citation chunk ids under the answer (2026-10-12); on refusals
   they are labeled "nearest misses".
 - Post-v1 step 2 (typo tolerance) landed 2026-10-12, amended the same day:
@@ -354,7 +408,7 @@ Only this list can block work.
   packing with sentence-aligned overlap. Late chunking and ColBERT are
   vector-side retrieval tricks — they cannot change the chunk text that gets
   cited, and neither is available here (Ollama returns one vector per input;
-  the hard rules forbid rerankers and numpy). Not started: re-chunking changes
+  reranking is untested, not forbidden — see the dependency rule). Not started: re-chunking changes
   every chunk id, so it re-baselines the battery, the demo sheet, and every
   pin. Documented limit kept: digits are not tokens ("S3" reads as "s"),
   because widening it moves every df count and the rare gate rides on those.
@@ -387,7 +441,7 @@ Only this list can block work.
   measured quotes rather than the pins, and both are fixed — see the
   answer-layer bullet above: the transformations quote no longer opens with the
   chunk's heading line, and the atermark answer attaches one figure, not three.
-  `artifacts/demo-questions.md` was corrected the same day.
+  `artifacts/datasets/demo-questions.md` was corrected the same day.
 - Chunk metadata added 2026-10-12 (`ingest.py`): every chunk now carries `doc`
   (the EPUB file, e.g. `OEBPS/ch04.html`), `section` (the heading trail, e.g.
   "Chapter 6. Storage > Object Storage"), `anchor` (the heading's own id) and
@@ -496,7 +550,7 @@ Only this list can block work.
   `answer.ask` on the nomic index: golden 10/10, France exact refusal, MAD probe
   ch04-020. 48 unit tests green. HTTP battery carries the MAD probe (ch04-020)
   but was not rerun same day (a stale :8000 server was live); evidence in
-  `artifacts/mad-caption-probe.md`.
+  `artifacts/reports/mad-caption-probe.md`.
 - Definition-first ordering tried and reverted 2026-10-12 (negative result).
   The prompt route and the code route both failed. A prompt rewrite naming the
   definition verbs (is, are, includes) made "monolith" quote ch03-057 but made
@@ -562,7 +616,7 @@ Only this list can block work.
   - A smaller qwen. The library tag is already Q4_K_M, 4.7GB. A smaller one
     may fail the quote check more often.
   - A Gemma picture index. Separate file. It cannot mix with nomic numbers.
-- Answer-model bake-off landed 2026-10-12 (`artifacts/answer-model-bakeoff-plan.md`,
+- Answer-model bake-off landed 2026-10-12 (`artifacts/reports/answer-model-bakeoff-plan.md`,
   `answer-model-bakeoff-results.md`; evidence `artifacts/bakeoff-*`). Three pulled
   candidates ran the 18-ask battery under rules frozen before the runs:
   `qwen3:4b-instruct` (2,497 MB), `granite4.1:3b` (2,100 MB), `granite4.1:8b`
@@ -588,12 +642,13 @@ Only this list can block work.
   reverted the same day: granite answered "what is MAD data landscape" with the
   data-mesh passage (3/3 deterministic; retrieval was right, ch04-020 led the
   set) and granite4.1:8b refused the same phrasing, while qwen2.5:7b answers
-  both phrasings (`artifacts/mad-phrasing-probe.md`, `mad-phrasing-postrevert.txt`).
+  both phrasings (`artifacts/reports/mad-phrasing-probe.md`, `mad-phrasing-postrevert.txt`).
   `prompt.py` default is back to `qwen2.5:7b`; granite4.1:3b stays on disk as
   the finetune candidate and the small-PC option. The choice is measured against
   this book's index: a new book, or a new index, triggers a fresh bake-off under
   the same frozen rules.
-- Overnight QA ran 2026-10-13 (`artifacts/overnight-report.md`): a 303-question
+- Overnight QA ran 2026-10-13 (question set: `artifacts/qa-sweep-questions.json`; the
+  run report was not kept in the repo): a 303-question
   sweep in the user's styles (`qa-sweep.py`; question set from a subagent plus
   rare-word and heading asks), refusal classification with raw completions, and
   an audit of the coherence guard. Findings: (a) the coherence guard fixed the
@@ -616,7 +671,7 @@ Only this list can block work.
   check (curly quotes, interior commas — "data about data"). Retests via HTTP:
   "what is normalization", "crud stands for what", "types of metadata", "why
   should you plan for failure" all answer now
-  (`artifacts/refusal-fixes-evidence.txt`); "hot warm cold data" stays refused
+  (`artifacts/evidence/refusal-fixes-evidence/refusal-fixes-evidence.txt`); "hot warm cold data" stays refused
   (the model quotes only the heading), IOPS stays refused (retrieval never
   surfaces it). 97 tests green; battery PASS (`step2-battery-refusal-fixes.*`;
   one cold-run multicloud flake cleared on warm rerun as always). Commits
@@ -627,7 +682,7 @@ Only this list can block work.
   back to the shown set (chapter first, word overlap decides, zero-overlap
   claims stay uncited), quotation marks the passages cannot back are
   stripped, and a refusal is the exact first line only. The quote check
-  demotes from gate to meter (`artifacts/groundedness.py`: sentence 4-gram
+  demotes from gate to meter (`artifacts/harnesses/groundedness.py`: sentence 4-gram
   support). The mode's battery judge is grounded-in-retrieved (pin among the
   shown passages, citations only from shown ones): strict first-citation pin
   was 7/10 with three sibling-chunk citations (pins shown in all three),
@@ -637,14 +692,14 @@ Only this list can block work.
   and only the close wording refused iops/dark matter. Batteries PASS both
   modes; coherence probes PASS (MAD, data mesh, Codd -> the book's own
   "normal forms", endpoint); window select defaults to answer. 143 tests.
-  Report: `artifacts/answer-mode-overnight.md`.
+  Report: `artifacts/reports/answer-mode-overnight.md`.
 - Preprocessing stages 5-9 landed 2026-10-13 (`501a6db`, user lifted the
   stdlib restriction for this): `fold()` (NFKC + typographic repair), SMART
   stopwords (vendored), Snowball English Porter2 stemmer (vendored, BSD-3);
   `normalize()`/`words()`/`tokens()` byte-identical. First wiring measured:
   stopwords never anchor a paragraph (`keywords.anchor_words`); battery PASS
   on the wired tree. The stemmed-map wiring (incl. the rare gate) is
-  proposed in `artifacts/stage9-preprocessing.md` section (d) with df
+  proposed in `artifacts/reports/stage9-preprocessing.md` section (d) with df
   evidence ("extract" family 14+4+5+9 -> 29, over RARE_DF=8, gates flip)
   and a required per-process cache before it ships.
 - Answer-mode sweeps ran 2026-10-13 (303 asks each): refused 31 -> 33 -> 33;
@@ -658,7 +713,7 @@ Only this list can block work.
   not wired into the four routes. Live probe: 5 questions, 3.1 s total, 13
   decision calls; no measured win over the 0.5-1.2 s single-shot ask on
   these five, so wiring waits for a measured multi-hop failure set.
-  `artifacts/agentic-design.md`.
+  `artifacts/reports/agentic-design.md`.
 - Cloud judge calibrated 2026-10-13: `muse-spark-1.3-contributor` on the
   OpenCode Go relay (`/responses` wire, reasoning effort minimal,
   `x-opencode-session` header auto-generated per process; key from
@@ -688,7 +743,7 @@ Only this list can block work.
   (non-finite / zero-norm / width drift / missing), exit 1 when dirty.
   Measured: pre-guard scan of `data/index.json` (10,528,929 bytes, sha256
   5478e5e9…) 1153/1153 vectors 768-wide, 0 non-finite, 0 zero-norm, 0 drift,
-  norms 0.99999888-1.00000115 (`artifacts/embedding-audit-2026-10-13.txt`);
+  norms 0.99999888-1.00000115 (`artifacts/evidence/embedding-audit/embedding-audit-2026-10-13.txt`);
   post-guard `python verify_index.py` clean on the same file, dirty path exits
   1 naming the chunk; 157 tests green (was 143); live smoke 10/10 top-10 in
   2.8 s. No re-embed; index bytes untouched.
@@ -705,8 +760,8 @@ Only this list can block work.
   back to the draft instead of a refusal, and citations come from the draft
   (book-backed by construction) instead of a re-parse. Wiring check live over
   HTTP: "explain data engineering in simple words" answers in the register
-  (`artifacts/plain-http-check.json`), "What is the MAD data landscape?"
-  stays ordinary (`artifacts/plain-http-control.json`); both batteries rerun
+  (`artifacts/evidence/plain-http/plain-http-check.json`), "What is the MAD data landscape?"
+  stays ordinary (`artifacts/evidence/plain-http/plain-http-control.json`); both batteries rerun
   on a fresh server (ask PASS after the known cold-start multicloud flake,
   preserved as `step2-battery-flaked.*`; answer PASS, coherence PASS); 188
   tests green. The known referent-drop failure ("...work on it." when the
@@ -718,7 +773,7 @@ Only this list can block work.
   the wiring is not implicated (identical shown passages, `same_shown` true
   for all 10; rewrites differ draw-to-draw at temperature 0 and one identical
   answer text got different verdicts). Frozen-prompt probe
-  (`artifacts/judge-stability.py`): three consecutive Muse calls on one
+  (`artifacts/harnesses/judge-stability.py`): three consecutive Muse calls on one
   borderline item returned supported, supported, unsupported — the release
   judge is nondeterministic despite `temperature: 0`. Consequence:
   single-draw scorecards carry +/-1-2 borderline questions of noise; repeat
@@ -811,7 +866,7 @@ Only this list can block work.
   steer family is now 0/4, do not retry a prompt shape without a model
   change. The book's text names MAD once (the pointer); the Ch. 1 treatment
   is figure-1-3; "who is Matt Turck" is not in the book. Summary
-  `artifacts/mad-ask-ceiling.md`; probes `probe-mad-{quote,seed,caption}.*`,
+  `artifacts/reports/mad-ask-ceiling.md`; probes `probe-mad-{quote,seed,caption}.*`,
   `probe-gloss-steer*`.
 - Query-phrasing sensitivity probed 2026-10-13 (user report: one "?" changed
   "What is nonrelational database" from the ch05-032 definition to ch05-034's
@@ -826,7 +881,7 @@ Only this list can block work.
   keep no links. A one-hop link channel is a backlog-probe candidate; its
   A one-hop link channel is a backlog-probe candidate; its
   MAD targets were already tested and ignored. Summary
-  `artifacts/query-normalization.md`.
+  `artifacts/reports/query-normalization.md`.
 - Bare-phrase canonicalization landed 2026-10-13 (`canonical.py`,
   `answer.py`, `tests/test_canonical.py`): `canonical_query` prefixes a
   structurally bare phrase ("mAD DaTa" -> "What is mAD DaTa?") before
@@ -849,9 +904,9 @@ Only this list can block work.
   `Asked as:` line and the clean bare-MAD answer confirmed live; the
   watermark ask unchanged. Residual: MAD ask wh-form refusal flake (did not
   recur); answer-mode filler variants still diverge (Stage 2/3). Plan
-  `artifacts/query-canonicalization-2026-10-13.md`.
-- Finetune prep 2026-10-13 (`artifacts/build-finetune-data-2026-10-13.py`,
-  summary `artifacts/finetune-data-prep-2026-10-13.md`): the 7B teacher is
+  `artifacts/reports/query-canonicalization-2026-10-13.md`.
+- Finetune prep 2026-10-13 (`artifacts/probes/build-finetune-data-2026-10-13.py`,
+  summary `artifacts/reports/finetune-data-prep-2026-10-13.md`): the 7B teacher is
   distilled through the shipped seam into
   `data/finetune/quote-refuse-2026-10-13.{train,bench}.jsonl` (gitignored):
   191 questions -> 239 rows (gold 80 / silver 76 / refusal 29, plus 54
@@ -861,7 +916,7 @@ Only this list can block work.
   sweep twins of bench topics, guarded by pattern). Refusal mining v2 kept
   27 of 28; 1 answered from a passing mention and was rejected. 6 rejects
   logged; independent verifier PASS, 0 failures. Colab recipe ready:
-  `artifacts/finetune-colab-recipe-2026-10-13.md` +
+  `artifacts/reports/finetune-colab-recipe-2026-10-13.md` +
   `finetune-colab-2026-10-13.ipynb` (A100 or L4, Unsloth LoRA, upload only
   the train file). Next: run it, import the GGUF, run the bench against the
   recorded 7B numbers.
@@ -893,7 +948,7 @@ Only this list can block work.
   rejected, app seam stays temperature 0 — and the Qwen3-4B variant
   over-refuses (bench 2/21 pins), parked. Fix = ratio retrain: datasets x2
   (167 rows) and x1 (140) built + verified; notebook v4 trains both in one
-  session. Evidence: `artifacts/finetune-loop-eval-2026-10-13.md`.
+  session. Evidence: `artifacts/reports/finetune-loop-eval-2026-10-13.md`.
 - Finetune x2 wins + app trial 2026-10-14: the x2 checkpoint (167 rows) is
   the first small model with refusals AND clean generation — refusals 2/2
   exact, battery 18-19/21 across the three recorded passes (a fourth file
@@ -904,10 +959,10 @@ Only this list can block work.
   `ANSWER_MODEL=qwen2.5:7b` env, no edit); builder teacher pinned to
   qwen2.5:7b. Known warts: false refusals on unmemorized forms (Codd, CRU
   lowercase, DE Lifecycle, Location, ddr4-vs-ddr5 order flip; the 7B
-  answers all — `artifacts/x2-trial-2026-10-14.md`). Contamination audit: 0
+  answers all — `artifacts/reports/x2-trial-2026-10-14.md`). Contamination audit: 0
   exact duplicates, 4 near-twins of bench questions in train (ingestion,
   enterprise-architecture, pragmatic x2, codd) — gate now runs per build
-  (`artifacts/probe-contamination-2026-10-14.py`). Next session: x2c + the
+  (`artifacts/probes/probe-contamination-2026-10-14.py`). Next session: x2c + the
   seed control.
 - Finetune pre-run hardening landed 2026-10-14, before any x2c training
   (review: `artifacts/reports/finetune-expert-review-2026-10-14.md`): the
@@ -1118,6 +1173,153 @@ Only this list can block work.
   must not be quoted. Waiting on the Frontend Defect and Packaging Engineer;
   rerun the Final End-to-End Verifier brief after the quota resets. Status:
   `reports/fix-wave-status-2026-10-18.md`.
+- Library start menu redesign attempted 2026-10-21 and **reverted the same
+  day** (owner direction: the codex-ledger concept was not wanted). What was
+  tried: a paper page with a rubricated margin, a hanging-record catalogue,
+  an index rail, and a flat bookplate spread. It was judged by a design
+  critic (`minimax-m3.1-flash-free` on the OpenCode Go relay; harness
+  `artifacts/probes/design-critic-2026-10-21.py`, frozen prompt
+  `artifacts/probes/design-critic-prompt-2026-10-21.txt`) at 4.0 -> 6.5 over
+  18 rounds, and four independent raters put that same design at 4.0-6.0
+  (mean 5.0) — the concept was suggested, not constructed. The shipped menu
+  is the wooden bookcase again: `web/components/LibraryView.tsx`, the
+  library CSS and the library tokens are back at their pre-redesign state.
+  The critic harness and its prompt are kept for the next attempt; the
+  score curve and the calibration are in
+  `artifacts/runs/design/critic-log.md` (gitignored scratch).
+  (Amended 2026-10-21, later the same day: the library was redesigned
+  again — see the catalogue-page bullet below — so the bookcase, the
+  generated bindings and the library tokens in `web/app/globals.css` are
+  gone; `web/app/ledger.css` replaces them.)
+  Four reader-side fixes made during that attempt were **kept**, because they
+  are defect fixes rather than design: the floating composer no longer covers
+  the last line (`.rg-prose` bottom padding 120px, sized from the dock's
+  revealed 106px rather than its 26px peek), the title page sets on one line
+  (`line-height: 1.12` instead of inheriting the body's 1.64), the rail's
+  chapter marks rest at 0.38 opacity instead of 0.7, and the empty margin
+  note is no longer a bright instruction.
+
+- Library start menu given material depth 2026-10-21 (owner direction: the
+  ledger redesign was reverted, the bookcase stays, but the books and the
+  shelf were flat). The shelf now wears **generated cloth bindings** — six
+  WebP textures under `web/public/bindings/` (terracotta, navy, sage, plum,
+  ochre, charcoal) made with an image model through the OpenRouter relay by a
+  one-off probe (`artifacts/probes/generate-bindings-2026-10-21.py`, no longer in
+  the tree; so is `web/public/bindings/`, removed with the bookplate UI; $0.05/image; the script
+  centre-crops the model output because the model photographs a spine on a
+  studio backdrop rather than filling the frame) — plus an oak plank and a
+  paper mount. Each spine now has a real **round**: a lit centre, a shaded
+  fore-edge, the spine's own lettering grounded with a shadow, and a 3D tilt
+  on hover (`rotateY(-7deg)` + a 14px lift), with a `prefers-reduced-motion`
+  path that keeps the press feedback and drops the movement. The volumes'
+  **own covers lean against the plank** (the flat plant ornament is gone), the
+  bookplate's left leaf is led by the cover itself, the `nomic-embed-text`
+  row is gone from the bookplate (a reader does not care), the stats ribbon
+  is gone, and the button reads "+ Add Book" rather than "+ Add Book (.epub)".
+  Verified frame by frame in the browser: the hover settles at
+  `matrix3d(... -0.1218 ... -14px)`, the press at `scale(0.98)`, the
+  bookplate opens on `book-open-flight` (mid-flight `matrix(0.96, 0, 0, 0.96,
+  0, 24)`), and under `prefers-reduced-motion: reduce` the hover transform is
+  `none` while the press stays `matrix(0.98)`. `npx tsc --noEmit` 0 errors,
+  `python -m unittest discover -s tests` **421 tests OK**, `npm run build`
+  clean. A design critic on this screen (`deepseek-v4.1-flash`, the frozen
+  prompt) scored **4/10**, but that prompt briefs a *ruled codex ledger*, so
+  the score is a brief mismatch as much as a verdict; its three points that
+  survived were acted on: the books were the smallest thing on a page whose
+  loudest element was the toolbar and the plank's lit edge (the plank edge is
+  now at 0.55 opacity), the metadata was undersized and pale (the subtitle
+  moved to `--ink-2`), and the shelf had an unanchored cluster (the books are
+  centred, the covers lean at the end, the bookend moved after them).
+
+- Library menu: owner work recovered and extended 2026-10-21. An earlier
+  `git checkout HEAD --` on `web/components/LibraryView.tsx` and
+  `web/app/globals.css` discarded the owner's **uncommitted** library work
+  (the session-start files were 762 / 4,426 lines against HEAD's 708 / 4,239).
+  It was recovered from the git object store — the owner's work had been
+  staged, so the blobs survived as unreachable objects
+  (`3333f51b…` = the session-start `globals.css`, `bfbcc85c…` = the
+  session-start `LibraryView.tsx`); dangling commits did **not** contain it
+  (every unreachable commit still had HEAD's 4,239-line CSS). The owner's
+  version is now the base, with these changes on top: the stats ribbon
+  removed, "+ Add Book" without the extension, six generated cloth bindings
+  on the spines (`web/public/bindings/*.webp`), an oak plank and a paper
+  mount, the volumes' **own covers leaning against the plank** (the flat
+  plant ornament is gone), the bookplate's left leaf led by the cover, the
+  `nomic-embed-text` row dropped, and the reader's two real defects fixed
+  (the floating composer no longer covers the last line — `.rg-prose` bottom
+  padding 120px; the title page sets on one line — `line-height: 1.12`).
+  Taste changes made under the abandoned ledger brief were reverted rather
+  than kept. The delta against the owner's files is 41 added / 55 removed in
+  the component and 115 added / 9 removed in the CSS.
+
+- Library redesigned again 2026-10-21 (owner direction: a fresh redesign
+  from a random seed string, "use your judgment"). The menu is now a
+  **catalogue page**: the library is a paper sheet on the desk — warm ivory
+  whatever the reader's theme is — with a sunken margin band, a single 2px
+  **rubric red** rule at the band's inner edge, a masthead (wordmark +
+  running head), a ruled `Find a volume` index line, `Shelf` / `Catalogue`
+  modes in serif small caps (the active word in rubric, no underline) and a
+  quiet `Add a book`. The **Shelf** view keeps the volumes' own covers
+  facing the reader, mounted in fixed 2:3 plate frames with even matting,
+  their catalogue numbers in rubric red, serif titles and italic-serif
+  authors on one baseline; the **Catalogue** view is ledger rows (number in
+  the margin gutter, small cover plate, serif title, italic author, aligned
+  extent columns, column labels `No. / Title / Extent / State`). Every
+  horizontal rule is full-bleed from the rubric rule to the sheet's right
+  margin; the covers are printed in one warm ink (`grayscale + sepia`, a
+  hint of colour on hover) so the interface keeps the only red; the
+  bookplate modal shows the real cover in colour on the left leaf and the
+  title, progress, marginalia counters and two actions on the right.
+  The generated cloth bindings, the oak plank and the paper mount are
+  **gone** (unreferenced assets and their generator probe deleted).
+  Measured: `npx tsc --noEmit` 0 errors, `npm run build` clean,
+  `python -m unittest discover -s tests` **421 tests OK**; the live HTTP
+  battery over the running engine (`BATTERY_MODE=answer python
+  artifacts/harnesses/step2-battery.py`, Ollama started for it) **PASS** —
+  golden 10/10 answered, 10/10 pass (bar 8), typos PASS, probes PASS,
+  coherence PASS, France exact refusal PASS, battery PASS (22 asks);
+  `python artifacts/prune.py --plan` 0 unindexed, 0 missing. Verified in the
+  browser at 1440 / 390 px — the plates fill the measure (239px cells, the
+  rule ends on the same axis), the folios and titles share one baseline
+  (y=592), the filter narrows to 1 of 3 and the running foot follows, the
+  catalogue rows and their column labels align, `Esc` closes the bookplate,
+  the reader's `Aa` popover still renders its own theme swatches, and the
+  mobile width has no horizontal overflow (390 = 390). Design
+  critic (`deepseek-v4.1-flash`, frozen prompt) over nine rounds on this
+  screen: **4.0 -> 6.5, noisy** (near-identical builds scored 4.0, 6.5
+  and 4.0, so treat a single score as ±1-2 of noise). Its standing
+  preference — *ruled catalogue rows as the default view* — conflicts
+  with the owner's "the books face us" shelf, so the shelf stays the
+  default and the rows are the second view. Every concrete point it made
+  was acted on: no card borders or double keylines, one rule weight
+  (masthead 2px, one hairline, one folio band), the red reserved for
+  rubrication (the margin rule, the entry numbers, the page folio) with
+  the active nav marked by a marginal dash, the covers printed in one
+  monochrome ink so the page keeps the only red, the plates on a fixed
+  2:3 mount with even matting, the catalogue numbers in the margin
+  gutter, the labels in three registers (small-caps nav, serif titles,
+  small-caps authors), and the folio system reconciled (a Roman page
+  folio in the margin, Arabic entry numbers).
+  Files: `web/app/ledger.css` (new), `web/components/LibraryView.tsx`,
+  `web/app/tokens.css` (the `--ledger-*` tokens), `web/app/globals.css`
+  (the library block removed).
+  **The critic loop is frozen here** (owner call, 2026-10-21): rounds 3, 4
+  and 5 returned the same "rows, not plates" complaint, which is the
+  owner's brief, not a defect, and the score moved 4.0 → 6.5 → 4.0 on
+  near-identical builds, so further rounds measure noise. The divergence
+  is logged rather than chased: the critic briefs a **ruled codex ledger**,
+  the owner asked for **the books to face us**, so the shelf stays the
+  default view and the ledger rows are the second view. Both are built and
+  both are usable; a future attempt that wants the critic's number has to
+  change the default view, not the craft.
+  Dead code from the retired appearance control was removed with it:
+  `THEMES`, the `ThemeName` import, `theme`/`setTheme`,
+  `appearanceOpen`/`setAppearanceOpen` and the `bookCloth()` helper in
+  `LibraryView.tsx`, plus the bookcase-era tokens (`--swatch-*`, `--wood*`,
+  `--plank-*`, `--bookend-color`, `--cloth-*`, `--spine-*`, `--foil-*`) from
+  `app/tokens.css` — all verified unreferenced (`grep` over `app/` and
+  `components/`, then the reader's `Aa` popover re-checked in the browser
+  to confirm its own swatches never used them).
 
 ## Verify
 
@@ -1132,8 +1334,9 @@ Only this list can block work.
   kept serving `smallbook_x2` with no cap/retry until restarted 22:26,
   measured 2026-10-14). Reader routes live-checked 2026-10-15: `GET /chunks`
   (reader payload) and `stream=1` on `POST /ask` (NDJSON token/reset/final/error).
-- Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/harnesses/step2-battery.py`. Default is `nekohon_x3` (the 2026-10-17 x3 adoption, renamed from `smallbook_x3` the same day; `ANSWER_MODEL=smallbook_x3` — the alias tag still exists — or `=smallbook_x2g`, `=smallbook_x2d`, `=qwen2.5:7b` reverts); keep exactly one listener on :8000.
+- Bake-off: `ANSWER_MODEL=<tag> python server.py`, then `python artifacts/harnesses/step2-battery.py`. Default is `nekohon_q35_2b_x3_2e` (adopted 2026-10-24; revert with `ANSWER_MODEL=nekohon_q35_2b` or `=nekohon_x3`, or `=nekohon_x3_mobile`, `=smallbook_x3_mobile`, `=qwen2.5:7b` — tags verified against `ollama list` on 2026-10-25); keep exactly one listener on :8000.
 - Answer mode: `BATTERY_MODE=answer python artifacts/harnesses/step2-battery.py`; sweeps `SWEEP_MODE=answer python artifacts/harnesses/qa-sweep.py <label>`; groundedness `python artifacts/harnesses/groundedness.py --battery --label <name>` or `--label <name>` over `datasets/qa-questions-overnight.json` (in-process, no server needed).
+- Sealed hold-out: `python artifacts/harnesses/sealed-eval.py [model]` (30 items, in-process, no server); leakage audit `python artifacts/probes/leakage-audit-2026-10-24.py`; unit tests `python -m unittest tests.test_eval_leakage tests.test_harness_fairness`. Fairness rule and re-pins: `harnesses/fair_cite.py`, `datasets/battery-pins.json`.
 - Agentic prototype (not wired): `python artifacts/probes/probe-agentic.py` (live Ollama, 5 asks).
 - Plain register: `python -m unittest tests.test_plain_register`; scorecard draws (cloud judge) `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/harnesses/eval-plain.py --variants wired --label wired` (replay with a new label); judge flip probe `python artifacts/harnesses/judge-stability.py --file evidence/eval-plain/eval-plain-v6-openai-muse-spark-1-3-contributor.json --match <question substring> --n 3`; live route check: `answer` mode with "explain data engineering in simple words".
 - Canonicalization & Query Understanding: `python -m unittest tests.test_canonical tests.test_query_understanding`; live check:
@@ -1154,19 +1357,30 @@ Only this list can block work.
   with the full path + ` serve`. `ollama --version` with the server up prints
   `ollama version is 0.40.3`.
 - On disk: `nomic-embed-text:latest` (274 MB, pulled 2026-10-11). Smoke embed
-  returned 768 dims. `nekohon_x3:latest` (1.93 GB (1,840.5 MiB), digest `5a9525f8d0ac`) is the finetuned
+  returned 768 dims. `nekohon_q35_2b_x3_2e:latest` (1.3 GB, digest `cba00d4abf1f`,
+  2026-10-24) is the desktop default; `nekohon_q35_2b:latest` (digest
+  `f17a0478a7d1`, 417-row run), `nekohon_q35_2b_x3:latest` (digest
+  `384625ef9b27`, 3-epoch run) and `nekohon_q35_2b_r3:latest` (digest
+  `6ce39fe92a71`, 1,121-row round 3, not adopted) stay as candidates;
+  `nekohon_q35_2b_r4_1e:latest` (round 4, history rows, not adopted) also stays
+  on disk; `nekohon_x3:latest` (1.93 GB,
+  digest `5a9525f8d0ac`) is the previous default and the revert; `qwen3.5:2b-q4_K_M`
+  and `qwen3.5:4b-q4_K_M` stay as zero-shot baselines. `nekohon_x3:latest` (1.93 GB (1,840.5 MiB), digest `5a9525f8d0ac`) is the finetuned
   answerer and app default since 2026-10-17 (renamed from `smallbook_x3:latest`, digest `4d755a3b108d`,
   which stays registered as an alias); `nekohon_x3_mobile:latest` (986 MB (940.4 MiB), digest `89e6798ed288`;
   renamed from `smallbook_x3_mobile:latest`, digest `d3508a8ff376`, kept as an alias)
-  is the companion mobile student; `smallbook_x2g:latest` (1.9 GB, digest `db17f64de75a`),
-  `smallbook_x2g_mobile:latest` (986 MB, digest `4304159b8936`), `smallbook_x2d:latest` (1.9 GB, digest `d0bfa88f6b63`),
-  `smallbook_x2:latest` (1.9 GB, `ba79d37a6067`) and `smallbook_x2d_q8:latest` (3.3 GB, `a8d4b390`) stay on
+  is the companion mobile student; `nekohon_q35_2b:latest` and `nekohon_q35_2b_x3` (1.3 GB each;
+  the first Qwen3.5 run and the 844-row 3-epoch run), `nekohon_q35_2b_r3` and `nekohon_q35_2b_r4_1e`
+  (not adopted), and `nekohon_q35_2b_r5` (870 rows, 2026-10-25, not adopted) also stay on
   disk; `qwen2.5:7b` (4.7 GB, Q4_K_M, since 2026-10-11) is the original
   teacher and the fallback answerer — newer students distill from the
   **Qwen3.8-27B** captures, which run on Colab, not on this box (kit:
-  `artifacts/reports/teacher-capture-colab-2026-10-15.ipynb`); `smallbook_x2e`
-  and `smallbook_x2f` (1.9 GB each; x2f built 2026-10-16, highlight finetune,
-  unadopted) also stay on disk. Bake-off pulls 2026-10-12 (9,945 MB approved):
+  `artifacts/reports/teacher-capture-colab-2026-10-15.ipynb`). Naming trap
+  (2026-10-23): never call the 7B "the teacher" without "original", and never
+  use it to author evaluation questions. Eval and bench questions are
+  hand-written by the agent from the passages (see
+  `artifacts/datasets/wide-net-2026-10-23.jsonl`); a 7B writes them in the
+  passage's own words, which tests copying, not retrieval. Bake-off pulls 2026-10-12 (9,945 MB approved):
   `qwen3:4b-instruct` (2,497 MB), `granite4.1:3b` (2,100 MB), `granite4.1:8b`
   (5,348 MB).
 - MLX runtime installed 2026-10-11 from `ollama-windows-amd64-mlx.zip`,
@@ -1199,9 +1413,10 @@ Only this list can block work.
   * CSS `content-visibility: auto; contain-intrinsic-size: auto 320px;`: 99.5% reduction in active layout DOM nodes for 1,300+ chunk volumes.
 - Multi-turn adversarial evaluations & quality gates:
   * `harnesses/adrian-eval.py`: 35 real-world multi-turn conversational scenarios across 97 turns (32/35 passed, 91.4%).
-  * `harnesses/crossbook-evil-eval.py`: 30 cross-book multi-turn scenarios across 66 requests over `fde`, `quantization`, and `ddia` (23/30 passed, 76.7%).
+  * `harnesses/crossbook-evil-eval.py`: 30 cross-book multi-turn scenarios across 66 requests over `fde`, `quantization`, and `ddia` (24/30 baseline, 26/30 current fair run).
   * `datasets/followup-evil-train-2026-10-17.jsonl`: 100 adversarial follow-ups.
-  * 385 unit tests green across 22 test suites (`python -m unittest discover -s tests`).
+  * 460 unit tests across 39 test modules (`python -m unittest discover -s tests`) as of 2026-10-25: 458 pass, 2 pre-existing failures in `tests/test_frontend_rules.py` (raw colour/shadow in the uncommitted `web/` work).
+  * `harnesses/hard-mt-eval.py`: 12-item hard multi-turn bench (elision, pronoun, distraction, fabricated attribution), frozen sha256; default `nekohon_q35_2b_x3_2e` 12/12 after the 2026-10-25 engine fixes, sealed 27/30, hard bench 59/60, adrian 32/35.
 
 ## Post-v1 backlog (not approved; confirm before starting)
 

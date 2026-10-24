@@ -1,0 +1,7 @@
+# nekohon_q35_2b_r4_1e — Qwen3.5-2B, round-4 history corpus, 1 epoch, Q4_K_M.
+# 2026-10-24 round 4: r3 corpus (1,121 rows) plus 400 assembled multi-turn rows
+# (250 history, 150 coreference) built from existing teacher answers. 1,521 rows,
+# 1 epoch (2 epochs overfits: val 0.4325 -> 0.4597).
+# Evidence: artifacts/reports/finetune-round4-history-2026-10-24.md
+FROM ./nekohon_q35_2b_r4_1e.Q4_K_M.gguf
+PARAMETER num_ctx 4096

@@ -286,6 +286,7 @@ SIMPLE_CUES = (
     "in simple words",
     "in simple terms",
     "in plain words",
+    "plainer words",
     "for a beginner",
     "for beginners",
     "simply explain",
@@ -293,6 +294,9 @@ SIMPLE_CUES = (
     "like i'm five",
     "eli5",
     "keep it simple",
+    "give me the gist",
+    "the gist",
+    "in a nutshell",
 )
 
 
@@ -345,6 +349,33 @@ def is_prompt_injection(question: str) -> bool:
     if not question or not isinstance(question, str):
         return False
     return any(pattern.search(question) for pattern in INJECTION_PATTERNS)
+
+
+ATTRIBUTION_RE = re.compile(
+    r"\b(?i:what|who)\s+did\s+(?:(?:Dr|Mr|Ms|Mrs|Prof)\.\s*)?"
+    r"([A-Z][\w'-]+(?:\s+[A-Z][\w'-]+){0,2})\s+"
+    r"(?i:say|write|claim|argue|report|invent|propose|publish)\b"
+)
+
+
+def names_absent_person(index, question):
+    """True when the question attributes a claim to a person no book names.
+
+    "What did Marcus Feld say about QAT costs in 2036?" is answerable only by
+    refusal: the topic is in the book, the attribution is not. The model answers
+    the topic instead, and 11 extra training rows did not change that, so the
+    check is mechanical and runs before generation. Only the surname is
+    required to be absent, because first names are common words.
+    """
+    match = ATTRIBUTION_RE.search(question or "")
+    if not match:
+        return False
+    tokens = [t for t in re.split(r"\s+", match.group(1)) if len(t) > 2]
+    if not tokens:
+        return False
+    surname = tokens[-1].lower()
+    return not any(surname in (chunk.get("text") or "").lower()
+                   for chunk in (index.get("chunks") or []))
 
 
 def sanitize_query(question: str) -> str:
@@ -2158,6 +2189,29 @@ def _prioritize_phrase_matches(passages, question):
     return passages
 
 
+def _prior_quote_chunk(chunks, chapter, quote):
+    """Index of the chunk that carries the previous answer's quote.
+
+    Stored text keeps hard line breaks ("consistency\r\n refers") while quotes
+    arrive collapsed, so a raw substring test misses every wrapped phrase and
+    the follow-up loses the subject it was asked about.
+    """
+    snippet = re.sub(r"\s+", " ", quote or "").strip().lower()[:50]
+    if not snippet:
+        return None
+
+    def carries(text):
+        return snippet in re.sub(r"\s+", " ", text or "").lower()
+
+    for i, chunk in enumerate(chunks):
+        if str(chunk.get("chapter")) == str(chapter) and carries(chunk.get("text")):
+            return i
+    for i, chunk in enumerate(chunks):
+        if carries(chunk.get("text")):
+            return i
+    return None
+
+
 def retrieval_context(index, question, search_fn=None, generate_fn=None,
                       pin_chunk=None, end_chunk_id=None, history=None, selection="",
                       embed_fn=None):
@@ -2188,16 +2242,10 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
                     m_q = re.search(r"\[Ch\.\s*([^\]]+)\]\s*[\"“](.+?)[\"”]", prior_a)
                     if m_q:
                         prior_chap = m_q.group(1).strip().rstrip(".")
-                        prior_snippet = m_q.group(2).strip()[:50].lower()
-                        for c in (index.get("chunks") or []):
-                            if str(c.get("chapter")) == prior_chap and prior_snippet in (c.get("text") or "").lower():
-                                effective_pin = c.get("chunk_id")
-                                break
-                        if effective_pin is None:
-                            for c in (index.get("chunks") or []):
-                                if prior_snippet in (c.get("text") or "").lower():
-                                    effective_pin = c.get("chunk_id")
-                                    break
+                        found = _prior_quote_chunk(index.get("chunks") or [],
+                                                   prior_chap, m_q.group(2))
+                        if found is not None:
+                            effective_pin = (index.get("chunks") or [])[found].get("chunk_id")
     ranks = None
     if search_fn is None:
         ranked = rank_chunks(index, question, embed_fn=embed_fn)
@@ -2307,16 +2355,7 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
         if target_idx is None and m:
             prior_chap = m.group(1).strip().rstrip(".")
             prior_quote = m.group(2).strip()
-            snippet = prior_quote[:50].lower()
-            for i, c in enumerate(chunks):
-                if str(c.get("chapter")) == prior_chap and snippet in (c.get("text") or "").lower():
-                    target_idx = i
-                    break
-            if target_idx is None:
-                for i, c in enumerate(chunks):
-                    if snippet in (c.get("text") or "").lower():
-                        target_idx = i
-                        break
+            target_idx = _prior_quote_chunk(chunks, prior_chap, prior_quote)
         if target_idx is not None:
             cand_offsets = (0, 1, -1, 2)
             seq_chunks = []
@@ -3210,6 +3249,8 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
     passages = context["passages"]
     if not passages:
         return _refusal([])
+    if names_absent_person(index, question):
+        return _refusal([])
     completion = generate_fn(
         SYSTEM, user_message(context["asked"], passages, history=history), model
     )
@@ -3653,6 +3694,8 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
     )
     passages = context["passages"]
     if not passages:
+        return _refusal([])
+    if names_absent_person(index, question):
         return _refusal([])
     anchors = anchor_words(asked_form, context["word_map"])
     figures = index.get("figures") or []

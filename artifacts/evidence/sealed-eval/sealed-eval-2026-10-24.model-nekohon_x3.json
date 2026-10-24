@@ -1,0 +1,828 @@
+{
+  "date": "2026-10-24",
+  "model": "nekohon_x3",
+  "dataset": "sealed-2026-10-24.jsonl",
+  "dataset_sha256": "7f1dfd6a3ebf0db10832bf739f9175b81c6947e7a80565edb68e666b39b64889",
+  "total_items": 30,
+  "total_passed": 28,
+  "pass_rate": 0.9333,
+  "pin_hits": 16,
+  "pin_total": 27,
+  "mean_latency_sec": 1.226,
+  "results": [
+    {
+      "id": "sealed-def-01",
+      "category": "sealed_def",
+      "book_id": "fde",
+      "question": "What do machine learning engineers do that overlaps with data engineering?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": true,
+      "gold_chunks": [
+        "ch01-058"
+      ],
+      "cited": [
+        "ch01-058"
+      ],
+      "latency_sec": 1.273,
+      "answer": "[Ch. 1] \"Machine learning engineers (ML engineers) overlap with data engineers and data scientists. ML engineers develop advanced ML techniques, train models, and design and maintain the infrastructure running ML processes in a scaled production environment. ML engineers often have advanced working knowledge of ML and deep learning techniques and frameworks such as PyTorch or TensorFlow.\"\nMachine learning engineers build, deploy, and maintain the infrastructure for running complex machine learning models at scale.",
+      "citations": [
+        {
+          "chunk_id": "ch01-058",
+          "chapter": "1",
+          "quote": "Machine learning engineers (ML engineers) overlap with data engineers and data scientists. ML engineers develop advanced ML techniques, train models, and design and maintain the infrastructure running ML processes in a scaled production environment. ML engineers often have advanced working knowledge of ML and deep learning techniques and frameworks such as PyTorch or TensorFlow."
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-def-02",
+      "category": "sealed_def",
+      "book_id": "fde",
+      "question": "What is data lineage?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": true,
+      "gold_chunks": [
+        "ch02-062"
+      ],
+      "cited": [
+        "ch02-062"
+      ],
+      "latency_sec": 1.09,
+      "answer": "[Ch. 2] \"Data lineage describes the recording of an audit trail of data through its lifecycle, tracking both the systems that process the data and the upstream data it depends on.\"\nData lineage maintains a comprehensive audit trail of data transformations and origins throughout its lifecycle.",
+      "citations": [
+        {
+          "chunk_id": "ch02-062",
+          "chapter": "2",
+          "quote": "Data lineage describes the recording of an audit trail of data through its lifecycle, tracking both the systems that process the data and the upstream data it depends on."
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-def-03",
+      "category": "sealed_def",
+      "book_id": "fde",
+      "question": "What is a batch transformation?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": true,
+      "gold_chunks": [
+        "ch08-090"
+      ],
+      "cited": [
+        "ch08-090"
+      ],
+      "latency_sec": 1.171,
+      "answer": "[Ch. 8] \"Batch transformations run on discrete chunks of data, in contrast to streaming transformations, where data is processed continuously as it arrives\"\nBatch transformations process fixed data chunks at set intervals rather than streaming them in real time.",
+      "citations": [
+        {
+          "chunk_id": "ch08-090",
+          "chapter": "8",
+          "quote": "Batch transformations run on discrete chunks of data, in contrast to streaming transformations, where data is processed continuously as it arrives"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-def-04",
+      "category": "sealed_def",
+      "book_id": "fde",
+      "question": "How is SSH used in data ingestion?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": true,
+      "gold_chunks": [
+        "ch07-068"
+      ],
+      "cited": [
+        "ch07-068"
+      ],
+      "latency_sec": 1.104,
+      "answer": "[Ch. 7] \"SSH is not an ingestion strategy but a protocol used with other ingestion strategies\"\nSSH provides secure encrypted tunnels and file transfers to support secure data connections and migrations.",
+      "citations": [
+        {
+          "chunk_id": "ch07-068",
+          "chapter": "7",
+          "quote": "SSH is not an ingestion strategy but a protocol used with other ingestion strategies"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-def-05",
+      "category": "sealed_def",
+      "book_id": "fde",
+      "question": "What is security theater?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": true,
+      "gold_chunks": [
+        "ch10-008"
+      ],
+      "cited": [
+        "ch10-008"
+      ],
+      "latency_sec": 1.249,
+      "answer": "[Ch. 10] \"This is security theater, where security is done in the letter of compliance (SOC-2, ISO 27001, and related) without real commitment\"\nSecurity theater means passing compliance tests just to check boxes, not actually being safe.",
+      "citations": [
+        {
+          "chunk_id": "ch10-008",
+          "chapter": "10",
+          "quote": "This is security theater, where security is done in the letter of compliance (SOC-2, ISO 27001, and related) without real commitment"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-compare-01",
+      "category": "sealed_compare",
+      "book_id": "fde",
+      "question": "How should you evaluate a server against serverless?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": false,
+      "gold_chunks": [
+        "ch04-080"
+      ],
+      "cited": [
+        "ch04-079"
+      ],
+      "latency_sec": 1.248,
+      "answer": "[Ch. 4] \"As your application increases its usage, cluster your application servers, and use autoscaling capabilities to automatically horizontally scale your application as demand grows\"\nThe text advises evaluating server capacity by clustering servers and using autoscaling, highlighting these practices ensure efficient resource utilization without needing persistent, specialized servers.",
+      "citations": [
+        {
+          "chunk_id": "ch04-079",
+          "chapter": "4",
+          "quote": "As your application increases its usage, cluster your application servers, and use autoscaling capabilities to automatically horizontally scale your application as demand grows"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-def-06",
+      "category": "sealed_def",
+      "book_id": "fde",
+      "question": "What is Apache Arrow used for?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": true,
+      "gold_chunks": [
+        "app01-012"
+      ],
+      "cited": [
+        "app01-012"
+      ],
+      "latency_sec": 1.11,
+      "answer": "[Ch. app01] \"The idea of Apache Arrow is to rethink serialization by utilizing a binary data format that is suitable for both in-memory processing and export\"\nArrow provides a binary columnar format that enables efficient in-memory processing and wire protocol serialization.",
+      "citations": [
+        {
+          "chunk_id": "app01-012",
+          "chapter": "app01",
+          "quote": "The idea of Apache Arrow is to rethink serialization by utilizing a binary data format that is suitable for both in-memory processing and export"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-def-07",
+      "category": "sealed_def",
+      "book_id": "fde",
+      "question": "What should you assess first about a data team?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": false,
+      "gold_chunks": [
+        "ch04-004"
+      ],
+      "cited": [
+        "ch01-028"
+      ],
+      "latency_sec": 1.106,
+      "answer": "[Ch. 1] \"We often see the data team working in a bubble, not communicating with people outside their departments and getting perspectives and feedback from business stakeholders.\"\nAssessing cross-team communication and stakeholder alignment ensures data initiatives align with business goals before investing in technical infrastructure.",
+      "citations": [
+        {
+          "chunk_id": "ch01-028",
+          "chapter": "1",
+          "quote": "We often see the data team working in a bubble, not communicating with people outside their departments and getting perspectives and feedback from business stakeholders."
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-refuse-01",
+      "category": "sealed_refuse",
+      "book_id": "fde",
+      "question": "What does the book say about baking sourdough bread?",
+      "expect": "refuse",
+      "refused": true,
+      "passed": true,
+      "pin_hit": false,
+      "gold_chunks": [],
+      "cited": [
+        "preface01-010",
+        "preface01-005",
+        "preface01-003"
+      ],
+      "latency_sec": 0.797,
+      "answer": "Not in this book.",
+      "citations": [
+        {
+          "chunk_id": "preface01-010",
+          "chapter": "preface01",
+          "quote": "Navigating This Book Part II is arguably the heart of the book, and the other chapters exist to support the core ideas covered here. Part III covers additional "
+        },
+        {
+          "chunk_id": "preface01-005",
+          "chapter": "preface01",
+          "quote": "Who Should Read This Book Our primary intended audience for this book consists of technical practitioners, mid- to senior-level software engineers, data scienti"
+        },
+        {
+          "chunk_id": "preface01-003",
+          "chapter": "preface01",
+          "quote": "What This Book Is About This book aims to fill a gap in current data engineering content and materials. While there\u2019s no shortage of technical resources that ad"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-multi-01",
+      "category": "sealed_multiturn",
+      "book_id": "fde",
+      "question": "What does it help you trace?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": true,
+      "gold_chunks": [
+        "ch02-062"
+      ],
+      "cited": [
+        "ch02-062"
+      ],
+      "latency_sec": 1.511,
+      "answer": "[Ch. 2] \"Data lineage helps with error tracking, accountability, and debugging of data and the systems that process it\"\nAs data moves through its lifecycle, how do you know what system affected the data or what the data is composed of as it gets passed around and transformed?",
+      "citations": [
+        {
+          "chunk_id": "ch02-062",
+          "chapter": "2",
+          "quote": "Data lineage helps with error tracking, accountability, and debugging of data and the systems that process it"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-def-08",
+      "category": "sealed_def",
+      "book_id": "quantization",
+      "question": "What is group quantization?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": true,
+      "gold_chunks": [
+        "chapter-3-073"
+      ],
+      "cited": [
+        "chapter-3-073"
+      ],
+      "latency_sec": 1.245,
+      "answer": "[Ch. 3] \"Group quantization partitions a weight tensor into contiguous blocks of G elements, computing a separate scale for each\"\nGroup quantization divides weight tensors into fixed-size blocks to apply uniform scaling factors independently.",
+      "citations": [
+        {
+          "chunk_id": "chapter-3-073",
+          "chapter": "3",
+          "quote": "Group quantization partitions a weight tensor into contiguous blocks of G elements, computing a separate scale for each"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-def-09",
+      "category": "sealed_def",
+      "book_id": "quantization",
+      "question": "Why does INT4 need sub-byte packing?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": true,
+      "gold_chunks": [
+        "chapter-3-079"
+      ],
+      "cited": [
+        "chapter-3-079"
+      ],
+      "latency_sec": 1.364,
+      "answer": "[Ch. 3] \"INT4 promises 2\u00d7 the memory savings of INT8, but CPUs and GPUs operate on bytes, not nibbles (4 bits make a nibble). Two INT4 values must be packed into each byte.\"\nSub-byte packing is necessary because modern processors operate on bytes, not nibbles, so two INT4 values must be squeezed into each byte to maximize memory efficiency.",
+      "citations": [
+        {
+          "chunk_id": "chapter-3-079",
+          "chapter": "3",
+          "quote": "INT4 promises 2\u00d7 the memory savings of INT8, but CPUs and GPUs operate on bytes, not nibbles (4 bits make a nibble). Two INT4 values must be packed into each byte."
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-def-10",
+      "category": "sealed_def",
+      "book_id": "quantization",
+      "question": "Why does fixed-point quantization break down on neural network weights?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": false,
+      "gold_chunks": [
+        "chapter-2-023"
+      ],
+      "cited": [
+        "chapter-1-003"
+      ],
+      "latency_sec": 1.197,
+      "answer": "[Ch. 1] \"Quantization is the technique of representing neural network weights and activations using fewer bits\u2014typically moving from 16-bit or 32-bit floating point down to 8-bit or 4-bit integers.\"\nQuantizing weights-precision weights into fewer bits loses resolution and introduces quantization errors in the network's numeric range.",
+      "citations": [
+        {
+          "chunk_id": "chapter-1-003",
+          "chapter": "1",
+          "quote": "Quantization is the technique of representing neural network weights and activations using fewer bits\u2014typically moving from 16-bit or 32-bit floating point down to 8-bit or 4-bit integers."
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-def-11",
+      "category": "sealed_def",
+      "book_id": "quantization",
+      "question": "What does the memory accounting for one quantized vector include?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": true,
+      "gold_chunks": [
+        "chapter-7-067"
+      ],
+      "cited": [
+        "chapter-7-067"
+      ],
+      "latency_sec": 1.076,
+      "answer": "[Ch. 7] \"For a single head_dim-dimensional vector at b bits, the total storage is b\u00d7d+16 bits (indices plus FP16 norm). Table 7.2 shows the resulting compression for d=128.\"\nThe memory count includes b bits for the head dimension plus overhead for indices and normalization.",
+      "citations": [
+        {
+          "chunk_id": "chapter-7-067",
+          "chapter": "7",
+          "quote": "For a single head_dim-dimensional vector at b bits, the total storage is b\u00d7d+16 bits (indices plus FP16 norm). Table 7.2 shows the resulting compression for d=128."
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-def-12",
+      "category": "sealed_def",
+      "book_id": "quantization",
+      "question": "What are calibration sets used for when quantizing LLMs?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": true,
+      "gold_chunks": [
+        "chapter-4-021"
+      ],
+      "cited": [
+        "chapter-4-021"
+      ],
+      "latency_sec": 1.476,
+      "answer": "[Ch. 4] \"The companion script ch4/llm_calibration_builder.py loads TinyLlama-1.1B, tokenizes 20 prompts from each of the seven categories, runs forward passes with output_hidden_states=True, and records the per-layer absolute maximum activation\"\nwith torch.no_grad(): The companion script ch4/llm_calibration_builder.py loads TinyLlama-1.1B, tokenizes 20 prompts from each of the seven categories, runs forward passes with output_hidden_states=True, and records the per-layer absolute maximum activation.",
+      "citations": [
+        {
+          "chunk_id": "chapter-4-021",
+          "chapter": "4",
+          "quote": "The companion script ch4/llm_calibration_builder.py loads TinyLlama-1.1B, tokenizes 20 prompts from each of the seven categories, runs forward passes with output_hidden_states=True, and records the per-layer absolute maximum activation"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-def-13",
+      "category": "sealed_def",
+      "book_id": "quantization",
+      "question": "How is perplexity used to validate a quantized model?",
+      "expect": "answer",
+      "refused": false,
+      "passed": false,
+      "pin_hit": false,
+      "gold_chunks": [
+        "chapter-7-020"
+      ],
+      "cited": [
+        "chapter-6-060"
+      ],
+      "latency_sec": 1.596,
+      "answer": "[Ch. 6] \"Porting a quantized model across frameworks is an exercise in controlling divergence \u2014 knowing where default semantics, operator fusion, and calibration implementations disagree, then validating that none of those disagreements flip predictions.\"\nValidating quantized model predictions requires controlling semantic, fusion, and calibration divergences across frameworks.",
+      "citations": [
+        {
+          "chunk_id": "chapter-6-060",
+          "chapter": "6",
+          "quote": "Porting a quantized model across frameworks is an exercise in controlling divergence \u2014 knowing where default semantics, operator fusion, and calibration implementations disagree, then validating that none of those disagreements flip predictions."
+        }
+      ],
+      "reasons": [
+        "answer misses key_fact /perplex/"
+      ]
+    },
+    {
+      "id": "sealed-def-14",
+      "category": "sealed_def",
+      "book_id": "quantization",
+      "question": "What does bitsandbytes do about outliers?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": false,
+      "gold_chunks": [
+        "chapter-7-018"
+      ],
+      "cited": [
+        "chapter-7-010"
+      ],
+      "latency_sec": 1.15,
+      "answer": "[Ch. 7] \"The coordination property - the same 4-7 dimensions spiking in every layer, Jaccard similarity 0.70 - points toward the solution. If the outliers are systematic and sparse, we don't need to find a single scale that compromises between them and everything else. We can route them through a separate compute path entirely.\"\nThe authors route outlier dimensions into specialized compute paths to isolate extreme values without modifying standard network architecture.",
+      "citations": [
+        {
+          "chunk_id": "chapter-7-010",
+          "chapter": "7",
+          "quote": "The coordination property - the same 4-7 dimensions spiking in every layer, Jaccard similarity 0.70 - points toward the solution. If the outliers are systematic and sparse, we don't need to find a single scale that compromises between them and everything else. We can route them through a separate compute path entirely."
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-compare-02",
+      "category": "sealed_compare",
+      "book_id": "quantization",
+      "question": "Why do teams end up crossing framework boundaries for numeric formats?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": true,
+      "gold_chunks": [
+        "chapter-6-008"
+      ],
+      "cited": [
+        "chapter-6-008"
+      ],
+      "latency_sec": 1.095,
+      "answer": "[Ch. 6] \"Pragmatically, teams end up crossing framework boundaries for three reasons. First, the best quantization algorithm for your model may not exist in your target format - PyTorch's FX graph mode quantization offers calibration strategies that ONNX doesn't natively represent, while ONNX's operator set enables optimizations that PyTorch's eager mode can't express. Second, hardware targets force the issue: TensorRT consumes ONNX, TFLite requires TensorFlow conversion, and CoreML has its own quantization pipeline. Third, CI and validation infrastructure often lives in a different framework than the serving stack - your accuracy regression tests may run in PyTorch while the artifact shipped to production is an ONNX file.\"\nCrossing framework boundaries for numeric formats happens because different tools excel at varying stages of model preparation and deployment.",
+      "citations": [
+        {
+          "chunk_id": "chapter-6-008",
+          "chapter": "6",
+          "quote": "Pragmatically, teams end up crossing framework boundaries for three reasons. First, the best quantization algorithm for your model may not exist in your target format - PyTorch's FX graph mode quantization offers calibration strategies that ONNX doesn't natively represent, while ONNX's operator set enables optimizations that PyTorch's eager mode can't express. Second, hardware targets force the issue: TensorRT consumes ONNX, TFLite requires TensorFlow conversion, and CoreML has its own quantization pipeline. Third, CI and validation infrastructure often lives in a different framework than the serving stack - your accuracy regression tests may run in PyTorch while the artifact shipped to production is an ONNX file."
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-refuse-02",
+      "category": "sealed_refuse",
+      "book_id": "quantization",
+      "question": "What does the book say about quantum annealing?",
+      "expect": "refuse",
+      "refused": true,
+      "passed": true,
+      "pin_hit": false,
+      "gold_chunks": [],
+      "cited": [
+        "chapter-1-004",
+        "chapter-7-069",
+        "chapter-2-003"
+      ],
+      "latency_sec": 0.421,
+      "answer": "Not in this book.",
+      "citations": [
+        {
+          "chunk_id": "chapter-1-004",
+          "chapter": "1",
+          "quote": "This chapter covers We assume familiarity with PyTorch and basic neural network concepts, but no prior background in numerical methods or hardware architecture."
+        },
+        {
+          "chunk_id": "chapter-7-069",
+          "chapter": "7",
+          "quote": "Per-layer sensitivity and the QJL question Figure 7.19 breaks down per-layer MSE and introduces a critical comparison: TurboQuant's MSE-only algorithm (Algorith"
+        },
+        {
+          "chunk_id": "chapter-2-003",
+          "chapter": "2",
+          "quote": "This chapter covers If you are a machine learning engineer preparing to quantize a production model, this chapter gives you the mathematical vocabulary and geom"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-multi-02",
+      "category": "sealed_multiturn",
+      "book_id": "quantization",
+      "question": "What does it compute for each block?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": true,
+      "gold_chunks": [
+        "chapter-3-073"
+      ],
+      "cited": [
+        "chapter-3-073"
+      ],
+      "latency_sec": 1.444,
+      "answer": "[Ch. 3] \"For a linear layer with weight matrix W\u2208RO\u00d7I and group size G, the number of groups is ngroups=I/G. The total number of scale factors is O\u00d7ngroups. For a layer with shape [4096, 4096] and group size 128, that's 4096\u00d732=131,072 scales\u2014128\u00d7 more than per-channel, but still a tiny fraction of the 16 million weights. The implementation wraps quantized data and scales into a dataclass for clean dequantization.\"\nGroup quantization computes separate scale factors for each block of weights to prevent saturation during quantization.",
+      "citations": [
+        {
+          "chunk_id": "chapter-3-073",
+          "chapter": "3",
+          "quote": "For a linear layer with weight matrix W\u2208RO\u00d7I and group size G, the number of groups is ngroups=I/G. The total number of scale factors is O\u00d7ngroups. For a layer with shape [4096, 4096] and group size 128, that's 4096\u00d732=131,072 scales\u2014128\u00d7 more than per-channel, but still a tiny fraction of the 16 million weights. The implementation wraps quantized data and scales into a dataclass for clean dequantization."
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-def-15",
+      "category": "sealed_def",
+      "book_id": "ddia",
+      "question": "Why can a thread be paused for a long time?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": false,
+      "gold_chunks": [
+        "text00014-061"
+      ],
+      "cited": [
+        "text00014-065"
+      ],
+      "latency_sec": 1.747,
+      "answer": "[Ch. 8] \"In many programming languages and operating systems, threads and processes may pause for an unbounded amount of time, as discussed\"\nThreads can be paused indefinitely because operating systems and languages allow threads to sleep or block indefinitely without crashing.",
+      "citations": [
+        {
+          "chunk_id": "text00014-065",
+          "chapter": "8",
+          "quote": "In many programming languages and operating systems, threads and processes may pause for an unbounded amount of time, as discussed"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-def-16",
+      "category": "sealed_def",
+      "book_id": "ddia",
+      "question": "What is a tumbling window?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": true,
+      "gold_chunks": [
+        "text00018-083"
+      ],
+      "cited": [
+        "text00018-083"
+      ],
+      "latency_sec": 1.273,
+      "answer": "[Ch. 11] \"A tumbling window has a fixed length, and every event belongs to exactly one window\"\nA tumbling window assigns events to fixed-length time intervals that do not overlap.",
+      "citations": [
+        {
+          "chunk_id": "text00018-083",
+          "chapter": "11",
+          "quote": "A tumbling window has a fixed length, and every event belongs to exactly one window"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-def-17",
+      "category": "sealed_def",
+      "book_id": "ddia",
+      "question": "What is ambiguous about numbers in JSON?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": false,
+      "gold_chunks": [
+        "text00009-009"
+      ],
+      "cited": [
+        "text00009-012"
+      ],
+      "latency_sec": 1.801,
+      "answer": "[Ch. 4] \"Some of these formats extend the set of datatypes (e.g., distinguishing integers and floating-point numbers, or adding support for binary strings), but otherwise they keep the JSON/XML data model unchanged. In particular, since they don\u2019t prescribe a schema, they need to include all the object field names within the encoded data. That is, in a binary encoding of the JSON document in Example 4-1 , they will need to include the strings userName , favoriteNumber , and interests somewhere.\"\nThe passages mention multiple binary encoding formats for JSON, highlighting varying levels of abstraction and compression within the JSON standard.",
+      "citations": [
+        {
+          "chunk_id": "text00009-012",
+          "chapter": "4",
+          "quote": "Some of these formats extend the set of datatypes (e.g., distinguishing integers and floating-point numbers, or adding support for binary strings), but otherwise they keep the JSON/XML data model unchanged. In particular, since they don\u2019t prescribe a schema, they need to include all the object field names within the encoded data. That is, in a binary encoding of the JSON document in Example 4-1 , they will need to include the strings userName , favoriteNumber , and interests somewhere."
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-def-18",
+      "category": "sealed_def",
+      "book_id": "ddia",
+      "question": "What is the book's recurring theme about solving data problems?",
+      "expect": "answer",
+      "refused": false,
+      "passed": false,
+      "pin_hit": false,
+      "gold_chunks": [
+        "text00019-003"
+      ],
+      "cited": [
+        "text00014-001"
+      ],
+      "latency_sec": 1.236,
+      "answer": "[Ch. 8] \"A recurring theme in the last few chapters has been how systems handle things going wrong.\"\nThe recurring theme is preparing systems for failure by understanding edge cases and worst-case scenarios.",
+      "citations": [
+        {
+          "chunk_id": "text00014-001",
+          "chapter": "8",
+          "quote": "A recurring theme in the last few chapters has been how systems handle things going wrong."
+        }
+      ],
+      "reasons": [
+        "answer misses key_fact /solution|trade-off|tradeoff|no one right/"
+      ]
+    },
+    {
+      "id": "sealed-def-19",
+      "category": "sealed_def",
+      "book_id": "ddia",
+      "question": "What are the two schools of storage engines for OLTP?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": true,
+      "gold_chunks": [
+        "text00008-076"
+      ],
+      "cited": [
+        "text00008-076"
+      ],
+      "latency_sec": 1.177,
+      "answer": "[Ch. 3] \"The log-structured school, which only permits appending to files and deleting obsolete files, but never updates a file that has been written. Bitcask, SSTables, LSM-trees, LevelDB, Cassandra, HBase, Lucene, and others belong to this group.\"\nThe log-structured school appends data to disk files without overwriting them, while the update-in-place school writes directly over existing file pages.",
+      "citations": [
+        {
+          "chunk_id": "text00008-076",
+          "chapter": "3",
+          "quote": "The log-structured school, which only permits appending to files and deleting obsolete files, but never updates a file that has been written. Bitcask, SSTables, LSM-trees, LevelDB, Cassandra, HBase, Lucene, and others belong to this group."
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-def-20",
+      "category": "sealed_def",
+      "book_id": "ddia",
+      "question": "What is a shared-nothing architecture?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": false,
+      "gold_chunks": [
+        "text00010-004"
+      ],
+      "cited": [
+        "text00010-005"
+      ],
+      "latency_sec": 1.011,
+      "answer": "[Ch. text00010] \"While a distributed shared-nothing architecture has many advantages, it usually also incurs additional complexity for applications and sometimes limits the expressiveness of the data models you can use.\"\nShared-nothing architectures distribute data across independent nodes without sharing disk or network resources, offering high scalability but requiring specialized application design.",
+      "citations": [
+        {
+          "chunk_id": "text00010-005",
+          "chapter": "text00010",
+          "quote": "While a distributed shared-nothing architecture has many advantages, it usually also incurs additional complexity for applications and sometimes limits the expressiveness of the data models you can use."
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-def-21",
+      "category": "sealed_def",
+      "book_id": "ddia",
+      "question": "What is replication?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": false,
+      "gold_chunks": [
+        "text00010-006"
+      ],
+      "cited": [
+        "text00011-001"
+      ],
+      "latency_sec": 1.108,
+      "answer": "[Ch. 5] \"Replication means keeping a copy of the same data on multiple machines that are connected via a network\"\nReplication is maintaining duplicate copies of your data across multiple networked servers to ensure redundancy and availability.",
+      "citations": [
+        {
+          "chunk_id": "text00011-001",
+          "chapter": "5",
+          "quote": "Replication means keeping a copy of the same data on multiple machines that are connected via a network"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-def-22",
+      "category": "sealed_def",
+      "book_id": "ddia",
+      "question": "What is a hash function?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": false,
+      "gold_chunks": [
+        "text00020-006"
+      ],
+      "cited": [
+        "text00012-010"
+      ],
+      "latency_sec": 1.081,
+      "answer": "[Ch. 6] \"A good hash function takes skewed data and makes it uniformly distributed\"\nA good hash function maps variable-length keys to fixed-size hash values uniformly across all possible range endpoints.",
+      "citations": [
+        {
+          "chunk_id": "text00012-010",
+          "chapter": "6",
+          "quote": "A good hash function takes skewed data and makes it uniformly distributed"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-refuse-03",
+      "category": "sealed_refuse",
+      "book_id": "ddia",
+      "question": "What does the book say about baking sourdough bread?",
+      "expect": "refuse",
+      "refused": true,
+      "passed": true,
+      "pin_hit": false,
+      "gold_chunks": [],
+      "cited": [
+        "text00004-006",
+        "text00004-005",
+        "text00004-007"
+      ],
+      "latency_sec": 0.916,
+      "answer": "Not in this book.",
+      "citations": [
+        {
+          "chunk_id": "text00004-006",
+          "chapter": "preface",
+          "quote": "Who Should Read This Book? You need to make applications highly available (minimizing downtime) and operationally robust. You are looking for ways of making sys"
+        },
+        {
+          "chunk_id": "text00004-005",
+          "chapter": "preface",
+          "quote": "Who Should Read This Book? If you develop applications that have some kind of server/backend for storing or processing data, and your applications use the inter"
+        },
+        {
+          "chunk_id": "text00004-007",
+          "chapter": "preface",
+          "quote": "Scope of This Book This book does not attempt to give detailed instructions on how to install or use specific software packages or APIs, since there is already "
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "id": "sealed-multi-03",
+      "category": "sealed_multiturn",
+      "book_id": "ddia",
+      "question": "How long is it?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "pin_hit": true,
+      "gold_chunks": [
+        "text00018-083"
+      ],
+      "cited": [
+        "text00018-083"
+      ],
+      "latency_sec": 1.698,
+      "answer": "[Ch. 11] \"For example, if you have a 1-minute tumbling window, all the events with timestamps between 10:03:00 and 10:03:59 are grouped into one window, events between 10:04:00 and 10:04:59 into the next window, and so on. You could implement a 1-minute tumbling window by taking each event timestamp and rounding it down to the nearest minute to determine the window that it belongs to.\"\nThe fixed length of a tumbling window determines how many events are grouped together in each interval.",
+      "citations": [
+        {
+          "chunk_id": "text00018-083",
+          "chapter": "11",
+          "quote": "For example, if you have a 1-minute tumbling window, all the events with timestamps between 10:03:00 and 10:03:59 are grouped into one window, events between 10:04:00 and 10:04:59 into the next window, and so on. You could implement a 1-minute tumbling window by taking each event timestamp and rounding it down to the nearest minute to determine the window that it belongs to."
+        }
+      ],
+      "reasons": []
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+# nekohon_q35_2b — Qwen3.5-2B Q4_K_M, quote-or-refuse finetune (2026-10-24).
+# Desktop answerer default since 2026-10-24.
+#
+# The GGUF carries its own Qwen3.5 chat template. Do not paste the x2/x3 ChatML
+# TEMPLATE block here: replacing the template changes what every number in
+# artifacts/reports/qwen35-swap-2026-10-24.md measured. The engine pins
+# temperature 0 and num_predict 512 on each request and sends think=false.
+#
+# Evidence and the head-to-head against nekohon_x3 (59/60 vs 59/60 hard bench,
+# 31/35 vs 30-31/35 adrian, 1.31 GB vs 1.93 GB, 0.74-0.80s vs 0.87-0.94s warm):
+# artifacts/reports/qwen35-swap-2026-10-24.md.
+FROM ./nekohon_q35_2b.Q4_K_M.gguf
+PARAMETER num_ctx 4096

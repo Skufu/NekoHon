@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-24",
+  "rule": "A citation passes when the passage it points at contains every term for the question. `pin` is the historical chunk and is reported as a note, never as the gate. `terms` are authored from the question, not from a model output.",
+  "why_this_exists": [
+    "2026-10-24: the ask battery required the model's first citation to equal one stored chunk. Four of the ten pins were not the top-ranked passage, and the candidate model (nekohon_q35_2b) failed exactly those four because it consistently quotes the top-ranked passage. The incumbent passed by skipping to a lower-ranked passage three times.",
+    "Two pins were also wrong on their own text: ch05-004 is a section intro that never says what source systems provide, and ch06-001 says storage is foundational rather than where it sits in the lifecycle. Both are replaced below, with the reason recorded."
+  ],
+  "golden": [
+    {"question": "What does CRUD stand for?", "pin": "ch05-019", "terms": ["create", "delete"]},
+    {"question": "What is data ingestion?", "pin": "ch07-002", "terms": ["ingest"]},
+    {"question": "What is a watermark?", "pin": "ch08-039", "terms": ["watermark"]},
+    {"question": "When is an insert-only table useful?", "pin": "ch08-107", "terms": ["insert"]},
+    {
+      "question": "Where does storage sit in the data engineering lifecycle?",
+      "pin": "ch02-002",
+      "replaced": "ch06-001",
+      "why": "The question asks for position. ch06-001 answers importance (\"Storage is the cornerstone ... underlies its major stages\") and never places storage among the stages. ch02-002 enumerates the five stages, which is where position comes from.",
+      "terms": ["storage", "generation"]
+    },
+    {
+      "question": "What do source systems provide to the rest of the lifecycle?",
+      "pin": "ch02-005",
+      "replaced": "ch05-004",
+      "why": "ch05-004 is a section intro (\"Source systems produce data in various ways. This section discusses the main ideas\") and never says what they provide. ch02-005 defines it: \"A source system is the origin of the data used in the data engineering lifecycle.\"",
+      "terms": ["source system", "origin|provide"]
+    },
+    {"question": "How does data architecture relate to enterprise architecture?", "pin": "ch03-013", "terms": ["enterprise"]},
+    {"question": "What is the difference between batch and streaming?", "pin": "ch02-019", "terms": ["batch", "stream"]},
+    {"question": "What happens to data after it is extracted in ETL?", "pin": "ch08-094", "terms": ["extract", "transform"]},
+    {"question": "What do transformations do in the data engineering lifecycle?", "pin": "ch02-025", "terms": ["transform"]}
+  ],
+  "probes": [
+    {"question": "what does data engineers need to be pragmatic about", "pin": "ch04-012", "terms": [], "phrase": "pragmatic about flexibility"},
+    {"question": "Data engineers need to be pragmatic about?", "pin": "ch04-012", "terms": [], "phrase": "pragmatic about flexibility"},
+    {"question": "MAD data landscape", "pin": "ch04-020", "terms": [], "phrase": "ML, AI, and data (MAD) landscape"},
+    {"question": "multicloud methodology disadvantages", "pin": "ch04-037", "terms": [], "phrase": "dizzying array"}
+  ],
+  "retired": [
+    {
+      "question": "What happens to data after it is extracted in ET?",
+      "retired_on": "2026-10-24",
+      "why": "Not a typo by the engine's own definition. 'ET' is a book word 12 times over ('et al'), so no repair is applied and the item passed only when retrieval happened to land on a passage containing 'extracted'. Replaced with 'ingestoin', which is absent from the index (0 chunks) and repairs to ingestion every time. Evidence: 2/2 deterministic passes on the replacement, and the retired item failed 2/2 for nekohon_q35_2b_x3_2e while older models passed it by luck."
+    }
+  ],
+  "typos": [
+    {"question": "What does CRU stand for?", "pin": "ch05-029", "terms": [], "phrase": "crud"},
+    {"question": "What is ingestoin?", "pin": "ch07-002", "terms": [], "phrase": "ingestion"},
+    {"question": "what is a atermark?", "pin": "ch08-039", "terms": [], "phrase": "watermark"}
+  ]
+}

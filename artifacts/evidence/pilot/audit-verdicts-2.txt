@@ -1,0 +1,10 @@
+entity_relation-11 DROP wrong_relation | Answer describes an API-mandate bullet but does not connect Bezos API Mandate to loosely coupled systems.
+entity_relation-12 DROP wrong_relation | Answer connects ROI to capex, not to Total Cost of Ownership.
+entity_relation-13 DROP history_not_needed | Relation is fully derivable from final passage; prior CDC definition is unused.
+entity_relation-14 DROP history_not_needed | Answer only needs final NoSQL passage; the earlier NoSQL-types history is unused.
+entity_relation-15 DROP unsupported | Cited sentence mentions same customer ID, not that the Record ID stays the same across versions.
+entity_relation-16 DROP history_not_needed | Relation is fully answered from target passage; prior data-sharing definition is unused.
+entity_relation-17 DROP history_not_needed | Answer is derivable from final object-store passage; prior object-storage definition is unused.
+entity_relation-18 DROP history_not_needed | Relation is fully derivable from final lakehouse passage; prior lakehouse definition is unused.
+premise_trap-19 KEEP ok | Passages do not mention Dr. Helena Voss, so refusal is correct.
+premise_trap-20 KEEP ok | Passages do not mention Marcus Feld, so refusal is correct.

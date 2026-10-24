@@ -1,0 +1,686 @@
+{
+  "train_rows": 417,
+  "sets": {
+    "hard-bench": {
+      "items": 60,
+      "exact_question_matches": [],
+      "near_duplicate_questions": [],
+      "gold_chunks_seen_in_training": {
+        "hits": 53,
+        "total": 85,
+        "rate": 0.624
+      },
+      "gold_chunks_without_question_overlap": 31
+    },
+    "wide-net": {
+      "items": 57,
+      "exact_question_matches": [],
+      "near_duplicate_questions": [],
+      "gold_chunks_seen_in_training": {
+        "hits": 15,
+        "total": 64,
+        "rate": 0.234
+      },
+      "gold_chunks_without_question_overlap": 15
+    },
+    "adrian": {
+      "items": 91,
+      "exact_question_matches": [
+        {
+          "id": "adrian-18",
+          "category": "whole_book_topic_shift",
+          "question": "What is change data capture?",
+          "gold": []
+        }
+      ],
+      "near_duplicate_questions": [],
+      "gold_chunks_seen_in_training": {
+        "hits": 26,
+        "total": 30,
+        "rate": 0.867
+      },
+      "gold_chunks_without_question_overlap": 26
+    },
+    "sealed-2026-10-24": {
+      "items": 30,
+      "exact_question_matches": [],
+      "near_duplicate_questions": [],
+      "gold_chunks_seen_in_training": {
+        "hits": 0,
+        "total": 27,
+        "rate": 0.0
+      },
+      "gold_chunks_without_question_overlap": 0
+    },
+    "highlight-golden": {
+      "items": 0,
+      "exact_question_matches": [],
+      "near_duplicate_questions": [],
+      "gold_chunks_seen_in_training": {
+        "hits": 0,
+        "total": 0,
+        "rate": null
+      },
+      "gold_chunks_without_question_overlap": 0
+    },
+    "qa-overnight": {
+      "items": 124,
+      "exact_question_matches": [
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is data engineering",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what does a data engineer actually do",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "how did the data engineer role evolve",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is data maturity",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is the data engineering lifecycle",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is data ingestion",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is data management",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is dataops",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is orchestration in the data engineering lifecycle",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "types of metadata",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is data quality",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "batch processing remains an extremely popular way to do what",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what are the undercurrents of the data engineering lifecycle",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is data architecture",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "how does data architecture relate to enterprise architecture",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "togaf defines data architecture as what",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what does finops help a data team do",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "why should you plan for failure",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is the modern data stack",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is total cost of ownership",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "data engineers need to be pragmatic about what",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "crud stands for what",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is an oltp system",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is acid in database terms",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is change data capture",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "types of nosql databases",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is a key-value store",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is data sharing between organizations",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "the four basic operations of persistent storage are what",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is object storage",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is block storage",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is a data lake",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is a data warehouse",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is a data lakehouse",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "raid stands for what",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "how does separation of compute and storage help",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is data retention",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is a data catalog",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "data ingestion is the process of doing what",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is a message queue",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is an event-streaming platform",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is a direct database connection",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "why does replay matter for event streams",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is polling",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is a data migration",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "how do you detect upstream and downstream schema changes",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "next codd introduced the idea of what",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is normalization",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is denormalization",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "types of joins",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is a broadcast join",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is a query optimizer",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "types of windows in stream processing",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is a materialized view",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is a star schema",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is a fact table",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is a dimension table",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is data vault modeling",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "kimball is on the opposite end of the data modeling spectrum from who",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "under the hood, batch processing is what",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "how does micro-batch differ from true streaming",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is reverse etl",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is a feature store",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is business intelligence",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is embedded analytics",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is query federation",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "how do data scientists use notebooks",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "why do data definitions matter when serving data",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is a data product",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is the principle of least privilege",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is zero trust",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is tokenization",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is data masking",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is shared responsibility in the cloud",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what does it mean to always be paranoid about security",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is pii",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is the live data stack",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "why is the data engineering lifecycle not going away",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what comes after the modern data stack",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "how will data engineering titles change",
+          "gold": []
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "what is the cloud-scale data os",
+          "gold": []
+        }
+      ],
+      "near_duplicate_questions": [
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "data engineering lifecycle",
+          "gold": [],
+          "ratio": 0.867,
+          "nearest": "what is data engineering lifecycle"
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "data science vs data engineering",
+          "gold": [],
+          "ratio": 0.889,
+          "nearest": "what is data science vs data engineering"
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "internal facing vs external facing data engineering",
+          "gold": [],
+          "ratio": 0.927,
+          "nearest": "what is internal facing vs external facing data engineering"
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "principles of good data architecture",
+          "gold": [],
+          "ratio": 0.9,
+          "nearest": "what is principles of good data architecture"
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "brownfield vs greenfield data projects",
+          "gold": [],
+          "ratio": 0.905,
+          "nearest": "what is brownfield vs greenfield data projects"
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "loosely coupled systems",
+          "gold": [],
+          "ratio": 0.852,
+          "nearest": "what is loosely coupled systems"
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "multicloud disadvantages",
+          "gold": [],
+          "ratio": 0.857,
+          "nearest": "what is multicloud disadvantages"
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "immutable vs transitory technologies",
+          "gold": [],
+          "ratio": 0.9,
+          "nearest": "what is immutable vs transitory technologies"
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "advantages of insert-only tables",
+          "gold": [],
+          "ratio": 0.889,
+          "nearest": "what is advantages of insert only tables"
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "schema on read vs schema on write",
+          "gold": [],
+          "ratio": 0.892,
+          "nearest": "what is schema on read vs schema on write"
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "bounded vs unbounded data",
+          "gold": [],
+          "ratio": 0.862,
+          "nearest": "what is bounded vs unbounded data"
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "stream-to-batch architecture",
+          "gold": [],
+          "ratio": 0.875,
+          "nearest": "what is stream to batch architecture"
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "slowly changing dimensions",
+          "gold": [],
+          "ratio": 0.867,
+          "nearest": "what is slowly changing dimensions"
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "ways to serve data to consumers",
+          "gold": [],
+          "ratio": 0.886,
+          "nearest": "what is ways to serve data to consumers"
+        },
+        {
+          "id": null,
+          "category": "overnight",
+          "question": "streaming pipelines and real-time analytics",
+          "gold": [],
+          "ratio": 0.915,
+          "nearest": "what is streaming pipelines and real time analytics"
+        }
+      ],
+      "gold_chunks_seen_in_training": {
+        "hits": 0,
+        "total": 0,
+        "rate": null
+      },
+      "gold_chunks_without_question_overlap": 0
+    }
+  }
+}

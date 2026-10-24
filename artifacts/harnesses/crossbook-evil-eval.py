@@ -27,6 +27,7 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
 from prompt import REFUSAL
+import fair_cite
 
 DATASET_PATH = ROOT / "artifacts" / "datasets" / "crossbook-evil-eval-2026-10-18.json"
 EVIDENCE_DIR = ROOT / "artifacts" / "evidence" / "crossbook-eval"
@@ -126,13 +127,17 @@ def evaluate_turn(turn_idx, turn_spec, response, expected, finished_turns=None):
         if norm_quote_ws and (norm_gloss_ws == norm_quote_ws or (len(norm_gloss_ws) > 30 and norm_gloss_ws in norm_quote_ws)):
             reasons.append("Gloss repeats quote verbatim")
 
-    # 4. Chapter checks
+    # Chapter checks (2026-10-24 fairness rule): the answer text can carry the
+    # turn's required concepts even when a different chapter is cited. This
+    # harness is HTTP-only and has no chunk text, so the escape is the answer
+    # text, not the cited passage. See fair_cite.py.
     exp_chapter = expected.get("chapter")
-    if exp_chapter:
-        if not cited_chapters:
-            reasons.append(f"No chapter cited, expected Ch. {exp_chapter}")
-        elif not any(ch == exp_chapter for ch in cited_chapters):
-            reasons.append(f"Cited chapter(s) {cited_chapters} != expected Ch. {exp_chapter}")
+    turn_terms = expected.get("must_contain") or []
+    chapter_ok, chapter_detail = fair_cite.judge_chapter(
+        cited_chapters, exp_chapter, None, answer_text, turn_terms
+    )
+    if not chapter_ok:
+        reasons.append(chapter_detail)
 
     # 5. Must contain strings
     must_contain = expected.get("must_contain") or []

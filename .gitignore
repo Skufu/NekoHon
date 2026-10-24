@@ -7,5 +7,6 @@ artifacts/server-restart-*.*
 artifacts/runs/
 artifacts/scratch/
 .judge-key
+.openrouter-key
 .env
 .env.*

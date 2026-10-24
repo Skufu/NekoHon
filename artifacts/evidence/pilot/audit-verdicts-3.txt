@@ -1,0 +1,10 @@
+premise_trap-21 KEEP ok | Asked person/year statement is absent; answer is the required trap refusal.
+premise_trap-22 KEEP ok | No Tomas Lindgren 2012 statement in passages; trap refusal is correct.
+premise_trap-23 KEEP ok | No Dr. Helena Voss 1998 statement in passages; trap refusal is correct.
+premise_trap-24 KEEP ok | No Marcus Feld 2001 statement in passages; trap refusal is correct.
+premise_trap-25 KEEP ok | No Priya Raman 2007 statement in passages; trap refusal is correct.
+premise_trap-26 KEEP ok | No Tomas Lindgren 2012 statement in passages; trap refusal is correct.
+premise_trap-27 KEEP ok | No Dr. Helena Voss 1998 statement in passages; trap refusal is correct.
+premise_trap-28 KEEP ok | No Marcus Feld 2001 statement in passages; trap refusal is correct.
+simplify-29 KEEP ok | History resolves “that,” and the copied sentence supports the plain gloss.
+simplify-30 KEEP ok | History resolves “that,” and the copied sentence supports the plain gloss.

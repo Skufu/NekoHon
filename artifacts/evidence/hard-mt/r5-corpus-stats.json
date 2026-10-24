@@ -1,0 +1,17 @@
+{
+ "rows": 870,
+ "refusals": 158,
+ "refusal_share": 0.1816,
+ "sha256": "584b49e142849976754bae60ab64656fa4aa1480b7535f8276df379e4ed8b02a",
+ "sources": [
+  "quote-refuse-2026-10-17.train-x3.jsonl",
+  "pilot-rows-2026-10-24.jsonl",
+  "trap-crossbook-rows-2026-10-24.jsonl"
+ ],
+ "dropped": {
+  "kept": 870,
+  "duplicate": 1,
+  "refusal": 158,
+  "skipped_class": 24
+ }
+}

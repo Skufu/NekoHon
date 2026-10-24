@@ -1,0 +1,15 @@
+{
+ "items": 12,
+ "by_category": {
+  "elision": 3,
+  "pronoun": 3,
+  "distraction": 3,
+  "trap": 3
+ },
+ "sha256": "318d3c4099c327dc933b893de4e333289b19410055059c4d6cdf29c1e5d55ade",
+ "books": {
+  "fde": 1042,
+  "quantization": 473,
+  "ddia": 1307
+ }
+}

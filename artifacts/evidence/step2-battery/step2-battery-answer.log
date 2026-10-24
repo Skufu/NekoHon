@@ -4,49 +4,49 @@
 # artifacts/datasets/demo-questions.md; typo asks pin ch05-019 / ch07-033 / ch08-039;
 # probes pin ch04-012 (pragmatic), ch04-020 (MAD), ch04-037 (multicloud list).
 # answer mode: pin must appear among the citations; coherence probes pin ch04-020, ch03-099, ch08-051, ch02-024 and require the subject word.
-PASS   1.66s refused=0 ch05-019 What does CRUD stand for?
+PASS   0.48s refused=0 ch05-019 What does CRUD stand for?
      pinned chunk cited
-PASS   1.70s refused=0 ch07-002 What is data ingestion?
+PASS   0.31s refused=0 ch07-002 What is data ingestion?
      pinned chunk cited
-PASS   1.45s refused=0 ch08-039 What is a watermark?
+PASS   0.47s refused=0 ch08-039 What is a watermark?
      pinned chunk cited
-PASS   0.96s refused=0 ch08-107 When is an insert-only table useful?
-     pinned chunk shown, not cited (cites ['ch08-107'])
-PASS   1.32s refused=0 ch06-001 Where does storage sit in the data engineering lifecycle?
+PASS   0.76s refused=0 ch08-107 When is an insert-only table useful?
      pinned chunk cited
-PASS   1.10s refused=0 ch02-005 What do source systems provide to the rest of the lifecycle?
+PASS   0.33s refused=0 ch02-002 Where does storage sit in the data engineering lifecycle?
      pinned chunk cited
-PASS   1.17s refused=0 ch03-013 How does data architecture relate to enterprise architecture?
+PASS   0.32s refused=0 ch02-005 What do source systems provide to the rest of the lifecycle?
      pinned chunk cited
-PASS   1.10s refused=0 ch02-019 What is the difference between batch and streaming?
+PASS   0.37s refused=0 ch03-013 How does data architecture relate to enterprise architecture?
      pinned chunk cited
-PASS   1.00s refused=0 ch08-122 What happens to data after it is extracted in ETL?
-     pinned chunk shown, not cited (cites ['ch08-122'])
-PASS   0.95s refused=0 ch02-027 What do transformations do in the data engineering lifecycle?
+PASS   0.34s refused=0 ch02-019 What is the difference between batch and streaming?
      pinned chunk cited
-PASS   2.00s refused=0 ch05-029 What does CRU stand for?
-     pinned chunk shown, not cited (cites ['ch05-029']); phrase not in answer: 'stands for create, read, update, and delete'
-PASS   1.51s refused=0 ch08-120 What happens to data after it is extracted in ET?
-     pinned chunk shown, not cited (cites ['ch08-120']); phrase not in answer: 'once data is extracted'
-PASS   1.59s refused=0 ch08-039 what is a atermark?
+PASS   0.40s refused=0 ch08-094 What happens to data after it is extracted in ETL?
      pinned chunk cited
-PASS   0.94s refused=0 ch04-012 what does data engineers need to be pragmatic about
+PASS   0.28s refused=0 ch02-027 What do transformations do in the data engineering lifecycle?
+     pinned chunk shown, not cited (cites ['ch02-027'])
+PASS   0.64s refused=0 ch05-029 What does CRU stand for?
      pinned chunk cited
-PASS   0.93s refused=0 ch04-012 Data engineers need to be pragmatic about?
+PASS   0.83s refused=0 ch07-002 What is ingestoin?
      pinned chunk cited
-PASS   1.62s refused=0 ch04-020 MAD data landscape
+PASS   0.51s refused=0 ch08-039 what is a atermark?
      pinned chunk cited
-PASS   1.05s refused=0 ch04-037 multicloud methodology disadvantages
+PASS   0.33s refused=0 ch04-012 what does data engineers need to be pragmatic about
      pinned chunk cited
-PASS   1.52s refused=0 ch04-020 what is MAD data landscape
+PASS   0.27s refused=0 ch04-012 Data engineers need to be pragmatic about?
      pinned chunk cited
-PASS   1.59s refused=0 ch03-099 what is data mesh
+PASS   0.59s refused=0 ch04-020 MAD data landscape
      pinned chunk cited
-PASS   1.09s refused=0 ch08-051 Codd introduced the idea of what
+PASS   0.46s refused=0 ch04-037 multicloud methodology disadvantages
+     pinned chunk cited; phrase not in answer: 'dizzying array'
+PASS   0.84s refused=0 ch04-020 what is MAD data landscape
      pinned chunk cited
-PASS   1.42s refused=0 ch02-024 what is an endpoint in streaming ingestion
+PASS   0.72s refused=0 ch03-099 what is data mesh
      pinned chunk cited
-PASS   0.89s refused=1 ch01-064 What is the capital of France?
+PASS   0.54s refused=0 ch08-051 Codd introduced the idea of what
+     pinned chunk cited
+PASS   0.64s refused=0 ch02-024 what is an endpoint in streaming ingestion
+     pinned chunk cited
+PASS   0.50s refused=1 ch01-064 What is the capital of France?
 golden: 10/10 answered, 10/10 pass (bar 8)
 typos: PASS
 probes: PASS

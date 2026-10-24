@@ -1,0 +1,7 @@
+# nekohon_q35_2b_r3 — Qwen3.5-2B, round-3 corpus (1,121 rows), 2 epochs, Q4_K_M.
+# 2026-10-24 round 3: x3 corpus plus 277 unused teacher rows assembled from the
+# 2026-10-15 captures and the x2g leftovers; eval-leak checked; same 76 held-out
+# validation questions as round 2. Validation loss 0.4341 -> 0.4350 (flat).
+# Evidence: artifacts/reports/finetune-round3-2026-10-24.md
+FROM ./nekohon_q35_2b_r3.Q4_K_M.gguf
+PARAMETER num_ctx 4096

@@ -1,0 +1,10 @@
+entity_relation-01 KEEP ok | Cited external-facing sentence mentions IoT devices and supports the gloss linking internet-connected apps/devices to external-facing engineers.
+entity_relation-02 KEEP ok | Cited IoT swarm sentence directly supports the gloss that IoT acts as a source system sending data centrally.
+entity_relation-03 KEEP ok | Cited sentence names ETL as a data movement/processing pattern, supporting the gloss about moving/processing data in pipelines.
+entity_relation-04 KEEP ok | Cited sentence places the C-suite within the data utility scope and supports the gloss about understanding data usefulness for executives.
+entity_relation-05 DROP unsupported | Cited sentence calls Airflow an orchestration tool/scheduler, but does not itself support the added gloss that it is “more than just a scheduler.”
+entity_relation-06 KEEP ok | Cited sentence explicitly lists schema as part of technical metadata, supporting the gloss.
+entity_relation-07 DROP unsupported | Cited sentence only says Google’s paper gives an offline video example; it does not support the gloss about late data affecting quality.
+entity_relation-08 DROP unsupported | Cited sentence says there are five lifecycle stages but does not name Ingestion, so it does not support the gloss that Ingestion is one of them.
+entity_relation-09 KEEP ok | The cited title is from the Additional Resources list, supporting the gloss that it is recommended reading there.
+entity_relation-10 KEEP ok | Cited sentence introduces the FinOps Foundation’s definition, supporting the gloss that it provides the definition for FinOps.

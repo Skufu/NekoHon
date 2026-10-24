@@ -1,6 +1,6 @@
 # NekoHon (`猫本`) — Local-First Multi-Book Reading Companion
 
-An offline, local-first multi-volume reading companion pairing a Gloss-inspired marginalia reader and wooden bookcase library ([`web/`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/web), Next.js) with a zero-dependency Python stdlib RAG & Highlight Intent Engine ([`server.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/server.py), [`answer.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/answer.py), [`intent.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/intent.py), [`retrieve.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/retrieve.py)) and purpose-distilled local models (`nekohon_x3` 3B for desktop, `nekohon_x3_mobile` 1.5B for mobile/edge).
+An offline, local-first multi-volume reading companion pairing a Gloss-inspired marginalia reader and wooden bookcase library ([`web/`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/web), Next.js) with a zero-dependency Python stdlib RAG & Highlight Intent Engine ([`server.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/server.py), [`answer.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/answer.py), [`intent.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/intent.py), [`retrieve.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/retrieve.py)) and purpose-distilled local models (`nekohon_q35_2b_x3_2e` 2B for desktop, `nekohon_q35_2b` as the 417-row candidate, `nekohon_x3` 3B as the previous default, `nekohon_x3_mobile` 1.5B for mobile/edge).
 
 Retrieval, intent resolution, and answer generation run strictly on local Ollama on `127.0.0.1:11434` — no cloud APIs, no database servers, no pip dependencies, and zero telemetry.
 
@@ -39,7 +39,7 @@ flowchart TD
 
     subgraph Subsystem4["4. Bidirectional Quote-Gloss Ranking & Grounded Generation (answer.py, prompt.py, figures.py)"]
         Mention --> Prompt["Aligned ChatML System Prompt<br/>(prompt.py, keep_alive: '24h')"]
-        Prompt --> Ollama["Local Student Model<br/>(nekohon_x3 3B / nekohon_x3_mobile 1.5B)"]
+        Prompt --> Ollama["Local Student Model<br/>(nekohon_q35_2b_x3_2e 2B / nekohon_x3_mobile 1.5B)"]
         Ollama --> Coherence{"_is_coherent_gloss Validation<br/>(Repetition & Loop Guard)"}
         Coherence -->|Passed| QuoteRank["Bidirectional Quote-Gloss Ranking<br/>(Query-Entity Alignment)"]
         Coherence -->|Failed| Fallback["_synthesize_grounded_gloss<br/>(Grounded Sentence Extraction)"]
@@ -69,7 +69,7 @@ sequenceDiagram
     participant Ret as retrieve.py & keywords.py
     participant Fuse as fusion.py (RRF)
     participant Ans as answer.py
-    participant Ollama as Ollama (nekohon_x3)
+    participant Ollama as Ollama (nekohon_q35_2b_x3_2e)
     participant Figs as figures.py
 
     Reader->>Web: Select text or type query
@@ -145,16 +145,20 @@ sequenceDiagram
 
 ## Model Lineup & Download Table
 
-All `nekohon` models (renamed from the `smallbook_x3` line on 2026-10-17; identical weights and hashes) are purpose-distilled quote-or-refuse students trained on an 844-row 7-layer corpus using Wide-LoRA (r=32, alpha=64) on an A100 GPU and exported directly to 4-bit GGUFs.
+All `nekohon` models (renamed from the `smallbook_x3` line on 2026-10-17; identical weights and hashes for the x3 pair) are purpose-distilled quote-or-refuse students. `nekohon_q35_2b_x3_2e` and `nekohon_q35_2b` use the x2f recipe on a Qwen3.5-2B base (LoRA r=16, alpha=32, seed 3407, responses-only); the default trains on the 844-row corpus for 2 epochs, the candidate on the 417-row x2f corpus for 5. The x3 pair uses the older 844-row corpus with Wide-LoRA (r=32, alpha=64) on an A100.
 
-| Model | Parameters | Quantization | Disk Size | SHA-256 Digest | Role & Hardware | Benchmark Scores |
-| --- | :---: | :---: | :---: | --- | --- | :---: |
-| **`nekohon_x3`** | **3.1B** | **Q4_K_M** | **1.93 GB (1,840.5 MiB)** | `92fb94df741b2117b20b8ba8347c4143...` | **Primary Desktop Default**<br/>(8GB+ RAM / 4GB+ VRAM) | **60/60** Hard Bench<br/>**24/24** Highlights<br/>**22/22** HTTP Battery |
-| **`nekohon_x3_mobile`** | **1.5B** | **Q4_K_M** | **986 MB (940.4 MiB)** | `c3d8492fe73114a0c3e7249da6a1646a...` | **Mobile / Edge Default**<br/>(4GB RAM / 2GB VRAM) | **60/60** Hard Bench<br/>**24/24** Highlights<br/>**22/22** HTTP Battery |
-| `qwen2.5:7b` | 7.6B | Q4_K_M | 4.7 GB | `845dbda0ea48ed749caafd9e6037047a...` | Reference Base Teacher<br/>(`ANSWER_MODEL=qwen2.5:7b`) | Baseline comparison |
-| `nomic-embed-text` | 137M | F16 | 274 MB | `0a109f422b47e3a30ba2b10eca18548e...` | Local 768-dim Embedder<br/>(`ollama pull nomic-embed-text`) | 10/10 retrieval smoke |
+| Model | Parameters | Quantization | Disk Size | SHA-256 Digest | Role & Hardware |
+| --- | :---: | :---: | :---: | --- | --- |
+| **`nekohon_q35_2b_x3_2e`** | **1.9B** | **Q4_K_M** | **1.31 GB (1,251.3 MiB)** | `1621bcb3911489bf8296bae7703f1ca4...` | **Primary Desktop Default** (since 2026-10-24)<br/>(8GB+ RAM / 3GB+ VRAM) |
+| `nekohon_q35_2b` | 1.9B | Q4_K_M | 1.31 GB (1,251.3 MiB) | `5b2b573a921a0dac3d564393911dc3f...` | Candidate: 417-row run<br/>(`ANSWER_MODEL=nekohon_q35_2b`) |
+| `nekohon_q35_2b_r5` | 1.9B | Q4_K_M | 1.3 GB | — | **Rejected candidate** (2026-10-25; 870 rows): hard-mt 10/12 vs 12/12, sealed tie 27/30 — **not adopted, not default**<br/>(`ANSWER_MODEL=nekohon_q35_2b_r5` only to reproduce; revert to `nekohon_q35_2b_x3_2e`) |
+| `nekohon_x3` | 3.1B | Q4_K_M | 1.93 GB (1,840.5 MiB) | `92fb94df741b2117b20b8ba8347c4143...` | Previous desktop default (2026-10-17 to 2026-10-24)<br/>(`ANSWER_MODEL=nekohon_x3` reverts) |
+| **`nekohon_x3_mobile`** | **1.5B** | **Q4_K_M** | **986 MB (940.4 MiB)** | `c3d8492fe73114a0c3e7249da6a1646a...` | **Mobile / Edge Default**<br/>(4GB RAM / 2GB VRAM) |
+| `qwen2.5:7b` | 7.6B | Q4_K_M | 4.7 GB | `845dbda0ea48ed749caafd9e6037047a...` | Original teacher / revert<br/>(`ANSWER_MODEL=qwen2.5:7b`; the current teacher is Qwen3.8-27B on Colab) |
+| `nomic-embed-text` | 137M | F16 | 274 MB | `0a109f422b47e3a30ba2b10eca18548e...` | **Current embedder**<br/>(default since 2026-10-11) |
+| `embeddinggemma-2:270m-bf16-text` | 270M | BF16 | 574 MB | — | Candidate embedder<br/>(tried 2026-10-23, reverted; see the bake-off report) |
 
-Portable, committed Modelfiles are tracked under [`models/nekohon_x3/Modelfile`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/models/nekohon_x3/Modelfile) and [`models/nekohon_x3_mobile/Modelfile`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/models/nekohon_x3_mobile/Modelfile).
+Portable, committed Modelfiles are tracked under [`models/nekohon_q35_2b_x3_2e/Modelfile`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/models/nekohon_q35_2b_x3_2e/Modelfile), [`models/nekohon_q35_2b/Modelfile`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/models/nekohon_q35_2b/Modelfile), [`models/nekohon_x3/Modelfile`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/models/nekohon_x3/Modelfile) and [`models/nekohon_x3_mobile/Modelfile`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/models/nekohon_x3_mobile/Modelfile).
 
 ---
 
@@ -171,7 +175,7 @@ Install the distilled models and embedder in one command:
 # 1. Pull the embedder
 ollama pull nomic-embed-text
 
-# 2. Automatically verify, download, and register nekohon_x3 into Ollama
+# 2. Automatically verify, download, and register the default nekohon_q35_2b_x3_2e (plus the other listed models) into Ollama
 python scripts/setup_models.py --install
 
 # 3. Check model and runtime health
@@ -221,7 +225,7 @@ The engine exposes a strictly typed, frozen HTTP contract:
 | `/chunks` | `GET` | Reader payload: chunks in reading sequence with inline headings and figures. | Response: `{"book_id": "fde", "chunks": [{"chunk_id", "chapter", "heading", "section", "source", "text", "figures": [...]}]}` (heading, section, and figures are attached directly on each chunk object). |
 | `/health` | `GET` | Healthcheck probing engine and local Ollama daemon. | Response: `{"ok": true, "ollama": true}` |
 | `/figures/{id}` | `GET` | Serves extracted book figure image bytes. | Raw PNG/JPEG image bytes |
-| `/` | `GET` | Serves legacy no-build HTML companion window ([`window/index.html`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/window/index.html)). | Static HTML |
+| `/` | `GET` | Serves the built reader (`web/out/index.html`) when present, else the legacy no-build HTML companion window ([`window/index.html`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/window/index.html)). | Static HTML |
 
 ### Supported Modes
 - `answer` (default): Grounded generation with `[Ch. N]` chapter tags matched back to shown passages.
@@ -238,7 +242,7 @@ The engine exposes a strictly typed, frozen HTTP contract:
 Run all checks from the repo root:
 
 ```sh
-# 1. Fast Unit Suite (385 unit tests across 22 test suites, 0 network, ~1.5s)
+# 1. Fast Unit Suite (460 tests across 39 test modules, 0 network, ~20s; 458 pass, 2 known failures)
 python -m unittest discover -s tests
 
 # 2. Read-Only Index Vector Hygiene Audit
@@ -247,24 +251,30 @@ python verify_index.py
 # 3. 60-Item Hard Benchmark (Stress tests coreference, acronyms, comparisons, traps)
 python artifacts/harnesses/hard-bench.py nekohon_x3
 
-# 4. 24-Item Held-Out Highlight Evaluation
+# 4. 12-Item Hard Multi-Turn Bench (frozen dataset artifacts/datasets/hard-mt-2026-10-24.jsonl; 12/12 on the default model; report artifacts/reports/hard-mt-2026-10-24.md)
+python artifacts/harnesses/hard-mt-eval.py
+
+# 5. 24-Item Held-Out Highlight Evaluation
 python artifacts/probes/probe-highlight-2026-10-16.py nekohon_x3
 
-# 5. End-to-End HTTP Battery (22 live queries against running engine)
+# 6. End-to-End HTTP Battery (18 live queries in ask mode; 22 in answer mode; engine on :8000)
 python artifacts/harnesses/step2-battery.py
+BATTERY_MODE=answer python artifacts/harnesses/step2-battery.py
 
-# 6. Book-Agnostic Query Understanding Suite (Canonicalization, intents, passing-mentions)
+# 7. Book-Agnostic Query Understanding Suite (Canonicalization, intents, passing-mentions)
 python -m unittest tests/test_query_understanding.py
 
-# 7. Real-World Multi-Turn Adversarial Evaluation (35 scenarios, 97 turns, 91.4% pass)
-python artifacts/harnesses/adrian-eval.py nekohon_x3
+# 8. Real-World Multi-Turn Adversarial Evaluation (35 scenarios, 97 turns, 91.4% pass; in-process)
+ANSWER_MODEL=nekohon_q35_2b_x3_2e python artifacts/harnesses/adrian-eval.py --direct
 
-# 8. Cross-Book Evil Multi-Turn Evaluation (30 scenarios, 66 requests across fde/quant/ddia, 76.7% pass)
-python artifacts/harnesses/crossbook-evil-eval.py nekohon_x3
+# 9. Cross-Book Evil Multi-Turn Evaluation (30 scenarios, 66 requests across fde/quant/ddia, 76.7% pass; engine on :8000)
+python artifacts/harnesses/crossbook-evil-eval.py
 
-# 9. TypeScript Validation in web/
+# 10. TypeScript Validation in web/
 cd web && npx tsc --noEmit
 ```
+
+*Known failures (2026-10-25):* `tests/test_frontend_rules.py` flags `web/app/study.css:5` (hex colour inside a comment) and `web/app/study.css:111` (raw `box-shadow`); the run is 458 passed, 2 failed.
 
 *Book-Agnostic Query Understanding Suite:* [`tests/test_query_understanding.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/tests/test_query_understanding.py) enforces that query canonicalization, sub-millisecond intent classification, passing-mention extraction, acronym casing normalization, and coreference resolution function generically across any text corpus without book-specific hardcoding.
 

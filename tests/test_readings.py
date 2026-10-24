@@ -4,6 +4,7 @@ import re
 import unittest
 
 from readings import llm_second_reading, resolved_reading, second_reading
+from retrieve import DEFAULT_EMBEDDER
 
 
 def fake_embed(texts, model):
@@ -23,7 +24,7 @@ def fake_embed(texts, model):
 
 def make_index():
     return {
-        "embedder": "nomic-embed-text",
+        "embedder": DEFAULT_EMBEDDER,
         "chunks": [
             {
                 "chunk_id": "ch08-040",

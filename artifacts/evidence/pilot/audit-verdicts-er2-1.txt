@@ -1,0 +1,10 @@
+entity_relation-01 DROP wrong_relation | Answer is about data engineering upstream of data science, not Data Science Hierarchy.
+entity_relation-02 DROP history_not_needed | Answer switches to external-facing engineers; internal-facing history sentence is not used.
+entity_relation-03 KEEP ok | IoT swarm sentence supports source-system gloss and connects IoT to source systems.
+entity_relation-04 KEEP ok | ETL sentence supports gloss as data movement/processing pattern in ingestion context.
+entity_relation-05 DROP history_not_needed | Answer says data engineers need org-wide perspective; no connection to data-management sentence.
+entity_relation-06 KEEP ok | Airflow quote supports scheduler/orchestration-engine gloss.
+entity_relation-07 KEEP ok | Technical metadata includes schema, supporting schema-as-metadata gloss.
+entity_relation-08 DROP unsupported | Cited Google sentence only says paper gives offline video ad example; late-data problem is not in quote.
+entity_relation-09 KEEP ok | SPC quote supports monitoring/incident-response gloss.
+entity_relation-10 DROP history_not_needed | Answer describes ingestion as lifecycle stage; ignores history quote about undercurrents/maturity.

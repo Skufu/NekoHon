@@ -1,0 +1,7 @@
+leakage audit 2026-10-24 — train rows 417
+hard-bench: exact=0 near=0 gold_seen=0.624
+wide-net: exact=0 near=0 gold_seen=0.234
+adrian: exact=1 near=0 gold_seen=0.867
+sealed-2026-10-24: exact=0 near=0 gold_seen=0.0
+highlight-golden: exact=0 near=0 gold_seen=None
+qa-overnight: exact=81 near=15 gold_seen=None

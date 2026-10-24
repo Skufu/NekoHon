@@ -1,0 +1,7 @@
+# nekohon_q35_2b_x3 — Qwen3.5-2B, x3 corpus (844 rows), 3 epochs, Q4_K_M.
+# 2026-10-24 round-2 candidate: same recipe as nekohon_q35_2b but trained on the
+# 3B's corpus with a 10% question-grouped validation split held out.
+# Validation loss by epoch: 0.4754, 0.4643, 0.5438 (epoch 3 overfits).
+# Evidence: artifacts/reports/finetune-round2-x3-2026-10-24.md
+FROM ./nekohon_q35_2b_x3.Q4_K_M.gguf
+PARAMETER num_ctx 4096

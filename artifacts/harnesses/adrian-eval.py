@@ -31,6 +31,7 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
 import answer as A
+import fair_cite
 from retrieve import INDEX, load_index
 from prompt import REFUSAL
 
@@ -170,20 +171,22 @@ def evaluate_turn(turn_idx, turn_spec, response, expected, finished_turns=None, 
                     reasons.append(f"Bad generated pill '{pill}': 3+ capitalized words glued across newlines ('{m.group(0)}')")
                     break
 
-    # Chapter checks
+    # Chapter checks. The chapter is the behaviour under test when the turn
+    # names one, but a grounded answer that cites a different chapter still
+    # passes when the cited passages carry the turn's required concepts
+    # (2026-10-24 fairness rule; see fair_cite.py).
     exp_chapter = expected.get("chapter")
     allowed_chapters = expected.get("allowed_chapters")
-    if exp_chapter:
-        if not cited_chapters:
-            reasons.append(f"No chapter cited, expected Ch. {exp_chapter}")
-        elif not any(ch == exp_chapter for ch in cited_chapters):
-            reasons.append(f"Cited chapter(s) {cited_chapters} != expected Ch. {exp_chapter}")
-    elif allowed_chapters:
-        allowed_str = [str(ac) for ac in allowed_chapters]
-        if not cited_chapters:
-            reasons.append(f"No chapter cited, expected one of Ch. {allowed_str}")
-        elif not any(ch in allowed_str for ch in cited_chapters):
-            reasons.append(f"Cited chapter(s) {cited_chapters} not in allowed chapters {allowed_str}")
+    turn_terms = expected.get("must_contain") or []
+    cited_text = ""
+    if index is not None and cited_chunks:
+        table = {c.get("chunk_id"): (c.get("text") or "") for c in index.get("chunks", [])}
+        cited_text = " ".join(table.get(cid, "") for cid in cited_chunks)
+    chapter_ok, chapter_detail = fair_cite.judge_chapter(
+        cited_chapters, exp_chapter, allowed_chapters, cited_text, turn_terms
+    )
+    if not chapter_ok:
+        reasons.append(chapter_detail)
 
     if expected.get("same_chapter_as_previous_turn") or expected.get("match_previous_turn_chapter"):
         if finished_turns:
@@ -476,8 +479,10 @@ def main():
         pct = (stats["passed"] / stats["total"] * 100) if stats["total"] else 0
         print(f"  {cat:<26}: {stats['passed']:>2}/{stats['total']:<2} ({pct:>5.1f}% pass | {100-pct:>5.1f}% fail)")
 
-    # Save evidence
-    ev_json_path = EVIDENCE_DIR / "adrian-eval-2026-10-17.json"
+    # Save evidence; the model in the filename keeps A/B runs from
+    # overwriting each other (hard-bench uses the same convention).
+    model_tag = A.ANSWER_MODEL.replace(":", "-").replace("/", "-")
+    ev_json_path = EVIDENCE_DIR / f"adrian-eval-2026-10-17.model-{model_tag}.json"
     ev_json_path.write_text(json.dumps(results, indent=2), encoding="utf-8")
     print(f"\nSaved detailed run evidence to {ev_json_path}")
 

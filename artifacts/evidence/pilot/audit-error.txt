@@ -1,0 +1,1 @@
+Error: Empty completion text in OpenCode Go response

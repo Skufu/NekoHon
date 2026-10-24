@@ -1,0 +1,6 @@
+# nekohon_q35_2b_x3_2e — Qwen3.5-2B, x3 corpus (844 rows), 2 epochs, Q4_K_M.
+# 2026-10-24 round-2b: same split as the 3-epoch run, stopped at 2 epochs.
+# Validation loss: 0.4785 -> 0.4830 (still rising, but by 0.0045).
+# Evidence: artifacts/reports/finetune-round2-x3-2026-10-24.md
+FROM ./nekohon_q35_2b_x3_2e.Q4_K_M.gguf
+PARAMETER num_ctx 4096

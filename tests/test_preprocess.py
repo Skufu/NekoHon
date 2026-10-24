@@ -4,7 +4,7 @@ import unittest
 
 from keywords import postings, rare
 from preprocess import normalize, tokens, words
-from retrieve import DEFAULT_EMBEDDER, format_input
+from retrieve import NOMIC_EMBEDDER, format_input
 
 
 class TokenizerTests(unittest.TestCase):
@@ -52,11 +52,11 @@ class DenseSeamTests(unittest.TestCase):
 
     def test_the_prefix_is_added_after_the_dense_view(self):
         self.assertEqual(
-            format_input(DEFAULT_EMBEDDER, "query", "a  b"),
+            format_input(NOMIC_EMBEDDER, "query", "a  b"),
             "search_query: a b",
         )
         self.assertEqual(
-            format_input(DEFAULT_EMBEDDER, "document", "a  b"),
+            format_input(NOMIC_EMBEDDER, "document", "a  b"),
             "search_document: a b",
         )
 

@@ -68,10 +68,14 @@ ANSWER_GLOSS_SYSTEM = (
     "If the reader asks 'What are the ...' (a list, stages, types, components, or reasons), you MUST explicitly name the specific items in your sentence (e.g., 'The five stages of the data engineering lifecycle are generation, storage, ingestion, transformation, and serving data.'). NEVER write vague pointer sentences like 'The stages are listed in the introduction' or 'The process is split into five steps' without naming them."
 )
 
-# Live default is nekohon_x3 (renamed from smallbook_x3 2026-10-17; the old
-# tag stays registered on this box as an alias). Revert without editing:
-# ANSWER_MODEL=qwen2.5:7b or ANSWER_MODEL=smallbook_x3.
+# Live default is nekohon_q35_2b_x3_2e (Qwen3.5-2B, x3 corpus, 2 epochs,
+# adopted 2026-10-24). It is the x2f recipe on the 3B's 844-row corpus, stopped
+# at the best validation epoch: sealed 27/30 (vs 25 for the 417-row run), adrian
+# 32/35, hard bench 59/60, battery 10/10 both modes. Revert without editing:
+# ANSWER_MODEL=nekohon_q35_2b (417-row run) or ANSWER_MODEL=nekohon_x3 (3B).
+# Evidence: artifacts/reports/finetune-round2-x3-2026-10-24.md.
+#
 # Granite was tried and dropped 2026-10-13; that record is in
 # artifacts/reports/, not here.
-ANSWER_MODEL = os.environ.get("ANSWER_MODEL", "nekohon_x3")
+ANSWER_MODEL = os.environ.get("ANSWER_MODEL", "nekohon_q35_2b_x3_2e")
 OLLAMA_KEEP_ALIVE = os.environ.get("OLLAMA_KEEP_ALIVE", "24h")

@@ -13,22 +13,27 @@ authoritative doc is named.
   (`answer.py: respond`).
 - **ask mode** — the highlight path: the model must quote one sentence
   verbatim; a failed check is a refusal (`answer.py: ask`).
-- **refusal** — exactly `Not in this book.` It means "the book does not cover
-  this" — never "I didn't understand you" (`GOAL.md`).
+- **refusal** — exactly `Not in this book.` (`GOAL.md`). It means the book does
+  not cover this, or covers the topic but not the person the claim is
+  attributed to (`answer.names_absent_person`, checked before generation in
+  both `ask` and `respond`); never "I didn't understand you".
 - **citation** — `[Ch. N]` plus a quote that must appear verbatim in the named
   passage.
 - **passage / chunk** — one indexed piece of the book; `chunk_id` like
   `ch06-011` is chapter 6, 11th chunk.
-- **pin** — the chunk id a question is expected to cite (used by the battery
-  and by capture forms).
+- **pin** — the historical chunk id recorded on capture forms and in
+  `battery-pins.json`; a note, not the gate — the battery passes when the
+  cited passage carries the question's terms
+  (`artifacts/harnesses/fair_cite.py`).
 - **canonicalization** — repairing a bare user phrase into a question
   ("watermark" -> "What is watermark?"); the app shows it as `Asked as: ...`.
 - **Read as:** — the app's note when what it understood differs from what was
   typed (e.g. a typo repair).
-- **retry** — the engine's one `[Ch. ` prefill retry for an uncited
-  answer-mode reply; kept only when a citation validates as verbatim text.
-  Monotone: it can only add a citation, never change an answer. In the
-  streaming UI its discarded draft shows as a **reset**.
+- **retry** — the engine's one `[Ch. ` prefill retry for an uncited reply or
+  a false refusal; kept only when a citation's quote appears verbatim in a
+  passage, so a hit can replace a refusal with a cited answer. Every failure
+  path keeps the original; in the streaming UI a discarded draft shows as a
+  **reset** (`answer._retry_uncited`).
 - **reader payload** (`GET /chunks`) — the book as the reader pane needs it:
   chunks in reading order, no vectors, the leading heading line stripped,
   figures as cards with their real pixel size (`retrieve.chunks_payload`).
@@ -78,10 +83,9 @@ authoritative doc is named.
   active library (`fde`, `quantization`, `ddia`), mapping book identifiers to
   chapter counts, chunk counts, figure directories, and extracted cover art
   endpoints.
-- **Bookplate Spread** — the 3D `BookOpen` modal presentation displaying an
-  `EX LIBRIS · NEKOHON` vintage bookplate, thumbnail cover art, and passage
-  statistics on the left page with reading progress and action controls on the
-  right.
+- **Bookplate Spread** — the `EX LIBRIS · NEKOHON` two-leaf cover modal, no
+  longer in the current UI; no component renders it, and only its CSS remains
+  (`web/app/ledger.css`).
 - **Gzip Chunk Cache** (`CHUNKS_GZIP_CACHE`) — engine-level in-memory
   pre-compressed GZIP cache for `GET /chunks`, reducing HTTP payload size from
   1.14 MB down to 328 KB (71.7% network reduction).
@@ -93,7 +97,11 @@ authoritative doc is named.
 ## Models and training
 
 - **teacher / student** — the big model that writes training answers vs the
-  small model that ships.
+  small model that ships. The current teacher is **Qwen3.8-27B**, captured on
+  Colab, never served here. **`qwen2.5:7b` is the original teacher** and the
+  fallback answerer — not the current one. **`nekohon_q35_2b` is the student.**
+  Do not author evaluation questions with the 7B: it reuses the passage's own
+  wording, so its questions measure copying rather than retrieval.
 - **distillation** — here: the teacher writes answers and the student learns
   from those answers as *text* (not from the teacher's probability
   distribution, which is why the classic capacity-gap effects mostly don't
@@ -111,27 +119,39 @@ authoritative doc is named.
   "presentations" = rows x epochs (the budget held at ~1968).
 - **LoRA** — the small trainable adapter used to finetune; the app loads the
   merged GGUF.
+- **nekohon_q35_2b_x3_2e** — 1.9B parameter Qwen3.5-2B distilled student model
+  (1.31 GB Q4_K_M GGUF), x2f recipe on the 844-row corpus, stopped at 2 epochs
+  (best validation), exported 2026-10-24; the desktop engine default.
+- **nekohon_q35_2b** — the first Qwen3.5-2B run, 417-row x2f corpus, 5 epochs
+  (1.31 GB Q4_K_M); sealed 25/30; kept as a candidate and revert.
 - **nekohon_x3** (alias `smallbook_x3`) — 3.1B parameter Qwen2.5-based distilled
   student model (1.93 GB Q4_K_M GGUF), trained via Wide-LoRA (r=32, alpha=64) on
-  an 844-row 7-layer corpus; delivers 100% on the 60-item Hard Benchmark and
-  24/24 on golden highlights as the desktop engine default.
+  an 844-row 7-layer corpus; the desktop default 2026-10-17 to 2026-10-24 and
+  still the one-flag revert.
 - **nekohon_x3_mobile** — 1.5B parameter edge companion student model (986 MB
   Q4_K_M GGUF), trained on the same 844-row distillation corpus; delivers 100%
   parity across all gates with 0.58s mean latency for low-resource environments.
 
 ## Testing
 
-- **sealed suite** — the 21 exam items (`artifacts/datasets/sealed-forms.json`)
-  never trained on; near-matches abort a build.
-- **gate** — the pre-registered pass/fail rules for adopting a model; **gate
-  item 2** is the sealed-suite bar vs the 7B.
-- **battery** — the 21 scripted app checks with pins
+- **sealed suite** — the 30 exam items
+  (`artifacts/datasets/sealed-2026-10-24.jsonl`), never trained on (0/27 gold
+  chunks in training); a changed sha or a near-match fails
+  `tests/test_eval_leakage.py`.
+- **gate** — the pre-registered pass/fail rules for adopting a model: six
+  suites totaling 175 items (battery ask 10, battery answer 10, hard bench 60,
+  adrian 35, sealed 30, crossbook 30), with citations judged by their content
+  (`artifacts/reports/test-fairness-2026-10-24.md`,
+  `artifacts/harnesses/fair_cite.py`).
+- **battery** — the scripted app checks: 18 asks in ask mode (10 golden, 3
+  typos, 4 probes, plus France), 22 in answer mode with four coherence probes
   (`artifacts/harnesses/step2-battery.py`).
 - **loop** — a generation that stops only at the token cap, or repeats a
   5-word phrase 3+ times (`repeat5`).
-- **judge** — an LLM that grades softer qualities (local granite by default;
-  the cloud muse model only when explicitly enabled). Deliberately not part of
-  the adoption gate.
+- **judge** — an LLM that grades softer qualities; cloud
+  `muse-spark-1.3-contributor` by default, local `granite4.1:8b` with
+  `JUDGE_BACKEND=ollama`. Deliberately not part of the adoption gate
+  (`artifacts/harnesses/judge.py`).
 - **owner probe / visible ten** — the user's own messy-query tests;
   exploratory, not gates.
 - **contamination probe** — checks training rows against bench questions for
@@ -142,7 +162,7 @@ authoritative doc is named.
   (32/35 passed, 91.4% overall).
 - **crossbook-evil-eval.py** — 30 cross-book adversarial multi-turn evaluation
   scenarios across 66 requests spanning `fde`, `quantization`, and `ddia`
-  (23/30 passed, 76.7% overall).
+  (24/30 baseline; 26/30 for `nekohon_q35_2b` in the fair run).
 - **SIMPLIFY_RE fast-path** — regex-driven simplification route in `answer.py`
   synthesizing accessible grounded glosses directly from prior turn anchors in ~850 ms.
 

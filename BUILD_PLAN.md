@@ -15,7 +15,10 @@
 
 **Goal:** An offline multi-volume book companion that answers from the open book, cites the passages it used, and shows the figure those passages point at. Nothing leaves the machine.
 
-**Architecture:** A stdlib Python engine ingests EPUBs into JSON indexes tracked via a Multi-Book Catalog (`data/books.json`: `fde`, `quantization`, `ddia`), retrieves with the Phase 3b winning embedder (`nomic-embed-text` default) accelerated by pre-normalized unit-vector dot products, and answers with on-disk `nekohon_x3` (a Qwen2.5-3B wide-LoRA distilled student, renamed from `smallbook_x3` 2026-10-17; `nekohon_x3_mobile` 1.5B for mobile/edge; `ANSWER_MODEL=qwen2.5:7b` reverts). The frontend is a Next.js app under `web/` (wooden bookcase library + reader + ask panes; see `web/README.md`); `window/index.html` is the legacy no-build window.
+**Architecture:** A stdlib Python engine ingests EPUBs into JSON indexes tracked via a Multi-Book Catalog (`data/books.json`: `fde`, `quantization`, `ddia`), retrieves with `nomic-embed-text` (gemma was tried 2026-10-23 and reverted: hard bench 60/60 -> 53/60) accelerated by pre-normalized unit-vector dot products, and answers with on-disk `nekohon_q35_2b_x3_2e` (a Qwen3.5-2B quote-or-refuse student
+on the 844-row corpus, adopted 2026-10-24; `nekohon_q35_2b` is the 417-row run,
+`nekohon_x3` 3.1B is the previous default and the revert, `nekohon_x3_mobile`
+1.5B serves mobile/edge). The frontend is a Next.js app under `web/` (wooden bookcase library + reader + ask panes; see `web/README.md`); `window/index.html` is the legacy no-build window.
 
 **Tech Stack:** Python 3 stdlib (one exception for vendored text-preprocessing tools; see `AGENTS.md`). Ollama on `127.0.0.1:11434`. No pip installs. No database server.
 
@@ -60,7 +63,7 @@ flowchart TD
 
     subgraph Subsystem4["4. Bidirectional Quote-Gloss Ranking & Grounded Generation (answer.py, prompt.py, figures.py)"]
         Mention --> Prompt["Aligned ChatML System Prompt<br/>(prompt.py, keep_alive: '24h')"]
-        Prompt --> Ollama["Local Student Model<br/>(nekohon_x3 3B / nekohon_x3_mobile 1.5B)"]
+        Prompt --> Ollama["Local Student Model<br/>(nekohon_q35_2b_x3_2e 2B / nekohon_x3_mobile 1.5B)"]
         Ollama --> Coherence{"_is_coherent_gloss Validation<br/>(Repetition & Loop Guard)"}
         Coherence -->|Passed| QuoteRank["Bidirectional Quote-Gloss Ranking<br/>(Query-Entity Alignment)"]
         Coherence -->|Failed| Fallback["_synthesize_grounded_gloss<br/>(Grounded Sentence Extraction)"]
@@ -90,7 +93,7 @@ sequenceDiagram
     participant Ret as retrieve.py & keywords.py
     participant Fuse as fusion.py (RRF)
     participant Ans as answer.py
-    participant Ollama as Ollama (nekohon_x3)
+    participant Ollama as Ollama (nekohon_q35_2b_x3_2e)
     participant Figs as figures.py
 
     Reader->>Web: Select text or type query
@@ -119,9 +122,9 @@ sequenceDiagram
 
 The product bet: local inference, cited answers, figures on screen, wifi off.
 
-**Current (2026-10-18):** post-v1 multi-book library. `nekohon_x3` (3.1B, Q4_K_M, 1.93 GB (1,840.5 MiB); renamed from `smallbook_x3` 2026-10-17, same weights) is adopted as the primary desktop answer model (`prompt.ANSWER_MODEL = "nekohon_x3"`), succeeding `smallbook_x2g` and `smallbook_x2d`. `nekohon_x3_mobile` (1.5B, Q4_K_M, 986 MB (940.4 MiB)) serves edge and resource-constrained environments. 3-book catalog (`fde` 1,042 chunks · 111 figures, `quantization` 473 chunks · 76 figures, `ddia` 1,307 chunks · 90 figures; total 2,822 passages and 277 figures across 41 chapters). All edge cases (alphanumeric acronyms, coreference follow-ups, natural comparison grammar, highlight intent) are resolved. Benchmark status: **60/60** Hard Benchmark, **24/24** Highlight Golden, **22/22** HTTP Battery, **32/35 (91.4%)** `adrian-eval.py` across 97 turns, **23/30 (76.7%)** `crossbook-evil-eval.py` across 66 turns, and **385** unit tests across 22 test suites. Reports: `artifacts/reports/architecture-and-x3-2026-10-17.md`, `artifacts/reports/nekohon-multibook-and-perf-2026-10-18.md`.
+**Current (2026-10-24):** post-v1 multi-book library. `nekohon_q35_2b_x3_2e` (Qwen3.5-2B, Q4_K_M, 1.31 GB, 844-row corpus, 2 epochs) is the primary desktop answer model since 2026-10-24 (`prompt.ANSWER_MODEL = "nekohon_q35_2b_x3_2e"`); `nekohon_q35_2b` (417-row run) and `nekohon_x3` (3.1B, 1.93 GB) are the reverts. `nekohon_x3_mobile` (1.5B, Q4_K_M, 986 MB (940.4 MiB)) serves edge and resource-constrained environments. 3-book catalog (`fde` 1,042 chunks · 111 figures, `quantization` 473 chunks · 76 figures, `ddia` 1,307 chunks · 90 figures; total 2,822 passages and 277 figures across 41 chapters). The edge cases (alphanumeric acronyms, coreference follow-ups, natural comparison grammar, highlight intent) are measured, not declared: hard-mt 12/12, sealed 27/30, hard bench 59/60, adrian 32/35. Verification is recorded in `artifacts/reports/architecture-and-x3-2026-10-17.md` and `artifacts/reports/nekohon-multibook-and-perf-2026-10-18.md`.
 
-Two older drafts in `~/.hermes/cache/scratch/hackathon-plan.md` and `hackathon-plan-full.md` disagree with each other. This file replaces both.
+Two older drafts (`hackathon-plan.md`, `hackathon-plan-full.md`) disagreed with each other; they lived in `~/.hermes/cache/scratch/`, which no longer exists on this box and has no copy in the repo. This file replaces both.
 
 **Machine note (2026-10-12):** Mac and Windows are both full runners. Windows has Ollama installed and the models on disk (`nomic-embed-text`, `qwen2.5:7b`); phases 0-7 were measured there, including the wifi-off gate. `books/` is gitignored, so Phase 0 runs once per machine. On Windows, `python3` in the verify commands means the Python 3 binary (`python` or `py -3` if `python3` is missing).
 
@@ -155,16 +158,19 @@ be reopened when the goal calls for it.
 
 | Job | Model | On disk | Use |
 | --- | --- | --- | --- |
-| Embed | `nomic-embed-text:latest` (274 MB) | yes | retrieval |
-| Answer (desktop default) | `nekohon_x3` (1.93 GB (1,840.5 MiB), Q4_K_M) | yes | desktop default since 2026-10-17 (renamed from `smallbook_x3`); 3.1B quote-or-refuse Wide-LoRA student |
+| Embed (current) | `nomic-embed-text:latest` (274 MB) | yes | retrieval, the shipped default |
+| Embed (candidate) | `embeddinggemma-2:270m-bf16-text` (270M) | yes | tried 2026-10-23, reverted: wide net better, hard bench 53/60; needs a student finetune or a failure audit before it can be judged |
+| Answer (desktop default) | `nekohon_q35_2b_x3_2e` (1.31 GB, Q4_K_M) | yes | desktop default since 2026-10-24; 2B Qwen3.5 quote-or-refuse student on the 844-row corpus, 2 epochs; 59/60 hard bench, 32/35 adrian, 27/30 sealed |
+| Answer (candidate) | `nekohon_q35_2b` (1.31 GB, Q4_K_M) | yes | first Qwen3.5 run on the 417-row x2f corpus, 5 epochs; sealed 25/30, adrian 31/35; `ANSWER_MODEL=nekohon_q35_2b` |
+| Answer (previous default / revert) | `nekohon_x3` (1.93 GB (1,840.5 MiB), Q4_K_M) | yes | desktop default 2026-10-17 to 2026-10-24 (renamed from `smallbook_x3`); 3.1B quote-or-refuse Wide-LoRA student; `ANSWER_MODEL=nekohon_x3` reverts |
 | Answer (mobile default) | `nekohon_x3_mobile` (986 MB (940.4 MiB), Q4_K_M) | yes | mobile/edge default since 2026-10-17 (renamed from `smallbook_x3_mobile`); 1.5B quote-or-refuse Wide-LoRA student |
-| Teacher / revert | `qwen2.5:7b` (4.7 GB, Q4_K_M) | yes | teacher baseline; `ANSWER_MODEL=qwen2.5:7b` reverts |
-| Weak-machine note | `llama3.2:3b` (2.0 GB) | yes | README fallback only. Not the dev model. |
-| Do not use | `deepseek-r1:7b` | yes | leave it |
+| Teacher (current) | **Qwen3.8-27B** (UD-Q4_K_XL, ~16 GB) | **no — Colab only** | writes the distillation captures; never on the serve path |
+| Original teacher / revert | `qwen2.5:7b` (4.7 GB, Q4_K_M) | yes | the first teacher; `ANSWER_MODEL=qwen2.5:7b` reverts. **Not the current teacher, and not for authoring eval questions.** |
+| Do not use | `deepseek-r1:7b` | no — not registered on this box | leave it |
 
 On the Windows runner (measured 2026-10-17): `nekohon_x3`, `nekohon_x3_mobile` (renamed from `smallbook_x3*`; the old tags stay registered as aliases), `qwen2.5:7b`, `nomic-embed-text:latest`, `granite4.1:8b`, and `embeddinggemma-2:270m-bf16-text` are registered in Ollama.
 
-`nekohon_x3` is the current answer model (adopted 2026-10-17 as `smallbook_x3`, renamed 2026-10-17; `nekohon_x3_mobile` and the 7B stay one env flag away) — a Qwen2.5-3B quote-or-refuse finetune distilled from an 844-row 7-layer corpus via Wide-LoRA on Colab A100. Any answer-model swap — the 7B back, mobile, or a new finetune — has to pass the battery in both modes: ask — quote is a substring, answer starts with `[Ch.`, refusal is exactly `Not in this book.`; answer — citations only from the shown passages and the coherence probes pass. Measure it; do not swap quietly on a hunch.
+`nekohon_q35_2b_x3_2e` is the current answer model (adopted 2026-10-24; `nekohon_q35_2b` and `nekohon_x3` stay one env flag away). It is the x2f recipe on a Qwen3.5-2B base with the 3B's 844-row corpus, 2 epochs (best validation), seed 3407, responses-only loss, exported to Q4_K_M. Any answer-model swap — either revert, mobile, or a new finetune — has to pass the content-based gates: ask — the cited passage must carry the question's terms and a quoted span; answer — citations only from the shown passages and the coherence probes pass; explain — the cited chunk is the one shown. Measure it; do not swap quietly on a hunch.
 
 Changes that invalidate measurements — re-run, don't quietly swap:
 
@@ -199,22 +205,28 @@ ask-this-book/
   answer.py          # prompt wiring, generation, quote check, citations, coherence guard
   prompt.py          # system prompts (ask + answer + gloss) and ANSWER_MODEL
   figures.py         # attach a figure when a cited passage names it
-  models/            # committed portable Modelfiles (nekohon_x3, nekohon_x3_mobile)
+  models/            # portable Modelfiles, 8 dirs: nekohon_x3 + nekohon_x3_mobile
+                     #   (git-tracked); nekohon_q35_2b, nekohon_q35_2b_r3,
+                     #   nekohon_q35_2b_r4_1e, nekohon_q35_2b_r5,
+                     #   nekohon_q35_2b_x3, nekohon_q35_2b_x3_2e (untracked)
   scripts/           # setup_models.py (one-command install, verify, release package)
   docs/              # ENGINEERING_AND_BENCHMARKS.md (in-depth contributor guide)
-  tests/             # 385 unit tests across 22 test suites + fixtures
+  tests/             # 460 unit tests across 39 test modules + fixtures
     test_contract.py  test_ingest.py  test_retrieve.py  test_answer.py
     test_figures.py   test_keywords.py  test_captions.py  test_readings.py
     test_preprocess.py  test_chunking.py  test_generalization.py
+    test_followup_subject.py  test_fabricated_attribution.py  test_hard_mt_leakage.py
     fixtures/ask_response.json
     fixtures/questions.json
   window/index.html  # legacy v1 window (no build step)
   web/               # Next.js frontend (reader + margin cards + lens); see web/README.md
-  artifacts/         # evidence, harnesses (hard-bench, step2-battery), reports, datasets
+  artifacts/         # evidence, harnesses (hard-bench, step2-battery, hard-mt-eval), reports, datasets
   data/              # gitignored: index.json, models/, extracted figures/
   books/             # gitignored: the epub (books/SOURCE.txt records origin)
   .gitignore         # data/, books/, __pycache__/, per-model indexes
 ```
+
+`artifacts/harnesses/hard-mt-eval.py` is the multi-turn bench: 12 items in `artifacts/datasets/hard-mt-2026-10-24.jsonl`, scored by the fair content rule; the default `nekohon_q35_2b_x3_2e` holds 12/12 (`artifacts/reports/hard-mt-2026-10-24.md`).
 
 `.gitignore`: `data/`, `books/`, `__pycache__/`. Also gitignore per-model bake-off indexes (`data/index.*.json`, see Phase 3b) unless the winning index is worth keeping.
 
@@ -222,7 +234,7 @@ No `requirements.txt`. If a task seems to need a package, the task is wrong.
 
 ## Reference template
 
-`rag-template` (Boot.dev backend-course scaffold) lives at `~/workspace/github.com/Skufu/rag-template` (GitHub: `Skufu/rag-template`). It is **reference only** — never a dependency. This repo is stdlib-only and `rag-template` needs numpy/nltk, so none of its code drops in here. Steal patterns, not code.
+`rag-template` (Boot.dev backend-course scaffold) lives at `~/workspace/github.com/Skufu/rag-template` (GitHub: `Skufu/rag-template`). It is **reference only** — never a dependency. Its numpy/nltk stack does not come along on its own; porting code from it follows the dependency rule in `GOAL.md` — a measured win first. Steal patterns, and port code only with evidence.
 
 | Phase | Template module | Takeaway |
 | --- | --- | --- |
@@ -248,7 +260,7 @@ This is the only meeting between engine and window. Check the fixture in before 
 }
 ```
 
-`mode` is `ask`, `answer`, `explain`, or `quiz`.
+`mode` is `ask`, `answer`, `explain`, or `quiz`, plus `import` (drag-and-drop EPUB; `EXTRA_MODES` in `server.py`).
 
 - `ask`: `question` required. `selection` optional. Quote-checked; the reply must start with `[Ch.` or it refuses.
 - `answer`: `question` required. Free generation from the same passages; the window's default. `[Ch. N]` tags become citations; quotation marks the shown passages cannot back are stripped.
@@ -277,7 +289,7 @@ This is the only meeting between engine and window. Check the fixture in before 
 
 `refused: true` means the passages do not contain the answer. `answer` is then exactly `Not in this book.` Citations may still list the nearest misses. Figures empty unless a miss is itself a figure cite. Do not gloss a refusal. In `answer` mode the refusal is the model's own exact first line — prompted and tested, never fabricated from a failed check.
 
-`GET /figures/{id}` returns the extracted image bytes. `GET /health` returns `{"ok": true, "ollama": true}` after a localhost probe to Ollama. `GET /` serves the window. Those three plus `POST /ask` are the only routes.
+`GET /figures/{id}` returns the extracted image bytes. `GET /chunks` serves the reader's blocks (`book_id` optional, gzip when the client accepts it). `GET /health` returns `{"ok": true, "ollama": true}` after a localhost probe to Ollama. `GET /` serves the built web reader (`web/out/index.html`), falling back to the legacy window. Those four plus `POST /ask` are the only routes.
 
 Errors: `400` for a bad mode or missing field. Body: `{"error": "short reason"}`. No stack traces.
 
@@ -360,7 +372,7 @@ Wifi off. Then `POST /ask`. A cited answer still returns.
 
 Confirm the engine process has no established TCP connection except localhost. DevTools on the page only shows that the page is quiet. Ollama is a different process. Do not call a quiet network panel the proof.
 
-README states: embeddings and answers are Ollama on localhost; models are the Phase 3b winning embedder (`nomic-embed-text`) and the default answerer `nekohon_x3` (alias `smallbook_x3`, a Qwen2.5-3B distilled student with `nekohon_x3_mobile` 1.5B edge companion); no cloud model API. The 7B (`qwen2.5:7b`) is kept as reference teacher and revert.
+README states: embeddings and answers are Ollama on localhost; the embedder is `nomic-embed-text` (gemma was tried 2026-10-23 and reverted) and the default answerer is `nekohon_q35_2b_x3_2e` (a Qwen3.5-2B distilled student on the 844-row corpus, adopted 2026-10-24, with `nekohon_q35_2b` and `nekohon_x3` as reverts and `nekohon_x3_mobile` 1.5B edge companion); no cloud model API. The 7B (`qwen2.5:7b`) is kept as the **original** teacher and the revert; it is not the teacher current students distill from — that is Qwen3.8-27B, captured on Colab.
 
 ## Roles
 
@@ -415,7 +427,7 @@ Include at least three kinds:
 
 `tests/test_retrieve.py` can stay on the tiny fixture (one embedded vector mocked, or a fake embed function). The 10-question run is a manual script against Ollama, `python retrieve.py --smoke tests/fixtures/questions.json`. Save the printed hit/miss list in the README. Do not invent a hit.
 
-**Nomic smoke, 2026-10-11, after the figure-id recut.** Index: 1065 chunks, 111 figures, `nomic-embed-text`, 768 dims. Command: `python retrieve.py --smoke tests/fixtures/questions.json`. Result: 10/10 top-10, 5.9 seconds. Gate is 8/10. Two hits landed late (rank 7, rank 8); they still count. Do not raise top-k to make those look better.
+**Nomic smoke, 2026-10-11, after the figure-id recut.** Index: 1,065 chunks at the time (later corrected to 1,042 — `artifacts/reports/query-canonicalization-2026-10-13.md`), 111 figures, `nomic-embed-text`, 768 dims. Command: `python retrieve.py --smoke tests/fixtures/questions.json`. Result: 10/10 top-10, 5.9 seconds. Gate is 8/10. Two hits landed late (rank 7, rank 8); they still count. Do not raise top-k to make those look better.
 
 ```
 hit rank 1 ch 5 What does CRUD stand for?
@@ -513,8 +525,9 @@ Command, identical online and offline:
 Disclosure at the gate (2026-10-12): embeddings and answers are Ollama on
 localhost; models were `nomic-embed-text` and `qwen2.5:7b`; no cloud model
 API; base models, no training. Current live disclosure: the default answerer
-is the local distilled student `nekohon_x3` (alias `smallbook_x3`) with edge
-companion `nekohon_x3_mobile` — see "Proof it is local".
+is the local distilled student `nekohon_q35_2b_x3_2e` (Qwen3.5-2B, 844-row
+corpus, adopted 2026-10-24) with edge companion `nekohon_x3_mobile` — see
+"Proof it is local".
 
 ## Phase 8 — Readest, only after phase 7
 
@@ -543,14 +556,12 @@ section that moves — update it as checkpoints land.
   (r=32, alpha=64) student trained on an 844-row 7-layer distillation corpus
   (707 cited, 137 refusals = 16.23% refusal share) on Colab A100 (loss
   1.0937 → 0.0403 in 393.8s); 1.93 GB (1,840.5 MiB) Q4_K_M GGUF (SHA-256 `92fb94df...`).
-  Delivers **60/60 (100%)** on the 60-Item Hard Benchmark, **24/24 (100%)** on
-  Held-Out Highlights, and **22/22 (100%)** on the HTTP Battery at 0.77s mean
+  Gate results are in the report; the desktop default runs at 0.77s mean
   latency.
 - **`smallbook_x3_mobile` is adopted as mobile/edge default** (2026-10-17):
   a Qwen2.5-1.5B companion student trained on the same 844-row corpus
   (loss 1.0937 → 0.0499 in 292.6s); 986 MB (940.4 MiB) Q4_K_M GGUF (SHA-256 `c3d8492f...`).
-  Achieves 100% parity across all verification gates (**60/60** Hard Bench,
-  **24/24** Highlights, **22/22** Battery) at 0.58s mean latency.
+  Runs at 0.58s mean latency.
 - **Multi-Book Library & Catalog Landed (2026-10-17):**
   The engine and frontend expanded from single-book FDE into a unified
   Multi-Book Catalog (`data/books.json`) with an interactive wooden bookcase
@@ -576,18 +587,22 @@ section that moves — update it as checkpoints land.
   Seed control diverged (run-variance caveat). Non-adopted models deleted
   after the record; LoRAs kept (`data/models/*_lora.zip`). Verdict:
   `x2-trial-2026-10-14.md`.
-- **Next:** `x2d` — systematic augmentation targeting the measured weak
-  classes (uncited bare topics, source-systems/ETL pin misses, insert-only),
-  ~3 forms per topic, pre-registered gate before training.
-- **Teacher upgrade in flight (2026-10-15, build-time only):** the next
-  student distills from a Qwen3.8-27B-class teacher captured on Colab. State:
+- **`x2d` — done 2026-10-14 (this line used to read "Next"):** systematic
+  augmentation targeting the measured weak classes (uncited bare topics,
+  source-systems/ETL pin misses, insert-only), ~3 forms per topic,
+  pre-registered gate before training. It shipped as `smallbook_x2d` and was
+  succeeded by `x3` on 2026-10-17 (historical note above); the answerer has
+  since moved to `q35` 417-row → `q35_2b_x3_2e` (2026-10-24), with `r5`
+  rejected 2026-10-25.
+- **Teacher upgrade (2026-10-15, build-time only; finished the same day):**
+  the next student distills from a Qwen3.8-27B-class teacher captured on Colab. State:
   capture file rebuilt to **515 rows** (328 re-captures + 187 v2-rebalanced
   forms; 396 cited / 119 refusal; `data/finetune/teacher-capture-2026-10-15.jsonl`,
-  gitignored); kit v3 (`reports/teacher-capture-colab-2026-10-15.ipynb`:
+  gitignored); kit v3 (`artifacts/reports/teacher-capture-colab-2026-10-15.ipynb`:
   Q4_K_XL teacher default, 4-slot serving, behavioral pre-gate, 4-worker
   capture, resume-by-id, max 250 tokens); finetune notebook derives epochs
   from the row count (hold ~1968 presentations). External review answered in
-  `reports/coach-review-response-2026-10-15.md`; owner decision 2026-10-15:
+  `artifacts/reports/coach-review-response-2026-10-15.md`; owner decision 2026-10-15:
   half-covered comparisons (e.g. `ddr4 vs ddr5`) answer the covered side
   with a boundary gloss — the 3 ddr4 capture rows carry the rule in their
   note. **Done 2026-10-15:** trained (A100, loss 0.84 -> 0.035) and gated —
@@ -595,7 +610,7 @@ section that moves — update it as checkpoints land.
   student was never trained on; fixed the same day: x2d 160/160, x2e 150/160
   under the aligned prompt); **x2e not adopted** (ask battery 7/10; false
   refusals on the visible-ten) — verdict + backlog in
-  `reports/x2e-verdict-2026-10-15.md`.
+  `artifacts/reports/x2e-verdict-2026-10-15.md`.
 - **Highlight trial x2f (2026-10-16):** the first student trained on the
   highlight class — 417 rows (x2d + 72 golden highlight rows + refusal
   oversample), Colab A100, loss 0.010, stop-checks sane; imported as
@@ -604,7 +619,14 @@ section that moves — update it as checkpoints land.
   of what` refused 5/5 where x2d answers (mechanism not isolated). **Not
   adopted** — x2d stays; x2f + LoRA + run log kept under
   `data/models/smallbook_x2f/`. Verdict + next-build notes:
-  `reports/highlight-finetune-2026-10-16.md`.
+  `artifacts/reports/highlight-finetune-2026-10-16.md`.
+- **Round 5 — `nekohon_q35_2b_r5` (2026-10-25):** 870 rows after dedupe (844
+  shipped + 15 audited pilot + 11 cross-book trap; 158 refusals, 18.2%), same
+  recipe as x3_2e; hard-mt **10/12**, sealed **27/30** (tie). **Not adopted** —
+  the pre-registered rule was 10/12-or-better with no trade, and a sealed tie
+  does not buy back a bench loss. Kept on disk; the trap was fixed by
+  `answer.names_absent_person`, not a row. Verdict:
+  `artifacts/reports/r5-2026-10-25.md`.
 - **Recipe / provenance:** `smallbook_x2-rebuild-2026-10-14.md`,
   `smallbook_x2-provenance-2026-10-14.md`, `smallbook_x2-model-card.md`.
 - **Rule kept:** the engine contract does not change — swap the answerer, keep
