@@ -25,7 +25,7 @@ Prerequisites: Python 3.9+, Node.js 22+, and Ollama on `127.0.0.1:11434`.
 
 ```sh
 ollama pull nomic-embed-text
-python scripts/setup_models.py --install
+python scripts/setup_models.py --install --model nekohon_q35_2b_x3_2e
 python ingest.py
 python retrieve.py
 python server.py            # engine on :8000
@@ -35,6 +35,16 @@ npm run dev                # reader on :3100
 ```
 
 Open http://localhost:3100.
+
+## Model
+
+The shipped answer model is hosted on Hugging Face:
+[`Skufu1/nekohon-q35-2b`](https://huggingface.co/Skufu1/nekohon-q35-2b)
+— Qwen3.5-2B fine-tune, Q4_K_M, 1.31 GB, sha256 `1621bcb3…`. The setup script
+downloads it, verifies the checksum, and imports it into Ollama.
+
+Only weights and a Modelfile are published there. No book text, index,
+figures, or training data is included.
 
 ## Under the hood
 
