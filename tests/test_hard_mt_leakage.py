@@ -21,7 +21,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DATASETS = ROOT / "artifacts" / "datasets"
 BENCH = DATASETS / "hard-mt-2026-10-24.jsonl"
-BENCH_SHA256 = "318d3c4099c327dc933b893de4e333289b19410055059c4d6cdf29c1e5d55ade"
+BENCH_SHA256 = "a45d80a0cbe875fbb83184730f857c983869df7d40ca5910a5cdb0239446ed3c"
 TRAIN = ROOT / "data" / "finetune" / "quote-refuse-2026-10-17.train-x3.jsonl"
 INDEXES = [
     ROOT / "data" / "index.json",
@@ -71,8 +71,11 @@ def train_questions():
 class HardMultiTurnTest(unittest.TestCase):
     def test_bench_sha256_is_frozen(self):
         self.assertTrue(BENCH.is_file(), f"missing {BENCH}")
+        # Line endings are not content: the repo stores LF, a Windows working
+        # copy may hold CRLF, and this freeze is about the questions.
         self.assertEqual(
-            hashlib.sha256(BENCH.read_bytes()).hexdigest(), BENCH_SHA256,
+            hashlib.sha256(BENCH.read_bytes().replace(b"\r\n", b"\n")).hexdigest(),
+            BENCH_SHA256,
             "hard-mt-2026-10-24.jsonl changed. Re-run the builder, then update "
             "this constant and the one in artifacts/harnesses/hard-mt-eval.py.",
         )

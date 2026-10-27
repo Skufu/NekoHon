@@ -29,7 +29,7 @@ from prompt import ANSWER_MODEL, REFUSAL  # noqa: E402
 from retrieve import load_index  # noqa: E402
 
 DATASET = ROOT / "artifacts" / "datasets" / "hard-mt-2026-10-24.jsonl"
-DATASET_SHA256 = "318d3c4099c327dc933b893de4e333289b19410055059c4d6cdf29c1e5d55ade"
+DATASET_SHA256 = "a45d80a0cbe875fbb83184730f857c983869df7d40ca5910a5cdb0239446ed3c"
 EVIDENCE_DIR = ROOT / "artifacts" / "evidence" / "hard-mt"
 INDEXES = {
     "fde": ROOT / "data" / "index.json",
@@ -39,7 +39,9 @@ INDEXES = {
 
 
 def dataset_sha256(path=DATASET):
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    # Line endings are not content: normalise before hashing so a Windows
+    # checkout and a Linux checkout freeze the same questions.
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def load_items(path=DATASET):

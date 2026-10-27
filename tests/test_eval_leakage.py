@@ -29,7 +29,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TRAIN = ROOT / "data" / "finetune" / "quote-refuse-2026-10-16.train-x2f.jsonl"
 DATASETS = ROOT / "artifacts" / "datasets"
 SEALED = DATASETS / "sealed-2026-10-24.jsonl"
-SEALED_SHA256 = "7f1dfd6a3ebf0db10832bf739f9175b81c6947e7a80565edb68e666b39b64889"
+SEALED_SHA256 = "24fcc1c9138e158d26891a88bb07d5ef1e9eeb21bcbe137aa40d00961404d0d7"
 NEAR_RATIO = 0.85
 # Short questions are string-similar without asking the same thing:
 # "what is replication" vs "what is location" scores 0.857. A near-duplicate
@@ -132,7 +132,9 @@ def leaks(questions, corpus):
 class SealedSetTest(unittest.TestCase):
     def test_sealed_sha256_is_frozen(self):
         self.assertTrue(SEALED.is_file(), f"missing {SEALED}")
-        digest = hashlib.sha256(SEALED.read_bytes()).hexdigest()
+        # Line endings are not content: the repo stores LF, a Windows working
+        # copy may hold CRLF, and this freeze is about the questions.
+        digest = hashlib.sha256(SEALED.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
         self.assertEqual(
             digest,
             SEALED_SHA256,

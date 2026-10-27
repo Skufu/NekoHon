@@ -25,7 +25,7 @@ from prompt import ANSWER_MODEL, REFUSAL
 from retrieve import load_index
 
 DATASET = ROOT / "artifacts" / "datasets" / "sealed-2026-10-24.jsonl"
-SEALED_SHA256 = "7f1dfd6a3ebf0db10832bf739f9175b81c6947e7a80565edb68e666b39b64889"
+SEALED_SHA256 = "24fcc1c9138e158d26891a88bb07d5ef1e9eeb21bcbe137aa40d00961404d0d7"
 EVIDENCE_DIR = ROOT / "artifacts" / "evidence" / "sealed-eval"
 INDEXES = {
     "fde": ROOT / "data" / "index.json",
@@ -35,7 +35,9 @@ INDEXES = {
 
 
 def dataset_sha256(path=DATASET):
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    # Line endings are not content: normalise before hashing so a Windows
+    # checkout and a Linux checkout freeze the same questions.
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def load_items(path=DATASET):

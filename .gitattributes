@@ -1,0 +1,3 @@
+# Frozen eval datasets are hashed byte-for-byte by tests/ and artifacts/harnesses/.
+# Pin them to LF so a Windows checkout cannot change the digest.
+*.jsonl text eol=lf
