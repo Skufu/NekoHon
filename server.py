@@ -7,6 +7,8 @@ and quiz use the same index.
 
 GET /chunks serves the reader's blocks. stream=1 on POST /ask answers in
 NDJSON frames: token, reset (a draft was discarded), final, error.
+GET /retrieve?q=&book_id=&k= returns the ranked passages without answering, so
+the reader can see what retrieval actually offered (dev aid, no model call).
 """
 
 import base64
@@ -27,7 +29,7 @@ from pathlib import Path
 
 mimetypes.init()
 
-from retrieve import DEFAULT_EMBEDDER, INDEX, chunks_payload, format_input, load_index
+from retrieve import DEFAULT_EMBEDDER, INDEX, chunk_title, chunks_payload, format_input, load_index, search
 from answer import ask, explain, ollama_generate_stream, quiz, respond, sanitize_history
 from figures import figure_file
 from keywords import postings
@@ -312,6 +314,42 @@ class Handler(BaseHTTPRequestHandler):
             suffix = path.suffix.lower()
             kind = MIME_TYPES.get(suffix, "application/octet-stream")
             self._send_bytes(200, path.read_bytes(), kind, send_body=send_body)
+            return
+
+        if route == "/retrieve":
+            parsed = urllib.parse.urlparse(self.path)
+            query = urllib.parse.parse_qs(parsed.query)
+            q = (query.get("q", [""])[0] or "").strip()
+            book_id = query.get("book_id", [""])[0] or DEFAULT_BOOK_ID
+            try:
+                limit = int(query.get("k", ["5"])[0])
+            except ValueError:
+                limit = 5
+            limit = max(1, min(limit, 10))
+            if not q:
+                self._send_json(400, {"error": "missing q"}, send_body=send_body)
+                return
+            index = get_book_index(book_id)
+            if not index:
+                self._send_json(500, {"error": "missing index"}, send_body=send_body)
+                return
+            hits = search(index, q, k=limit)
+            self._send_json(200, {
+                "query": q,
+                "book_id": book_id,
+                "passages": [
+                    {
+                        "chunk_id": hit["chunk_id"],
+                        "chapter": hit["chapter"],
+                        "heading": hit.get("heading", ""),
+                        "score": round(float(hit["score"]), 4),
+                        # Same strip as /chunks: a chunk's first line repeats its
+                        # heading, which travels as its own field.
+                        "text": chunk_title(hit)[1],
+                    }
+                    for hit in hits
+                ],
+            }, send_body=send_body)
             return
 
         if route == "/chunks":

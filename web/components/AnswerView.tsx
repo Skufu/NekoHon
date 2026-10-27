@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { formatChapter } from "@/lib/anchor";
 import { splitAnswer } from "@/lib/answer";
-import { engineUrl, type AnswerBody, type Citation } from "@/lib/engine";
+import { engineUrl, fetchPassages, type AnswerBody, type Citation, type PassageHit } from "@/lib/engine";
 import { useAsk } from "@/lib/store";
 
 function sameWords(a: string, b: string) {
@@ -70,6 +70,75 @@ export function splitAskAnswer(answer: string): AskAnswerSplit {
     gloss: gloss || (quote ? "" : firstLine),
     disclosure,
   };
+}
+
+function PassageRow({
+  passage,
+  rank,
+  onJump,
+}: {
+  passage: PassageHit;
+  rank: number;
+  onJump: (passage: PassageHit) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const heading = (passage.heading || "").trim();
+  const body = (passage.text || "").trim();
+  const chapter = formatChapter(passage.chapter);
+  const long = body.length > 240;
+
+  const activate = (e: React.MouseEvent) => {
+    // A drag that selects text is the reader marking a quote, not a jump.
+    if (typeof window !== "undefined" && window.getSelection()?.toString().trim()) {
+      return;
+    }
+    e.stopPropagation();
+    onJump(passage);
+  };
+
+  return (
+    <article className="passage-item" onClick={activate}>
+      <span
+        className="passage-rank"
+        title={`cosine similarity ${passage.score.toFixed(4)}`}
+        aria-hidden="true"
+      >
+        {rank}
+      </span>
+      <div className="passage-main">
+        <div className="passage-lead">
+          <span className="passage-heading">{heading}</span>
+          <button
+            type="button"
+            className="passage-jump"
+            onClick={(e) => {
+              e.stopPropagation();
+              onJump(passage);
+            }}
+            title={`Jump to this passage in ${chapter}`}
+            aria-label={`Jump to this passage in ${chapter}`}
+          >
+            {chapter}
+            <span className="passage-jump-arrow" aria-hidden="true">{"\u2192"}</span>
+          </button>
+        </div>
+        <p className={`passage-text${long && !expanded ? " is-clamped" : ""}`}>{body}</p>
+        {long ? (
+          <button
+            type="button"
+            className="passage-more"
+            onClick={(e) => {
+              e.stopPropagation();
+              setExpanded((v) => !v);
+            }}
+            aria-expanded={expanded}
+          >
+            {expanded ? "Less" : "More"}
+          </button>
+        ) : null}
+      </div>
+    </article>
+  );
 }
 
 function SourceQuoteSection({
@@ -155,14 +224,20 @@ export default function AnswerView({
   engine,
   selection = "",
   anchorQuote = "",
+  question,
 }: {
   body: AnswerBody;
   onChip?: (citation: Citation) => void;
   engine?: string;
   selection?: string;
   anchorQuote?: string;
+  question?: string;
 }) {
   const [hiddenFigures, setHiddenFigures] = useState<Record<string, boolean>>({});
+  const [passagesOpen, setPassagesOpen] = useState(false);
+  const [passages, setPassages] = useState<PassageHit[] | null>(null);
+  const [passagesError, setPassagesError] = useState(false);
+  const bookId = useAsk((s) => s.activeBookId);
   const storeShowCitation = useAsk((s) => s.showCitation);
   const handleChip = onChip ?? storeShowCitation;
   const activeEngine = engine ?? engineUrl();
@@ -171,6 +246,25 @@ export default function AnswerView({
   const split = useMemo(() => splitAnswer(body), [body]);
   const numbered = body.citations.length > 1;
   const indexOf = (citation: Citation) => body.citations.indexOf(citation) + 1;
+
+  const togglePassages = async () => {
+    const next = !passagesOpen;
+    setPassagesOpen(next);
+    if (!next || passages || passagesError || !question) return;
+    try {
+      setPassages(await fetchPassages(question, bookId, 5));
+    } catch {
+      setPassagesError(true);
+    }
+  };
+
+  const jumpToPassage = (passage: PassageHit) => {
+    handleChip({
+      chunk_id: passage.chunk_id,
+      chapter: passage.chapter,
+      quote: passage.text,
+    });
+  };
 
   return (
     <div className="answer-view">
@@ -349,6 +443,50 @@ export default function AnswerView({
           </div>
         );
       })}
+
+      {question ? (
+        <div className="passages-block">
+          <button
+            type="button"
+            className="passages-toggle"
+            onClick={(e) => {
+              e.stopPropagation();
+              void togglePassages();
+            }}
+            aria-expanded={passagesOpen}
+            title="Show the passages retrieval offered for this question"
+          >
+            <span className="passages-toggle-icon" aria-hidden="true">
+              {passagesOpen ? "\u2212" : "+"}
+            </span>
+            <span>Passages</span>
+            {passages ? (
+              <span className="passages-toggle-count">{passages.length}</span>
+            ) : null}
+          </button>
+          {passagesOpen ? (
+            <div className="passage-list">
+              {passagesError ? (
+                <p className="passage-empty">Could not load passages.</p>
+              ) : null}
+              {!passages && !passagesError ? (
+                <p className="passage-empty">Reading the index…</p>
+              ) : null}
+              {passages && !passages.length ? (
+                <p className="passage-empty">Nothing came back for this question.</p>
+              ) : null}
+              {(passages ?? []).map((passage, index) => (
+                <PassageRow
+                  key={passage.chunk_id}
+                  passage={passage}
+                  rank={index + 1}
+                  onJump={jumpToPassage}
+                />
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

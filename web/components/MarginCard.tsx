@@ -1099,6 +1099,7 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
                           <AnswerView
                             body={turnBody}
                             anchorQuote={gloss.quote}
+                            question={turn.question}
                             onChip={showCitation}
                           />
                         </div>

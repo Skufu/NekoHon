@@ -115,6 +115,27 @@ export async function fetchChunks(
   }
 }
 
+export type PassageHit = {
+  chunk_id: string;
+  chapter: string;
+  heading: string;
+  score: number;
+  text: string;
+};
+
+export async function fetchPassages(
+  question: string,
+  bookId = "fde",
+  k = 5,
+  signal?: AbortSignal
+): Promise<PassageHit[]> {
+  const params = new URLSearchParams({ q: question, book_id: bookId, k: String(k) });
+  const response = await fetch(`${engineUrl()}/retrieve?${params.toString()}`, { signal });
+  if (!response.ok) throw new Error(`engine returned ${response.status}`);
+  const data: { passages?: PassageHit[] } = await response.json();
+  return data.passages ?? [];
+}
+
 export async function importEpubBook(
   filename: string,
   dataBase64: string
