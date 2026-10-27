@@ -8,7 +8,7 @@
   "pass_rate": 0.9,
   "pin_hits": 16,
   "pin_total": 27,
-  "mean_latency_sec": 3.394,
+  "mean_latency_sec": 0.778,
   "results": [
     {
       "id": "sealed-def-01",
@@ -25,7 +25,7 @@
       "cited": [
         "ch01-058"
       ],
-      "latency_sec": 3.634,
+      "latency_sec": 0.613,
       "answer": "[Ch. 1] \"Machine learning engineers (ML engineers) overlap with data engineers and data scientists. ML engineers develop advanced ML techniques, train models, and design and maintain the infrastructure running ML processes in a scaled production environment. ML engineers often have advanced working knowledge of ML and deep learning techniques and frameworks such as PyTorch or TensorFlow.\"\nML engineers build the systems that run machine learning models in production.",
       "citations": [
         {
@@ -51,7 +51,7 @@
       "cited": [
         "ch02-062"
       ],
-      "latency_sec": 2.985,
+      "latency_sec": 0.433,
       "answer": "[Ch. 2] \"Data lineage describes the recording of an audit trail of data through its lifecycle, tracking both the systems that process the data and the upstream data it depends on.\"\nData lineage tracks how data moves through systems and its dependencies.",
       "citations": [
         {
@@ -77,8 +77,8 @@
       "cited": [
         "ch08-090"
       ],
-      "latency_sec": 3.859,
-      "answer": "[Ch. 8] \"Batch transformations run on discrete chunks of data, in contrast to streaming transformations, where data is processed continuously as it arrives\"\nBatch transformations run on discrete chunks of data, in contrast to streaming transformations, where data is processed continuously as it arrives.",
+      "latency_sec": 0.407,
+      "answer": "[Ch. 8] \"Batch transformations run on discrete chunks of data, in contrast to streaming transformations, where data is processed continuously as it arrives\"\nBatch transformations process fixed sets of data at set intervals rather than continuously.",
       "citations": [
         {
           "chunk_id": "ch08-090",
@@ -103,8 +103,8 @@
       "cited": [
         "ch07-068"
       ],
-      "latency_sec": 2.372,
-      "answer": "[Ch. 7] \"SSH tunnels are used to allow secure, isolated connections to databases\"\nSSH tunnels provide secure, private network connections to databases, protecting sensitive data from direct exposure.",
+      "latency_sec": 0.55,
+      "answer": "[Ch. 7] \"SSH tunnels are used to allow secure, isolated connections to databases\"\nSSH tunnels provide secure, isolated network connections to databases, essential for protecting sensitive data during ingestion.",
       "citations": [
         {
           "chunk_id": "ch07-068",
@@ -129,8 +129,8 @@
       "cited": [
         "ch10-008"
       ],
-      "latency_sec": 3.399,
-      "answer": "[Ch. 10] \"This is security theater, where security is done in the letter of compliance (SOC-2, ISO 27001, and related) without real commitment\"\nSecurity theater is when a company follows security rules just to pass audits, without actually keeping things safe.",
+      "latency_sec": 0.74,
+      "answer": "[Ch. 10] \"This is security theater, where security is done in the letter of compliance (SOC-2, ISO 27001, and related) without real commitment\"\nSecurity theater is when a company follows security rules just to pass audits, without actually being safe.",
       "citations": [
         {
           "chunk_id": "ch10-008",
@@ -155,7 +155,7 @@
       "cited": [
         "ch04-081"
       ],
-      "latency_sec": 2.137,
+      "latency_sec": 0.494,
       "answer": "[Ch. 4] \"Serverless works best for simple, discrete tasks and workloads\"\nServerless is ideal for straightforward, single-purpose tasks.",
       "citations": [
         {
@@ -181,7 +181,7 @@
       "cited": [
         "app01-013"
       ],
-      "latency_sec": 3.365,
+      "latency_sec": 0.723,
       "answer": "[Ch. app01] \"This technique means that we can store a data file on disk, swap it directly into program address space by using virtual memory, and begin running a query against the data without deserialization overhead\"\nApache Arrow stores data in memory to avoid slow file reading during queries.",
       "citations": [
         {
@@ -207,7 +207,7 @@
       "cited": [
         "ch01-028"
       ],
-      "latency_sec": 3.485,
+      "latency_sec": 0.899,
       "answer": "[Ch. 1] \"We often see the data team working in a bubble, not communicating with people outside their departments and getting perspectives and feedback from business stakeholders.\"\nStart by connecting with business stakeholders to validate data initiatives and prevent siloed development.",
       "citations": [
         {
@@ -233,7 +233,7 @@
         "preface01-005",
         "preface01-003"
       ],
-      "latency_sec": 1.286,
+      "latency_sec": 0.786,
       "answer": "Not in this book.",
       "citations": [
         {
@@ -269,8 +269,8 @@
       "cited": [
         "ch02-062"
       ],
-      "latency_sec": 3.456,
-      "answer": "[Ch. 2] \"Data lineage helps with error tracking, accountability, and debugging of data and the systems that process it\"\nData lineage traces how data moves through systems to find errors and hold people accountable.",
+      "latency_sec": 0.919,
+      "answer": "[Ch. 2] \"Data lineage helps with error tracking, accountability, and debugging of data and the systems that process it\"\nData lineage tracks how data moves through systems to find errors and hold people accountable.",
       "citations": [
         {
           "chunk_id": "ch02-062",
@@ -295,8 +295,8 @@
       "cited": [
         "chapter-3-073"
       ],
-      "latency_sec": 2.783,
-      "answer": "[Ch. 3] \"Group quantization partitions a weight tensor into contiguous blocks of G elements, computing a separate scale for each\"\nGroup quantization splits weight data into fixed-size chunks to apply independent scaling factors to each group.",
+      "latency_sec": 0.461,
+      "answer": "[Ch. 3] \"Group quantization partitions a weight tensor into contiguous blocks of G elements, computing a separate scale for each\"\nGroup quantization divides weight matrices into fixed-size groups to apply independent scaling factors.",
       "citations": [
         {
           "chunk_id": "chapter-3-073",
@@ -321,8 +321,8 @@
       "cited": [
         "chapter-3-079"
       ],
-      "latency_sec": 2.985,
-      "answer": "[Ch. 3] \"Figure 3.9 illustrates the packing scheme: two INT4 values share each byte, with one in the high nibble and one in the low.\"\nINT4 values are compressed into single bytes by splitting each value into high and low nibbles.",
+      "latency_sec": 0.483,
+      "answer": "[Ch. 3] \"Figure 3.9 illustrates the packing scheme: two INT4 values share each byte, with one in the high nibble and one in the low.\"\nINT4 values are compressed into single bytes by splitting each 32-bit value into two 4-bit parts.",
       "citations": [
         {
           "chunk_id": "chapter-3-079",
@@ -347,8 +347,8 @@
       "cited": [
         "chapter-1-003"
       ],
-      "latency_sec": 3.761,
-      "answer": "[Ch. 1] \"Quantization is the technique of representing neural network weights and activations using fewer bits\u2014typically moving from 16-bit or 32-bit floating point down to 8-bit or 4-bit integers.\"\nFixed-point quantization breaks down because it truncates precision, introducing rounding errors that corrupt model weights and degrade inference accuracy.",
+      "latency_sec": 0.695,
+      "answer": "[Ch. 1] \"Quantization is the technique of representing neural network weights and activations using fewer bits\u2014typically moving from 16-bit or 32-bit floating point down to 8-bit or 4-bit integers.\"\nFixed-point quantization fails because it truncates precision, introducing rounding errors that corrupt model weights and degrade inference accuracy.",
       "citations": [
         {
           "chunk_id": "chapter-1-003",
@@ -375,8 +375,8 @@
       "cited": [
         "chapter-7-067"
       ],
-      "latency_sec": 4.08,
-      "answer": "[Ch. 7] \"For a single head_dim-dimensional vector at b bits, the total storage is b\u00d7d+16 bits (indices plus FP16 norm). Table 7.2 shows the resulting compression for d=128.\"\nThe memory accounting for one quantized vector includes 128 bits of data plus 16 bits for the norm overhead.",
+      "latency_sec": 1.03,
+      "answer": "[Ch. 7] \"For a single head_dim-dimensional vector at b bits, the total storage is b\u00d7d+16 bits (indices plus FP16 norm). Table 7.2 shows the resulting compression for d=128.\"\nThe memory accounting for a single quantized vector includes the product of the bit width and the number of dimensions plus a fixed 16-bit overhead for the norm.",
       "citations": [
         {
           "chunk_id": "chapter-7-067",
@@ -401,7 +401,7 @@
       "cited": [
         "chapter-4-020"
       ],
-      "latency_sec": 5.985,
+      "latency_sec": 1.143,
       "answer": "[Ch. 4] \"Language models present a different challenge. The input space is vast, and different linguistic patterns produce different activation magnitudes. For LLMs, representative calibration means covering prompt length variation (short and long prompts activate differently; KV cache behavior changes with sequence length), linguistic diversity (formal text, casual text, code, math, and mixed languages produce distinct patterns), task diversity (summarization, QA, creative writing, and reasoning stress different model components), and structured content (code, mathematical notation, and formatted text often produce larger activations than prose).\"\nCalibration sets cover varied prompt lengths, languages, and tasks to ensure activations remain stable across different input conditions.",
       "citations": [
         {
@@ -427,7 +427,7 @@
       "cited": [
         "chapter-6-060"
       ],
-      "latency_sec": 4.2,
+      "latency_sec": 1.104,
       "answer": "[Ch. 6] \"Porting a quantized model across frameworks is an exercise in controlling divergence \u2014 knowing where default semantics, operator fusion, and calibration implementations disagree, then validating that none of those disagreements flip predictions.\"\nVerifying quantized model accuracy requires comparing predictions across different frameworks to ensure semantic equivalence.",
       "citations": [
         {
@@ -455,13 +455,13 @@
       "cited": [
         "chapter-7-010"
       ],
-      "latency_sec": 5.454,
-      "answer": "[Ch. 7] \"The core idea behind LLM.int8() (Dettmers et al., 2022): split each matrix multiplication into two paths based on activation magnitude, compute the outlier dimensions in full precision and the remaining 99.9% in INT8, then sum the results\"\nThe authors split matrix multiplications into two paths: full precision for rare outlier activations and INT8 for the vast majority of inputs.",
+      "latency_sec": 0.72,
+      "answer": "[Ch. 7] \"The method requires no calibration data, no retraining, and no model modification - it operates dynamically on each forward pass\"\nBitsandbytes handles outliers dynamically during inference without needing calibration or retraining.",
       "citations": [
         {
           "chunk_id": "chapter-7-010",
           "chapter": "7",
-          "quote": "The core idea behind LLM.int8() (Dettmers et al., 2022): split each matrix multiplication into two paths based on activation magnitude, compute the outlier dimensions in full precision and the remaining 99.9% in INT8, then sum the results"
+          "quote": "The method requires no calibration data, no retraining, and no model modification - it operates dynamically on each forward pass"
         }
       ],
       "reasons": []
@@ -481,7 +481,7 @@
       "cited": [
         "chapter-6-008"
       ],
-      "latency_sec": 4.325,
+      "latency_sec": 1.003,
       "answer": "[Ch. 6] \"Pragmatically, teams end up crossing framework boundaries for three reasons. First, the best quantization algorithm for your model may not exist in your target format - PyTorch's FX graph mode quantization offers calibration strategies that ONNX doesn't natively represent, while ONNX's operator set enables optimizations that PyTorch's eager mode can't express. Second, hardware targets force the issue: TensorRT consumes ONNX, TFLite requires TensorFlow conversion, and CoreML has its own quantization pipeline. Third, CI and validation infrastructure often lives in a different framework than the serving stack - your accuracy regression tests may run in PyTorch while the artifact shipped to production is an ONNX file.\"\nTeams cross framework boundaries because the best quantization algorithm for their model doesn't exist in their target format, hardware targets force specific format choices, and CI/validation infrastructure lives in a different framework than the serving stack.",
       "citations": [
         {
@@ -507,7 +507,7 @@
         "chapter-7-069",
         "chapter-2-003"
       ],
-      "latency_sec": 0.681,
+      "latency_sec": 0.39,
       "answer": "Not in this book.",
       "citations": [
         {
@@ -543,7 +543,7 @@
       "cited": [
         "chapter-3-073"
       ],
-      "latency_sec": 5.106,
+      "latency_sec": 1.447,
       "answer": "[Ch. 3] \"Group quantization partitions a weight tensor into contiguous blocks of G elements, computing a separate scale for each.\"\nEach block receives an independent scale factor to preserve precision across contiguous weight segments.",
       "citations": [
         {
@@ -569,8 +569,8 @@
       "cited": [
         "text00014-061"
       ],
-      "latency_sec": 2.451,
-      "answer": "[Ch. 8] \"Is it crazy to assume that a thread might be paused for so long? Unfortunately not. There are various reasons why this could happen:\"\nThreads can be paused for long times due to garbage collection, virtual machine suspension, or disk I/O operations.",
+      "latency_sec": 0.412,
+      "answer": "[Ch. 8] \"Is it crazy to assume that a thread might be paused for so long? Unfortunately not. There are various reasons why this could happen:\"\nThreads can pause for long times due to garbage collection, virtual machine suspension, or disk I/O operations.",
       "citations": [
         {
           "chunk_id": "text00014-061",
@@ -595,7 +595,7 @@
       "cited": [
         "text00018-083"
       ],
-      "latency_sec": 2.796,
+      "latency_sec": 0.423,
       "answer": "[Ch. 11] \"A tumbling window has a fixed length, and every event belongs to exactly one window\"\nA tumbling window assigns each event to a single, fixed-duration bucket.",
       "citations": [
         {
@@ -621,7 +621,7 @@
       "cited": [
         "text00009-009"
       ],
-      "latency_sec": 3.916,
+      "latency_sec": 0.801,
       "answer": "[Ch. 4] \"JSON, XML, and Binary Variants\"\nJSON treats numeric values as numbers rather than strings, which causes precision loss for large integers.",
       "citations": [
         {
@@ -647,8 +647,8 @@
       "cited": [
         "text00014-001"
       ],
-      "latency_sec": 2.461,
-      "answer": "[Ch. 8] \"A recurring theme in the last few chapters has been how systems handle things going wrong\"\nThe book focuses on how to build systems that work correctly even when things break.",
+      "latency_sec": 0.66,
+      "answer": "[Ch. 8] \"A recurring theme in the last few chapters has been how systems handle things going wrong\"\nThe book consistently focuses on how systems manage failures and edge cases.",
       "citations": [
         {
           "chunk_id": "text00014-001",
@@ -675,7 +675,7 @@
       "cited": [
         "text00008-076"
       ],
-      "latency_sec": 4.284,
+      "latency_sec": 1.17,
       "answer": "[Ch. 3] \"The log-structured school, which only permits appending to files and deleting obsolete files, but never updates a file that has been written. Bitcask, SSTables, LSM-trees, LevelDB, Cassandra, HBase, Lucene, and others belong to this group.\"\nThe two schools of storage engines for OLTP are the log-structured school, which uses append-only files, and the update-in-place school, which overwrites fixed-size pages.",
       "citations": [
         {
@@ -701,8 +701,8 @@
       "cited": [
         "text00010-005"
       ],
-      "latency_sec": 5.986,
-      "answer": "[Ch. text00010] \"While a distributed shared-nothing architecture has many advantages, it usually also incurs additional complexity for applications and sometimes limits the expressiveness of the data models you can use.\"\nA shared-nothing architecture distributes database processing across many independent servers without shared memory.",
+      "latency_sec": 1.39,
+      "answer": "[Ch. text00010] \"While a distributed shared-nothing architecture has many advantages, it usually also incurs additional complexity for applications and sometimes limits the expressiveness of the data models you can use.\"\nA shared-nothing architecture distributes database processing across many independent servers without a shared central storage.",
       "citations": [
         {
           "chunk_id": "text00010-005",
@@ -727,7 +727,7 @@
       "cited": [
         "text00011-001"
       ],
-      "latency_sec": 2.711,
+      "latency_sec": 0.693,
       "answer": "[Ch. 5] \"Replication means keeping a copy of the same data on multiple machines that are connected via a network\"\nReplication is copying data to multiple machines so the system keeps working even if one fails.",
       "citations": [
         {
@@ -753,8 +753,8 @@
       "cited": [
         "text00012-010"
       ],
-      "latency_sec": 2.231,
-      "answer": "[Ch. 6] \"A good hash function takes skewed data and makes it uniformly distributed\"\nA hash function maps data to a fixed size space to distribute it evenly.",
+      "latency_sec": 0.646,
+      "answer": "[Ch. 6] \"A good hash function takes skewed data and makes it uniformly distributed\"\nA hash function maps data to a fixed size space to distribute evenly.",
       "citations": [
         {
           "chunk_id": "text00012-010",
@@ -779,7 +779,7 @@
         "text00004-005",
         "text00004-007"
       ],
-      "latency_sec": 2.046,
+      "latency_sec": 0.969,
       "answer": "Not in this book.",
       "citations": [
         {
@@ -815,7 +815,7 @@
       "cited": [
         "text00018-083"
       ],
-      "latency_sec": 3.602,
+      "latency_sec": 1.146,
       "answer": "[Ch. 11] \"You could implement a 1-minute tumbling window by taking each event timestamp and rounding it down to the nearest minute to determine the window that it belongs to.\"\nYou can implement a 1-minute tumbling window by rounding event timestamps down to the nearest minute.",
       "citations": [
         {

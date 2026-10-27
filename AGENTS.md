@@ -200,6 +200,12 @@ not asserted. Only this list can block work.
   (gitignored scratch). Full table + path snippet: `artifacts/README.md`.
   History bullets below cite pre-migration flat names; resolve them through
   the index.
+- **Every artifact type has a home; ask the decision list.** It answers
+  "where does this new file go?" in order, including images/screenshots
+  (`probes/<capture>-YYYY-MM-DD/` for a one-off series, `evidence/<family>/`
+  once a doc names it), notebooks and HTML reports (`reports/`), HTML
+  fixtures (`validate/`), and error/stdout logs (`evidence/<family>/` when
+  named, otherwise `runs/`/`scratch/`). Nothing lands at the repo root.
 - New docs and benchmark outputs carry their date in the name:
   `family-YYYY-MM-DD[-label].ext`.
 - One live twin per family: the latest run plus any run a doc names;

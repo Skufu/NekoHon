@@ -306,6 +306,107 @@ def simple_words(question):
     return any(cue in folded for cue in SIMPLE_CUES)
 
 
+# Opt-in experiments (2026-10-25). Off by default so the shipped path is
+# unchanged until a before/after says which rule earns its place.
+DEF_PREF = os.environ.get("DEF_PREF", "") not in ("", "0")
+MULTI_QUOTE = os.environ.get("MULTI_QUOTE", "") not in ("", "0")
+MULTI_MARGIN = float(os.environ.get("MULTI_MARGIN", "0.02"))
+DEF_QUESTION_RE = re.compile(
+    r"^\s*(?:what\s+(?:is|are)|define|definition\s+of)\s+(?:an?\s+|the\s+)?(.+?)\s*[?.!]*$",
+    re.I)
+DEF_VERB_RE = re.compile(r"\b(is|are|refers\s+to|means|stands\s+for)\b", re.I)
+
+
+def _definition_tokens(question):
+    match = DEF_QUESTION_RE.match(question or "")
+    if not match:
+        return []
+    return [w for w in re.findall(r"[a-z0-9]+", match.group(1).lower()) if len(w) > 2]
+
+
+def definition_passage(passage, tokens):
+    """True when the passage defines the phrase, not merely mentions it."""
+    if not tokens:
+        return False
+    text = (passage.get("text") or "").lower()
+    if not all(token in text for token in tokens):
+        return False
+    term = r"\s+".join(re.escape(token) for token in tokens)
+    return bool(re.search(term + r"[^.]{0,60}" + DEF_VERB_RE.pattern, text, re.I))
+
+
+def prefer_definitions(question, passages):
+    """Rank a defining passage above one that only mentions the term.
+
+    Measured reason (2026-10-25): "what is an api" on ddia returns a passage
+    that mentions APIs inside a discussion of human error, and the gloss then
+    overstates the mention into a definition. Only the front is reordered, so
+    the model still sees the same five passages.
+    """
+    tokens = _definition_tokens(question)
+    if not tokens or not passages:
+        return passages
+    if definition_passage(passages[0], tokens):
+        return passages
+    for index, passage in enumerate(passages[1:], 1):
+        if definition_passage(passage, tokens):
+            return [passage] + passages[:index] + passages[index + 1:]
+    return passages
+
+
+def add_second_quote(body, passages, question):
+    """When the top two passages are close, quote the runner-up as well.
+
+    The margin is measured, not guessed: on ten standard asks the top1-top2 gap
+    has a median of 0.031 and four of ten sit under 0.02 (2026-10-25). The
+    second quote is inserted under the first, before the gloss, because the
+    serving format is "one quote per passage" then one gloss line.
+    """
+    if body.get("refused") or len(passages) < 2:
+        return body
+    definition_tokens = _definition_tokens(question)
+    if definition_tokens and any(definition_passage(passage, definition_tokens)
+                                for passage in passages):
+        # A defining passage is already in front: a second quote would repeat
+        # the definition, not disambiguate it (measured 2026-10-25 on six
+        # definition questions: 4 of 4 triggers were redundant).
+        return body
+    first, second = passages[0].get("score"), passages[1].get("score")
+    if first is None or second is None or float(first) - float(second) > MULTI_MARGIN:
+        return body
+    answer = body.get("answer") or ""
+    lines = answer.split("\n")
+    head = next((i for i, line in enumerate(lines) if line.strip().startswith("[Ch.")), None)
+    if head is None:
+        return body
+    cited = {c.get("chunk_id") for c in body.get("citations") or []}
+    tokens = [w for w in re.findall(r"[a-z0-9]+", (question or "").lower())
+              if len(w) > 3 and w not in STOPWORDS]
+    if not tokens:
+        return body
+    for passage in passages[1:]:
+        if passage.get("chunk_id") in cited:
+            continue
+        text = passage.get("text") or ""
+        if not any(token in text.lower() for token in tokens[:2]):
+            continue
+        sentence = next(
+            (part.strip() for part in re.split(r"(?<=[.!?])\s+", text)
+             if len(_without_heading(part.strip(), passage)) >= 40
+             and any(token in part.lower() for token in tokens[:2])),
+            "")
+        if not sentence:
+            continue
+        sentence = _without_heading(sentence, passage)
+        chapter = passage.get("chapter")
+        lines.insert(head + 1, f'[Ch. {chapter}] "{sentence}"')
+        body["answer"] = "\n".join(lines)
+        body.setdefault("citations", []).append(
+            {"chunk_id": passage.get("chunk_id"), "chapter": chapter, "quote": sentence})
+        break
+    return body
+
+
 DEFAULT_BOOK_ID = "".join(["f", "d", "e"])
 
 
@@ -2446,6 +2547,8 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
 
     if effective_pin or end_chunk_id:
         passages = _pin_chunk(index, passages, effective_pin, end_chunk_id=end_chunk_id)
+    if DEF_PREF:
+        passages = prefer_definitions(question, passages)
     context["passages"] = passages
     return context
 
@@ -2796,18 +2899,31 @@ def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_
     query_entities = _extract_query_entities(followup_question, chunk_obj.get("heading", ""))
 
     norm_prior = re.sub(r"[\s\"'“”]+", " ", prior_quote or "").strip().lower()
+    example_q = bool(_EXAMPLES_QUERY_RE.search(q_low))
 
     scored_cands = []
     for c in pool:
         c_text = c.get("text") or ""
         c_head = c.get("heading") or ""
         sents = _candidate_sentences(c_text, c_head)
+        prior_idx = None
+        if example_q and norm_prior:
+            for i, s in enumerate(sents):
+                norm_s = re.sub(r"[\s\"'“”]+", " ", s.strip()).strip().lower()
+                if norm_s and (norm_s == norm_prior or norm_s in norm_prior
+                               or (len(norm_prior) >= 40 and norm_prior in norm_s)):
+                    prior_idx = i
+                    break
         for i, s in enumerate(sents):
             s_clean = s.strip()
             if len(s_clean) < 30:
                 continue
             norm_s = re.sub(r"[\s\"'“”]+", " ", s_clean).strip().lower()
             if norm_prior and (norm_s == norm_prior or norm_s in norm_prior or (len(norm_prior) >= 40 and norm_prior in norm_s)):
+                continue
+            # An example question continues forward: a sentence before the cited
+            # quote is a different example, not the next one.
+            if example_q and prior_idx is not None and i < prior_idx:
                 continue
             if META_TRANSITION_RE.search(s_clean):
                 continue
@@ -3444,6 +3560,10 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
     else:
         body["followups"] = []
 
+    # After the gloss pass: it rebuilds the answer from the first quote and
+    # would drop a runner-up quote inserted earlier (measured 2026-10-25).
+    if MULTI_QUOTE:
+        body = add_second_quote(body, passages, resolved_question)
     return _patch_figures_src(body, index)
 
 

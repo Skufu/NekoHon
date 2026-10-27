@@ -1,0 +1,65 @@
+[
+  {
+    "id": "multi_turn_06",
+    "old_pattern": "new record|effective end date|active",
+    "new_pattern": "new record is inserted when an existing record changes",
+    "own_answer_matches": true,
+    "other_answers_matching": 0
+  },
+  {
+    "id": "varied_comp_06",
+    "old_pattern": "ELT|ETL|load|transform",
+    "new_pattern": "external transformation system",
+    "own_answer_matches": true,
+    "other_answers_matching": 0
+  },
+  {
+    "id": "varied_comp_07",
+    "old_pattern": "Lambda|Kappa|batch|stream",
+    "new_pattern": "Lambda architecture has its share of challenges and criticisms",
+    "own_answer_matches": true,
+    "other_answers_matching": 0
+  },
+  {
+    "id": "varied_comp_08",
+    "old_pattern": "batch|streaming|latency|interval",
+    "new_pattern": "Batch ingestion is simply a specialized and convenient way",
+    "own_answer_matches": true,
+    "other_answers_matching": 0
+  },
+  {
+    "id": "varied_comp_09",
+    "old_pattern": "data warehouse|data lake|structured|unstructured|schema",
+    "new_pattern": "convergence between data lakes and data warehouses",
+    "own_answer_matches": true,
+    "other_answers_matching": 0
+  },
+  {
+    "id": "varied_comp_10",
+    "old_pattern": "OLTP|OLAP|transaction|analytic",
+    "new_pattern": "inefficient at handling lookups of individual records",
+    "own_answer_matches": true,
+    "other_answers_matching": 0
+  },
+  {
+    "id": "alphanumeric_01",
+    "old_pattern": "object storage|Amazon|cloud",
+    "new_pattern": "mount an S3 bucket as local storage",
+    "own_answer_matches": true,
+    "other_answers_matching": 0
+  },
+  {
+    "id": "alphanumeric_06",
+    "old_pattern": "effective end date|new record|active",
+    "new_pattern": "triggered his initial record to reflect an effective end date",
+    "own_answer_matches": true,
+    "other_answers_matching": 0
+  },
+  {
+    "id": "alphanumeric_08",
+    "old_pattern": "SLA|SLO|commitments|trust|available",
+    "new_pattern": "establishing an SLA with upstream providers",
+    "own_answer_matches": true,
+    "other_answers_matching": 0
+  }
+]

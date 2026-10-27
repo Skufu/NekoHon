@@ -20,18 +20,44 @@ move without a same-commit code fix breaks the battery.
 
 | Kind | Zone | Naming | Example |
 | --- | --- | --- | --- |
+| Gate + index (the only authored top-level files) | `artifacts/` | stable names | `artifacts/prune.py` |
 | Stable runners (reused across sessions) | `artifacts/harnesses/` | stable undated name | `artifacts/harnesses/eval.py` |
 | One-off probes | `artifacts/probes/` | `probe-*-YYYY-MM-DD.py`, outputs beside it | `artifacts/probes/probe-foo-2026-10-15.py` |
-| Datasets, question lists | `artifacts/datasets/` | `family-YYYY-MM-DD[-label].json` | `artifacts/datasets/eval-set-2026-10-15.json` |
-| Findings, decisions, plans | `artifacts/reports/` | `family-YYYY-MM-DD[-label].md` | `artifacts/reports/answer-mode-2026-10-15.md` |
-| Run outputs (json/log/txt) | `artifacts/evidence/<family>/` | dated outputs, one live twin per family (rule 3) | `artifacts/evidence/eval-plain/eval-plain-2026-10-15-v7.json` |
-| Scratch | `artifacts/runs/` or `artifacts/scratch/` | anything; gitignored, never indexed | `artifacts/runs/tmp-2026-10-15.log` |
+| One-off capture series (screenshots, traces) | `artifacts/probes/<capture>-YYYY-MM-DD/` | `family-YYYY-MM-DD[-label].ext`, zero-padded sequence | `artifacts/probes/ui-iterations-2026-10-21/ui-iterations-2026-10-21-iter01.png` |
+| Datasets, question lists | `artifacts/datasets/` | `family-YYYY-MM-DD[-label].json[l]` | `artifacts/datasets/eval-set-2026-10-15.json` |
+| Findings, decisions, dated reports | `artifacts/reports/` | `family-YYYY-MM-DD[-label].md` | `artifacts/reports/answer-mode-2026-10-15.md` |
+| Notebooks (training, capture runs) | `artifacts/reports/` | `family-YYYY-MM-DD[-label].ipynb` | `artifacts/reports/finetune-qwen35-2b-2026-10-24.ipynb` |
+| HTML fixtures and static reports | `artifacts/validate/` (fixture) or `artifacts/reports/` (report) | `*-fixture.html` / `family-YYYY-MM-DD[-label].html` | `artifacts/validate/refusal-fixture.html` |
+| Run outputs (json/log/txt, named images), including error and stdout logs | `artifacts/evidence/<family>/` | `family-YYYY-MM-DD[-label].ext`, one live twin per family (rule 3) | `artifacts/evidence/eval-plain/eval-plain-2026-10-15-v7.json` |
+| Plans (forward-looking, with status) | `artifacts/plans/` | dated `track-YYYY-MM-DD.md`; living tracks keep a stable name | `artifacts/plans/reranking-odp-2026-10-23.md` |
+| Colab / remote runners | `artifacts/colab/` | `family-YYYY-MM-DD.py`; stable name once reused | `artifacts/colab/install_train_deps.py` |
+| Live validation probes + fixtures | `artifacts/validate/` | `probe-*-YYYY-MM-DD.py`, `*-fixture.html`, `live-*.json` | `artifacts/validate/thread-probe.py` |
+| Runs (live server + start scripts) | `artifacts/runs/` | anything; gitignored, never indexed | `artifacts/runs/start-engine.bat` |
+| Scratch | `artifacts/scratch/` | anything; gitignored, never indexed | `artifacts/scratch/screenshots/` |
+| Python bytecode cache | `artifacts/**/__pycache__/` | generated, never authored or indexed | `artifacts/__pycache__/` |
 
 New scripts resolve paths as `ROOT / "artifacts" / "<zone>" / <name>`
 (not bare `artifacts/`), and any `sys.path` insert points at the zone dir
 (e.g. `ROOT / "artifacts" / "harnesses"`). `prune.py` understands zone
 paths; index rows cover them by full relative path
 (e.g. `probes/probe-foo-2026-10-15.py`).
+
+## Decision list — where does this new file go?
+
+Ask in this order; stop at the first yes.
+
+1. Is it throwaway (server output, dump, browser profile)? → `artifacts/runs/` or `artifacts/scratch/`; do not index it.
+2. Is it reusable code another session will call? → `artifacts/harnesses/` with a stable undated name.
+3. Is it a one-off probe script? → `artifacts/probes/probe-*-YYYY-MM-DD.py`; write its outputs beside it under the same family name.
+4. Is it a capture series worth keeping (screenshots, traces)? → `artifacts/probes/<capture>-YYYY-MM-DD/`, one dated name per file, one index row for the series.
+5. Is it a Colab or remote-training runner? → `artifacts/colab/`, dated unless it is a stable installed dependency.
+6. Is it a dataset or question list? → `artifacts/datasets/family-YYYY-MM-DD[-label].json[l]`.
+7. Is it a finding, verdict, or dated record? → `artifacts/reports/family-YYYY-MM-DD[-label].md` (`.ipynb` for a run notebook, `.html` for a static report).
+8. Is it a forward-looking plan with a status? → `artifacts/plans/track-YYYY-MM-DD.md`; a living track keeps its stable name.
+9. Is it a live-contract validation probe or fixture? → `artifacts/validate/`.
+10. Is it a run output a doc or commit names (json, log, txt, image)? → `artifacts/evidence/<family>/family-YYYY-MM-DD[-label].ext`, one live twin.
+11. Did no doc or commit name it? → leave it in `runs/`/`scratch/`; promotion is the exception, not the default.
+12. Add the index row for every promoted file or family before you finish.
 
 ## Rules
 
@@ -88,7 +114,7 @@ Dates are first-commit dates (`2026-10-11/12/13`). Paths are relative to `artifa
 | `probes/design-critic-2026-10-21.py` + `probes/design-critic-prompt-2026-10-21.txt` | design critic: sends a screenshot plus a frozen design brief to a model and writes the verdict to a file (used for the 2026-10-21 library redesign) |
 | `prune.py` | this directory's planner (rule 6) |
 | `harnesses/guard-audit.py` | guard-word audit (json next to it) |
-| `harnesses/hard-bench.py` | 60-item un-saturated hard benchmark harness |
+| `harnesses/hard-bench.py` | 60-item un-saturated hard benchmark harness; schema 2 (2026-10-27) splits pure grading from model calls, grades the gloss not the quote, runs five fabricated negative controls on every invocation, reports a 95% CI plus the legacy number, and exits 2 with `valid: false` when a control passes or a category has no verified items |
 | `harnesses/crossbook-evil-eval.py` | cross-book adversarial multi-turn evaluation harness (30 scenarios, 66 requests across fde, quantization, ddia) |
 | `probes/build-finetune-data-2026-10-13.py`, `probes/build-finetune-x2g-2026-10-16.py`, `probes/build-finetune-x3-2026-10-17.py`, `probes/build-highlight-golden-2026-10-16.py`, `probes/eval_x2g_gates.py`, `probes/run_step2_battery_comparison.py`, `probes/probe-highlight-2026-10-16.py`, `probes/probe-answer-shape-2026-10-16.py`, `probes/probe-query-limit-2026-10-15.py`, `probes/probe-find-scenario-chunks-2026-10-18.py`, `probes/probe-inspect-chunks-2026-10-18.py`, `probes/probe-multibook-verify-2026-10-18.py`, `probes/probe-verify-scenario-chunks-2026-10-18.py` | quote-or-refuse SFT builders, highlight builders, multi-book probes, and evaluation probes |
 | `probes/probe-eval-and-rank-2026-10-23.py` | eval audit: key_fact selectivity (18/35 patterns match another answer) + dense gold rank of the 37 gradeable hard-bench labels |
@@ -97,6 +123,13 @@ Dates are first-commit dates (`2026-10-11/12/13`). Paths are relative to `artifa
 | `probes/probe-prf-2026-10-23.py`, `probes/probe-hier-2026-10-23.py`, `probes/probe-rewrite-2026-10-23.py`, `probes/probe-embedder-2026-10-23.py`, `probes/probe-miss-audit-2026-10-23.py` | wide-net retrieval experiments: pseudo-relevance feedback (no @5 gain), chapter routing (worse, 9/33 top-1), query rewriting with `nekohon_x3` (worse, 8/33), embedder swap (blocked: gemma too slow on CPU), and the hand audit of the eight worst misses |
 | `probes/probe-sentence-rerank-2026-10-23.py`, `probes/probe-bge-2026-10-23.py`, `probes/probe-rerank-bge-2026-10-23.py` | reranking bake-off: sentence-level re-scoring (+1 at 2.30 s/question), cross-encoder cost on CPU (12 s/20 pairs) and GPU (0.20 s), and the recall comparison (24 -> 26/33 with the dense #1 kept; gate not met) |
 | `probes/probe-gemma-rerank-2026-10-23.py`, `probes/probe-strict-keyfact-2026-10-23.py`, `probes/reembed-gemma-2026-10-23.py` | gemma first stage + cross-encoder second stage (24 -> 28/33, fold 2 regresses 9 -> 7); strict key_fact audit of the 60-item bench (35 -> 26 of 35 items pass when the longest alternative is required); the re-embed round trip (gemma, then back to nomic) and the gate numbers that forced the revert |
+| `probes/probe-followup-example-2026-10-26.py`, `probes/probe-followup-quality-2026-10-26.py` | repro of the "what is an api" pill (chunk-level "for example" emits an example pill after the example was already quoted; the advance scorer ties both example sentences at 37, then the earlier outage quote wins) and the post-fix rating over four definition/example shapes: silent-when-already-shown, forward-only advance, pill-still-offered for definitions, and "such as" suppression (16/16 checks) |
+
+### Capture records
+
+| File | What it is |
+| --- | --- |
+| `probes/ui-iterations-2026-10-21/` (37 files) | baseline + iterations 01-36, UI screenshots captured 2026-10-21; no doc cites them yet, kept as the visual iteration record |
 
 ### Datasets
 
@@ -130,7 +163,9 @@ Dates are first-commit dates (`2026-10-11/12/13`). Paths are relative to `artifa
 | `reports/test-fairness-2026-10-24.md` | content-based citation rule, the two re-pins with passage evidence, before/after for both models, what stays behavioural | LIVE (2026-10-24) |
 | `datasets/battery-pins.json`, `harnesses/fair_cite.py` | pin table with terms and reasons + the shared fair-citation judge; `tests/test_harness_fairness.py` guards it | LIVE (2026-10-24) |
 | `datasets/sealed-2026-10-24.jsonl`, `harnesses/sealed-eval.py`, `probes/leakage-audit-2026-10-24.py`, `evidence/sealed-eval/`, `evidence/leakage-audit/` | sealed 30-item hold-out (0/27 gold chunks seen in training, frozen sha256), content-scored; leakage audit of every eval surface | LIVE (2026-10-24) |
-| `probes/perf-pipeline-2026-10-24.py`, `evidence/perf/perf-pipeline-*.json`, `evidence/perf/perf-http-modes-*.json` | retrieval vs generation per mode (ask / answer / explain / quiz) and resident memory, both models | LIVE (2026-10-24) |
+| `probes/perf-pipeline-2026-10-24.py`, `evidence/perf/perf-pipeline-*.json`, `evidence/perf/perf-http-modes-*.json` | retrieval vs generation per mode (ask / answer / explain / quiz) and resident memory, both models | kept (2026-10-24; latency superseded by the 2026-10-26 perf probe) |
+| `reports/perf-2026-10-26.md`, `probes/perf-probe-2026-10-26.py`, `evidence/perf/perf-2026-10-26.json`, gate evidence under `evidence/{sealed-eval,hard-mt,hard-bench}/` | performance report on the shipping default (`nekohon_q35_2b_x3_2e`): ask p50 379 ms / p90 543 ms, pre-LLM p50 41 ms, TTFT 86-113 ms, 132.5-145.9 tok/s, 1.38 GB VRAM; re-measured unit-dot 2.75x, postings 103 ms -> 0.000097 ms, gzip 71.9-74.2%; gates 460/460 tests, 12/12 hard MT, 59/60 hard bench, 27/30 sealed, 38/57 wide-net recall@5 | LIVE (2026-10-26); the 59/60 hard-bench figure is the legacy rule, superseded by the 2026-10-27 row |
+| `reports/hard-bench-credibility-2026-10-27.md`, `evidence/hard-bench/hard-bench-2026-10-27.model-nekohon_q35_2b_x3_2e.{json,log}`, `harnesses/hard-bench.py` | hard bench credibility pass: the 98.3% (59/60) was scored by rules a dummy could pass (quote line satisfied 27/35 key facts, 14/35 matched the question, 7 items were code templates, `explain` asserted its own input, 8-chunk unseen book vs `TOP_K=10`). New grader is gloss-only, grounded, control-checked: **44/53 (83.0%, 95% CI 71-91%)** on the same model, 5/5 negative controls rejected, 7 template items excluded as unverified; found two rewritten citation quotes (`CDC`, `TLS 1.3`) | LIVE (2026-10-27) |
 | `reports/answer-model-bakeoff-plan.md`, `reports/answer-model-bakeoff-results.md`, `reports/answer-model-decision.md`, `reports/answer-model-search.md`, `reports/ollama-quote-model-table.md` | model choice (qwen2.5:7b stays); `evidence/bakeoff/` survivors: `evidence/bakeoff/bakeoff-granite4.1-3b-v2.{json,log}`, `evidence/bakeoff/bakeoff-side-asks.txt`, `evidence/bakeoff/bakeoff-side-asks-v2.txt`, `evidence/bakeoff/bakeoff-qwen3-4b-instruct-retries.txt`, `evidence/bakeoff/bakeoff-qwen3-4b-instruct-cru-retries-v2.txt` | kept (2026-10-11/12) |
 | `evidence/step2-battery/step2-battery.{json,log}`, `evidence/step2-battery/step2-battery-answer.{json,log}`, `evidence/step2-battery/step2-battery-flaked.{json,log}` | latest battery runs + preserved cold-start flake | LIVE |
 | `evidence/eval-v1/eval-v1*.{json,log}` | labeled-set baseline + granite/Muse replays (`eval-v1.json` is `probe-judge-scale.py` input) | kept |

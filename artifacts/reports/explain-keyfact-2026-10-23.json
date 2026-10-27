@@ -1,0 +1,62 @@
+[
+  {
+    "id": "explain_01",
+    "chunk_id": "ch04-050",
+    "key_fact": "(?i)buy\\w*\\s+tires|tires\\s+from\\s+scratch|having\\s+someone\\s+install",
+    "evidence_phrase": "probably buying tires and having someone install them"
+  },
+  {
+    "id": "explain_02",
+    "chunk_id": "ch08-085",
+    "key_fact": "(?i)kimball|tricky\\s*,?\\s*if\\s+not\\s+impossible|consensus\\s+approach",
+    "evidence_phrase": "translating batch techniques like Kimball to a streaming paradigm is tricky, if not impossible"
+  },
+  {
+    "id": "explain_03",
+    "chunk_id": "ch04-050",
+    "key_fact": "(?i)lean\\s+toward\\s+type\\s+A|open\\s+source\\s+frameworks|suitable\\s+managed\\s+or\\s+proprietary",
+    "evidence_phrase": "buying a suitable managed or proprietary solution"
+  },
+  {
+    "id": "explain_04",
+    "chunk_id": "ch06-011",
+    "key_fact": "(?i)loses\\s+data\\s+in\\s+less\\s+than\\s+a\\s+second|1,000\\s+times\\s+faster",
+    "evidence_phrase": "RAM loses data in less than a second when it is unpowered"
+  },
+  {
+    "id": "explain_05",
+    "chunk_id": "ch07-061",
+    "key_fact": "(?i)outsourc\\w*.{0,60}connector|connector.{0,120}outsourc|hundreds\\s+of\\s+prebuilt\\s+connector",
+    "evidence_phrase": "Instead of creating and managing a data connector, you outsource this service to a third party"
+  },
+  {
+    "id": "explain_06",
+    "chunk_id": "ch09-003",
+    "key_fact": "(?i)warren\\s+buffett|root\\s+consideration|silent\\s+death\\s+knell",
+    "evidence_phrase": "trust is the root consideration in serving data"
+  },
+  {
+    "id": "explain_07",
+    "chunk_id": "ch05-019",
+    "key_fact": "(?i)storing\\s+application\\s+state|created\\s+before\\s+being\\s+used|basic\\s+tenet",
+    "evidence_phrase": "A basic tenet of CRUD is that data must be created before being used"
+  },
+  {
+    "id": "explain_08",
+    "chunk_id": "ch08-051",
+    "key_fact": "(?i)remove.{0,15}redundancy|referential\\s+integrity|edgar\\s+codd|repeat\\s+yourself",
+    "evidence_phrase": "remove the redundancy of data within a database and ensure referential integrity"
+  },
+  {
+    "id": "explain_09",
+    "chunk_id": "ch02-002",
+    "key_fact": "(?i)five\\s+stages|generation[\\s\\S]{0,80}ingestion|transform\\w+[\\s\\S]{0,40}serving",
+    "evidence_phrase": "We divide the data engineering lifecycle into five stages"
+  },
+  {
+    "id": "explain_10",
+    "chunk_id": "ch03-099",
+    "key_fact": "(?i)domain-driven\\s+design|dehghani|decentraliz|data\\s+as\\s+a\\s+product",
+    "evidence_phrase": "taking the concepts of domain-driven design (commonly used in software architectures) and applying them to data architecture"
+  }
+]

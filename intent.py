@@ -16,6 +16,8 @@ INTENT_VAGUE_FRAGMENT = "VAGUE_FRAGMENT"
 INTENT_MULTI_SENTENCE = "MULTI_SENTENCE_PASSAGE"
 INTENT_AUTHOR_QUESTION = "AUTHOR_QUESTION"
 
+EXAMPLE_MARKERS = ("for instance", "for example", "consider", "such as", "examples of")
+
 COPULA_AUX_PREP = frozenset({
     "is", "are", "was", "were", "be", "been",
     "has", "have", "had",
@@ -302,6 +304,12 @@ def _is_redundant_followup(cand_q: str, clean_q: str, clean_sel: str = "") -> bo
         return False
     overlap = len(c_stems & q_stems) / len(c_stems)
     return overlap >= 0.6
+
+
+def _has_example_marker(text: str) -> bool:
+    """True when the text already contains an example or use-case marker."""
+    low = (text or "").lower()
+    return any(marker in low for marker in EXAMPLE_MARKERS)
 
 
 def _is_example_or_tool_mention(term: str, text: str) -> bool:
@@ -644,7 +652,7 @@ def compute_dynamic_followups(
     if not slot3:
         if "everyday use case" in chunk_low or "use cases" in chunk_low or "use case" in chunk_low:
             slot3 = "What are the main use cases?"
-        elif any(marker in chunk_low for marker in ("for instance", "for example", "consider", "such as", "examples of")):
+        elif any(marker in chunk_low for marker in EXAMPLE_MARKERS) and not _has_example_marker(lead_context):
             slot3 = "What example do the authors give?"
 
     if not slot3 and neighbors:

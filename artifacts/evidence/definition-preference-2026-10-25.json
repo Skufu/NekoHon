@@ -1,0 +1,142 @@
+[
+ {
+  "book": "fde",
+  "question": "what is an api",
+  "tokens": [
+   "api"
+  ],
+  "before_rank": 1,
+  "after_rank": 1,
+  "before_top": "ch05-006",
+  "after_top": "ch05-006"
+ },
+ {
+  "book": "fde",
+  "question": "what is a schema",
+  "tokens": [
+   "schema"
+  ],
+  "before_rank": 1,
+  "after_rank": 1,
+  "before_top": "ch06-086",
+  "after_top": "ch06-086"
+ },
+ {
+  "book": "fde",
+  "question": "what is change data capture",
+  "tokens": [
+   "change",
+   "data",
+   "capture"
+  ],
+  "before_rank": 1,
+  "after_rank": 1,
+  "before_top": "ch07-051",
+  "after_top": "ch07-051"
+ },
+ {
+  "book": "fde",
+  "question": "what is data ingestion",
+  "tokens": [
+   "data",
+   "ingestion"
+  ],
+  "before_rank": 1,
+  "after_rank": 1,
+  "before_top": "ch07-002",
+  "after_top": "ch07-002"
+ },
+ {
+  "book": "fde",
+  "question": "what is data management",
+  "tokens": [
+   "data",
+   "management"
+  ],
+  "before_rank": 1,
+  "after_rank": 1,
+  "before_top": "ch02-046",
+  "after_top": "ch02-046"
+ },
+ {
+  "book": "fde",
+  "question": "what is a watermark",
+  "tokens": [
+   "watermark"
+  ],
+  "before_rank": 1,
+  "after_rank": 1,
+  "before_top": "ch08-039",
+  "after_top": "ch08-039"
+ },
+ {
+  "book": "fde",
+  "question": "what is reverse ETL",
+  "tokens": [
+   "reverse",
+   "etl"
+  ],
+  "before_rank": 1,
+  "after_rank": 1,
+  "before_top": "ch09-055",
+  "after_top": "ch09-055"
+ },
+ {
+  "book": "fde",
+  "question": "what is data architecture",
+  "tokens": [
+   "data",
+   "architecture"
+  ],
+  "before_rank": 1,
+  "after_rank": 1,
+  "before_top": "ch03-016",
+  "after_top": "ch03-016"
+ },
+ {
+  "book": "quantization",
+  "question": "what is per-tensor quantization",
+  "tokens": [
+   "per",
+   "tensor",
+   "quantization"
+  ],
+  "before_rank": null,
+  "after_rank": null,
+  "before_top": "chapter-2-033",
+  "after_top": "chapter-2-033"
+ },
+ {
+  "book": "ddia",
+  "question": "what is a transaction",
+  "tokens": [
+   "transaction"
+  ],
+  "before_rank": 1,
+  "after_rank": 1,
+  "before_top": "text00013-108",
+  "after_top": "text00013-108"
+ },
+ {
+  "book": "ddia",
+  "question": "what is replication",
+  "tokens": [
+   "replication"
+  ],
+  "before_rank": 1,
+  "after_rank": 1,
+  "before_top": "text00011-001",
+  "after_top": "text00011-001"
+ },
+ {
+  "book": "ddia",
+  "question": "what is an api",
+  "tokens": [
+   "api"
+  ],
+  "before_rank": 3,
+  "after_rank": 1,
+  "before_top": "text00009-051",
+  "after_top": "text00009-044"
+ }
+]

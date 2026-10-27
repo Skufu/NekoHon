@@ -1,0 +1,256 @@
+{
+  "date": "2026-10-24",
+  "model": "nekohon_q35_2b_x3_2e",
+  "dataset": "hard-mt-2026-10-24.jsonl",
+  "dataset_sha256": "318d3c4099c327dc933b893de4e333289b19410055059c4d6cdf29c1e5d55ade",
+  "total_items": 12,
+  "total_passed": 12,
+  "pass_rate": 1.0,
+  "by_category": {
+    "elision": [
+      3,
+      3
+    ],
+    "pronoun": [
+      3,
+      3
+    ],
+    "distraction": [
+      3,
+      3
+    ],
+    "trap": [
+      3,
+      3
+    ]
+  },
+  "mean_latency_sec": 0.881,
+  "results": [
+    {
+      "id": "mt-elision-01",
+      "category": "elision",
+      "book_id": "fde",
+      "question": "Put that in plainer words.",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "ch02-037",
+      "cited": [
+        "ch02-037"
+      ],
+      "gold_chunks": [
+        "ch02-037"
+      ],
+      "latency_sec": 1.644,
+      "answer": "[Ch. 2] \"The responsibilities of data engineers overlap significantly in analytics and ML, and the boundaries between data engineering, ML engineering, and analytics engineering can be fuzzy. For example, a data engineer may need to support Spark clusters that facilitate analytics pipelines and ML model training. They may also need to provide a system that orchestrates tasks across teams and support metadata and cataloging systems that track data history and lineage. Setting these domains of responsibility and the relevant reporting structures is a critical organizational decision.\"\nData engineers now handle both data preparation and model support, blurring traditional job lines.",
+      "reasons": []
+    },
+    {
+      "id": "mt-elision-02",
+      "category": "elision",
+      "book_id": "quantization",
+      "question": "Make that shorter.",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "chapter-2-033",
+      "cited": [
+        "chapter-2-033"
+      ],
+      "gold_chunks": [
+        "chapter-2-033"
+      ],
+      "latency_sec": 1.397,
+      "answer": "[Ch. 2] \"Per-tensor quantization calculates a single pair of (S,Z) for the entire tensor.\"\nPer-tensor quantization applies one scale and zero point to the entire tensor at once.",
+      "reasons": []
+    },
+    {
+      "id": "mt-elision-03",
+      "category": "elision",
+      "book_id": "ddia",
+      "question": "Give me the gist.",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "text00013-010",
+      "cited": [
+        "text00013-010"
+      ],
+      "gold_chunks": [
+        "text00013-010"
+      ],
+      "latency_sec": 1.688,
+      "answer": "[Ch. 7] \"In the context of ACID, consistency refers to an application-specific notion of the database being in a \u201cgood state\"\nConsistency means the data follows rules set by the app, not a general database guarantee.",
+      "reasons": []
+    },
+    {
+      "id": "mt-pronoun-01",
+      "category": "pronoun",
+      "book_id": "quantization",
+      "question": "Why is it risky?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "chapter-2-033",
+      "cited": [
+        "chapter-2-033"
+      ],
+      "gold_chunks": [
+        "chapter-2-033"
+      ],
+      "latency_sec": 1.728,
+      "answer": "[Ch. 2] \"But it is highly susceptible to outliers\"\nPer-tensor quantization applies a single scale factor uniformly across all elements, making it vulnerable to outliers that distort the overall range.\nRead as: \"Why is per-tensor quantization risk?\"",
+      "reasons": []
+    },
+    {
+      "id": "mt-pronoun-02",
+      "category": "pronoun",
+      "book_id": "ddia",
+      "question": "Why is that word a problem?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "text00013-010",
+      "cited": [
+        "text00013-010"
+      ],
+      "gold_chunks": [
+        "text00013-010"
+      ],
+      "latency_sec": 1.099,
+      "answer": "[Ch. 7] \"The word consistency is terribly overloaded: In Chapter 5 we discussed replica consistency and the issue of eventual consistency that arises in asynchronously replicated systems (see \u201cProblems with Replication Lag\"\nThe term is overloaded because it means different things in different contexts, making it hard to understand what it guarantees in ACID.",
+      "reasons": []
+    },
+    {
+      "id": "mt-pronoun-03",
+      "category": "pronoun",
+      "book_id": "quantization",
+      "question": "Why does it hold?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "chapter-3-067",
+      "cited": [
+        "chapter-3-067"
+      ],
+      "gold_chunks": [
+        "chapter-3-067"
+      ],
+      "latency_sec": 0.521,
+      "answer": "[Ch. 3] \"Walking through the two functions: quantize_keys_per_channel receives keys with shape [batch, num_heads, seq_len, head_dim]. The amax(dim=(0, 1, 2)) call (#A) collapses every dimension except head_dim, producing one scale per channel\u2014shared across all batches, heads, and sequence positions. This works because keys develop consistent channel-wise magnitude patterns regardless of token position. quantize_values_per_token takes the same shape but calls amax(dim=-1) (#B), collapsing only head_dim to produce one scale per token position in each batch and head. This captures the token-wise variation that values exhibit. Both functions clamp to the signed INT8 range and handle the edge case of zero-valued scales (which would cause division errors) by replacing them with ones.\"\nKeys use one scale per channel, shared across all positions, simplifying quantization.",
+      "reasons": []
+    },
+    {
+      "id": "mt-distract-01",
+      "category": "distraction",
+      "book_id": "quantization",
+      "question": "Why does key quantization use one scale per channel?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "chapter-2-034",
+      "cited": [
+        "chapter-2-034"
+      ],
+      "gold_chunks": [
+        "chapter-3-067"
+      ],
+      "latency_sec": 0.435,
+      "answer": "[Ch. 2] \"Per-channel quantization calculates a unique (S,Z) pair for each channel (typically the output channel for weights)\"\nPer-channel quantization assigns a distinct scale factor to each output channel, isolating outlier effects per filter.",
+      "reasons": []
+    },
+    {
+      "id": "mt-distract-02",
+      "category": "distraction",
+      "book_id": "ddia",
+      "question": "Why do in-doubt transactions hold locks?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "text00015-102",
+      "cited": [
+        "text00015-102"
+      ],
+      "gold_chunks": [
+        "text00015-102"
+      ],
+      "latency_sec": 0.48,
+      "answer": "[Ch. 9] \"The database cannot release those locks until the transaction commits or aborts (illustrated as a shaded area in Figure 9-9)\"\nTransactions hold locks until they commit or abort, preventing other transactions from modifying the data.",
+      "reasons": []
+    },
+    {
+      "id": "mt-distract-03",
+      "category": "distraction",
+      "book_id": "ddia",
+      "question": "What does reprocessing let a system do?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "text00019-020",
+      "cited": [
+        "text00019-020"
+      ],
+      "gold_chunks": [
+        "text00019-020"
+      ],
+      "latency_sec": 0.33,
+      "answer": "[Ch. 12] \"Reprocessing data for application evolution\"\nReprocessing allows a system to analyze old data again to understand how it works.",
+      "reasons": []
+    },
+    {
+      "id": "mt-trap-01",
+      "category": "trap",
+      "book_id": "fde",
+      "question": "What did Dr. Helena Voss say about at-least-once delivery in 2031?",
+      "expect": "refuse",
+      "refused": true,
+      "passed": true,
+      "first_citation": null,
+      "cited": [],
+      "gold_chunks": [
+        "ch07-040"
+      ],
+      "latency_sec": 0.28,
+      "answer": "Not in this book.",
+      "reasons": []
+    },
+    {
+      "id": "mt-trap-02",
+      "category": "trap",
+      "book_id": "quantization",
+      "question": "What did Marcus Feld say about quantization-aware training costs in 2036?",
+      "expect": "refuse",
+      "refused": true,
+      "passed": true,
+      "first_citation": null,
+      "cited": [],
+      "gold_chunks": [
+        "chapter-5-034"
+      ],
+      "latency_sec": 0.301,
+      "answer": "Not in this book.",
+      "reasons": []
+    },
+    {
+      "id": "mt-trap-03",
+      "category": "trap",
+      "book_id": "ddia",
+      "question": "What did Priya Raman say about reprocessing in 2042?",
+      "expect": "refuse",
+      "refused": true,
+      "passed": true,
+      "first_citation": "text00019-019",
+      "cited": [
+        "text00019-019",
+        "text00019-020",
+        "text00019-021"
+      ],
+      "gold_chunks": [
+        "text00019-020"
+      ],
+      "latency_sec": 0.671,
+      "answer": "Not in this book.",
+      "reasons": []
+    }
+  ]
+}
