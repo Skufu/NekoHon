@@ -15,12 +15,9 @@
 
 **Goal:** An offline multi-volume book companion that answers from the open book, cites the passages it used, and shows the figure those passages point at. Nothing leaves the machine.
 
-**Architecture:** A stdlib Python engine ingests EPUBs into JSON indexes tracked via a Multi-Book Catalog (`data/books.json`: `fde`, `quantization`, `ddia`), retrieves with `nomic-embed-text` (gemma was tried 2026-10-23 and reverted: hard bench 60/60 -> 53/60) accelerated by pre-normalized unit-vector dot products, and answers with on-disk `nekohon_q35_2b_x3_2e` (a Qwen3.5-2B quote-or-refuse student
-on the 844-row corpus, adopted 2026-10-24; `nekohon_q35_2b` is the 417-row run,
-`nekohon_x3` 3.1B is the previous default and the revert, `nekohon_x3_mobile`
-1.5B serves mobile/edge). The frontend is a Next.js app under `web/` (wooden bookcase library + reader + ask panes; see `web/README.md`); `window/index.html` is the legacy no-build window.
+**Architecture:** A Python/native local engine ingests EPUBs and PDFs into SQLite FTS5 and vector storage tracked via a Multi-Book Catalog (`data/books.json`: `fde`, `quantization`, `ddia`), retrieves with hybrid search accelerated by `numpy` SIMD unit-vector dot products, `tokenizers`, and optional local neural reranking, and answers with on-disk `nekohon_q35_2b_x3_2e` (a Qwen3.5-2B quote-or-refuse student on the 844-row corpus, adopted 2026-10-24; `nekohon_q35_2b` is the 417-row run, `nekohon_x3` 3.1B is the previous default and the revert, `nekohon_x3_mobile` 1.5B serves mobile/edge) served in-process or via localhost Ollama. The frontend is a Next.js app under `web/` (wooden bookcase library + reader + ask panes; see `web/README.md`); `window/index.html` is the legacy no-build window.
 
-**Tech Stack:** Python 3 stdlib (one exception for vendored text-preprocessing tools; see `AGENTS.md`). Ollama on `127.0.0.1:11434`. No pip installs. No database server.
+**Tech Stack:** Open Local Stack in Python 3 (dependencies managed via `requirements.txt`: `numpy`, SQLite FTS5, `tokenizers`, optional ONNX/cross-encoder reranking, PDF/EPUB parsers). In-process inference (`llama.cpp`, `onnxruntime`) or Ollama on `127.0.0.1:11434`. 100% offline runtime.
 
 ---
 
@@ -34,7 +31,7 @@ flowchart TD
         EPUBs["EPUB Ingestion Sources<br/>(books/*.epub or UI Upload)"] --> Spine["OPF Spine & Container Parse"]
         Spine --> Packer["Sentence-Boundary Chunker<br/>(CHUNK_MAX_CHARS = 1400, OVERLAP = 180)"]
         Spine --> FigExt["Figure & Caption Extractor<br/>(O'Reilly & Manning div.figure-container)"]
-        Packer --> Catalog["Multi-Book Catalog (data/books.json)<br/>• fde: 1,042 chunks · 111 figures<br/>• quantization: 473 chunks · 76 figures<br/>• ddia: 1,307 chunks · 90 figures"]
+        Packer --> Catalog["Multi-Book Catalog (data/books.json)<br/>• fde: 1,042 chunks · 111 figures<br/>• quantization: 473 chunks · 76 figures<br/>• ddia: 1,306 chunks · 90 figures"]
         FigExt --> Catalog
         Catalog --> Caches["Engine In-Memory Fast Caches<br/>(INDEX_CACHE, CHUNKS_GZIP_CACHE 71.7% smaller)"]
     end
@@ -62,7 +59,7 @@ flowchart TD
     end
 
     subgraph Subsystem4["4. Bidirectional Quote-Gloss Ranking & Grounded Generation (answer.py, prompt.py, figures.py)"]
-        Mention --> Prompt["Aligned ChatML System Prompt<br/>(prompt.py, keep_alive: '24h')"]
+        Mention --> Prompt["Aligned ChatML System Prompt<br/>(prompt.py, keep_alive: '10m')"]
         Prompt --> Ollama["Local Student Model<br/>(nekohon_q35_2b_x3_2e 2B / nekohon_x3_mobile 1.5B)"]
         Ollama --> Coherence{"_is_coherent_gloss Validation<br/>(Repetition & Loop Guard)"}
         Coherence -->|Passed| QuoteRank["Bidirectional Quote-Gloss Ranking<br/>(Query-Entity Alignment)"]
@@ -122,7 +119,9 @@ sequenceDiagram
 
 The product bet: local inference, cited answers, figures on screen, wifi off.
 
-**Current (2026-10-24):** post-v1 multi-book library. `nekohon_q35_2b_x3_2e` (Qwen3.5-2B, Q4_K_M, 1.31 GB, 844-row corpus, 2 epochs) is the primary desktop answer model since 2026-10-24 (`prompt.ANSWER_MODEL = "nekohon_q35_2b_x3_2e"`); `nekohon_q35_2b` (417-row run) and `nekohon_x3` (3.1B, 1.93 GB) are the reverts. `nekohon_x3_mobile` (1.5B, Q4_K_M, 986 MB (940.4 MiB)) serves edge and resource-constrained environments. 3-book catalog (`fde` 1,042 chunks · 111 figures, `quantization` 473 chunks · 76 figures, `ddia` 1,307 chunks · 90 figures; total 2,822 passages and 277 figures across 41 chapters). The edge cases (alphanumeric acronyms, coreference follow-ups, natural comparison grammar, highlight intent) are measured, not declared: hard-mt 12/12, sealed 27/30, hard bench 44/53 credible (59/60 under the retired 2026-10-17 rule — see `artifacts/reports/hard-bench-credibility-2026-10-27.md`), adrian 32/35. Verification is recorded in `artifacts/reports/architecture-and-x3-2026-10-17.md` and `artifacts/reports/nekohon-multibook-and-perf-2026-10-18.md`.
+**Current (2026-10-24):** post-v1 multi-book library. `nekohon_q35_2b_x3_2e` (Qwen3.5-2B, Q4_K_M, 1.31 GB, 844-row corpus, 2 epochs) is the primary desktop answer model since 2026-10-24 (`prompt.ANSWER_MODEL = "nekohon_q35_2b_x3_2e"`); `nekohon_q35_2b` (417-row run) and `nekohon_x3` (3.1B, 1.93 GB) are the reverts. `nekohon_x3_mobile` (1.5B, Q4_K_M, 986 MB (940.4 MiB)) serves edge and resource-constrained environments. 3-book catalog (`fde` 1,042 chunks · 111 figures, `quantization` 473 chunks · 76 figures, `ddia` 1,306 chunks · 90 figures; total 2,821 passages and 277 figures across 41 chapters). The edge cases (alphanumeric acronyms, coreference follow-ups, natural comparison grammar, highlight intent) are measured, not declared: hard-mt 12/12, sealed 27/30, hard bench 44/53 credible (59/60 under the retired 2026-10-17 rule — see `artifacts/reports/hard-bench-credibility-2026-10-27.md`), adrian 32/35. Verification is recorded in `artifacts/reports/architecture-and-x3-2026-10-17.md` and `artifacts/reports/nekohon-multibook-and-perf-2026-10-18.md`.
+
+**Comparison answers (2026-10-29):** `respond` now takes a two-sided branch for compare/difference questions (`_comparison_sides` → `_comparison_body`). It keeps both sides, retrieves a missing side, quotes the book's contrast sentence, and asks `COMPARE_SYSTEM` for a gloss naming both; a missing side falls back to the existing half-covered boundary. The 20-case before/after matrix moved from 9/20 to 20/20; the 18-case extension is 17/18, with one claim-level grounding gap (`ai-negative-plain-model`). Evidence: `artifacts/reports/comparison-answers-2026-10-29.md`, `artifacts/evidence/comparison/`; harness: `artifacts/harnesses/comparison-matrix.py`; tests: `tests/test_comparison_regression.py` (30 tests).
 
 Two older drafts (`hackathon-plan.md`, `hackathon-plan-full.md`) disagreed with each other; they lived in `~/.hermes/cache/scratch/`, which no longer exists on this box and has no copy in the repo. This file replaces both.
 
@@ -146,7 +145,7 @@ be reopened when the goal calls for it.
 - Sparring, "argue the other side," or any mode not in the contract.
 - A Readest fork on the critical path.
 - A new embedding model (except the Phase 3b bake-off contenders), an embedder finetune, Laya, Bonsai, or `deepseek-r1:7b` (Mac only so far; wrong job: it rambles past the quote).
-- A database, a package install (one exception: vendored text-preprocessing tools, see `AGENTS.md`), or a cloud API.
+- A cloud API or external runtime dependency (runtime remains 100% local; v1 started without packages or SQLite, but the post-v1 stack now leverages pip packages via `requirements.txt`, SQLite FTS5, and `numpy` SIMD vector search).
 - Multi-turn conversation, clarifying questions, or any stateful dialogue
   (direction recorded 2026-10-15, not approved): the companion should
   eventually hold a conversation, which turns degenerate input (bare
@@ -568,7 +567,7 @@ section that moves — update it as checkpoints land.
   Shelf and Grid view in `LibraryView.tsx`.
   * `fde`: *Fundamentals of Data Engineering* — **1,042 chunks · 111 figures · 17 chapters**
   * `quantization`: *Quantization and Fast Inference* — **473 chunks · 76 figures · 7 chapters**
-  * `ddia`: *Designing Data-Intensive Applications* — **1,307 chunks · 90 figures · 17 chapters**
+  * `ddia`: *Designing Data-Intensive Applications* — **1,306 chunks · 90 figures · 17 chapters**
   * Ingestion enhancements: Manning `div.figure-container` + dot figure normalization (`Figure 1.1` -> `figure-1-1`), and heading-based non-teaching filter (removing 151 alphabetical index chunks in `ddia`).
   * Web & API support: drag-and-drop `.epub` ingestion via `POST /ask` with `mode: "import"` (`importEpubBook`).
 - **R15 Performance & Caching Architecture Landed (2026-10-17):**

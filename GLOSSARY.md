@@ -29,6 +29,24 @@ authoritative doc is named.
   ("watermark" -> "What is watermark?"); the app shows it as `Asked as: ...`.
 - **Read as:** — the app's note when what it understood differs from what was
   typed (e.g. a typo repair).
+- **comparison branch** — the `respond` path for compare/difference questions
+  (`How does A compare to B?`, `What is the difference between A and B?`): it
+  keeps both sides, retrieves a missing side, quotes the book's contrast
+  sentence, and asks `COMPARE_SYSTEM` for a gloss naming both
+  (`answer._comparison_body`).
+- **contrast sentence** — a verbatim book sentence that names both sides and
+  carries a contrast marker (`unlike`, `whereas`, `in contrast`, `difference`, ...);
+  the preferred citation for a comparison (`answer._comparison_quote`).
+- **half-covered comparison** — the book covers one side but not the other; the
+  answer quotes the covered side and says the other is not mentioned, with no
+  invented attributes (`answer._half_covered`).
+- **heading glue** — a quote that starts with the chunk's chapter title or
+  subtitle because a sentence splitter crossed a line break; rejected as a
+  quote (`answer._starts_with_heading_line`, `_strip_leading_heading_lines`).
+- **follow-up gloss template** — the deterministic
+  `In <heading>, <entity> connects to this topic: ...` fallback. It now runs only
+  when no coherent live gloss exists and never overwrites a live model answer
+  (`answer._ensure_answer_gloss`).
 - **retry** — the engine's one `[Ch. ` prefill retry for an uncited reply or
   a false refusal; kept only when a citation's quote appears verbatim in a
   passage, so a hit can replace a refusal with a cited answer. Every failure
@@ -165,9 +183,26 @@ authoritative doc is named.
   (24/30 baseline; 26/30 for `nekohon_q35_2b` in the fair run).
 - **SIMPLIFY_RE fast-path** — regex-driven simplification route in `answer.py`
   synthesizing accessible grounded glosses directly from prior turn anchors in ~850 ms.
+- **4-layer RAG scorecard** (`artifacts/harnesses/fair-eval.py`) — benchmark summary
+  that separates overall pass/fail into four stages: retrieval hit rate in top-5
+  `shown_passages`, generation pass rate when a gold passage is shown, refusal trap
+  defense (pre-LLM guards vs model refusals), and latency/multi-call overhead.
 
 
 ## Repo
+
+- **runtime trace** (`observe.py`, `artifacts/runs/traces.jsonl`) — one local JSON
+  line recorded per HTTP request or `fair-eval` item, capturing query rewrites,
+  pre-LLM guards, `shown_passages`, Ollama TTFT/tok/s/VRAM load time, and post-LLM
+  quote repairs without altering the HTTP response shape (`OBSERVE=0` disables).
+- **trace_inspect.py** (`artifacts/harnesses/trace_inspect.py`) — CLI reader for
+  `traces.jsonl` and `fair-eval` runs (`--failures`, `--slow`, `--stage`, `--id`,
+  `--compare`, `--reconstruct`, and `--json` for agents).
+- **shown_passages** — the exact ranked list of passages placed into the model
+  prompt after canonicalization, typo repair, RRF fusion, and phrase boosting;
+  checked first when debugging whether search or generation caused a miss.
+- **TTFT** (time to first token) — milliseconds from sending the prompt to Ollama
+  until the first streamed token arrives (`llm.ttft_ms` in traces).
 
 - **artifact** — anything under `artifacts/`: probes (scripts that run
   things), reports (the why + verdicts), evidence (raw run outputs). Index +

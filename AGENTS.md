@@ -9,30 +9,37 @@ stays the rules-and-state authority).
 
 ## What this is
 
-An offline multi-volume book companion. A catalog of books (`data/books.json`:
+An offline multi-volume book companion running on an open local stack
+(managed via `requirements.txt`). A catalog of books (`data/books.json`:
 `fde` Fundamentals of Data Engineering, `quantization` Quantization and Fast
-Inference, `ddia` Designing Data-Intensive Applications) is ingested into JSON
-indexes, passages are retrieved with a local embedder accelerated by
-pre-normalized unit-vector dot products, and questions are answered from the
-retrieved passages in two modes: `answer` (quote-first answers with `[Ch. N]`
-citations; the window default; since the 2026-10-15 alignment it is served the
-same trained prompt as `ask`) and `ask` (a checked quote plus a gloss). Cited
-figures still attach. All inference is local Ollama on `127.0.0.1:11434`. No
-cloud APIs, no database server.
+Inference, `ddia` Designing Data-Intensive Applications) is ingested from EPUB
+or PDF into storage (JSON or SQLite FTS5 and binary vector files), passages are
+retrieved using hybrid search accelerated by `numpy` SIMD vectors and optional
+local rerankers, and questions are answered from the retrieved passages in two
+modes: `answer` (quote-first answers with `[Ch. N]` citations; the window
+default; since the 2026-10-15 alignment it is served the same trained prompt as
+`ask`) and `ask` (a checked quote plus a gloss). Cited figures still attach. All
+inference is local — in-process or localhost Ollama on `127.0.0.1:11434`. No
+cloud APIs.
 
 ## Where things live
 
 - `GOAL.md` — goal + constitution (stable). `BUILD_PLAN.md` — living plan.
   `README.md` — human front page. `GLOSSARY.md` — the vocabulary in plain
-  words (read it when a term is unclear).
-- Engine (stdlib only): `server.py` (HTTP + the frozen `POST /ask`),
+  words (read it when a term is unclear). `requirements.txt` — Python dependencies
+  for the open local stack (SQLite FTS5, `numpy` SIMD vector search, `tokenizers`,
+  local rerankers, PDF/EPUB ingestion, in-process or Ollama inference).
+- Engine: `server.py` (HTTP + the frozen `POST /ask`),
   `answer.py` (ask/answer modes, the `[Ch. ` retry), `retrieve.py` (index +
-  search), `ingest.py` (EPUB -> index), `preprocess.py` (+ `vendor/`, the one
-  allowed preprocessing dependency), `canonical.py`, `prompt.py` (model tags
+  search), `ingest.py` (EPUB -> index), `preprocess.py` (+ `vendor/`, text
+  preprocessing tools), `canonical.py`, `prompt.py` (model tags
   + system prompts), `fusion.py`, `keywords.py`, `readings.py`,
-  `captions.py`, `figures.py`, `agentic.py` (prototype, not wired).
+  `captions.py`, `figures.py`, `observe.py` (local per-request JSONL trace
+  recorder), `agentic.py` (prototype, not wired).
 - Checks: `preflight.py` (readiness), `verify_index.py` (index hygiene),
-  `tests/` (`python -m unittest discover -s tests`, including `test_query_understanding.py` and `test_generalization.py`).
+  `artifacts/harnesses/trace_inspect.py` (CLI inspector for live `artifacts/runs/traces.jsonl`
+  and stage-attributed `fair-eval` runs; `--json` for agents),
+  `tests/` (`python -m unittest discover -s tests`, including `test_query_understanding.py`, `test_generalization.py`, and `test_observability.py`).
 - `artifacts/` — everything dated and measured: `probes/` (scripts that run
   things), `reports/` (the why + verdicts), `evidence/` (raw run outputs),
   `harnesses/` (battery, sweeps, groundedness, judge, secret scan),
@@ -51,7 +58,7 @@ cloud APIs, no database server.
   `.agents/skills/book-companion-ui/references/gloss-and-craft.md`; phase
   record: `artifacts/reports/frontend-phase1-2026-10-15.md`.
 - Gitignored, machine-local: `books/`, `data/` (index, finetune data, model
-  artifacts), `artifacts/runs/` (server logs + start scripts).
+  artifacts), `artifacts/runs/` (server logs, `traces.jsonl` runtime traces, + start scripts).
 
 ## Goal vs plan (read `GOAL.md`)
 
@@ -67,49 +74,38 @@ rules follow:
   not ask permission to replace a means; do not change one without re-running
   the gates.
 
-**Constitution (short copy of `GOAL.md` — keep in sync):** local only (Ollama
-on localhost; one eval-only cloud-judge exception) · stdlib by default, a
-dependency must show a measured win · grounded (quotes come from the book;
+**Constitution (short copy of `GOAL.md` — keep in sync):** local only (in-process
+or localhost Ollama; zero cloud runtime calls; one eval-only cloud-judge
+exception) · open local stack (libraries and binary formats unrestricted; pick by
+measured speed, accuracy, footprint) · grounded (quotes come from the book;
 repairs never invent text) · refusal is exactly `Not in this book.` · measured,
-not asserted. Only this list can block work.
+not asserted (negative controls score zero, unvarnished pass/fail reporting).
+Only this list can block work.
 
 ## Hard rules (do not break)
 
-- **Stdlib by default; a dependency must earn its place.** The whole standard
-  library is fair game, e.g. `zipfile`, `json`, `html.parser`,
-  `xml.etree.ElementTree`, `urllib`, `http.server`, `pathlib`, `re`. Third-party
-  code is allowed only when a measured run shows the stdlib version loses on
-  the reader's terms; record the cost next to the win — install size, RAM, the
-  offline story — and a one-line revert. Two standing cases: text preprocessing
-  may vendor stemmers, stopword lists, or normalization tables into the repo
-  with their license (user decision 2026-10-13; a `vendor/` copy beats a pip
-  dependency, and the app stays offline), and reranking is an open candidate
-  as of 2026-10-23 (user direction: a hard rule may not veto an untested
-  improvement). Record a download's megabyte count before pulling.
-  `urllib` may talk only to this machine: Ollama at `127.0.0.1:11434`, and the
-  engine itself. No other host — one exception, evaluation only (user
-  direction 2026-10-13; judge default moved to the cloud 2026-10-15, user
-  direction): the eval/judge artifacts call the configured judge —
-  `muse-spark-1.3-contributor` over the OpenCode Go relay by default,
-  `JUDGE_BACKEND=ollama` restores the offline granite judge; the key comes
-  from the environment or `JUDGE_API_KEY_FILE` (repo `.judge-key`, gitignored)
-  and is never committed; the engine, server, and batteries never take this
-  path.
-- Frontend exception (user decision 2026-10-15): the UI is a **Next.js app
-  under `web/`** — Node 22 + npm + a build step are allowed there and nowhere
-  else; the engine, server, and tests follow the dependency rule above. The
-  runtime stays local-only: the built UI makes no external requests (no
-  webfonts, CDNs, analytics), and in production the engine serves the built
-  assets so the user still opens one URL.
-- No pickle, no marshal, no shelve, no sqlite. Records are JSON. Reload with
-  the stdlib `json` module. Pictures stay as files under `data/figures/`.
-  Bake-off indexes are `data/index.<model>.json`. After the bake-off,
-  `data/index.json` is the winner. Do not base64 images into the index.
-- Downloads already approved (README Status, 2026-10-11): embedder pulls, and
-  Windows runner setup. Everything else still needs an explicit megabyte
-  number before the transfer. That includes the book, a Readest clone, an
-  Ollama upgrade, and any vision model. Ollama v0.40.3 is already installed
-  on this box (upgraded 2026-10-11). A further upgrade is not "runner setup."
+- **Local runtime only.** All runtime execution, inference, and retrieval stay
+  strictly on this machine: in-process (`llama.cpp`, `onnxruntime`, `torch`,
+  `sentence-transformers`, `numpy`, etc.) or localhost (Ollama at
+  `127.0.0.1:11434`, engine at `:8000`). Zero cloud runtime calls. One bounded
+  exception, evaluation only: eval and judge artifacts may call the configured
+  judge — `opencode/deepseek-v4.1-flash-free` with only
+  `opencode-go/deepseek-v4.1-flash` as fallback (owner decision 2026-10-29;
+  `JUDGE_BACKEND=ollama` explicitly selects offline granite); the key
+  comes from the environment or `.judge-key` (gitignored, never committed). The
+  engine, server, and batteries never call outside localhost.
+- **Frontend local runtime.** The Next.js UI under `web/` stays local-only: the
+  built UI makes no external requests (no webfonts, CDNs, telemetry, or
+  analytics), and in production the engine serves the built assets so the user
+  still opens one local URL.
+- **Storage formats & assets.** SQLite (with FTS5), binary vector storage
+  (`.npy`, float32 blobs, `.npz`), ONNX, and GGUF are first-class storage
+  formats alongside JSON indexes. Pictures stay as individual files under
+  `data/figures/`. Do not base64 images into indexes or databases.
+- **Git hygiene.** Never commit large model weights, index binary artifacts, or
+  book binaries to the repository. Standard packages and model downloads do not
+  require arbitrary megabyte permission gates, but large files must remain
+  gitignored under `data/` or `books/`.
 - Only the documented routes: `POST /ask`, `GET /health`, `GET /figures/{id}`,
   `GET /` — plus the frontend plan's approved reader additions (2026-10-15):
   `GET /chunks` and `stream=1` on `POST /ask` (NDJSON: token, reset, final,
@@ -126,8 +122,7 @@ not asserted. Only this list can block work.
   the repo a re-run and a plan update, not a permission request (see "Goal vs
   plan").
 - `rag-template/` is read-only reference. Never touch its `.venv`. Porting code
-  from it follows the dependency rule above: a measured win recorded first, or
-  it does not land.
+  from it requires a measured win recorded first, or it does not land.
 - Do not commit unless the human asks.
 - Reset the engine with the model (user rule 2026-10-14): anytime the answer
   model changes — a new `ANSWER_MODEL` default, an env seam, a new Ollama tag
@@ -139,8 +134,8 @@ not asserted. Only this list can block work.
 - Improvements must generalize, not fit this book's test set — the system has
   to hold for other books later. No chunk ids, figure ids, chapter numbers,
   query strings, or book ids in the logic modules (`answer.py`, `canonical.py`,
-  `captions.py`, `figures.py`, `keywords.py`, `preprocess.py`, `prompt.py`,
-  `readings.py`, `retrieve.py`).
+  `captions.py`, `figures.py`, `keywords.py`, `observe.py`, `preprocess.py`,
+  `prompt.py`, `readings.py`, `retrieve.py`).
   Pins and ids belong in tests, the battery, and docstrings.
   `tests/test_generalization.py` enforces the literal part.
   `tests/test_query_understanding.py` enforces that query understanding,
@@ -183,6 +178,20 @@ not asserted. Only this list can block work.
   completely different layers (refusal ratio vs `num_predict`).
 
 
+## Observability and failure diagnosis
+
+- **Runtime trace log.** `observe.py` records one JSON object per request using `contextvars` across `server.py`, `retrieve.py`, and `answer.py`. Live HTTP calls (`POST /ask`, `POST /ask` with `stream=1`, and `GET /retrieve`) append to `artifacts/runs/traces.jsonl`. Set `OBSERVE=0` to disable tracing or `OBSERVE_LOG=<path>` to write elsewhere. Unit tests skip default log writes when `unittest` is loaded unless `OBSERVE_LOG` is set. Tracing never alters HTTP routes or response keys.
+- **Inspect with `trace_inspect.py`, not ad-hoc scripts.** Do not write throwaway Python scripts that call `retrieve.search` directly to debug bad answers. Raw `retrieve.search` skips canonicalization, typo repair, RRF fusion, phrase boost, and pre-LLM guards, so its ranks do not match `shown_passages` (the exact 5 passages sent to the model). Run `python artifacts/harnesses/trace_inspect.py --json` instead:
+  - Live log (`artifacts/runs/traces.jsonl`): `python artifacts/harnesses/trace_inspect.py` (summary), `--last 5`, `--failures`, `--slow`, `--book <book_id>`, `--id <trace_id>`, `--reconstruct` (rebuilds chunk text from local `data/index*.json` since raw book prose is not duplicated into trace logs).
+  - Eval runs (`fair-eval.py` JSON): `python artifacts/harnesses/trace_inspect.py --eval <run.json> --failures`, `--stage <bucket>`, `--id <item_id>`, `--compare <older_run.json>`. Always append `--json` when parsing from an agent.
+- **Isolate the failing stage before changing code or training data.** Every `fair-eval.py` item carries `trace` and `diagnostics` attributing failures to one stage:
+  1. Pre-LLM guards (`guard_false_refusal` when `query.guard_blocked` fires on an answerable item; `trap_false_answer` when an out-of-book trap slips past both guards and the model).
+  2. Retrieval (`retrieval_miss` when no gold chapter or passage appears in `retrieval.shown_passages`).
+  3. Generation (`missing_key_fact`, `wrong_citation`, or `false_refusal` when a gold passage is in `shown_passages` and `llm.calls` ran).
+  4. Post-LLM transforms (`outcome.transforms`: `parse_refused`, `half_covered_refused`, `citation_aligned`, `retry_uncited`, `list_expanded`) and Ollama runtime health (`llm.ttft_ms`, `llm.tok_per_sec`, `vram_load_ms` >= 100 ms cold-load stalls).
+- **Locked split privacy.** `trace_inspect.py` hides questions, answers, and chunk IDs on `locked` split items unless `--allow-locked-text` is passed. Never run `fair-eval.py --split locked` or `--allow-locked-text` during normal iteration; iterate on `--split dev`.
+
+
 ## Artifacts policy (read before writing to artifacts/)
 
 - **Docs are engineering records, and this repo is public-facing.** Write
@@ -217,6 +226,32 @@ not asserted. Only this list can block work.
 - Prune before docs commits: `python artifacts/prune.py --plan`.
 
 ## Current state (update this block when a phase lands)
+
+### Evaluation integrity (2026-10-29)
+
+- Judge default is DeepSeek V4.1 Flash through an isolated, tool-disabled
+  OpenCode CLI agent. Free model first; only Go DeepSeek Flash as fallback.
+  Each call records the model actually used and transport failures.
+- `artifacts/harnesses/reader-eval.py` captures real questions and immutable
+  source text; `suite` instruments public in-process legacy runners; `replay`
+  grades those bytes without retrieval. Every replay requires positive and
+  negative calibration controls. An invalid judge exits 2, not a model failure.
+- `rank-answers.py` no longer retrieves on replay. Missing original evidence is
+  unverifiable. Regex/chapter hints and `no_reask` are advisory; requested
+  content is assessed semantically. Old scores are not silently rewritten.
+- `artifacts/harnesses/ux-eval.py` exercises real reader flows with agent-browser.
+  Its reports distinguish passed, failed, and blocked steps. Source-pattern and
+  type tests do not certify rendered UX.
+- Findings, exact commands, remaining gaps, and measured runs:
+  `artifacts/reports/eval-integrity-2026-10-29.md`.
+
+- **Idle models unload** (2026-10-28). `OLLAMA_KEEP_ALIVE` now defaults to `10m` (was `24h`) in `prompt.py`, `answer.py`, `retrieve.py`, `server.py` warm-up, and `scripts/launch.py`; `start-engine.bat` sets it only when unset, so `OLLAMA_KEEP_ALIVE=30m` (warmer) or `-1` (pin) overrides without editing. Measured on this box: an answer runner left resident 8 h reached 6.9 GB working set / 11.2 GB private; after unload the process was gone, GPU dropped from 4206 to 2173 MiB, and the next ask cold-loaded in 3.46 s (warm ~0.5 s). Verified end to end with a 15 s keep-alive: `ollama ps` empty and no `llama-server` processes after 20 s idle. Tests: 513/513.
+
+- **Highlight gloss and whole-book anchor fixed** (2026-10-28). Two engine fixes, measured live. (1) A one-word explain gloss is judged before `_clean_boilerplate_gloss` rewrites it: a chunk summary starting "The passage ..." no longer passes as a definition after the rewrite to "The highlighted word ...", a single-word gloss must name its term (`_names_selected_term`), and a framed claim ("The passage explains that ...") is de-wrapped to its proposition. `explain` on "RAM" (`ch01-010`) went from "The highlighted word introduces the early 2000s …" (never mentions RAM) to "Affordable, scalable hardware like RAM enabled the rise of distributed data processing in the early 2000s." (2) A pin leads retrieval only for a selection or a follow-up turn; a standalone whole-book question no longer expands the reader's scroll anchor into a ±2 chunk window that evicts every dense hit. Same question pinned to `ch01-011`: shown passages went from `ch01-009…013` to `ch01-024` first, citing the passage that contains the question. Tests: `tests/test_answer.py::ReadingAnchorTests`; full suite 513/513.
+
+- **Local runtime observability and stage-attributed eval added** (2026-10-28). `observe.py` captures per-request spans via `contextvars` across `server.py`, `retrieve.py`, and `answer.py` (query resolution, typo reading repairs, pre-LLM guards, exact `shown_passages`, Ollama prompt/completion token counts, tok/s, TTFT, VRAM `load_duration` stalls, and post-LLM transforms) into local `artifacts/runs/traces.jsonl` (`OBSERVE=0` disables; zero change to the frozen `POST /ask` contract; unit tests skip default log writes unless `OBSERVE_LOG` is set). `artifacts/harnesses/fair-eval.py` embeds traces per item and `artifacts/harnesses/trace_inspect.py` provides human + `--json` agent inspection over live traces and eval runs. Measured on `fair-2026-10-27.jsonl` dev (60 items, `nekohon_q35_2b_x3_2e`): 37/60 pass; retrieval places a gold passage in top-5 on 37/39 answerable items (top-1 20/39, MRR@5 0.670), while generation passes on 18/37 shown hits (15 `missing_key_fact`, 3 `wrong_citation`, 2 `retrieval_miss`, 2 `trap_false_answer`, 1 `guard_false_refusal` on `S=1/16`), at 188.2 tok/s and 0 VRAM stalls. Tests: `tests/test_observability.py` (508/508 total pass).
+
+- **Technological constraints lifted: Open Local Stack adopted** (2026-10-27). Owner decision lifts the stdlib-only, no-pip, no-sqlite/JSON-only, and Ollama-daemon-only restrictions. The repository adopts an Open Local Stack across Python and native libraries (`numpy` SIMD BLAS vector retrieval, SQLite FTS5 lexical search, `tokenizers`, ONNX/cross-encoder reranking, PDF/EPUB ingestion, and in-process or Ollama inference) managed via `requirements.txt`. Core product invariants remain non-negotiable: 100% offline/local runtime, verbatim grounded quotes, exact `Not in this book.` refusal, book-agnostic generalization, and anti-cheating negative control evaluations.
 
 - **Hard multi-turn bench added; default holds 12/12 after three engine fixes** (2026-10-25). Twelve authored items (elision / pronoun / distraction / trap), frozen by sha256 and guarded by `tests/test_hard_mt_leakage.py`: no overlap with the 844-row corpus, and every fabricated name and year absent from all three books. First run 8/12, one item was replaced for having two correct answers (9/12), then three fixes took it to 12/12 on `nekohon_q35_2b_x3_2e`: four missing plain-register cues in `answer.SIMPLE_CUES`; `answer._prior_quote_chunk`, which collapses whitespace before matching the prior quote (stored text has `consistency\r\n refers`, so every wrapped phrase missed and an elided follow-up lost its subject — the same bug lived in the concept-pin path); and `answer.names_absent_person`, which refuses "who/what did <Name> say|write|claim" when the surname appears in no book, in both `ask` and `respond`. Controls: a real author passes, an ordinary question does not match. Sealed 27/30, hard bench 59/60, adrian 32/35 all unchanged. Tests: `tests/test_followup_subject.py`, `tests/test_fabricated_attribution.py`. Report: `artifacts/reports/hard-mt-2026-10-24.md`.
 
@@ -1327,9 +1362,44 @@ not asserted. Only this list can block work.
   `components/`, then the reader's `Aa` popover re-checked in the browser
   to confirm its own swatches never used them).
 
+### Comparison answers (2026-10-29)
+
+The 2026-10-28 follow-up `How does this compare to LLM?` exposed a generic-path
+failure: a coherent model gloss was replaced by
+`In Chapter 1. From LLMs to Agents: , AI connects to this topic: ...`. Causes:
+`how does this compare to X` matched `GENERIC_FOLLOWUP_RE`;
+`_extract_query_entities` dropped `LLM` as a substring of `LLMs`; the template's
+entity check matched `AI` inside `paired`; and `_advance_followup_quote` selected
+a chapter-title/subtitle fragment.
+
+`respond` now has a two-sided branch: `_comparison_sides` -> `_comparison_body`.
+It keeps both sides, adds one retrieval pass for a missing side, quotes the book's
+contrast sentence (`_comparison_quote`), and asks `COMPARE_SYSTEM` for a gloss
+naming both. If one side is absent, `_half_covered` states the boundary. The
+branch returns before the generic follow-up quote/gloss rewrites. Guards now use
+whole-word entity matching, reject heading/subtitle glue, and never let the
+template overwrite a coherent live gloss. `Read as:` / `Asked as:` are preserved.
+Ask mode's dual-citation switch only replaces a one-sided quote with an exact
+both-sides sentence of strictly higher contrast.
+
+Evidence: `artifacts/reports/comparison-answers-2026-10-29.md`;
+`artifacts/evidence/comparison/compare-before-2026-10-29.{json,log}` (9/20) ->
+`compare-after-final3-2026-10-29.{json,log}` (20/20); extension
+`compare-after-extra-final3-2026-10-29.{json,log}` (17/18). The extension failure
+is claim-level grounding on a loosely covered side (`ai-negative-plain-model`),
+not the template. Tests: `tests/test_comparison_regression.py` (30 tests).
+
+Residual risk: a relational question (`compare to a workflow/tools`) gets a
+relation, not a sharp contrast; ask-mode alignment is conservative; a long body
+line without terminal punctuation can still be read as a subtitle (80-char cap).
+The server must be restarted after `answer.py` changes (`engine-reset`).
+
 ## Verify
 
 - `python -m unittest discover -s tests` (must stay green)
+- Comparison regression: `python -m unittest tests.test_comparison_regression`;
+  live matrix: `python artifacts/harnesses/comparison-matrix.py --label after`
+  (in-process, no server).
 - Setup readiness: `python preflight.py` (read-only; Python version, book,
   index, Ollama, models, vector audit; exit 0 when ready to serve)
 - Index hygiene: `python verify_index.py` (read-only; exits 1 on dirty vectors)
@@ -1344,12 +1414,12 @@ not asserted. Only this list can block work.
 - Answer mode: `BATTERY_MODE=answer python artifacts/harnesses/step2-battery.py`; sweeps `SWEEP_MODE=answer python artifacts/harnesses/qa-sweep.py <label>`; groundedness `python artifacts/harnesses/groundedness.py --battery --label <name>` or `--label <name>` over `datasets/qa-questions-overnight.json` (in-process, no server needed).
 - Sealed hold-out: `python artifacts/harnesses/sealed-eval.py [model]` (30 items, in-process, no server); leakage audit `python artifacts/probes/leakage-audit-2026-10-24.py`; unit tests `python -m unittest tests.test_eval_leakage tests.test_harness_fairness`. Fairness rule and re-pins: `harnesses/fair_cite.py`, `datasets/battery-pins.json`.
 - Agentic prototype (not wired): `python artifacts/probes/probe-agentic.py` (live Ollama, 5 asks).
-- Plain register: `python -m unittest tests.test_plain_register`; scorecard draws (cloud judge) `JUDGE_BACKEND=openai JUDGE_WIRE=responses JUDGE_MODEL=muse-spark-1.3-contributor JUDGE_BASE_URL=https://opencode.ai/zen/go/v1 JUDGE_API_KEY_FILE=.judge-key python artifacts/harnesses/eval-plain.py --variants wired --label wired` (replay with a new label); judge flip probe `python artifacts/harnesses/judge-stability.py --file evidence/eval-plain/eval-plain-v6-openai-muse-spark-1-3-contributor.json --match <question substring> --n 3`; live route check: `answer` mode with "explain data engineering in simple words".
+- Plain register: `python -m unittest tests.test_plain_register`; scorecard draws (cloud judge) `JUDGE_BACKEND=cli python artifacts/harnesses/eval-plain.py --variants wired --label wired` (replay with a new label); judge flip probe `python artifacts/harnesses/judge-stability.py --file evidence/eval-plain/eval-plain-v6-openai-muse-spark-1-3-contributor.json --match <question substring> --n 3`; live route check: `answer` mode with "explain data engineering in simple words".
 - Canonicalization & Query Understanding: `python -m unittest tests.test_canonical tests.test_query_understanding`; live check:
   a bare phrase in answer mode ("watermark") answers in question form and the
   answer ends with `Asked as: "What is watermark?"`; mutation check
   `python artifacts/probes/probe-test-mutations-2026-10-13.py` (5 breaks, 0 survivors).
-- Judge backends: default `openai:muse-spark-1.3-contributor` since 2026-10-15 (user direction; OpenCode Zen/Go relay, `/responses`, key `.judge-key`, gitignored) — the offline one-line revert is `JUDGE_BACKEND=ollama` (`granite4.1:8b`, the prior default). Judge-only replay from a saved run: `python artifacts/harnesses/eval.py --judge-only --label v1`; calibration across judges: `python artifacts/harnesses/judge-agreement.py eval-v1-ollama-granite4-1-8b eval-v1-openai-muse-spark-1-3-contributor`. The engine never uses the key.
+- Judge backends: default `cli:opencode/deepseek-v4.1-flash-free` since 2026-10-29, only `opencode-go/deepseek-v4.1-flash` as fallback; actual model is in each call's `LAST_CALL`. Explicit offline selection is `JUDGE_BACKEND=ollama` (`granite4.1:8b`). Judge-only replay from a saved run: `python artifacts/harnesses/eval.py --judge-only --label v1`; calibration across judges: `python artifacts/harnesses/judge-agreement.py eval-v1-ollama-granite4-1-8b eval-v1-openai-muse-spark-1-3-contributor`. The engine never uses the key.
 - Secret scan: `python artifacts/harnesses/secret-scan.py` (git history + tracked tree; masked output; exit 1 on any hit). Clean 2026-10-13: this repo 516 blobs, 0 hits; `rag-template` 170 blobs, 0 hits.
 - Artifacts: index + rules `artifacts/README.md`; prune planner `python artifacts/prune.py --plan`.
 
@@ -1404,8 +1474,8 @@ not asserted. Only this list can block work.
 - Multi-Book Library & Catalog landed 2026-10-17 (`data/books.json`):
   * `fde`: *Fundamentals of Data Engineering* — 1,042 chunks · 111 figures · 17 chapters
   * `quantization`: *Quantization and Fast Inference* — 473 chunks · 76 figures · 7 chapters
-  * `ddia`: *Designing Data-Intensive Applications* — 1,307 chunks · 90 figures · 17 chapters
-  * Total catalog corpus: **2,822 passages** and **277 figures** across **41 chapters**.
+  * `ddia`: *Designing Data-Intensive Applications* — 1,306 chunks · 90 figures · 17 chapters
+  * Total catalog corpus: **2,821 passages** and **277 figures** across **41 chapters**.
   * Manning EPUB `div.figure-container` and dot-number normalization (`Figure 1.1` -> `figure-1-1`) supported in `ingest.py`.
   * Heading-based non-teaching filter removes 151 alphabetical index chunks in `ddia`.
   * Filesystem-driven figure resolution in `figures.py` (zero hardcoded book IDs).

@@ -278,7 +278,19 @@ Completed margin cards dynamically display 2–3 follow-up suggestion chips:
 2. Rhetorical author questions in adjacent paragraphs are surfaced.
 3. Concepts with high document co-occurrence are converted into natural query pills (e.g. `"What are the disadvantages of multicloud?"`).
 
-### 3.4 Direct-DOM Physics & Liquid Reader UX (`web/` Next.js)
+### 3.4 Two-Sided Comparison Answers (2026-10-29)
+`How does A compare to B?` takes a separate path from an ordinary follow-up:
+1. `_comparison_sides` extracts the two sides from the resolved question (including `Regarding <subject>:` prefixes and forms such as `difference between`, `different from`, `separates from`, `relate to`, and `vs`).
+2. `_comparison_body` checks the shown passages for both sides. A missing side gets one `search(index, side)` pass; if it is still absent, the existing `_half_covered` path quotes the covered side and says the other is not mentioned.
+3. `_comparison_quote` prefers a verbatim sentence that names both sides and carries a contrast marker (`unlike`, `whereas`, `in contrast`, `difference`, `limited to`, ...). It never quotes a heading or subtitle fragment. If no dual sentence exists, it returns one sentence per side.
+4. `COMPARE_SYSTEM` asks for 2-3 plain sentences that name both sides and state how they differ or relate. The gloss is rejected if either side is missing; after one stricter retry, the generic path is used instead.
+5. The branch returns before the generic follow-up quote/gloss rewrites, so the contrast sentence and the two-sided gloss survive. `Read as:` and `Asked as:` are preserved.
+
+Entity matching is whole-word (`LLM` survives a heading containing `LLMs`; `AI` does not match inside `paired`). The follow-up gloss template only runs when no coherent live gloss exists, and a heading/subtitle guard prevents chapter-title glue from being quoted.
+
+Measured: the 20-case matrix moved from 9/20 to 20/20, and an 18-case extension is 17/18. The one extension failure is claim-level grounding on a loosely covered side, not the template. Evidence: `artifacts/reports/comparison-answers-2026-10-29.md`, `artifacts/evidence/comparison/`; harness: `artifacts/harnesses/comparison-matrix.py`.
+
+### 3.5 Direct-DOM Physics & Liquid Reader UX (`web/` Next.js)
 The frontend companion implements high-performance DOM physics to provide an uncompromised reading experience:
 - **Word-Boundary Streaming Pacer**: Instead of raw character bursting, incoming NDJSON tokens are accumulated and paced across word boundaries at ~50 words/sec (~16ms ticks), eliminating layout jank and cognitive fatigue.
 - **60/120fps Direct-DOM Drag & 2D Resize**: Margin card positioning, header dragging, and corner resizing bypass React re-render cycles using `requestAnimationFrame` to update inline transforms and dimensions directly on the DOM element.
@@ -383,6 +395,16 @@ python artifacts/harnesses/crossbook-evil-eval.py nekohon_x3
   6. `crossbook-27` (*Exact Energy Numbers Nuance Trap in Quantization Ch. 1*): Turn 1 gloss omitted the required exact numeric term `'1,700'`.
   7. `crossbook-28` (*Celebrity Hybrid Timeline Synthesis in DDIA Ch. 1*): Turn 1 answer omitted the required domain concept `'celebrity'`.
 
+### 4.7 Comparison Matrix ([`artifacts/harnesses/comparison-matrix.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/artifacts/harnesses/comparison-matrix.py))
+```sh
+python artifacts/harnesses/comparison-matrix.py --label after
+python artifacts/harnesses/comparison-matrix.py --label extra --cases artifacts/datasets/comparison-cases-extra-2026-10-29.json
+```
+- In-process (`answer.respond` with the default Ollama generator); no server restart.
+- 20 core cases cover the exact follow-up, direct comparisons, synonyms, cross-book comparisons, half-covered comparisons, negatives, and non-comparison controls. The 18-case extension covers canonical and relational forms.
+- **Measured**: 9/20 -> 20/20 on the core matrix; 17/18 on the extension. The one extension failure is claim-level grounding on a loosely covered side (`ai-negative-plain-model`), not the template. Full report: [`artifacts/reports/comparison-answers-2026-10-29.md`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/artifacts/reports/comparison-answers-2026-10-29.md).
+- Evidence: [`artifacts/evidence/comparison/`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/artifacts/evidence/comparison/).
+
 ---
 
 ## 5. Model Distillation & Colab A100 Fine-Tuning Guide
@@ -456,7 +478,65 @@ This verifies the SHA-256 digests, imports the models into local Ollama, and reg
 
 ---
 
-## 6. NekoHon System Terminology & Glossary
+## 6. Local Runtime Observability & Stage-Attributed RAG Evaluation (`observe.py`, `artifacts/harnesses/trace_inspect.py`)
+
+Every live HTTP request (`POST /ask` sync and `stream=1`, `GET /retrieve`) and `fair-eval.py` benchmark item records a structured per-request trace using Python `contextvars`. Live traces append locally to `artifacts/runs/traces.jsonl` without changing the frozen HTTP contract or making external network calls. Set `OBSERVE=0` to disable recording or `OBSERVE_LOG=<path>` to redirect output.
+
+```mermaid
+flowchart LR
+    Q["User Query"] --> Early{"Early Guards<br/>(injection / absent person)"}
+    Early -->|Blocked| GRef["Refusal (0 LLM calls)"]
+    Early -->|Passed| Ret["Query Repair + Hybrid Search<br/>(dense, fusion, phrase_boost -> shown_passages)"]
+    Ret --> Anchor{"Technical Anchor Check<br/>(has_unmentioned_technical_anchor)"}
+    Anchor -->|Blocked| GRef
+    Anchor -->|Passed| LLM["Local Ollama Generation<br/>(prompt/completion tokens, TTFT, tok/s, VRAM load ms)"]
+    LLM --> Post["Post-LLM Checks & Retry<br/>(verbatim quote, half_covered, [Ch. retry)"]
+    Post --> Out["Response + JSONL Trace"]
+```
+
+### What each trace records
+
+- **`query`**: `raw` user input, `resolved` follow-up rewrite, `asked` canonical question, `history_turns`, `reading_repair` (`difflib` vs `llm` second reading), and `guard_blocked` (`injection_attempt`, `absent_person`, `unmentioned_technical_anchor`).
+- **`retrieval`**: `retrieval_ms`, `embed_calls`, `embed_cache_hits`, `embed_ms`, `embed_vram_load_ms`, active `stages` (`dense`, `fusion`, `caption_seed`, `phrase_boost`, `rerank`, `pinned`), `dense_top5`, and the exact `shown_passages` (`rank`, `chunk_id`, `chapter`, `score`) placed in the prompt. Raw passage prose is not copied into `traces.jsonl`; pass `--reconstruct` to load chunk text from `data/index*.json` on demand.
+- **`llm`**: `call_count`, `llm_ms`, streaming `ttft_ms` (time to first token), `vram_load_ms` (Ollama `load_duration` for catching cold reloads >= 100 ms), `prompt_tokens`, `completion_tokens`, `tok_per_sec`, and per-call purpose tags (`answer_generate`, `answer_stream`, `retry_uncited`, `llm_second_reading`).
+- **`outcome`**: post-LLM `transforms` (`parse_refused`, `half_covered_refused`, `citation_aligned`, `retry_uncited`, `list_expanded`), `final_refused`, `cited_chunks`, and `figures_attached`.
+
+### 4-layer RAG scorecard (dev baseline, 2026-10-28)
+
+`fair-eval.py` runs inside `observe.trace(...)` and separates failures by pipeline stage so retrieval, pre-LLM filters, and 2B generation are never conflated. Measured on `fair-2026-10-27.jsonl` (`dev` split, 60 items, `nekohon_q35_2b_x3_2e` + `nomic-embed-text`):
+
+| Layer | Measured result | Failure attribution |
+| --- | --- | --- |
+| Overall benchmark | 37 of 60 pass (23 fail) | All 23 failures assigned to a single stage below |
+| 1. Retrieval (`shown_passages` top-5) | 37 of 39 answerable hit (top-1: 20 of 39, MRR@5: 0.670) | 2 `retrieval_miss` |
+| 2. Generation given retrieval hit | 18 of 37 pass when gold passage is shown | 15 `missing_key_fact`, 3 `wrong_citation`, 1 `guard_false_refusal` (`S=1/16`) |
+| 3. Refusal and trap defense | 19 of 21 traps refused (`unmentioned_technical_anchor`=9, `absent_person`=2, model=8) | 2 `trap_false_answer` |
+| 4. Runtime latency and calls | p50 634 ms, p90 1,098 ms, 188.2 tok/s, 0 VRAM reload stalls | 21 of 60 items made >1 LLM call (mostly `llm_second_reading`) |
+
+### CLI inspection commands (human and agent)
+
+Both humans and coding agents inspect live logs and eval runs through `artifacts/harnesses/trace_inspect.py` (pass `--json` for structured agent output):
+
+```sh
+# 1. Live server traces (reads artifacts/runs/traces.jsonl)
+python artifacts/harnesses/trace_inspect.py
+python artifacts/harnesses/trace_inspect.py --last 5
+python artifacts/harnesses/trace_inspect.py --slow --failures
+python artifacts/harnesses/trace_inspect.py --id <trace_id> --reconstruct
+
+# 2. Run dev split with embedded traces and 4-layer scorecard
+python artifacts/harnesses/fair-eval.py --split dev
+
+# 3. Inspect benchmark failures by stage or compare two runs
+python artifacts/harnesses/trace_inspect.py --eval artifacts/runs/fair-eval-2026-10-28-model-nekohon_q35_2b_x3_2e-split-dev.json --failures
+python artifacts/harnesses/trace_inspect.py --eval artifacts/runs/fair-eval-2026-10-28-model-nekohon_q35_2b_x3_2e-split-dev.json --stage missing_key_fact
+python artifacts/harnesses/trace_inspect.py --eval artifacts/runs/fair-eval-2026-10-28-model-nekohon_q35_2b_x3_2e-split-dev.json --id fair-dev-30 --json
+python artifacts/harnesses/trace_inspect.py --eval new.json --compare old.json
+```
+
+---
+
+## 7. NekoHon System Terminology & Glossary
 
 - **NekoHon (`猫本`)**: The local-first multi-book reading companion branding, pairing an interactive cloth-bound wooden bookcase with local Ollama distillation and marginalia reading.
 - **Multi-Book Catalog** (`data/books.json`): Catalog metadata defining the active library (`fde`, `quantization`, `ddia`), mapping book identifiers to chapter counts, chunk counts, figure directories, and extracted cover art endpoints.

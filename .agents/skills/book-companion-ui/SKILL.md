@@ -35,29 +35,38 @@ citation) is a failure even when every mechanism is green.
 - `window/index.html` (the vanilla window) stays working until the Next app
   covers all four modes; it is the reference for the honesty labels
   ("nearest misses:", "nearby, not an answer", "Show the key").
-- **`web/` — the Next.js reader + margin companion (Phase 1 landed 2026-10-15; full Gloss port landed 2026-10-16).** Runs
+- **`web/` — the Next.js reader + companion (Phase 1 landed 2026-10-15; Gloss port 2026-10-16; Nightfall shell 2026-10-27).** Runs
   `npm run dev` on :3100 against the engine on :8000; `npm run build` writes
-  the static export (`web/out/`, not yet served by the engine). File map and
-  conventions: `web/README.md` and `artifacts/plans/pane-now.md`; condensed
-  design research: `references/gloss-and-craft.md`. What the implementation
-  does:
-  - **3-column Gloss layout** (`.reader-grid`): left proportional minimap
-    (`Rail.tsx` with chapter ticks, yellow highlight bars, vermilion gloss dots,
-    and scrub thumb), center book prose (`Reader.tsx` with `data-chunk-id`
-    blocks, chapter-opening drop caps, inline figures, and multi-layer
-    `splitParagraphSegments` marks), and right margin column (`Margin.tsx` +
-    `MarginCard.tsx` with two-way collision solver, crowd `.is-mini` collapse,
-    and SVG cubic Bezier leader curve `.gloss-leader`).
-  - **Selection pill (`Lens.tsx`)**: select text → floating pill with
-    hover-expanding 4-color highlighter drawer (`yellow`, `green`, `blue`,
-    `pink`), `Explain` (`mode: "explain"`), `Ask` (`mode: "ask"` with instant
-    printable-key morph into input), and `Copy`.
-  - **Bottom composer (`Composer.tsx`)** and **TopBar (`TopBar.tsx`)**: sticky
-    whole-book composer (`/` to focus, suggestion pills, `Answer` /
-    `Quote first` toggle, `Quiz` trigger) and scroll-tucking top bar with TOC
-    dropdown and `Aa` appearance menu (5 themes: `night` default, `paper`,
-    `sepia`, `snow`, `ink` with circular `startViewTransition` reveal; 4 rubric
-    pens; text size 15–26px).
+  the static export (`web/out/`). File map and conventions: `web/README.md`;
+  condensed design research: `references/gloss-and-craft.md`. What the
+  implementation does:
+  - **Nightfall shell** (`app/nightfall.css`): a cover-forward library (logo,
+    one amber hairline, serif statement, 3-up cover wall that becomes a snap
+    carousel below 760px) and a 66ch reader column. From 1080px the grid
+    reserves a 320px right margin for note cards; below that the cards use a
+    bottom sheet. The `Rail` minimap is no longer mounted.
+  - **Focus mode** (`Reader.tsx`, default on): every `.chunk-p` sits at
+    `--focus-dim` except the paragraph nearest 42% of the viewport, which keeps
+    full `--ink`. With focus on and no note in the margin the column is
+    optically centred (`.rg-prose` translated 174px, half the reserved margin +
+    gutter, at `>= 1080px`); the first note slides it back beside the margin.
+    Escape closes a gloss, then clears a highlight, then leaves focus; the
+    topbar's Escape handler closes its menus first.
+  - **TopBar**: 64px, Nekohon mark, centred volume switcher, Contents, Focus
+    (`aria-pressed`), notes cycler, and the `Aa` menu (5 themes, 4 pens, text
+    size 15–26px, circular `startViewTransition` reveal). It tucks on scroll
+    down.
+  - **Answer surface (`Margin.tsx`)**: at `>= 1080px`, the active note is a
+    320px card in the reserved right column — anchored beside the quoted
+    passage, draggable by its header, resizable, with a 28px SVG leader line
+    across the gutter and the old collision solver for multiple notes. Below
+    1080px it is the bottom sheet (760px centred; full-width on phones). The
+    composer hides while the sheet is open.
+  - **Selection pill (`Lens.tsx`)**: select text → `Explain` (`mode:
+    "explain"`), `Ask` (`mode: "ask"` with type-to-ask morph), `Copy`, and a
+    hover-expanding 4-color highlighter drawer.
+  - **Whole-book composer (`Composer.tsx`)**: `/` to focus, suggestion pills,
+    `Answer` / `Quote first`, `Quiz` trigger, closest-chunk anchoring.
   - **Engine contracts**: `requestAnimationFrame`-batched NDJSON streaming,
     per-card `turns[]` with last-2-turns `history` follow-ups, `AnswerView.tsx`
     reader-first gloss + italic quote + `Ch. N` / `Preface` chips, `Read as:`,
@@ -70,24 +79,32 @@ citation) is a failure even when every mechanism is green.
   product. When in doubt, remove an element rather than style it.
 - Offline serif (`Iowan Old Style`, `Palatino Linotype`, `Georgia`) is the text
   face; system UI sans for controls. No webfonts — the app is offline.
-- Body 15–26px (`19px` default), leading 1.78, measure `--m: min(calc(var(--read-size, 19px) * 34), 46rem)`.
-  Answers and quotes use the text face, never monospace (`tests/test_frontend_rules.py`).
+- Body 15–26px (`19px` default), leading 1.72, measure 66ch (≈627px at 19px
+  Georgia). Answers and quotes use the text face, never monospace
+  (`tests/test_frontend_rules.py`).
 - All colours, shadows, sizes, spacing, and durations live as CSS custom
   properties in `web/app/tokens.css`; zero hex or `rgb()`/`rgba()` literals
   anywhere else (`tests/test_frontend_rules.py`).
 - Every motion has a `prefers-reduced-motion: reduce` path in `web/app/globals.css`.
 
-## Reader + margin: the three-column layout
+## Reader + companion: one column, a margin, a sheet
 
-- At `>= 1260px`: `48px` left minimap rail, center prose column (`--m`), and
-  `320px` right margin column (`28px` column gap). At `1080px–1259px`: prose +
-  `320px` right margin. Below `1080px`: single prose column, with the active
-  margin card rendered in a slide-up bottom sheet (`.gloss-sheet`).
-- Margin cards (`Margin.tsx` + `MarginCard.tsx`) sit in the right margin beside
-  the passage they came from, positioned by a two-way collision solver (`GAP=16`,
-  `GAP_MINI=6`, `CROWD=88`). When another note's anchor is within `88px`,
-  inactive notes collapse into a compact single-line `.is-mini` pill. Active or
-  hovered notes draw an SVG cubic Bezier leader curve across the gutter.
+- The reader is a `.rg-prose` column, `max-width: 66ch` (627px at 19px
+  Georgia), centred. From 1080px the grid becomes
+  `minmax(0, read-size × 33) 320px` with a 28px gap, so the answer card sits in
+  a reserved right margin. The prose width tracks `--read-size`. The column is
+  reserved only while a note exists (a quiet "This area is for notes" hint
+  otherwise); with focus mode on and no note, the prose is translated 174px onto
+  the viewport's centre line and slides back when the first note opens. The
+  `Rail` file still exists but nothing imports it.
+- A note in the margin is the `MarginCard` mini card: dragged by its header,
+  resized from its edges, positioned by the old collision solver (`GAP=16`,
+  `GAP_MINI=6`, `CROWD=88`) with an SVG leader curve from the card to the
+  anchored phrase. Cards that crowd collapse to `.is-mini`.
+- Below 1080px the same card renders in `.gloss-sheet`: `760px` centred on a
+  wide tablet, full width and bottom-anchored with a `14px` top radius on
+  phones. Its dismiss control is a 40px close at the sheet's top left; the
+  card's own X deletes the note. The composer hides while the sheet is open.
 - An answer renders reader-first (owner decision 2026-10-15): the gloss —
   what the model says in plain words — first, then its evidence quote in
   italics with the `Ch. N` chip (from `citations[].chapter`) beside it; the

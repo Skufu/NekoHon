@@ -24,24 +24,28 @@ is unclear, pick the side the reader would want, then measure it.
 
 Only these can block work. Nothing else in the repo can.
 
-- **Local only.** Embeddings and answers are Ollama on localhost. The engine
-  never calls a cloud model. Wifi off is the proof, not a quiet network panel.
-  One bounded exception: evaluation/judging may call a stronger cloud model
-  — default `muse-spark-1.3-contributor` since 2026-10-15, `JUDGE_BACKEND=ollama`
-  restores the offline granite judge — testing only, for smarter
-  testing; the engine, server, and batteries never take this path.
-- **Stdlib by default; a dependency must earn its place.** No package installs
-  on a hunch. Third-party code is allowed when a measured run shows the stdlib
-  version loses on the reader's terms, with the cost recorded next to the win:
-  install size, RAM, offline story, and a one-line revert. The vendored
-  preprocessing exception in `AGENTS.md` is the first case. Reranking is an
-  open candidate — untested as of 2026-10-23 (user direction: a hard rule may
-  not veto an untested improvement).
+- **Local only.** Runtime inference and retrieval stay 100% local on the machine
+  (wifi off is the proof, with zero cloud runtime calls), whether served
+  in-process (`llama.cpp`, `onnxruntime`, `torch`, `sentence-transformers`) or
+  via localhost (`Ollama`). One bounded exception: evaluation/judging may call a
+  cloud model for testing: default `opencode/deepseek-v4.1-flash-free` since
+  2026-10-29, with only `opencode-go/deepseek-v4.1-flash` as its fallback.
+  `JUDGE_BACKEND=ollama` explicitly selects the offline granite judge. This is
+  testing only, for
+  smarter testing; the engine, server, and batteries never take this path.
+- **Open local stack.** Third-party libraries (`numpy`, `sqlite3`/FTS5,
+  `tokenizers`, `onnxruntime`, `sentence-transformers`, `lxml`, `PyMuPDF`,
+  `usearch`/`faiss`, `llama-cpp-python`, etc.) and binary storage formats
+  (SQLite, `.npy`/`.npz`, float32 blobs, GGUF, ONNX) are unrestricted. Choose
+  tools by measured speed, accuracy, and footprint.
 - **Grounded.** Every quoted word comes from the book's passages. Repairs move
   *which* passage text is shown; they never invent text.
 - **Refusal is exactly** `Not in this book.`
 - **Measured, not asserted.** A claim ships with its evidence path, its exact
   command, and its before/after numbers. The battery and the pins stay green.
+  Benchmarks and tests must include negative controls (dummy, echo, or wrong-cite
+  inputs must score zero) and report unvarnished pass/fail rates rather than
+  engineered 100% scores.
 
 ## Tactics are replaceable
 
