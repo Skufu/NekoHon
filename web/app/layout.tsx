@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./nightfall.css";
 
 export const metadata: Metadata = {
-  title: "NekoHon — Local Book Companion",
-  description: "Local-first book companion with marginalia reader and grounded intelligence.",
+  title: "Nekohon — Local Book Companion",
+  description: "A local-first reading room with a grounded companion that stays on this machine.",
+  icons: {
+    icon: "/nekohon-mark.svg",
+  },
 };
 
 export default function RootLayout({

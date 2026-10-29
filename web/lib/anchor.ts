@@ -55,6 +55,8 @@ function offsetWithin(el: HTMLElement, node: Node, offset: number): number {
 const isWordChar = (ch: string | undefined): boolean =>
   Boolean(ch && /[A-Za-z0-9]/.test(ch));
 
+const TEXT_BLOCK_SELECTOR = "p, .chunk-p, pre.chunk-code, pre.chunk-table";
+
 /**
  * Measures plain-text character offset (start, end) of range within chunkEl's
  * <p> elements (joined by \n between <p> tags), or within heading/caption elements.
@@ -71,10 +73,12 @@ export function offsetInChunk(
   const startNode = range.startContainer;
   const startEl =
     startNode instanceof Element ? startNode : startNode.parentElement;
-  const isInsideP = Boolean(startEl?.closest(".chunk p, .chunk-p, p"));
+  const isInsideP = Boolean(
+    startEl?.closest(`.chunk p, .chunk-p, p, .chunk-code, .chunk-table`)
+  );
 
   const paragraphs = Array.from(
-    chunkEl.querySelectorAll<HTMLParagraphElement>("p, .chunk-p")
+    chunkEl.querySelectorAll<HTMLElement>(TEXT_BLOCK_SELECTOR)
   );
 
   if (isInsideP && paragraphs.length > 0) {
@@ -400,7 +404,7 @@ export function resolveSelection(
   // 1. startChunkEl: from range.startContainer/startOffset to end of startChunkEl text
   const startMeta = getChunkMeta(startChunkEl);
   const startParagraphs = Array.from(
-    startChunkEl.querySelectorAll<HTMLParagraphElement>("p, .chunk-p")
+    startChunkEl.querySelectorAll<HTMLElement>(TEXT_BLOCK_SELECTOR)
   );
   const startFullText =
     startParagraphs.length > 0
@@ -468,7 +472,7 @@ export function resolveSelection(
     const midChunk = selectedChunks[i];
     const midMeta = getChunkMeta(midChunk);
     const midParagraphs = Array.from(
-      midChunk.querySelectorAll<HTMLParagraphElement>("p, .chunk-p")
+      midChunk.querySelectorAll<HTMLElement>(TEXT_BLOCK_SELECTOR)
     );
     const midFullText =
       midParagraphs.length > 0
@@ -489,7 +493,7 @@ export function resolveSelection(
   // 3. endChunkEl: from 0 to range.endContainer/endOffset
   const endMeta = getChunkMeta(endChunkEl);
   const endParagraphs = Array.from(
-    endChunkEl.querySelectorAll<HTMLParagraphElement>("p, .chunk-p")
+    endChunkEl.querySelectorAll<HTMLElement>(TEXT_BLOCK_SELECTOR)
   );
   const endFullText =
     endParagraphs.length > 0

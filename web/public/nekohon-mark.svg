@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="36" height="36" fill="none">
+  <!-- Nekohon Mark: Feline Silhouette & Open Book -->
+  <path d="M 8.2 21.8 C 7.9 20.2, 7.6 18.8, 7.6 17.2 C 7.6 15.0, 8.2 13.0, 8.8 10.8 C 9.5 8.2, 10.4 5.8, 11.2 4.4 C 11.4 4.0, 11.8 3.8, 12.2 3.8 C 12.6 3.8, 13.0 4.0, 13.2 4.4 C 14.0 6.0, 14.8 7.5, 15.6 8.4 C 16.3 8.8, 17.1 9.0, 18.0 9.0 C 18.9 9.0, 19.7 8.8, 20.4 8.4 C 21.2 7.5, 22.0 6.0, 22.8 4.4 C 23.0 4.0, 23.4 3.8, 23.8 3.8 C 24.2 3.8, 24.6 4.0, 24.8 4.4 C 25.6 5.8, 26.5 8.2, 27.2 10.8 C 27.8 13.0, 28.4 15.0, 28.4 17.2 C 28.4 18.8, 28.1 20.2, 27.8 21.8 Z" 
+        fill="#141412" stroke="#EAE6DF" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Upward-Looking Amber Eyes -->
+  <!-- Left Eye -->
+  <ellipse cx="13.5" cy="13.8" rx="2.4" ry="3.0" fill="#D4A359" />
+  <ellipse cx="13.7" cy="12.3" rx="1.35" ry="1.65" fill="#141412" />
+  <circle cx="13.0" cy="11.5" r="0.55" fill="#FFFFFF" />
+
+  <!-- Right Eye -->
+  <ellipse cx="22.5" cy="13.8" rx="2.4" ry="3.0" fill="#D4A359" />
+  <ellipse cx="22.3" cy="12.3" rx="1.35" ry="1.65" fill="#141412" />
+  <circle cx="21.8" cy="11.5" r="0.55" fill="#FFFFFF" />
+
+  <!-- Feline Rounded Keystone Nose & Whisker Philtrum -->
+  <path d="M 17.1 15.6 C 17.0 15.3, 17.4 15.1, 18.0 15.1 C 18.6 15.1, 19.0 15.3, 18.9 15.6 C 18.8 16.0, 18.5 16.5, 18.0 16.5 C 17.5 16.5, 17.2 16.0, 17.1 15.6 Z" 
+        fill="#EAE6DF" />
+  <path d="M 18.0 16.5 V 17.4 M 18.0 17.4 C 17.2 18.0, 16.4 18.1, 15.8 17.8 M 18.0 17.4 C 18.8 18.0, 19.6 18.1, 20.2 17.8" 
+        stroke="#EAE6DF" stroke-width="0.85" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Classic Editorial Open Book (Curved Pages with Smooth Outer Fore-edge) -->
+  <path d="M 18.0 20.6 C 14.0 18.2, 8.6 18.2, 3.6 20.6 C 3.2 20.8, 3.0 21.2, 3.0 21.7 C 2.9 23.4, 2.9 25.5, 3.2 27.2 C 3.3 27.7, 3.7 28.0, 4.1 27.9 C 8.2 26.6, 13.0 27.0, 18.0 28.8 C 23.0 27.0, 27.8 26.6, 31.9 27.9 C 32.3 28.0, 32.7 27.7, 32.8 27.2 C 33.1 25.5, 33.1 23.4, 33.0 21.7 C 33.0 21.2, 32.8 20.8, 32.4 20.6 C 27.4 18.2, 22.0 18.2, 18.0 20.6 Z" 
+        fill="#EAE6DF" />
+
+  <!-- Crisp Center Spine Crease (Negative Space Gutter) -->
+  <path d="M 18.0 20.6 V 28.8" 
+        stroke="#141412" stroke-width="1.2" stroke-linecap="round" />
+
+  <!-- Spine Base Accent (Library Amber) -->
+  <path d="M 16.4 28.8 C 16.4 30.6, 19.6 30.6, 19.6 28.8" 
+        stroke="#D4A359" stroke-width="1.4" stroke-linecap="round" />
+</svg>

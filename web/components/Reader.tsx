@@ -11,7 +11,6 @@ import {
 } from "react";
 import dynamic from "next/dynamic";
 import TopBar from "@/components/TopBar";
-import Rail from "@/components/Rail";
 import Margin from "@/components/Margin";
 import Lens from "@/components/Lens";
 import Composer from "@/components/Composer";
@@ -200,21 +199,24 @@ export default function Reader({
   const setActiveGloss = useAsk((s) => s.setActiveGloss);
   const returnSpot = useAsk((s) => s.returnSpot);
   const clearReturnSpot = useAsk((s) => s.clearReturnSpot);
+  // An empty margin has nothing to sit beside; nightfall.css uses this to put
+  // the prose on the viewport's centre line while focus mode is on.
+  const hasNotes = useAsk((s) => s.glosses.length > 0);
 
   const readerRef = useRef<HTMLElement | null>(null);
   const textRef = useRef<HTMLDivElement | null>(null);
 
-  const [wide, setWide] = useState(true);
   const [activeChunkId, setActiveChunkId] = useState("");
   const [activeChapter, setActiveChapter] = useState("");
-  const [activeHeading, setActiveHeading] = useState("");
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [viewportRatio, setViewportRatio] = useState(0.2);
+  const [focusMode, setFocusMode] = useState(true);
+  const [wideMargin, setWideMargin] = useState(false);
 
-  // Wide screen query (1080px)
+  // The side margin is the desktop answer surface; the sheet handles narrower
+  // viewports. Keep this in sync with the 1080px grid in nightfall.css.
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1080px)");
-    const update = () => setWide(mq.matches);
+    const update = () => setWideMargin(mq.matches);
     update();
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
@@ -261,11 +263,6 @@ export default function Reader({
         document.documentElement.scrollHeight - window.innerHeight;
       const progress = docHeight > 0 ? Math.max(0, Math.min(1, scrollY / docHeight)) : 0;
       setScrollProgress(progress);
-      setViewportRatio(
-        document.documentElement.scrollHeight > 0
-          ? window.innerHeight / document.documentElement.scrollHeight
-          : 0.2
-      );
 
       const threshold = window.innerHeight * 0.32;
       const chunks = payload.chunks;
@@ -299,7 +296,36 @@ export default function Reader({
       if (currentChunk) {
         setActiveChunkId(currentChunk.chunk_id);
         setActiveChapter(currentChunk.chapter);
-        setActiveHeading(currentChunk.heading);
+
+        if (focusMode) {
+          const chunkEl = document.querySelector(
+            `[data-chunk-id="${CSS.escape(currentChunk.chunk_id)}"]`
+          );
+          const paragraphs = chunkEl
+            ? Array.from(chunkEl.querySelectorAll<HTMLElement>("p.chunk-p"))
+            : [];
+          let lit: HTMLElement | null = null;
+          let best = Number.POSITIVE_INFINITY;
+          const readingLine = window.innerHeight * 0.42;
+          for (const paragraph of paragraphs) {
+            const rect = paragraph.getBoundingClientRect();
+            const distance = Math.abs((rect.top + rect.bottom) / 2 - readingLine);
+            if (distance < best) {
+              best = distance;
+              lit = paragraph;
+            }
+          }
+          document
+            .querySelectorAll<HTMLElement>(".nk-reader .chunk-p.is-lit")
+            .forEach((paragraph) => {
+              if (paragraph !== lit) paragraph.classList.remove("is-lit");
+            });
+          if (lit) lit.classList.add("is-lit");
+        } else {
+          document
+            .querySelectorAll<HTMLElement>(".nk-reader .chunk-p.is-lit")
+            .forEach((paragraph) => paragraph.classList.remove("is-lit"));
+        }
 
         const saved = useAsk.getState().bookProgress[activeBookId];
         if (
@@ -332,7 +358,7 @@ export default function Reader({
       window.removeEventListener("resize", onScroll);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [payload, activeBookId, chunkMap, updateBookProgress]);
+  }, [payload, activeBookId, chunkMap, updateBookProgress, focusMode]);
 
   // Keyboard navigation shortcuts: [ and ] cycle glosses, Escape clears
   useEffect(() => {
@@ -342,10 +368,18 @@ export default function Reader({
       if (target.closest("input, textarea, [contenteditable]")) return;
 
       if (e.key === "Escape") {
-        if (useAsk.getState().activeGlossId) {
+        const state = useAsk.getState();
+        if (state.activeGlossId) {
           setActiveGloss(null);
+          return;
         }
-        clearHighlight();
+        if (state.highlight) {
+          clearHighlight();
+          return;
+        }
+        if (focusMode) {
+          setFocusMode(false);
+        }
         return;
       }
 
@@ -377,7 +411,7 @@ export default function Reader({
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [setActiveGloss, clearHighlight]);
+  }, [setActiveGloss, clearHighlight, focusMode]);
 
   // Jump helpers for TopBar & Rail
   const scrollToChunk = useCallback((chunkId: string) => {
@@ -391,17 +425,7 @@ export default function Reader({
     }
   }, []);
 
-  const jumpToTop = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
 
-  const handleScrub = useCallback((ratio: number) => {
-    const docHeight =
-      document.documentElement.scrollHeight - window.innerHeight;
-    if (docHeight > 0) {
-      window.scrollTo({ top: ratio * docHeight, behavior: "instant" });
-    }
-  }, []);
 
   // Visible anchor chunk for Composer
   const getVisibleChunk = useCallback(() => {
@@ -465,12 +489,14 @@ export default function Reader({
   return (
     <>
       <div className={`library-pane ${viewMode === "library" ? "is-active" : "is-hidden"}`}>
-        <LibraryView />
+        <LibraryView loadError={loadError} />
       </div>
 
       <div className={`reader-pane ${viewMode === "reader" ? "is-active" : "is-hidden"}`}>
         <main
-          className="reader"
+          className="reader nk-reader"
+          data-focus={focusMode && activeChunkId ? "true" : "false"}
+          data-margin={hasNotes ? "filled" : "empty"}
           ref={readerRef}
           onPointerDown={(event) => {
             if (
@@ -483,15 +509,20 @@ export default function Reader({
             clearHighlight();
           }}
         >
+          <div
+            className="nk-progress"
+            style={{ transform: `scaleX(${Math.max(0, Math.min(1, scrollProgress))})` }}
+            aria-hidden
+          />
+
           {/* TopBar navigation */}
           <TopBar
             bookTitle={currentBookTitle}
             activeChapter={activeChapter}
-            activeHeading={activeHeading}
-            progress={scrollProgress}
-            onJumpTop={jumpToTop}
             chapters={chapters}
             onJumpChunk={scrollToChunk}
+            focusMode={focusMode}
+            onToggleFocus={() => setFocusMode((value) => !value)}
           />
 
       {/* Return spot floating pill banner */}
@@ -521,24 +552,8 @@ export default function Reader({
         </aside>
       )}
 
-      {/* Reader Grid */}
+      {/* Reading column */}
       <div className="reader-grid">
-        {/* Left Column: Progress Minimap Rail */}
-        <div className="rg-rail">
-          <div className="rail-sticky">
-            {payload ? (
-              <Rail
-                chunks={payload.chunks}
-                activeChunkId={activeChunkId}
-                scrollProgress={scrollProgress}
-                viewportRatio={viewportRatio}
-                onScrub={handleScrub}
-              />
-            ) : null}
-          </div>
-        </div>
-
-        {/* Center Column: Prose */}
         <div className="rg-prose" ref={textRef}>
           {loadError ? <p className="meta load-error">{loadError}</p> : null}
           {!loadError && !payload ? (
@@ -588,11 +603,16 @@ export default function Reader({
           ) : null}
         </div>
 
-        {/* Right Column: Margin Physics & Cards */}
-        <div className="rg-margin">
-          <Margin proseRef={textRef} wide={wide} />
-        </div>
+        {/* Desktop answers live in the margin, beside the passage they came from. */}
+        {wideMargin ? (
+          <div className="rg-margin">
+            <Margin proseRef={textRef} wide />
+          </div>
+        ) : null}
       </div>
+
+      {/* Below 1080px the companion becomes a bottom sheet. */}
+      {!wideMargin ? <Margin proseRef={textRef} wide={false} /> : null}
 
       {/* Floating Selection Lens */}
       <Lens payload={payload} containerRef={readerRef} />
@@ -692,7 +712,13 @@ const ChunkBlock = memo(function ChunkBlock({
   const setActiveGloss = useAsk((s) => s.setActiveGloss);
 
   const paragraphs = useMemo(() => paragraphList(chunk.text), [chunk.text]);
-  const joinedText = useMemo(() => paragraphs.join("\n"), [paragraphs]);
+  const blocks = useMemo(() => {
+    const stored = chunk.blocks ?? [];
+    return stored.length
+      ? stored
+      : paragraphs.map((text) => ({ kind: "para", text }));
+  }, [chunk.blocks, paragraphs]);
+  const joinedText = useMemo(() => blocks.map((block) => block.text).join("\n"), [blocks]);
   const ref = useRef<HTMLElement | null>(null);
 
   // Separate body vs heading highlights and glosses
@@ -895,24 +921,40 @@ const ChunkBlock = memo(function ChunkBlock({
       }
 
       let running = 0;
-      return paragraphs.map((pText, pIdx) => {
-        const segs = splitParagraphSegments(pText, running, {
+      return blocks.map((block, pIdx) => {
+        const segs = splitParagraphSegments(block.text, running, {
           highlights: bodyHighlights,
           glossRanges,
           citationRange,
         });
-        running += pText.length + 1;
+        running += block.text.length + 1;
 
+        const content = segs.map((seg, sIdx) =>
+          renderSegment(
+            seg,
+            `${pIdx}-${sIdx}`,
+            setActiveGloss,
+            highlightNonce
+          )
+        );
+
+        if (block.kind === "code") {
+          return (
+            <pre key={pIdx} className="chunk-code">
+              {content}
+            </pre>
+          );
+        }
+        if (block.kind === "table") {
+          return (
+            <pre key={pIdx} className="chunk-table">
+              {content}
+            </pre>
+          );
+        }
         return (
           <p key={pIdx} className="chunk-p">
-            {segs.map((seg, sIdx) =>
-              renderSegment(
-                seg,
-                `${pIdx}-${sIdx}`,
-                setActiveGloss,
-                highlightNonce
-              )
-            )}
+            {content}
           </p>
         );
       });
@@ -938,6 +980,7 @@ const ChunkBlock = memo(function ChunkBlock({
   }, [
     joinedText,
     chunk.chunk_id,
+    blocks,
     paragraphs,
     bodyHighlights,
     bodyGlosses,

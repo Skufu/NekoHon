@@ -10,6 +10,7 @@
   body {
     overflow-x: clip;
     min-height: 100dvh;
+    scroll-behavior: smooth;
   }
 
   html {
@@ -19,6 +20,28 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     scroll-padding-top: calc(var(--topbar-h, 60px) + 24px);
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: var(--rule-strong) transparent;
+  }
+
+  /* Custom Scrollbar (dark-theme respectful, slim 8px pill) */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--rule-strong);
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--ink-3);
   }
 
   body {
@@ -811,6 +834,22 @@
 .chunk p {
   margin: 0 0 1.1em;
   text-wrap: pretty;
+}
+
+.chunk-code,
+.chunk-table {
+  margin: 0 0 1.4em;
+  padding: 14px 16px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--bg-sunk);
+  color: var(--ink-2);
+  font-family: var(--font-code);
+  font-size: 12.5px;
+  line-height: 1.55;
+  white-space: pre;
+  overflow-x: auto;
+  tab-size: 4;
 }
 
 .chunk-figure,

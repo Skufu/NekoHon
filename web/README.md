@@ -1,10 +1,12 @@
 # web/ — the Next.js frontend
 
-The Gloss-inspired reader and margin-note frontend for ask-this-book: a
-three-column reading layout with a proportional minimap rail on the left, the
-book as re-rendered blocks in the center, and stacked collision-avoiding margin
-cards on the right, with a floating selection pill (`Lens`) and a sticky bottom
-whole-book composer (`Composer`), streamed from the local Python engine.
+The **Nightfall** reader for ask-this-book: a cover-forward library ("the
+shelf at night") that opens into a single 66-character reading column. Focus
+mode dims every paragraph except the one on the reading line, an amber
+hairline tracks progress, and the companion's answers sit in the right margin
+beside the passage they came from — a movable card with a leader line — falling
+back to a bottom sheet below 1080px. A floating selection pill (`Lens`) and the
+sticky whole-book composer (`Composer`) stream from the local Python engine.
 This is the repo's **frontend exception** — Node + npm + a build step live here
 and nowhere else (`AGENTS.md` hard rules). The engine, server, and tests stay
 stdlib Python.
@@ -139,85 +141,80 @@ route-handler proxy would buffer the NDJSON stream.
 ## File map
 
 - `app/page.tsx` + `app/layout.tsx` — the shell, hydrating persisted appearance
-  settings (`night` theme + `vermilion` pen default), user highlights, and active volume.
-- `app/tokens.css` + `app/globals.css` — the design tokens (5 themes: `night`,
-  `paper`, `sepia`, `snow`, `ink`; 4 rubric pens: `vermilion`, `cobalt`, `moss`,
-  `graphite`; 4 highlighter markers: `yellow`, `green`, `blue`, `pink`) and
-  semantic component rules enforced by `tests/test_frontend_rules.py`.
-- `components/LibraryView.tsx` — NekoHon Library start menu: interactive wooden bookcase
-  Shelf view with handcrafted cloth and gold-foil spines, editorial Grid view with
-  reading progress ribbons, drag-and-drop `.epub` upload dropzone (`importEpubBook`),
-  and 3D `BookOpen` modal spread with `EX LIBRIS · NEKOHON` bookplate and miniature cover art.
-- `components/TopBar.tsx` — scroll-tucking top bar with `← Library` return button,
-  active volume title & switcher dropdown, chapter TOC dropdown,
-  running header (`Preface` / `Ch. N · Heading`), notes cycler pill, progress
-  hairline, and the `Aa` appearance popover (circular `startViewTransition`
-  theme reveal, pen selector, text size 15–26px).
-- `components/Rail.tsx` — left-gutter proportional minimap (`>= 1260px`) with
-  dense paragraph ruler ticks, chapter boundary markers, yellow user-highlight
-  bars, vermilion gloss dots, and a draggable viewport scrub thumb.
-- `components/Reader.tsx` — the 3-column `.reader-grid` (`.rg-rail`,
-  `.rg-prose`, `.rg-margin`), chunks as blocks (`data-chunk-id`), inline
-  figures, heading offset isolation (`renderedHeading` using `decodeHeadingOffset`),
-  multi-layer segment rendering (`.hl-mark`, `.gloss-anchor`, `mark.cite-mark`),
-  520ms cubic-bezier ease-out citation scroll with content-visibility late-paint correction,
-  paragraph boundary offset alignment (`\n` vs `\n\n`), and viewport closest-chunk
-  tracking (`getVisibleChunk`).
+  settings (`night` theme + `vermilion` pen default), user highlights, and active volume;
+  the Nekohon mark (`public/nekohon-mark.svg`) is the favicon.
+- `app/tokens.css` + `app/globals.css` + `app/nightfall.css` — the design tokens
+  (5 themes: `night`, `paper`, `sepia`, `snow`, `ink`; 4 rubric pens: `vermilion`,
+  `cobalt`, `moss`, `graphite`; 4 highlighter markers: `yellow`, `green`, `blue`,
+  `pink`) and the component rules enforced by `tests/test_frontend_rules.py`.
+  `nightfall.css` is the shell layer: shelf, 64px topbar, 66ch column, focus
+  dimming, amber progress, and the answer sheet. It imports after `globals.css`.
+- `components/LibraryView.tsx` — the Nightfall shelf: logo + wordmark, `/`-focus
+  search with an empty state, real `cover_url` covers with a fallback binding,
+  reading-progress hairline, EPUB import (button + whole-window drag-and-drop),
+  a load-error alert, and a totals footer. One import at a time: the add and
+  empty-state actions disable while a file is being ingested.
+- `components/IngestCard.tsx` — the ingestion card: an amber ring spinner (or a
+  drawn check, or an alert mark) with the book's filename, honest stage copy
+  (`Reading the file…` / `Shelving…` / `Shelved. Opening the book…`), elapsed
+  `m:ss` while active, and a Dismiss action on failure.
+- `components/TopBar.tsx` — 64px topbar with the Nekohon mark, a centred volume
+  switcher dropdown, a Contents dropdown, the Focus toggle (`aria-pressed`),
+  a notes cycler, and the `Aa` popover (circular `startViewTransition` theme
+  reveal, pen selector, text size 15–26px). Escape closes its menus before the
+  reader treats the key as "leave focus"; it tucks away on scroll down.
+- `components/Rail.tsx` — the old proportional minimap. **No longer mounted**;
+  kept in the tree for reference only.
+- `components/Reader.tsx` — the `.rg-prose` column (66ch at 19px, 627px) with
+  `focusMode` state (default on), reading-line paragraph lighting
+  (`.chunk-p.is-lit`, one paragraph at 42% of the viewport keeps full ink),
+  Escape order (close gloss → clear highlight → leave focus), the amber
+  `.nk-progress` hairline, a `wideMargin` media query at 1080px that mounts the
+  right column, a `data-margin` flag (`empty` / `filled`) from the store's note
+  count, chunks as blocks (`data-chunk-id`), inline figures,
+  heading offset isolation (`renderedHeading`), multi-layer segment rendering
+  (`.hl-mark`, `.gloss-anchor`, `mark.cite-mark`), and the 520ms citation scroll.
 - `components/Lens.tsx` — floating selection pill: `Explain | Ask | Copy` on the
-  left, divider line, hover-expanding 4-color highlighter drawer on the right,
-  instant printable-key morph into inline question input (`"Ask about the highlighted word…"`),
-  forwarding full context (`chunk_id`, `selection`, `heading`, `book_id`) to `POST /ask`.
-- `components/Margin.tsx` — right-margin (`>= 1080px`, `320px` wide, `28px`
-  gutter) two-way collision solver (`GAP = 16`, `GAP_MINI = 6`, `CROWD = 88`),
-  crowd mini-collapse (`.is-mini`), animated SVG cubic Bezier leader curve
-  (`.gloss-leader`), and narrow-screen slide-up `.gloss-sheet`.
-- `components/MarginCard.tsx` — stacked margin card for `selection` (`explain` /
-  `ask`), `whole` (`answer` / `ask`), and connected `quiz` (`Show the key` toggle,
-  revealed key sentence underlined in book text, quiz-specific chips `"Another quiz question"`
-  and `"Explain the answer"`), header pointer dragging (`dragOffset`), 2D width+height resize handles
-  (compact 320px, wide 440px, or freeform drag resize), unified `.gloss-card.is-minimized` morph animation
-  to 26px `.gloss-node-indicator` margin pills, collapsible multi-turn accordion for prior turns,
-  streaming shimmer + 60fps fluid token pacer updates, `<AnswerView>` rendering,
-  clickable quote snippets (`.gloss-quote-snippet`, `.answer-quote`) triggering 520ms
-  smooth scroll and animated rubric underline (`mark.cite-mark`), dynamic follow-up suggestion chips,
-  and inline `"Ask a follow-up…"` multi-turn input (`history`) with guaranteed 1–2 sentence explanation gloss.
-- `components/AnswerView.tsx` — reader-first gloss + italic evidence quote with `+ Source quote · Ch. N`
-  single pill with downward liquid grid unfold, `"← Back to previous spot"` return banner,
-  clickable `Ch. N` / `Preface` chips (triggering 520ms cubic-bezier smooth citation scroll and animated rubric
-  underline on `mark.cite-mark`), `Read as:` disclosure, exact `Not in this book.` refusal + `nearest misses:`,
-  attached figures with `nearby, not an answer`, and suppression of duplicate `"Quiz"` labels and duplicate
-  top blockquotes on key reveal.
-- `components/Composer.tsx` — sticky bottom floating whole-book bar (`/` or
-  `Ctrl+K` to focus) with hover-reveal bottom Composer dock, bounded opaque floating popover menu
-  (`.composer-suggestions`, max 3 filtered questions `18..62` chars), dynamic chapter rhetorical question
-  autocomplete for incomplete prefixes (e.g. `"what are the"`), `Answer` / `Quote first`
-  mode chip, active-chunk connected `Quiz` trigger, and viewport closest-chunk anchoring.
-- `lib/anchor.ts` — heading offset encoding (`start <= -100`, `isHeadingOffset`,
-  `decodeHeadingOffset`) ensuring heading highlights never bleed into body paragraphs,
-  15-character word-boundary auto-snap, cross-chunk selection spanning chunk boundaries
-  (`resolveSelection`), cross-paragraph colon lead-in snapping, `.chunk-heading` & `.chunk-caption`
-  selection support, exact `nearOffset` matching, paragraph 2+ plain-text offset measurement fix
-  (`Range.comparePoint(p, 0) === 0` in `offsetInChunk`), whitespace-insensitive quote lookup (`findQuoteSpan`),
-  multi-layer paragraph splitter (`splitParagraphSegments`), and `formatChapter`.
-- `lib/store.ts` — zustand state machine (`useAsk`): multi-book catalog (`booksCatalog[]`),
-  active volume (`currentBookId`), isolated per-book localStorage state (`nekohon-state-${bookId}`
-  for margin notes, highlights, and glosses, and `nekohon-progress` for reading scroll depth),
-  book switching (`openBook`), per-card streaming with 60fps fluid token streaming pacer
-  (`pacerTimer`, ~16ms tick, 2–8 chars per ~16ms tick pacing, smooth Call 2
-  gloss streaming on `onFinal`), full context forwarding (`chunkId`, `endChunkId`, `selection`, `heading`, `bookId`),
-  preemptive stream abort (`inFlightMap`), and `startTurnStream` excluding the active `(glossId, turnId)`
-  from being prematurely stopped.
-- `lib/engine.ts` — HTTP client functions: `fetchChunks(bookId)` and `importEpubBook(filename, dataBase64)`.
+  left, hover-expanding 4-color highlighter drawer on the right, instant
+  type-to-ask morph, forwarding full context (`chunk_id`, `selection`, `heading`,
+  `book_id`) to `POST /ask`.
+- `components/Margin.tsx` — two branches. At `>= 1080px` it renders the
+  movable margin card in the reserved right column, with the collision solver and
+  the 28px SVG leader line back to the passage. Below 1080px it renders the
+  bottom sheet: centred 760px, 16px above the bottom; full-width with a 14px top
+  radius on phones. The composer hides while the sheet is open.
+- `components/MarginCard.tsx` — the note card (margin at `>=1080px`, sheet
+  below) for `selection` (`explain` / `ask`), `whole` (`answer` / `ask`), and
+  connected `quiz` turns: header pointer dragging, 2D resize handles, multi-turn
+  accordion, streaming shimmer + 60fps token pacer, `<AnswerView>`, clickable
+  quote snippets,
+  dynamic follow-up chips, and an inline follow-up input.
+- `components/AnswerView.tsx` — reader-first gloss + italic evidence quote with
+  `+ Source quote · Ch. N`, clickable `Ch. N` / `Preface` chips, `Read as:`
+  disclosure, exact `Not in this book.` refusal + `nearest misses:`, attached
+  figures marked `nearby, not an answer`, and the quiz key reveal.
+- `components/Composer.tsx` — sticky bottom whole-book bar (`/` or `Ctrl+K` to
+  focus) with a hover-reveal dock, bounded suggestion popover, `Answer` /
+  `Quote first` mode chip, connected `Quiz` trigger, and closest-chunk anchoring.
+- `lib/anchor.ts` — heading offset encoding, 15-character word-boundary auto-snap,
+  cross-chunk selection resolution, paragraph segment splitting, and
+  `formatChapter`.
+- `lib/store.ts` — zustand state machine (`useAsk`): multi-book catalog, active
+  volume, per-book localStorage state (`nekohon-state-${bookId}` for notes and
+  highlights, `nekohon-progress` for reading depth), `openBook`, per-card
+  streaming with a 60fps pacer, preemptive abort, and context forwarding.
+- `lib/engine.ts` — HTTP client functions: `fetchChunks(bookId)` and
+  `importEpubBook(filename, dataBase64)`.
 
 ## Conventions that matter
 
 - **No AI SDK, no proxy, no component library** (owner calls 2026-10-15): the
   NDJSON client is ~60 lines here; components are hand-rolled, styled from
-  `app/tokens.css` and `app/globals.css`.
+  `app/tokens.css`, `app/globals.css`, and `app/nightfall.css`.
 - **Mechanical CSS & token hygiene (`tests/test_frontend_rules.py`)**: zero hex
   or `rgb()`/`rgba()` literals outside `app/tokens.css`, every `box-shadow` in
-  `globals.css` uses `var(...)`, zero `monospace`, zero emoji, and every literal
-  `className` token in `.tsx` has a matching selector in `app/globals.css`.
+  the stylesheets uses `var(...)`, zero `monospace`, zero emoji, and every literal
+  `className` token in `.tsx` has a matching selector in an app stylesheet.
 - **Answers are verbatim** (`white-space: pre-wrap`) — the words are never
   rewritten, and the layout is reader-first: the gloss first, then the evidence
   quote in italics with its chapter chip (`Ch. N` or `Preface`) beside it, both
@@ -233,9 +230,36 @@ route-handler proxy would buffer the NDJSON stream.
 ## Where the design came from (2026-10-15 / 2026-10-16)
 
 Ported from **Gloss** (`github.com/Nutlope/gloss`, owner direction 2026-10-16):
-3-column reader-first layout (left minimap rail, center prose, right margin
-cards), selection pill with hover-expanding 4-color highlighter swatches and
-instant type-to-ask morph, two-way margin collision solver with crowd
-mini-collapse (`.is-mini`), SVG cubic Bezier leader line, `Aa` appearance menu
-with 5 themes (`night` default) + circular `startViewTransition` reveal, and
-sticky bottom whole-book composer.
+selection pill with hover-expanding 4-color highlighter swatches and instant
+type-to-ask morph, the two-way margin collision solver and its SVG leader line,
+the `Aa` appearance menu with 5 themes (`night` default) and its circular
+`startViewTransition` reveal, and the sticky whole-book composer. Those pieces
+still exist; the three-column shell around them does not.
+
+## Nightfall shell (2026-10-27)
+
+Owner picked **Nightfall** from five prototypes (`artifacts/reports/reader-shell-2026-10-27.md`).
+The rule it follows: the shelf is the only screen with covers, and the reader is
+one column with nothing else on it.
+
+- Library: logo + wordmark, one amber hairline, a serif statement, then a
+  3-up cover wall (horizontal snap carousel below 760px). No spine graphics, no
+  shelf planks, no grid toggle.
+- Reader: 64px topbar (logo, centred volume switcher, Contents, Focus, notes,
+  Aa), a 66ch serif column at 19px/1.72, and a 2px amber progress hairline.
+  From 1080px the grid reserves a 320px right margin (28px gutter) for notes;
+  the prose column width tracks `--read-size` so the measure stays 66ch.
+- Focus mode is on by default. Every paragraph sits at
+  `--focus-dim` (ink 62% / bg) except the one nearest 42% of the viewport, which
+  keeps full ink. The measurement is in `Reader.tsx`;
+  the colours are in `tokens.css`. With focus on and no note in the margin the
+  column is optically centred: `.rg-prose` carries
+  `transform: translateX(174px)` at `>= 1080px` (half of the 320px margin plus
+  the 28px gutter), so the prose sits on the viewport's centre line rather than
+  half a margin left of it. The first note in the store flips `data-margin` to
+  `filled` and the column slides back beside the margin in 240ms.
+- Answers use the margin card from 1080px: 320px wide, placed beside the quoted
+  passage, draggable by its header, resizable from its edges, with a leader line
+  drawn across the gutter. Once a note exists the margin stays reserved. Below
+  1080px the same card renders in `.gloss-sheet`; the composer hides via
+  `:has(.gloss-sheet)` so the two surfaces never stack.

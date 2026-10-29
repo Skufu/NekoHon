@@ -7,6 +7,11 @@ export type FigureCard = {
   height?: number;
 };
 
+export type ChunkBlock = {
+  kind: "para" | "code" | "table" | string;
+  text: string;
+};
+
 export type Chunk = {
   chunk_id: string;
   chapter: string;
@@ -14,6 +19,7 @@ export type Chunk = {
   section: string;
   source: string;
   text: string;
+  blocks?: ChunkBlock[];
   figures: FigureCard[];
 };
 
@@ -92,12 +98,16 @@ export async function fetchChunks(
   const cached = chunksCache.get(bookId);
   if (cached) return cached;
 
+  if (signal?.aborted) {
+    throw new DOMException("The user aborted a request.", "AbortError");
+  }
+
   const inFlight = chunksInFlight.get(bookId);
   if (inFlight) return inFlight;
 
   const promise = (async () => {
     const query = bookId ? `?book_id=${encodeURIComponent(bookId)}` : "";
-    const response = await fetch(`${engineUrl()}/chunks${query}`, { signal });
+    const response = await fetch(`${engineUrl()}/chunks${query}`);
     if (!response.ok) {
       const data = await response.json().catch(() => null);
       throw new Error(data?.error || `engine returned ${response.status}`);
@@ -144,6 +154,7 @@ export async function importEpubBook(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ mode: "import", filename, data_base64: dataBase64 }),
+    signal: AbortSignal.timeout(600_000),
   });
   if (!response.ok) {
     const data = await response.json().catch(() => null);

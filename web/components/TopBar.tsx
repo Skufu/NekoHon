@@ -7,12 +7,10 @@ import { useAsk } from "@/lib/store";
 export type TopBarProps = {
   bookTitle: string;
   activeChapter: string;
-  activeHeading: string;
-  progress: number;
-  onJumpTop: () => void;
-  onOpenChapters?: () => void;
   chapters: { chapter: string; heading: string; chunkId: string }[];
   onJumpChunk: (chunkId: string) => void;
+  focusMode: boolean;
+  onToggleFocus: () => void;
 };
 
 const THEMES = [
@@ -33,12 +31,10 @@ const PENS = [
 export default function TopBar({
   bookTitle,
   activeChapter,
-  activeHeading,
-  progress,
-  onJumpTop,
-  onOpenChapters,
   chapters,
   onJumpChunk,
+  focusMode,
+  onToggleFocus,
 }: TopBarProps) {
   const theme = useAsk((s) => s.theme);
   const pen = useAsk((s) => s.pen);
@@ -103,6 +99,20 @@ export default function TopBar({
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, []);
+
+  // Escape closes a menu before the reader treats it as "leave focus".
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      if (!chaptersOpen && !bookMenuOpen && !aaOpen) return;
+      event.stopPropagation();
+      setChaptersOpen(false);
+      setBookMenuOpen(false);
+      setAaOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [chaptersOpen, bookMenuOpen, aaOpen]);
 
   // Circular view transition theme picker
   const pickTheme = (key: (typeof THEMES)[number]["key"], e: MouseEvent<HTMLButtonElement>) => {
@@ -170,7 +180,6 @@ export default function TopBar({
     }
   };
 
-  const chLabel = activeChapter ? formatChapter(activeChapter) : "";
   const currentBook = booksCatalog.find((b) => b.book_id === activeBookId);
   const currentBookTitle = currentBook ? currentBook.title : bookTitle || "Volume";
 
@@ -181,49 +190,28 @@ export default function TopBar({
       }`}
     >
       <div className="topbar-inner">
-        {/* Left Side: Brand + Library button + Book Switcher + Chapter dropdown */}
-        <div className="topbar-left" ref={chaptersRef}>
+        <div className="topbar-left">
           <button
             type="button"
             onClick={() => setViewMode("library")}
             className="topbar-brand"
-            title="Open NekoHon Library"
-            aria-label="Open NekoHon Library"
+            title="Return to the Nekohon library"
+            aria-label="Return to the Nekohon library"
           >
-            <svg
-              viewBox="0 0 24 24"
-              width="20"
-              height="20"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="topbar-logo-icon"
-              aria-hidden
-            >
-              <path d="M2 18c3-1.5 6-1.5 10 0 4-1.5 7-1.5 10 0v-11c-3-1.5-6-1.5-10 0-4-1.5-7-1.5-10 0v11z" />
-              <path d="M12 7v11" />
-              <path d="M7 6c0-2 2-3.5 4-3.5s3.5 1 4 2.5" />
-              <path d="M9 2.5L9.5 4" />
-              <path d="M13.5 2.5L13 4" />
-              <path d="M15 5c1.5 0 2.5.8 2.5 2" />
-            </svg>
-            <span className="topbar-brand-name">NekoHon</span>
-            <span className="topbar-brand-kanji">猫本</span>
+            <span className="topbar-logo-tile">
+              <img
+                src="/nekohon-mark.svg"
+                alt=""
+                width={24}
+                height={24}
+                className="topbar-logo-img"
+              />
+            </span>
+            <span className="topbar-brand-name">Nekohon</span>
           </button>
+        </div>
 
-          <button
-            type="button"
-            onClick={() => setViewMode("library")}
-            className="topbar-library-btn"
-            title="Return to Library Start Menu"
-          >
-            <span className="topbar-library-arrow">←</span>
-            <span className="topbar-library-text">Library</span>
-          </button>
-
-          {/* Book Switcher Dropdown */}
+        <div className="topbar-center">
           <div className="topbar-book-wrap" ref={bookMenuRef}>
             <button
               type="button"
@@ -232,15 +220,13 @@ export default function TopBar({
               aria-expanded={bookMenuOpen}
               aria-label="Switch book"
             >
-              <span className="topbar-book-label">
-                {currentBookTitle}
-              </span>
+              <span className="topbar-book-label">{currentBookTitle}</span>
               <span className="topbar-caret">▾</span>
             </button>
 
             {bookMenuOpen && (
               <div className="topbar-book-menu">
-                <div className="topbar-book-menu-title">Volumes on Shelf</div>
+                <div className="topbar-book-menu-title">Volumes</div>
                 {booksCatalog.map((b) => (
                   <button
                     key={b.book_id}
@@ -255,34 +241,31 @@ export default function TopBar({
                   >
                     <span className="topbar-book-item-title">{b.title}</span>
                     <span className="topbar-book-item-meta">
-                      {b.author} · {b.chunk_count} passages
+                      {b.author} · {b.chunk_count.toLocaleString()} passages
                     </span>
                   </button>
                 ))}
               </div>
             )}
           </div>
+        </div>
 
-          {/* Chapter Selector Dropdown */}
-          <div className="topbar-toc-wrap">
+        <div className="topbar-right">
+          <div className="topbar-toc-wrap" ref={chaptersRef}>
             <button
               type="button"
               onClick={() => setChaptersOpen((v) => !v)}
               className="topbar-chapter-btn"
               aria-expanded={chaptersOpen}
-              aria-label="Select chapter"
+              aria-label="Open contents"
             >
-              <span className="topbar-chapter-label">
-                {chLabel || "Chapters"}
-              </span>
+              <span className="topbar-chapter-label">Contents</span>
               <span className="topbar-caret">▾</span>
             </button>
 
             {chaptersOpen && (
               <div className="topbar-toc">
-                <div className="topbar-toc-title">
-                  Table of Contents
-                </div>
+                <div className="topbar-toc-title">Contents</div>
                 {chapters.map((ch) => (
                   <button
                     key={`${ch.chapter}:${ch.chunkId}`}
@@ -304,31 +287,24 @@ export default function TopBar({
               </div>
             )}
           </div>
-        </div>
 
-        {/* Center: Running header */}
-        <div className="topbar-running">
           <button
             type="button"
-            onClick={onJumpTop}
-            className="topbar-running-btn"
-            title="Click to jump to chapter top"
+            className="topbar-focus-btn"
+            onClick={onToggleFocus}
+            aria-pressed={focusMode}
+            title="Dim everything but the passage in focus"
           >
-            {chLabel}
-            {activeHeading && activeHeading.toLowerCase() !== chLabel.toLowerCase()
-              ? ` · ${activeHeading}`
-              : ""}
+            <span className="topbar-focus-dot" aria-hidden />
+            <span className="topbar-focus-text">Focus</span>
           </button>
-        </div>
 
-        {/* Right Side: Notes badge + Aa appearance popover */}
-        <div className="topbar-right">
           {glossCount > 0 && (
             <button
               type="button"
               onClick={handleCycleNotes}
               className="topbar-notes-btn"
-              title="Click to cycle notes"
+              title="Cycle notes"
             >
               <span>{glossCount}</span>
               <span className="topbar-notes-text">
@@ -337,7 +313,6 @@ export default function TopBar({
             </button>
           )}
 
-          {/* Aa Appearance Button */}
           <div className="topbar-aa-wrap" ref={aaRef}>
             <button
               type="button"
@@ -351,11 +326,8 @@ export default function TopBar({
 
             {aaOpen && (
               <div className="aa-popover">
-                {/* Theme section */}
                 <div className="aa-section">
-                  <div className="aa-label">
-                    Theme
-                  </div>
+                  <div className="aa-label">Theme</div>
                   <div className="aa-theme-grid">
                     {THEMES.map((t) => (
                       <button
@@ -372,19 +344,14 @@ export default function TopBar({
                         >
                           Aa
                         </span>
-                        <span className="aa-theme-name">
-                          {t.label}
-                        </span>
+                        <span className="aa-theme-name">{t.label}</span>
                       </button>
                     ))}
                   </div>
                 </div>
 
-                {/* Pen section */}
                 <div className="aa-section">
-                  <div className="aa-label">
-                    Margin Pen
-                  </div>
+                  <div className="aa-label">Pen</div>
                   <div className="aa-pen-row">
                     {PENS.map((p) => (
                       <button
@@ -398,17 +365,12 @@ export default function TopBar({
                         style={{ background: p.color }}
                       />
                     ))}
-                    <span className="aa-pen-name">
-                      {pen}
-                    </span>
+                    <span className="aa-pen-name">{pen}</span>
                   </div>
                 </div>
 
-                {/* Text Size section */}
                 <div className="aa-section">
-                  <div className="aa-label">
-                    Text Size
-                  </div>
+                  <div className="aa-label">Text size</div>
                   <div className="aa-size-row">
                     <button
                       type="button"
@@ -419,9 +381,7 @@ export default function TopBar({
                     >
                       −
                     </button>
-                    <span className="aa-size-val">
-                      {readSize}px
-                    </span>
+                    <span className="aa-size-val">{readSize}px</span>
                     <button
                       type="button"
                       onClick={() => setReadSize(Math.min(26, readSize + 1))}
@@ -438,15 +398,6 @@ export default function TopBar({
           </div>
         </div>
       </div>
-
-      {/* Progress hairline */}
-      <span
-        aria-hidden
-        className="topbar-progress"
-        style={{
-          transform: `scaleX(${Math.max(0, Math.min(1, progress))})`,
-        }}
-      />
     </header>
   );
 }

@@ -23,6 +23,7 @@
   --hl-a: 46%;
   --hl-a-strong: 70%;
   --key-a: 13%;
+  --nf-amber: #9a6f1c;
   --lens-bg: #1d1b18;
   --lens-fg: #f3efe6;
   --lens-mute: #9a9285;
@@ -32,6 +33,7 @@
   --bg-pill: #fffdf9;
   --grain-opacity: 0.045;
   --good: #3f7d4e;
+  --danger: #9d2f1c;
   --rubric: var(--pen-l);
   --rubric-text: var(--pen-l-text);
   color-scheme: light;
@@ -52,6 +54,7 @@
   --hl-a: 42%;
   --hl-a-strong: 66%;
   --key-a: 13%;
+  --nf-amber: #9a6f1c;
   --lens-bg: #2e2418;
   --lens-fg: #f4ead6;
   --lens-mute: #a8957a;
@@ -61,6 +64,7 @@
   --bg-pill: #fbf5e8;
   --grain-opacity: 0.06;
   --good: #3f7d4e;
+  --danger: #8f2c19;
   --rubric: var(--pen-l);
   --rubric-text: var(--pen-l-text);
   color-scheme: light;
@@ -81,6 +85,7 @@
   --hl-a: 42%;
   --hl-a-strong: 66%;
   --key-a: 13%;
+  --nf-amber: #9a6f1c;
   --lens-bg: #141518;
   --lens-fg: #f5f5f4;
   --lens-mute: #8e9096;
@@ -90,6 +95,7 @@
   --bg-pill: #ffffff;
   --grain-opacity: 0.02;
   --good: #3f7d4e;
+  --danger: #a02f1c;
   --rubric: var(--pen-l);
   --rubric-text: var(--pen-l-text);
   color-scheme: light;
@@ -99,6 +105,7 @@
 [data-theme="night"] {
   --bg: #151412;
   --bg-raised: #1d1b18;
+  --nf-amber: #d6a548;
   --bg-sunk: #24221e;
   --ink: #e9e3d6;
   --ink-2: #b6ae9e;
@@ -120,6 +127,7 @@
   --shadow-card: 0 1px 1px rgb(0 0 0 / 0.25), 0 12px 30px -16px rgb(0 0 0 / 0.6);
   --grain-opacity: 0.035;
   --good: #79b98a;
+  --danger: #eb8f78;
   --rubric: var(--pen-d);
   --rubric-text: var(--pen-d-text);
   color-scheme: dark;
@@ -128,6 +136,7 @@
 [data-theme="ink"] {
   --bg: #0f1319;
   --bg-raised: #161b23;
+  --nf-amber: #d6a548;
   --bg-sunk: #1c222c;
   --ink: #e3e8f0;
   --ink-2: #abb4c1;
@@ -149,6 +158,7 @@
   --bg-pill: #1e2530;
   --grain-opacity: 0.03;
   --good: #7fbf95;
+  --danger: #ee9179;
   --rubric: var(--pen-d);
   --rubric-text: var(--pen-d-text);
   color-scheme: dark;
@@ -276,6 +286,10 @@
   --shadow-book-page: inset 14px 0 18px -14px rgb(0 0 0 / 0.28), 1px 1px 0 rgb(0 0 0 / 0.08);
   --shadow-ex-libris: inset 0 0 0 1px rgb(0 0 0 / 0.12), inset 0 0 0 5px #f8f4ec, inset 0 0 0 6px rgb(0 0 0 / 0.08), 0 12px 24px -14px rgb(0 0 0 / 0.35);
   --shadow-dropzone: 0 0 0 2px var(--rubric), 0 20px 48px -16px rgb(0 0 0 / 0.35);
+  /* Nightfall covers sit on a dark shelf; the inset edge keeps a real
+     cover image from dissolving into the ground. */
+  --nf-cover-shadow: 0 1px 1px rgb(0 0 0 / 0.35), 0 28px 42px -26px rgb(0 0 0 / 0.9), inset 0 0 0 1px rgb(255 255 255 / 0.08);
+  --nf-cover-shadow-hover: 0 2px 2px rgb(0 0 0 / 0.38), 0 38px 54px -26px rgb(0 0 0 / 0.95), inset 0 0 0 1px rgb(255 255 255 / 0.13);
   --lens-border: color-mix(in oklab, var(--rule-strong) 40%, transparent);
 
   /* Typography & Layout */
@@ -283,10 +297,19 @@
   --font-ui: var(--font-sans);
   --font-book: var(--font-serif);
   --font-legible: var(--font-sans);
+  --font-code: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, serif;
   --read-size: 19px;
   --leading: 1.64;
   --topbar-h: 60px;
   --measure-k: 34;
+
+  /* Nekohon / Nightfall brand accent + focus dimming.
+     Amber is the mark's eye colour; focus-dim keeps the dimmed prose
+     readable instead of using raw opacity. */
+  --nf-amber-soft: color-mix(in oklab, var(--nf-amber) 15%, transparent);
+  --nf-amber-hover: color-mix(in oklab, var(--nf-amber) 88%, var(--ink));
+  --focus-dim: color-mix(in oklab, var(--ink) 62%, var(--bg));
+  --danger-soft: color-mix(in oklab, var(--danger) 8%, transparent);
 
   /* Backward compatibility tokens */
   --paper: var(--bg);
