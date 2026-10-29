@@ -55,7 +55,8 @@ def postings(index):
 
     chunks = index.get("chunks") if isinstance(index, dict) else index
     chunks = chunks or []
-    key = (id(chunks), len(chunks), chunks[0].get("chunk_id") if chunks and isinstance(chunks[0], dict) else None)
+    first_text = chunks[0].get("text") if chunks and isinstance(chunks[0], dict) else (chunks[0] if chunks else None)
+    key = (id(chunks), len(chunks), chunks[0].get("chunk_id") if chunks and isinstance(chunks[0], dict) else None, hash(str(first_text)))
     if key in _POSTINGS_CACHE:
         cached = _POSTINGS_CACHE[key]
         if isinstance(index, dict) and "_postings" not in index:

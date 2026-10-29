@@ -46,6 +46,7 @@ Stdlib only. The embedder is injected so tests never call Ollama.
 """
 
 import math
+import os
 
 from preprocess import words
 from retrieve import DEFAULT_EMBEDDER, dense_rank
@@ -55,6 +56,7 @@ RRF_K = 60
 # Dimensionless on purpose: an absolute count would mean a different thing on
 # a bigger book.
 RANK_BAND = 0.20
+LEXICAL_BACKEND = os.environ.get("LEXICAL_BACKEND", "fts5")
 
 
 def lexical_scores(question, word_map, chunks, ranks, band):
@@ -113,7 +115,14 @@ def fuse(index, question, passages, word_map=None, ranks=None,
         ranks = dense_rank(index, question, model, embed_fn)
     total = len(chunks)
     band = max(1, round(RANK_BAND * total))
-    scores = lexical_scores(question, word_map, chunks, ranks, band)
+    if LEXICAL_BACKEND == "fts5":
+        try:
+            from fts_index import fts_bm25_scores
+            scores = fts_bm25_scores(index, question, ranks=ranks, band=band)
+        except Exception:
+            scores = lexical_scores(question, word_map, chunks, ranks, band)
+    else:
+        scores = lexical_scores(question, word_map, chunks, ranks, band)
     if not scores:
         return passages
     best_pos = min(scores, key=lambda position: (-scores[position], position))

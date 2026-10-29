@@ -264,5 +264,61 @@ class QueryUnderstandingSyntheticTests(unittest.TestCase):
         self.assertIn("Raft", resolved_simple)
 
 
+    def test_explain_rejects_single_letter_and_stopwords(self):
+        """Noise highlights like 'a', 'the', 'in' are refused cleanly without search."""
+        index = {"chunks": []}
+        for noise in ["a", "the", "in", "of", "to"]:
+            res = explain(index, noise)
+            self.assertTrue(res["refused"])
+            self.assertEqual(res["answer"], "Not in this book.")
+
+    def test_explain_passing_mention_unpins_and_retrieves_primary_definition(self):
+        """A concept highlighted in a passing mention retrieves the primary chapter definition."""
+        c1 = {
+            "chunk_id": "tool_001",
+            "chapter": "1",
+            "heading": "Tooling Overview",
+            "text": (
+                "Tooling Overview\n"
+                "Modern engineering pipelines involve multiple elements including CI/CD, monitoring, "
+                "and Paxos consensus."
+            ),
+            "source": "c1",
+        }
+        c2 = {
+            "chunk_id": "consensus_010",
+            "chapter": "5",
+            "heading": "Paxos Consensus Protocol",
+            "text": (
+                "Paxos Consensus Protocol\n"
+                "Paxos is a distributed consensus algorithm that ensures a network of nodes agrees on state."
+            ),
+            "source": "c2",
+        }
+        index = {"chunks": [c1, c2], "figures": []}
+
+        def fake_search(idx, q, k=5):
+            # Global search returns c2 (the definition chunk) at rank 1
+            return [c2, c1]
+
+        def fake_gen(system, user, model):
+            return '[Ch. 5] "Paxos is a distributed consensus algorithm that ensures a network of nodes agrees on state."\nPaxos guarantees state agreement across nodes.'
+
+        body = explain(
+            index, "Paxos",
+            generate_fn=fake_gen,
+            search_fn=fake_search,
+            chunk_id="tool_001",
+            heading="Tooling Overview",
+        )
+        self.assertFalse(body["refused"])
+        c_ids = [c["chunk_id"] for c in body["citations"]]
+        # Primary citation is the definition chunk c2
+        self.assertEqual(c_ids[0], "consensus_010")
+        # Reading context citation c1 is attached
+        self.assertIn("tool_001", c_ids)
+        self.assertIn("Paxos is a distributed consensus algorithm", body["answer"])
+
+
 if __name__ == "__main__":
     unittest.main()

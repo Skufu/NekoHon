@@ -1,5 +1,6 @@
 """Pins the highlight golden set. Reads jsonl. No builder, no Ollama."""
 
+import importlib.util
 import json
 import re
 import unittest
@@ -167,6 +168,88 @@ class HighlightGoldenTest(unittest.TestCase):
         for _split, row in self._rows():
             meta = row["meta"]
             self.assertNotIn(meta["asked"], sealed, row_id(meta))
+
+
+
+
+
+def load_probe_highlight():
+    spec = importlib.util.spec_from_file_location(
+        "probe_highlight",
+        ROOT / "artifacts" / "probes" / "probe-highlight-2026-10-16.py",
+    )
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+class HighlightScorerStrictTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.probe = load_probe_highlight()
+        cls.pin_text = (
+            "Plenty of great modular services are available to choose from in "
+            "either case. The shifting reality of how companies adopt software "
+            "is worth mentioning. Technology adoption within companies is becoming "
+            "an organic, continuous process."
+        )
+        cls.selection = "great"
+
+    def test_check_gloss_rejects_empty_and_trivial(self):
+        for dummy in ("", "   ", "x", "X"):
+            ok, detail, _ = self.probe.check_gloss(dummy, self.selection, self.pin_text)
+            self.assertFalse(ok, f"expected failure for dummy gloss {dummy!r}, got detail: {detail}")
+
+    def test_check_gloss_rejects_repeating_selection(self):
+        for repeat in ("great", "Great", "GREAT", "great."):
+            ok, detail, _ = self.probe.check_gloss(repeat, self.selection, self.pin_text)
+            self.assertFalse(ok, f"expected failure when gloss repeats selection: {repeat!r}")
+
+    def test_check_gloss_rejects_ungrounded_lorem_ipsum(self):
+        lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor."
+        ok, detail, metrics = self.probe.check_gloss(lorem, self.selection, self.pin_text)
+        self.assertFalse(ok, f"expected ungrounded failure for lorem ipsum, got: {detail}")
+        self.assertLess(metrics["grounded_ratio"], 0.5)
+
+    def test_check_gloss_accepts_faithful_gloss(self):
+        faithful = "Plenty of great modular services are available to choose from in either case."
+        ok, detail, metrics = self.probe.check_gloss(faithful, self.selection, self.pin_text)
+        self.assertTrue(ok, f"expected faithful gloss to pass, got: {detail}")
+        self.assertGreaterEqual(metrics["grounded_ratio"], 0.5)
+
+    def test_score_strict_proves_dummy_generator_fails_while_faithful_passes(self):
+        quote = "Plenty of great modular services are available to choose from in either case."
+        dummy_body = {
+            "_pin": "ch04-051",
+            "answer": f'[Ch. 4] "{quote}"\nx',
+            "citations": [{"chunk_id": "ch04-051", "quote": quote}],
+            "refused": False,
+        }
+        # Legacy score: citation and quote pass, so legacy scorer marks it ok (defect)
+        legacy_res = self.probe.score(dummy_body, self.pin_text, self.selection)
+        self.assertTrue(
+            not legacy_res["refused"]
+            and legacy_res["pin_cited"]
+            and legacy_res["quote_verbatim_in_pin"]
+            and legacy_res["word_in_quoted_span"],
+            "Legacy scorer defect: passes dummy generator because gloss is never verified",
+        )
+
+        # Stricter opt-in score: dummy gloss must FAIL
+        strict_dummy_res = self.probe.score_strict(dummy_body, self.pin_text, self.selection)
+        self.assertFalse(strict_dummy_res["passed"], "Dummy gloss 'x' must fail under strict scoring")
+        self.assertFalse(strict_dummy_res["gloss_valid"])
+
+        # Faithful gloss must PASS
+        faithful_body = {
+            "_pin": "ch04-051",
+            "answer": f'[Ch. 4] "{quote}"\n{quote}',
+            "citations": [{"chunk_id": "ch04-051", "quote": quote}],
+            "refused": False,
+        }
+        strict_faithful_res = self.probe.score_strict(faithful_body, self.pin_text, self.selection)
+        self.assertTrue(strict_faithful_res["passed"], "Faithful gloss must pass under strict scoring")
+        self.assertTrue(strict_faithful_res["gloss_valid"])
 
 
 if __name__ == "__main__":

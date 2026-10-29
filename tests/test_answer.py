@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+import answer as A
 from answer import (
     REFUSAL,
     _after_lead_in,
@@ -1272,6 +1273,79 @@ class PinChunkAndCrossChunkTests(unittest.TestCase):
         self.assertEqual(res["citations"][0]["chunk_id"], "c1")
         self.assertIn("create, read, update, and delete", res["citations"][0]["quote"])
         self.assertIn("In simple terms", res["answer"])
+
+
+class ReadingAnchorTests(unittest.TestCase):
+    """A pin belongs to a selection or a follow-up, not to scroll position.
+
+    The bug this guards (2026-10-28): the reader sent its visible chunk with a
+    fresh whole-book question, the engine expanded that pin to a +/-2 chunk
+    window, and all five dense hits were discarded. The passage that actually
+    answered the question ranked first in dense search and was never shown.
+    """
+
+    def _index(self):
+        return {
+            "book_id": "synthetic",
+            "figures": [],
+            "chunks": [
+                {"chunk_id": "c1", "chapter": "1", "heading": "Anchor",
+                 "text": "Anchor text about the visible paragraph."},
+                {"chunk_id": "c2", "chapter": "1", "heading": "Other",
+                 "text": "Other text."},
+                {"chunk_id": "c3", "chapter": "1", "heading": "Answer",
+                 "text": "The answer text."},
+            ],
+        }
+
+    def _context(self, **kwargs):
+        hits = [
+            {"score": 0.9, "chunk_id": "c3", "chapter": "1", "heading": "Answer",
+             "text": "The answer text.", "source": ""},
+            {"score": 0.8, "chunk_id": "c2", "chapter": "1", "heading": "Other",
+             "text": "Other text.", "source": ""},
+        ]
+        with mock.patch.object(A, "rare", return_value=False), \
+             mock.patch.object(A, "second_reading", return_value=None), \
+             mock.patch.object(A, "llm_second_reading", return_value=None):
+            return A.retrieval_context(
+                self._index(), "What is the answer text?",
+                search_fn=lambda *args, **kwargs: [dict(hit) for hit in hits],
+                **kwargs)
+
+    def test_standalone_question_does_not_pin_the_scroll_anchor(self):
+        context = self._context(pin_chunk="c1")
+        self.assertNotIn("c1", [p["chunk_id"] for p in context["passages"]])
+
+    def test_followup_still_pins_the_reading_anchor(self):
+        history = [{"question": "What is the answer text?",
+                    "answer": '[Ch. 1] "The answer text."\nIt is short.'}]
+        context = self._context(pin_chunk="c1", history=history)
+        self.assertEqual(context["passages"][0]["chunk_id"], "c1")
+
+    def test_one_word_gloss_must_name_the_term(self):
+        chunk = {
+            "chunk_id": "c1",
+            "chapter": "1",
+            "heading": "Commodity hardware",
+            "text": (
+                "Commodity hardware\n"
+                "Coinciding with the explosion of data, commodity hardware\u2014such as "
+                "servers, RAM, disks, and flash drives\u2014also became cheap and ubiquitous."
+            ),
+        }
+        index = {"chunks": [chunk], "figures": []}
+
+        def fake_gen(system, user, model, prefill=None):
+            return (
+                "The passage introduces the early 2000s as a pivotal era where "
+                "affordable hardware enabled the rise of big data technologies."
+            )
+        fake_gen._is_live = True
+
+        body = explain(index, "RAM", generate_fn=fake_gen, chunk_id="c1")
+        self.assertIn("RAM", body["answer"])
+        self.assertNotIn("highlighted word introduces", body["answer"].lower())
 
 
 if __name__ == "__main__":

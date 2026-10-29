@@ -5,7 +5,7 @@ import unittest
 import zipfile
 from pathlib import Path
 
-from ingest import _chapter_number, ingest_epub
+from ingest import ChapterParser, _chapter_number, ingest_epub
 
 CHAPTER = """<?xml version="1.0" encoding="utf-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -65,6 +65,63 @@ def _write_epub(path):
         zf.writestr("OEBPS/images/fig-7-3.png", PNG)
 
 
+class ChapterParserTests(unittest.TestCase):
+    def test_program_listing_collapses_publisher_whitespace_between_tokens(self):
+        parser = ChapterParser()
+        parser.feed("""<pre data-type="programlisting">
+<code>record</code>\n\n <code>Person</code>\n <code>{</code>\n\n
+    <code>string</code>\n\n <code>userName</code><code>;</code>\n
+<code>}</code>
+</pre>""")
+
+        self.assertEqual(
+            [{k: block.get(k) for k in ("kind", "tag", "text", "id")} for block in parser.blocks],
+            [{
+                "kind": "code",
+                "tag": "pre",
+                "text": "record Person { string userName; }",
+                "id": "",
+            }],
+        )
+
+    def test_a_literal_pre_keeps_lines_and_indentation(self):
+        parser = ChapterParser()
+        parser.feed(
+            '<pre class="code-area">class FixedPoint:\n'
+            '    def __init__(self):\n'
+            '        self.raw = 0\n\n'
+            '        return self.raw\n'
+            '</pre>'
+        )
+
+        self.assertEqual(
+            [{k: block.get(k) for k in ("kind", "tag", "text", "id")} for block in parser.blocks],
+            [{
+                "kind": "code",
+                "tag": "pre",
+                "text": (
+                    "class FixedPoint:\n"
+                    "    def __init__(self):\n"
+                    "        self.raw = 0\n\n"
+                    "        return self.raw"
+                ),
+                "id": "",
+            }],
+        )
+
+    def test_a_table_keeps_each_row_on_one_line(self):
+        parser = ChapterParser()
+        parser.feed(
+            "<table><tr><td>Bit position</td><td>Value</td></tr>"
+            "<tr><td>b7 (sign)</td><td>\u2212128</td></tr></table>"
+        )
+
+        self.assertEqual(
+            [{k: block.get(k) for k in ("kind", "text")} for block in parser.blocks],
+            [{"kind": "table", "text": "Bit position | Value\nb7 (sign) | \u2212128"}],
+        )
+
+
 class IngestTests(unittest.TestCase):
     def test_fake_epub_keeps_table_and_caption(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -84,6 +141,13 @@ class IngestTests(unittest.TestCase):
         self.assertIn("once a day", tables[0]["text"])
         self.assertIn("row by row", tables[0]["text"])
         self.assertTrue(tables[0]["text"].startswith("Batch and streaming"))
+        self.assertEqual(
+            [b for b in tables[0]["blocks"] if b["kind"] == "table"],
+            [{
+                "kind": "table",
+                "text": "Table 7-1. Patterns\nbatch | once a day\nstream | row by row",
+            }],
+        )
 
         cited = [c for c in index["chunks"] if "Figure 7-3" in c["text"]]
         self.assertEqual(len(cited), 1)

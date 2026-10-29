@@ -68,6 +68,15 @@ ANSWER_GLOSS_SYSTEM = (
     "If the reader asks 'What are the ...' (a list, stages, types, components, or reasons), you MUST explicitly name the specific items in your sentence (e.g., 'The five stages of the data engineering lifecycle are generation, storage, ingestion, transformation, and serving data.'). NEVER write vague pointer sentences like 'The stages are listed in the introduction' or 'The process is split into five steps' without naming them."
 )
 
+COMPARE_SYSTEM = (
+    "You are a careful book companion comparing two things from the book. "
+    "Name both sides of the comparison, say what each one is, and state how they differ or relate. "
+    "If the book says one side is part of the other, say that instead of inventing a difference. "
+    "Use only the passages given: never add a fact they do not contain and never invent a difference. "
+    "Write 2 to 3 plain sentences. Do not use [Ch. N] tags, quotation marks, or boilerplate openings "
+    "such as 'In this context' or 'The passage'."
+)
+
 # Live default is nekohon_q35_2b_x3_2e (Qwen3.5-2B, x3 corpus, 2 epochs,
 # adopted 2026-10-24). It is the x2f recipe on the 3B's 844-row corpus, stopped
 # at the best validation epoch: sealed 27/30 (vs 25 for the 417-row run), adrian
@@ -78,4 +87,8 @@ ANSWER_GLOSS_SYSTEM = (
 # Granite was tried and dropped 2026-10-13; that record is in
 # artifacts/reports/, not here.
 ANSWER_MODEL = os.environ.get("ANSWER_MODEL", "nekohon_q35_2b_x3_2e")
-OLLAMA_KEEP_ALIVE = os.environ.get("OLLAMA_KEEP_ALIVE", "24h")
+# Idle models unload after 10 minutes. Measured 2026-10-28: an answer runner
+# left loaded for 8 h reached 6.9 GB working set / 11.2 GB private; unloading
+# frees all of it, and the next request cold-loads in 3.5 s. Set
+# OLLAMA_KEEP_ALIVE=30m for a warmer trade-off, or -1 to pin forever.
+OLLAMA_KEEP_ALIVE = os.environ.get("OLLAMA_KEEP_ALIVE", "10m")

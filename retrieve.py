@@ -13,6 +13,8 @@ import time
 import urllib.request
 from pathlib import Path
 
+from prompt import OLLAMA_KEEP_ALIVE
+
 from figures import cited_numbers, figure_cards
 from preprocess import normalize
 
@@ -118,24 +120,35 @@ _MAX_EMBED_CACHE = 256
 
 
 def ollama_embed(texts, model=DEFAULT_EMBEDDER, url=OLLAMA, timeout=120):
+    import observe
     cache_key = None
     if len(texts) <= 4:
         cache_key = (url, model, tuple(texts))
         if cache_key in _EMBED_CACHE:
+            observe.record_embed(cache_hit=True, embedder=model)
             return [list(v) for v in _EMBED_CACHE[cache_key]]
 
     payload = json.dumps({
         "model": model,
         "input": texts,
-        "keep_alive": os.environ.get("OLLAMA_KEEP_ALIVE", "24h"),
+        "keep_alive": OLLAMA_KEEP_ALIVE,
     }).encode("utf-8")
     request = urllib.request.Request(
         url,
         data=payload,
         headers={"Content-Type": "application/json"},
     )
+    t0 = time.perf_counter()
     with urllib.request.urlopen(request, timeout=timeout) as response:
         body = json.loads(response.read().decode("utf-8"))
+    elapsed_ms = (time.perf_counter() - t0) * 1000.0
+    load_ns = body.get("load_duration") or 0
+    observe.record_embed(
+        ms=elapsed_ms,
+        vram_load_ms=(load_ns / 1_000_000.0) if load_ns else 0.0,
+        cache_hit=False,
+        embedder=model,
+    )
     vectors = body.get("embeddings")
     if not isinstance(vectors, list) or len(vectors) != len(texts):
         raise RuntimeError(f"bad embed response for {model}")
@@ -284,7 +297,58 @@ def _prepare_index(index):
 
     import readings
     readings._book_forms(index)
+    _build_uvec_matrix(index)
     return index
+
+
+def _build_uvec_matrix(index):
+    """Build and attach a contiguous np.float32 matrix of normalized chunk vectors."""
+    if not isinstance(index, dict):
+        return None
+    declared = index.get("embedding_dims")
+    chunks = index.get("chunks") or []
+    valid_chunks = []
+    uvec_list = []
+    dim = None
+    for chunk in chunks:
+        vector = chunk.get("embedding")
+        if vector is None:
+            continue
+        if declared and len(vector) != declared:
+            raise SystemExit(
+                f"chunk {chunk.get('chunk_id')}: vector is {len(vector)} wide, "
+                f"index declares {declared}. Re-embed or repair the index."
+            )
+        c_unit = chunk.get("_uvec")
+        if c_unit is None or len(c_unit) != len(vector):
+            c_norm = math.sqrt(_dot(vector, vector))
+            c_unit = [y / c_norm for y in vector] if c_norm > 0.0 else vector
+            chunk["_uvec"] = c_unit
+        if dim is None:
+            dim = len(c_unit)
+        elif len(c_unit) != dim:
+            raise SystemExit(
+                f"chunk {chunk.get('chunk_id')}: vector is {len(c_unit)} wide, "
+                f"index declares {declared or dim}. Re-embed or repair the index."
+            )
+        valid_chunks.append(chunk)
+        uvec_list.append(c_unit)
+
+    try:
+        import numpy as np
+        if not valid_chunks:
+            matrix = np.empty((0, dim or 0), dtype=np.float32)
+        else:
+            matrix = np.ascontiguousarray(uvec_list, dtype=np.float32)
+        index["_uvec_matrix"] = matrix
+        index["_uvec_chunks"] = valid_chunks
+        index["_uvec_matrix_chunk_count"] = len(chunks)
+        index["_uvec_dims"] = dim
+        return matrix
+    except Exception:
+        index["_uvec_matrix"] = None
+        index["_uvec_chunks"] = valid_chunks
+        return None
 
 
 def rank_chunks(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
@@ -329,8 +393,49 @@ def rank_chunks(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
             _lru_put(_QUERY_UNIT_CACHE, (model, norm_q), q_unit)
 
     declared = index.get("embedding_dims")
+    chunks = index.get("chunks", [])
+    matrix = index.get("_uvec_matrix")
+    valid_chunks = index.get("_uvec_chunks")
+
+    # Rebuild if not yet initialized or chunk count / vectors mutated
+    needs_rebuild = (
+        matrix is None
+        or valid_chunks is None
+        or index.get("_uvec_matrix_chunk_count") != len(chunks)
+    )
+    if not needs_rebuild and len(chunks) < 5000:
+        actual_valid = 0
+        for c in chunks:
+            vec = c.get("embedding")
+            if vec is not None:
+                actual_valid += 1
+                uvec = c.get("_uvec")
+                if uvec is None or len(uvec) != len(vec) or (declared and len(vec) != declared):
+                    needs_rebuild = True
+                    break
+        if not needs_rebuild and actual_valid != len(valid_chunks):
+            needs_rebuild = True
+
+    if needs_rebuild:
+        _build_uvec_matrix(index)
+        matrix = index.get("_uvec_matrix")
+        valid_chunks = index.get("_uvec_chunks")
+
+    if matrix is not None and valid_chunks is not None and len(valid_chunks) > 0 and matrix.shape[1] == len(q_unit):
+        try:
+            import numpy as np
+            q_arr = np.asarray(q_unit, dtype=np.float32)
+            scores = matrix @ q_arr
+            order = np.argsort(-scores, kind="stable")
+            ranked = [(float(scores[i]), valid_chunks[i]) for i in order]
+            if use_cache:
+                _lru_put(_RANK_CACHE, rank_key, ranked)
+            return list(ranked)
+        except Exception:
+            pass
+
     ranked = []
-    for chunk in index.get("chunks", []):
+    for chunk in chunks:
         vector = chunk.get("embedding")
         if vector is None:
             continue
@@ -455,6 +560,12 @@ def save_index(path, index):
     clean_index.pop("_postings", None)
     clean_index.pop("_df", None)
     clean_index.pop("_chunk_items", None)
+    clean_index.pop("_uvec_matrix", None)
+    clean_index.pop("_uvec_chunks", None)
+    clean_index.pop("_uvec_matrix_chunk_count", None)
+    clean_index.pop("_uvec_dims", None)
+    clean_index.pop("_fts_conn", None)
+    clean_index.pop("_fts_chunk_count", None)
     clean_chunks = []
     for chunk in index.get("chunks", []):
         c = dict(chunk)
@@ -471,6 +582,45 @@ def save_index(path, index):
     p = Path(path).resolve()
     p.write_text(json.dumps(clean_index), encoding="utf-8")
     _INDEX_CACHE.pop(str(p), None)
+
+
+def save_binary_vectors(index, path):
+    """Save normalized chunk vectors and IDs as a compressed binary (.npz) file."""
+    import numpy as np
+    matrix = index.get("_uvec_matrix")
+    valid_chunks = index.get("_uvec_chunks")
+    if matrix is None or valid_chunks is None:
+        _build_uvec_matrix(index)
+        matrix = index.get("_uvec_matrix")
+        valid_chunks = index.get("_uvec_chunks")
+    if matrix is None or valid_chunks is None:
+        raise ValueError("Cannot save binary vectors: numpy is unavailable or no vectors present.")
+    chunk_ids = [c.get("chunk_id", "") for c in valid_chunks]
+    p = Path(path).resolve()
+    p.parent.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(str(p), chunk_ids=np.array(chunk_ids, dtype=object), matrix=matrix)
+
+
+def load_binary_vectors(index, path):
+    """Load binary vectors from .npz and attach matrix and unit vectors to index."""
+    import numpy as np
+    p = Path(path).resolve()
+    data = np.load(str(p), allow_pickle=True)
+    matrix = np.ascontiguousarray(data["matrix"], dtype=np.float32)
+    saved_ids = list(data["chunk_ids"])
+    chunks = index.get("chunks", [])
+    by_id = {c.get("chunk_id"): c for c in chunks}
+    valid_chunks = []
+    for i, cid in enumerate(saved_ids):
+        chunk = by_id.get(cid)
+        if chunk is not None:
+            chunk["_uvec"] = matrix[i].tolist()
+            valid_chunks.append(chunk)
+    index["_uvec_matrix"] = matrix
+    index["_uvec_chunks"] = valid_chunks
+    index["_uvec_matrix_chunk_count"] = len(chunks)
+    index["_uvec_dims"] = matrix.shape[1] if matrix.ndim > 1 else 0
+    return matrix
 
 
 def chunks_payload(index):
@@ -494,6 +644,7 @@ def chunks_payload(index):
             "section": chunk.get("section") or "",
             "source": chunk.get("source") or "",
             "text": body,
+            "blocks": chunk.get("blocks") or [],
             "figures": figure_cards(chunk.get("figures") or [], figures, book_id=book_id),
         })
     return {

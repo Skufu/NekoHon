@@ -29,7 +29,7 @@ from server import HOST, PORT, ollama_up
 # OLLAMA_NUM_PARALLEL=1 keeps 100% GPU with 2.2 GB VRAM (vs 2.7 GB at 4) and 38.4ms TTFT (vs 44.7ms).
 # OLLAMA_FLASH_ATTENTION=1 cuts median TTFT from 72.7ms to 33.4ms and total time 1338.5ms to 224.3ms.
 RECOMMENDED_ENV = {
-    "OLLAMA_KEEP_ALIVE": "24h",
+    "OLLAMA_KEEP_ALIVE": "10m",
     "OLLAMA_MAX_LOADED_MODELS": "4",
     "OLLAMA_NUM_PARALLEL": "1",
     "OLLAMA_FLASH_ATTENTION": "1",

@@ -20,12 +20,15 @@ LOGIC = (
     "canonical.py",
     "captions.py",
     "figures.py",
+    "fts_index.py",
     "fusion.py",
     "intent.py",
     "keywords.py",
+    "observe.py",
     "preprocess.py",
     "prompt.py",
     "readings.py",
+    "rerank.py",
     "retrieve.py",
 )
 FORBIDDEN = (

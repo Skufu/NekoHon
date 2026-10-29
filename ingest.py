@@ -21,6 +21,40 @@ FIGURES = ROOT / "data" / "figures"
 CHUNK_MAX_CHARS = 1400
 CHUNK_OVERLAP_CHARS = 180
 
+_TOKENIZER = None
+
+
+def get_tokenizer():
+    """Load HuggingFace Tokenizer from local cache with offline fallback."""
+    global _TOKENIZER
+    if _TOKENIZER is not None:
+        return _TOKENIZER
+    try:
+        import glob
+        import os
+        from tokenizers import Tokenizer
+        pattern = os.path.expanduser("~/.cache/huggingface/hub/models--BAAI--bge-small-en-v1.5/**/tokenizer.json")
+        matches = glob.glob(pattern, recursive=True)
+        if not matches:
+            matches = glob.glob(os.path.expanduser("~/.cache/huggingface/hub/**/tokenizer.json"), recursive=True)
+        if matches:
+            _TOKENIZER = Tokenizer.from_file(matches[0])
+            return _TOKENIZER
+    except Exception:
+        pass
+    return None
+
+
+def count_tokens(text):
+    """Count subword tokens using HuggingFace tokenizer, with fallback to whitespace."""
+    tok = get_tokenizer()
+    if tok is not None:
+        try:
+            return len(tok.encode(text or "").ids)
+        except Exception:
+            pass
+    return max(1, len((text or "").split()))
+
 OPF = "{http://www.idpf.org/2007/opf}"
 CONTAINER = "{urn:oasis:names:tc:opendocument:xmlns:container}"
 
@@ -81,6 +115,13 @@ class ChapterParser(HTMLParser):
         self._capture = None
         self._heading_id = ""
         self._last_h5_fig = None
+        self._pre_markup = 0
+        self._table_rows = []
+        self._table_row = None
+        self._table_cell = None
+        self._table_caption = []
+        self._table_in_caption = False
+        self._table_raw = []
 
     def handle_starttag(self, tag, attrs):
         tag = tag.lower()
@@ -131,7 +172,21 @@ class ChapterParser(HTMLParser):
         if tag == "table":
             self._capture = "table"
             self._text = []
+            self._table_rows = []
+            self._table_row = None
+            self._table_cell = None
+            self._table_caption = []
+            self._table_in_caption = False
+            self._table_raw = []
             self._stack.append(tag)
+            return
+        if self._capture == "table":
+            if tag == "caption":
+                self._table_in_caption = True
+            elif tag == "tr":
+                self._table_row = []
+            elif tag in ("td", "th"):
+                self._table_cell = []
             return
         if tag == "a" and attr.get("data-type") == "xref":
             self._text.append(f"\x00{attr.get('href', '').lstrip('#')}\x00")
@@ -142,6 +197,14 @@ class ChapterParser(HTMLParser):
                 self._capture = tag
                 self._text = []
                 self._heading_id = attr.get("id", "") if tag in HEADING_TAGS else ""
+                if tag == "pre":
+                    self._pre_markup = 0
+            return
+        if self._capture == "pre" and tag in ("code", "span"):
+            # DDIA wraps every syntax-highlighted token in its own <code>
+            # element, separated by blank lines. That markup is layout, not
+            # code: count it so </pre> can reflow it back into one listing.
+            self._pre_markup += 1
 
     def handle_endtag(self, tag):
         tag = tag.lower()
@@ -149,6 +212,46 @@ class ChapterParser(HTMLParser):
             self._skip -= 1
             return
         if self._skip:
+            return
+
+        if self._capture == "table":
+            if tag == "caption":
+                self._table_in_caption = False
+                return
+            if tag in ("td", "th"):
+                if self._table_row is not None and self._table_cell is not None:
+                    self._table_row.append(_clean_cell("".join(self._table_cell)))
+                self._table_cell = None
+                return
+            if tag == "tr":
+                if self._table_row:
+                    self._table_rows.append(self._table_row)
+                self._table_row = None
+                return
+            if tag == "table":
+                rows = [row for row in self._table_rows if any(row)]
+                caption = _clean_cell("".join(self._table_caption))
+                rows_text = "\n".join(" | ".join(row) for row in rows)
+                text = "\n".join(part for part in (caption, rows_text) if part)
+                if text:
+                    self.blocks.append({
+                        "kind": "table",
+                        "text": text,
+                        # Keep the publisher's flat text for chunk packing:
+                        # changing it moves every later chunk id in the book.
+                        "pack": _clean("".join(self._table_raw)),
+                    })
+                self._capture = None
+                self._text = []
+                self._table_rows = []
+                self._table_row = None
+                self._table_cell = None
+                self._table_caption = []
+                self._table_in_caption = False
+                self._table_raw = []
+                if self._stack and self._stack[-1] == "table":
+                    self._stack.pop()
+                return
             return
 
         if self._in_figure:
@@ -195,23 +298,26 @@ class ChapterParser(HTMLParser):
             else:
                 self._last_h5_fig = None
 
-        if tag == "table" and self._capture == "table":
-            text = _clean("".join(self._text))
-            if text:
-                self.blocks.append({"kind": "table", "text": text})
-            self._capture = None
-            self._text = []
-            if self._stack and self._stack[-1] == "table":
-                self._stack.pop()
-            return
         if tag in BLOCK_TAGS and self._capture == tag:
-            text = _clean("".join(self._text))
-            if text:
+            if tag == "pre":
+                raw = "".join(self._text)
+                text = (
+                    _clean_program_listing(raw)
+                    if self._pre_markup > 1
+                    else _clean_code(raw)
+                )
+                kind = "code"
+                pack = _clean(raw)
+            else:
+                text = _clean("".join(self._text))
                 kind = "heading" if tag in HEADING_TAGS else "para"
+                pack = text
+            if text:
                 self.blocks.append({
                     "kind": kind,
                     "tag": tag,
                     "text": text,
+                    "pack": pack,
                     "id": self._heading_id,
                 })
             self._capture = None
@@ -223,6 +329,13 @@ class ChapterParser(HTMLParser):
     def handle_data(self, data):
         if self._skip or self._capture is None:
             return
+        if self._capture == "table":
+            self._table_raw.append(data)
+            if self._table_in_caption:
+                self._table_caption.append(data)
+            elif self._table_cell is not None:
+                self._table_cell.append(data)
+            return
         self._text.append(data)
 
 
@@ -231,6 +344,42 @@ def _clean(text):
     text = re.sub(r"[ \t]+", " ", text)
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()
+
+
+def _clean_program_listing(text):
+    """A listing whose markup put one token on every line, with blank lines.
+
+    Syntax highlighters (DDIA's EPUB) split a listing into per-token <code>
+    elements. Reflow the token stream into one readable line; any spacing
+    left by the markup is not code layout.
+    """
+    text = re.sub(r"\s+", " ", text.replace("\xa0", " ")).strip()
+    return re.sub(r"\s+([,;:)\]])", r"\1", text)
+
+
+def _clean_code(text):
+    """A literal <pre>: keep line breaks and indentation, drop blank runs."""
+    text = (
+        text.replace("\xa0", " ")
+        .replace("\r\n", "\n")
+        .replace("\r", "\n")
+    )
+    lines = [line.rstrip() for line in text.split("\n")]
+    while lines and not lines[0].strip():
+        lines.pop(0)
+    while lines and not lines[-1].strip():
+        lines.pop()
+    kept = []
+    for line in lines:
+        if line.strip():
+            kept.append(line)
+        elif kept and kept[-1] != "":
+            kept.append("")
+    return "\n".join(kept)
+
+
+def _clean_cell(text):
+    return re.sub(r"\s+", " ", text.replace("\xa0", " ")).strip()
 
 
 def _chapter_number(doc_id, html_text):
@@ -364,6 +513,21 @@ def _stored(text):
     return _clean(_visible(text))
 
 
+def _stored_block(block):
+    text = _unmarked(block.get("text") or "")
+    return _clean_code(text) if block.get("kind") == "code" else _clean(text)
+
+
+def _pack_text(block):
+    """The text used to decide chunk boundaries.
+
+    Display text for code and tables is cleaner than the publisher's flat
+    text, but packing by it would move every later chunk id in the book. The
+    reader gets the clean text; the boundaries stay where they were.
+    """
+    return _stored(block.get("pack") or block.get("text") or "")
+
+
 def _mentions_figure(text):
     visible = _visible(text)
     return bool(re.search(r"\b(Figure|Fig\.)\b", visible))
@@ -460,20 +624,69 @@ def _sentence_tail(text, limit):
     return " ".join(reversed(kept))
 
 
-def _section_chunks(heading, body_blocks):
+def _pieces_by_tokens(text, max_tokens):
+    """Text as pieces no longer than max_tokens subword tokens."""
+    if count_tokens(text) <= max_tokens:
+        return [text]
+    pieces = []
+    current = ""
+    for sentence in _sentences(text):
+        if count_tokens(sentence) > max_tokens:
+            if current:
+                pieces.append(current)
+                current = ""
+            words_list = sentence.split()
+            sub = []
+            for w in words_list:
+                cand = " ".join(sub + [w])
+                if sub and count_tokens(cand) > max_tokens:
+                    pieces.append(" ".join(sub))
+                    sub = [w]
+                else:
+                    sub.append(w)
+            if sub:
+                pieces.append(" ".join(sub))
+            continue
+        cand = (current + " " + sentence).strip()
+        if current and count_tokens(cand) > max_tokens:
+            pieces.append(current)
+            current = sentence
+        else:
+            current = cand
+    if current:
+        pieces.append(current)
+    return pieces
+
+
+def _section_chunks(heading, body_blocks, max_tokens=None, with_blocks=False):
     """One section. Overlap only when the section is longer than the cap.
 
-    Tables stay one piece even if they are longer than the cap.
+    Tables and code stay one piece even if they are longer than the cap
+    (unless max_tokens is set): a cut table or a cut listing is worse than a
+    long chunk. With `with_blocks`, each chunk also carries the body blocks
+    that produced it, so the reader can render code and tables as blocks
+    instead of one paragraph per source line.
     """
+    heading = _stored(heading)
+    heading_prefix = (heading + "\n") if heading else ""
+    budget = max(CHUNK_MAX_CHARS - len(heading_prefix), 200)
+
     pieces = []
     for block in body_blocks:
-        text = _stored(block["text"])
-        # A table stays one piece even past the cap: a cut table is worse than
-        # a long chunk.
-        if block["kind"] == "table":
-            pieces.append(text)
+        text = _stored_block(block)
+        pack = _pack_text(block)
+        kind = block.get("kind") or "para"
+        if kind == "paragraph":
+            kind = "para"
+        if kind in ("table", "code") and max_tokens is None:
+            pieces.append({"text": text, "pack": pack, "kind": kind})
             continue
-        pieces.extend(_pieces(text))
+        if max_tokens is not None:
+            h_tokens = count_tokens(heading_prefix) if heading_prefix else 0
+            body_budget = max(5, max_tokens - h_tokens - 4)  # 4 token safety margin for formatting
+            pieces.extend({"text": text, "pack": text, "kind": kind} for text in _pieces_by_tokens(text, body_budget))
+        else:
+            pieces.extend({"text": text, "pack": text, "kind": kind} for text in _pieces(text))
 
     if not pieces and not heading:
         return []
@@ -482,25 +695,36 @@ def _section_chunks(heading, body_blocks):
     current = []
     current_len = 0
     last_body = ""
-    heading = _stored(heading)
-    heading_prefix = (heading + "\n") if heading else ""
-    budget = max(CHUNK_MAX_CHARS - len(heading_prefix), 200)
 
     def flush():
         nonlocal current, current_len, last_body
         if not current and not heading:
             return
-        body = "\n\n".join(current).strip()
+        body = "\n\n".join(piece["text"] for piece in current).strip()
         text = (heading_prefix + body).strip()
         if text:
-            chunks.append(text)
+            chunks.append({
+                "text": text,
+                "blocks": [
+                    {"kind": piece["kind"], "text": piece["text"]}
+                    for piece in current
+                ],
+            })
             last_body = body
         current = []
         current_len = 0
 
     for piece in pieces:
-        extra = len(piece) + (2 if current else 0)
-        if current and current_len + extra > budget:
+        extra = len(piece.get("pack", piece["text"])) + (2 if current else 0)
+        exceeded = False
+        if max_tokens is not None:
+            cand = (heading_prefix + "\n\n".join(p.get("pack", p["text"]) for p in current + [piece])).strip()
+            if count_tokens(cand) > max_tokens:
+                exceeded = True
+        elif current and current_len + extra > budget:
+            exceeded = True
+
+        if current and exceeded:
             flush()
             # Overlap only because this section did not fit in one chunk. The
             # tail comes from the body, not the chunk: a heading in the
@@ -508,12 +732,21 @@ def _section_chunks(heading, body_blocks):
             if chunks:
                 tail = _sentence_tail(last_body, CHUNK_OVERLAP_CHARS)
                 if tail:
-                    current = [tail]
-                    current_len = len(tail)
+                    if max_tokens is not None:
+                        # Only keep overlap if tail + piece fits within max_tokens
+                        cand_overlap = (heading_prefix + tail + "\n\n" + piece.get("pack", piece["text"])).strip()
+                        if count_tokens(cand_overlap) <= max_tokens:
+                            current = [{"text": tail, "pack": tail, "kind": "para"}]
+                            current_len = len(tail)
+                    else:
+                        current = [{"text": tail, "pack": tail, "kind": "para"}]
+                        current_len = len(tail)
         current.append(piece)
         current_len += extra
     flush()
-    return chunks
+    if with_blocks:
+        return chunks
+    return [chunk["text"] for chunk in chunks]
 
 
 def _heading_level(block):
@@ -525,7 +758,7 @@ def _trail_text(trail):
     return " > ".join(text for _, text in trail)
 
 
-def _chunk_chapter(blocks):
+def _chunk_chapter(blocks, max_tokens=None, with_blocks=False):
     """Sections as units: the chunk text plus where it came from.
 
     `section` is the heading trail and `anchor` is the heading's own id. Both
@@ -554,8 +787,22 @@ def _chunk_chapter(blocks):
 
     units = []
     for heading, anchor, trail_text, body in sections:
-        for text in _section_chunks(heading, body):
-            units.append({"text": text, "section": trail_text, "anchor": anchor})
+        for chunk in _section_chunks(
+            heading, body, max_tokens=max_tokens, with_blocks=with_blocks
+        ):
+            if with_blocks:
+                units.append({
+                    "text": chunk["text"],
+                    "blocks": chunk["blocks"],
+                    "section": trail_text,
+                    "anchor": anchor,
+                })
+            else:
+                units.append({
+                    "text": chunk,
+                    "section": trail_text,
+                    "anchor": anchor,
+                })
     return units
 
 
@@ -690,7 +937,7 @@ def ingest_epub(epub_path=BOOK, figures_dir=None, write_images=True, book_id=Non
             parser.feed(raw)
             parser.close()
             chapter = _chapter_number(doc_id, raw)
-            units = _chunk_chapter(parser.blocks)
+            units = _chunk_chapter(parser.blocks, with_blocks=True)
             if not units and not parser.figures:
                 continue
             _attach_paragraphs(parser.figures, parser.blocks)
@@ -702,6 +949,9 @@ def ingest_epub(epub_path=BOOK, figures_dir=None, write_images=True, book_id=Non
                     "chapter": chapter,
                     "heading": heading,
                     "text": text,
+                    "blocks": unit.get("blocks") if any(
+                        block.get("kind") != "para" for block in unit.get("blocks", [])
+                    ) else None,
                     "source": doc_id,
                     "doc": path,
                     "section": unit["section"],
@@ -751,6 +1001,79 @@ def ingest_epub(epub_path=BOOK, figures_dir=None, write_images=True, book_id=Non
         "figures": figures,
     }
 
+
+
+
+def ingest_pdf(pdf_path, max_tokens=None):
+    """Extract chapters and pages from a PDF file using PyMuPDF (fitz).
+
+    Returns a list of chunk dicts following the canonical schema:
+    [{"chunk_id": ..., "chapter": ..., "heading": ..., "text": ..., "source": ...}]
+    """
+    import fitz
+
+    if isinstance(pdf_path, (bytes, bytearray)):
+        doc = fitz.open("pdf", pdf_path)
+    else:
+        doc = fitz.open(str(pdf_path))
+
+    toc = doc.get_toc()
+    toc_by_page = {}
+    if toc:
+        for item in toc:
+            lvl, title, page_num = item[0], item[1], item[2]
+            if page_num not in toc_by_page or lvl == 1:
+                toc_by_page[page_num] = title.strip()
+
+    chunks = []
+    current_chapter = "1"
+    current_heading = ""
+    chunk_index = 0
+
+    for page_num in range(1, len(doc) + 1):
+        page = doc[page_num - 1]
+        text = (page.get_text() or "").strip()
+        if not text:
+            continue
+
+        if page_num in toc_by_page:
+            current_heading = toc_by_page[page_num]
+            m = re.search(r"chapter\s+(\d+)", current_heading, re.I)
+            if m:
+                current_chapter = m.group(1)
+
+        lines = text.splitlines()
+        first_line = lines[0].strip() if lines else ""
+        if page_num in toc_by_page:
+            current_heading = toc_by_page[page_num]
+            heading_to_use = current_heading
+        elif len(first_line) < 80 and not first_line.endswith("."):
+            heading_to_use = first_line
+        else:
+            heading_to_use = current_heading or f"Page {page_num}"
+
+        m = re.search(r"chapter\s+(\d+)", heading_to_use, re.I)
+        if m:
+            current_chapter = m.group(1)
+
+        stored_text = _stored(text)
+        blocks = [{"kind": "paragraph", "text": stored_text}]
+        units = _section_chunks(current_heading, blocks, max_tokens=max_tokens)
+        if not units and stored_text:
+            units = [f"{current_heading}\n{stored_text}".strip()]
+
+        for u in units:
+            chunk_index += 1
+            cid = f"pdf-p{page_num:03d}-{chunk_index:03d}"
+            chunks.append({
+                "chunk_id": cid,
+                "chapter": str(current_chapter),
+                "heading": heading_to_use,
+                "text": u,
+                "source": f"p.{page_num}",
+            })
+
+    return chunks
 
 def main():
     parser = argparse.ArgumentParser(description="Ingest EPUB into JSON index and extracted figure files.")

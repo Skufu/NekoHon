@@ -37,6 +37,14 @@ class AbsentPersonTest(unittest.TestCase):
         self.assertTrue(A.names_absent_person(
             INDEX, "What did Dr. Helena Voss say about at-least-once delivery in 2031?"))
 
+    def test_additional_reporting_verbs_detected(self):
+        self.assertTrue(A.names_absent_person(
+            INDEX, "What did Professor Gregory Vance demonstrate regarding pipeline latency?"))
+        self.assertTrue(A.names_absent_person(
+            INDEX, "What did Dr. Samuel Stone prove regarding distributed consensus?"))
+        self.assertTrue(A.names_absent_person(
+            INDEX, "What did Alice Cooper conclude about hardware accelerators?"))
+
     def test_present_author_is_not_flagged(self):
         self.assertFalse(A.names_absent_person(INDEX, "What did Jeff Bezos say about APIs?"))
 

@@ -29,6 +29,7 @@ from pathlib import Path
 
 mimetypes.init()
 
+import observe
 from retrieve import DEFAULT_EMBEDDER, INDEX, chunk_title, chunks_payload, format_input, load_index, search
 from answer import ask, explain, ollama_generate_stream, quiz, respond, sanitize_history
 from figures import figure_file
@@ -333,7 +334,22 @@ class Handler(BaseHTTPRequestHandler):
             if not index:
                 self._send_json(500, {"error": "missing index"}, send_body=send_body)
                 return
-            hits = search(index, q, k=limit)
+            with observe.trace(
+                source="http",
+                mode="retrieve",
+                book_id=book_id,
+                embedder=index.get("embedder") or DEFAULT_EMBEDDER,
+            ):
+                observe.record_query(raw_question=q, resolved_question=q, asked_form=q)
+                t0_r = time.perf_counter()
+                hits = search(index, q, k=limit)
+                observe.record_retrieval(
+                    retrieval_ms=(time.perf_counter() - t0_r) * 1000.0,
+                    dense_top5=hits,
+                    stages=["dense"],
+                    shown_passages=hits,
+                    embedder=index.get("embedder") or DEFAULT_EMBEDDER,
+                )
             self._send_json(200, {
                 "query": q,
                 "book_id": book_id,
@@ -464,34 +480,48 @@ class Handler(BaseHTTPRequestHandler):
             self._stream_ask(request, book)
             return
         try:
-            history = sanitize_history(request.get("history"))
-            chunk_id = request.get("chunk_id")
-            end_chunk_id = request.get("end_chunk_id") or None
-            if mode == "ask":
-                body = ask(
-                    book, request["question"], history=history,
-                    pin_chunk=chunk_id,
-                    end_chunk_id=end_chunk_id,
-                    selection=request.get("selection") or "",
-                    heading=request.get("heading") or "",
-                )
-            elif mode == "answer":
-                body = respond(
-                    book, request["question"], history=history,
-                    pin_chunk=chunk_id,
-                    end_chunk_id=end_chunk_id,
-                    selection=request.get("selection") or "",
-                    heading=request.get("heading") or "",
-                )
-            elif mode == "explain":
-                body = explain(
-                    book, request.get("selection") or "",
-                    chunk_id=chunk_id,
-                    end_chunk_id=end_chunk_id,
-                    heading=request.get("heading") or "",
-                )
-            else:
-                body = quiz(book, chunk_id=chunk_id)
+            with observe.trace(
+                source="http",
+                mode=mode,
+                book_id=book_id,
+                model=ANSWER_MODEL,
+                embedder=book.get("embedder") or DEFAULT_EMBEDDER,
+            ):
+                history = sanitize_history(request.get("history"))
+                chunk_id = request.get("chunk_id")
+                end_chunk_id = request.get("end_chunk_id") or None
+                if mode == "ask":
+                    body = ask(
+                        book, request["question"], history=history,
+                        pin_chunk=chunk_id,
+                        end_chunk_id=end_chunk_id,
+                        selection=request.get("selection") or "",
+                        heading=request.get("heading") or "",
+                    )
+                elif mode == "answer":
+                    body = respond(
+                        book, request["question"], history=history,
+                        pin_chunk=chunk_id,
+                        end_chunk_id=end_chunk_id,
+                        selection=request.get("selection") or "",
+                        heading=request.get("heading") or "",
+                    )
+                elif mode == "explain":
+                    observe.record_query(
+                        raw_question=request.get("selection") or "",
+                        pin_chunk=chunk_id,
+                        has_selection=True,
+                    )
+                    body = explain(
+                        book, request.get("selection") or "",
+                        chunk_id=chunk_id,
+                        end_chunk_id=end_chunk_id,
+                        heading=request.get("heading") or "",
+                    )
+                else:
+                    observe.record_query(pin_chunk=chunk_id)
+                    body = quiz(book, chunk_id=chunk_id)
+                observe.finish_body(body)
         except ValueError as exc:
             self._send_json(400, {"error": str(exc)})
             return
@@ -623,37 +653,52 @@ class Handler(BaseHTTPRequestHandler):
         self._cors()
         self.end_headers()
         try:
-            history = sanitize_history(request.get("history"))
-            chunk_id = request.get("chunk_id")
-            end_chunk_id = request.get("end_chunk_id") or None
-            if mode == "ask":
-                body = ask(
-                    book, request["question"], generate_fn=generate,
-                    history=history,
-                    pin_chunk=chunk_id,
-                    end_chunk_id=end_chunk_id,
-                    selection=request.get("selection") or "",
-                    heading=request.get("heading") or "",
-                )
-            elif mode == "answer":
-                body = respond(
-                    book, request["question"], generate_fn=generate,
-                    history=history,
-                    pin_chunk=chunk_id,
-                    end_chunk_id=end_chunk_id,
-                    selection=request.get("selection") or "",
-                    heading=request.get("heading") or "",
-                )
-            elif mode == "explain":
-                body = explain(
-                    book, request.get("selection") or "",
-                    generate_fn=generate,
-                    chunk_id=chunk_id,
-                    end_chunk_id=end_chunk_id,
-                    heading=request.get("heading") or "",
-                )
-            else:
-                body = quiz(book, generate_fn=generate, chunk_id=chunk_id)
+            book_id = book.get("book_id") or request.get("book_id") or DEFAULT_BOOK_ID
+            with observe.trace(
+                source="http_stream",
+                mode=mode,
+                book_id=book_id,
+                model=ANSWER_MODEL,
+                embedder=book.get("embedder") or DEFAULT_EMBEDDER,
+            ):
+                history = sanitize_history(request.get("history"))
+                chunk_id = request.get("chunk_id")
+                end_chunk_id = request.get("end_chunk_id") or None
+                if mode == "ask":
+                    body = ask(
+                        book, request["question"], generate_fn=generate,
+                        history=history,
+                        pin_chunk=chunk_id,
+                        end_chunk_id=end_chunk_id,
+                        selection=request.get("selection") or "",
+                        heading=request.get("heading") or "",
+                    )
+                elif mode == "answer":
+                    body = respond(
+                        book, request["question"], generate_fn=generate,
+                        history=history,
+                        pin_chunk=chunk_id,
+                        end_chunk_id=end_chunk_id,
+                        selection=request.get("selection") or "",
+                        heading=request.get("heading") or "",
+                    )
+                elif mode == "explain":
+                    observe.record_query(
+                        raw_question=request.get("selection") or "",
+                        pin_chunk=chunk_id,
+                        has_selection=True,
+                    )
+                    body = explain(
+                        book, request.get("selection") or "",
+                        generate_fn=generate,
+                        chunk_id=chunk_id,
+                        end_chunk_id=end_chunk_id,
+                        heading=request.get("heading") or "",
+                    )
+                else:
+                    observe.record_query(pin_chunk=chunk_id)
+                    body = quiz(book, generate_fn=generate, chunk_id=chunk_id)
+                observe.finish_body(body)
         except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
             return
         except ValueError as exc:
@@ -752,7 +797,7 @@ def _do_warmup():
         embed_model = (fde_idx or {}).get("embedder") or DEFAULT_EMBEDDER
         WARM_STATUS["answer_model"] = answer_model
         WARM_STATUS["embed_model"] = embed_model
-        keep_alive = os.environ.get("OLLAMA_KEEP_ALIVE", "24h")
+        keep_alive = OLLAMA_KEEP_ALIVE
 
         # 4. Warm embedder with SAME options as retrieve.ollama_embed
         embed_url = "http://127.0.0.1:11434/api/embed"

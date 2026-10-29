@@ -1,0 +1,8 @@
+# Core Unlocked Local Tech Stack for ask-this-book
+# Stage 2: In-Process Embeddings, Neural Reranking, SIMD Vector Indexing, SQLite FTS5, Token Budgeting, PDF Ingest
+numpy>=2.0
+tokenizers>=0.20
+onnxruntime>=1.19
+sentence-transformers>=3.0
+lxml>=5.0
+PyMuPDF>=1.24
