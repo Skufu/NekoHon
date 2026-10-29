@@ -10,3 +10,18 @@ artifacts/scratch/
 .openrouter-key
 .env
 .env.*
+
+# Local model weights (never commit)
+*.gguf
+
+# Delta worktrees/clones (each has its own .git)
+.delta/
+
+# Interview prep stays local
+docs/INTERVIEW_PREP.md
+
+# Windows redirect artifact
+nul
+
+# Marked do-not-commit in artifacts/plans/synthesis-eval-2026-10-19.md
+artifacts/probes/synthesis-2026-10-19/
