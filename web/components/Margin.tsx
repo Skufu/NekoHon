@@ -242,51 +242,21 @@ export default function Margin({
 
   const activeGloss = glosses.find((g) => g.id === activeGlossId) ?? null;
 
-  // Mobile / Narrow sheet fallback (< 1080px)
+  // Narrow screen floating bubble (< 1080px)
   if (!wide) {
-    if (!activeGloss) return null;
+    if (!activeGloss || activeGloss.minimized) return null;
     return (
-      <div
-        className="gloss-sheet"
-        role="dialog"
-        aria-label="Margin note"
-      >
-        <div className="gloss-sheet-bar">
-          <span className="gloss-sheet-handle" aria-hidden="true" />
-          <button
-            type="button"
-            aria-label="Close"
-            onClick={() => setActiveGloss(null)}
-            className="gloss-sheet-close"
-          >
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
-        <div className="gloss-sheet-body">
-          <MarginCard
-            gloss={activeGloss}
-            top={0}
-            placed={true}
-            mini={false}
-            active={true}
-            hovered={false}
-            onSelect={() => {}}
-            onHover={() => {}}
-          />
-        </div>
-      </div>
+      <MarginCard
+        gloss={activeGloss}
+        top={0}
+        placed={true}
+        mini={false}
+        active={true}
+        hovered={false}
+        floating={true}
+        onSelect={() => {}}
+        onHover={() => {}}
+      />
     );
   }
 

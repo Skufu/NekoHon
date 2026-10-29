@@ -41,7 +41,7 @@ import observe
 from prompt import ANSWER_MODEL, REFUSAL
 from retrieve import load_index, search
 from fair_cite import fold
-from trace_inspect import diagnose_eval_item, format_eval_report, summarize_eval_diagnostics
+from eval_diagnostics import diagnose_eval_item, format_eval_report, summarize_eval_diagnostics
 
 DATASET = ROOT / "artifacts" / "datasets" / "fair-2026-10-27.jsonl"
 FAIR_SHA256 = "6255b361c7b7511d5047e82d0fa3e93210a537a7fad92e040ee93f4d944697d8"

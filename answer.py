@@ -135,6 +135,7 @@ _WHAT_ITS_RE = re.compile(r"\b(what\s+are|what\s+is)\s+its\b")
 _TIER_STAGE_NUM_RE = re.compile(r"\b(type|tier|stage|phase|step)\s*\d+\b")
 _REASONS_QUERY_RE = re.compile(r"\b(specific\s+reasons|reasons|reason|why|main\s+stages|stages|key\s+types|types|characteristics|ways)\b")
 _EXAMPLES_QUERY_RE = re.compile(r"\b(example|examples|instance|illustrate)\b")
+_EXAMPLE_MARKER_RE = re.compile(r"\b(?:for example|for instance|such as|consider|e\.g\.)\b", re.I)
 _RISKS_QUERY_RE = re.compile(r"\b(risk|risks|pitfall|pitfalls|bottleneck|bottlenecks|cost|costs|expensive|trade-off|trade-offs|limitation|limitations|downside|downsides|ossification|cliff|mistake|failure)\b")
 _ATTRIBUTION_QUERY_RE = re.compile(r"\b(who\s+created|who\s+introduced|who\s+coined|who\s+founded|who\s+proposed|who\s+invented|creator|inventor|author|authored)\b")
 _ENTITY_PHRASE_RE = re.compile(r"\b([A-Z][a-zA-Z0-9]*(?:[- ](?:[A-Z0-9][a-zA-Z0-9]*|\d+(?:\.\d+)*))+)\b")
@@ -3016,6 +3017,8 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
     """
     t0_ret = time.perf_counter()
     stages = ["dense"]
+    lexical_top5 = None
+    pre_rerank_top5 = None
     topic_shift = _is_topic_shift_followup(question, history, selection, pin_chunk=pin_chunk, index=index)
     effective_pin = None if (topic_shift and not selection) else pin_chunk
     # A pin is a reading anchor, not a search filter: it belongs to a selected
@@ -3084,6 +3087,8 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
             stages=stages,
             shown_passages=[],
             embedder=index.get("embedder"),
+            lexical_top5=lexical_top5,
+            pre_rerank_top5=pre_rerank_top5,
         )
         return context
     word_map = postings(index)
@@ -3171,6 +3176,7 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
     if os.environ.get("RERANK_ENABLED") == "1":
         try:
             from rerank import rerank_passages
+            pre_rerank_top5 = list(passages)
             passages = rerank_passages(asked, passages, top_k=len(passages))
             stages.append("rerank")
         except Exception:
@@ -3298,6 +3304,8 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
         stages=stages,
         shown_passages=passages,
         embedder=index.get("embedder"),
+        lexical_top5=lexical_top5,
+        pre_rerank_top5=pre_rerank_top5,
     )
     return context
 
@@ -3785,6 +3793,19 @@ def _advance_followup_quote(chunk_obj, neighbors=None, prior_quote="", followup_
     return None
 
 
+def _example_quote_preferred(question: str, adv_quote: str) -> bool:
+    """True when the reader asked for examples and the better sentence is one.
+
+    An example request carries almost no content words ("can you give
+    examples?"), so the shared-token test that guards every other follow-up
+    can never pass for it. The sentence's own example marker is the evidence
+    instead: the book stating "for example" is what the reader asked to see.
+    """
+    if not adv_quote or not _EXAMPLES_QUERY_RE.search(question or ""):
+        return False
+    return bool(_EXAMPLE_MARKER_RE.search(adv_quote))
+
+
 def _synthesize_list_answer(question: str, quote: str, chunk_obj: dict) -> str:
     """Deterministically synthesize a crisp list answer naming specific items."""
     raw_text = (chunk_obj.get("text") or "") if isinstance(chunk_obj, dict) else ""
@@ -4051,10 +4072,12 @@ def _maybe_enrich_contextual_gloss(index, body, resolved_question, passages,
 def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
         canonical=True, history=None, pin_chunk=None, selection="", heading="",
         end_chunk_id=None, embed_fn=None):
+    selection_text = selection
     observe.record_query(
         raw_question=question,
         pin_chunk=pin_chunk,
         has_selection=bool(selection),
+        selection_text=selection_text,
         model=model,
         book_id=index.get("book_id") if isinstance(index, dict) else None,
     )
@@ -4070,7 +4093,11 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
         if isinstance(h, dict) and (h.get("question") or h.get("answer"))
     ]
     topic_shift = _is_topic_shift_followup(question, history, selection, pin_chunk=pin_chunk, index=index)
-    observe.record_query(history_turns=len(clean_history), topic_shift=topic_shift)
+    observe.record_query(
+        history_turns=len(clean_history),
+        history_preview=clean_history,
+        topic_shift=topic_shift,
+    )
     effective_pin = None if (topic_shift and not selection) else pin_chunk
     if clean_history and not topic_shift and (SIMPLIFY_RE.search(question) or is_structural_elided_followup(question, index)):
         target_chunk_obj = None
@@ -4231,9 +4258,12 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
                 first_cite = body["citations"][0] if (not body.get("refused") and body.get("citations")) else None
                 cite_quote = first_cite.get("quote", "") if first_cite else ""
                 q_tok_set = {w.lower() for w in words(question) if w.lower() not in STOPWORDS and len(w) >= 3}
-                cite_matches = sum(1 for t in q_tok_set if t in cite_quote.lower())
-                adv_matches = sum(1 for t in q_tok_set if t in adv_quote.lower())
-                better_adv = bool(adv_matches > cite_matches and adv_matches >= 2)
+                cite_matches = sum(1 for t in q_tok_set if re.search(rf"\b{re.escape(t)}\b", cite_quote, re.I))
+                adv_matches = sum(1 for t in q_tok_set if re.search(rf"\b{re.escape(t)}\b", adv_quote, re.I))
+                better_adv = bool(
+                    (adv_matches > cite_matches and adv_matches >= 2)
+                    or _example_quote_preferred(question, adv_quote)
+                )
                 if body.get("refused") or cite_quote == prior_quote or better_adv:
                     adv_chunk = target_chunk_obj
                     if not _quote_in_passage(adv_quote, target_chunk_obj.get("text", "")):
@@ -4366,7 +4396,7 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
     if context["reading"] is not None and not body["refused"]:
         body["answer"] = f'{body["answer"]}\nRead as: "{context["asked"]}"'
 
-    if not body.get("refused") and not simple_words(asked_form):
+    if not body.get("refused") and not simple_words(question):
         body = _ensure_answer_gloss(
             index, body, resolved_question, passages, is_live=is_live,
             history=history, selection=selection, heading=heading, model=model,
@@ -4568,10 +4598,12 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
     (canonical_query). An uncited answer is retried once with a `[Ch. `
     prefill and kept only when a citation validates (`_retry_uncited`).
     """
+    selection_text = selection
     observe.record_query(
         raw_question=question,
         pin_chunk=pin_chunk,
         has_selection=bool(selection),
+        selection_text=selection_text,
         model=model,
         book_id=index.get("book_id") if isinstance(index, dict) else None,
     )
@@ -4587,7 +4619,11 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
         if isinstance(h, dict) and (h.get("question") or h.get("answer"))
     ]
     topic_shift = _is_topic_shift_followup(question, history, selection, pin_chunk=pin_chunk, index=index)
-    observe.record_query(history_turns=len(clean_history), topic_shift=topic_shift)
+    observe.record_query(
+        history_turns=len(clean_history),
+        history_preview=clean_history,
+        topic_shift=topic_shift,
+    )
     effective_pin = None if (topic_shift and not selection) else pin_chunk
     if clean_history and not topic_shift and (SIMPLIFY_RE.search(question) or is_structural_elided_followup(question, index)):
         target_chunk_obj = None
@@ -4724,7 +4760,7 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
                 answer_text=comparison.get("answer", ""), mode="answer",
             )
             return observe.finish_body(_patch_figures_src(comparison, index))
-    if simple_words(asked_form) and not (clean_history and effective_pin and SIMPLIFY_RE.search(question)):
+    if simple_words(question) and not (clean_history and effective_pin and SIMPLIFY_RE.search(question)):
         observe.record_transform("plain_register")
         body = _plain_body(index, context, generate_fn, model)
         was_refused = bool(body.get("refused"))
@@ -4778,8 +4814,9 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
     if body.get("answer") != pre_exp_ans:
         observe.record_transform("list_expanded")
 
-    if clean_history and not (SIMPLIFY_RE.search(question) or is_structural_elided_followup(question, index)) and not topic_shift:
-        prior_turn = clean_history[-1]
+    want_examples = bool(_EXAMPLES_QUERY_RE.search(question or ""))
+    if (clean_history or want_examples) and not (SIMPLIFY_RE.search(question) or is_structural_elided_followup(question, index)) and not topic_shift:
+        prior_turn = clean_history[-1] if clean_history else {}
         prior_a = (prior_turn.get("answer") or "").strip()
         m_q = re.search(r"\[Ch\.\s*[^\]]+\]\s*[\"“](.+?)[\"”]", prior_a)
         prior_quote = m_q.group(1).strip() if m_q else ""
@@ -4797,9 +4834,12 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
                 first_cite = body["citations"][0] if (not body.get("refused") and body.get("citations")) else None
                 cite_quote = first_cite.get("quote", "") if first_cite else ""
                 q_tok_set = {w.lower() for w in words(question) if w.lower() not in STOPWORDS and len(w) >= 3}
-                cite_matches = sum(1 for t in q_tok_set if t in cite_quote.lower())
-                adv_matches = sum(1 for t in q_tok_set if t in adv_quote.lower())
-                better_adv = bool(adv_matches > cite_matches and adv_matches >= 2)
+                cite_matches = sum(1 for t in q_tok_set if re.search(rf"\b{re.escape(t)}\b", cite_quote, re.I))
+                adv_matches = sum(1 for t in q_tok_set if re.search(rf"\b{re.escape(t)}\b", adv_quote, re.I))
+                better_adv = bool(
+                    (adv_matches > cite_matches and adv_matches >= 2)
+                    or _example_quote_preferred(question, adv_quote)
+                )
                 if body.get("refused") or cite_quote == prior_quote or better_adv:
                     adv_chunk = target_chunk_obj
                     if not _quote_in_passage(adv_quote, target_chunk_obj.get("text", "")):
@@ -4932,7 +4972,7 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
     if context["reading"] is not None and not body["refused"]:
         body["answer"] = f'{body["answer"]}\nRead as: "{context["asked"]}"'
 
-    if not body.get("refused") and not simple_words(asked_form):
+    if not body.get("refused") and not simple_words(question):
         body = _ensure_answer_gloss(
             index, body, resolved_question, passages, is_live=is_live,
             history=history, selection=selection, heading=heading, model=model,

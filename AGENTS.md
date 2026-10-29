@@ -180,10 +180,11 @@ Only this list can block work.
 
 ## Observability and failure diagnosis
 
-- **Runtime trace log.** `observe.py` records one JSON object per request using `contextvars` across `server.py`, `retrieve.py`, and `answer.py`. Live HTTP calls (`POST /ask`, `POST /ask` with `stream=1`, and `GET /retrieve`) append to `artifacts/runs/traces.jsonl`. Set `OBSERVE=0` to disable tracing or `OBSERVE_LOG=<path>` to write elsewhere. Unit tests skip default log writes when `unittest` is loaded unless `OBSERVE_LOG` is set. Tracing never alters HTTP routes or response keys.
-- **Inspect with `trace_inspect.py`, not ad-hoc scripts.** Do not write throwaway Python scripts that call `retrieve.search` directly to debug bad answers. Raw `retrieve.search` skips canonicalization, typo repair, RRF fusion, phrase boost, and pre-LLM guards, so its ranks do not match `shown_passages` (the exact 5 passages sent to the model). Run `python artifacts/harnesses/trace_inspect.py --json` instead:
-  - Live log (`artifacts/runs/traces.jsonl`): `python artifacts/harnesses/trace_inspect.py` (summary), `--last 5`, `--failures`, `--slow`, `--book <book_id>`, `--id <trace_id>`, `--reconstruct` (rebuilds chunk text from local `data/index*.json` since raw book prose is not duplicated into trace logs).
-  - Eval runs (`fair-eval.py` JSON): `python artifacts/harnesses/trace_inspect.py --eval <run.json> --failures`, `--stage <bucket>`, `--id <item_id>`, `--compare <older_run.json>`. Always append `--json` when parsing from an agent.
+- **Runtime trace log.** `observe.py` records one JSON object per request using `contextvars` across `server.py`, `retrieve.py`, and `answer.py` (including `anomalies`, `selection_preview`, `history_preview`, `lexical_top5`, `pre_rerank_top5`, `answer_preview`, and `citations_detail`). Live HTTP calls (`POST /ask`, `POST /ask` with `stream=1`, and `GET /retrieve`) append to `artifacts/runs/traces.jsonl`. Set `OBSERVE=0` to disable tracing or `OBSERVE_LOG=<path>` to write elsewhere. Unit tests skip default log writes when `unittest` is loaded unless `OBSERVE_LOG` is set. Tracing never alters HTTP routes or response keys.
+- **Inspect with `trace_inspect.py` (or `python observe.py`), not ad-hoc scripts.** Do not write throwaway Python scripts that call `retrieve.search` directly to debug bad answers. Raw `retrieve.search` skips canonicalization, typo repair, RRF fusion, phrase boost, and pre-LLM guards, so its ranks do not match `shown_passages` (the exact 5 passages sent to the model). Run `python observe.py --json` (which delegates to `artifacts/harnesses/trace_inspect.py`) instead:
+  - Live log (`artifacts/runs/traces.jsonl`): `python observe.py` (summary), `--last 5`, `--failures` (or `--anomalies`), `--slow`, `--book <book_id>`, `--id <trace_id>`, `--diff <id1> <id2>`, `--reconstruct` (rebuilds chunk text and headings from local `data/index*.json` since raw book prose is not duplicated into trace logs).
+  - Offline retrieval & guard dry-run (zero LLM calls): `python observe.py --dry-run "<question>" --book <book_id> --json` (alias `--explain-query`, with optional `--mode`, `--pin`, `--select`).
+  - Eval runs (`fair-eval.py` JSON): `python observe.py --eval <run.json> --failures`, `--stage <bucket>`, `--id <item_id>`, `--compare <older_run.json>`. Always append `--json` when parsing from an agent.
 - **Isolate the failing stage before changing code or training data.** Every `fair-eval.py` item carries `trace` and `diagnostics` attributing failures to one stage:
   1. Pre-LLM guards (`guard_false_refusal` when `query.guard_blocked` fires on an answerable item; `trap_false_answer` when an out-of-book trap slips past both guards and the model).
   2. Retrieval (`retrieval_miss` when no gold chapter or passage appears in `retrieval.shown_passages`).
@@ -226,6 +227,28 @@ Only this list can block work.
 - Prune before docs commits: `python artifacts/prune.py --plan`.
 
 ## Current state (update this block when a phase lands)
+
+### Reading progress (2026-10-29)
+
+- Scrolling the library no longer counts as reading. Both panes stay mounted
+  (`library-pane` is `display: none`, not unmounted), so the reader's window
+  `scroll` listener was recording the shelf's scroll fraction as the active
+  book's progress — scrolling the shelf to its end set `Reading · 100%`.
+  The tracker and the saved-passage restore now run only while
+  `viewMode === "reader"` and only for a `payload.book_id` matching
+  `activeBookId`; opening a book restores the saved passage (or the top when
+  none) before any progress is written; leaving the reader clears the restore
+  latch so reopening returns to the same passage. The restore re-measures
+  explicitly, so a stale percentage left by the old bug drops to the real
+  position when the book is opened (measured 90% → 0%). In the dev app
+  (`:3100`, engine `:8000`): a shelf set to `Reading · 17%` stayed at 17%
+  while scrolled to the bottom; reader scroll moved 40% → 46% down and
+  46% → 41% back up; reopening `fde` and `quantization` restored `ch04-036`
+  and `chapter-2-002` to a 72px top offset. `npx tsc --noEmit` 0 errors;
+  `python -m unittest tests.test_frontend_rules` 6/6. The full Python suite
+  on this box fails at import time for harness modules (`behavioral_eval`,
+  `eval_capture`, `eval_integrity`, judge/transport tests) under Python 3.13;
+  that is unrelated to this TypeScript-only change and was not touched.
 
 ### Evaluation integrity (2026-10-29)
 

@@ -25,8 +25,8 @@ export type Segment = {
   isActiveMark?: boolean;
 };
 
-export function formatChapter(ch: string): string {
-  const clean = (ch || "").trim();
+export function formatChapter(ch: string | number | null | undefined): string {
+  const clean = String(ch ?? "").trim();
   if (!clean) return "Book";
   if (/^\d+$/.test(clean)) return `Ch. ${clean}`;
   if (clean.toLowerCase().startsWith("preface")) return "Preface";

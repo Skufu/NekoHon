@@ -193,11 +193,15 @@ authoritative doc is named.
 
 - **runtime trace** (`observe.py`, `artifacts/runs/traces.jsonl`) — one local JSON
   line recorded per HTTP request or `fair-eval` item, capturing query rewrites,
-  pre-LLM guards, `shown_passages`, Ollama TTFT/tok/s/VRAM load time, and post-LLM
-  quote repairs without altering the HTTP response shape (`OBSERVE=0` disables).
-- **trace_inspect.py** (`artifacts/harnesses/trace_inspect.py`) — CLI reader for
-  `traces.jsonl` and `fair-eval` runs (`--failures`, `--slow`, `--stage`, `--id`,
-  `--compare`, `--reconstruct`, and `--json` for agents).
+  selection/history previews, pre-LLM guards, `lexical_top5`, `pre_rerank_top5`,
+  `shown_passages`, Ollama TTFT/tok/s/VRAM load time, post-LLM quote repairs,
+  `answer_preview`, `citations_detail`, and `anomalies` without altering the HTTP
+  response shape (`OBSERVE=0` disables).
+- **trace_inspect.py** (`artifacts/harnesses/trace_inspect.py`, also invoked via
+  `python observe.py`) — CLI reader and offline retrieval dry-runner for
+  `traces.jsonl` and `fair-eval` runs (`--failures`, `--anomalies`, `--slow`,
+  `--stage`, `--id`, `--diff`, `--dry-run`, `--compare`, `--reconstruct`, and
+  `--json` for agents).
 - **shown_passages** — the exact ranked list of passages placed into the model
   prompt after canonicalization, typo repair, RRF fusion, and phrase boosting;
   checked first when debugging whether search or generation caused a miss.

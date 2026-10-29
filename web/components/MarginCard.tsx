@@ -1,6 +1,13 @@
 "use client";
 
-import { forwardRef, memo, useState, useRef, type CSSProperties } from "react";
+import {
+  forwardRef,
+  memo,
+  useState,
+  useRef,
+  useEffect,
+  type CSSProperties,
+} from "react";
 import AnswerView from "@/components/AnswerView";
 import { formatChapter } from "@/lib/anchor";
 import { useAsk, type GlossItem } from "@/lib/store";
@@ -12,10 +19,38 @@ export type MarginCardProps = {
   mini: boolean;
   active: boolean;
   hovered: boolean;
+  floating?: boolean;
   onSelect: () => void;
   onHover: (hovered: boolean) => void;
   onHeightChange?: () => void;
 };
+
+type Edge = "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
+const EDGES: Edge[] = ["n", "s", "e", "w", "ne", "nw", "se", "sw"];
+const MARGIN = 8;
+const MIN_W = 240;
+const MIN_H = 120;
+
+function getHandleStyle(edge: Edge): CSSProperties {
+  switch (edge) {
+    case "n":
+      return { position: "absolute", top: -6, left: 14, right: 14, height: 14, cursor: "ns-resize", zIndex: 15, touchAction: "none" };
+    case "s":
+      return { position: "absolute", bottom: -6, left: 14, right: 14, height: 14, cursor: "ns-resize", zIndex: 15, touchAction: "none" };
+    case "e":
+      return { position: "absolute", right: -6, top: 14, bottom: 14, width: 14, cursor: "ew-resize", zIndex: 15, touchAction: "none" };
+    case "w":
+      return { position: "absolute", left: -6, top: 14, bottom: 14, width: 14, cursor: "ew-resize", zIndex: 15, touchAction: "none" };
+    case "ne":
+      return { position: "absolute", top: -6, right: -6, width: 22, height: 22, cursor: "nesw-resize", zIndex: 16, touchAction: "none" };
+    case "nw":
+      return { position: "absolute", top: -6, left: -6, width: 22, height: 22, cursor: "nwse-resize", zIndex: 16, touchAction: "none" };
+    case "se":
+      return { position: "absolute", bottom: -6, right: -6, width: 22, height: 22, cursor: "nwse-resize", zIndex: 16, touchAction: "none" };
+    case "sw":
+      return { position: "absolute", bottom: -6, left: -6, width: 22, height: 22, cursor: "nesw-resize", zIndex: 16, touchAction: "none" };
+  }
+}
 
 function modeBadge(gloss: GlossItem): string {
   if (gloss.kind === "quiz") return "Quiz";
@@ -115,33 +150,16 @@ function renderStreamingText(raw: string) {
 
   if (text.startsWith("[")) {
     const firstNewline = text.indexOf("\n");
-    const firstLine = firstNewline !== -1 ? text.slice(0, firstNewline).trim() : text.trim();
     const rest = firstNewline !== -1 ? text.slice(firstNewline + 1).trimStart() : "";
 
-    const quoteMatch = firstLine.match(
-      /^\[(?:ch|chapter)\.?\s*([^\]]+)\]\s*["\u201c]?([^"\u201d\n]*)/i
+    return (
+      <div className="turn-body is-streaming">
+        <p className="answer">
+          {rest ? renderAnimatedTokens(rest) : null}
+          <span className="stream-cursor" aria-hidden="true" />
+        </p>
+      </div>
     );
-
-    if (quoteMatch) {
-      const ch = quoteMatch[1].trim();
-      const quoteText = quoteMatch[2].replace(/["\u201d]$/, "").trim();
-      return (
-        <div className="turn-body is-streaming">
-          <p className="answer">
-            {rest ? renderAnimatedTokens(rest) : null}
-            <span className="stream-cursor" aria-hidden="true" />
-          </p>
-          <div className="source-pill-row">
-            <span
-              className="source-pill"
-              title={quoteText ? `“${quoteText}”` : undefined}
-            >
-              + Source quote · Ch. {formatChapter(ch)}
-            </span>
-          </div>
-        </div>
-      );
-    }
   }
 
   return (
@@ -162,6 +180,7 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
     mini,
     active,
     hovered,
+    floating = false,
     onSelect,
     onHover,
     onHeightChange,
@@ -184,6 +203,8 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
   const [copied, setCopied] = useState(false);
   const [isInteracting, setIsInteracting] = useState(false);
   const [expandedTurns, setExpandedTurns] = useState<Record<string, boolean>>({});
+  const [maximized, setMaximized] = useState(false);
+  const [floatingGeom, setFloatingGeom] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const articleRef = useRef<HTMLElement | null>(null);
@@ -201,19 +222,25 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
     origY: 0,
   });
 
-  const isResizingRef = useRef<"left" | "bottom" | "top" | "corner" | null>(null);
-  const resizeStartRef = useRef<{
+  const activeEdgeRef = useRef<Edge | null>(null);
+  const resizeStartGeomRef = useRef<{
     clientX: number;
     clientY: number;
-    startWidth: number;
-    startHeight: number;
-    startDragY: number;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    dragX: number;
+    dragY: number;
   }>({
     clientX: 0,
     clientY: 0,
-    startWidth: 320,
-    startHeight: 320,
-    startDragY: 0,
+    x: 0,
+    y: 0,
+    w: 320,
+    h: 320,
+    dragX: 0,
+    dragY: 0,
   });
 
   const dragX = gloss.dragOffset?.x ?? 0;
@@ -224,11 +251,58 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
   const liveHeightRef = useRef<number | undefined>(gloss.customHeight);
   const rafRef = useRef<number>(0);
 
-  if (!isDraggingRef.current && !isResizingRef.current) {
+  if (!isDraggingRef.current && !activeEdgeRef.current) {
     liveDragRef.current = { x: dragX, y: dragY };
     liveWidthRef.current = gloss.customWidth;
     liveHeightRef.current = gloss.customHeight;
   }
+
+  // Floating geometry seed and re-clamp on viewport resize
+  useEffect(() => {
+    if (!floating) return;
+    const updateGeom = () => {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const defaultW = Math.min(500, Math.max(240, vw - 24));
+      const defaultH = 310;
+      const defaultX = Math.round((vw - defaultW) / 2);
+      const defaultY = vh - 12 - defaultH;
+
+      setFloatingGeom((prev) => {
+        if (!prev) {
+          return { x: defaultX, y: defaultY, w: defaultW, h: defaultH };
+        }
+        const w = Math.min(Math.max(prev.w, MIN_W), Math.max(MIN_W, vw - MARGIN * 2));
+        const h = Math.min(Math.max(prev.h, MIN_H), Math.max(MIN_H, vh - MARGIN * 2));
+        const x = Math.min(Math.max(prev.x, MARGIN), Math.max(MARGIN, vw - MARGIN - w));
+        const y = Math.min(Math.max(prev.y, MARGIN), Math.max(MARGIN, vh - MARGIN - h));
+        return { x, y, w, h };
+      });
+    };
+    updateGeom();
+    window.addEventListener("resize", updateGeom);
+    return () => window.removeEventListener("resize", updateGeom);
+  }, [floating]);
+
+  const currentFloatingGeom = (() => {
+    if (!floating) return null;
+    if (typeof window === "undefined") {
+      return { x: 8, y: 72, w: 340, h: 310 };
+    }
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    if (maximized) {
+      return { x: 8, y: 72, w: vw - 16, h: vh - 80 };
+    }
+    if (floatingGeom) {
+      return floatingGeom;
+    }
+    const defaultW = Math.min(500, Math.max(240, vw - 24));
+    const defaultH = 310;
+    const defaultX = Math.round((vw - defaultW) / 2);
+    const defaultY = vh - 12 - defaultH;
+    return { x: defaultX, y: defaultY, w: defaultW, h: defaultH };
+  })();
 
   const updateLeaderLineDOM = (newX: number, newY: number, customW?: number) => {
     const leaderPath = document.querySelector<SVGPathElement>(`[data-leader-for="${gloss.id}"]`);
@@ -287,7 +361,26 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
 
   const isMinimized = mini || Boolean(gloss.minimized);
 
-  const style: CSSProperties = {
+  const floatingStyle: CSSProperties = currentFloatingGeom
+    ? {
+        position: "fixed",
+        left: `${currentFloatingGeom.x}px`,
+        top: `${currentFloatingGeom.y}px`,
+        width: `${currentFloatingGeom.w}px`,
+        height: `${currentFloatingGeom.h}px`,
+        zIndex: 45,
+        display: "flex",
+        flexDirection: "column",
+        ...(maximized
+          ? {
+              transition:
+                "left 220ms cubic-bezier(0.32, 0.72, 0, 1), top 220ms cubic-bezier(0.32, 0.72, 0, 1), width 220ms cubic-bezier(0.32, 0.72, 0, 1), height 220ms cubic-bezier(0.32, 0.72, 0, 1)",
+            }
+          : null),
+      }
+    : {};
+
+  const marginStyle: CSSProperties = {
     transform:
       dragX !== 0 || dragY !== 0
         ? `translate3d(${dragX}px, ${Math.round(top + dragY)}px, 0)`
@@ -302,27 +395,93 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
       : null),
   };
 
+  const style: CSSProperties = floating ? floatingStyle : marginStyle;
+
+  // Keyboard: Alt+Arrow resizes, Alt+Shift+Arrow moves. "/" focuses [data-pa-followup]
+  useEffect(() => {
+    if (!active) return;
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      const typing = t && typeof t.closest === "function" ? t.closest("input, textarea, [contenteditable]") : null;
+      if (e.key === "/" && !typing && !e.metaKey && !e.ctrlKey) {
+        const input = articleRef.current?.querySelector<HTMLElement>("[data-pa-followup]");
+        if (input) {
+          e.preventDefault();
+          input.focus();
+        }
+        return;
+      }
+      if (floating && e.altKey && !maximized && currentFloatingGeom) {
+        const step = e.shiftKey ? 24 : 16;
+        const move = e.shiftKey;
+        let { x, y, w, h } = currentFloatingGeom;
+        if (e.key === "ArrowLeft") move ? (x -= step) : (w -= step, x += step);
+        else if (e.key === "ArrowRight") move ? (x += step) : (w += step);
+        else if (e.key === "ArrowUp") move ? (y -= step) : (h += step, y -= step);
+        else if (e.key === "ArrowDown") move ? (y += step) : (h -= step);
+        else return;
+        e.preventDefault();
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        w = Math.min(Math.max(w, MIN_W), vw - MARGIN * 2);
+        h = Math.min(Math.max(h, MIN_H), vh - MARGIN * 2);
+        x = Math.min(Math.max(x, MARGIN), vw - MARGIN - w);
+        y = Math.min(Math.max(y, MARGIN), vh - MARGIN - h);
+        setFloatingGeom({ x, y, w, h });
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [active, floating, maximized, currentFloatingGeom]);
+
   const handleHeaderPointerDown = (e: React.PointerEvent<HTMLElement>) => {
     if (e.button !== 0) return;
-    if ((e.target as HTMLElement).closest("button, a, input")) return;
+    if ((e.target as HTMLElement).closest("button, a, input, [data-pa-nodrag]")) return;
     e.preventDefault();
     try {
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     } catch {}
     isDraggingRef.current = true;
     setIsInteracting(true);
-    dragStartRef.current = {
-      clientX: e.clientX,
-      clientY: e.clientY,
-      origX: liveDragRef.current.x,
-      origY: liveDragRef.current.y,
-    };
+    if (floating) {
+      const current = currentFloatingGeom || { x: 0, y: 0, w: 320, h: 310 };
+      dragStartRef.current = {
+        clientX: e.clientX,
+        clientY: e.clientY,
+        origX: current.x,
+        origY: current.y,
+      };
+    } else {
+      dragStartRef.current = {
+        clientX: e.clientX,
+        clientY: e.clientY,
+        origX: liveDragRef.current.x,
+        origY: liveDragRef.current.y,
+      };
+    }
   };
 
   const handleHeaderPointerMove = (e: React.PointerEvent<HTMLElement>) => {
     if (!isDraggingRef.current) return;
     const dx = e.clientX - dragStartRef.current.clientX;
     const dy = e.clientY - dragStartRef.current.clientY;
+
+    if (floating) {
+      if (maximized) return;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const curW = currentFloatingGeom?.w ?? 340;
+      const curH = currentFloatingGeom?.h ?? 310;
+      const nextX = Math.min(Math.max(8, dragStartRef.current.origX + dx), vw - 8 - curW);
+      const nextY = Math.min(Math.max(8, dragStartRef.current.origY + dy), vh - 8 - curH);
+
+      if (articleRef.current) {
+        articleRef.current.style.left = `${nextX}px`;
+        articleRef.current.style.top = `${nextY}px`;
+      }
+      return;
+    }
+
     const nextX = Math.round(dragStartRef.current.origX + dx);
     const nextY = Math.round(dragStartRef.current.origY + dy);
     liveDragRef.current = { x: nextX, y: nextY };
@@ -344,247 +503,212 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
     if (!isDraggingRef.current) return;
     isDraggingRef.current = false;
     setIsInteracting(false);
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {}
+
+    if (floating) {
+      if (articleRef.current) {
+        const nextX = parseFloat(articleRef.current.style.left) || currentFloatingGeom?.x || 8;
+        const nextY = parseFloat(articleRef.current.style.top) || currentFloatingGeom?.y || 72;
+        setFloatingGeom((prev) => ({
+          ...(prev || currentFloatingGeom || { w: 340, h: 310 }),
+          x: nextX,
+          y: nextY,
+        }));
+      }
+      return;
+    }
+
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = 0;
     }
     updateLeaderLineDOM(liveDragRef.current.x, liveDragRef.current.y, liveWidthRef.current);
     setGlossDragOffset(gloss.id, liveDragRef.current);
-    try {
-      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-    } catch {
-      // ignore
-    }
   };
 
-  const handleResizeLeftDown = (e: React.PointerEvent<HTMLDivElement>) => {
+  const handleHeaderDoubleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (floating) {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const defaultW = Math.min(500, Math.max(240, vw - 24));
+      const defaultH = 310;
+      const defaultX = Math.round((vw - defaultW) / 2);
+      const defaultY = vh - 12 - defaultH;
+      setFloatingGeom({ x: defaultX, y: defaultY, w: defaultW, h: defaultH });
+      setMaximized(false);
+      return;
+    }
+    liveDragRef.current = { x: 0, y: 0 };
+    if (articleRef.current) {
+      articleRef.current.style.transform = `translateY(${Math.round(top)}px)`;
+    }
+    updateLeaderLineDOM(0, 0, liveWidthRef.current);
+    setGlossDragOffset(gloss.id, { x: 0, y: 0 });
+  };
+
+  const handleResizeDown = (e: React.PointerEvent<HTMLDivElement>, edge: Edge) => {
     if (e.button !== 0) return;
     e.preventDefault();
     e.stopPropagation();
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    isResizingRef.current = "left";
-    setIsInteracting(true);
-    const startW = gloss.customWidth ?? 320;
-    liveWidthRef.current = startW;
-    resizeStartRef.current = {
-      clientX: e.clientX,
-      clientY: e.clientY,
-      startWidth: startW,
-      startHeight: gloss.customHeight ?? 320,
-      startDragY: liveDragRef.current.y,
-    };
-  };
-
-  const handleResizeLeftMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isResizingRef.current !== "left") return;
-    const delta = resizeStartRef.current.clientX - e.clientX;
-    const nextWidth = Math.max(280, Math.min(540, Math.round(resizeStartRef.current.startWidth + delta)));
-    liveWidthRef.current = nextWidth;
-    if (!rafRef.current) {
-      rafRef.current = requestAnimationFrame(() => {
-        rafRef.current = 0;
-        if (articleRef.current) {
-          articleRef.current.style.width = `${liveWidthRef.current}px`;
-          articleRef.current.style.left = "auto";
-          articleRef.current.style.right = "0px";
-        }
-        updateLeaderLineDOM(liveDragRef.current.x, liveDragRef.current.y, liveWidthRef.current);
-      });
-    }
-  };
-
-  const handleResizeLeftUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isResizingRef.current !== "left") return;
-    isResizingRef.current = null;
-    setIsInteracting(false);
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = 0;
-    }
-    if (liveWidthRef.current !== undefined) {
-      setGlossWidth(gloss.id, liveWidthRef.current);
-    }
-    updateLeaderLineDOM(liveDragRef.current.x, liveDragRef.current.y, liveWidthRef.current);
     try {
-      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     } catch {}
-    onHeightChange?.();
-  };
-
-  const handleResizeBottomDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.button !== 0) return;
-    e.preventDefault();
-    e.stopPropagation();
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    isResizingRef.current = "bottom";
+    activeEdgeRef.current = edge;
     setIsInteracting(true);
-    const cardEl = articleRef.current || ((e.currentTarget as HTMLElement).closest(".gloss-card") as HTMLElement | null);
-    const turnsEl = cardEl?.querySelector<HTMLElement>(".gloss-turns");
-    const currentH = gloss.customHeight ?? (turnsEl?.offsetHeight || 320);
-    liveHeightRef.current = currentH;
-    resizeStartRef.current = {
-      clientX: e.clientX,
-      clientY: e.clientY,
-      startWidth: gloss.customWidth ?? 320,
-      startHeight: currentH,
-      startDragY: liveDragRef.current.y,
-    };
-  };
 
-  const handleResizeBottomMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isResizingRef.current !== "bottom") return;
-    const delta = e.clientY - resizeStartRef.current.clientY;
-    const nextHeight = Math.max(200, Math.min(720, Math.round(resizeStartRef.current.startHeight + delta)));
-    liveHeightRef.current = nextHeight;
-    if (!rafRef.current) {
-      rafRef.current = requestAnimationFrame(() => {
-        rafRef.current = 0;
-        if (articleRef.current) {
-          const turnsEl = articleRef.current.querySelector<HTMLElement>(".gloss-turns");
-          if (turnsEl) {
-            turnsEl.style.maxHeight = `${liveHeightRef.current}px`;
-            turnsEl.style.overflowY = "auto";
-          }
-        }
-      });
+    if (floating) {
+      const cur = currentFloatingGeom || { x: 8, y: 72, w: 340, h: 310 };
+      resizeStartGeomRef.current = {
+        clientX: e.clientX,
+        clientY: e.clientY,
+        x: cur.x,
+        y: cur.y,
+        w: cur.w,
+        h: cur.h,
+        dragX: 0,
+        dragY: 0,
+      };
+      return;
     }
-  };
 
-  const handleResizeBottomUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isResizingRef.current !== "bottom") return;
-    isResizingRef.current = null;
-    setIsInteracting(false);
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = 0;
-    }
-    if (liveHeightRef.current !== undefined) {
-      setGlossHeight(gloss.id, liveHeightRef.current);
-    }
-    try {
-      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-    } catch {}
-    onHeightChange?.();
-  };
-
-  const handleResizeTopDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.button !== 0) return;
-    e.preventDefault();
-    e.stopPropagation();
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    isResizingRef.current = "top";
-    setIsInteracting(true);
-    const cardEl = articleRef.current || ((e.currentTarget as HTMLElement).closest(".gloss-card") as HTMLElement | null);
-    const turnsEl = cardEl?.querySelector<HTMLElement>(".gloss-turns");
-    const currentH = gloss.customHeight ?? (turnsEl?.offsetHeight || 320);
-    liveHeightRef.current = currentH;
-    resizeStartRef.current = {
-      clientX: e.clientX,
-      clientY: e.clientY,
-      startWidth: gloss.customWidth ?? 320,
-      startHeight: currentH,
-      startDragY: liveDragRef.current.y,
-    };
-  };
-
-  const handleResizeTopMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isResizingRef.current !== "top") return;
-    const delta = resizeStartRef.current.clientY - e.clientY;
-    const nextHeight = Math.max(200, Math.min(720, Math.round(resizeStartRef.current.startHeight + delta)));
-    const actualDelta = nextHeight - resizeStartRef.current.startHeight;
-    const nextDragY = Math.round(resizeStartRef.current.startDragY - actualDelta);
-    liveHeightRef.current = nextHeight;
-    liveDragRef.current = { x: liveDragRef.current.x, y: nextDragY };
-    if (!rafRef.current) {
-      rafRef.current = requestAnimationFrame(() => {
-        rafRef.current = 0;
-        if (articleRef.current) {
-          const turnsEl = articleRef.current.querySelector<HTMLElement>(".gloss-turns");
-          if (turnsEl) {
-            turnsEl.style.maxHeight = `${liveHeightRef.current}px`;
-            turnsEl.style.overflowY = "auto";
-          }
-          articleRef.current.style.transform =
-            liveDragRef.current.x !== 0 || liveDragRef.current.y !== 0
-              ? `translate3d(${liveDragRef.current.x}px, ${Math.round(top + liveDragRef.current.y)}px, 0)`
-              : `translateY(${Math.round(top)}px)`;
-        }
-        updateLeaderLineDOM(liveDragRef.current.x, liveDragRef.current.y, liveWidthRef.current);
-      });
-    }
-  };
-
-  const handleResizeTopUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isResizingRef.current !== "top") return;
-    isResizingRef.current = null;
-    setIsInteracting(false);
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = 0;
-    }
-    if (liveHeightRef.current !== undefined) {
-      setGlossHeight(gloss.id, liveHeightRef.current);
-    }
-    setGlossDragOffset(gloss.id, liveDragRef.current);
-    updateLeaderLineDOM(liveDragRef.current.x, liveDragRef.current.y, liveWidthRef.current);
-    try {
-      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-    } catch {}
-    onHeightChange?.();
-  };
-
-  const handleResizeCornerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.button !== 0) return;
-    e.preventDefault();
-    e.stopPropagation();
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    isResizingRef.current = "corner";
-    setIsInteracting(true);
-    const cardEl = articleRef.current || ((e.currentTarget as HTMLElement).closest(".gloss-card") as HTMLElement | null);
+    const cardEl = articleRef.current;
     const turnsEl = cardEl?.querySelector<HTMLElement>(".gloss-turns");
     const currentH = gloss.customHeight ?? (turnsEl?.offsetHeight || 320);
     const currentW = gloss.customWidth ?? 320;
     liveWidthRef.current = currentW;
     liveHeightRef.current = currentH;
-    resizeStartRef.current = {
+    resizeStartGeomRef.current = {
       clientX: e.clientX,
       clientY: e.clientY,
-      startWidth: currentW,
-      startHeight: currentH,
-      startDragY: liveDragRef.current.y,
+      x: 0,
+      y: 0,
+      w: currentW,
+      h: currentH,
+      dragX: liveDragRef.current.x,
+      dragY: liveDragRef.current.y,
     };
   };
 
-  const handleResizeCornerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isResizingRef.current !== "corner") return;
-    const deltaX = resizeStartRef.current.clientX - e.clientX;
-    const nextWidth = Math.max(280, Math.min(540, Math.round(resizeStartRef.current.startWidth + deltaX)));
-    const deltaY = e.clientY - resizeStartRef.current.clientY;
-    const nextHeight = Math.max(200, Math.min(720, Math.round(resizeStartRef.current.startHeight + deltaY)));
-    liveWidthRef.current = nextWidth;
-    liveHeightRef.current = nextHeight;
+  const handleResizeMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const edge = activeEdgeRef.current;
+    if (!edge) return;
+    const start = resizeStartGeomRef.current;
+    const dx = e.clientX - start.clientX;
+    const dy = e.clientY - start.clientY;
+
+    if (floating) {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const maxW = vw - MARGIN * 2;
+      const maxH = vh - MARGIN * 2;
+
+      let nextW = start.w;
+      let nextH = start.h;
+      let nextX = start.x;
+      let nextY = start.y;
+
+      if (edge.includes("e")) {
+        nextW = Math.min(Math.max(start.w + dx, MIN_W), maxW);
+      }
+      if (edge.includes("w")) {
+        nextW = Math.min(Math.max(start.w - dx, MIN_W), maxW);
+        nextX = start.x + (start.w - nextW);
+      }
+      if (edge.includes("s")) {
+        nextH = Math.min(Math.max(start.h + dy, MIN_H), maxH);
+      }
+      if (edge.includes("n")) {
+        nextH = Math.min(Math.max(start.h - dy, MIN_H), maxH);
+        nextY = start.y + (start.h - nextH);
+      }
+
+      if (nextX < MARGIN) { nextW -= (MARGIN - nextX); nextX = MARGIN; }
+      if (nextY < MARGIN) { nextH -= (MARGIN - nextY); nextY = MARGIN; }
+      if (nextX + nextW > vw - MARGIN) { nextW = vw - MARGIN - nextX; }
+      if (nextY + nextH > vh - MARGIN) { nextH = vh - MARGIN - nextY; }
+
+      if (articleRef.current) {
+        articleRef.current.style.left = `${Math.round(nextX)}px`;
+        articleRef.current.style.top = `${Math.round(nextY)}px`;
+        articleRef.current.style.width = `${Math.round(nextW)}px`;
+        articleRef.current.style.height = `${Math.round(nextH)}px`;
+      }
+      return;
+    }
+
+    let nextW = start.w;
+    let nextH = start.h;
+    let nextDragX = start.dragX;
+    let nextDragY = start.dragY;
+
+    if (edge.includes("w")) {
+      const deltaW = start.clientX - e.clientX;
+      nextW = Math.max(240, Math.min(540, Math.round(start.w + deltaW)));
+    } else if (edge.includes("e")) {
+      const deltaW = e.clientX - start.clientX;
+      nextW = Math.max(240, Math.min(540, Math.round(start.w + deltaW)));
+      nextDragX = Math.round(start.dragX + (nextW - start.w));
+    }
+
+    if (edge.includes("s")) {
+      const deltaH = e.clientY - start.clientY;
+      nextH = Math.max(140, Math.min(720, Math.round(start.h + deltaH)));
+    } else if (edge.includes("n")) {
+      const deltaH = start.clientY - e.clientY;
+      nextH = Math.max(140, Math.min(720, Math.round(start.h + deltaH)));
+      const actualDelta = nextH - start.h;
+      nextDragY = Math.round(start.dragY - actualDelta);
+    }
+
+    liveWidthRef.current = nextW;
+    liveHeightRef.current = nextH;
+    liveDragRef.current = { x: nextDragX, y: nextDragY };
+
     if (!rafRef.current) {
       rafRef.current = requestAnimationFrame(() => {
         rafRef.current = 0;
         if (articleRef.current) {
-          articleRef.current.style.width = `${liveWidthRef.current}px`;
+          articleRef.current.style.width = `${nextW}px`;
           articleRef.current.style.left = "auto";
           articleRef.current.style.right = "0px";
           const turnsEl = articleRef.current.querySelector<HTMLElement>(".gloss-turns");
           if (turnsEl) {
-            turnsEl.style.maxHeight = `${liveHeightRef.current}px`;
+            turnsEl.style.maxHeight = `${nextH}px`;
             turnsEl.style.overflowY = "auto";
           }
+          articleRef.current.style.transform =
+            nextDragX !== 0 || nextDragY !== 0
+              ? `translate3d(${nextDragX}px, ${Math.round(top + nextDragY)}px, 0)`
+              : `translateY(${Math.round(top)}px)`;
         }
-        updateLeaderLineDOM(liveDragRef.current.x, liveDragRef.current.y, liveWidthRef.current);
+        updateLeaderLineDOM(nextDragX, nextDragY, nextW);
       });
     }
   };
 
-  const handleResizeCornerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isResizingRef.current !== "corner") return;
-    isResizingRef.current = null;
+  const handleResizeUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    const edge = activeEdgeRef.current;
+    if (!edge) return;
+    activeEdgeRef.current = null;
     setIsInteracting(false);
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {}
+
+    if (floating) {
+      if (articleRef.current) {
+        const nextX = parseFloat(articleRef.current.style.left) || currentFloatingGeom?.x || 8;
+        const nextY = parseFloat(articleRef.current.style.top) || currentFloatingGeom?.y || 72;
+        const nextW = parseFloat(articleRef.current.style.width) || currentFloatingGeom?.w || 340;
+        const nextH = parseFloat(articleRef.current.style.height) || currentFloatingGeom?.h || 310;
+        setFloatingGeom({ x: nextX, y: nextY, w: nextW, h: nextH });
+      }
+      return;
+    }
+
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = 0;
@@ -595,10 +719,8 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
     if (liveHeightRef.current !== undefined) {
       setGlossHeight(gloss.id, liveHeightRef.current);
     }
+    setGlossDragOffset(gloss.id, liveDragRef.current);
     updateLeaderLineDOM(liveDragRef.current.x, liveDragRef.current.y, liveWidthRef.current);
-    try {
-      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-    } catch {}
     onHeightChange?.();
   };
 
@@ -618,7 +740,7 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
       ref={setRefs}
       data-gloss-id={gloss.id}
       aria-label={`${badge} note for ${chLabel}`}
-      className={`gloss-card ${placed ? "" : "unplaced"} ${
+      className={`gloss-card ${floating ? "is-floating" : ""} ${placed ? "" : "unplaced"} ${
         active ? "is-active" : ""
       } ${hovered ? "is-hover" : ""} ${isMinimized ? "is-minimized" : ""} ${
         isInteracting ? "is-interacting" : ""
@@ -636,7 +758,7 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
         }
       }}
     >
-      {/* Minimized 26px node indicator content */}
+      {/* Minimized 26px node indicator content (top bullet dot removed) */}
       <div
         className="gloss-node-bar"
         role="button"
@@ -659,7 +781,6 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
           }
         }}
       >
-        <span className="gloss-node-dot" aria-hidden="true" />
         <span className="gloss-node-badge">{badge}</span>
         <span className="gloss-node-title">{nodeTitle}</span>
         <button
@@ -677,230 +798,142 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
       </div>
 
       {/* Expanded morphable shell */}
-      <div className="gloss-card-body-wrap">
-        <div className="gloss-card-shell">
-          {/* Multi-directional resize handles */}
-          <div
-            className="gloss-resize-handle"
-            onPointerDown={handleResizeLeftDown}
-            onPointerMove={handleResizeLeftMove}
-            onPointerUp={handleResizeLeftUp}
-            title="Drag left edge to resize card width"
-            aria-hidden="true"
-          />
-          <div
-            className="gloss-resize-handle-bottom"
-            onPointerDown={handleResizeBottomDown}
-            onPointerMove={handleResizeBottomMove}
-            onPointerUp={handleResizeBottomUp}
-            title="Drag bottom edge to resize card height"
-            aria-hidden="true"
-          />
-          <div
-            className="gloss-resize-handle-top"
-            onPointerDown={handleResizeTopDown}
-            onPointerMove={handleResizeTopMove}
-            onPointerUp={handleResizeTopUp}
-            title="Drag top edge to resize card height"
-            aria-hidden="true"
-          />
-          <div
-            className="gloss-resize-handle-corner"
-            onPointerDown={handleResizeCornerDown}
-            onPointerMove={handleResizeCornerMove}
-            onPointerUp={handleResizeCornerUp}
-            title="Drag corner to resize card width and height"
-            aria-hidden="true"
-          />
+      <div
+        className="gloss-card-body-wrap"
+        style={floating ? { height: "100%", display: "flex", flexDirection: "column", minHeight: 0 } : undefined}
+      >
+        <div
+          className="gloss-card-shell"
+          style={floating ? { height: "100%", display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" } : undefined}
+        >
+          {/* Multi-directional 8-way resize handles */}
+          {!isMinimized && !maximized && EDGES.map((edge) => (
+            <div
+              key={edge}
+              className={`gloss-resize-${edge}`}
+              style={getHandleStyle(edge)}
+              onPointerDown={(e) => handleResizeDown(e, edge)}
+              onPointerMove={handleResizeMove}
+              onPointerUp={handleResizeUp}
+              title={`Drag ${edge} edge to resize`}
+              aria-hidden="true"
+            />
+          ))}
 
-          {/* Header row - draggable */}
+          {/* Header row - draggable single-line bubble header */}
           <header
             className="gloss-card-header"
+            data-pa-drag
             onPointerDown={handleHeaderPointerDown}
             onPointerMove={handleHeaderPointerMove}
             onPointerUp={handleHeaderPointerUp}
-            onDoubleClick={(e) => {
-              e.stopPropagation();
-              liveDragRef.current = { x: 0, y: 0 };
-              if (articleRef.current) {
-                articleRef.current.style.transform = `translateY(${Math.round(top)}px)`;
-              }
-              updateLeaderLineDOM(0, 0, liveWidthRef.current);
-              setGlossDragOffset(gloss.id, { x: 0, y: 0 });
-            }}
-            title="Drag header to move card · Double-click to reset position"
+            onDoubleClick={handleHeaderDoubleClick}
+            title="Drag header to move · Double-click to reset"
           >
             <div className="gloss-card-title">
               <span className="mini-badge">{badge}</span>
-              <span className="meta">·</span>
-              <span className="meta">
-                {gloss.kind === "whole"
-                  ? `Whole book · ${chLabel}`
-                  : chLabel}
-              </span>
+              <span className={`gloss-ch-label`}>{chLabel}</span>
             </div>
 
             <div className="gloss-card-actions">
-              {/* Width expand/compact toggle */}
+              {/* 1. Maximize / Toggle wide */}
               <button
                 type="button"
+                className="gloss-icon-btn"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setGlossWidth(gloss.id, (gloss.customWidth ?? 320) >= 420 ? 320 : 440);
-                  onHeightChange?.();
+                  if (floating) {
+                    setMaximized((m) => !m);
+                  } else {
+                    setGlossWidth(gloss.id, (gloss.customWidth ?? 320) >= 420 ? 320 : 440);
+                    onHeightChange?.();
+                  }
                 }}
-                aria-label="Toggle wide card"
-                title={(gloss.customWidth ?? 320) >= 420 ? "Compact width" : "Expand width"}
-                className="gloss-icon-btn"
+                aria-label={maximized ? "Restore size" : "Maximize"}
+                title={maximized ? "Restore size" : "Maximize"}
               >
-                <svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <polyline points="15 3 21 3 21 9" />
-                  <polyline points="9 21 3 21 3 15" />
-                  <line x1="21" y1="3" x2="14" y2="10" />
-                  <line x1="3" y1="21" x2="10" y2="14" />
-                </svg>
+                {maximized ? (
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path
+                      d="M6 2.5v3.5H2.5M10 13.5v-3.5h3.5"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                ) : (
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path
+                      d="M2.5 9.5V2.5h7M13.5 6.5v7h-7"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
               </button>
 
-              {/* Minimize to node */}
+              {/* 2. Minimize */}
               <button
                 type="button"
+                className="gloss-icon-btn"
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleMinimizeGloss(gloss.id);
                 }}
                 aria-label="Minimize note"
-                title="Minimize to margin node"
-                className="gloss-icon-btn"
+                title={floating ? "Tuck into the ask button" : "Minimize to margin note"}
               >
-                <svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
-                  <line x1="5" y1="12" x2="19" y2="12" />
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path
+                    d="M3.5 6L8 10.5L12.5 6"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </button>
 
-              {/* Copy answer */}
+              {/* 3. Close / Delete note */}
               <button
                 type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  copyAnswer();
-                }}
-                aria-label={copied ? "Copied" : "Copy answer"}
-                title={copied ? "Copied" : "Copy answer with citations"}
                 className="gloss-icon-btn"
-              >
-                {copied ? (
-                  <svg
-                    width="13"
-                    height="13"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    className="gloss-icon-good"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                ) : (
-                  <svg
-                    width="13"
-                    height="13"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                  </svg>
-                )}
-              </button>
-
-              {/* Delete note */}
-              <button
-                type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   removeGloss(gloss.id);
                 }}
                 aria-label="Delete note"
                 title="Delete note"
-                className="gloss-icon-btn"
               >
-                <svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path
+                    d="M4 4l8 8M12 4L4 12"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                  />
                 </svg>
               </button>
             </div>
           </header>
 
-          {/* Sleek single-line passage ref bar */}
-          {gloss.quote && gloss.kind !== "quiz" ? (
-            <div
-              className="card-passage-ref"
-              role="button"
-              tabIndex={0}
-              onClick={(e) => {
-                e.stopPropagation();
-                const topCite = latestTurn?.body?.citations?.[0];
-                showCitation({
-                  chunk_id: topCite?.chunk_id || gloss.chunkId,
-                  chapter: topCite?.chapter ? String(topCite.chapter) : gloss.chapter,
-                  quote: topCite?.quote || gloss.quote,
-                  at: topCite ? undefined : gloss.at,
-                  nonce: Date.now(),
-                });
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  const topCite = latestTurn?.body?.citations?.[0];
-                  showCitation({
-                    chunk_id: topCite?.chunk_id || gloss.chunkId,
-                    chapter: topCite?.chapter ? String(topCite.chapter) : gloss.chapter,
-                    quote: topCite?.quote || gloss.quote,
-                    at: topCite ? undefined : gloss.at,
-                    nonce: Date.now(),
-                  });
-                }
-              }}
-              title="Jump to this passage in the book"
-            >
-              <span className="card-passage-quote">“{gloss.quote}”</span>
-              <span className="card-passage-jump">Jump</span>
-            </div>
-          ) : null}
-
           {/* Turns */}
           <div
             className="gloss-turns"
             style={{
-              maxHeight: gloss.customHeight
+              flex: floating ? "1 1 auto" : undefined,
+              minHeight: 0,
+              maxHeight: floating
+                ? undefined
+                : gloss.customHeight
                 ? `${gloss.customHeight}px`
-                : (gloss.turns.length > 1 ? "420px" : undefined),
-              overflowY: gloss.customHeight || gloss.turns.length > 1 ? "auto" : undefined,
+                : gloss.turns.length > 1
+                ? "420px"
+                : undefined,
+              overflowY: "auto",
             }}
           >
             {gloss.turns.map((turn, idx) => {
@@ -928,12 +961,12 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
 
               return (
                 <div key={turn.id || idx} className="turn-container">
-                  {/* Collapsible header pill for earlier turns */}
+                  {/* Collapsible header bubble chip for earlier turns */}
                   {isCollapsible ? (
-                    <div className="turn-accordion-header">
+                    <div className="turn-earlier">
                       <button
                         type="button"
-                        className={`turn-accordion-btn ${isExpanded ? "is-expanded" : ""}`}
+                        className="turn-earlier-bubble"
                         onClick={(e) => {
                           e.stopPropagation();
                           setExpandedTurns((prev) => ({
@@ -943,11 +976,27 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
                           onHeightChange?.();
                         }}
                         aria-expanded={isExpanded}
+                        title={turnTitle}
                       >
-                        <span className="turn-accordion-arrow" aria-hidden="true">
-                          {isExpanded ? "▾" : "▸"}
+                        <span className="turn-earlier-text">
+                          {turnTitle}
                         </span>
-                        <span className="turn-accordion-title">{turnTitle}</span>
+                        <svg
+                          className={`turn-chevron ${isExpanded ? "is-open" : ""}`}
+                          width="11"
+                          height="11"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M4 6l4 4 4-4"
+                            stroke="currentColor"
+                            strokeWidth="1.75"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
                       </button>
                       <button
                         type="button"
@@ -965,26 +1014,24 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
                     </div>
                   ) : null}
 
-                  {/* Multi-turn separator for latest turn */}
-                  {idx > 0 && isLatest ? (
-                    <div className="turn-divider">
-                      <span className="turn-badge">Follow-up</span>
-                    </div>
-                  ) : null}
-
                   <div
                     className={`turn-collapse-wrap ${isExpanded ? "is-open" : ""}`}
                     onTransitionEnd={() => onHeightChange?.()}
                   >
                     <div className="turn-collapse-inner">
-                      {/* Turn question (for follow-ups or ask queries) when isLatest */}
+                      {/* Turn question user bubble when isLatest */}
                       {isLatest &&
                         turn.question &&
                         turn.question !== gloss.quote &&
                         !(turn.mode === "quiz" && turn.question === "Quiz") && (
-                          <p className="turn-question">
-                            {turn.question}
-                          </p>
+                          <div
+                            className="turn-question-bubble"
+                            title={turn.question}
+                          >
+                            <div className="turn-question-text">
+                              {turn.question}
+                            </div>
+                          </div>
                         )}
 
                       {/* Loading / Streaming state */}
@@ -1101,6 +1148,8 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
                             anchorQuote={gloss.quote}
                             question={turn.question}
                             onChip={showCitation}
+                            onCopy={copyAnswer}
+                            copied={copied}
                           />
                         </div>
                       )}
@@ -1125,93 +1174,105 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
             })}
           </div>
 
-          {/* Follow-up suggestions */}
-          {canFollowUp && active && (
-            <div className="followup-chips" role="group" aria-label="Suggested follow-ups">
-              {gloss.kind === "quiz" && latestTurn?.status === "done" ? (
-                <>
-                  <button
-                    type="button"
-                    className="followup-chip"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      startQuiz(gloss.chunkId, gloss.chapter);
-                    }}
-                  >
-                    Another quiz question
-                  </button>
-                  <button
-                    type="button"
-                    className="followup-chip"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (!latestTurn.showQuizKey) {
-                        toggleQuizKey(gloss.id, latestTurn.id);
-                      }
-                      askFollowUp(gloss.id, "Explain why this is the answer in simpler words");
-                    }}
-                  >
-                    Explain the answer
-                  </button>
-                </>
-              ) : (
-                getDynamicFollowUps(gloss).map((chipText) => (
-                  <button
-                    key={chipText}
-                    type="button"
-                    className="followup-chip"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      askFollowUp(gloss.id, chipText);
-                    }}
-                  >
-                    {chipText}
-                  </button>
-                ))
-              )}
-            </div>
-          )}
-
-          {/* Follow-up input at bottom */}
+          {/* Bubble Footer */}
           {canFollowUp && (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const q = followUpText.trim();
-                if (!q) return;
-                askFollowUp(gloss.id, q);
-                setFollowUpText("");
-              }}
-              onClick={(e) => e.stopPropagation()}
-              className="followup-form"
+            <footer
+              className={`gloss-card-footer`}
+              style={floating ? { flexShrink: 0 } : undefined}
             >
-              <input
-                ref={inputRef}
-                value={followUpText}
-                onChange={(e) => setFollowUpText(e.target.value)}
-                placeholder="Ask a follow-up…"
-                aria-label="Ask a follow-up"
-                className="followup-input"
-              />
-              <button
-                type="submit"
-                disabled={!followUpText.trim()}
-                aria-label="Send follow-up"
-                className="followup-submit"
+              {/* Follow-up suggestions */}
+              {active && (
+                <div className="followup-chips" role="group" aria-label="Suggested follow-ups">
+                  {gloss.kind === "quiz" && latestTurn?.status === "done" ? (
+                    <>
+                      <button
+                        type="button"
+                        className="followup-chip"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          startQuiz(gloss.chunkId, gloss.chapter);
+                        }}
+                      >
+                        <span className={`followup-chip-text`}>Another quiz question</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="followup-chip"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!latestTurn.showQuizKey) {
+                            toggleQuizKey(gloss.id, latestTurn.id);
+                          }
+                          askFollowUp(gloss.id, "Explain why this is the answer in simpler words");
+                        }}
+                      >
+                        <span className={`followup-chip-text`}>Explain the answer</span>
+                      </button>
+                    </>
+                  ) : (
+                    getDynamicFollowUps(gloss).map((chipText) => (
+                      <button
+                        key={chipText}
+                        type="button"
+                        className="followup-chip"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          askFollowUp(gloss.id, chipText);
+                        }}
+                      >
+                        <span className={`followup-chip-text`}>{chipText}</span>
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {/* Follow-up input */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const q = followUpText.trim();
+                  if (!q) return;
+                  askFollowUp(gloss.id, q);
+                  setFollowUpText("");
+                }}
+                onClick={(e) => e.stopPropagation()}
+                className="followup-form"
               >
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
+                <input
+                  ref={inputRef}
+                  data-pa-followup
+                  value={followUpText}
+                  onChange={(e) => setFollowUpText(e.target.value)}
+                  placeholder="Ask a follow-up…"
+                  aria-label="Ask a follow-up"
+                  className="followup-input"
+                />
+                <button
+                  type="submit"
+                  disabled={!followUpText.trim()}
+                  aria-label="Send follow-up"
+                  className="followup-submit"
                 >
-                  <line x1="12" y1="19" x2="12" y2="5" />
-                  <polyline points="5 12 12 5 19 12" />
-                </svg>
-              </button>
-            </form>
+                  <svg
+                    className={`followup-submit-icon`}
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M3.33 8h9.34M8.67 4l4 4-4 4"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              </form>
+            </footer>
           )}
         </div>
       </div>

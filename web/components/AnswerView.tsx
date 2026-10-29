@@ -72,152 +72,6 @@ export function splitAskAnswer(answer: string): AskAnswerSplit {
   };
 }
 
-function PassageRow({
-  passage,
-  rank,
-  onJump,
-}: {
-  passage: PassageHit;
-  rank: number;
-  onJump: (passage: PassageHit) => void;
-}) {
-  const [expanded, setExpanded] = useState(false);
-  const heading = (passage.heading || "").trim();
-  const body = (passage.text || "").trim();
-  const chapter = formatChapter(passage.chapter);
-  const long = body.length > 240;
-
-  const activate = (e: React.MouseEvent) => {
-    // A drag that selects text is the reader marking a quote, not a jump.
-    if (typeof window !== "undefined" && window.getSelection()?.toString().trim()) {
-      return;
-    }
-    e.stopPropagation();
-    onJump(passage);
-  };
-
-  return (
-    <article className="passage-item" onClick={activate}>
-      <span
-        className="passage-rank"
-        title={`cosine similarity ${passage.score.toFixed(4)}`}
-        aria-hidden="true"
-      >
-        {rank}
-      </span>
-      <div className="passage-main">
-        <div className="passage-lead">
-          <span className="passage-heading">{heading}</span>
-          <button
-            type="button"
-            className="passage-jump"
-            onClick={(e) => {
-              e.stopPropagation();
-              onJump(passage);
-            }}
-            title={`Jump to this passage in ${chapter}`}
-            aria-label={`Jump to this passage in ${chapter}`}
-          >
-            {chapter}
-            <span className="passage-jump-arrow" aria-hidden="true">{"\u2192"}</span>
-          </button>
-        </div>
-        <p className={`passage-text${long && !expanded ? " is-clamped" : ""}`}>{body}</p>
-        {long ? (
-          <button
-            type="button"
-            className="passage-more"
-            onClick={(e) => {
-              e.stopPropagation();
-              setExpanded((v) => !v);
-            }}
-            aria-expanded={expanded}
-          >
-            {expanded ? "Less" : "More"}
-          </button>
-        ) : null}
-      </div>
-    </article>
-  );
-}
-
-function SourceQuoteSection({
-  quote,
-  citation,
-  onJump,
-}: {
-  quote: string;
-  citation: Citation;
-  onJump: (citation: Citation) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const chLabel = formatChapter(citation.chapter);
-  const cleanQuote = quote.replace(/^["'“”‘’]+|["'“”‘’]+$/g, "").trim();
-
-  const jump = (e: React.MouseEvent | React.KeyboardEvent) => {
-    e.stopPropagation();
-    onJump({
-      chunk_id: citation.chunk_id,
-      chapter: citation.chapter,
-      quote: citation.quote || cleanQuote,
-      nonce: Date.now(),
-    } as Citation);
-  };
-
-  return (
-    <div className="source-quote-wrap">
-      <div className="source-pill-row">
-        <button
-          type="button"
-          className={`source-pill ${open ? "is-open" : ""}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            setOpen((v) => !v);
-          }}
-          title={open ? "Hide source quote" : `Expand source quote · ${chLabel}`}
-          aria-expanded={open}
-        >
-          <span className="source-pill-icon">{open ? "\u2212" : "+"}</span>
-          <span className="source-pill-label">Source quote · {chLabel}</span>
-        </button>
-      </div>
-
-      <div className={`source-popover-wrapper ${open ? "is-open" : ""}`} aria-hidden={!open}>
-        <div className="source-popover-inner">
-          <div className="source-popover">
-            <blockquote
-              className="source-popover-text"
-              onClick={jump}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  jump(e);
-                }
-              }}
-              title={`Jump to passage in ${chLabel}`}
-            >
-              “{cleanQuote}”
-            </blockquote>
-            <div className="source-popover-actions">
-              <button
-                type="button"
-                className="source-jump-btn"
-                onClick={jump}
-                title={`Jump to passage in ${chLabel}`}
-              >
-                <span>Jump to passage in {chLabel}</span>
-                <span className="source-jump-arrow" aria-hidden="true">{"\u2192"}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function AnswerView({
   body,
   onChip,
@@ -225,6 +79,8 @@ export default function AnswerView({
   selection = "",
   anchorQuote = "",
   question,
+  onCopy,
+  copied,
 }: {
   body: AnswerBody;
   onChip?: (citation: Citation) => void;
@@ -232,6 +88,8 @@ export default function AnswerView({
   selection?: string;
   anchorQuote?: string;
   question?: string;
+  onCopy?: () => void;
+  copied?: boolean;
 }) {
   const [hiddenFigures, setHiddenFigures] = useState<Record<string, boolean>>({});
   const [passagesOpen, setPassagesOpen] = useState(false);
@@ -266,6 +124,58 @@ export default function AnswerView({
     });
   };
 
+  const quotes = useMemo(() => {
+    const list: { text: string; citation: Citation }[] = [];
+    if (split.ok) {
+      for (const item of split.items) {
+        if (item.kind === "quote") {
+          list.push({ text: item.text, citation: item.citation });
+        }
+      }
+    } else {
+      const parsed = splitAskAnswer(body.answer);
+      if (parsed.quote) {
+        list.push({
+          text: parsed.quote,
+          citation:
+            body.citations[0] || {
+              chunk_id: "",
+              chapter: parsed.chapter || "Book",
+              quote: parsed.quote,
+            },
+        });
+      }
+    }
+
+    if (anchorQuote && anchorQuote.trim().length > 0) {
+      const trimmed = anchorQuote.trim();
+      const alreadyPresent = list.some(
+        (q) => sameWords(q.text, trimmed) || sameWords(q.citation.quote, trimmed)
+      );
+      if (!alreadyPresent) {
+        const citation =
+          body.citations.find(
+            (c) => c.quote && sameWords(c.quote, trimmed)
+          ) ||
+          body.citations[0] || {
+            chunk_id: "",
+            chapter: "Book",
+            quote: trimmed,
+          };
+        list.unshift({ text: trimmed, citation });
+      }
+    }
+
+    return list;
+  }, [split, body.answer, body.citations, anchorQuote]);
+
+  const sourcesCount = passages
+    ? passages.length + quotes.length
+    : Math.max(body.citations.length, quotes.length);
+  const hasSources = Boolean(
+    question || quotes.length > 0 || body.citations.length > 0
+  );
+
   return (
     <div className="answer-view">
       {split.ok ? (
@@ -284,34 +194,7 @@ export default function AnswerView({
               </p>
             );
           }
-          const alreadySelected =
-            activeQuote.length > 0 &&
-            (sameWords(item.text, activeQuote) ||
-              sameWords(item.citation.quote, activeQuote));
-          if (alreadySelected) {
-            return (
-              <p className="meta" key={index}>
-                <button
-                  type="button"
-                  className="chip"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleChip(item.citation);
-                  }}
-                >
-                  {chipLabel(item.citation, indexOf(item.citation), numbered)}
-                </button>
-              </p>
-            );
-          }
-          return (
-            <SourceQuoteSection
-              key={index}
-              quote={item.text}
-              citation={item.citation}
-              onJump={handleChip}
-            />
-          );
+          return null;
         })
       ) : (
         (() => {
@@ -323,43 +206,27 @@ export default function AnswerView({
                   {parsed.gloss}
                 </p>
               ) : null}
-              {parsed.quote ? (
-                <SourceQuoteSection
-                  quote={parsed.quote}
-                  citation={
-                    body.citations[0] || {
-                      chunk_id: "",
-                      chapter: parsed.chapter || "Book",
-                      quote: parsed.quote,
-                    }
-                  }
-                  onJump={handleChip}
-                />
-              ) : (
-                !parsed.gloss ? (
-                  <p className="answer">
-                    {body.answer}
-                  </p>
-                ) : null
-              )}
+              {!parsed.gloss && !parsed.quote ? (
+                <p className="answer">
+                  {body.answer}
+                </p>
+              ) : null}
               {parsed.disclosure ? (
                 <p className="answer-disclosure">
                   {parsed.disclosure}
                 </p>
               ) : null}
 
-              {body.citations.length ? (
+              {body.refused && body.citations.length ? (
                 <p className="chips">
-                  {body.refused ? (
-                    <span className="meta">
-                      nearest misses:{" "}
-                    </span>
-                  ) : null}
+                  <span className="meta">
+                    nearest misses:{" "}
+                  </span>
                   {body.citations.map((citation, index) => (
                     <button
                       key={`${citation.chunk_id}-${index}`}
                       type="button"
-                      className={`chip ${body.refused ? "chip-miss" : ""}`}
+                      className="chip chip-miss"
                       title={
                         citation.quote
                           ? citation.quote.slice(0, 140)
@@ -444,48 +311,129 @@ export default function AnswerView({
         );
       })}
 
-      {question ? (
-        <div className="passages-block">
-          <button
-            type="button"
-            className="passages-toggle"
-            onClick={(e) => {
-              e.stopPropagation();
-              void togglePassages();
-            }}
-            aria-expanded={passagesOpen}
-            title="Show the passages retrieval offered for this question"
-          >
-            <span className="passages-toggle-icon" aria-hidden="true">
-              {passagesOpen ? "\u2212" : "+"}
-            </span>
-            <span>Passages</span>
-            {passages ? (
-              <span className="passages-toggle-count">{passages.length}</span>
+      {hasSources ? (
+        <>
+          <div className="sources-actions-row">
+            <button
+              type="button"
+              className={`sources-pill-btn ${passagesOpen ? "is-open" : ""}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                void togglePassages();
+              }}
+              aria-expanded={passagesOpen}
+              title="Show source quotes and book passages"
+            >
+              <span>
+                Sources
+                {sourcesCount > 0 ? (
+                  <span className="sources-count">{sourcesCount}</span>
+                ) : null}
+              </span>
+              <svg
+                className={`sources-chevron ${passagesOpen ? "is-open" : ""}`}
+                width="12"
+                height="12"
+                viewBox="0 0 16 16"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M4 6l4 4 4-4"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+
+            {onCopy ? (
+              <button
+                type="button"
+                className="sources-copy-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCopy();
+                }}
+                aria-label={copied ? "Copied" : "Copy answer"}
+                title={copied ? "Copied" : "Copy answer with citations"}
+              >
+                {copied ? (
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                ) : (
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <rect x="5" y="5" width="8.5" height="8.5" rx="2" stroke="currentColor" strokeWidth="1.75" />
+                    <path d="M11 5V3.5a1.5 1.5 0 00-1.5-1.5h-6A1.5 1.5 0 002 3.5v6A1.5 1.5 0 003.5 11H5" stroke="currentColor" strokeWidth="1.75" />
+                  </svg>
+                )}
+                <span>{copied ? "Copied" : "Copy"}</span>
+              </button>
             ) : null}
-          </button>
+          </div>
+
           {passagesOpen ? (
-            <div className="passage-list">
-              {passagesError ? (
+            <div className="sources-list">
+              {quotes.map((q, idx) => {
+                const chLabel = formatChapter(q.citation.chapter);
+                const cleanQuote = q.text.replace(/^["'“”‘’]+|["'“”‘’]+$/g, "").trim();
+                return (
+                  <div key={`q-${idx}`} className="source-card">
+                    <div className="source-card-top">
+                      <span className="source-card-badge">Source quote</span>
+                      <span className="source-card-ch">{chLabel}</span>
+                      <button
+                        type="button"
+                        className="source-jump-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleChip({
+                            chunk_id: q.citation.chunk_id,
+                            chapter: q.citation.chapter,
+                            quote: q.citation.quote || cleanQuote,
+                            nonce: Date.now(),
+                          } as Citation);
+                        }}
+                      >
+                        Jump
+                      </button>
+                    </div>
+                    <div className="source-card-quote">“{cleanQuote}”</div>
+                  </div>
+                );
+              })}
+              {question && passagesError ? (
                 <p className="passage-empty">Could not load passages.</p>
               ) : null}
-              {!passages && !passagesError ? (
+              {question && !passages && !passagesError ? (
                 <p className="passage-empty">Reading the index…</p>
               ) : null}
-              {passages && !passages.length ? (
-                <p className="passage-empty">Nothing came back for this question.</p>
-              ) : null}
-              {(passages ?? []).map((passage, index) => (
-                <PassageRow
-                  key={passage.chunk_id}
-                  passage={passage}
-                  rank={index + 1}
-                  onJump={jumpToPassage}
-                />
+              {(passages ?? []).map((passage) => (
+                <div key={passage.chunk_id} className="source-card">
+                  <div className="source-card-top">
+                    <span className="source-card-ch">{formatChapter(passage.chapter)}</span>
+                    {passage.heading ? (
+                      <span className="source-card-title">{passage.heading}</span>
+                    ) : null}
+                    <button
+                      type="button"
+                      className="source-jump-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        jumpToPassage(passage);
+                      }}
+                    >
+                      Jump
+                    </button>
+                  </div>
+                  <div className="source-card-text">{passage.text.replace(/\s+/g, " ").trim()}</div>
+                </div>
               ))}
             </div>
           ) : null}
-        </div>
+        </>
       ) : null}
     </div>
   );

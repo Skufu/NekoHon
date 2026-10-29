@@ -66,6 +66,8 @@ class RequestTrace:
         self.has_history = 0
         self.pin_chunk = None
         self.has_selection = False
+        self.selection_preview = None
+        self.history_preview = []
         self.topic_shift = False
         self.reading_repair = None
         self.guard_blocked = None
@@ -78,6 +80,8 @@ class RequestTrace:
         self.embed_ms = 0.0
         self.embed_vram_load_ms = 0.0
         self.dense_top5 = []
+        self.lexical_top5 = []
+        self.pre_rerank_top5 = []
         self.retrieval_stages = []
         self.shown_passages = []
 
@@ -90,6 +94,8 @@ class RequestTrace:
         self.cited_chunks = []
         self.figures_attached = []
         self.answer_chars = 0
+        self.answer_preview = ""
+        self.citations_detail = []
 
     def to_dict(self):
         llm_ms = round(sum(c.get("latency_ms", 0.0) for c in self.llm_calls), 2)
@@ -110,6 +116,24 @@ class RequestTrace:
             None,
         )
 
+        anomalies = []
+        if self.status == "error" or bool(self.error):
+            anomalies.append("error")
+        if bool(self.guard_blocked):
+            anomalies.append("guard_blocked")
+        if not self.shown_passages and not self.guard_blocked and not self.shortcut:
+            anomalies.append("empty_retrieval")
+        if "parse_refused" in self.transforms or "half_covered_refused" in self.transforms:
+            anomalies.append("post_llm_refusal")
+        if "retry_uncited" in self.transforms or len(self.llm_calls) > 1:
+            anomalies.append("uncited_retry")
+        if "citation_aligned" in self.transforms:
+            anomalies.append("citation_realigned")
+        if total_vram_load_ms >= 100.0:
+            anomalies.append("vram_cold_load")
+        if first_ttft is not None and first_ttft >= 2000.0:
+            anomalies.append("slow_ttft")
+
         return {
             "trace_id": self.trace_id,
             "timestamp": self.timestamp,
@@ -121,6 +145,7 @@ class RequestTrace:
             "status": self.status,
             "error": self.error,
             "total_ms": round(self.total_ms, 2),
+            "anomalies": list(anomalies),
             "query": {
                 "raw": self.raw_question,
                 "resolved": self.resolved_question,
@@ -128,6 +153,8 @@ class RequestTrace:
                 "history_turns": self.has_history,
                 "pin_chunk": self.pin_chunk,
                 "has_selection": self.has_selection,
+                "selection_preview": self.selection_preview,
+                "history_preview": list(self.history_preview),
                 "topic_shift": self.topic_shift,
                 "reading_repair": self.reading_repair,
                 "guard_blocked": self.guard_blocked,
@@ -141,6 +168,8 @@ class RequestTrace:
                 "embed_vram_load_ms": round(self.embed_vram_load_ms, 2),
                 "stages": list(self.retrieval_stages),
                 "dense_top5": list(self.dense_top5),
+                "lexical_top5": list(self.lexical_top5),
+                "pre_rerank_top5": list(self.pre_rerank_top5),
                 "shown_passages": list(self.shown_passages),
             },
             "llm": {
@@ -160,6 +189,9 @@ class RequestTrace:
                 "cited_chunks": list(self.cited_chunks),
                 "figures_attached": list(self.figures_attached),
                 "answer_chars": self.answer_chars,
+                "answer_preview": self.answer_preview,
+                "citations_detail": list(self.citations_detail),
+                "anomalies": list(anomalies),
             },
         }
 
@@ -227,6 +259,8 @@ def record_query(
     topic_shift=None,
     model=None,
     book_id=None,
+    selection_text=None,
+    history_preview=None,
 ):
     tr = _CURRENT_TRACE.get()
     if tr is None:
@@ -245,6 +279,31 @@ def record_query(
         )
     if has_selection is not None:
         tr.has_selection = bool(has_selection)
+    if selection_text is not None and str(selection_text).strip():
+        tr.selection_preview = str(selection_text).strip()[:240]
+    if history_preview is not None:
+        turns = []
+        try:
+            items = list(history_preview)[-2:]
+        except Exception:
+            items = []
+        for t in items:
+            if isinstance(t, dict):
+                if "question" in t or "answer" in t:
+                    turns.append({
+                        "question": str(t.get("question") or "")[:160],
+                        "answer": str(t.get("answer") or "")[:160],
+                    })
+                else:
+                    turns.append({
+                        "role": str(t.get("role", "")),
+                        "text": str(t.get("content") or t.get("text") or "")[:160],
+                    })
+            elif isinstance(t, str):
+                turns.append({"text": t[:160]})
+            else:
+                turns.append({"text": str(t)[:160]})
+        tr.history_preview = turns
     if topic_shift is not None:
         tr.topic_shift = bool(topic_shift)
     if model and not tr.model:
@@ -288,7 +347,37 @@ def record_embed(*, ms=0.0, vram_load_ms=0.0, cache_hit=False, embedder=None):
         tr.embed_vram_load_ms += float(vram_load_ms)
 
 
-def record_retrieval(*, retrieval_ms=0.0, dense_top5=None, stages=None, shown_passages=None, embedder=None):
+def _format_top5(passages):
+    if not passages:
+        return []
+    formatted = []
+    for p in passages[:5]:
+        if not isinstance(p, dict):
+            continue
+        score = p.get("score")
+        if score is not None:
+            try:
+                score = round(float(score), 4)
+            except (ValueError, TypeError):
+                score = None
+        formatted.append({
+            "chunk_id": p.get("chunk_id"),
+            "chapter": p.get("chapter"),
+            "score": score,
+        })
+    return formatted
+
+
+def record_retrieval(
+    *,
+    retrieval_ms=0.0,
+    dense_top5=None,
+    stages=None,
+    shown_passages=None,
+    embedder=None,
+    lexical_top5=None,
+    pre_rerank_top5=None,
+):
     tr = _CURRENT_TRACE.get()
     if tr is None:
         return
@@ -296,14 +385,11 @@ def record_retrieval(*, retrieval_ms=0.0, dense_top5=None, stages=None, shown_pa
     if embedder and not tr.embedder:
         tr.embedder = str(embedder)
     if dense_top5 is not None:
-        tr.dense_top5 = [
-            {
-                "chunk_id": p.get("chunk_id"),
-                "chapter": p.get("chapter"),
-                "score": round(float(p.get("score", 0.0)), 4),
-            }
-            for p in dense_top5[:5]
-        ]
+        tr.dense_top5 = _format_top5(dense_top5)
+    if lexical_top5 is not None:
+        tr.lexical_top5 = _format_top5(lexical_top5)
+    if pre_rerank_top5 is not None:
+        tr.pre_rerank_top5 = _format_top5(pre_rerank_top5)
     if stages is not None:
         tr.retrieval_stages = list(stages)
     if shown_passages is not None:
@@ -421,4 +507,42 @@ def finish_body(body):
         if isinstance(f, dict) and f.get("id")
     ]
     tr.answer_chars = len(body.get("answer") or "")
+    tr.answer_preview = str(body.get("answer") or "")[:600]
+    tr.citations_detail = [
+        {
+            "chunk_id": c.get("chunk_id"),
+            "chapter": c.get("chapter"),
+            "quote_preview": str(c.get("quote") or "")[:240],
+        }
+        for c in (body.get("citations") or [])
+        if isinstance(c, dict) and c.get("chunk_id")
+    ]
     return body
+
+
+def main(argv=None):
+    import importlib.util
+
+    inspect_path = ROOT / "artifacts" / "harnesses" / "trace_inspect.py"
+    if not inspect_path.is_file():
+        sys.stderr.write(f"Trace inspector not found at {inspect_path}\n")
+        return 1
+    spec = importlib.util.spec_from_file_location("trace_inspect", inspect_path)
+    if spec is None or spec.loader is None:
+        sys.stderr.write(f"Failed to load spec for {inspect_path}\n")
+        return 1
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["trace_inspect"] = mod
+    spec.loader.exec_module(mod)
+    inspect_main = getattr(mod, "main", None)
+    if not callable(inspect_main):
+        sys.stderr.write(f"No main() found in {inspect_path}\n")
+        return 1
+    try:
+        return inspect_main(argv)
+    except TypeError:
+        return inspect_main()
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1512,9 +1512,8 @@
 
 /* The answer sheet replaces the composer while it is open. */
 .nk-reader:has(.gloss-sheet) .composer-dock {
-  opacity: 0;
+  visibility: hidden;
   pointer-events: none;
-  transform: translateY(100%);
 }
 
 .gloss-sheet {
@@ -1586,10 +1585,6 @@
     padding: 0 8px;
   }
 
-  .nk-reader .composer-dock .composer-peek-tab {
-    align-self: flex-end;
-    margin-right: 2px;
-  }
 
   .nk-reader .topbar-chapter-btn {
     padding: 0 8px;

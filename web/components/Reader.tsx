@@ -228,32 +228,58 @@ export default function Reader({
   }, [payload]);
 
   const restoredRef = useRef<string | null>(null);
+  const measureRef = useRef<() => void>(() => {});
 
-  // Restore saved reading progress on initial book load
+  // Leaving the reader clears the latch so opening the book again returns to
+  // the saved passage instead of wherever the shelf was scrolled.
   useEffect(() => {
+    if (viewMode !== "reader") restoredRef.current = null;
+  }, [viewMode]);
+
+  // Restore saved reading progress when the reader opens for a book. The shelf
+  // is a different document; its scroll offset must never become reading
+  // progress, so this only runs while the reader pane is visible.
+  useEffect(() => {
+    if (viewMode !== "reader") return;
     if (!payload || payload.chunks.length === 0) return;
+    if (payload.book_id !== activeBookId) return;
     if (restoredRef.current === activeBookId) return;
 
     const prog = useAsk.getState().bookProgress[activeBookId];
-    if (prog && prog.chunkId && prog.chunkId !== payload.chunks[0].chunk_id) {
-      const timer = setTimeout(() => {
-        const el = document.querySelector(`[data-chunk-id="${CSS.escape(prog.chunkId)}"]`);
+    const savedChunkId =
+      prog && prog.chunkId && prog.chunkId !== payload.chunks[0].chunk_id
+        ? prog.chunkId
+        : "";
+
+    const timer = setTimeout(
+      () => {
+        const el = savedChunkId
+          ? document.querySelector(`[data-chunk-id="${CSS.escape(savedChunkId)}"]`)
+          : null;
         if (el) {
           const topOffset = 72;
           const targetY = Math.max(0, window.scrollY + el.getBoundingClientRect().top - topOffset);
           window.scrollTo({ top: targetY, behavior: "instant" });
-          restoredRef.current = activeBookId;
+        } else {
+          window.scrollTo({ top: 0, behavior: "instant" });
         }
-      }, 100);
-      return () => clearTimeout(timer);
-    } else {
-      restoredRef.current = activeBookId;
-    }
-  }, [payload, activeBookId]);
+        restoredRef.current = activeBookId;
+        // The restored position may not have moved the window (opening at the
+        // top), so record it explicitly instead of waiting for a scroll event.
+        measureRef.current();
+      },
+      savedChunkId ? 100 : 0
+    );
+    return () => clearTimeout(timer);
+  }, [payload, activeBookId, viewMode]);
 
-  // Track scroll position, active chapter, active chunk, and progress
+  // Track scroll position, active chapter, active chunk, and progress. Only
+  // while the reader is mounted on screen: both panes stay in the DOM, so an
+  // unscoped window listener would record the library's scroll as reading.
   useEffect(() => {
+    if (viewMode !== "reader") return;
     if (!payload || payload.chunks.length === 0) return;
+    if (payload.book_id !== activeBookId) return;
 
     let raf = 0;
     const measure = () => {
@@ -327,16 +353,9 @@ export default function Reader({
             .forEach((paragraph) => paragraph.classList.remove("is-lit"));
         }
 
-        const saved = useAsk.getState().bookProgress[activeBookId];
-        if (
-          scrollY === 0 &&
-          saved &&
-          saved.chunkId &&
-          saved.chunkId !== chunks[0].chunk_id &&
-          restoredRef.current !== activeBookId
-        ) {
-          return;
-        }
+        // A scroll offset is reading progress only once the saved passage has
+        // been restored; before that it is the shelf's leftover position.
+        if (restoredRef.current !== activeBookId) return;
 
         updateBookProgress(activeBookId, {
           pct: progress,
@@ -351,14 +370,16 @@ export default function Reader({
     };
 
     measure();
+    measureRef.current = measure;
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     return () => {
+      measureRef.current = () => {};
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [payload, activeBookId, chunkMap, updateBookProgress, focusMode]);
+  }, [viewMode, payload, activeBookId, chunkMap, updateBookProgress, focusMode]);
 
   // Keyboard navigation shortcuts: [ and ] cycle glosses, Escape clears
   useEffect(() => {

@@ -1,6 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
 import type { Chunk } from "@/lib/engine";
 import { useAsk } from "@/lib/store";
 
@@ -63,37 +71,140 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
   const submitWholeBook = useAsk((s) => s.submitWholeBook);
   const startQuiz = useAsk((s) => s.startQuiz);
   const engineReady = useAsk((s) => s.engineReady);
+  const glosses = useAsk((s) => s.glosses);
+  const activeGlossId = useAsk((s) => s.activeGlossId);
+  const setActiveGloss = useAsk((s) => s.setActiveGloss);
+  const toggleMinimizeGloss = useAsk((s) => s.toggleMinimizeGloss);
 
+  const [isWide, setIsWide] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [draft, setDraft] = useState("");
-  const [focused, setFocused] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
+
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const moreBtnRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const item0Ref = useRef<HTMLButtonElement>(null);
+  const item1Ref = useRef<HTMLButtonElement>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const isRevealed = Boolean(isHovered || focused || draft.trim().length > 0);
+  // Track viewport width (>= 1080px is wide, < 1080px is narrow)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(min-width: 1080px)");
+    const update = () => setIsWide(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
-  // Global keyboard shortcuts: / or Ctrl+K / Cmd+K
+  // Compute interplay with glosses on mobile/narrow viewports
+  const activeGloss = glosses.find((g) => g.id === activeGlossId) ?? null;
+  const hidden = !isWide && Boolean(activeGloss && !activeGloss.minimized);
+  const parkedGloss =
+    !isWide && !hidden
+      ? (activeGloss && activeGloss.minimized
+          ? activeGloss
+          : glosses.find((g) => g.minimized) ?? null)
+      : null;
+  const parked = Boolean(parkedGloss);
+
+  const handleRestore = () => {
+    if (!parkedGloss) return;
+    if (parkedGloss.minimized) {
+      toggleMinimizeGloss(parkedGloss.id);
+    }
+    setActiveGloss(parkedGloss.id);
+  };
+
+  const hiddenRef = useRef(hidden);
+  hiddenRef.current = hidden;
+
+  const isRevealed = Boolean(isOpen || draft.trim().length > 0 || isMenuOpen);
+
+  const openPill = useCallback(() => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+    setIsOpen(true);
+  }, []);
+
+  const openAndFocus = useCallback(() => {
+    openPill();
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
+  }, [openPill]);
+
+  const closePill = useCallback(() => {
+    setIsMenuOpen(false);
+    setIsOpen(false);
+    inputRef.current?.blur();
+    moreBtnRef.current?.blur();
+  }, []);
+
+  // Global shortcuts: "/" (when not typing in an input) and Cmd/Ctrl+K
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.closest("input, textarea, [contenteditable]")) return;
+      const target = e.target as HTMLElement | null;
+      if (target?.closest("input, textarea, select, [contenteditable]")) return;
 
       if (
         e.key === "/" ||
-        ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k")
+        ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k")
       ) {
         e.preventDefault();
-        inputRef.current?.focus();
+        if (hiddenRef.current) {
+          if (e.key === "/") {
+            document.querySelector<HTMLElement>("[data-pa-followup]")?.focus();
+          }
+          return;
+        }
+        openAndFocus();
       }
     };
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [openAndFocus]);
 
-  // Stop health polling on unmount
+  // Click outside to close overflow popover menu
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const onMouseDown = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(target) &&
+        !moreBtnRef.current?.contains(target)
+      ) {
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onMouseDown);
+    return () => document.removeEventListener("mousedown", onMouseDown);
+  }, [isMenuOpen]);
+
+  // Focus first menu item when menu opens
+  useEffect(() => {
+    if (isMenuOpen) {
+      const timer = setTimeout(() => {
+        item0Ref.current?.focus();
+      }, 40);
+      return () => clearTimeout(timer);
+    }
+  }, [isMenuOpen]);
+
+  // Stop health polling and timer on unmount
   useEffect(() => {
     return () => {
       useAsk.getState().stopHealthPolling?.();
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
+      }
     };
   }, []);
 
@@ -132,7 +243,7 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
 
   const handleAsk = (questionText: string) => {
     const text = questionText.trim();
-    if (!text) return;
+    if (!text || !engineReady) return;
     const currentAnchor = getAnchorChunk();
     submitWholeBook(
       currentAnchor.chunkId,
@@ -141,7 +252,7 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
       currentAnchor.heading || ""
     );
     setDraft("");
-    inputRef.current?.blur();
+    closePill();
   };
 
   const handleSubmit = (e: FormEvent) => {
@@ -150,31 +261,98 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
   };
 
   const handleQuiz = () => {
+    if (!engineReady) return;
     const currentAnchor = getAnchorChunk();
     startQuiz(currentAnchor.chunkId, currentAnchor.chapter);
+    setDraft("");
+    closePill();
+  };
+
+  // Keyboard navigation within the overflow menu
+  const handleMenuKeyDown = (e: ReactKeyboardEvent) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsMenuOpen(false);
+      moreBtnRef.current?.focus();
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      item1Ref.current?.focus();
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      item0Ref.current?.focus();
+    }
+  };
+
+  // Keyboard handler on container: Esc closes menu first, then closes pill
+  const handleContainerKeyDown = (e: ReactKeyboardEvent) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      if (isMenuOpen) {
+        setIsMenuOpen(false);
+        moreBtnRef.current?.focus();
+      } else {
+        closePill();
+      }
+    }
+  };
+
+  // Hover handlers on wrapper
+  const handleMouseEnter = () => {
+    if (parked || hidden) return;
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+    setIsOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    if (
+      document.activeElement === inputRef.current ||
+      draft.trim().length > 0 ||
+      isMenuOpen
+    ) {
+      return;
+    }
+    closeTimerRef.current = setTimeout(() => {
+      if (
+        document.activeElement !== inputRef.current &&
+        draft.trim().length === 0 &&
+        !isMenuOpen
+      ) {
+        setIsOpen(false);
+      }
+    }, 180);
+  };
+
+  // Blur on container: close on blur-with-empty-draft
+  const handleContainerBlur = (e: React.FocusEvent) => {
+    if (containerRef.current?.contains(e.relatedTarget as Node)) {
+      return;
+    }
+    if (draft.trim().length === 0 && !isMenuOpen) {
+      closeTimerRef.current = setTimeout(() => {
+        setIsOpen(false);
+      }, 150);
+    }
   };
 
   return (
     <div
-      className={`composer-dock ${isRevealed ? "is-revealed" : ""}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      ref={wrapRef}
+      className={`composer-dock ${isRevealed ? "is-open" : ""} ${hidden ? "is-hidden" : ""} ${parked ? "is-parked" : ""}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onKeyDown={handleContainerKeyDown}
     >
-      <button
-        type="button"
-        className="composer-peek-tab"
-        onClick={() => inputRef.current?.focus()}
-        aria-label="Ask whole book"
-        title="Ask whole book (/ to focus)"
-      >
-        <span className="composer-peek-label">Ask whole book</span>
-        <span className="composer-peek-dot">·</span>
-        <kbd className="composer-peek-kbd">/</kbd>
-      </button>
-
-      {/* Suggestion pills fan above the composer when focused or typing */}
-      {focused && activeSuggestions.length > 0 && (
-        <div className="composer-suggestions">
+      {/* Suggestions stack */}
+      {isRevealed && !isMenuOpen && activeSuggestions.length > 0 && (
+        <div
+          className="composer-suggestions"
+          role="group"
+          aria-label="Suggested questions"
+        >
           {activeSuggestions.map((s) => (
             <button
               key={s}
@@ -182,6 +360,7 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => handleAsk(s)}
               className="composer-suggestion-pill"
+              title={s}
             >
               {s}
             </button>
@@ -189,65 +368,145 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
         </div>
       )}
 
-      {/* Floating pill bar */}
-      <form onSubmit={handleSubmit} className="composer-form">
-        {!engineReady && (
-          <span className="composer-warming" aria-live="polite">
-            Warming up…
-          </span>
-        )}
-        <input
-          ref={inputRef}
-          type="text"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onFocus={() => setFocused(true)}
-          onBlur={() => {
-            // Delay closing suggestions so click handlers can register
-            setTimeout(() => setFocused(false), 200);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") {
-              inputRef.current?.blur();
+      {/* Overflow menu popover */}
+      {isRevealed && isMenuOpen && (
+        <div
+          ref={menuRef}
+          className="composer-menu"
+          role="menu"
+          aria-label="Composer options"
+          onKeyDown={handleMenuKeyDown}
+        >
+          <button
+            ref={item0Ref}
+            type="button"
+            role="menuitem"
+            className="composer-menu-item"
+            onClick={() => setMode(mode === "answer" ? "ask" : "answer")}
+          >
+            <span className="composer-menu-label">
+              Mode: {mode === "answer" ? "Answer" : "Quote first"}
+            </span>
+          </button>
+          <button
+            ref={item1Ref}
+            type="button"
+            role="menuitem"
+            className="composer-menu-item"
+            onClick={handleQuiz}
+            disabled={!engineReady}
+          >
+            <span className="composer-menu-label">Quiz this passage</span>
+          </button>
+        </div>
+      )}
+
+      {/* Morphing container */}
+      <div
+        ref={containerRef}
+        className={`composer-orb-shell ${isRevealed ? "is-open" : ""}`}
+        onBlur={handleContainerBlur}
+      >
+        {/* Collapsed trigger button */}
+        <button
+          type="button"
+          className="composer-orb-trigger"
+          onClick={parked ? handleRestore : openAndFocus}
+          aria-label={
+            parked ? "Restore answer note" : "Ask the whole book (press /)"
+          }
+          title={
+            parked ? "Restore answer note" : "Ask whole book (/ to focus)"
+          }
+          tabIndex={isRevealed ? -1 : 0}
+          aria-hidden={isRevealed}
+        >
+          {parked ? (
+            <svg
+              className="composer-orb-glyph"
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M4.5 11.5L9 7l4.5 4.5"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          ) : (
+            <span className="composer-orb-glyph">/</span>
+          )}
+        </button>
+
+        {/* Expanded form */}
+        <form
+          onSubmit={handleSubmit}
+          className="composer-form"
+          aria-hidden={!isRevealed}
+        >
+          {/* Overflow button */}
+          <button
+            ref={moreBtnRef}
+            type="button"
+            className="composer-more-btn"
+            onClick={() => setIsMenuOpen((v) => !v)}
+            aria-label="More options"
+            aria-haspopup="menu"
+            aria-expanded={isMenuOpen}
+            tabIndex={isRevealed ? 0 : -1}
+          >
+            <span className="composer-more-dots" aria-hidden="true">
+              ⋯
+            </span>
+          </button>
+
+          {/* Input */}
+          <input
+            ref={inputRef}
+            type="text"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder={
+              engineReady ? "Ask about the whole book… (/)" : "Warming up…"
             }
-          }}
-          placeholder={engineReady ? "Ask about the whole book… (/ to focus)" : "Warming up…"}
-          disabled={!engineReady}
-          aria-label="Ask about the whole book"
-          className="composer-input"
-        />
+            disabled={!engineReady}
+            aria-label="Ask about the whole book"
+            className="composer-input"
+            tabIndex={isRevealed ? 0 : -1}
+          />
 
-        {/* Mode toggle chip */}
-        <button
-          type="button"
-          onClick={() => setMode(mode === "answer" ? "ask" : "answer")}
-          title="Toggle mode between Answer and Quote first"
-          className="composer-chip"
-        >
-          {mode === "answer" ? "Answer" : "Quote first"}
-        </button>
-
-        {/* Quiz button */}
-        <button
-          type="button"
-          onClick={handleQuiz}
-          disabled={!engineReady}
-          title="Start quiz on current chapter passage"
-          className="composer-chip"
-        >
-          Quiz
-        </button>
-
-        {/* Submit arrow button */}
-        <button
-          type="submit"
-          disabled={!engineReady || !draft.trim()}
-          aria-label="Submit question"
-          className="composer-submit"
-        >
-          ↑
-        </button>
-      </form>
+          {/* Submit button */}
+          <button
+            type="submit"
+            disabled={!engineReady || !draft.trim()}
+            aria-label="Submit question"
+            className="composer-submit"
+            tabIndex={isRevealed ? 0 : -1}
+          >
+            <svg
+              className="composer-submit-icon"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M8 12.5V3.5M8 3.5L4 7.5M8 3.5L12 7.5"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
