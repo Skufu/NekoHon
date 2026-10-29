@@ -1,0 +1,789 @@
+[
+  {
+    "id": "ai-followup-llm-exact",
+    "book": "ai-agents",
+    "question": "How does this compare to LLM?",
+    "expect": "comparison",
+    "history_turns": 1,
+    "pin_chunk": "ch01-002",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "seed": null,
+    "ms": 602.7,
+    "answer": "[Ch. 1] \"Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow.\"\nAn LLM is a static text generator, whereas an AI agent executes tasks through tools and feedback loops.",
+    "followups": [
+      "How is Foundational Blueprint used here?",
+      "What are the key trade-offs?",
+      "What example do the authors give?"
+    ],
+    "flags": {
+      "both_sides": true,
+      "contrast_marker": true,
+      "template": false,
+      "heading_fragment": false,
+      "quote_heads": [],
+      "quote_is_sentence": true,
+      "not_mentioned": false,
+      "refused": false,
+      "answer_chars": 247,
+      "gloss": "An LLM is a static text generator, whereas an AI agent executes tasks through tools and feedback loops.",
+      "citations": [
+        {
+          "chunk_id": "ch01-002",
+          "chapter": "1",
+          "quote": "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow."
+        }
+      ]
+    },
+    "error": null,
+    "verdict": "PASS"
+  },
+  {
+    "id": "ai-direct-difference",
+    "book": "ai-agents",
+    "question": "What is the difference between an AI agent and an LLM?",
+    "expect": "comparison",
+    "history_turns": 0,
+    "pin_chunk": "ch01-001",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "seed": null,
+    "ms": 366.6,
+    "answer": "[Ch. 1] \"Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow.\"\nAn LLM is a static language model that generates text, while an AI agent is a dynamic system that perceives environments, makes decisions, and executes actions using tools.",
+    "followups": [
+      "How is Foundational Blueprint used here?",
+      "What are the key trade-offs?",
+      "What example do the authors give?"
+    ],
+    "flags": {
+      "both_sides": true,
+      "contrast_marker": true,
+      "template": false,
+      "heading_fragment": false,
+      "quote_heads": [],
+      "quote_is_sentence": true,
+      "not_mentioned": false,
+      "refused": false,
+      "answer_chars": 316,
+      "gloss": "An LLM is a static language model that generates text, while an AI agent is a dynamic system that perceives environments, makes decisions, and executes actions using tools.",
+      "citations": [
+        {
+          "chunk_id": "ch01-002",
+          "chapter": "1",
+          "quote": "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow."
+        }
+      ]
+    },
+    "error": null,
+    "verdict": "PASS"
+  },
+  {
+    "id": "ai-direct-compare",
+    "book": "ai-agents",
+    "question": "How does an AI agent compare to an LLM?",
+    "expect": "comparison",
+    "history_turns": 0,
+    "pin_chunk": null,
+    "heading": "",
+    "seed": null,
+    "ms": 357.3,
+    "answer": "[Ch. 1] \"Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow.\"\nAn LLM is a static text generator that produces responses based on prompts, whereas an AI agent is a dynamic system that perceives environments, makes decisions, and executes actions through tools.",
+    "followups": [
+      "How is Foundational Blueprint used here?",
+      "What are the key trade-offs?",
+      "What example do the authors give?"
+    ],
+    "flags": {
+      "both_sides": true,
+      "contrast_marker": true,
+      "template": false,
+      "heading_fragment": false,
+      "quote_heads": [],
+      "quote_is_sentence": true,
+      "not_mentioned": false,
+      "refused": false,
+      "answer_chars": 341,
+      "gloss": "An LLM is a static text generator that produces responses based on prompts, whereas an AI agent is a dynamic system that perceives environments, makes decisions, and executes actions through tools.",
+      "citations": [
+        {
+          "chunk_id": "ch01-002",
+          "chapter": "1",
+          "quote": "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow."
+        }
+      ]
+    },
+    "error": null,
+    "verdict": "PASS"
+  },
+  {
+    "id": "ai-bare-vs",
+    "book": "ai-agents",
+    "question": "AI agent vs LLM",
+    "expect": "comparison",
+    "history_turns": 0,
+    "pin_chunk": null,
+    "heading": "",
+    "seed": null,
+    "ms": 307.5,
+    "answer": "[Ch. 1] \"Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow.\"\nAn LLM is a static text generator, whereas an AI agent is a dynamic system that uses reasoning and tools to act on its own.\nAsked as: \"What is the difference between AI agent and LLM?\"",
+    "followups": [
+      "How is Foundational Blueprint used here?",
+      "What are the key trade-offs?",
+      "What example do the authors give?"
+    ],
+    "flags": {
+      "both_sides": true,
+      "contrast_marker": true,
+      "template": false,
+      "heading_fragment": false,
+      "quote_heads": [],
+      "quote_is_sentence": true,
+      "not_mentioned": false,
+      "refused": false,
+      "answer_chars": 328,
+      "gloss": "An LLM is a static text generator, whereas an AI agent is a dynamic system that uses reasoning and tools to act on its own.",
+      "citations": [
+        {
+          "chunk_id": "ch01-002",
+          "chapter": "1",
+          "quote": "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow."
+        }
+      ]
+    },
+    "error": null,
+    "verdict": "PASS"
+  },
+  {
+    "id": "ai-differ-from",
+    "book": "ai-agents",
+    "question": "How does an LLM agent differ from an LLM?",
+    "expect": "comparison",
+    "history_turns": 0,
+    "pin_chunk": null,
+    "heading": "",
+    "seed": null,
+    "ms": 361.9,
+    "answer": "[Ch. 1] \"Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow.\"\nAn LLM is a static text generator that produces responses based on input prompts, whereas an LLM agent is a dynamic system that combines reasoning with tool use to execute workflows.\nAsked as: \"What is the difference between an LLM agent and an LLM?\"",
+    "followups": [
+      "How is Foundational Blueprint used here?",
+      "What problem does this solve?",
+      "What example do the authors give?"
+    ],
+    "flags": {
+      "both_sides": true,
+      "contrast_marker": true,
+      "template": false,
+      "heading_fragment": false,
+      "quote_heads": [],
+      "quote_is_sentence": true,
+      "not_mentioned": false,
+      "refused": false,
+      "answer_chars": 394,
+      "gloss": "An LLM is a static text generator that produces responses based on input prompts, whereas an LLM agent is a dynamic system that combines reasoning with tool use to execute workflows.",
+      "citations": [
+        {
+          "chunk_id": "ch01-002",
+          "chapter": "1",
+          "quote": "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow."
+        }
+      ]
+    },
+    "error": null,
+    "verdict": "PASS"
+  },
+  {
+    "id": "ai-followup-multi-agent",
+    "book": "ai-agents",
+    "question": "How does this compare to a multi-agent system?",
+    "expect": "comparison",
+    "history_turns": 1,
+    "pin_chunk": "ch01-002",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "seed": null,
+    "ms": 559.2,
+    "answer": "[Ch. 1] \"The difference between a lone contributor and a coordinated team maps directly onto the difference between a single agent and a multi-agent system (MAS).\"\nAn AI agent is a single decision-making entity that interacts with tools and environments, whereas a multi-agent system coordinates multiple specialized agents to collaborate on complex tasks.",
+    "followups": [
+      "How does MAS relate to this?",
+      "What problem does this solve?",
+      "Explain this in simpler words"
+    ],
+    "flags": {
+      "both_sides": true,
+      "contrast_marker": true,
+      "template": false,
+      "heading_fragment": false,
+      "quote_heads": [],
+      "quote_is_sentence": true,
+      "not_mentioned": false,
+      "refused": false,
+      "answer_chars": 356,
+      "gloss": "An AI agent is a single decision-making entity that interacts with tools and environments, whereas a multi-agent system coordinates multiple specialized agents to collaborate on complex tasks.",
+      "citations": [
+        {
+          "chunk_id": "ch01-003",
+          "chapter": "1",
+          "quote": "The difference between a lone contributor and a coordinated team maps directly onto the difference between a single agent and a multi-agent system (MAS)."
+        }
+      ]
+    },
+    "error": null,
+    "verdict": "PASS"
+  },
+  {
+    "id": "ai-followup-human-developer",
+    "book": "ai-agents",
+    "question": "How does this compare to a human developer?",
+    "expect": "comparison",
+    "history_turns": 1,
+    "pin_chunk": "ch01-002",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "seed": null,
+    "ms": 556.7,
+    "answer": "[Ch. 1] \"Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow.\"\n[Ch. 1] \"As a human developer you begin with a prompt, the client’s request.\"\nAn AI agent executes tasks through autonomous loops of reasoning and tool calls, whereas a human developer orchestrates workflows by combining strategic planning with direct technical intervention.",
+    "followups": [
+      "How is Foundational Blueprint used here?",
+      "How does this compare to LLM?",
+      "What example do the authors give?"
+    ],
+    "flags": {
+      "both_sides": true,
+      "contrast_marker": true,
+      "template": false,
+      "heading_fragment": false,
+      "quote_heads": [],
+      "quote_is_sentence": true,
+      "not_mentioned": false,
+      "refused": false,
+      "answer_chars": 419,
+      "gloss": "An AI agent executes tasks through autonomous loops of reasoning and tool calls, whereas a human developer orchestrates workflows by combining strategic planning with direct technical intervention.",
+      "citations": [
+        {
+          "chunk_id": "ch01-002",
+          "chapter": "1",
+          "quote": "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow."
+        },
+        {
+          "chunk_id": "ch01-001",
+          "chapter": "1",
+          "quote": "As a human developer you begin with a prompt, the client’s request."
+        }
+      ]
+    },
+    "error": null,
+    "verdict": "PASS"
+  },
+  {
+    "id": "ai-followup-plain-llm",
+    "book": "ai-agents",
+    "question": "How does this compare to a plain LLM?",
+    "expect": "comparison",
+    "history_turns": 1,
+    "pin_chunk": "ch01-002",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "seed": null,
+    "ms": 621.0,
+    "answer": "[Ch. 1] \"Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow.\"\nAn AI agent executes tasks through external tools and iterative loops, whereas a plain LLM generates static text without performing actions.",
+    "followups": [
+      "How is Foundational Blueprint used here?",
+      "What problem does this solve?",
+      "What example do the authors give?"
+    ],
+    "flags": {
+      "both_sides": true,
+      "contrast_marker": true,
+      "template": false,
+      "heading_fragment": false,
+      "quote_heads": [],
+      "quote_is_sentence": true,
+      "not_mentioned": false,
+      "refused": false,
+      "answer_chars": 284,
+      "gloss": "An AI agent executes tasks through external tools and iterative loops, whereas a plain LLM generates static text without performing actions.",
+      "citations": [
+        {
+          "chunk_id": "ch01-002",
+          "chapter": "1",
+          "quote": "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow."
+        }
+      ]
+    },
+    "error": null,
+    "verdict": "PASS"
+  },
+  {
+    "id": "ai-followup-llm-seeded",
+    "book": "ai-agents",
+    "question": "How does this compare to an LLM?",
+    "expect": "comparison",
+    "history_turns": 1,
+    "pin_chunk": "ch01-002",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "seed": {
+      "question": "What is an LLM agent?",
+      "answer": "[Ch. 1] \"An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results.\"\nAn LLM agent is a model that thinks, acts, and learns from tools.",
+      "citations": [
+        {
+          "chunk_id": "ch01-002",
+          "chapter": "1",
+          "quote": "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results."
+        }
+      ],
+      "ms": 555.9
+    },
+    "ms": 599.8,
+    "answer": "[Ch. 1] \"Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow.\"\nAn LLM agent is a large language model embedded in a workflow that interacts with external tools, whereas a standalone LLM generates text without executing actions.",
+    "followups": [
+      "How is Foundational Blueprint used here?",
+      "What problem does this solve?",
+      "What example do the authors give?"
+    ],
+    "flags": {
+      "both_sides": true,
+      "contrast_marker": true,
+      "template": false,
+      "heading_fragment": false,
+      "quote_heads": [],
+      "quote_is_sentence": true,
+      "not_mentioned": false,
+      "refused": false,
+      "answer_chars": 308,
+      "gloss": "An LLM agent is a large language model embedded in a workflow that interacts with external tools, whereas a standalone LLM generates text without executing actions.",
+      "citations": [
+        {
+          "chunk_id": "ch01-002",
+          "chapter": "1",
+          "quote": "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow."
+        }
+      ]
+    },
+    "error": null,
+    "verdict": "PASS"
+  },
+  {
+    "id": "ai-negative-database",
+    "book": "ai-agents",
+    "question": "How does an AI agent compare to a relational database?",
+    "expect": "no_comparison",
+    "history_turns": 0,
+    "pin_chunk": null,
+    "heading": "",
+    "seed": null,
+    "ms": 702.5,
+    "answer": "[Ch. 1] \"An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results.\"\nThe passages do not mention relational database.\nRead as: \"How does an AI agent compare to a creational database?\"",
+    "followups": [
+      "How is Foundational Blueprint used here?",
+      "How does this compare to LLM?",
+      "What example do the authors give?"
+    ],
+    "flags": {
+      "both_sides": false,
+      "contrast_marker": false,
+      "template": false,
+      "heading_fragment": false,
+      "quote_heads": [],
+      "quote_is_sentence": true,
+      "not_mentioned": true,
+      "refused": false,
+      "answer_chars": 292,
+      "gloss": "The passages do not mention relational database.",
+      "citations": [
+        {
+          "chunk_id": "ch01-002",
+          "chapter": "1",
+          "quote": "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results."
+        }
+      ]
+    },
+    "error": null,
+    "verdict": "PASS"
+  },
+  {
+    "id": "ai-noncompare-tradeoffs",
+    "book": "ai-agents",
+    "question": "What are the key trade-offs?",
+    "expect": "generic_followup",
+    "history_turns": 1,
+    "pin_chunk": "ch01-002",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "seed": null,
+    "ms": 207.5,
+    "answer": "[Ch. 1] \"If you think about it, in a small company, a single contributor might handle everything end to end: designing, coding, testing, and deploying.\"\nThe key trade-offs are designing, coding, testing, and deploying.",
+    "followups": [
+      "How is Foundational Blueprint used here?",
+      "How does this compare to LLM?",
+      "What example do the authors give?"
+    ],
+    "flags": {
+      "both_sides": null,
+      "contrast_marker": false,
+      "template": false,
+      "heading_fragment": false,
+      "quote_heads": [],
+      "quote_is_sentence": true,
+      "not_mentioned": false,
+      "refused": false,
+      "answer_chars": 218,
+      "gloss": "The key trade-offs are designing, coding, testing, and deploying.",
+      "citations": [
+        {
+          "chunk_id": "ch01-003",
+          "chapter": "1",
+          "quote": "If you think about it, in a small company, a single contributor might handle everything end to end: designing, coding, testing, and deploying."
+        }
+      ]
+    },
+    "error": null,
+    "verdict": "PASS"
+  },
+  {
+    "id": "ai-noncompare-example",
+    "book": "ai-agents",
+    "question": "What example do the authors give?",
+    "expect": "generic_followup",
+    "history_turns": 1,
+    "pin_chunk": "ch01-002",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "seed": null,
+    "ms": 244.0,
+    "answer": "[Ch. 1] \"For example, in pure reinforcement learning, agents can be trained directly through trial-and-error interaction with an environment. The benefit of using an LLM as part of an agent system is that it adds strong generalization, reasoning, and natural language capabilities, which makes agent behavior more flexible and broadly applicable beyond narrowly defined environments.\"\nThe authors illustrate this concept by explaining how an LLM agent combines reasoning with tool use to execute complex tasks.",
+    "followups": [
+      "How is Foundational Blueprint used here?",
+      "How does this compare to LLM?",
+      "Explain this in simpler words"
+    ],
+    "flags": {
+      "both_sides": null,
+      "contrast_marker": false,
+      "template": false,
+      "heading_fragment": false,
+      "quote_heads": [],
+      "quote_is_sentence": true,
+      "not_mentioned": false,
+      "refused": false,
+      "answer_chars": 510,
+      "gloss": "The authors illustrate this concept by explaining how an LLM agent combines reasoning with tool use to execute complex tasks.",
+      "citations": [
+        {
+          "chunk_id": "ch01-002",
+          "chapter": "1",
+          "quote": "For example, in pure reinforcement learning, agents can be trained directly through trial-and-error interaction with an environment. The benefit of using an LLM as part of an agent"
+        }
+      ]
+    },
+    "error": null,
+    "verdict": "PASS"
+  },
+  {
+    "id": "ai-noncompare-why",
+    "book": "ai-agents",
+    "question": "Why does this matter?",
+    "expect": "generic_followup",
+    "history_turns": 1,
+    "pin_chunk": "ch01-002",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "seed": null,
+    "ms": 937.3,
+    "answer": "[Ch. 1] \"External support, such as code libraries or documentation, maps to tools like retrieval systems or web searches, which refine the output beyond the model’s own raw ability.\"\nEmbedding language models into agents unlocks capabilities to query external knowledge and execute code, expanding beyond static text generation.",
+    "followups": [
+      "How is Foundational Blueprint used here?",
+      "How does this compare to LLM?",
+      "Explain this in simpler words"
+    ],
+    "flags": {
+      "both_sides": null,
+      "contrast_marker": false,
+      "template": false,
+      "heading_fragment": false,
+      "quote_heads": [],
+      "quote_is_sentence": true,
+      "not_mentioned": false,
+      "refused": false,
+      "answer_chars": 328,
+      "gloss": "Embedding language models into agents unlocks capabilities to query external knowledge and execute code, expanding beyond static text generation.",
+      "citations": [
+        {
+          "chunk_id": "ch01-002",
+          "chapter": "1",
+          "quote": "External support, such as code libraries or documentation, maps to tools like retrieval systems or web searches, which refine the output beyond the model’s own raw ability."
+        }
+      ]
+    },
+    "error": null,
+    "verdict": "PASS"
+  },
+  {
+    "id": "ai-normal",
+    "book": "ai-agents",
+    "question": "what is an AI agent",
+    "expect": "normal",
+    "history_turns": 0,
+    "pin_chunk": "ch01-001",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "seed": null,
+    "ms": 549.2,
+    "answer": "[Ch. 1] \"An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results.\"\nAn AI agent is a system that uses a language model to think, act, and learn from its actions.",
+    "followups": [
+      "How is Foundational Blueprint used here?",
+      "How does this compare to LLM?",
+      "What example do the authors give?"
+    ],
+    "flags": {
+      "both_sides": null,
+      "contrast_marker": false,
+      "template": false,
+      "heading_fragment": false,
+      "quote_heads": [],
+      "quote_is_sentence": true,
+      "not_mentioned": false,
+      "refused": false,
+      "answer_chars": 271,
+      "gloss": "An AI agent is a system that uses a language model to think, act, and learn from its actions.",
+      "citations": [
+        {
+          "chunk_id": "ch01-002",
+          "chapter": "1",
+          "quote": "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results."
+        }
+      ]
+    },
+    "error": null,
+    "verdict": "PASS"
+  },
+  {
+    "id": "ddia-direct-batch-stream",
+    "book": "ddia",
+    "question": "What is the difference between batch processing and stream processing?",
+    "expect": "comparison",
+    "history_turns": 0,
+    "pin_chunk": null,
+    "heading": "",
+    "seed": null,
+    "ms": 309.5,
+    "answer": "[Ch. 12] \"and Chapter 11 , batch and stream processing have a lot of principles in common, and the main fundamental difference is that stream processors operate on unbounded datasets whereas batch process inputs are of a known, finite size.\"\nBatch processing handles fixed, finite datasets while stream processing handles unbounded, continuous data flows.",
+    "followups": [
+      "What is the role of Output?",
+      "How does this compare to Batch Workflows?",
+      "What example do the authors give?"
+    ],
+    "flags": {
+      "both_sides": true,
+      "contrast_marker": true,
+      "template": false,
+      "heading_fragment": false,
+      "quote_heads": [],
+      "quote_is_sentence": true,
+      "not_mentioned": false,
+      "refused": false,
+      "answer_chars": 355,
+      "gloss": "Batch processing handles fixed, finite datasets while stream processing handles unbounded, continuous data flows.",
+      "citations": [
+        {
+          "chunk_id": "text00019-016",
+          "chapter": "12",
+          "quote": "and Chapter 11 , batch and stream processing have a lot of principles in common, and the main fundamental difference is that stream processors operate on unbounded datasets whereas"
+        }
+      ]
+    },
+    "error": null,
+    "verdict": "PASS"
+  },
+  {
+    "id": "ddia-followup-stream",
+    "book": "ddia",
+    "question": "How does this compare to stream processing?",
+    "expect": "comparison",
+    "history_turns": 1,
+    "pin_chunk": "text00017-002",
+    "heading": "Chapter 10.\r",
+    "seed": {
+      "question": "What is batch processing?",
+      "answer": "[Ch. 10] \"A batch processing system takes a large amount of input data, runs a job to process it, and produces some output data.\"\nBatch processing systems execute large datasets of data over extended periods without user interaction.",
+      "citations": [
+        {
+          "chunk_id": "text00017-002",
+          "chapter": "10",
+          "quote": "A batch processing system takes a large amount of input data, runs a job to process it, and produces some output data."
+        }
+      ],
+      "ms": 651.1
+    },
+    "ms": 420.8,
+    "answer": "[Ch. 10] \"This difference allows stream processing systems to have lower latency than the equivalent batch systems.\"\nBatch processing handles large datasets over long periods, while stream processing handles continuous events in real-time.",
+    "followups": [
+      "How does this work in practice?",
+      "What are the key trade-offs?",
+      "What example do the authors give?"
+    ],
+    "flags": {
+      "both_sides": true,
+      "contrast_marker": true,
+      "template": false,
+      "heading_fragment": false,
+      "quote_heads": [],
+      "quote_is_sentence": true,
+      "not_mentioned": false,
+      "refused": false,
+      "answer_chars": 239,
+      "gloss": "Batch processing handles large datasets over long periods, while stream processing handles continuous events in real-time.",
+      "citations": [
+        {
+          "chunk_id": "text00017-003",
+          "chapter": "10",
+          "quote": "This difference allows stream processing systems to have lower latency than the equivalent batch systems."
+        }
+      ]
+    },
+    "error": null,
+    "verdict": "PASS"
+  },
+  {
+    "id": "fde-direct-batch-stream",
+    "book": "fde",
+    "question": "What is the difference between batch processing and stream processing?",
+    "expect": "comparison",
+    "history_turns": 0,
+    "pin_chunk": null,
+    "heading": "",
+    "seed": null,
+    "ms": 263.5,
+    "answer": "[Ch. 2] \"Batch ingestion is simply a specialized and convenient way of processing this stream in large chunks—for example, handling a full day’s worth of data in a single batch.\"\nBatch processing handles data in fixed intervals, while stream processing handles data continuously as it arrives.",
+    "followups": [
+      "How does or near real-time relate to this?",
+      "What are the main limitations?",
+      "Explain this in simpler words"
+    ],
+    "flags": {
+      "both_sides": true,
+      "contrast_marker": true,
+      "template": false,
+      "heading_fragment": false,
+      "quote_heads": [],
+      "quote_is_sentence": true,
+      "not_mentioned": false,
+      "refused": false,
+      "answer_chars": 293,
+      "gloss": "Batch processing handles data in fixed intervals, while stream processing handles data continuously as it arrives.",
+      "citations": [
+        {
+          "chunk_id": "ch02-018",
+          "chapter": "2",
+          "quote": "Batch ingestion is simply a specialized and convenient way of processing this stream in large chunks—for example, handling a full day’s worth of data in a single batch."
+        }
+      ]
+    },
+    "error": null,
+    "verdict": "PASS"
+  },
+  {
+    "id": "fde-ddr4-ddr5",
+    "book": "fde",
+    "question": "What is the difference between DDR4 and DDR5?",
+    "expect": "half_covered",
+    "history_turns": 0,
+    "pin_chunk": null,
+    "heading": "",
+    "seed": null,
+    "ms": 843.3,
+    "answer": "[Ch. 6] \"DDR5 memory—the latest widely used standard for RAM—offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD.\"\nThe passages do not mention DDR4.",
+    "followups": [
+      "How does RAM relate to this?",
+      "What are the cost trade-offs?",
+      "What is Block Storage?"
+    ],
+    "flags": {
+      "both_sides": false,
+      "contrast_marker": false,
+      "template": false,
+      "heading_fragment": false,
+      "quote_heads": [],
+      "quote_is_sentence": true,
+      "not_mentioned": true,
+      "refused": false,
+      "answer_chars": 186,
+      "gloss": "The passages do not mention DDR4.",
+      "citations": [
+        {
+          "chunk_id": "ch06-011",
+          "chapter": "6",
+          "quote": "DDR5 memory—the latest widely used standard for RAM—offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD."
+        }
+      ]
+    },
+    "error": null,
+    "verdict": "PASS"
+  },
+  {
+    "id": "fde-normal-watermark",
+    "book": "fde",
+    "question": "What is a watermark?",
+    "expect": "normal",
+    "history_turns": 0,
+    "pin_chunk": null,
+    "heading": "",
+    "seed": null,
+    "ms": 555.1,
+    "answer": "[Ch. 8] \"A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late.\"\nA watermark is a time limit that tells a window if data is old enough to be ignored.",
+    "followups": [
+      "How do types of windows relate to this?",
+      "What problem does this solve?",
+      "Explain this in simpler words"
+    ],
+    "flags": {
+      "both_sides": null,
+      "contrast_marker": false,
+      "template": false,
+      "heading_fragment": false,
+      "quote_heads": [],
+      "quote_is_sentence": true,
+      "not_mentioned": false,
+      "refused": false,
+      "answer_chars": 262,
+      "gloss": "A watermark is a time limit that tells a window if data is old enough to be ignored.",
+      "citations": [
+        {
+          "chunk_id": "ch08-039",
+          "chapter": "8",
+          "quote": "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late."
+        }
+      ]
+    },
+    "error": null,
+    "verdict": "PASS"
+  },
+  {
+    "id": "fde-noncompare-tradeoffs",
+    "book": "fde",
+    "question": "What are the trade-offs of data ingestion?",
+    "expect": "normal",
+    "history_turns": 0,
+    "pin_chunk": null,
+    "heading": "",
+    "seed": null,
+    "ms": 429.7,
+    "answer": "[Ch. 7] \"In theory, your ingestion should never be a bottleneck. In practice, ingestion bottlenecks are pretty standard.\"\nIngestion can be a bottleneck in practice, even if it should not be one in theory.",
+    "followups": [
+      "What is Data Pipelines Defined?",
+      "What are the main bottlenecks?",
+      "What example do the authors give?"
+    ],
+    "flags": {
+      "both_sides": null,
+      "contrast_marker": false,
+      "template": false,
+      "heading_fragment": false,
+      "quote_heads": [],
+      "quote_is_sentence": true,
+      "not_mentioned": false,
+      "refused": false,
+      "answer_chars": 204,
+      "gloss": "Ingestion can be a bottleneck in practice, even if it should not be one in theory.",
+      "citations": [
+        {
+          "chunk_id": "ch07-016",
+          "chapter": "7",
+          "quote": "In theory, your ingestion should never be a bottleneck."
+        }
+      ]
+    },
+    "error": null,
+    "verdict": "PASS"
+  }
+]

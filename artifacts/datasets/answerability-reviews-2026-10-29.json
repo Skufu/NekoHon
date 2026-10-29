@@ -1,0 +1,19 @@
+[
+  {
+    "expect": "refuse",
+    "coverage": "partial",
+    "acceptable_behaviors": ["refuse", "answer-with-boundary"],
+    "policy_source": "tests/test_half_covered.py:1-5,57-70 explicitly permits a sourced covered-side quote plus a gloss naming the missing side. A clean refusal must not be called false-refusal either.",
+    "question_sha256": "5e66be58d9e147d2ef67f1a5c04b9067cdb43f28032dace1b82ed62eec18fbda",
+    "book_id": "fde",
+    "index_sha256": "05c978d38895441c00a4036d05bdd37c26d79cdf48818b99566e69b144652612",
+    "reason": "The question requests a DDR4/DDR5 comparison. Case-insensitive text search across all 1042 chunks finds DDR4 in 0 chunks and DDR5 in 1 (ch06-011, chapter 6); this source cannot supply the requested two-sided comparison. A clean refusal is valid; existing half-covered comparison policy also permits a grounded covered-side response with an explicit missing-side disclosure. This corrects the unreviewed answer-only label without rewriting historical data.",
+    "reviewer": "agent-source-audit-2026-10-29; not an owner rating",
+    "original_dataset": "artifacts/datasets/owner-rated-2026-10-15.jsonl",
+    "original_id": 13,
+    "original_expect": "answer",
+    "scope": "All chunk text in data/index.json; case-insensitive substring search; no external books or live retrieval",
+    "counts": {"chunks": 1042, "ddr4_chunks": 0, "ddr5_chunks": 1},
+    "verification_command": "python -c \"import json; from pathlib import Path; d=json.loads(Path('data/index.json').read_text(encoding='utf-8')); print(len(d['chunks'])); print({t:sum(t in c['text'].casefold() for c in d['chunks']) for t in ('ddr4','ddr5')})\""
+  }
+]

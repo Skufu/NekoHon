@@ -22,7 +22,7 @@ Dials (reported, not pass/fail):
 
 Run:
     python artifacts/harnesses/eval-plain.py [--limit N] [--variants current,plain,plain3]
-        [--label v3]                                      (muse judge — default)
+        [--label v3]                                      (DeepSeek V4.1 Flash CLI judge — default)
     JUDGE_BACKEND=ollama python artifacts/harnesses/eval-plain.py \
         --variants plain,plain3 --label v3                 (offline granite judge)
 

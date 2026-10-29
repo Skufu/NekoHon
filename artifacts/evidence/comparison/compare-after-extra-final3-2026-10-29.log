@@ -1,0 +1,92 @@
+label=after-extra-final3 model=nekohon_q35_2b_x3_2e cases=18
+PASS  ai-syn-standalone-llm          both=True contrast=True template=False headfrag=False sentence=True refused=False not_mentioned=False ms=511.6
+  Q: How does an AI agent compare to a standalone LLM?
+  G: An AI agent combines a language model with autonomous tool use and stateful loops, whereas a standalone LLM produces static text without executing actions.
+  A: [Ch. 1] "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow." | An AI agent combines a language model with autonomous tool use and stateful loops, whereas a standalone LLM produces static text without executing actions.
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow."}]
+PASS  ai-syn-plain-llm               both=True contrast=True template=False headfrag=False sentence=True refused=False not_mentioned=False ms=386.4
+  Q: How does an AI agent compare to a plain LLM?
+  G: An AI agent operates as a decision-making entity that perceives environments, makes choices, and executes actions, whereas a plain LLM is a static text generator limited to predicting language tokens.
+  A: [Ch. 1] "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow." | An AI agent operates as a decision-making entity that perceives environments, makes choices, and executes actions, whereas a plain LLM is a static text generator limited to predicting language tokens.
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow."}]
+PASS  ai-syn-language-model          both=True contrast=True template=False headfrag=False sentence=True refused=False not_mentioned=False ms=328.4
+  Q: How does an AI agent compare to a language model?
+  G: An AI agent is a system that uses a language model to interact with tools and execute tasks, whereas a language model is a static software that generates text without acting.
+  A: [Ch. 1] "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results." | An AI agent is a system that uses a language model to interact with tools and execute tasks, whereas a language model is a static software that generates text without acting.
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results."}]
+PASS  ai-canonical-compare-with      both=True contrast=True template=False headfrag=False sentence=True refused=False not_mentioned=False ms=382.1
+  Q: Compare an AI agent with an LLM
+  G: An LLM is a static language model that generates text, while an AI agent is a dynamic system that perceives environments, makes decisions, and executes actions using tools.
+  A: [Ch. 1] "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow." | An LLM is a static language model that generates text, while an AI agent is a dynamic system that perceives environments, makes decisions, and executes actions using tools. | Asked as: "What is the difference between an AI agent and an LLM?"
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow."}]
+PASS  ai-canonical-separates         both=True contrast=True template=False headfrag=False sentence=True refused=False not_mentioned=False ms=274.4
+  Q: What separates an AI agent from an LLM?
+  G: An LLM generates static text responses, whereas an AI agent executes actions through tools and stateful memory.
+  A: [Ch. 1] "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow." | An LLM generates static text responses, whereas an AI agent executes actions through tools and stateful memory.
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow."}]
+PASS  ai-canonical-different-from    both=True contrast=True template=False headfrag=False sentence=True refused=False not_mentioned=False ms=295.1
+  Q: How is an AI agent different from an LLM?
+  G: An LLM is a static text generator, whereas an AI agent executes tasks through tools and feedback loops.
+  A: [Ch. 1] "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow." | An LLM is a static text generator, whereas an AI agent executes tasks through tools and feedback loops.
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow."}]
+PASS  ai-relational-llm-agent        both=True contrast=False template=False headfrag=False sentence=True refused=False not_mentioned=False ms=262.6
+  Q: How does an LLM agent relate to an LLM?
+  G: An LLM agent extends an LLM by adding tool use, state management, and autonomous action loops.
+  A: [Ch. 1] "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow." | An LLM agent extends an LLM by adding tool use, state management, and autonomous action loops.
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow."}]
+PASS  ai-followup-workflow           both=True contrast=False template=False headfrag=False sentence=True refused=False not_mentioned=False ms=740.2
+  Q: How does this compare to a workflow?
+  G: An AI agent orchestrates a workflow by executing sequential steps guided by external tools and feedback loops.
+  A: [Ch. 1] "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow." | An AI agent orchestrates a workflow by executing sequential steps guided by external tools and feedback loops.
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow."}]
+PASS  ai-followup-tools              both=True contrast=False template=False headfrag=False sentence=True refused=False not_mentioned=False ms=407.3
+  Q: How does this compare to tools?
+  G: AI agents execute complex workflows by combining internal reasoning with external tools.
+  A: [Ch. 1] "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results." | AI agents execute complex workflows by combining internal reasoning with external tools.
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results."}]
+PASS  ai-seeded-standalone-llm       both=True contrast=True template=False headfrag=False sentence=True refused=False not_mentioned=False ms=511.3
+  Q: How does this compare to a standalone LLM?
+  G: An LLM agent combines reasoning with tool use to execute workflows, whereas a standalone LLM generates text without external actions.
+  A: [Ch. 1] "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow." | An LLM agent combines reasoning with tool use to execute workflows, whereas a standalone LLM generates text without external actions.
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "Unlike a standalone LLM, which is limited to static text generation, an agent operates as a decision-making entity within a workflow."}]
+  SEED: What is an LLM agent? -> [{"chunk_id": "ch01-002", "chapter": "1", "quote": "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results."}]
+PASS  ai-negative-car                both=False contrast=False template=False headfrag=False sentence=True refused=False not_mentioned=True ms=561.2
+  Q: How does an AI agent compare to a car?
+  G: The passages do not mention car.
+  A: [Ch. 1] "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results." | The passages do not mention car. | Read as: "How does an AI agent compare to a card?"
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results."}]
+FAIL  ai-negative-plain-model        both=True contrast=True template=False headfrag=False sentence=True refused=False not_mentioned=False ms=299.1
+  Q: How does an AI agent compare to a plain model?
+  G: An AI agent orchestrates complex workflows by coordinating specialized tools and reasoning loops, whereas a plain model executes single queries without autonomous action.
+  A: [Ch. 8] "This is important for testing agentic systems, because if you’re just returning a plain text response from the model, this might be insufficient for you to analyze your agents." | An AI agent orchestrates complex workflows by coordinating specialized tools and reasoning loops, whereas a plain model executes single queries without autonomous action.
+  C: [{"chunk_id": "ch08-030", "chapter": "8", "quote": "This is important for testing agentic systems, because if you’re just returning a plain text response from the model, this might be insufficient for you to analyze your agents."}]
+PASS  ai-noncompare-how-work         both=None contrast=False template=False headfrag=False sentence=True refused=False not_mentioned=False ms=786.8
+  Q: How does it work?
+  G: AI agents execute tasks by continuously interacting with environments, receiving feedback, and refining their actions through iterative loops.
+  A: [Ch. 1] "For example, in pure reinforcement learning, agents can be trained directly through trial-and-error interaction with an environment. The benefit of using an LLM as part of an agent system is that it adds strong generalization, reasoning, and natural language capabilities, which makes agent behavior more flexible and broadly applicable beyond narrowly defined environments." | AI agents execute tasks by continuously interacting with environments, receiving feedback, and refining their actions through iterative loops.
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "For example, in pure reinforcement learning, agents can be trained directly through trial-and-error interaction with an environment. The benefit of using an LLM as part of an agent"}]
+PASS  ai-noncompare-main-stages      both=None contrast=False template=False headfrag=False sentence=True refused=False not_mentioned=False ms=956.4
+  Q: What are the main stages?
+  G: The main stages are in this book, I’ll use the terms AI agents, agents, and LLM agents interchangeably..
+  A: [Ch. 1] "In this book, I’ll use the terms AI agents, agents, and LLM agents interchangeably." | The main stages are in this book, I’ll use the terms AI agents, agents, and LLM agents interchangeably..
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "In this book, I’ll use the terms AI agents, agents, and LLM agents interchangeably."}]
+PASS  ddia-bare-vs-batch-stream      both=True contrast=True template=False headfrag=False sentence=True refused=False not_mentioned=False ms=319.8
+  Q: batch vs stream processing
+  G: Batch processing handles fixed, finite datasets while stream processing handles continuously arriving, unbounded data.
+  A: [Ch. 12] "and Chapter 11 , batch and stream processing have a lot of principles in common, and the main fundamental difference is that stream processors operate on unbounded datasets whereas batch process inputs are of a known, finite size." | Batch processing handles fixed, finite datasets while stream processing handles continuously arriving, unbounded data. | Asked as: "What is the difference between batch and stream processing?"
+  C: [{"chunk_id": "text00019-016", "chapter": "12", "quote": "and Chapter 11 , batch and stream processing have a lot of principles in common, and the main fundamental difference is that stream processors operate on unbounded datasets whereas"}]
+PASS  ddia-differ-from               both=True contrast=True template=False headfrag=False sentence=True refused=False not_mentioned=False ms=213.2
+  Q: How does batch processing differ from stream processing?
+  G: Batch processing handles fixed, finite datasets while stream processing handles unbounded, continuous data flows.
+  A: [Ch. 12] "and Chapter 11 , batch and stream processing have a lot of principles in common, and the main fundamental difference is that stream processors operate on unbounded datasets whereas batch process inputs are of a known, finite size." | Batch processing handles fixed, finite datasets while stream processing handles unbounded, continuous data flows. | Asked as: "What is the difference between batch processing and stream processing?"
+  C: [{"chunk_id": "text00019-016", "chapter": "12", "quote": "and Chapter 11 , batch and stream processing have a lot of principles in common, and the main fundamental difference is that stream processors operate on unbounded datasets whereas"}]
+PASS  fde-ddr5-vs-ddr4               both=False contrast=False template=False headfrag=False sentence=True refused=False not_mentioned=True ms=912.6
+  Q: DDR5 vs DDR4
+  G: The passages do not mention DDR4.
+  A: [Ch. 6] "DDR5 memory—the latest widely used standard for RAM—offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD." | The passages do not mention DDR4. | Asked as: "What is the difference between DDR5 and DDR4?"
+  C: [{"chunk_id": "ch06-011", "chapter": "6", "quote": "DDR5 memory—the latest widely used standard for RAM—offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD."}]
+PASS  fde-data-lake-vs-warehouse     both=True contrast=True template=False headfrag=False sentence=True refused=False not_mentioned=False ms=338.7
+  Q: What is the difference between a data lake and a data warehouse?
+  G: A data warehouse organizes structured, cleaned business metrics in a tiered architecture, whereas a data lake stores raw, unstructured data in object storage.
+  A: [Ch. 6] "The limitation is that cloud data warehouses cannot handle truly unstructured data, such as images, video, or audio, unlike a true data lake." | A data warehouse organizes structured, cleaned business metrics in a tiered architecture, whereas a data lake stores raw, unstructured data in object storage.
+  C: [{"chunk_id": "ch06-073", "chapter": "6", "quote": "The limitation is that cloud data warehouses cannot handle truly unstructured data, such as images, video, or audio, unlike a true data lake."}]

@@ -1,0 +1,159 @@
+[
+  {
+    "id": "ai-syn-standalone-llm",
+    "book": "ai-agents",
+    "question": "How does an AI agent compare to a standalone LLM?",
+    "sides": ["AI agent", "standalone LLM"],
+    "expect": "comparison"
+  },
+  {
+    "id": "ai-syn-plain-llm",
+    "book": "ai-agents",
+    "question": "How does an AI agent compare to a plain LLM?",
+    "sides": ["AI agent", "plain LLM"],
+    "expect": "comparison"
+  },
+  {
+    "id": "ai-syn-language-model",
+    "book": "ai-agents",
+    "question": "How does an AI agent compare to a language model?",
+    "sides": ["AI agent", "language model"],
+    "expect": "comparison"
+  },
+  {
+    "id": "ai-canonical-compare-with",
+    "book": "ai-agents",
+    "question": "Compare an AI agent with an LLM",
+    "sides": ["AI agent", "LLM"],
+    "expect": "comparison"
+  },
+  {
+    "id": "ai-canonical-separates",
+    "book": "ai-agents",
+    "question": "What separates an AI agent from an LLM?",
+    "sides": ["AI agent", "LLM"],
+    "expect": "comparison"
+  },
+  {
+    "id": "ai-canonical-different-from",
+    "book": "ai-agents",
+    "question": "How is an AI agent different from an LLM?",
+    "sides": ["AI agent", "LLM"],
+    "expect": "comparison"
+  },
+  {
+    "id": "ai-relational-llm-agent",
+    "book": "ai-agents",
+    "question": "How does an LLM agent relate to an LLM?",
+    "sides": ["LLM agent", "LLM"],
+    "expect": "relation"
+  },
+  {
+    "id": "ai-followup-workflow",
+    "book": "ai-agents",
+    "question": "How does this compare to a workflow?",
+    "history": [
+      {
+        "question": "what is an AI agent",
+        "answer": "[Ch. 1] \"An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results.\"\nAn AI agent is a system that uses a language model to think, act, and learn from its actions."
+      }
+    ],
+    "pin_chunk": "ch01-002",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "sides": ["AI agent", "workflow"],
+    "expect": "relation"
+  },
+  {
+    "id": "ai-followup-tools",
+    "book": "ai-agents",
+    "question": "How does this compare to tools?",
+    "history": [
+      {
+        "question": "what is an AI agent",
+        "answer": "[Ch. 1] \"An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results.\"\nAn AI agent is a system that uses a language model to think, act, and learn from its actions."
+      }
+    ],
+    "pin_chunk": "ch01-002",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "sides": ["AI agent", "tools"],
+    "expect": "relation"
+  },
+  {
+    "id": "ai-seeded-standalone-llm",
+    "book": "ai-agents",
+    "question": "How does this compare to a standalone LLM?",
+    "seed": {"question": "What is an LLM agent?", "pin_chunk": "ch01-001", "heading": "Chapter 1. From LLMs to Agents: "},
+    "sides": ["LLM agent", "standalone LLM"],
+    "expect": "comparison"
+  },
+  {
+    "id": "ai-negative-car",
+    "book": "ai-agents",
+    "question": "How does an AI agent compare to a car?",
+    "sides": ["AI agent", "car"],
+    "expect": "no_comparison"
+  },
+  {
+    "id": "ai-negative-plain-model",
+    "book": "ai-agents",
+    "question": "How does an AI agent compare to a plain model?",
+    "sides": ["AI agent", "plain model"],
+    "expect": "half_covered"
+  },
+  {
+    "id": "ai-noncompare-how-work",
+    "book": "ai-agents",
+    "question": "How does it work?",
+    "history": [
+      {
+        "question": "what is an AI agent",
+        "answer": "[Ch. 1] \"An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results.\"\nAn AI agent is a system that uses a language model to think, act, and learn from its actions."
+      }
+    ],
+    "pin_chunk": "ch01-002",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "expect": "generic_followup"
+  },
+  {
+    "id": "ai-noncompare-main-stages",
+    "book": "ai-agents",
+    "question": "What are the main stages?",
+    "history": [
+      {
+        "question": "what is an AI agent",
+        "answer": "[Ch. 1] \"An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results.\"\nAn AI agent is a system that uses a language model to think, act, and learn from its actions."
+      }
+    ],
+    "pin_chunk": "ch01-002",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "expect": "generic_followup"
+  },
+  {
+    "id": "ddia-bare-vs-batch-stream",
+    "book": "ddia",
+    "question": "batch vs stream processing",
+    "sides": ["batch processing", "stream processing"],
+    "expect": "comparison"
+  },
+  {
+    "id": "ddia-differ-from",
+    "book": "ddia",
+    "question": "How does batch processing differ from stream processing?",
+    "sides": ["batch processing", "stream processing"],
+    "expect": "comparison"
+  },
+  {
+    "id": "fde-ddr5-vs-ddr4",
+    "book": "fde",
+    "question": "DDR5 vs DDR4",
+    "sides": ["DDR5", "DDR4"],
+    "expect": "half_covered"
+  },
+  {
+    "id": "fde-data-lake-vs-warehouse",
+    "book": "fde",
+    "question": "What is the difference between a data lake and a data warehouse?",
+    "sides": ["data lake", "data warehouse"],
+    "expect": "comparison"
+  }
+]

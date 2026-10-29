@@ -18,8 +18,8 @@ which side failed:
 - key fact: regex hit first; misses go to the cross-family judge (granite)
   for a paraphrase check.
 - relevance judge (--judge): every shown passage judged relevant/not by
-  the configured judge (`muse-spark-1.3-contributor` by default since
-  2026-10-15; `JUDGE_BACKEND=ollama` = granite4.1:8b). The direct precision
+  the configured judge (DeepSeek V4.1 Flash via OpenCode CLI by default since
+  2026-10-29; `JUDGE_BACKEND=ollama` = granite4.1:8b). The direct precision
   reading. Verdicts are UNVALIDATED
   against human labels; the gold-not-relevant list is the judge-vs-pin
   disagreement, the strongest calibration signal this run can show.

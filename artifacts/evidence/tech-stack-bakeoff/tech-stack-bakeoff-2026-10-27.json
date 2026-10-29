@@ -1,0 +1,180 @@
+{
+  "timestamp": "2026-10-27 18:30:12",
+  "hardware": {
+    "cpu": "AMD64 Family 25 Model 33 Stepping 2, AuthenticAMD",
+    "gpu": "NVIDIA GeForce RTX 3060 Ti",
+    "torch_version": "2.6.0+cu124",
+    "cuda_available": true
+  },
+  "experiment_1_inprocess_vs_http": {
+    "queries_tested": 30,
+    "ollama_http_nomic_ms": 28.21,
+    "inprocess_cuda_bge_ms": 14.38,
+    "inprocess_cpu_bge_ms": 18.24,
+    "cuda_speedup_vs_ollama": 1.96,
+    "cpu_speedup_vs_ollama": 1.55,
+    "ollama_chat_1tok_overhead_ms": 60.48,
+    "ollama_chat_80tok_generation_ms": 533.49,
+    "chat_roundtrip_overhead_pct": 11.3
+  },
+  "experiment_2_vector_search_storage_scale": {
+    "real_chunks_count": 2822,
+    "real_chunks_py_dot_ms": 34.192,
+    "real_chunks_numpy_blas_ms": 0.293,
+    "real_chunks_speedup": 116.7,
+    "real_chunks_max_abs_diff": 1.3e-08,
+    "real_chunks_rank10_agreement": "10/10",
+    "sim_100k_chunks_py_dot_ms": 1240.9,
+    "sim_100k_chunks_numpy_blas_ms": 19.472,
+    "sim_100k_speedup": 63.7,
+    "sim_100k_max_abs_diff": 1.73e-08,
+    "sim_100k_rank10_agreement": "10/10",
+    "storage_json_ascii_mb": 47.98,
+    "storage_json_cold_load_ms": 606.7,
+    "storage_binary_npz_mb": 7.66,
+    "storage_binary_cold_load_ms": 1122.3,
+    "storage_disk_reduction_pct": 84.0,
+    "storage_load_speedup": 0.5
+  },
+  "experiment_3_sqlite_fts5_vs_postings": {
+    "wide_net": {
+      "dense_k1": {
+        "hits": 38,
+        "total": 57,
+        "recall5_pct": 66.7,
+        "lat_ms": 28.19
+      },
+      "legacy_idf_k1": {
+        "hits": 38,
+        "total": 57,
+        "recall5_pct": 66.7,
+        "lat_ms": 0.25
+      },
+      "legacy_idf_k3": {
+        "hits": 38,
+        "total": 57,
+        "recall5_pct": 66.7,
+        "lat_ms": 0.28
+      },
+      "fts5_bm25_k1": {
+        "hits": 38,
+        "total": 57,
+        "recall5_pct": 66.7,
+        "lat_ms": 1.74
+      },
+      "fts5_bm25_k3": {
+        "hits": 38,
+        "total": 57,
+        "recall5_pct": 66.7,
+        "lat_ms": 1.77
+      }
+    },
+    "stress_test": {
+      "totals": {
+        "postings": "16/20",
+        "fts5_porter": "13/20",
+        "fts5_trigram": "11/20",
+        "shuffled_control": "0/20"
+      },
+      "by_bucket": {
+        "symbol": {
+          "postings": 3,
+          "fts5_porter": 3,
+          "fts5_trigram": 2
+        },
+        "inflection": {
+          "postings": 4,
+          "fts5_porter": 4,
+          "fts5_trigram": 4
+        },
+        "phrase": {
+          "postings": 5,
+          "fts5_porter": 5,
+          "fts5_trigram": 0
+        },
+        "typo": {
+          "postings": 4,
+          "fts5_porter": 1,
+          "fts5_trigram": 5
+        }
+      }
+    }
+  },
+  "experiment_4_subword_token_budget_audit": {
+    "total_chunks_audited": 2822,
+    "min_tokens": 12,
+    "median_p50_tokens": 228,
+    "p95_tokens": 362,
+    "max_tokens": 531,
+    "chunks_over_384_tokens": 86,
+    "chunks_over_384_pct": 3.05,
+    "chunks_over_512_tokens": 6,
+    "chunks_over_512_pct": 0.21,
+    "prose_chars_per_token": 4.79,
+    "code_table_chars_per_token": 3.52,
+    "rechunked_longest50_over_320_count": 0
+  },
+  "experiment_5_neural_reranking_end_to_end": {
+    "cross_encoder_10passage_latency_cuda_ms": 26.98,
+    "cross_encoder_10passage_latency_cpu_ms": 48.19,
+    "wide_net_57_items": {
+      "dense_baseline": {
+        "recall1": "24/57",
+        "recall1_pct": 42.1,
+        "recall5": "38/57",
+        "recall5_pct": 66.7,
+        "mrr10": 0.531,
+        "by_register_r5": {
+          "literal": "19/19",
+          "conversational": "9/19",
+          "vague": "10/19"
+        }
+      },
+      "cross_encoder": {
+        "recall1": "25/57",
+        "recall1_pct": 43.9,
+        "recall5": "37/57",
+        "recall5_pct": 64.9,
+        "mrr10": 0.536,
+        "by_register_r5": {
+          "literal": "18/19",
+          "conversational": "8/19",
+          "vague": "11/19"
+        }
+      },
+      "rrf_blend": {
+        "recall1": "26/57",
+        "recall1_pct": 45.6,
+        "recall5": "37/57",
+        "recall5_pct": 64.9,
+        "mrr10": 0.551,
+        "by_register_r5": {
+          "literal": "18/19",
+          "conversational": "9/19",
+          "vague": "10/19"
+        }
+      },
+      "random_negative_control": {
+        "recall1": "4/57",
+        "recall1_pct": 7.0,
+        "recall5": "18/57",
+        "recall5_pct": 31.6,
+        "mrr10": 0.202,
+        "by_register_r5": {
+          "literal": "6/19",
+          "conversational": "4/19",
+          "vague": "8/19"
+        }
+      }
+    },
+    "sealed_30_end_to_end": {
+      "baseline_passed": "28/30",
+      "baseline_pin_hits": "17/30",
+      "baseline_avg_latency_s": 0.66,
+      "reranked_passed": "30/30",
+      "reranked_pin_hits": "21/30",
+      "reranked_avg_latency_s": 0.62,
+      "verdict": "Neural reranking sharpens top-1 precision on Wide-Net (+2 R@1, +0.020 MRR) with a 1-item tail trade-off on vague queries (R@5 37 vs 38); on Sealed 30, it boosts pin hits from 17/30 to 21/30 and pass rate from 28/30 to 30/30, kept configurable via RERANK_ENABLED."
+    }
+  }
+}

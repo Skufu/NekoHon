@@ -1,0 +1,103 @@
+label=before model=nekohon_q35_2b_x3_2e cases=20
+FAIL  ai-followup-llm-exact          both=True contrast=False template=True headfrag=True sentence=True refused=False not_mentioned=False ms=1346.8
+  Q: How does this compare to LLM?
+  G: In Chapter 1. From LLMs to Agents: , AI connects to this topic: From LLMs to Agents: The Foundational Blueprint One of the defining traits of human intelligence is the way we combine inner reasoning with concrete actions, and this maps surprisingly well to how large language model (LLM) agents operate when paired with tools.
+  A: [Ch. 1] "From LLMs to Agents: The Foundational Blueprint One of the defining traits of human intelligence is the way we combine inner reasoning with concrete actions, and this maps surprisingly well to how large language model (LLM) agents operate when paired with tools." | In Chapter 1. From LLMs to Agents: , AI connects to this topic: From LLMs to Agents: The Foundational Blueprint One of the defining traits of human intelligence is the way we combine inner reasoning with concrete actions, and this maps surprisingly well to how large language model (LLM) agents operate when paired with tools.
+  C: [{"chunk_id": "ch01-001", "chapter": "1", "quote": "From LLMs to Agents: The Foundational Blueprint One of the defining traits of human intelligence is the way we combine inner reasoning with concrete actions, and this maps surprisi"}]
+FAIL  ai-direct-difference           both=True contrast=False template=False headfrag=False sentence=True refused=False not_mentioned=False ms=620.1
+  Q: What is the difference between an AI agent and an LLM?
+  G: An LLM agent is a model that thinks, acts, and learns from feedback, using tools to expand its capabilities.
+  A: [Ch. 1] "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results." | An LLM agent is a model that thinks, acts, and learns from feedback, using tools to expand its capabilities.
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results."}]
+FAIL  ai-direct-compare              both=True contrast=False template=False headfrag=False sentence=True refused=False not_mentioned=False ms=595.0
+  Q: How does an AI agent compare to an LLM?
+  G: An LLM agent is a model that thinks and acts, using tools and feedback to change its behavior.
+  A: [Ch. 1] "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results." | An LLM agent is a model that thinks and acts, using tools and feedback to change its behavior.
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results."}]
+FAIL  ai-bare-vs                     both=True contrast=False template=False headfrag=False sentence=True refused=False not_mentioned=False ms=682.2
+  Q: AI agent vs LLM
+  G: An LLM agent is a model that thinks, acts, and learns from feedback, using tools to expand its capabilities.
+  A: [Ch. 1] "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results." | An LLM agent is a model that thinks, acts, and learns from feedback, using tools to expand its capabilities. | Asked as: "What is the difference between AI agent and LLM?"
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results."}]
+FAIL  ai-differ-from                 both=True contrast=False template=False headfrag=False sentence=True refused=False not_mentioned=False ms=652.9
+  Q: How does an LLM agent differ from an LLM?
+  G: An LLM agent is a model that thinks and acts using tools, changing its behavior based on what it finds.
+  A: [Ch. 1] "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results." | An LLM agent is a model that thinks and acts using tools, changing its behavior based on what it finds. | Asked as: "What is the difference between an LLM agent and an LLM?"
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results."}]
+FAIL  ai-followup-multi-agent        both=False contrast=False template=True headfrag=False sentence=True refused=False not_mentioned=False ms=1172.4
+  Q: How does this compare to a multi-agent system?
+  G: In Chapter 1. From LLMs to Agents: , AI connects to this topic: In this book, I’ll use the terms AI agents, agents, and LLM agents interchangeably.
+  A: [Ch. 1] "In this book, I’ll use the terms AI agents, agents, and LLM agents interchangeably." | In Chapter 1. From LLMs to Agents: , AI connects to this topic: In this book, I’ll use the terms AI agents, agents, and LLM agents interchangeably.
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "In this book, I’ll use the terms AI agents, agents, and LLM agents interchangeably."}]
+PASS  ai-followup-human-developer    both=True contrast=True template=False headfrag=False sentence=True refused=False not_mentioned=False ms=1169.5
+  Q: How does this compare to a human developer?
+  G: An AI agent automates reasoning and tool use through iterative feedback loops, mirroring human developers’ collaborative workflows.
+  A: [Ch. 1] "In this book, I’ll use the terms AI agents, agents, and LLM agents interchangeably." | An AI agent automates reasoning and tool use through iterative feedback loops, mirroring human developers’ collaborative workflows.
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "In this book, I’ll use the terms AI agents, agents, and LLM agents interchangeably."}]
+FAIL  ai-followup-plain-llm          both=False contrast=False template=False headfrag=True sentence=True refused=False not_mentioned=True ms=1361.3
+  Q: How does this compare to a plain LLM?
+  G: The passages do not mention plain LLM.
+  A: [Ch. 1] "From LLMs to Agents: The Foundational Blueprint One of the defining traits of human intelligence is the way we combine inner reasoning with concrete actions, and this maps surprisingly well to how large language model (LLM) agents operate when paired with tools." | The passages do not mention plain LLM.
+  C: [{"chunk_id": "ch01-001", "chapter": "1", "quote": "From LLMs to Agents: The Foundational Blueprint One of the defining traits of human intelligence is the way we combine inner reasoning with concrete actions, and this maps surprisi"}]
+FAIL  ai-followup-llm-seeded         both=True contrast=False template=False headfrag=True sentence=True refused=False not_mentioned=False ms=1138.2
+  Q: How does this compare to an LLM?
+  G: An LLM agent is a model that thinks, acts, and learns from tools.
+  A: [Ch. 1] "From LLMs to Agents: The Foundational Blueprint One of the defining traits of human intelligence is the way we combine inner reasoning with concrete actions, and this maps surprisingly well to how large language model (LLM) agents operate when paired with tools." | An LLM agent is a model that thinks, acts, and learns from tools.
+  C: [{"chunk_id": "ch01-001", "chapter": "1", "quote": "From LLMs to Agents: The Foundational Blueprint One of the defining traits of human intelligence is the way we combine inner reasoning with concrete actions, and this maps surprisi"}]
+  SEED: What is an LLM agent? -> [{"chunk_id": "ch01-002", "chapter": "1", "quote": "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results."}]
+PASS  ai-negative-database           both=False contrast=False template=False headfrag=False sentence=True refused=False not_mentioned=True ms=848.8
+  Q: How does an AI agent compare to a relational database?
+  G: The passages do not mention relational database.
+  A: [Ch. 1] "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results." | The passages do not mention relational database. | Read as: "How does an AI agent compare to a creational database?"
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results."}]
+FAIL  ai-noncompare-tradeoffs        both=None contrast=False template=False headfrag=True sentence=True refused=False not_mentioned=False ms=219.6
+  Q: What are the key trade-offs?
+  G: The key trade-offs are The Foundational Blueprint External support, such as code libraries or documentation, maps to tools like retrieval systems or web searches, and which refine the output beyond the model’s own raw ability.
+  A: [Ch. 1] "From LLMs to Agents: The Foundational Blueprint External support, such as code libraries or documentation, maps to tools like retrieval systems or web searches, which refine the output beyond the model’s own raw ability." | The key trade-offs are The Foundational Blueprint External support, such as code libraries or documentation, maps to tools like retrieval systems or web searches, and which refine the output beyond the model’s own raw ability.
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "From LLMs to Agents: The Foundational Blueprint External support, such as code libraries or documentation, maps to tools like retrieval systems or web searches, which refine the ou"}]
+PASS  ai-noncompare-example          both=None contrast=False template=False headfrag=False sentence=True refused=False not_mentioned=False ms=262.4
+  Q: What example do the authors give?
+  G: The authors illustrate this concept by explaining how an LLM agent combines reasoning with tool use to execute complex tasks.
+  A: [Ch. 1] "For example, in pure reinforcement learning, agents can be trained directly through trial-and-error interaction with an environment. The benefit of using an LLM as part of an agent system is that it adds strong generalization, reasoning, and natural language capabilities, which makes agent behavior more flexible and broadly applicable beyond narrowly defined environments." | The authors illustrate this concept by explaining how an LLM agent combines reasoning with tool use to execute complex tasks.
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "For example, in pure reinforcement learning, agents can be trained directly through trial-and-error interaction with an environment. The benefit of using an LLM as part of an agent"}]
+FAIL  ai-noncompare-why              both=None contrast=False template=False headfrag=True sentence=True refused=False not_mentioned=False ms=1016.7
+  Q: Why does this matter?
+  G: Embedding language models into agents unlocks capabilities to query external tools and refine outputs through iterative feedback.
+  A: [Ch. 1] "External support, such as code libraries or documentation, maps to tools like retrieval systems or web searches, which refine the output beyond the model’s own raw ability." | Embedding language models into agents unlocks capabilities to query external tools and refine outputs through iterative feedback.
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "The Foundational Blueprint External support, such as code libraries or documentation, maps to tools like retrieval systems or web searches, which refine the output beyond the model"}]
+PASS  ai-normal                      both=None contrast=False template=False headfrag=False sentence=True refused=False not_mentioned=False ms=658.1
+  Q: what is an AI agent
+  G: An AI agent is a system that uses a language model to think, act, and learn from its actions.
+  A: [Ch. 1] "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results." | An AI agent is a system that uses a language model to think, act, and learn from its actions.
+  C: [{"chunk_id": "ch01-002", "chapter": "1", "quote": "An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results."}]
+PASS  ddia-direct-batch-stream       both=True contrast=True template=False headfrag=False sentence=True refused=False not_mentioned=False ms=590.6
+  Q: What is the difference between batch processing and stream processing?
+  G: Batch processing handles fixed, finite datasets, while stream processing handles unbounded, continuous data streams.
+  A: [Ch. 12] "Batch and Stream Processing" | Batch processing handles fixed, finite datasets, while stream processing handles unbounded, continuous data streams.
+  C: [{"chunk_id": "text00019-017", "chapter": "12", "quote": "Spark performs stream processing on top of a batch processing engine by breaking the stream into microbatches , whereas Apache Flink performs batch processing on top of a stream pr"}]
+PASS  ddia-followup-stream           both=True contrast=True template=False headfrag=False sentence=True refused=False not_mentioned=False ms=637.9
+  Q: How does this compare to stream processing?
+  G: Stream processing continuously handles data as it arrives, unlike batch processing which waits for all data to be collected first.
+  A: [Ch. 10] However, a stream processor consumes inputs and produces outputs (rather than responding to requests). | Stream processing continuously handles data as it arrives, unlike batch processing which waits for all data to be collected first.
+  C: [{"chunk_id": "text00017-003", "chapter": "10", "quote": "Like a batch processing system, a stream processor consumes inputs and produces outputs (rather than responding to requests)."}]
+  SEED: What is batch processing? -> [{"chunk_id": "text00017-002", "chapter": "10", "quote": "A batch processing system takes a large amount of input data, runs a job to process it, and produces some output data."}]
+FAIL  fde-direct-batch-stream        both=True contrast=False template=False headfrag=True sentence=True refused=False not_mentioned=False ms=457.3
+  Q: What is the difference between batch processing and stream processing?
+  G: Batch processing handles data in large, fixed chunks for tasks like analytics and machine learning.
+  A: [Ch. 2] "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML." | Batch processing handles data in large, fixed chunks for tasks like analytics and machine learning.
+  C: [{"chunk_id": "ch02-019", "chapter": "2", "quote": "Batch processing remains an extremely popular way to ingest data for downstream consumption, particularly in analytics and ML."}]
+PASS  fde-ddr4-ddr5                  both=False contrast=False template=False headfrag=False sentence=True refused=False not_mentioned=True ms=859.1
+  Q: What is the difference between DDR4 and DDR5?
+  G: The passages do not mention DDR4.
+  A: [Ch. 6] "DDR5 memory—the latest widely used standard for RAM—offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD." | The passages do not mention DDR4.
+  C: [{"chunk_id": "ch06-011", "chapter": "6", "quote": "DDR5 memory—the latest widely used standard for RAM—offers data retrieval latency on the order of 100 ns, roughly 1,000 times faster than SSD."}]
+PASS  fde-normal-watermark           both=None contrast=False template=False headfrag=False sentence=True refused=False not_mentioned=False ms=557.4
+  Q: What is a watermark?
+  G: A watermark is a time limit that tells a window if data is old enough to be ignored.
+  A: [Ch. 8] "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late." | A watermark is a time limit that tells a window if data is old enough to be ignored.
+  C: [{"chunk_id": "ch08-039", "chapter": "8", "quote": "A watermark (Figure 8-8) is a threshold used by a window to determine whether data in a window is within the established time interval or whether it’s considered late."}]
+PASS  fde-noncompare-tradeoffs       both=None contrast=False template=False headfrag=False sentence=True refused=False not_mentioned=False ms=455.2
+  Q: What are the trade-offs of data ingestion?
+  G: Ingestion can be a bottleneck in practice, even if it should not be one in theory.
+  A: [Ch. 7] "In theory, your ingestion should never be a bottleneck. In practice, ingestion bottlenecks are pretty standard." | Ingestion can be a bottleneck in practice, even if it should not be one in theory.
+  C: [{"chunk_id": "ch07-016", "chapter": "7", "quote": "In theory, your ingestion should never be a bottleneck."}]

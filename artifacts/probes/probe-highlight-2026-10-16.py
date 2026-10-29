@@ -37,7 +37,87 @@ def load_rows():
     return rows
 
 
-def score(body, pin_text, selection):
+STOPWORDS = {
+    "a", "about", "above", "after", "again", "against", "all", "am", "an",
+    "and", "any", "are", "aren't", "as", "at", "be", "because", "been",
+    "before", "being", "below", "between", "both", "but", "by", "can't",
+    "cannot", "could", "couldn't", "did", "didn't", "do", "does", "doesn't",
+    "doing", "don't", "down", "during", "each", "few", "for", "from",
+    "further", "had", "hadn't", "has", "hasn't", "have", "haven't", "having",
+    "he", "he'd", "he'll", "he's", "her", "here", "here's", "hers", "herself",
+    "him", "himself", "his", "how", "how's", "i", "i'd", "i'll", "i'm", "i've",
+    "if", "in", "into", "is", "isn't", "it", "it's", "its", "itself", "let's",
+    "me", "more", "most", "mustn't", "my", "myself", "no", "nor", "not", "of",
+    "off", "on", "once", "only", "or", "other", "ought", "our", "ours",
+    "ourselves", "out", "over", "own", "same", "shan't", "she", "she'd",
+    "she'll", "she's", "should", "shouldn't", "so", "some", "such", "than",
+    "that", "that's", "the", "their", "theirs", "them", "themselves", "then",
+    "there", "there's", "these", "they", "they'd", "they'll", "they're",
+    "they've", "this", "those", "through", "to", "too", "under", "until", "up",
+    "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were",
+    "weren't", "what", "what's", "when", "when's", "where", "where's", "which",
+    "while", "who", "who's", "whom", "why", "why's", "with", "won't", "would",
+    "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", "yours",
+    "yourself", "yourselves",
+}
+
+
+def extract_gloss(answer_text):
+    """Extract the explanatory gloss lines from an answer, stripping [Ch. N] quotes."""
+    lines = [line.strip() for line in (answer_text or "").splitlines() if line.strip()]
+    gloss_lines = [l for l in lines if not re.match(r"^\[Ch\.\s*[^\]]+\]", l, re.I)]
+    return " ".join(gloss_lines).strip()
+
+
+def check_gloss(gloss, selection, pin_text, min_grounded_ratio=0.5):
+    """Opt-in strict check on the generated gloss for highlight explanations.
+
+    Rules:
+    1. The generated gloss must be non-empty and non-trivial (not 'x', not empty).
+    2. Must not just repeat the selected text.
+    3. Must be grounded: its content words mostly appear in the selected passage/chunk.
+    """
+    gloss = (gloss or "").strip()
+    # 1. Non-empty and not single character / trivial
+    if not gloss or len(gloss) < 2 or fold(gloss) in ("x",):
+        return False, "gloss is empty or trivial", {"non_empty": False, "not_repeated": False, "grounded": False}
+
+    # 2. Must not just repeat the selected text
+    def plain(text):
+        return re.sub(r"[^\w\s]+", "", (text or "").lower()).strip()
+
+    if plain(gloss) == plain(selection):
+        return False, "gloss repeats selected text", {"non_empty": True, "not_repeated": False, "grounded": False}
+
+    # 3. Grounded in passage / chunk content
+    def content_words(text):
+        cleaned = re.sub(r"[^\w\s]+", " ", (text or "").lower())
+        return [w for w in cleaned.split() if len(w) >= 3 and w not in STOPWORDS]
+
+    g_words = content_words(gloss)
+    if not g_words:
+        return False, "gloss contains no content words", {"non_empty": True, "not_repeated": True, "grounded": False}
+
+    p_words = set(content_words(pin_text))
+    p_folded = fold(pin_text)
+    matched = [w for w in g_words if w in p_words or w in p_folded]
+    ratio = len(matched) / len(g_words) if g_words else 0.0
+
+    is_grounded = ratio >= min_grounded_ratio
+    metrics = {
+        "non_empty": True,
+        "not_repeated": True,
+        "grounded": is_grounded,
+        "content_words_count": len(g_words),
+        "matched_words_count": len(matched),
+        "grounded_ratio": round(ratio, 3),
+    }
+    if not is_grounded:
+        return False, f"gloss not grounded in passage ({len(matched)}/{len(g_words)} content words match, ratio {ratio:.3f} < {min_grounded_ratio})", metrics
+    return True, "gloss grounded and valid", metrics
+
+
+def score(body, pin_text, selection, strict=False):
     answer = body.get("answer") or ""
     citations = body.get("citations") or []
     refused = bool(body.get("refused"))
@@ -52,13 +132,38 @@ def score(body, pin_text, selection):
         verbatim = True
         if word.search(quote):
             word_in_quote = True
-    return {
+
+    res = {
         "refused": refused,
         "pin_cited": pin_cited,
         "quote_verbatim_in_pin": verbatim,
         "word_in_quoted_span": word_in_quote,
         "answer": answer[:400],
     }
+
+    if strict:
+        gloss = extract_gloss(answer)
+        valid, detail, metrics = check_gloss(gloss, selection, pin_text)
+        res["gloss"] = gloss
+        res["gloss_valid"] = valid
+        res["gloss_detail"] = detail
+        res["gloss_non_empty"] = metrics.get("non_empty", False)
+        res["gloss_not_repeated"] = metrics.get("not_repeated", False)
+        res["gloss_grounded"] = metrics.get("grounded", False)
+        res["gloss_grounded_ratio"] = metrics.get("grounded_ratio", 0.0)
+        res["passed"] = bool(
+            not refused
+            and pin_cited
+            and verbatim
+            and word_in_quote
+            and valid
+        )
+    return res
+
+
+def score_strict(body, pin_text, selection, min_grounded_ratio=0.5):
+    """Opt-in strict scoring function that validates both citation and generated gloss."""
+    return score(body, pin_text, selection, strict=True)
 
 
 def run_model(index, rows, model):

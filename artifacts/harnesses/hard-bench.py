@@ -486,9 +486,10 @@ def grade_item(item, result, chunk_map, text_map, df=None, n_chunks=0, legacy=Fa
         for cite in cites:
             cid = cite.get("chunk_id")
             quote = cite.get("quote") or ""
-            if quote and cid in text_map and not is_quote_in_passage(quote, text_map[cid]):
+            if cid not in text_map:
+                reasons.append(f"unknown citation chunk {cid!r}")
+            elif not quote or not is_quote_in_passage(quote, text_map[cid]):
                 reasons.append(f"citation quote is not verbatim in {cid}")
-                break
     if not gloss:
         reasons.append("no gloss line (extractive answer)")
 
@@ -666,6 +667,7 @@ def run_controls(items, results, chunk_map, text_maps, df_for):
 
     ok = True
     for name, row in rows.items():
+        ok = ok and row["answer_items_total"] > 0
         if name == "refuse_all":
             ok = ok and row["answer_items_passed"] == 0
         else:

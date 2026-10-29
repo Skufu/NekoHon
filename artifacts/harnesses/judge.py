@@ -1,16 +1,33 @@
 """LLM judge for the eval harness. Artifact, not engine.
 
-Two backends, one interface, the same one-word verdicts at temperature 0:
+Three backends, one interface, the same one-word verdicts at temperature 0:
 
-- `openai` (default since 2026-10-15, user direction): `muse-spark-1.3-contributor`
-  over the OpenCode Zen/Go relay — an OpenAI-compatible `/responses` wire that
-  pins requests with `x-opencode-session` (a random stable session per process
-  unless `JUDGE_OPENCODE_SESSION` is set). Needs the network and a key:
+- `cli` (default since 2026-10-29, owner direction): `opencode run --format
+  json` against the OpenCode CLI, prompt on stdin. Primary model
+  `opencode/deepseek-v4.1-flash-free`; when that call fails there is exactly
+  one fallback, `opencode-go/deepseek-v4.1-flash` — fixed in this file, and a
+  different `JUDGE_FALLBACK_MODEL` raises instead of being honored. No retries
+  beyond that pair, no session reuse, no `--continue`, no attached files.
+  Tool execution is disabled before the call: each call gets a private
+  `XDG_CONFIG_HOME` holding one agent (`verdict-only`) whose every tool is
+  false, `--standalone` so the CLI reads that root instead of the background
+  service, and an empty temp cwd. Measured 2026-10-29 on `opencode` v2.1.3: an
+  adversarial prompt ("read C:/Windows/win.ini") produced no `tool_use` event,
+  where the built-in `build` agent executed `read` and `shell` under the same
+  prompt. Any `tool_use` event still fails the call closed, as a second wall.
+  The pair shares one wall-clock budget (`JUDGE_CLI_MAX_SECONDS`, 300 s by
+  default) and per-attempt captured output is capped (`JUDGE_RAW_LIMIT`).
+- `openai` (override): `deepseek-v4.1-flash` over the OpenCode Zen/Go relay —
+  an OpenAI-compatible `/responses` wire that pins requests with
+  `x-opencode-session` (a random stable session per process unless
+  `JUDGE_OPENCODE_SESSION` is set). Needs the network and a key:
   `JUDGE_API_KEY` or `JUDGE_API_KEY_FILE`, defaulting to the gitignored
-  `.judge-key` in the repo root.
-- `ollama` (offline fallback): `granite4.1:8b` — cross-family with the
+  `.judge-key` in the repo root. `JUDGE_BACKEND=openai` keeps the
+  `JUDGE_BASE_URL` / `JUDGE_MODEL` / `JUDGE_WIRE` knobs; Muse is no longer the
+  default judge.
+- `ollama` (offline override): `granite4.1:8b` — cross-family with the
   answerer (qwen2.5:7b), no key, one model swap per eval run. The one-line
-  revert from the new default is `JUDGE_BACKEND=ollama`.
+  revert from every cloud path is `JUDGE_BACKEND=ollama`.
 - Any other provider exposing an OpenAI-compatible `/chat/completions` or
   `/responses` wire (OpenAI, Anthropic's compat endpoint, Gemini's compat
   endpoint, OpenRouter, DeepSeek, Groq, Mistral) works via the same
@@ -20,6 +37,16 @@ Two backends, one interface, the same one-word verdicts at temperature 0:
 
 Model identity is recorded in every judged output (`judge_name()`): a judge
 swap without a version pin would silently drift the metric series.
+`LAST_CALL` carries the per-call provenance: the model actually used, whether
+the fallback fired, each attempt's error and raw stream tails, and the sha256
+of the system/user/payload prompts. `judge_name_actual()` reads the model that
+answered, which is not `JUDGE_MODEL` when the fallback carried the verdict.
+
+Verdict parsing is strict and fails closed: a reply is a verdict only when,
+after folding punctuation and case, it is exactly one label (or one listed
+alias). A paraphrase, an ambiguous "yes and no", or two different digits is
+`judge_error`, never a guess. One stricter re-ask runs before giving up.
+
 
 The verdicts are UNVALIDATED against human labels; a stronger judge is a
 better prior, not ground truth.
@@ -29,9 +56,13 @@ single 2-1 vote flips. These verdicts are a triage dial, not a pass/fail
 gate — see `NOT_A_GATE`.
 """
 
+import hashlib
 import json
 import os
 import re
+import shutil
+import subprocess
+import tempfile
 import time
 import urllib.error
 import urllib.request
@@ -45,15 +76,51 @@ import answer as A
 # verdicts are a triage dial, not a pass/fail gate.
 NOT_A_GATE = True
 
-JUDGE_BACKEND = os.environ.get("JUDGE_BACKEND", "openai")
-JUDGE_MODEL = os.environ.get(
-    "JUDGE_MODEL",
-    "granite4.1:8b" if JUDGE_BACKEND == "ollama" else "muse-spark-1.3-contributor",
-)
+# Primary CLI model and its only fallback (owner direction 2026-10-29). The
+# fallback is fixed, not configurable: a judge swap must be a visible code
+# change, never an environment surprise. Measured in the OpenCode registry on
+# 2026-10-29.
+CLI_MODEL = "opencode/deepseek-v4.1-flash-free"
+CLI_FALLBACK = "opencode-go/deepseek-v4.1-flash"
+CLOUD_MODEL = "deepseek-v4.1-flash"
+OLLAMA_MODEL = "granite4.1:8b"
+
+
+def _fallback_model():
+    """The one allowed fallback. A different JUDGE_FALLBACK_MODEL is refused
+    loudly rather than honored silently."""
+    override = os.environ.get("JUDGE_FALLBACK_MODEL", "").strip()
+    if override and override != CLI_FALLBACK:
+        raise RuntimeError(
+            "JUDGE_FALLBACK_MODEL is fixed to "
+            f"{CLI_FALLBACK!r} (got {override!r}); change judge.py to change it"
+        )
+    return CLI_FALLBACK
+
+
+def _default_model(backend):
+    if backend in ("cli", "opencode"):
+        return CLI_MODEL
+    if backend == "ollama":
+        return OLLAMA_MODEL
+    return CLOUD_MODEL
+
+
+JUDGE_BACKEND = os.environ.get("JUDGE_BACKEND", "cli")
+JUDGE_MODEL = os.environ.get("JUDGE_MODEL") or _default_model(JUDGE_BACKEND)
 JUDGE_BASE_URL = os.environ.get("JUDGE_BASE_URL", "https://opencode.ai/zen/go/v1")
 JUDGE_WIRE = os.environ.get("JUDGE_WIRE", "responses")
 JUDGE_REASONING = os.environ.get("JUDGE_REASONING", "minimal")
-JUDGE_MAX_OUTPUT = int(os.environ.get("JUDGE_MAX_OUTPUT", "2048"))
+# `deepseek-v4.1-flash` spends up to a few thousand tokens on reasoning before
+# its answer; measured 2026-10-24: a 2k output cap returned an empty completion.
+JUDGE_MAX_OUTPUT = int(os.environ.get("JUDGE_MAX_OUTPUT", "12000"))
+JUDGE_CLI = os.environ.get("JUDGE_CLI", "opencode")
+JUDGE_CLI_MAX_SECONDS = float(os.environ.get("JUDGE_CLI_MAX_SECONDS", "300"))
+# A call that would get less than this cannot finish, so the fallback is not
+# started with a sliver of the shared budget (it only burns the wall clock).
+CLI_MIN_ATTEMPT_SECONDS = 0.5
+JUDGE_RAW_LIMIT = 4000  # chars of each stream kept as provenance
+JUDGE_STREAM_LIMIT = 4_000_000  # a judge stream larger than this is not a verdict
 PASSAGE_CHARS = 2000  # prompt-size guard, not a quality knob
 ANSWER_CHARS = 2000
 CLOUD_TIMEOUT = 60.0
@@ -246,22 +313,488 @@ def _cloud_complete(system, user, model, timeout):
     raise RuntimeError("judge failed")  # unreachable; the loop returns or raises
 
 
-def _complete(system, user, model, timeout):
-    if JUDGE_BACKEND == "openai":
-        return _cloud_complete(system, user, model, timeout)
-    return A.ollama_generate(system, user, model, timeout=timeout)
-
-
+LAST_CALL = {}  # provenance of the last judge call; harnesses copy it
 LAST_REPLY = {"text": ""}  # the last raw judge reply, for harness debugging
 
 
+class JudgeTransportError(RuntimeError):
+    """A judge call produced no trustworthy verdict. Fail closed, never guess."""
+
+
+_TOOL_EVENT_TYPES = frozenset(
+    {"tool", "tool_use", "tool_call", "tool-call", "tool_result", "tool-result"}
+)
+_ERROR_EVENT_TYPES = frozenset({"error", "tool_error"})
+
+
+def _sha256(text):
+    return hashlib.sha256((text or "").encode("utf-8")).hexdigest()
+
+
+def _start_call(backend, model, system, user, payload):
+    """Reset LAST_CALL to this call's provenance and return it."""
+    LAST_CALL.clear()
+    LAST_CALL.update(
+        {
+            "backend": backend,
+            "transport": "",
+            "model_requested": model or "",
+            "model_used": "",
+            "fallback_used": False,
+            "fallback_model": "",
+            "prompt": {
+                "system_sha256": _sha256(system),
+                "user_sha256": _sha256(user),
+                "payload_sha256": _sha256(payload),
+                "payload_chars": len(payload or ""),
+                "system_chars": len(system or ""),
+                "user_chars": len(user or ""),
+            },
+            "attempts": [],
+            "reply_sha256": "",
+            "reply_chars": 0,
+            "error": "",
+            "started_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+            "duration_ms": 0,
+        }
+    )
+    return LAST_CALL
+
+
+# --- CLI transport (`opencode run --format json`, prompt on stdin) ----------
+#
+# Tool execution is disabled BEFORE the call, not rejected afterwards: each
+# call gets a private config root (`XDG_CONFIG_HOME`) holding one agent whose
+# every tool is false, and `--standalone` makes the CLI read that root instead
+# of the background service's stale agent list. Measured 2026-10-29 on
+# `opencode` v2.1.3: an adversarial prompt ("read C:/Windows/win.ini") produced
+# no `tool_use` event and the model reported it had no tools, where the same
+# prompt under the built-in `build` agent executed `read` and `shell`.
+
+CLI_AGENT_ID = "verdict-only"
+CLI_AGENT_MARKDOWN = """---
+description: Text-only verdict judge. Every tool is disabled.
+mode: primary
+tools:
+  "*": false
+  bash: false
+  shell: false
+  read: false
+  edit: false
+  write: false
+  glob: false
+  grep: false
+  list: false
+  webfetch: false
+  websearch: false
+  task: false
+  todowrite: false
+  skill: false
+---
+You are a text-only verdict function inside a local evaluation harness.
+There are no tools. Do not read files, run commands, browse, or search.
+Reply with the requested verdict and nothing else.
+"""
+
+CLI_PREAMBLE = (
+    "You are a text-only verdict function inside a local evaluation harness. "
+    "You have no tools: do not read files, run commands, browse, or search. "
+    "Reply with the requested verdict and nothing else.\n"
+)
+
+
+def _write_agent_config(root):
+    """Write the isolated agent markdown under a private config root."""
+    agent_dir = os.path.join(root, "opencode", "agent")
+    os.makedirs(agent_dir, exist_ok=True)
+    path = os.path.join(agent_dir, f"{CLI_AGENT_ID}.md")
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
+        handle.write(CLI_AGENT_MARKDOWN)
+    return path
+
+
+def _cli_env(config_root):
+    """Environment for the child: private config root, no inherited overrides."""
+    env = os.environ.copy()
+    for key in list(env):
+        if key.startswith("OPENCODE_CONFIG") or key == "OPENCODE_PERMISSION":
+            env.pop(key, None)
+    env["XDG_CONFIG_HOME"] = config_root
+    env["NO_COLOR"] = "1"
+    return env
+
+
+def _cli_payload(system, user):
+    """The CLI has no separate system channel, so the prompt carries both.
+
+    The combined string is what gets hashed into LAST_CALL["prompt"], so the
+    bytes the model saw are recoverable by hash.
+    """
+    return (
+        f"{CLI_PREAMBLE}\n### Judge instructions\n{(system or '').strip()}\n\n"
+        f"### Input\n{user}"
+    )
+
+
+def _probe_cli_version():
+    try:
+        done = subprocess.run(
+            [JUDGE_CLI, "--version"],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        out = (done.stdout or "") or (done.stderr or "")
+        return out.strip().splitlines()[0][:80] if out.strip() else "unknown"
+    except Exception:
+        return "unavailable"
+
+
+_CLI_VERSION = {"value": ""}
+
+
+def _cli_version():
+    if not _CLI_VERSION["value"]:
+        _CLI_VERSION["value"] = _probe_cli_version()
+    return _CLI_VERSION["value"]
+
+
+def _kill_process_tree(proc):
+    try:
+        if os.name == "nt":
+            subprocess.run(
+                ["taskkill", "/PID", str(proc.pid), "/T", "/F"],
+                capture_output=True,
+                timeout=10,
+            )
+        else:
+            proc.kill()
+    except Exception:
+        try:
+            proc.kill()
+        except Exception:
+            pass
+
+
+def _run_cli_process(args, stdin_text, timeout, cwd, env):
+    """Run one bounded CLI call. The prompt travels on stdin, never argv."""
+    creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0) if os.name == "nt" else 0
+    started = time.perf_counter()
+    proc = subprocess.Popen(
+        args,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        cwd=cwd,
+        env=env,
+        creationflags=creationflags,
+    )
+    timed_out = False
+    try:
+        stdout, stderr = proc.communicate(stdin_text, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        timed_out = True
+        _kill_process_tree(proc)
+        try:
+            stdout, stderr = proc.communicate(timeout=15)
+        except subprocess.TimeoutExpired:
+            stdout, stderr = "", "timeout: child did not exit after kill"
+    return {
+        "exit_code": proc.returncode,
+        "stdout": stdout or "",
+        "stderr": stderr or "",
+        "timed_out": timed_out,
+        "duration_ms": int((time.perf_counter() - started) * 1000),
+    }
+
+
+# Indirection so tests can exercise the transport with no CLI and no network.
+_CLI_RUNNER = _run_cli_process
+
+
+def _parse_cli_stream(stdout):
+    """Read the NDJSON event stream `opencode run --format json` emits.
+
+    Only assistant `text` parts are reply text. Any tool event is reported so
+    the caller can fail closed; malformed lines are counted, never guessed at.
+    """
+    texts, tools, errors = [], [], []
+    events = 0
+    malformed = 0
+    for line in (stdout or "").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            malformed += 1
+            continue
+        if not isinstance(event, dict):
+            malformed += 1
+            continue
+        events += 1
+        etype = str(event.get("type") or "")
+        raw_part = event.get("part")
+        part = raw_part if isinstance(raw_part, dict) else {}
+        ptype = str(part.get("type") or "")
+        if etype in _TOOL_EVENT_TYPES or ptype in _TOOL_EVENT_TYPES:
+            tools.append(str(part.get("tool") or part.get("name") or etype or "tool"))
+        elif etype in _ERROR_EVENT_TYPES or ptype in _ERROR_EVENT_TYPES:
+            message = (
+                event.get("error") or part.get("error") or part.get("message") or etype
+            )
+            if isinstance(message, dict):
+                message = message.get("message") or json.dumps(message, sort_keys=True)
+            errors.append(str(message)[:400])
+        elif etype == "text" and isinstance(part.get("text"), str):
+            texts.append(part["text"])
+    return {
+        "text": "\n".join(texts).strip(),
+        "tools": tools,
+        "errors": errors,
+        "events": events,
+        "malformed": malformed,
+    }
+
+
+def _cli_attempt(model, payload, timeout, config_root):
+    """One CLI run in a fresh empty cwd and a tool-free agent. Records errors."""
+    attempt = {
+        "model": model,
+        "command": "run --standalone --agent verdict-only --format json --model <model>",
+        "sandbox": "empty-temp-cwd",
+        "agent": CLI_AGENT_ID,
+        "tools_disabled": True,
+        "exit_code": None,
+        "timed_out": False,
+        "duration_ms": 0,
+        "seconds_allowed": round(timeout, 3),
+        "stdout_sha256": "",
+        "stderr_sha256": "",
+        "stdout_tail": "",
+        "stderr_tail": "",
+        "events": 0,
+        "malformed_lines": 0,
+        "tools": [],
+        "error": "",
+        "reply": "",
+        "reply_sha256": "",
+        "reply_chars": 0,
+    }
+    args = [
+        JUDGE_CLI,
+        "run",
+        "--standalone",
+        "--agent",
+        CLI_AGENT_ID,
+        "--format",
+        "json",
+        "--model",
+        model,
+    ]
+    cwd = tempfile.mkdtemp(prefix="judge-cli-")
+    try:
+        result = _CLI_RUNNER(args, payload, timeout, cwd, _cli_env(config_root))
+    except Exception as exc:
+        attempt["error"] = f"runner failed: {type(exc).__name__}: {exc}"
+        return attempt
+    finally:
+        shutil.rmtree(cwd, ignore_errors=True)
+
+    stdout = result.get("stdout") or ""
+    stderr = result.get("stderr") or ""
+    attempt.update(
+        exit_code=result.get("exit_code"),
+        timed_out=bool(result.get("timed_out")),
+        duration_ms=int(result.get("duration_ms") or 0),
+        stdout_sha256=_sha256(stdout),
+        stderr_sha256=_sha256(stderr),
+        stdout_tail=stdout[-JUDGE_RAW_LIMIT:],
+        stderr_tail=stderr[-JUDGE_RAW_LIMIT:],
+    )
+    if attempt["timed_out"]:
+        attempt["error"] = f"timeout after {timeout:.0f}s"
+        return attempt
+    if len(stdout) > JUDGE_STREAM_LIMIT:
+        attempt["error"] = "CLI stream exceeded the size cap"
+        return attempt
+
+    parsed = _parse_cli_stream(stdout)
+    attempt.update(
+        events=parsed["events"],
+        malformed_lines=parsed["malformed"],
+        tools=parsed["tools"],
+    )
+    if parsed["tools"]:
+        attempt["error"] = "CLI reply came from a tool-using turn: " + ", ".join(
+            parsed["tools"][:5]
+        )
+        return attempt
+    if parsed["errors"]:
+        attempt["error"] = "CLI reported an error: " + parsed["errors"][0]
+        return attempt
+    if attempt["exit_code"] not in (0, None) and not parsed["text"]:
+        detail = " ".join((stderr or "").split())[:200]
+        attempt["error"] = f"CLI exited {attempt['exit_code']}" + (f": {detail}" if detail else "")
+        return attempt
+    if not parsed["text"]:
+        attempt["error"] = "CLI stream carried no assistant text"
+        return attempt
+
+    attempt["reply"] = parsed["text"]
+    attempt["reply_sha256"] = _sha256(parsed["text"])
+    attempt["reply_chars"] = len(parsed["text"])
+    return attempt
+
+
+def _cli_complete(system, user, model, timeout):
+    requested = model or JUDGE_MODEL
+    payload = _cli_payload(system, user)
+    call = _start_call("cli", requested, system, user, payload)
+    call["transport"] = "opencode-cli"
+    call["cli"] = _cli_version()
+    call["agent"] = CLI_AGENT_ID
+    call["tools_disabled"] = True
+    call["standalone"] = True
+    wall = max(1.0, min(float(timeout or CLOUD_TIMEOUT), JUDGE_CLI_MAX_SECONDS))
+    call["budget_seconds"] = wall
+
+    # Only the configured primary may fall back. An explicitly requested model
+    # (a sweep pinning a tag) runs alone, so a caller never gets a silent swap.
+    fallback = ""
+    if requested == JUDGE_MODEL and CLI_FALLBACK != requested:
+        fallback = _fallback_model()
+    call["fallback_model"] = fallback
+    candidates = [requested] + ([fallback] if fallback else [])
+
+    config_root = tempfile.mkdtemp(prefix="judge-cfg-")
+    _write_agent_config(config_root)
+    started = time.perf_counter()
+    deadline = started + wall
+    failures = []
+    try:
+        for index, candidate in enumerate(candidates):
+            remaining = deadline - time.perf_counter()
+            if remaining <= CLI_MIN_ATTEMPT_SECONDS:
+                failures.append(f"{candidate}: no time left in the {wall:.0f}s budget")
+                break
+            attempt = _cli_attempt(candidate, payload, remaining, config_root)
+            call["attempts"].append(attempt)
+            call["duration_ms"] = int((time.perf_counter() - started) * 1000)
+            if not attempt["error"]:
+                call.update(
+                    model_used=candidate,
+                    fallback_used=index > 0,
+                    reply_sha256=attempt["reply_sha256"],
+                    reply_chars=attempt["reply_chars"],
+                )
+                return attempt["reply"]
+            failures.append(f"{candidate}: {attempt['error']}")
+    finally:
+        shutil.rmtree(config_root, ignore_errors=True)
+
+    call["error"] = "; ".join(failures)
+    raise JudgeTransportError("opencode CLI judge failed: " + call["error"])
+
+
+# --- cloud and offline transports (unchanged call shapes) -------------------
+
+
+def _cloud_call(system, user, model, timeout):
+    payload = json.dumps(_cloud_payload(system, user, model), sort_keys=True)
+    call = _start_call("openai", model, system, user, payload)
+    call["transport"] = "http-json"
+    call["url"] = _cloud_url()
+    call["wire"] = JUDGE_WIRE
+    started = time.perf_counter()
+    try:
+        text = _cloud_complete(system, user, model, timeout)
+    except Exception as exc:
+        call["duration_ms"] = int((time.perf_counter() - started) * 1000)
+        call["error"] = f"{type(exc).__name__}: {exc}"
+        raise
+    call.update(
+        duration_ms=int((time.perf_counter() - started) * 1000),
+        model_used=model,
+        reply_sha256=_sha256(text),
+        reply_chars=len(text),
+    )
+    return text
+
+
+def _ollama_call(system, user, model, timeout):
+    call = _start_call("ollama", model, system, user, f"{system}\n\n{user}")
+    call["transport"] = "ollama-localhost"
+    started = time.perf_counter()
+    try:
+        text = A.ollama_generate(system, user, model, timeout=timeout)
+    except Exception as exc:
+        call["duration_ms"] = int((time.perf_counter() - started) * 1000)
+        call["error"] = f"{type(exc).__name__}: {exc}"
+        raise
+    call.update(
+        duration_ms=int((time.perf_counter() - started) * 1000),
+        model_used=model,
+        reply_sha256=_sha256(text),
+        reply_chars=len(text),
+    )
+    return text
+
+
+def _complete(system, user, model, timeout):
+    if JUDGE_BACKEND in ("cli", "opencode"):
+        return _cli_complete(system, user, model, timeout)
+    if JUDGE_BACKEND == "openai":
+        return _cloud_call(system, user, model, timeout)
+    if JUDGE_BACKEND == "ollama":
+        return _ollama_call(system, user, model, timeout)
+    raise RuntimeError(
+        f"unknown JUDGE_BACKEND {JUDGE_BACKEND!r}: use cli, openai, or ollama"
+    )
+
+
+def judge_name_actual():
+    """The model that produced the last verdict (differs on a fallback)."""
+    return LAST_CALL.get("model_used") or JUDGE_MODEL or "unset"
+
+
+# --- strict verdict parsing (fails closed) ---------------------------------
+
+_FOLD_RE = re.compile(r"[^a-z0-9]+")
+
+
+def _fold_label(text):
+    """Case- and punctuation-blind form: 'Not_Relevant.' -> 'not relevant'."""
+    return _FOLD_RE.sub(" ", (text or "").lower()).strip()
+
+
 def _match(text, keys):
-    normalized = re.sub(r"[^a-z]+", " ", (text or "").strip().lower())
-    for label, phrases in keys:
-        for phrase in phrases:
-            if re.search(rf"\b{re.escape(phrase)}\b", normalized):
-                return label
-    return None
+    """The one label a reply states, or None.
+
+    Strict by design: the folded reply must equal one listed label or alias
+    exactly. A sentence around the word ("the answer is yes"), or a reply that
+    folds to more than one label ("yes and no"), is not a verdict.
+    """
+    normalized = _fold_label(text)
+    if not normalized:
+        return None
+    hits = {
+        label
+        for label, phrases in keys
+        if any(normalized == _fold_label(phrase) for phrase in phrases)
+    }
+    return hits.pop() if len(hits) == 1 else None
+
+
+def _digit_match(text):
+    """The one 0-3 digit in a judge reply, or None. "10" has no digit, "2 and 3"
+    has two and therefore no verdict."""
+    digits = set(re.findall(r"\b([0-3])\b", text or ""))
+    return digits.pop() if len(digits) == 1 else None
 
 
 def _one_word(system, user, keys, model=None, timeout=None):
@@ -270,9 +803,8 @@ def _one_word(system, user, keys, model=None, timeout=None):
     reply = _complete(system, user, judge_model, judge_timeout)
     label = _match(reply, keys)
     if label is None:
-        # One strict retry: cloud judges do not always echo one of our words
-        # (measured 2026-10-13: 19 of 20 Muse fidelity replies paraphrased
-        # past the key list). The retry fires only on a miss.
+        # One strict re-ask: a judge that paraphrased gets one chance to state
+        # a listed label. A second miss is judge_error, never a guess.
         strict = (
             system
             + " Reply with exactly one of: "
@@ -285,23 +817,20 @@ def _one_word(system, user, keys, model=None, timeout=None):
     return label or "judge_error"
 
 
-def _digit_match(text):
-    """The one 0-3 digit in a judge reply, or None. "10" has no digit."""
-    match = re.search(r"\b([0-3])\b", text or "")
-    return match.group(1) if match else None
-
-
 def _digit_one_word(system, user, model=None, timeout=None):
-    """One 0-3 digit, same strict-retry idiom as _one_word."""
+    """One 0-3 digit, same strict-re-ask idiom as _one_word."""
     judge_model = model or JUDGE_MODEL
     judge_timeout = timeout or CLOUD_TIMEOUT
     reply = _complete(system, user, judge_model, judge_timeout)
     digit = _digit_match(reply)
-    if digit is not None:
-        return digit
-    strict = system + " Reply with exactly one digit, 0 to 3."
-    reply = _complete(strict, user, judge_model, judge_timeout)
-    return _digit_match(reply)
+    if digit is None:
+        strict = system + " Reply with exactly one digit, 0 to 3."
+        reply = _complete(strict, user, judge_model, judge_timeout)
+        digit = _digit_match(reply)
+    LAST_REPLY["text"] = reply
+    return digit
+
+
 
 
 def judge_relevance(question, passage, model=None, timeout=None):

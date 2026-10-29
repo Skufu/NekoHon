@@ -1,0 +1,198 @@
+[
+  {
+    "id": "ai-followup-llm-exact",
+    "book": "ai-agents",
+    "question": "How does this compare to LLM?",
+    "history": [
+      {
+        "question": "what is an AI agent",
+        "answer": "[Ch. 1] \"An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results.\"\nAn AI agent is a system that uses a language model to think, act, and learn from its actions."
+      }
+    ],
+    "pin_chunk": "ch01-002",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "sides": ["AI agent", "LLM"],
+    "expect": "comparison"
+  },
+  {
+    "id": "ai-direct-difference",
+    "book": "ai-agents",
+    "question": "What is the difference between an AI agent and an LLM?",
+    "pin_chunk": "ch01-001",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "sides": ["AI agent", "LLM"],
+    "expect": "comparison"
+  },
+  {
+    "id": "ai-direct-compare",
+    "book": "ai-agents",
+    "question": "How does an AI agent compare to an LLM?",
+    "sides": ["AI agent", "LLM"],
+    "expect": "comparison"
+  },
+  {
+    "id": "ai-bare-vs",
+    "book": "ai-agents",
+    "question": "AI agent vs LLM",
+    "sides": ["AI agent", "LLM"],
+    "expect": "comparison"
+  },
+  {
+    "id": "ai-differ-from",
+    "book": "ai-agents",
+    "question": "How does an LLM agent differ from an LLM?",
+    "sides": ["LLM agent", "LLM"],
+    "expect": "comparison"
+  },
+  {
+    "id": "ai-followup-multi-agent",
+    "book": "ai-agents",
+    "question": "How does this compare to a multi-agent system?",
+    "history": [
+      {
+        "question": "what is an AI agent",
+        "answer": "[Ch. 1] \"An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results.\"\nAn AI agent is a system that uses a language model to think, act, and learn from its actions."
+      }
+    ],
+    "pin_chunk": "ch01-002",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "sides": ["AI agent", "multi-agent system"],
+    "expect": "comparison"
+  },
+  {
+    "id": "ai-followup-human-developer",
+    "book": "ai-agents",
+    "question": "How does this compare to a human developer?",
+    "history": [
+      {
+        "question": "what is an AI agent",
+        "answer": "[Ch. 1] \"An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results.\"\nAn AI agent is a system that uses a language model to think, act, and learn from its actions."
+      }
+    ],
+    "pin_chunk": "ch01-002",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "sides": ["AI agent", "human developer"],
+    "expect": "comparison"
+  },
+  {
+    "id": "ai-followup-plain-llm",
+    "book": "ai-agents",
+    "question": "How does this compare to a plain LLM?",
+    "history": [
+      {
+        "question": "what is an AI agent",
+        "answer": "[Ch. 1] \"An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results.\"\nAn AI agent is a system that uses a language model to think, act, and learn from its actions."
+      }
+    ],
+    "pin_chunk": "ch01-002",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "sides": ["AI agent", "plain LLM"],
+    "expect": "comparison"
+  },
+  {
+    "id": "ai-followup-llm-seeded",
+    "book": "ai-agents",
+    "question": "How does this compare to an LLM?",
+    "seed": {"question": "What is an LLM agent?", "pin_chunk": "ch01-001", "heading": "Chapter 1. From LLMs to Agents: "},
+    "sides": ["LLM agent", "LLM"],
+    "expect": "comparison"
+  },
+  {
+    "id": "ai-negative-database",
+    "book": "ai-agents",
+    "question": "How does an AI agent compare to a relational database?",
+    "sides": ["AI agent", "relational database"],
+    "expect": "no_comparison"
+  },
+  {
+    "id": "ai-noncompare-tradeoffs",
+    "book": "ai-agents",
+    "question": "What are the key trade-offs?",
+    "history": [
+      {
+        "question": "what is an AI agent",
+        "answer": "[Ch. 1] \"An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results.\"\nAn AI agent is a system that uses a language model to think, act, and learn from its actions."
+      }
+    ],
+    "pin_chunk": "ch01-002",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "expect": "generic_followup"
+  },
+  {
+    "id": "ai-noncompare-example",
+    "book": "ai-agents",
+    "question": "What example do the authors give?",
+    "history": [
+      {
+        "question": "what is an AI agent",
+        "answer": "[Ch. 1] \"An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results.\"\nAn AI agent is a system that uses a language model to think, act, and learn from its actions."
+      }
+    ],
+    "pin_chunk": "ch01-002",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "expect": "generic_followup"
+  },
+  {
+    "id": "ai-noncompare-why",
+    "book": "ai-agents",
+    "question": "Why does this matter?",
+    "history": [
+      {
+        "question": "what is an AI agent",
+        "answer": "[Ch. 1] \"An LLM agent is a large language model embedded in a loop of reasoning, acting, and feedback, where it can call external tools and adapt its behavior based on results.\"\nAn AI agent is a system that uses a language model to think, act, and learn from its actions."
+      }
+    ],
+    "pin_chunk": "ch01-002",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "expect": "generic_followup"
+  },
+  {
+    "id": "ai-normal",
+    "book": "ai-agents",
+    "question": "what is an AI agent",
+    "pin_chunk": "ch01-001",
+    "heading": "Chapter 1. From LLMs to Agents: ",
+    "expect": "normal"
+  },
+  {
+    "id": "ddia-direct-batch-stream",
+    "book": "ddia",
+    "question": "What is the difference between batch processing and stream processing?",
+    "sides": ["batch processing", "stream processing"],
+    "expect": "comparison"
+  },
+  {
+    "id": "ddia-followup-stream",
+    "book": "ddia",
+    "question": "How does this compare to stream processing?",
+    "seed": {"question": "What is batch processing?"},
+    "sides": ["batch processing", "stream processing"],
+    "expect": "comparison"
+  },
+  {
+    "id": "fde-direct-batch-stream",
+    "book": "fde",
+    "question": "What is the difference between batch processing and stream processing?",
+    "sides": ["batch processing", "stream processing"],
+    "expect": "comparison"
+  },
+  {
+    "id": "fde-ddr4-ddr5",
+    "book": "fde",
+    "question": "What is the difference between DDR4 and DDR5?",
+    "sides": ["DDR4", "DDR5"],
+    "expect": "half_covered"
+  },
+  {
+    "id": "fde-normal-watermark",
+    "book": "fde",
+    "question": "What is a watermark?",
+    "expect": "normal"
+  },
+  {
+    "id": "fde-noncompare-tradeoffs",
+    "book": "fde",
+    "question": "What are the trade-offs of data ingestion?",
+    "expect": "normal"
+  }
+]

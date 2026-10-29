@@ -1,0 +1,5 @@
+{"timestamp": "2026-10-27T10:20:12.643237+00:00", "model": "nekohon_q35_2b_x3_2e", "git_head": "07e5c5ae644a61f6dc95f6ab8539ce0bfbb412f3", "split": "locked", "locked_passed": 37, "locked_total": 60}
+{"timestamp": "2026-10-27T10:55:00.165983+00:00", "model": "nekohon_q35_2b_x3_2e", "git_head": "07e5c5ae644a61f6dc95f6ab8539ce0bfbb412f3", "split": "locked", "locked_passed": 34, "locked_total": 60}
+{"timestamp": "2026-10-27T10:56:52.116976+00:00", "model": "nekohon_q35_2b_x3_2e", "git_head": "07e5c5ae644a61f6dc95f6ab8539ce0bfbb412f3", "split": "locked", "locked_passed": 37, "locked_total": 60}
+{"timestamp": "2026-10-27T12:51:23.124924+00:00", "model": "nekohon_q35_2b_x3_2e", "git_head": "07e5c5ae644a61f6dc95f6ab8539ce0bfbb412f3", "split": "locked", "locked_passed": 40, "locked_total": 60}
+{"timestamp": "2026-10-28T05:31:59.580874+00:00", "model": "nekohon_q35_2b_x3_2e", "git_head": "07e5c5ae644a61f6dc95f6ab8539ce0bfbb412f3", "split": "locked", "locked_passed": 41, "locked_total": 60}
