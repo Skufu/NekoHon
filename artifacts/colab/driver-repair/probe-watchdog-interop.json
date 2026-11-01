@@ -1,0 +1,81 @@
+{
+  "cases": [
+    {
+      "all_downloaded_hashes_match": true,
+      "case": "complete-chunked",
+      "child_exit_code": 0,
+      "chunk_size_bytes": 64,
+      "chunks_present": true,
+      "downloads": 95,
+      "downloads_match_explicit_items": true,
+      "driver_exit": 0,
+      "driver_state": "complete",
+      "operational_log_path_downloaded": false,
+      "stderr_tail": [],
+      "watchdog_complete_valid": true,
+      "watchdog_exit": 0,
+      "watchdog_stop_calls": [
+        "test-session"
+      ]
+    },
+    {
+      "all_downloaded_hashes_match": true,
+      "case": "complete-unchunked",
+      "child_exit_code": 0,
+      "chunk_size_bytes": 10000000,
+      "chunks_present": false,
+      "downloads": 11,
+      "downloads_match_explicit_items": true,
+      "driver_exit": 0,
+      "driver_state": "complete",
+      "operational_log_path_downloaded": true,
+      "stderr_tail": [],
+      "watchdog_complete_valid": true,
+      "watchdog_exit": 0,
+      "watchdog_stop_calls": [
+        "test-session"
+      ]
+    },
+    {
+      "all_downloaded_hashes_match": true,
+      "case": "failed-chunked",
+      "child_exit_code": 1,
+      "chunk_size_bytes": 64,
+      "chunks_present": true,
+      "downloads": 75,
+      "downloads_match_explicit_items": true,
+      "driver_exit": 1,
+      "driver_state": "failed",
+      "operational_log_path_downloaded": false,
+      "stderr_tail": [],
+      "watchdog_complete_valid": null,
+      "watchdog_exit": 1,
+      "watchdog_stop_calls": [
+        "test-session"
+      ]
+    },
+    {
+      "all_downloaded_hashes_match": true,
+      "case": "failed-unchunked",
+      "child_exit_code": 1,
+      "chunk_size_bytes": 10000000,
+      "chunks_present": false,
+      "downloads": 8,
+      "downloads_match_explicit_items": true,
+      "driver_exit": 1,
+      "driver_state": "failed",
+      "operational_log_path_downloaded": true,
+      "stderr_tail": [],
+      "watchdog_complete_valid": null,
+      "watchdog_exit": 1,
+      "watchdog_stop_calls": [
+        "test-session"
+      ]
+    }
+  ],
+  "driver": "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/artifacts/colab/run_reviewed_job.py",
+  "driver_sha256": "f6c78f71ebc8ac21212d25abe4d9cb6879e31871b737720a4fed3040240ab719",
+  "python": "3.13.5",
+  "watcher": "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/artifacts/colab/watch_training.py",
+  "watcher_sha256": "a5e6d49a6c433753fe5d0cba38c920ab70ca91684708c2456112eb3863aa4936"
+}

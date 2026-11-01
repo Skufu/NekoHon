@@ -17,6 +17,15 @@ witness must resolve to the source it names. Literal book quotes in the target
 against provided sources, wrapped lines included; unmarked prose is never
 compared.
 
+Support exposure is classified by use, identically for a dataset record and a
+training-corpus row: a fact witness, ``role: "support"``, or a target citation
+is support; an unused distractor is context, counted but never failed. A tag's
+chapter label resolves by an equivalent key (``4`` = ``chapter-4`` =
+``Chapter 4. Storage`` = ``4``), never by widening to the other provided
+chapters. A target is a refusal only when it declares itself: the exact refusal
+sentence declared as an ``answer``/``gloss`` is ``refusal_target_mislabelled``,
+while the same sentence inside a longer answer is ordinary prose.
+
 Two scopes are reported separately:
 
 - ``integrity``  — record readiness (source truth, schema, provenance, review).
@@ -45,9 +54,11 @@ import json
 import re
 from pathlib import Path
 
+import chapter_labels
+
 ROOT = Path(__file__).resolve().parent.parent.parent
 
-VALIDATOR = {"name": "dataset_integrity", "version": "1.1.0", "schema_version": 1}
+VALIDATOR = {"name": "dataset_integrity", "version": "1.2.1", "schema_version": 1}
 REFUSAL = "Not in this book."
 
 SPLITS = ("train", "dev", "test", "review")
@@ -171,6 +182,84 @@ def _citation_key(citation):
             None,
         )
     return None
+
+
+def _support_ids(record, refs_by_id):
+    """The sources a record's answer is graded against, classified by use.
+
+    One rule decides exposure for a dataset row and for a training-corpus row:
+    a ``required_facts`` witness, a ref declared ``role: "support"``, and a
+    ``target.citations`` hit are support. Everything else the record shows or
+    labels as context stays context, and a context-only overlap across splits
+    is counted, never failed.
+    """
+    support = set()
+    expected = record.get("expected") if isinstance(record, dict) else None
+    facts = expected.get("required_facts") if isinstance(expected, dict) else None
+    for fact in facts if isinstance(facts, list) else []:
+        if isinstance(fact, dict) and isinstance(fact.get("source_ids"), list):
+            support.update(source_id for source_id in fact["source_ids"] if _text(source_id))
+    support.update(
+        source_id
+        for source_id, ref in refs_by_id.items()
+        if isinstance(ref, dict) and ref.get("role") == "support"
+    )
+    target = record.get("target") if isinstance(record, dict) else None
+    citations = target.get("citations") if isinstance(target, dict) else None
+    for citation in citations if isinstance(citations, list) else []:
+        key = _citation_key(citation)
+        if not _text(key):
+            continue
+        if key in refs_by_id:
+            support.add(key)
+        else:
+            support.update(
+                source_id
+                for source_id, ref in refs_by_id.items()
+                if isinstance(ref, dict) and ref.get("chunk_id") == key
+            )
+    return support
+
+
+def _exposure_split(record, refs_by_id):
+    """(support ids, context ids) for one record, through ``_support_ids``.
+
+    Context is what the record provides or labels as context (``CONTEXT_ROLES``)
+    and does not use as support.
+    """
+    support = _support_ids(record, refs_by_id)
+    provided = record.get("provided_source_ids") if isinstance(record, dict) else None
+    context = (
+        {source_id for source_id in provided if _text(source_id)}
+        if isinstance(provided, list)
+        else set()
+    )
+    context.update(
+        source_id
+        for source_id, ref in refs_by_id.items()
+        if isinstance(ref, dict) and ref.get("role") in CONTEXT_ROLES
+    )
+    return support, context - support
+
+
+def _uses_any_source(record, refs_by_id):
+    """True when a fact witness or a target citation names a declared ref."""
+    expected = record.get("expected") if isinstance(record, dict) else None
+    facts = expected.get("required_facts") if isinstance(expected, dict) else None
+    for fact in facts if isinstance(facts, list) else []:
+        ids = fact.get("source_ids") if isinstance(fact, dict) else None
+        if isinstance(ids, list) and any(source_id in refs_by_id for source_id in ids if _text(source_id)):
+            return True
+    target = record.get("target") if isinstance(record, dict) else None
+    citations = target.get("citations") if isinstance(target, dict) else None
+    for citation in citations if isinstance(citations, list) else []:
+        key = _citation_key(citation)
+        if _text(key) and (
+            key in refs_by_id
+            or any(isinstance(ref, dict) and ref.get("chunk_id") == key for ref in refs_by_id.values())
+        ):
+            return True
+    return False
 
 
 class _Indexes:
@@ -375,7 +464,6 @@ def _check_source(ref, record_book, indexes):
 
 _QUOTE_OPEN = re.compile(r'^\s*\[\s*(Ch\.[^\]]*)\]\s*["“]')
 _QUOTE_CLOSE = re.compile(r'["”]')
-_CHUNKISH = re.compile(r"^[A-Za-z]+\d*-\d+[A-Za-z0-9-]*$")
 
 
 def _marked_quotes(answer):
@@ -423,23 +511,24 @@ def _marked_quotes(answer):
 
 
 def _tag_locator(tag, provided):
-    """Resolve a quote tag to a chunk id or a chapter set, never to the book."""
+    """Resolve a quote tag to a chunk id or chapter keys, never to the book."""
     chunk_ids = {source.get("chunk_id") for source in provided if source.get("chunk_id")}
-    tokens = [token.strip() for token in re.split(r"[,\s]+", tag) if token.strip()]
-    for token in tokens:
+    ids = chapter_labels.chunk_tokens(tag)
+    for token in ids:
         if token in chunk_ids:
             return ("chunk", token), []
-    for token in tokens:
-        if _CHUNKISH.match(token):
-            return None, [
-                _fail(
-                    "target_quote_source_unmatched",
-                    f"quote names chunk {token!r}, not in provided sources",
-                )
-            ]
-    chapters = re.findall(r"Ch\.\s*([A-Za-z0-9]+)", tag)
-    if chapters:
-        return ("chapter", set(chapters)), []
+    if ids:
+        return None, [
+            _fail(
+                "target_quote_source_unmatched",
+                f"quote names chunk {ids[0]!r}, not in provided sources",
+            )
+        ]
+    keys = set()
+    for label in chapter_labels.tag_labels(tag):
+        keys |= chapter_labels.chapter_keys(label)
+    if keys:
+        return ("chapter", keys), []
     return None, [
         _review("target_quote_unparsed", f"quote tag has no chapter or provided chunk id: {tag!r}")
     ]
@@ -459,7 +548,7 @@ def _quote_candidates(kind, value, provided):
                 _fail("target_quote_source_unmatched", f"quote names source {value!r}, not provided")
             ]
     elif kind == "chapter":
-        found = [source for source in provided if str(source.get("chapter")) in value]
+        found = [source for source in provided if chapter_labels.chapter_key(source.get("chapter")) in value]
         if not found:
             return None, [
                 _fail(
@@ -551,7 +640,8 @@ def _check_target_quotes(target, resolved, provided):
             elif _text(citation.get("source_id")):
                 locator = ("source", citation["source_id"])
             elif _text(citation.get("chapter")):
-                locator = ("chapter", {str(citation["chapter"])})
+                key = chapter_labels.chapter_key(citation["chapter"])
+                locator = ("chapter", {key}) if key else ("any", None)
             else:
                 locator = ("any", None)
             candidates, candidate_findings = _quote_candidates(locator[0], locator[1], provided_sources)
@@ -922,6 +1012,14 @@ def _check_record(record, indexes, verify_origins, dataset=None):
         else:
             if not _text(answer):
                 findings.append(_fail("schema", "non-refusal target needs a non-empty answer"))
+            elif answer.strip() == REFUSAL:
+                findings.append(
+                    _fail(
+                        "refusal_target_mislabelled",
+                        f"answer is exactly {REFUSAL!r}, but kind is {kind!r} and refused is false; "
+                        "a refusal target must declare itself and allow 'refuse'",
+                    )
+                )
             if "answer" not in behaviors:
                 findings.append(_fail("behavior_target_conflict", "answer target without 'answer' allowed"))
             citations = target.get("citations", [])
@@ -947,31 +1045,7 @@ def _check_record(record, indexes, verify_origins, dataset=None):
     findings.extend(_check_target_quotes(target, resolved, provided))
 
     # -- exposure classification (support vs context only) --------------
-    support = {
-        sid
-        for fact in facts
-        if isinstance(fact, dict) and isinstance(fact.get("source_ids"), list)
-        for sid in fact["source_ids"]
-    }
-    support.update(
-        source_id for source_id, source in resolved.items() if source.get("role") == "support"
-    )
-    if target:
-        citations = target.get("citations") or []
-        for citation in citations if isinstance(citations, list) else []:
-            key = _citation_key(citation)
-            if key in resolved:
-                support.add(key)
-            else:
-                support.update(
-                    source_id
-                    for source_id, source in resolved.items()
-                    if source.get("chunk_id") == key
-                )
-    context = set(provided) | {
-        source_id for source_id, source in resolved.items() if source.get("role") in CONTEXT_ROLES
-    }
-    context -= support
+    support, context = _exposure_split(record, refs_by_id)
     meta["support"] = [resolved[sid] for sid in support if sid in resolved]
     meta["context"] = [resolved[sid] for sid in context if sid in resolved]
 
@@ -1155,36 +1229,45 @@ def _read_corpus(path):
 
 
 def _corpus_meta(record):
-    """Minimal exposure view of a corpus row; corpus rows are train by definition."""
+    """Minimal exposure view of a corpus row; corpus rows are train by definition.
+
+    Support is classified by use with the same rule a dataset record gets
+    (``_exposure_split``). A corpus row that records neither a fact witness nor
+    a target citation has not said what it taught, so its explicit roles are
+    the only signal: everything not labelled context stays support. An
+    unknown-use training row must not buy a clean split bill by omitting its
+    provenance.
+    """
     refs = record.get("source_refs") if isinstance(record, dict) else []
-    refs_by_id = {
-        ref.get("source_id"): ref
-        for ref in refs if isinstance(ref, dict) and _text(ref.get("source_id"))
-    } if isinstance(refs, list) else {}
-    question_key, input_key = _input_identity(record, refs_by_id)
-    support, context = [], []
+    refs_by_id = {}
     for ref in refs if isinstance(refs, list) else []:
-        if not isinstance(ref, dict):
-            continue
-        if ref.get("role") in CONTEXT_ROLES:
-            context.append(_exposure(ref))
-        else:
-            support.append(_exposure(ref))
-    facts = (record.get("expected") or {}).get("required_facts") if isinstance(record.get("expected"), dict) else []
-    witness = {
-        sid
-        for fact in facts or []
-        if isinstance(fact, dict) and isinstance(fact.get("source_ids"), list)
-        for sid in fact["source_ids"]
-    }
+        if isinstance(ref, dict) and _text(ref.get("source_id")):
+            refs_by_id.setdefault(ref["source_id"], ref)
+    question_key, input_key = _input_identity(record, refs_by_id)
+    support, context = _exposure_split(record, refs_by_id)
+    if not _uses_any_source(record, refs_by_id):
+        support = {
+            source_id
+            for source_id, ref in refs_by_id.items()
+            if ref.get("role") not in CONTEXT_ROLES
+        }
+        context = {
+            source_id
+            for source_id, ref in refs_by_id.items()
+            if ref.get("role") in CONTEXT_ROLES
+        }
     meta = {
         "id": record.get("id") if _text(record.get("id")) else None,
         "family_id": record.get("family_id") if _text(record.get("family_id")) else None,
         "split": "train",
         "question": question_key,
         "input_key": input_key,
-        "support": [item for item in support if item["id"] in witness] or support,
-        "context": context,
+        "support": [
+            _exposure(refs_by_id[source_id]) for source_id in refs_by_id if source_id in support
+        ],
+        "context": [
+            _exposure(refs_by_id[source_id]) for source_id in refs_by_id if source_id in context
+        ],
         "paraphrase_of": [],
         "review": {},
     }

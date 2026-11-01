@@ -12,9 +12,9 @@ sys.path.insert(0, str(ROOT / "artifacts" / "probes"))
 
 import answer as answer_mod
 from keywords import postings
-from retrieve import dense_rank, search
+from retrieve import dense_rank, load_index, search
 
-index = json.loads(Path("data/index.json").read_text(encoding="utf-8"))
+index = load_index(ROOT / "data" / "index.sqlite")
 
 print("chunks containing 'codd':")
 for chunk in index["chunks"]:

@@ -11,7 +11,9 @@ sys.path.insert(0, str(ROOT / "artifacts" / "probes"))
 
 import answer as answer_mod
 
-index = json.loads(Path("data/index.json").read_text(encoding="utf-8"))
+from retrieve import load_index
+
+index = load_index(ROOT / "data" / "index.sqlite")
 
 QUESTIONS = [
     "what is normalization",

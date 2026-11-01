@@ -7,8 +7,9 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 import answer as A
+from retrieve import load_index
 
-INDEX = json.loads((ROOT / "data" / "index.json").read_text(encoding="utf-8"))
+INDEX = load_index(ROOT / "data" / "index.sqlite")
 
 TEST_MODELS = ["smallbook_x2g", "smallbook_x2g_mobile"]
 

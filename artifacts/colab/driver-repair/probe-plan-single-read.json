@@ -1,0 +1,14 @@
+{
+  "approved_document_executed": true,
+  "approved_plan_sha256": "0b1b7e193f69ec17039ab221721f4daac0646c6984b78056218a11c517e4ac52",
+  "driver": "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/artifacts/colab/run_reviewed_job.py",
+  "driver_exit": 1,
+  "driver_sha256": "f6c78f71ebc8ac21212d25abe4d9cb6879e31871b737720a4fed3040240ab719",
+  "fifo_documents_served": 1,
+  "second_document_served": false,
+  "status_job_uuid": "job-approved",
+  "status_plan_sha256": "0b1b7e193f69ec17039ab221721f4daac0646c6984b78056218a11c517e4ac52",
+  "status_session": "approved-session",
+  "stderr_tail": [],
+  "swapped_plan_sha256": "f4bb521d3e2e338ce55557065bf1399cedb6fafc21f1e6d8c7315a9855755c4b"
+}

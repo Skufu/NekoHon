@@ -1,0 +1,73 @@
+{
+  "cases": [
+    {
+      "case": "valid",
+      "codes": [],
+      "ok": true
+    },
+    {
+      "case": "same_report_different_bytes",
+      "codes": [
+        "approval_report_mismatch"
+      ],
+      "ok": false
+    },
+    {
+      "case": "caller_package_changed",
+      "codes": [
+        "approval_manifest_mismatch",
+        "preflight_manifest_mismatch"
+      ],
+      "ok": false
+    },
+    {
+      "case": "no_attribution",
+      "codes": [
+        "approval_unattributed"
+      ],
+      "ok": false
+    },
+    {
+      "case": "not_approved",
+      "codes": [
+        "approval_not_approved"
+      ],
+      "ok": false
+    },
+    {
+      "case": "wrong_schema",
+      "codes": [
+        "approval_schema"
+      ],
+      "ok": false
+    },
+    {
+      "case": "wrong_export",
+      "codes": [
+        "approval_export_mismatch"
+      ],
+      "ok": false
+    },
+    {
+      "case": "report_not_passing",
+      "codes": [
+        "approval_report_invalid"
+      ],
+      "ok": false
+    },
+    {
+      "case": "report_fact_drift",
+      "codes": [
+        "preflight_dataset_mismatch"
+      ],
+      "ok": false
+    }
+  ],
+  "environment": {
+    "driver": "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/artifacts/colab/run_reviewed_job.py",
+    "driver_sha256": "3a3fa72babc313466568c37256331db5af7416069ff945871f1268d3faf29cbb",
+    "python": "3.13.5",
+    "watcher": "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/artifacts/colab/watch_training.py",
+    "watcher_sha256": "197bfc783bb9a0c9f7c32d45f0ce1dfdc163d3ab2c65c5b78423af1f46af3565"
+  }
+}

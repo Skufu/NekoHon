@@ -1,0 +1,73 @@
+test_awaiting_approval_handoff_then_train_once_and_complete (tests.test_run_reviewed_job.DriverTests.test_awaiting_approval_handoff_then_train_once_and_complete) ... ok
+test_check_plan_and_changed_source_blocks_before_launch (tests.test_run_reviewed_job.DriverTests.test_check_plan_and_changed_source_blocks_before_launch) ... ok
+test_detached_status_is_readable_and_heartbeats (tests.test_run_reviewed_job.DriverTests.test_detached_status_is_readable_and_heartbeats) ... ok
+test_failure_after_train_keeps_checkpoints_and_failure (tests.test_run_reviewed_job.DriverTests.test_failure_after_train_keeps_checkpoints_and_failure) ... ok
+test_final_stage_shape_generates_contract_then_trains (tests.test_run_reviewed_job.DriverTests.test_final_stage_shape_generates_contract_then_trains) ... ok
+test_invalid_approval_blocks_train (tests.test_run_reviewed_job.DriverTests.test_invalid_approval_blocks_train) ... ok
+test_large_artifacts_are_chunked_and_reassemble (tests.test_run_reviewed_job.DriverTests.test_large_artifacts_are_chunked_and_reassemble) ... ok
+test_no_wall_timeout_and_no_timeout_keyword (tests.test_run_reviewed_job.DriverTests.test_no_wall_timeout_and_no_timeout_keyword) ... ok
+test_package_check_failure_blocks_before_preflight_and_train (tests.test_run_reviewed_job.DriverTests.test_package_check_failure_blocks_before_preflight_and_train) ... ok
+test_plan_hash_binding_blocks_changed_stage_argv (tests.test_run_reviewed_job.DriverTests.test_plan_hash_binding_blocks_changed_stage_argv) ... ok
+test_plan_requires_64_hex_identity_and_exact_session (tests.test_run_reviewed_job.DriverTests.test_plan_requires_64_hex_identity_and_exact_session) ... ok
+test_preflight_failure_never_trains (tests.test_run_reviewed_job.DriverTests.test_preflight_failure_never_trains) ... ok
+test_restart_attaches_without_second_optimizer_step (tests.test_run_reviewed_job.DriverTests.test_restart_attaches_without_second_optimizer_step) ... ok
+test_handoff_snapshot_hash_is_immutable (tests.test_run_reviewed_job.DriverWatchdogInteropTests.test_handoff_snapshot_hash_is_immutable) ... [watchdog] PREFLIGHT HANDOFF: approval required; VM left running
+ok
+test_public_watchdog_accepts_real_terminal_status (tests.test_run_reviewed_job.DriverWatchdogInteropTests.test_public_watchdog_accepts_real_terminal_status) ... ok
+test_public_watchdog_salvages_real_failed_status (tests.test_run_reviewed_job.DriverWatchdogInteropTests.test_public_watchdog_salvages_real_failed_status) ... ok
+test_duplicate_critical_train_flags_are_rejected (tests.test_run_reviewed_job.PlanBindingTests.test_duplicate_critical_train_flags_are_rejected) ... ok
+test_extra_declared_source_is_closure_verified (tests.test_run_reviewed_job.PlanBindingTests.test_extra_declared_source_is_closure_verified) ... ok
+test_plan_is_parsed_once_from_verified_bytes (tests.test_run_reviewed_job.PlanBindingTests.test_plan_is_parsed_once_from_verified_bytes) ... ok
+test_real_verify_approval_binds_report_and_export (tests.test_run_reviewed_job.RealRunnerApprovalTests.test_real_verify_approval_binds_report_and_export) ... ok
+test_complete_and_failed_statuses_chunked_and_unchunked (tests.test_watch_training.DriverPackageWatchdogTests.test_complete_and_failed_statuses_chunked_and_unchunked) ... ok
+test_explicit_metadata_beats_legacy_paths_and_operational_log (tests.test_watch_training.DriverPackageWatchdogTests.test_explicit_metadata_beats_legacy_paths_and_operational_log) ... ok
+test_legacy_status_without_explicit_artifacts_still_requires_log (tests.test_watch_training.DriverPackageWatchdogTests.test_legacy_status_without_explicit_artifacts_still_requires_log) ... ok
+test_alive_pid_not_finished (tests.test_watch_training.WatchdogTests.test_alive_pid_not_finished) ... [watchdog] max polls reached without terminal state
+ok
+test_checkpoint_binding_rejects_reuse (tests.test_watch_training.WatchdogTests.test_checkpoint_binding_rejects_reuse) ... ok
+test_cli_timeout_decimal_accepted (tests.test_watch_training.WatchdogTests.test_cli_timeout_decimal_accepted) ... ok
+test_complete_requires_artifact_and_report (tests.test_watch_training.WatchdogTests.test_complete_requires_artifact_and_report) ... [watchdog] max polls reached without terminal state
+ok
+test_complete_requires_exact_hashes (tests.test_watch_training.WatchdogTests.test_complete_requires_exact_hashes) ... [watchdog] max polls reached without terminal state
+ok
+test_complete_requires_exit_code_zero (tests.test_watch_training.WatchdogTests.test_complete_requires_exit_code_zero) ... [watchdog] max polls reached without terminal state
+ok
+test_double_launch_blocked (tests.test_watch_training.WatchdogTests.test_double_launch_blocked) ... [watchdog] another instance is running (marker /var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/tmpli2vwpo7/state/watchdog.lock)
+ok
+test_dry_run_cli_monitor (tests.test_watch_training.WatchdogTests.test_dry_run_cli_monitor) ... ok
+test_failed_download_blocks_no_stop (tests.test_watch_training.WatchdogTests.test_failed_download_blocks_no_stop) ... [watchdog] BLOCKED: cleanup not confirmed; VM left running for human decision
+ok
+test_good_complete_downloads_and_stops (tests.test_watch_training.WatchdogTests.test_good_complete_downloads_and_stops) ... ok
+test_healthy_long_run_no_deadline (tests.test_watch_training.WatchdogTests.test_healthy_long_run_no_deadline) ... [watchdog] max polls reached without terminal state
+ok
+test_launch_remote_worker_parses_pid (tests.test_watch_training.WatchdogTests.test_launch_remote_worker_parses_pid) ... ok
+test_launch_second_call_recovers_not_spawns (tests.test_watch_training.WatchdogTests.test_launch_second_call_recovers_not_spawns) ... ok
+test_main_monitor_with_fake_transport (tests.test_watch_training.WatchdogTests.test_main_monitor_with_fake_transport) ... [watchdog] max polls reached without terminal state
+ok
+test_network_error_not_success (tests.test_watch_training.WatchdogTests.test_network_error_not_success) ... [watchdog] max polls reached without terminal state
+ok
+test_normal_monitor_does_not_exit_on_preflight (tests.test_watch_training.WatchdogTests.test_normal_monitor_does_not_exit_on_preflight) ... [watchdog] max polls reached without terminal state
+ok
+test_ongoing_training_no_stop (tests.test_watch_training.WatchdogTests.test_ongoing_training_no_stop) ... [watchdog] max polls reached without terminal state
+ok
+test_parse_session_names_bracketed (tests.test_watch_training.WatchdogTests.test_parse_session_names_bracketed) ... ok
+test_preflight_handoff_bad_identity_blocks (tests.test_watch_training.WatchdogTests.test_preflight_handoff_bad_identity_blocks) ... [watchdog] max polls reached without terminal state
+ok
+test_preflight_handoff_exits_10_no_stop (tests.test_watch_training.WatchdogTests.test_preflight_handoff_exits_10_no_stop) ... [watchdog] PREFLIGHT HANDOFF: approval required; VM left running
+ok
+test_preflight_handoff_missing_hash_no_handoff (tests.test_watch_training.WatchdogTests.test_preflight_handoff_missing_hash_no_handoff) ... [watchdog] max polls reached without terminal state
+ok
+test_scoped_stop_does_not_stop_others (tests.test_watch_training.WatchdogTests.test_scoped_stop_does_not_stop_others) ... [watchdog] BLOCKED: cleanup not confirmed; VM left running for human decision
+ok
+test_stale_heartbeat_alone_not_complete (tests.test_watch_training.WatchdogTests.test_stale_heartbeat_alone_not_complete) ... [watchdog] max polls reached without terminal state
+ok
+test_stale_terminal_accepted_if_dead_pid_and_exit_proof (tests.test_watch_training.WatchdogTests.test_stale_terminal_accepted_if_dead_pid_and_exit_proof) ... ok
+test_stop_failure_propagates_blocked (tests.test_watch_training.WatchdogTests.test_stop_failure_propagates_blocked) ... [watchdog] BLOCKED: cleanup not confirmed; VM left running for human decision
+ok
+test_wrong_job_uuid_not_terminal (tests.test_watch_training.WatchdogTests.test_wrong_job_uuid_not_terminal) ... [watchdog] max polls reached without terminal state
+ok
+
+----------------------------------------------------------------------
+Ran 49 tests in 35.160s
+
+OK

@@ -8,11 +8,15 @@ what we intend to do.
 
 | plan | status | file |
 | --- | --- | --- |
+| App packaging — engine + reader as a double-clickable Mac/PC app; phone split into its own track | **proposed 2026-10-30**; not approved, nothing implemented | `app-packaging-2026-10-30.md` |
+| Data quality and retraining — authentic corpus, source/family splits, evaluation, Colab preparation | **in progress 2026-10-29**; training and model adoption not started | `data-quality-and-retraining-2026-10-29.md` |
+| LFM3-1.7B as an answer-model base — TRL SFT route, Ollama minimum, license, gates | **candidate 2026-10-30**; not approved, no download or training; runs third, after the repaired-data retrain | `lfm3-base-candidate-2026-10-30.md` |
+| Teacher upgrade — bake off four 30B-class teachers on captured-row quality before the next distillation run | **proposed 2026-10-30**; not started, no model pulled | `teacher-upgrade-2026-10-30.md` |
 | Frontend build — the reader + chat window, following Gloss | **shipped 2026-10-18** (NekoHon Start Menu, wooden bookshelf view, cover grid, 3D BookOpen Ex Libris modal, 60/120fps direct-DOM margin physics, live SVG leader line, figure dedupe toggle) | `frontend-build-plan-2026-10-15.md` |
 | Pane now — what the reader and ask pane do | **current 2026-10-18** (authoritative live architecture record) | `pane-now.md` |
 | Companion track — follow-up, refusal wrap, small model | **shipped 2026-10-18** (multi-turn follow-ups, chapter-neighborhood priority, 7-layer distillation to `nekohon_x3`, adversarial evals) | `companion-track.md` |
 | Conversation map — browser thread, optional history, quote-check bounds | **current 2026-10-18** (Zustand thread, chapter-neighborhood bias, simplification fast-path) | `conversation-map.md` |
-| Packaging plan — Modelfile recipes and local offline setup | **shipped 2026-10-17** (`models/smallbook_x3/Modelfile`, `models/smallbook_x3_mobile/Modelfile`, `scripts/setup_models.py`) | `packaging-plan-2026-10-17.md` |
+| Packaging plan — Modelfile recipes and local offline setup | **shipped 2026-10-17** (`models/smallbook_x3/Modelfile`, `models/smallbook_x3_mobile/Modelfile`, `scripts/setup_models.py`); installer half superseded 2026-10-30 | `packaging-plan-2026-10-17.md` |
 | Answer-quality judge — rank the app's real answers, defect-labeled, rater-calibrated | **built 2026-10-15** (method v2 checkables deterministic, voted bits, persona rating) | `answer-quality-judge-plan-2026-10-15.md` |
 | Figure understanding — ask about a figure; vision at ingest, not at inference | **parked 2026-10-15** (owner decision: pre-describe at ingest, runtime stays text-only) | `figure-understanding-plan-2026-10-15.md` |
 | Frontend navigation (older locator strategy direction) | superseded in part by the build plan; locator design governed offset integration | `frontend-navigation-plan.md` |

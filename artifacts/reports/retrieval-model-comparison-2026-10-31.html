@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Retrieval & Model Evaluation Scorecard — 2026-10-31</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    color: #1a1a1a;
+    background: #fbfbfb;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+  h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; color: #111; }
+  p.meta { color: #666; font-size: 14px; margin-bottom: 28px; }
+  .card {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  }
+  .card h2 { font-size: 18px; margin-top: 0; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+  }
+  th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #444;
+  }
+  tr:last-child td { border-bottom: none; }
+  .pass { color: #097937; font-weight: 600; }
+  .fail { color: #cf222e; font-weight: 600; }
+  .penalty { color: #9a6700; font-size: 12px; }
+  .chart-box {
+    display: flex;
+    justify-content: center;
+    background: #fff;
+    padding: 16px;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    margin-bottom: 24px;
+  }
+  .chart-box svg { max-width: 100%; height: auto; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    background: #eee;
+  }
+  .badge-default { background: #e1f5fe; color: #0277bd; }
+  .badge-win { background: #e8f5e9; color: #2e7d32; }
+</style>
+</head>
+<body>
+
+<h1>Retrieval Retest & Model Scorecard</h1>
+<p class="meta">Date: 2026-10-31 · Dataset: wide-net-v2 (48 items) + trace-regression (12 items) · 100% Local Inference</p>
+
+<div class="card">
+  <h2>Executive Summary Table</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Configuration / Model</th>
+        <th>Wide-Net V2 Pass Rate</th>
+        <th>Mean Latency</th>
+        <th>Trace Regression (Conversations)</th>
+        <th>Comparison Matrix</th>
+        <th>Verdict</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Default (x3_2e)</strong> — Pre-Retrieval Baseline</td>
+        <td>25 / 48 (52.1%)</td>
+        <td>2.43s</td>
+        <td>4 / 12 (33.3%)</td>
+        <td>9 / 20 (45.0%)</td>
+        <td><span class="fail">Stale Baseline</span></td>
+      </tr>
+      <tr>
+        <td><strong>Default (x3_2e)</strong> + New SQLite Retrieval</td>
+        <td><span class="pass">39 / 48 (81.2%)</span></td>
+        <td><strong>3.27s</strong></td>
+        <td><span class="pass">12 / 12 (100.0%)</span></td>
+        <td><span class="pass">20 / 20 (100.0%)</span></td>
+        <td><span class="badge badge-win">Best Reliability & Speed</span></td>
+      </tr>
+      <tr>
+        <td><strong>Candidate 6 (a6)</strong> + New SQLite Retrieval</td>
+        <td><span class="pass">41 / 48 (85.4%)</span></td>
+        <td>3.77s <span class="penalty">(+0.50s slower)</span></td>
+        <td>10 / 12 (83.3%) <span class="fail">[2 fails]</span></td>
+        <td><span class="pass">20 / 20 (100.0%)</span></td>
+        <td>Highest single-turn, drops follow-ups</td>
+      </tr>
+      <tr>
+        <td><strong>Candidate 7 (a7)</strong> + New SQLite Retrieval</td>
+        <td>38 / 48 (79.2%)</td>
+        <td>4.17s <span class="penalty">(+0.90s slower)</span></td>
+        <td>11 / 12 (91.7%) <span class="fail">[1 fail]</span></td>
+        <td><span class="fail">Collapsed (2/6 in Wide-Net)</span></td>
+        <td>Comparison failure, slowest</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="chart-box">
+  <svg xmlns="http://www.w3.org/2000/svg" class="pele pele-xychart" viewBox="0 0 700 500" width="700" height="500" style="max-width:100%;height:auto;--_bg:var(--pele-bg,#fff);--_fg:var(--pele-fg,#1f1f1f);--_m:var(--pele-muted,#6e6e6e);--_l:var(--pele-line,#1f1f1f);--_s:var(--pele-surface,#f3f3f3);--_a:var(--pele-surface-alt,#e6e6e6);--_b:var(--pele-border,#8a8a8a);--_c:var(--pele-accent,#5b7bd5);color:var(--_fg);--_tw:var(--pele-title-weight,bold);--_fm:var(--pele-font-mono,monospace);font:16px sans-serif;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;font-family:var(--pele-font,sans-serif)" fill="var(--_fg)" role="graphics-document document" aria-roledescription="xychart"><text class="pele-title" font-weight="var(--_tw)" text-anchor="middle" xml:space="preserve"><tspan x="350" y="25.6">Wide-Net V2 Pass Rate by Model (%)</tspan></text><path class="pele-grid" d="M68.35,463H692M68.35,381.3H692M68.35,299.6H692M68.35,217.9H692M68.35,136.2H692M68.35,54.5H692" stroke="var(--_a)"/><g class="pele-plot"><g class="pele-series pele-bars" fill="var(--pele-series-1,#4c78a8)"><rect x="91.74" y="250.17" width="109.14" height="212.83"/><rect x="247.65" y="131.3" width="109.14" height="331.7"/><rect x="403.56" y="114.14" width="109.14" height="348.86"/><rect x="559.47" y="139.47" width="109.14" height="323.53"/></g></g><path class="pele-axis" d="M68.35,54.5V463M68.35,463H692M68.35,463h-4M68.35,381.3h-4M68.35,299.6h-4M68.35,217.9h-4M68.35,136.2h-4M68.35,54.5h-4M146.31,463v4M458.13,463v4" fill="none" stroke="var(--_b)"/><g class="pele-axis-labels" font-size="14" fill="var(--_m)"><text x="58.35" y="467.9" text-anchor="end">0</text><text x="58.35" y="386.2" text-anchor="end">20</text><text x="58.35" y="304.5" text-anchor="end">40</text><text x="58.35" y="222.8" text-anchor="end">60</text><text x="58.35" y="141.1" text-anchor="end">80</text><text x="58.35" y="59.4" text-anchor="end">100</text><text x="146.31" y="486.4" text-anchor="middle">Old Retrieval (Default)</text><text x="458.13" y="486.4" text-anchor="middle">Candidate 6 (a6)</text></g><g class="pele-axis-titles" font-size="14"><g transform="translate(18.5,258.75) rotate(-90)"><text x="0" y="4.9" text-anchor="middle">Pass Rate (%)</text></g></g></svg>
+</div>
+
+<div class="card">
+  <h2>Category Breakdown on Wide-Net V2 (48 items)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Category</th>
+        <th>Total Items</th>
+        <th>Default (x3_2e)</th>
+        <th>Candidate 6 (a6)</th>
+        <th>Candidate 7 (a7)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Comparison</strong></td>
+        <td>6</td>
+        <td><span class="pass">6 / 6 (100%)</span></td>
+        <td><span class="pass">6 / 6 (100%)</span></td>
+        <td><span class="fail">2 / 6 (33.3%)</span></td>
+      </tr>
+      <tr>
+        <td><strong>Definition</strong></td>
+        <td>8</td>
+        <td>7 / 8 (87.5%)</td>
+        <td>7 / 8 (87.5%)</td>
+        <td><span class="pass">8 / 8 (100%)</span></td>
+      </tr>
+      <tr>
+        <td><strong>Multi-Turn</strong></td>
+        <td>8</td>
+        <td>5 / 8 (62.5%)</td>
+        <td><span class="pass">6 / 8 (75.0%)</span></td>
+        <td>5 / 8 (62.5%)</td>
+      </tr>
+      <tr>
+        <td><strong>Noisy / Typos</strong></td>
+        <td>8</td>
+        <td>5 / 8 (62.5%)</td>
+        <td>5 / 8 (62.5%)</td>
+        <td><span class="pass">6 / 8 (75.0%)</span></td>
+      </tr>
+      <tr>
+        <td><strong>Refusal (Out-of-Book)</strong></td>
+        <td>6</td>
+        <td><span class="pass">6 / 6 (100%)</span></td>
+        <td><span class="pass">6 / 6 (100%)</span></td>
+        <td><span class="pass">6 / 6 (100%)</span></td>
+      </tr>
+      <tr>
+        <td><strong>Short / Bare Phrases</strong></td>
+        <td>12</td>
+        <td>10 / 12 (83.3%)</td>
+        <td><span class="pass">11 / 12 (91.7%)</span></td>
+        <td><span class="pass">11 / 12 (91.7%)</span></td>
+      </tr>
+      <tr style="background:#fafafa; font-weight:600;">
+        <td>TOTAL</td>
+        <td>48</td>
+        <td>39 / 48 (81.2%)</td>
+        <td>41 / 48 (85.4%)</td>
+        <td>38 / 48 (79.2%)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Provenance & Evidence Files</h2>
+  <ul>
+    <li>Default Wide-Net V2: <code>artifacts/runs/wide-net-eval-v2-2026-10-31/evidence/wide-net-v2-2026-10-31.model-nekohon_q35_2b_x3_2e.json</code> (SHA-256 <code>66cc95ee444b</code>)</li>
+    <li>Candidate 6 Wide-Net V2: <code>artifacts/runs/wide-net-eval-v2-2026-10-31/evidence/wide-net-v2-2026-10-31.model-nekohon_q35_candidate6_q4km_latest.json</code> (SHA-256 <code>6e2a8a73de0a</code>)</li>
+    <li>Candidate 7 Wide-Net V2: <code>artifacts/runs/wide-net-eval-v2-2026-10-31/evidence/wide-net-v2-2026-10-31.model-nekohon_q35_2b_a7_latest.json</code> (SHA-256 <code>0679e7877469</code>)</li>
+    <li>Trace Regression (Default): <code>artifacts/runs/trace-regression-after-2026-10-31.json</code> (SHA-256 <code>6956ac6bb0e6</code>)</li>
+    <li>Trace Regression (Candidate 6): <code>artifacts/runs/trace-regression-a6-2026-10-31.json</code> (SHA-256 <code>bea1548fd495</code>)</li>
+    <li>Trace Regression (Candidate 7): <code>artifacts/runs/trace-regression-a7-2026-10-31.json</code> (SHA-256 <code>5db8b1482194</code>)</li>
+  </ul>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+ "driver_exit": 0,
+ "state": "complete",
+ "chunk_size": 10000000,
+ "artifact_paths": 3,
+ "artifact_paths_suffixes": [
+  "zip"
+ ],
+ "log_unchunked": true,
+ "log_path_has_hash": true,
+ "watcher_complete_valid": false,
+ "watcher_model_items": 0,
+ "watcher_first_kinds": [
+  [
+   "artifact",
+   "lora.zip"
+  ],
+  [
+   "artifact",
+   "merged_16bit.zip"
+  ],
+  [
+   "artifact",
+   "reviewed_q4_k_m.zip"
+  ]
+ ]
+}

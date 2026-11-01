@@ -1,0 +1,229 @@
+{
+  "checks": [
+    {
+      "name": "handoff_status_is_real_and_current_watchdog_accepts",
+      "phase": "awaiting_approval",
+      "state": "preflight",
+      "train_calls_before_approval": 0
+    },
+    {
+      "downloaded": [
+        "job.log",
+        "preflight-report.json",
+        "runtime-freeze.json",
+        "runtime-freeze.txt"
+      ],
+      "events": [
+        "start",
+        "poll",
+        "preflight_handoff"
+      ],
+      "exit": 10,
+      "name": "handoff_watchdog_exit_and_downloads",
+      "preflight_valid": true
+    },
+    {
+      "artifacts_complete": true,
+      "child_exit_code": 0,
+      "driver_exit": 0,
+      "name": "driver_terminal_complete",
+      "state": "complete",
+      "stderr_tail": [],
+      "stdout_tail": []
+    },
+    {
+      "chunks": [
+        {
+          "chunk_limit_respected": true,
+          "chunks": 2,
+          "format": "archive_chunk",
+          "indexes_contiguous": true,
+          "label": "adapter",
+          "local_names_unique": true,
+          "max_chunk_bytes": 256,
+          "reassembles": true
+        },
+        {
+          "chunk_limit_respected": true,
+          "chunks": 2,
+          "format": "archive_chunk",
+          "indexes_contiguous": true,
+          "label": "merged",
+          "local_names_unique": true,
+          "max_chunk_bytes": 256,
+          "reassembles": true
+        },
+        {
+          "chunk_limit_respected": true,
+          "chunks": 7,
+          "format": "archive_chunk",
+          "indexes_contiguous": true,
+          "label": "gguf",
+          "local_names_unique": true,
+          "max_chunk_bytes": 256,
+          "reassembles": true
+        },
+        {
+          "chunk_limit_respected": true,
+          "chunks": 1,
+          "format": "json",
+          "indexes_contiguous": true,
+          "label": "run_report",
+          "local_names_unique": true,
+          "max_chunk_bytes": 58,
+          "reassembles": true
+        },
+        {
+          "chunk_limit_respected": true,
+          "chunks": 1,
+          "format": "json",
+          "indexes_contiguous": true,
+          "label": "preflight_report",
+          "local_names_unique": true,
+          "max_chunk_bytes": 136,
+          "reassembles": true
+        },
+        {
+          "chunk_limit_respected": true,
+          "chunks": 1,
+          "format": "json",
+          "indexes_contiguous": true,
+          "label": "runtime_freeze",
+          "local_names_unique": true,
+          "max_chunk_bytes": 71,
+          "reassembles": true
+        },
+        {
+          "chunk_limit_respected": true,
+          "chunks": 1,
+          "format": "txt",
+          "indexes_contiguous": true,
+          "label": "runtime_freeze_lock",
+          "local_names_unique": true,
+          "max_chunk_bytes": 12,
+          "reassembles": true
+        },
+        {
+          "chunk_limit_respected": true,
+          "chunks": 1,
+          "format": "json",
+          "indexes_contiguous": true,
+          "label": "package_check",
+          "local_names_unique": true,
+          "max_chunk_bytes": 61,
+          "reassembles": true
+        },
+        {
+          "chunk_limit_respected": true,
+          "chunks": 1,
+          "format": "jsonl",
+          "indexes_contiguous": true,
+          "label": "runner_events",
+          "local_names_unique": true,
+          "max_chunk_bytes": 23,
+          "reassembles": true
+        },
+        {
+          "chunk_limit_respected": true,
+          "chunks": 16,
+          "format": "archive_chunk",
+          "indexes_contiguous": true,
+          "label": "job_log",
+          "local_names_unique": true,
+          "max_chunk_bytes": 256,
+          "reassembles": true
+        }
+      ],
+      "name": "complete_chunk_contract",
+      "status_artifact_paths_len": 11,
+      "status_report_paths_len": 6
+    },
+    {
+      "complete_valid": false,
+      "detected_model_items": 0,
+      "first_items": [
+        [
+          "artifact",
+          "lora.zip.part001"
+        ],
+        [
+          "artifact",
+          "lora.zip.part002"
+        ],
+        [
+          "artifact",
+          "merged_16bit.zip.part001"
+        ],
+        [
+          "artifact",
+          "merged_16bit.zip.part002"
+        ]
+      ],
+      "name": "current_watchdog_on_real_complete_status",
+      "watchdog_exit": 4
+    },
+    {
+      "artifact_kinds_first": [
+        [
+          "log",
+          "job.log"
+        ],
+        [
+          "model",
+          "lora.zip.part001"
+        ],
+        [
+          "model",
+          "lora.zip.part002"
+        ]
+      ],
+      "complete_valid": true,
+      "downloaded": [
+        "events.jsonl",
+        "job.log",
+        "job.log.part001",
+        "job.log.part002",
+        "job.log.part003",
+        "job.log.part004",
+        "job.log.part005",
+        "job.log.part006",
+        "job.log.part007",
+        "job.log.part008",
+        "job.log.part009",
+        "job.log.part010",
+        "job.log.part011",
+        "job.log.part012",
+        "job.log.part013",
+        "job.log.part014",
+        "job.log.part015",
+        "job.log.part016",
+        "lora.zip.part001",
+        "lora.zip.part002",
+        "merged_16bit.zip.part001",
+        "merged_16bit.zip.part002",
+        "package-check.json",
+        "preflight-report.json",
+        "reviewed_q4_k_m.zip.part001",
+        "reviewed_q4_k_m.zip.part002",
+        "reviewed_q4_k_m.zip.part003",
+        "reviewed_q4_k_m.zip.part004",
+        "reviewed_q4_k_m.zip.part005",
+        "reviewed_q4_k_m.zip.part006",
+        "reviewed_q4_k_m.zip.part007",
+        "runtime-freeze.json",
+        "runtime-freeze.txt",
+        "training-run-report.json"
+      ],
+      "name": "counterfactual_status_shape_acceptance",
+      "watchdog_exit": 0
+    }
+  ],
+  "environment": {
+    "driver": "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/artifacts/colab/run_reviewed_job.py",
+    "driver_sha256": "3a3fa72babc313466568c37256331db5af7416069ff945871f1268d3faf29cbb",
+    "python": "3.13.5",
+    "watcher": "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/artifacts/colab/watch_training.py",
+    "watcher_sha256": "197bfc783bb9a0c9f7c32d45f0ce1dfdc163d3ab2c65c5b78423af1f46af3565"
+  },
+  "status_path": "/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/driver-probe-complete-bj487eb1/job/status.json"
+}

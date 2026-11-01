@@ -556,10 +556,11 @@ class ParentVerifiedDatasetTest(unittest.TestCase):
         self.assertIsNone(out["refusal_ok"])
 
     def test_index_really_has_no_ddr4_and_one_ddr5_chunk(self):
-        index_path = ROOT / "data" / "index.json"
+        index_path = ROOT / "data" / "index.sqlite"
         if not index_path.exists():
-            self.skipTest("data/index.json is gitignored and absent on this machine")
-        chunks = json.loads(index_path.read_text(encoding="utf-8"))["chunks"]
+            self.skipTest("data/index.sqlite is gitignored and absent on this machine")
+        import store
+        chunks = store.read_index(index_path)["chunks"]
 
         def count(token):
             pattern = re.compile(

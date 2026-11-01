@@ -2,13 +2,13 @@
   "date": "2026-10-24",
   "model": "nekohon_q35_2b_x3_2e",
   "dataset": "sealed-2026-10-24.jsonl",
-  "dataset_sha256": "7f1dfd6a3ebf0db10832bf739f9175b81c6947e7a80565edb68e666b39b64889",
+  "dataset_sha256": "24fcc1c9138e158d26891a88bb07d5ef1e9eeb21bcbe137aa40d00961404d0d7",
   "total_items": 30,
-  "total_passed": 27,
-  "pass_rate": 0.9,
-  "pin_hits": 16,
+  "total_passed": 28,
+  "pass_rate": 0.9333,
+  "pin_hits": 19,
   "pin_total": 27,
-  "mean_latency_sec": 0.778,
+  "mean_latency_sec": 6.358,
   "results": [
     {
       "id": "sealed-def-01",
@@ -25,13 +25,13 @@
       "cited": [
         "ch01-058"
       ],
-      "latency_sec": 0.613,
-      "answer": "[Ch. 1] \"Machine learning engineers (ML engineers) overlap with data engineers and data scientists. ML engineers develop advanced ML techniques, train models, and design and maintain the infrastructure running ML processes in a scaled production environment. ML engineers often have advanced working knowledge of ML and deep learning techniques and frameworks such as PyTorch or TensorFlow.\"\nML engineers build the systems that run machine learning models in production.",
+      "latency_sec": 8.04,
+      "answer": "[Ch. 1] \"Machine learning engineers (ML engineers) overlap with data engineers and data scientists. ML engineers develop advanced ML techniques, train models, and design and maintain the infrastructure running ML processes in a scaled production environment. ML engineers often have advanced working knowledge of ML and deep learning techniques and frameworks such as PyTorch or TensorFlow. ML engineers also understand the hardware, services, and systems required to run these frameworks, both for model training and model deployment at a production scale. It\u2019s common for ML flows to run in a cloud environment where ML engineers can spin up and scale infrastructure resources on demand or rely on managed services. As we\u2019ve mentioned, the boundaries between ML engineering, data engineering, and data science are blurry. Data engineers may have some operational responsibilities over ML systems, and data scientists may work closely with ML engineering in designing advanced ML processes.\"\nMachine learning engineers build and maintain the production infrastructure that powers deployed AI models.",
       "citations": [
         {
           "chunk_id": "ch01-058",
           "chapter": "1",
-          "quote": "Machine learning engineers (ML engineers) overlap with data engineers and data scientists. ML engineers develop advanced ML techniques, train models, and design and maintain the infrastructure running ML processes in a scaled production environment. ML engineers often have advanced working knowledge of ML and deep learning techniques and frameworks such as PyTorch or TensorFlow."
+          "quote": "Machine learning engineers (ML engineers) overlap with data engineers and data scientists. ML engineers develop advanced ML techniques, train models, and design and maintain the infrastructure running ML processes in a scaled production environment. ML engineers often have advanced working knowledge of ML and deep learning techniques and frameworks such as PyTorch or TensorFlow. ML engineers also understand the hardware, services, and systems required to run these frameworks, both for model training and model deployment at a production scale. It\u2019s common for ML flows to run in a cloud environment where ML engineers can spin up and scale infrastructure resources on demand or rely on managed services. As we\u2019ve mentioned, the boundaries between ML engineering, data engineering, and data science are blurry. Data engineers may have some operational responsibilities over ML systems, and data scientists may work closely with ML engineering in designing advanced ML processes."
         }
       ],
       "reasons": []
@@ -51,13 +51,13 @@
       "cited": [
         "ch02-062"
       ],
-      "latency_sec": 0.433,
-      "answer": "[Ch. 2] \"Data lineage describes the recording of an audit trail of data through its lifecycle, tracking both the systems that process the data and the upstream data it depends on.\"\nData lineage tracks how data moves through systems and its dependencies.",
+      "latency_sec": 5.61,
+      "answer": "[Ch. 2] \"As data moves through its lifecycle, how do you know what system affected the data or what the data is composed of as it gets passed around and transformed? Data lineage describes the recording of an audit trail of data through its lifecycle, tracking both the systems that process the data and the upstream data it depends on. Data lineage helps with error tracking, accountability, and debugging of data and the systems that process it. It has the obvious benefit of giving an audit trail for the data lifecycle and helps with compliance. For example, if a user would like their data deleted from your systems, having lineage for that data lets you know where that data is stored and its dependencies.\"\nData lineage tracks how data moves through systems to identify upstream sources and downstream consumers.",
       "citations": [
         {
           "chunk_id": "ch02-062",
           "chapter": "2",
-          "quote": "Data lineage describes the recording of an audit trail of data through its lifecycle, tracking both the systems that process the data and the upstream data it depends on."
+          "quote": "As data moves through its lifecycle, how do you know what system affected the data or what the data is composed of as it gets passed around and transformed? Data lineage describes the recording of an audit trail of data through its lifecycle, tracking both the systems that process the data and the upstream data it depends on. Data lineage helps with error tracking, accountability, and debugging of data and the systems that process it. It has the obvious benefit of giving an audit trail for the data lifecycle and helps with compliance. For example, if a user would like their data deleted from your systems, having lineage for that data lets you know where that data is stored and its dependencies."
         }
       ],
       "reasons": []
@@ -77,13 +77,13 @@
       "cited": [
         "ch08-090"
       ],
-      "latency_sec": 0.407,
-      "answer": "[Ch. 8] \"Batch transformations run on discrete chunks of data, in contrast to streaming transformations, where data is processed continuously as it arrives\"\nBatch transformations process fixed sets of data at set intervals rather than continuously.",
+      "latency_sec": 8.639,
+      "answer": "[Ch. 8] \"Batch transformations run on discrete chunks of data, in contrast to streaming transformations, where data is processed continuously as it arrives. Batch transformations can run on a fixed schedule (e.g., daily, hourly, or every 15 minutes) to support ongoing reporting, analytics, and ML models. In this section, you\u2019ll learn various batch transformation patterns and technologies.\"\nBatch transformations run on discrete chunks of data, in contrast to streaming transformations, where data is processed continuously as it arrives.",
       "citations": [
         {
           "chunk_id": "ch08-090",
           "chapter": "8",
-          "quote": "Batch transformations run on discrete chunks of data, in contrast to streaming transformations, where data is processed continuously as it arrives"
+          "quote": "Batch transformations run on discrete chunks of data, in contrast to streaming transformations, where data is processed continuously as it arrives. Batch transformations can run on a fixed schedule (e.g., daily, hourly, or every 15 minutes) to support ongoing reporting, analytics, and ML models. In this section, you\u2019ll learn various batch transformation patterns and technologies."
         }
       ],
       "reasons": []
@@ -103,13 +103,13 @@
       "cited": [
         "ch07-068"
       ],
-      "latency_sec": 0.55,
-      "answer": "[Ch. 7] \"SSH tunnels are used to allow secure, isolated connections to databases\"\nSSH tunnels provide secure, isolated network connections to databases, essential for protecting sensitive data during ingestion.",
+      "latency_sec": 5.149,
+      "answer": "[Ch. 7] \"SSH is not an ingestion strategy but a protocol used with other ingestion strategies. We use SSH in a few ways. First, SSH can be used for file transfer with SCP, as mentioned earlier. Second, SSH tunnels are used to allow secure, isolated connections to databases.\"\nSSH is a security protocol used alongside other methods to move data.",
       "citations": [
         {
           "chunk_id": "ch07-068",
           "chapter": "7",
-          "quote": "SSH tunnels are used to allow secure, isolated connections to databases"
+          "quote": "SSH is not an ingestion strategy but a protocol used with other ingestion strategies. We use SSH in a few ways. First, SSH can be used for file transfer with SCP, as mentioned earlier. Second, SSH tunnels are used to allow secure, isolated connections to databases."
         }
       ],
       "reasons": []
@@ -129,13 +129,13 @@
       "cited": [
         "ch10-008"
       ],
-      "latency_sec": 0.74,
-      "answer": "[Ch. 10] \"This is security theater, where security is done in the letter of compliance (SOC-2, ISO 27001, and related) without real commitment\"\nSecurity theater is when a company follows security rules just to pass audits, without actually being safe.",
+      "latency_sec": 5.768,
+      "answer": "[Ch. 10] \"With our corporate clients, we see a pervasive focus on compliance (with internal rules, laws, recommendations from standards bodies), but not enough attention to potentially bad scenarios. Unfortunately, this creates an illusion of security but often leaves gaping holes that would be evident with a few minutes of reflection. Security needs to be simple and effective enough to become habitual throughout an organization. We\u2019re amazed at the number of companies with security policies in the hundreds of pages that nobody reads, the annual security policy review that people immediately forget, all in checking a box for a security audit. This is security theater, where security is done in the letter of compliance (SOC-2, ISO 27001, and related) without real commitment.\"\nSecurity theater is when a company follows security rules just to pass audits, without actually being safe.",
       "citations": [
         {
           "chunk_id": "ch10-008",
           "chapter": "10",
-          "quote": "This is security theater, where security is done in the letter of compliance (SOC-2, ISO 27001, and related) without real commitment"
+          "quote": "With our corporate clients, we see a pervasive focus on compliance (with internal rules, laws, recommendations from standards bodies), but not enough attention to potentially bad scenarios. Unfortunately, this creates an illusion of security but often leaves gaping holes that would be evident with a few minutes of reflection. Security needs to be simple and effective enough to become habitual throughout an organization. We\u2019re amazed at the number of companies with security policies in the hundreds of pages that nobody reads, the annual security policy review that people immediately forget, all in checking a box for a security audit. This is security theater, where security is done in the letter of compliance (SOC-2, ISO 27001, and related) without real commitment."
         }
       ],
       "reasons": []
@@ -155,13 +155,13 @@
       "cited": [
         "ch04-081"
       ],
-      "latency_sec": 0.494,
-      "answer": "[Ch. 4] \"Serverless works best for simple, discrete tasks and workloads\"\nServerless is ideal for straightforward, single-purpose tasks.",
+      "latency_sec": 5.659,
+      "answer": "[Ch. 4] \"Here are some key considerations to help you determine whether serverless is right for you: Serverless works best for simple, discrete tasks and workloads. It\u2019s not as suitable if you have many moving parts or require a lot of compute or memory horsepower. In that case, consider using containers and a container workflow orchestration framework like Kubernetes. How many requests per second will your serverless application process? How long will each request take to process? Cloud serverless platforms have limits on execution frequency, concurrency, and duration. If your application can\u2019t function neatly within these limits, it is time to consider a container-oriented approach. Serverless platforms often utilize some form of simplified networking and don\u2019t support all cloud virtual networking features, such as VPCs and firewalls. What language do you typically use? If it\u2019s not one of the officially supported languages supported by the serverless platform, you should consider containers instead. Serverless platforms don\u2019t give you complete operating system abstractions. Instead, you\u2019re limited to a specific runtime image.\"\nServerless is ideal for simple, single-purpose tasks.",
       "citations": [
         {
           "chunk_id": "ch04-081",
           "chapter": "4",
-          "quote": "Serverless works best for simple, discrete tasks and workloads"
+          "quote": "Here are some key considerations to help you determine whether serverless is right for you: Serverless works best for simple, discrete tasks and workloads. It\u2019s not as suitable if you have many moving parts or require a lot of compute or memory horsepower. In that case, consider using containers and a container workflow orchestration framework like Kubernetes. How many requests per second will your serverless application process? How long will each request take to process? Cloud serverless platforms have limits on execution frequency, concurrency, and duration. If your application can\u2019t function neatly within these limits, it is time to consider a container-oriented approach. Serverless platforms often utilize some form of simplified networking and don\u2019t support all cloud virtual networking features, such as VPCs and firewalls. What language do you typically use? If it\u2019s not one of the officially supported languages supported by the serverless platform, you should consider containers instead. Serverless platforms don\u2019t give you complete operating system abstractions. Instead, you\u2019re limited to a specific runtime image."
         }
       ],
       "reasons": []
@@ -179,15 +179,15 @@
         "app01-012"
       ],
       "cited": [
-        "app01-013"
+        "app01-014"
       ],
-      "latency_sec": 0.723,
-      "answer": "[Ch. app01] \"This technique means that we can store a data file on disk, swap it directly into program address space by using virtual memory, and begin running a query against the data without deserialization overhead\"\nApache Arrow stores data in memory to avoid slow file reading during queries.",
+      "latency_sec": 2.888,
+      "answer": "[Ch. appendix] \"For example, a Scala program can use the Java library to write arrow data and then pass it as a message to a Python program. Arrow is seeing rapid uptake with a variety of popular frameworks such as Apache Spark. Arrow has also spanned a new data warehouse product; Dremio is a query engine and data warehouse built around Arrow serialization to support fast queries.\"\nApache Arrow is a binary serialization format used to efficiently transfer data between programming languages and processing engines.",
       "citations": [
         {
-          "chunk_id": "app01-013",
-          "chapter": "app01",
-          "quote": "This technique means that we can store a data file on disk, swap it directly into program address space by using virtual memory, and begin running a query against the data without deserialization overhead"
+          "chunk_id": "app01-014",
+          "chapter": "appendix",
+          "quote": "For example, a Scala program can use the Java library to write arrow data and then pass it as a message to a Python program. Arrow is seeing rapid uptake with a variety of popular frameworks such as Apache Spark. Arrow has also spanned a new data warehouse product; Dremio is a query engine and data warehouse built around Arrow serialization to support fast queries."
         }
       ],
       "reasons": []
@@ -200,20 +200,20 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "pin_hit": false,
+      "pin_hit": true,
       "gold_chunks": [
         "ch04-004"
       ],
       "cited": [
-        "ch01-028"
+        "ch04-004"
       ],
-      "latency_sec": 0.899,
-      "answer": "[Ch. 1] \"We often see the data team working in a bubble, not communicating with people outside their departments and getting perspectives and feedback from business stakeholders.\"\nStart by connecting with business stakeholders to validate data initiatives and prevent siloed development.",
+      "latency_sec": 4.679,
+      "answer": "[Ch. 4] \"The first thing you need to assess is your team\u2019s size and its capabilities with technology. Are you on a small team (perhaps a team of one) of people who are expected to wear many hats, or is the team large enough that people work in specialized roles? Will a handful of people be responsible for multiple stages of the data engineering lifecycle, or do people cover particular niches? Your team\u2019s size will influence the types of technologies you adopt. There is a continuum of simple to complex technologies, and a team\u2019s size roughly determines the amount of bandwidth your team can dedicate to complex solutions. We sometimes see small data teams read blog posts about a new cutting-edge technology at a giant tech company and then try to emulate these same extremely complex technologies and practices. We call this cargo-cult engineering, and it\u2019s generally a big mistake that consumes a lot of valuable time and money, often with little to nothing to show in return. Especially for small teams or teams with weaker technical chops, use as many managed and SaaS tools as possible, and dedicate your limited bandwidth to solving the complex problems that directly add value to the business.\"\nEvaluating team scale and technical capacity is the initial step in evaluating a data team.",
       "citations": [
         {
-          "chunk_id": "ch01-028",
-          "chapter": "1",
-          "quote": "We often see the data team working in a bubble, not communicating with people outside their departments and getting perspectives and feedback from business stakeholders."
+          "chunk_id": "ch04-004",
+          "chapter": "4",
+          "quote": "The first thing you need to assess is your team\u2019s size and its capabilities with technology. Are you on a small team (perhaps a team of one) of people who are expected to wear many hats, or is the team large enough that people work in specialized roles? Will a handful of people be responsible for multiple stages of the data engineering lifecycle, or do people cover particular niches? Your team\u2019s size will influence the types of technologies you adopt. There is a continuum of simple to complex technologies, and a team\u2019s size roughly determines the amount of bandwidth your team can dedicate to complex solutions. We sometimes see small data teams read blog posts about a new cutting-edge technology at a giant tech company and then try to emulate these same extremely complex technologies and practices. We call this cargo-cult engineering, and it\u2019s generally a big mistake that consumes a lot of valuable time and money, often with little to nothing to show in return. Especially for small teams or teams with weaker technical chops, use as many managed and SaaS tools as possible, and dedicate your limited bandwidth to solving the complex problems that directly add value to the business."
         }
       ],
       "reasons": []
@@ -229,26 +229,26 @@
       "pin_hit": false,
       "gold_chunks": [],
       "cited": [
-        "preface01-010",
+        "ch09-034",
         "preface01-005",
         "preface01-003"
       ],
-      "latency_sec": 0.786,
+      "latency_sec": 3.023,
       "answer": "Not in this book.",
       "citations": [
         {
-          "chunk_id": "preface01-010",
-          "chapter": "preface01",
-          "quote": "Navigating This Book Part II is arguably the heart of the book, and the other chapters exist to support the core ideas covered here. Part III covers additional "
+          "chunk_id": "ch09-034",
+          "chapter": "9",
+          "quote": "What a Data Engineer Should Know About ML The type of hardware you use largely depends on the type of ML problem you\u2019re solving, the technique you\u2019re using, and"
         },
         {
           "chunk_id": "preface01-005",
-          "chapter": "preface01",
+          "chapter": "preface",
           "quote": "Who Should Read This Book Our primary intended audience for this book consists of technical practitioners, mid- to senior-level software engineers, data scienti"
         },
         {
           "chunk_id": "preface01-003",
-          "chapter": "preface01",
+          "chapter": "preface",
           "quote": "What This Book Is About This book aims to fill a gap in current data engineering content and materials. While there\u2019s no shortage of technical resources that ad"
         }
       ],
@@ -269,13 +269,13 @@
       "cited": [
         "ch02-062"
       ],
-      "latency_sec": 0.919,
-      "answer": "[Ch. 2] \"Data lineage helps with error tracking, accountability, and debugging of data and the systems that process it\"\nData lineage tracks how data moves through systems to find errors and hold people accountable.",
+      "latency_sec": 8.064,
+      "answer": "[Ch. 2] \"As data moves through its lifecycle, how do you know what system affected the data or what the data is composed of as it gets passed around and transformed? Data lineage describes the recording of an audit trail of data through its lifecycle, tracking both the systems that process the data and the upstream data it depends on. Data lineage helps with error tracking, accountability, and debugging of data and the systems that process it. It has the obvious benefit of giving an audit trail for the data lifecycle and helps with compliance. For example, if a user would like their data deleted from your systems, having lineage for that data lets you know where that data is stored and its dependencies.\"\nData lineage helps find errors, hold people accountable, and fix broken data systems.",
       "citations": [
         {
           "chunk_id": "ch02-062",
           "chapter": "2",
-          "quote": "Data lineage helps with error tracking, accountability, and debugging of data and the systems that process it"
+          "quote": "As data moves through its lifecycle, how do you know what system affected the data or what the data is composed of as it gets passed around and transformed? Data lineage describes the recording of an audit trail of data through its lifecycle, tracking both the systems that process the data and the upstream data it depends on. Data lineage helps with error tracking, accountability, and debugging of data and the systems that process it. It has the obvious benefit of giving an audit trail for the data lifecycle and helps with compliance. For example, if a user would like their data deleted from your systems, having lineage for that data lets you know where that data is stored and its dependencies."
         }
       ],
       "reasons": []
@@ -295,13 +295,13 @@
       "cited": [
         "chapter-3-073"
       ],
-      "latency_sec": 0.461,
-      "answer": "[Ch. 3] \"Group quantization partitions a weight tensor into contiguous blocks of G elements, computing a separate scale for each\"\nGroup quantization divides weight matrices into fixed-size groups to apply independent scaling factors.",
+      "latency_sec": 5.015,
+      "answer": "[Ch. 3] \"Group quantization partitions a weight tensor into contiguous blocks of G elements, computing a separate scale for each. The dominant convention groups along the input dimension of a linear layer. Why input dimension? During matrix multiplication, each output element is a dot product over the input dimension. Grouping along this axis means each group's scale factor covers a contiguous portion of that dot product\u2014enabling efficient vectorized dequantization. For a linear layer with weight matrix W\u2208RO\u00d7I and group size G, the number of groups is ngroups=I/G. The total number of scale factors is O\u00d7ngroups. For a layer with shape [4096, 4096] and group size 128, that's 4096\u00d732=131,072 scales\u2014128\u00d7 more than per-channel, but still a tiny fraction of the 16 million weights. The implementation wraps quantized data and scales into a dataclass for clean dequantization. Listing 3.26 Group quantization implementation\"\nGroup quantization divides a weight matrix into fixed-size chunks to apply independent scaling factors to each chunk.",
       "citations": [
         {
           "chunk_id": "chapter-3-073",
           "chapter": "3",
-          "quote": "Group quantization partitions a weight tensor into contiguous blocks of G elements, computing a separate scale for each"
+          "quote": "Group quantization partitions a weight tensor into contiguous blocks of G elements, computing a separate scale for each. The dominant convention groups along the input dimension of a linear layer. Why input dimension? During matrix multiplication, each output element is a dot product over the input dimension. Grouping along this axis means each group's scale factor covers a contiguous portion of that dot product\u2014enabling efficient vectorized dequantization. For a linear layer with weight matrix W\u2208RO\u00d7I and group size G, the number of groups is ngroups=I/G. The total number of scale factors is O\u00d7ngroups. For a layer with shape [4096, 4096] and group size 128, that's 4096\u00d732=131,072 scales\u2014128\u00d7 more than per-channel, but still a tiny fraction of the 16 million weights. The implementation wraps quantized data and scales into a dataclass for clean dequantization. Listing 3.26 Group quantization implementation"
         }
       ],
       "reasons": []
@@ -321,13 +321,13 @@
       "cited": [
         "chapter-3-079"
       ],
-      "latency_sec": 0.483,
-      "answer": "[Ch. 3] \"Figure 3.9 illustrates the packing scheme: two INT4 values share each byte, with one in the high nibble and one in the low.\"\nINT4 values are compressed into single bytes by splitting each 32-bit value into two 4-bit parts.",
+      "latency_sec": 4.32,
+      "answer": "[Ch. 3] \"INT4 promises 2\u00d7 the memory savings of INT8, but CPUs and GPUs operate on bytes, not nibbles (4 bits make a nibble). Two INT4 values must be packed into each byte. Figure 3.9 illustrates the packing scheme: two INT4 values share each byte, with one in the high nibble and one in the low. Listing 3.28 has three pieces. pack_int4 shifts each signed value from [-8, 7] to unsigned [0, 15], pairs adjacent values, and combines each pair into a single byte (the first in the high nibble, the second in the low). unpack_int4 reverses this with shifts and masks, then shifts back to signed. compute_memory_layout totals the bytes for packed INT4 weights and FP16 scales against the FP16 baseline for a typical 4096\u00d74096 Q projection. Listing 3.28 INT4 packing and memory layout\"\nINT4 values are too narrow to fit in a single byte, so they are combined into pairs to save memory.",
       "citations": [
         {
           "chunk_id": "chapter-3-079",
           "chapter": "3",
-          "quote": "Figure 3.9 illustrates the packing scheme: two INT4 values share each byte, with one in the high nibble and one in the low."
+          "quote": "INT4 promises 2\u00d7 the memory savings of INT8, but CPUs and GPUs operate on bytes, not nibbles (4 bits make a nibble). Two INT4 values must be packed into each byte. Figure 3.9 illustrates the packing scheme: two INT4 values share each byte, with one in the high nibble and one in the low. Listing 3.28 has three pieces. pack_int4 shifts each signed value from [-8, 7] to unsigned [0, 15], pairs adjacent values, and combines each pair into a single byte (the first in the high nibble, the second in the low). unpack_int4 reverses this with shifts and masks, then shifts back to signed. compute_memory_layout totals the bytes for packed INT4 weights and FP16 scales against the FP16 baseline for a typical 4096\u00d74096 Q projection. Listing 3.28 INT4 packing and memory layout"
         }
       ],
       "reasons": []
@@ -347,7 +347,7 @@
       "cited": [
         "chapter-1-003"
       ],
-      "latency_sec": 0.695,
+      "latency_sec": 6.63,
       "answer": "[Ch. 1] \"Quantization is the technique of representing neural network weights and activations using fewer bits\u2014typically moving from 16-bit or 32-bit floating point down to 8-bit or 4-bit integers.\"\nFixed-point quantization fails because it truncates precision, introducing rounding errors that corrupt model weights and degrade inference accuracy.",
       "citations": [
         {
@@ -375,8 +375,8 @@
       "cited": [
         "chapter-7-067"
       ],
-      "latency_sec": 1.03,
-      "answer": "[Ch. 7] \"For a single head_dim-dimensional vector at b bits, the total storage is b\u00d7d+16 bits (indices plus FP16 norm). Table 7.2 shows the resulting compression for d=128.\"\nThe memory accounting for a single quantized vector includes the product of the bit width and the number of dimensions plus a fixed 16-bit overhead for the norm.",
+      "latency_sec": 9.191,
+      "answer": "[Ch. 7] \"For a single head_dim-dimensional vector at b bits, the total storage is b\u00d7d+16 bits (indices plus FP16 norm). Table 7.2 shows the resulting compression for d=128.\"\nEach quantized vector consumes 128 bytes of memory per token, accounting for both index overhead and FP16 norm scaling.",
       "citations": [
         {
           "chunk_id": "chapter-7-067",
@@ -401,13 +401,13 @@
       "cited": [
         "chapter-4-020"
       ],
-      "latency_sec": 1.143,
-      "answer": "[Ch. 4] \"Language models present a different challenge. The input space is vast, and different linguistic patterns produce different activation magnitudes. For LLMs, representative calibration means covering prompt length variation (short and long prompts activate differently; KV cache behavior changes with sequence length), linguistic diversity (formal text, casual text, code, math, and mixed languages produce distinct patterns), task diversity (summarization, QA, creative writing, and reasoning stress different model components), and structured content (code, mathematical notation, and formatted text often produce larger activations than prose).\"\nCalibration sets cover varied prompt lengths, languages, and tasks to ensure activations remain stable across different input conditions.",
+      "latency_sec": 7.041,
+      "answer": "[Ch. 4] \"Language models present a different challenge. The input space is vast, and different linguistic patterns produce different activation magnitudes. For LLMs, representative calibration means covering prompt length variation (short and long prompts activate differently; KV cache behavior changes with sequence length), linguistic diversity (formal text, casual text, code, math, and mixed languages produce distinct patterns), task diversity (summarization, QA, creative writing, and reasoning stress different model components), and structured content (code, mathematical notation, and formatted text often produce larger activations than prose). Listing 4.2 puts this to the test\u2014we define prompt categories that span these dimensions, then measure how each category's activation magnitudes differ across layers of TinyLlama-1.1B. Listing 4.2 LLM calibration prompt categories\"\nCalibration sets cover varied prompt lengths, languages, and tasks to ensure activations remain stable across different input conditions.",
       "citations": [
         {
           "chunk_id": "chapter-4-020",
           "chapter": "4",
-          "quote": "Language models present a different challenge. The input space is vast, and different linguistic patterns produce different activation magnitudes. For LLMs, representative calibration means covering prompt length variation (short and long prompts activate differently; KV cache behavior changes with sequence length), linguistic diversity (formal text, casual text, code, math, and mixed languages produce distinct patterns), task diversity (summarization, QA, creative writing, and reasoning stress different model components), and structured content (code, mathematical notation, and formatted text often produce larger activations than prose)."
+          "quote": "Language models present a different challenge. The input space is vast, and different linguistic patterns produce different activation magnitudes. For LLMs, representative calibration means covering prompt length variation (short and long prompts activate differently; KV cache behavior changes with sequence length), linguistic diversity (formal text, casual text, code, math, and mixed languages produce distinct patterns), task diversity (summarization, QA, creative writing, and reasoning stress different model components), and structured content (code, mathematical notation, and formatted text often produce larger activations than prose). Listing 4.2 puts this to the test\u2014we define prompt categories that span these dimensions, then measure how each category's activation magnitudes differ across layers of TinyLlama-1.1B. Listing 4.2 LLM calibration prompt categories"
         }
       ],
       "reasons": []
@@ -427,8 +427,8 @@
       "cited": [
         "chapter-6-060"
       ],
-      "latency_sec": 1.104,
-      "answer": "[Ch. 6] \"Porting a quantized model across frameworks is an exercise in controlling divergence \u2014 knowing where default semantics, operator fusion, and calibration implementations disagree, then validating that none of those disagreements flip predictions.\"\nVerifying quantized model accuracy requires comparing predictions across different frameworks to ensure semantic equivalence.",
+      "latency_sec": 8.043,
+      "answer": "[Ch. 6] \"Porting a quantized model across frameworks is an exercise in controlling divergence \u2014 knowing where default semantics, operator fusion, and calibration implementations disagree, then validating that none of those disagreements flip predictions.\"\nYou validate quantized models by comparing predictions before and after quantization to ensure they remain consistent.",
       "citations": [
         {
           "chunk_id": "chapter-6-060",
@@ -455,13 +455,13 @@
       "cited": [
         "chapter-7-010"
       ],
-      "latency_sec": 0.72,
-      "answer": "[Ch. 7] \"The method requires no calibration data, no retraining, and no model modification - it operates dynamically on each forward pass\"\nBitsandbytes handles outliers dynamically during inference without needing calibration or retraining.",
+      "latency_sec": 7.004,
+      "answer": "[Ch. 7] \"We now have a puzzle to solve: per-channel INT8 reduces quantization error by three orders of magnitude, yet outlier dimensions still concentrate 82% of the residual error in early layers\"\nBitsandbytes implements outlier-aware weight paths by routing sparse, high-magnitude activations through full-precision compute while quantizing the dominant, low-magnitude weights to INT8.",
       "citations": [
         {
           "chunk_id": "chapter-7-010",
           "chapter": "7",
-          "quote": "The method requires no calibration data, no retraining, and no model modification - it operates dynamically on each forward pass"
+          "quote": "We now have a puzzle to solve: per-channel INT8 reduces quantization error by three orders of magnitude, yet outlier dimensions still concentrate 82% of the residual error in early layers"
         }
       ],
       "reasons": []
@@ -481,8 +481,8 @@
       "cited": [
         "chapter-6-008"
       ],
-      "latency_sec": 1.003,
-      "answer": "[Ch. 6] \"Pragmatically, teams end up crossing framework boundaries for three reasons. First, the best quantization algorithm for your model may not exist in your target format - PyTorch's FX graph mode quantization offers calibration strategies that ONNX doesn't natively represent, while ONNX's operator set enables optimizations that PyTorch's eager mode can't express. Second, hardware targets force the issue: TensorRT consumes ONNX, TFLite requires TensorFlow conversion, and CoreML has its own quantization pipeline. Third, CI and validation infrastructure often lives in a different framework than the serving stack - your accuracy regression tests may run in PyTorch while the artifact shipped to production is an ONNX file.\"\nTeams cross framework boundaries because the best quantization algorithm for their model doesn't exist in their target format, hardware targets force specific format choices, and CI/validation infrastructure lives in a different framework than the serving stack.",
+      "latency_sec": 6.31,
+      "answer": "[Ch. 6] \"Pragmatically, teams end up crossing framework boundaries for three reasons. First, the best quantization algorithm for your model may not exist in your target format - PyTorch's FX graph mode quantization offers calibration strategies that ONNX doesn't natively represent, while ONNX's operator set enables optimizations that PyTorch's eager mode can't express. Second, hardware targets force the issue: TensorRT consumes ONNX, TFLite requires TensorFlow conversion, and CoreML has its own quantization pipeline. Third, CI and validation infrastructure often lives in a different framework than the serving stack - your accuracy regression tests may run in PyTorch while the artifact shipped to production is an ONNX file.\"\nTeams cross framework boundaries because the best quantization algorithm for their model does not exist in their target format, hardware targets force specific format choices, and CI/validation infrastructure lives in a different framework than the serving stack.",
       "citations": [
         {
           "chunk_id": "chapter-6-008",
@@ -507,7 +507,7 @@
         "chapter-7-069",
         "chapter-2-003"
       ],
-      "latency_sec": 0.39,
+      "latency_sec": 4.192,
       "answer": "Not in this book.",
       "citations": [
         {
@@ -543,8 +543,8 @@
       "cited": [
         "chapter-3-073"
       ],
-      "latency_sec": 1.447,
-      "answer": "[Ch. 3] \"Group quantization partitions a weight tensor into contiguous blocks of G elements, computing a separate scale for each.\"\nEach block receives an independent scale factor to preserve precision across contiguous weight segments.",
+      "latency_sec": 12.57,
+      "answer": "[Ch. 3] computing a separate scale for each block\nIt calculates a unique scaling factor for every group of elements.",
       "citations": [
         {
           "chunk_id": "chapter-3-073",
@@ -569,13 +569,13 @@
       "cited": [
         "text00014-061"
       ],
-      "latency_sec": 0.412,
-      "answer": "[Ch. 8] \"Is it crazy to assume that a thread might be paused for so long? Unfortunately not. There are various reasons why this could happen:\"\nThreads can pause for long times due to garbage collection, virtual machine suspension, or disk I/O operations.",
+      "latency_sec": 5.368,
+      "answer": "[Ch. 8] \"Is it crazy to assume that a thread might be paused for so long? Unfortunately not. There are various reasons why this could happen: Many programming language runtimes (such as the Java Virtual Machine) have a garbage collector (GC) that occasionally needs to stop all running threads. These \u201cstop-the-world\u201d GC pauses have sometimes been known to last for several minutes [64 ]! Even so-called \u201cconcurrent\u201d garbage collectors like the HotSpot JVM\u2019s CMS cannot fully run in parallel with the application code \u2014 even they need to stop the world from time to time [65 ]. Although the pauses can often be reduced by changing allocation patterns or tuning GC settings [66 ], we must assume the worst if we want to offer robust guarantees.\"\nThreads can pause for long times due to garbage collection, virtual machine suspension, or disk I/O.",
       "citations": [
         {
           "chunk_id": "text00014-061",
           "chapter": "8",
-          "quote": "Is it crazy to assume that a thread might be paused for so long? Unfortunately not. There are various reasons why this could happen:"
+          "quote": "Is it crazy to assume that a thread might be paused for so long? Unfortunately not. There are various reasons why this could happen: Many programming language runtimes (such as the Java Virtual Machine) have a garbage collector (GC) that occasionally needs to stop all running threads. These \u201cstop-the-world\u201d GC pauses have sometimes been known to last for several minutes [64 ]! Even so-called \u201cconcurrent\u201d garbage collectors like the HotSpot JVM\u2019s CMS cannot fully run in parallel with the application code \u2014 even they need to stop the world from time to time [65 ]. Although the pauses can often be reduced by changing allocation patterns or tuning GC settings [66 ], we must assume the worst if we want to offer robust guarantees."
         }
       ],
       "reasons": []
@@ -595,13 +595,13 @@
       "cited": [
         "text00018-083"
       ],
-      "latency_sec": 0.423,
-      "answer": "[Ch. 11] \"A tumbling window has a fixed length, and every event belongs to exactly one window\"\nA tumbling window assigns each event to a single, fixed-duration bucket.",
+      "latency_sec": 6.23,
+      "answer": "[Ch. 11] \"A tumbling window has a fixed length, and every event belongs to exactly one window. For example, if you have a 1-minute tumbling window, all the events with timestamps between 10:03:00 and 10:03:59 are grouped into one window, events between 10:04:00 and 10:04:59 into the next window, and so on. You could implement a 1-minute tumbling window by taking each event timestamp and rounding it down to the nearest minute to determine the window that it belongs to. A hopping window also has a fixed length, but allows windows to overlap in order to provide some smoothing. For example, a 5-minute window with a hop size of 1 minute would contain the events between 10:03:00 and 10:07:59, then the next window would cover events between 10:04:00 and 10:08:59, and so on. You can implement this hopping window by first calculating 1-minute tumbling windows, and then aggregating over several adjacent windows.\"\nA tumbling window assigns each event to a single, fixed-duration bucket.",
       "citations": [
         {
           "chunk_id": "text00018-083",
           "chapter": "11",
-          "quote": "A tumbling window has a fixed length, and every event belongs to exactly one window"
+          "quote": "A tumbling window has a fixed length, and every event belongs to exactly one window. For example, if you have a 1-minute tumbling window, all the events with timestamps between 10:03:00 and 10:03:59 are grouped into one window, events between 10:04:00 and 10:04:59 into the next window, and so on. You could implement a 1-minute tumbling window by taking each event timestamp and rounding it down to the nearest minute to determine the window that it belongs to. A hopping window also has a fixed length, but allows windows to overlap in order to provide some smoothing. For example, a 5-minute window with a hop size of 1 minute would contain the events between 10:03:00 and 10:07:59, then the next window would cover events between 10:04:00 and 10:08:59, and so on. You can implement this hopping window by first calculating 1-minute tumbling windows, and then aggregating over several adjacent windows."
         }
       ],
       "reasons": []
@@ -621,13 +621,13 @@
       "cited": [
         "text00009-009"
       ],
-      "latency_sec": 0.801,
-      "answer": "[Ch. 4] \"JSON, XML, and Binary Variants\"\nJSON treats numeric values as numbers rather than strings, which causes precision loss for large integers.",
+      "latency_sec": 6.272,
+      "answer": "[Ch. 4] \"There is a lot of ambiguity around the encoding of numbers. In XML and CSV, you cannot distinguish between a number and a string that happens to consist of digits (except by referring to an external schema). JSON distinguishes strings and numbers, but it doesn\u2019t distinguish integers and floating-point numbers, and it doesn\u2019t specify a precision. This is a problem when dealing with large numbers; for example, integers greater than 253 cannot be exactly represented in an IEEE 754 double-precision floating-point number, so such numbers become inaccurate when parsed in a language that uses floating-point numbers (such as JavaScript). An example of numbers larger than 253 occurs on Twitter, which uses a 64-bit number to identify each tweet. The JSON returned by Twitter\u2019s API includes tweet IDs twice, once as a JSON number and once as a decimal string, to work around the fact that the numbers are not correctly parsed by JavaScript applications [10 ].\"\nJSON cannot tell the difference between a whole number and a decimal value, making it hard to store exact amounts without losing precision.",
       "citations": [
         {
           "chunk_id": "text00009-009",
           "chapter": "4",
-          "quote": "In XML and CSV, you cannot distinguish between a number and a string that happens to consist of digits (except by referring to an external schema)."
+          "quote": "There is a lot of ambiguity around the encoding of numbers. In XML and CSV, you cannot distinguish between a number and a string that happens to consist of digits (except by referring to an external schema). JSON distinguishes strings and numbers, but it doesn\u2019t distinguish integers and floating-point numbers, and it doesn\u2019t specify a precision. This is a problem when dealing with large numbers; for example, integers greater than 253 cannot be exactly represented in an IEEE 754 double-precision floating-point number, so such numbers become inaccurate when parsed in a language that uses floating-point numbers (such as JavaScript). An example of numbers larger than 253 occurs on Twitter, which uses a 64-bit number to identify each tweet. The JSON returned by Twitter\u2019s API includes tweet IDs twice, once as a JSON number and once as a decimal string, to work around the fact that the numbers are not correctly parsed by JavaScript applications [10 ]."
         }
       ],
       "reasons": []
@@ -639,26 +639,24 @@
       "question": "What is the book's recurring theme about solving data problems?",
       "expect": "answer",
       "refused": false,
-      "passed": false,
-      "pin_hit": false,
+      "passed": true,
+      "pin_hit": true,
       "gold_chunks": [
         "text00019-003"
       ],
       "cited": [
-        "text00014-001"
+        "text00019-003"
       ],
-      "latency_sec": 0.66,
-      "answer": "[Ch. 8] \"A recurring theme in the last few chapters has been how systems handle things going wrong\"\nThe book consistently focuses on how systems manage failures and edge cases.",
+      "latency_sec": 5.479,
+      "answer": "[Ch. 12] \"A recurring theme in this book has been that for any given problem, there are several solutions, all of which have different pros, cons, and trade-offs. For example, when discussing storage engines in Chapter 3 , we saw log-structured storage, B-trees, and column-oriented storage. When discussing replication in Chapter 5 , we saw single-leader, multi-leader, and leaderless approaches. If you have a problem such as \u201cI want to store some data and look it up again later,\u201d there is no one right solution, but many different approaches that are each appropriate in different circumstances. A software implementation typically has to pick one particular approach. It\u2019s hard enough to get one code path robust and performing well \u2014 trying to do everything in one piece of software almost guarantees that the implementation will be poor. Thus, the most appropriate choice of software tool also depends on the circumstances. Every piece of software, even a so-called \u201cgeneral-purpose\u201d database, is designed for a particular usage pattern.\"\nThe book emphasizes selecting the right tool based on specific problem circumstances.",
       "citations": [
         {
-          "chunk_id": "text00014-001",
-          "chapter": "8",
-          "quote": "A recurring theme in the last few chapters has been how systems handle things going wrong"
+          "chunk_id": "text00019-003",
+          "chapter": "12",
+          "quote": "A recurring theme in this book has been that for any given problem, there are several solutions, all of which have different pros, cons, and trade-offs. For example, when discussing storage engines in Chapter 3 , we saw log-structured storage, B-trees, and column-oriented storage. When discussing replication in Chapter 5 , we saw single-leader, multi-leader, and leaderless approaches. If you have a problem such as \u201cI want to store some data and look it up again later,\u201d there is no one right solution, but many different approaches that are each appropriate in different circumstances. A software implementation typically has to pick one particular approach. It\u2019s hard enough to get one code path robust and performing well \u2014 trying to do everything in one piece of software almost guarantees that the implementation will be poor. Thus, the most appropriate choice of software tool also depends on the circumstances. Every piece of software, even a so-called \u201cgeneral-purpose\u201d database, is designed for a particular usage pattern."
         }
       ],
-      "reasons": [
-        "answer misses key_fact /solution|trade-off|tradeoff|no one right/"
-      ]
+      "reasons": []
     },
     {
       "id": "sealed-def-19",
@@ -675,13 +673,13 @@
       "cited": [
         "text00008-076"
       ],
-      "latency_sec": 1.17,
-      "answer": "[Ch. 3] \"The log-structured school, which only permits appending to files and deleting obsolete files, but never updates a file that has been written. Bitcask, SSTables, LSM-trees, LevelDB, Cassandra, HBase, Lucene, and others belong to this group.\"\nThe two schools of storage engines for OLTP are the log-structured school, which uses append-only files, and the update-in-place school, which overwrites fixed-size pages.",
+      "latency_sec": 10.62,
+      "answer": "[Ch. 3] \"On the OLTP side, we saw storage engines from two main schools of thought: The log-structured school, which only permits appending to files and deleting obsolete files, but never updates a file that has been written. Bitcask, SSTables, LSM-trees, LevelDB, Cassandra, HBase, Lucene, and others belong to this group. The update-in-place school, which treats the disk as a set of fixed-size pages that can be overwritten. B-trees are the biggest example of this philosophy, being used in all major relational databases and also many nonrelational ones. Log-structured storage engines are a comparatively recent development. Their key idea is that they systematically turn random-access writes into sequential writes on disk, which enables higher write throughput due to the performance characteristics of hard drives and SSDs. Finishing off the OLTP side, we did a brief tour through some more complicated indexing structures, and databases that are optimized for keeping all data in memory.\"\nThe two primary storage philosophies for transactional databases are the log-structured school, which appends new data to files without overwriting old records, and the update-in-place school, which overwrites existing pages in fixed-size blocks.",
       "citations": [
         {
           "chunk_id": "text00008-076",
           "chapter": "3",
-          "quote": "The log-structured school, which only permits appending to files and deleting obsolete files, but never updates a file that has been written. Bitcask, SSTables, LSM-trees, LevelDB, Cassandra, HBase, Lucene, and others belong to this group."
+          "quote": "On the OLTP side, we saw storage engines from two main schools of thought: The log-structured school, which only permits appending to files and deleting obsolete files, but never updates a file that has been written. Bitcask, SSTables, LSM-trees, LevelDB, Cassandra, HBase, Lucene, and others belong to this group. The update-in-place school, which treats the disk as a set of fixed-size pages that can be overwritten. B-trees are the biggest example of this philosophy, being used in all major relational databases and also many nonrelational ones. Log-structured storage engines are a comparatively recent development. Their key idea is that they systematically turn random-access writes into sequential writes on disk, which enables higher write throughput due to the performance characteristics of hard drives and SSDs. Finishing off the OLTP side, we did a brief tour through some more complicated indexing structures, and databases that are optimized for keeping all data in memory."
         }
       ],
       "reasons": []
@@ -694,20 +692,20 @@
       "expect": "answer",
       "refused": false,
       "passed": true,
-      "pin_hit": false,
+      "pin_hit": true,
       "gold_chunks": [
         "text00010-004"
       ],
       "cited": [
-        "text00010-005"
+        "text00010-004"
       ],
-      "latency_sec": 1.39,
-      "answer": "[Ch. text00010] \"While a distributed shared-nothing architecture has many advantages, it usually also incurs additional complexity for applications and sometimes limits the expressiveness of the data models you can use.\"\nA shared-nothing architecture distributes database processing across many independent servers without a shared central storage.",
+      "latency_sec": 5.418,
+      "answer": "[Ch. text00010] \"By contrast, shared-nothing architectures [3 ] (sometimes called horizontal scaling or scaling out ) have gained a lot of popularity. In this approach, each machine or virtual machine running the database software is called a node . Each node uses its CPUs, RAM, and disks independently. Any coordination between nodes is done at the software level, using a conventional network. No special hardware is required by a shared-nothing system, so you can use whatever machines have the best price/performance ratio. You can potentially distribute data across multiple geographic regions, and thus reduce latency for users and potentially be able to survive the loss of an entire datacenter. With cloud deployments of virtual machines, you don\u2019t need to be operating at Google scale: even for small companies, a multi-region distributed architecture is now feasible.\"\nEach machine or virtual machine in a shared-nothing architecture operates independently, utilizing its own CPU, RAM, and storage.",
       "citations": [
         {
-          "chunk_id": "text00010-005",
+          "chunk_id": "text00010-004",
           "chapter": "text00010",
-          "quote": "While a distributed shared-nothing architecture has many advantages, it usually also incurs additional complexity for applications and sometimes limits the expressiveness of the data models you can use."
+          "quote": "By contrast, shared-nothing architectures [3 ] (sometimes called horizontal scaling or scaling out ) have gained a lot of popularity. In this approach, each machine or virtual machine running the database software is called a node . Each node uses its CPUs, RAM, and disks independently. Any coordination between nodes is done at the software level, using a conventional network. No special hardware is required by a shared-nothing system, so you can use whatever machines have the best price/performance ratio. You can potentially distribute data across multiple geographic regions, and thus reduce latency for users and potentially be able to survive the loss of an entire datacenter. With cloud deployments of virtual machines, you don\u2019t need to be operating at Google scale: even for small companies, a multi-region distributed architecture is now feasible."
         }
       ],
       "reasons": []
@@ -727,13 +725,13 @@
       "cited": [
         "text00011-001"
       ],
-      "latency_sec": 0.693,
-      "answer": "[Ch. 5] \"Replication means keeping a copy of the same data on multiple machines that are connected via a network\"\nReplication is copying data to multiple machines so the system keeps working even if one fails.",
+      "latency_sec": 4.985,
+      "answer": "[Ch. 5] \"Replication The major difference between a thing that might go wrong and a thing that cannot possibly go wrong is that when a thing that cannot possibly go wrong goes wrong it usually turns out to be impossible to get at or repair. Douglas Adams, Mostly Harmless (1992) Replication means keeping a copy of the same data on multiple machines that are connected via a network. As discussed in the introduction to Part II , there are several reasons why you might want to replicate data: To keep data geographically close to your users (and thus reduce latency) To allow the system to continue working even if some of its parts have failed (and thus increase availability) To scale out the number of machines that can serve read queries (and thus increase read throughput) In this chapter we will assume that your dataset is so small that each machine can hold a copy of the entire dataset. In Chapter 6 we will relax that assumption and discuss partitioning (sharding ) of datasets that are too big for a single machine. In later chapters we will discuss various kinds of faults that can occur in a replicated data system, and how to deal with them.\"\nReplication is copying data to several machines so the system keeps working even if one breaks.",
       "citations": [
         {
           "chunk_id": "text00011-001",
           "chapter": "5",
-          "quote": "Replication means keeping a copy of the same data on multiple machines that are connected via a network"
+          "quote": "Replication The major difference between a thing that might go wrong and a thing that cannot possibly go wrong is that when a thing that cannot possibly go wrong goes wrong it usually turns out to be impossible to get at or repair. Douglas Adams, Mostly Harmless (1992) Replication means keeping a copy of the same data on multiple machines that are connected via a network. As discussed in the introduction to Part II , there are several reasons why you might want to replicate data: To keep data geographically close to your users (and thus reduce latency) To allow the system to continue working even if some of its parts have failed (and thus increase availability) To scale out the number of machines that can serve read queries (and thus increase read throughput) In this chapter we will assume that your dataset is so small that each machine can hold a copy of the entire dataset. In Chapter 6 we will relax that assumption and discuss partitioning (sharding ) of datasets that are too big for a single machine. In later chapters we will discuss various kinds of faults that can occur in a replicated data system, and how to deal with them."
         }
       ],
       "reasons": []
@@ -753,13 +751,13 @@
       "cited": [
         "text00012-010"
       ],
-      "latency_sec": 0.646,
-      "answer": "[Ch. 6] \"A good hash function takes skewed data and makes it uniformly distributed\"\nA hash function maps data to a fixed size space to distribute evenly.",
+      "latency_sec": 2.786,
+      "answer": "[Ch. 6] \"Because of this risk of skew and hot spots, many distributed datastores use a hash function to determine the partition for a given key. A good hash function takes skewed data and makes it uniformly distributed. Say you have a 32-bit hash function that takes a string. Whenever you give it a new string, it returns a seemingly random number between 0 and 232 \u2212 1. Even if the input strings are very similar, their hashes are evenly distributed across that range of numbers. For partitioning purposes, the hash function need not be cryptographically strong: for example, Cassandra and MongoDB use MD5, and Voldemort uses the Fowler\u2013Noll\u2013Vo function. Many programming languages have simple hash functions built in (as they are used for hash tables), but they may not be suitable for partitioning: for example, in Java\u2019s Object.hashCode() and Ruby\u2019s Object#hash , the same key may have a different hash value in different processes [6 ]. Once you have a suitable hash function for keys, you can assign each partition a range of hashes (rather than a range of keys), and every key whose hash falls within a partition\u2019s range will be stored in that partition. This is illustrated in Figure 6-3 .\"\nA hash function spreads input data evenly across a range to ensure consistent distribution.",
       "citations": [
         {
           "chunk_id": "text00012-010",
           "chapter": "6",
-          "quote": "A good hash function takes skewed data and makes it uniformly distributed"
+          "quote": "Because of this risk of skew and hot spots, many distributed datastores use a hash function to determine the partition for a given key. A good hash function takes skewed data and makes it uniformly distributed. Say you have a 32-bit hash function that takes a string. Whenever you give it a new string, it returns a seemingly random number between 0 and 232 \u2212 1. Even if the input strings are very similar, their hashes are evenly distributed across that range of numbers. For partitioning purposes, the hash function need not be cryptographically strong: for example, Cassandra and MongoDB use MD5, and Voldemort uses the Fowler\u2013Noll\u2013Vo function. Many programming languages have simple hash functions built in (as they are used for hash tables), but they may not be suitable for partitioning: for example, in Java\u2019s Object.hashCode() and Ruby\u2019s Object#hash , the same key may have a different hash value in different processes [6 ]. Once you have a suitable hash function for keys, you can assign each partition a range of hashes (rather than a range of keys), and every key whose hash falls within a partition\u2019s range will be stored in that partition. This is illustrated in Figure 6-3 ."
         }
       ],
       "reasons": []
@@ -775,17 +773,17 @@
       "pin_hit": false,
       "gold_chunks": [],
       "cited": [
-        "text00012-016",
+        "text00004-009",
         "text00004-005",
         "text00004-007"
       ],
-      "latency_sec": 0.969,
+      "latency_sec": 6.061,
       "answer": "Not in this book.",
       "citations": [
         {
-          "chunk_id": "text00012-016",
-          "chapter": "6",
-          "quote": "Partitioning and Secondary Indexes The partitioning schemes we have discussed so far rely on a key-value data model. If records are only ever accessed via their"
+          "chunk_id": "text00004-009",
+          "chapter": "preface",
+          "quote": "Outline of This Book This book is arranged into three parts: In Part I , we discuss the fundamental ideas that underpin the design of data-intensive application"
         },
         {
           "chunk_id": "text00004-005",
@@ -815,13 +813,13 @@
       "cited": [
         "text00018-083"
       ],
-      "latency_sec": 1.146,
-      "answer": "[Ch. 11] \"You could implement a 1-minute tumbling window by taking each event timestamp and rounding it down to the nearest minute to determine the window that it belongs to.\"\nYou can implement a 1-minute tumbling window by rounding event timestamps down to the nearest minute.",
+      "latency_sec": 9.69,
+      "answer": "[Ch. 11] \"You could implement a 1-minute tumbling window by taking each event timestamp and rounding it down to the nearest minute to determine the window that it belongs to. A hopping window also has a fixed length, but allows windows to overlap in order to provide some smoothing.\"\nYou can implement a 1-minute tumbling window by rounding event timestamps down to the nearest minute.",
       "citations": [
         {
           "chunk_id": "text00018-083",
           "chapter": "11",
-          "quote": "You could implement a 1-minute tumbling window by taking each event timestamp and rounding it down to the nearest minute to determine the window that it belongs to."
+          "quote": "You could implement a 1-minute tumbling window by taking each event timestamp and rounding it down to the nearest minute to determine the window that it belongs to. A hopping window also has a fixed length, but allows windows to overlap in order to provide some smoothing."
         }
       ],
       "reasons": []

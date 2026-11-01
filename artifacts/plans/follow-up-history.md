@@ -2,6 +2,11 @@
 
 Status: draft — design only. Not approved. Do not implement from this file.
 
+Superseded constraint (2026-10-31): the engine now stores its index in SQLite
+FTS5 (`store.py`), so the 2026-10-15 "no sqlite" line below records the state
+at the time, not current rules. The browser-only history recommendation is
+unchanged.
+
 This is **not** the parked conversational companion (AGENTS.md post-v1 backlog). That track wants a third response type (clarify), conversation state, and a re-think of the sealed fragment class. This track is narrower: the reader asks again about the **same book** and the thread of what they already asked is not wiped. Refusal stays exactly `Not in this book.` The book is still the source. Chat is not.
 
 ---

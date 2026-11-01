@@ -1,7 +1,7 @@
 """Stage 5-9 probes: stemmer behavior, stop words, fold, real-index word map.
 
 Run:  python artifacts/probes/probe-stages.py
-Offline. Reads data/index.json read-only; never writes anything.
+Offline. Reads data/index.sqlite read-only; never writes anything.
 """
 
 import json
@@ -17,7 +17,7 @@ sys.path.insert(0, str(ROOT / "artifacts" / "probes"))
 
 from preprocess import STOPWORDS, fold, stem, stemmed_words, words  # noqa: E402
 
-INDEX_PATH = ROOT / "data" / "index.json"
+from retrieve import INDEX as INDEX_PATH, load_index
 
 
 def main():
@@ -75,7 +75,7 @@ def main():
 
     print()
     print("== (c) real index: raw word map vs stemmed word map ==")
-    index = json.loads(INDEX_PATH.read_text(encoding="utf-8"))
+    index = load_index(INDEX_PATH)
     chunks = index.get("chunks") or []
     print(f"   {INDEX_PATH.name}: {len(chunks)} chunks")
 

@@ -1,0 +1,41 @@
+{
+  "checks": [
+    {
+      "live": "257e562de9e117aa05ad327413ed4cfe47b0fa0d7937d09dc99aac98d91ee6e2",
+      "name": "handoff_snapshot_matches_live_log",
+      "phase": "awaiting_approval",
+      "snapshot": "257e562de9e117aa05ad327413ed4cfe47b0fa0d7937d09dc99aac98d91ee6e2"
+    },
+    {
+      "events": [],
+      "name": "control_download_before_approval",
+      "ok": true
+    },
+    {
+      "events": [
+        "hash_mismatch"
+      ],
+      "hash_mismatch_paths": [
+        "/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/driver-probe-lograce-zld4xb0j/job/job.log"
+      ],
+      "live_after_train_start": "8024ebe66b74f45b2019e7be16ee30b579121f0f0332ef39e71a43ffe7c0a1e3",
+      "name": "handoff_download_after_approval",
+      "ok": false,
+      "snapshot": "257e562de9e117aa05ad327413ed4cfe47b0fa0d7937d09dc99aac98d91ee6e2",
+      "snapshot_still_valid": false
+    },
+    {
+      "driver_exit": 0,
+      "name": "driver_still_completes",
+      "state": "complete",
+      "terminal_log_hash_matches": true
+    }
+  ],
+  "environment": {
+    "driver": "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/artifacts/colab/run_reviewed_job.py",
+    "driver_sha256": "3a3fa72babc313466568c37256331db5af7416069ff945871f1268d3faf29cbb",
+    "python": "3.13.5",
+    "watcher": "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/artifacts/colab/watch_training.py",
+    "watcher_sha256": "197bfc783bb9a0c9f7c32d45f0ce1dfdc163d3ab2c65c5b78423af1f46af3565"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "checks": [
+    {
+      "actual": "8f17d5fb3ed12a82ef04f6c564be4a768d87acd2216a1049b9541bcff3fc8a26",
+      "check_plan_exit": 0,
+      "check_plan_status": "pass",
+      "declared": "0000000000000000000000000000000000000000000000000000000000000000",
+      "declared_hash_matches_file": false,
+      "manifest_written_by_check_plan": false,
+      "name": "extra_source_wrong_hash_check_plan"
+    },
+    {
+      "driver_exit": 0,
+      "generated_manifest_sha256_matches": true,
+      "manifest_release_id": "unverified-gate",
+      "name": "extra_source_executed_without_closure",
+      "state": "complete"
+    },
+    {
+      "check_plan_exit": 2,
+      "check_plan_status": "closure_invalid",
+      "name": "enumerated_source_wrong_hash"
+    },
+    {
+      "argparse_last_value": "/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/driver-probe-closure-da_eiqqe/dupflag/decoy-manifest.json",
+      "check_plan_exit": 0,
+      "driver_first_value": "/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/driver-probe-closure-da_eiqqe/dupflag/out/manifest.json",
+      "name": "duplicate_train_flag_binding",
+      "same": false
+    },
+    {
+      "approved_plan_sha256": "0e590b02dee5caa73ff7c9edd12efcd0e8a63264427aed518e6bb9ecabc3e77b",
+      "driver_started_swapped_job": true,
+      "job_uuid": "job-swapped",
+      "name": "plan_fifo_verify_then_use",
+      "session": "swapped-session",
+      "status_plan_sha256": "914b004f12fa0bf8ed32f4d60f526bfc00abeabb49c1ff5c620900280a424aaf",
+      "swapped_plan_sha256": "914b004f12fa0bf8ed32f4d60f526bfc00abeabb49c1ff5c620900280a424aaf"
+    }
+  ],
+  "environment": {
+    "driver": "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/artifacts/colab/run_reviewed_job.py",
+    "driver_sha256": "3a3fa72babc313466568c37256331db5af7416069ff945871f1268d3faf29cbb",
+    "python": "3.13.5",
+    "watcher": "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/artifacts/colab/watch_training.py",
+    "watcher_sha256": "197bfc783bb9a0c9f7c32d45f0ce1dfdc163d3ab2c65c5b78423af1f46af3565"
+  }
+}

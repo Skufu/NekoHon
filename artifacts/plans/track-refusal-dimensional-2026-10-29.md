@@ -1,5 +1,7 @@
 # Track: dimensional refusal suite + leak-free corpus — 2026-10-29 (rev 9)
 
+> Index paths in this 2026-10-29 plan predate the 2026-10-31 SQLite migration; use `data/index.sqlite` / `data/index.<book>.sqlite` and `retrieve.load_index` when rerunning the commands below.
+
 Status: PROPOSED (not started). Owner review required before execution.
 Evidence base: `artifacts/runs/fair-eval-2026-10-28-model-nekohon_q35_2b_x3_2e-split-dev.json` and `-split-locked.json`.
 Rev 9 answers an eighth adversarial review. §9 lists all eight rounds and what changed.

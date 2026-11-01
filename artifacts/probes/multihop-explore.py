@@ -1,12 +1,11 @@
 """Exploration helper for the multi-hop hunt: grep chunk texts for evidence.
 
-Read-only over data/index.json. One section per argv pattern; shows up to
+Read-only over data/index.sqlite. One section per argv pattern; shows up to
 `--max` matching chunks per pattern with a context window around the match.
 
 Run: python artifacts/probes/multihop-explore.py "pattern one" "pattern two"
 """
 
-import json
 import re
 import sys
 from pathlib import Path
@@ -26,7 +25,10 @@ def main():
         position = args.index("--chapter")
         chapter = args[position + 1]
         del args[position:position + 2]
-    index = json.loads((ROOT / "data" / "index.json").read_text(encoding="utf-8"))
+    sys.path.insert(0, str(ROOT))
+    from retrieve import load_index
+
+    index = load_index(ROOT / "data" / "index.sqlite")
     chunks = index.get("chunks") or []
     if chapter is not None:
         chunks = [c for c in chunks if str(c.get("chapter")) == chapter]

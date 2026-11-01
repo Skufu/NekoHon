@@ -1,0 +1,17 @@
+{
+ "environment": {
+  "driver": "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/artifacts/colab/run_reviewed_job.py",
+  "driver_sha256": "3a3fa72babc313466568c37256331db5af7416069ff945871f1268d3faf29cbb",
+  "watcher": "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/artifacts/colab/watch_training.py",
+  "watcher_sha256": "197bfc783bb9a0c9f7c32d45f0ce1dfdc163d3ab2c65c5b78423af1f46af3565",
+  "python": "3.13.5"
+ },
+ "check_plan_exit_from_repo_cwd": 0,
+ "check_plan_status": "pass",
+ "job_dir_relative_in_plan": "job",
+ "status_created_at_plan_parent": true,
+ "log_created_at_plan_parent": false,
+ "status_log_path": "/private/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/driver-probe-relative-5xaf25gz/job/job.log",
+ "copied_driver_check_plan_exit": 0,
+ "copied_driver_check_plan_status": "pass"
+}

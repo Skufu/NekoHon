@@ -22,9 +22,9 @@ flowchart TD
     ans --> fig
 ```
 
-1. **Ingest** (`ingest.ingest_epub`). EPUB spine HTML to JSON. Skips a hard-coded non-teaching id set. Section chunks: heading prepended as line 1, body cut at sentence ends, cap `CHUNK_MAX_CHARS = 1400`, tables never split. Overlap is a sentence tail of at most `CHUNK_OVERLAP_CHARS = 180`, and only when a section did not fit one chunk. Figures get caption, nearest earlier citing paragraph, and a written image file. Chunks store figure ids whose numbers appear in the text. `book_id` is hard-coded `"fde"`. No vectors.
+1. **Ingest** (`ingest.ingest_epub`). EPUB spine HTML to a SQLite index. Skips a hard-coded non-teaching id set. Section chunks: heading prepended as line 1, body cut at sentence ends, cap `CHUNK_MAX_CHARS = 1400`, tables never split. Overlap is a sentence tail of at most `CHUNK_OVERLAP_CHARS = 180`, and only when a section did not fit one chunk. Figures get caption, nearest earlier citing paragraph, and a written image file. Chunks store figure ids whose numbers appear in the text. `book_id` is hard-coded `"fde"`. No vectors.
 
-2. **Embed** (`retrieve.embed_index`). Default model `nomic-embed-text`. Task prefixes are required; an unknown model exits. Vectors rounded to 6 decimals. Empty bodies are dropped, not stored as zero vectors. Non-finite, all-zero, or wrong-width responses abort the write. A non-default model is refused on `data/index.json`.
+2. **Embed** (`retrieve.embed_index`). Default model `nomic-embed-text`. Task prefixes are required; an unknown model exits. Vectors rounded to 6 decimals before storage. Empty bodies are dropped, not stored as zero vectors. Non-finite, all-zero, or wrong-width responses abort the write. A non-default model is refused on `data/index.sqlite`.
 
 3. **Query rewrite** (`canonical.canonical_query`), before retrieval, for ask and answer. A bare phrase with no `?`, no wh-word, no leading auxiliary/opener, no pronoun becomes `What is {text}?`. Explain turns this off. A kept rewrite is appended as `Asked as:`.
 

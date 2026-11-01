@@ -21,6 +21,7 @@ sys.path.insert(0, str(ROOT))
 
 from keywords import RARE_DF, postings
 from preprocess import STOPWORDS, stem
+from retrieve import load_index
 
 URL = "http://127.0.0.1:8000/ask"
 MODE = os.environ.get("SWEEP_MODE", "ask")
@@ -28,7 +29,7 @@ label = sys.argv[1] if len(sys.argv) > 1 else "default"
 OUT = ROOT / "artifacts" / "evidence" / "qa-sweep" / f"qa-sweep-{label}.json"
 LOG = ROOT / "artifacts" / "evidence" / "qa-sweep" / f"qa-sweep-{label}.log"
 
-index = json.loads((ROOT / "data" / "index.json").read_text(encoding="utf-8"))
+index = load_index(ROOT / "data" / "index.sqlite")
 word_map = postings(index)
 
 questions = []

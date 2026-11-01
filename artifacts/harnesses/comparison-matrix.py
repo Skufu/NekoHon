@@ -133,15 +133,24 @@ def split_answer(answer_text):
 
 
 def heading_lines_for(chunk):
-    """The chunk's own leading heading lines, including a subtitle line."""
-    lines = [line.strip() for line in ((chunk or {}).get("text") or "").splitlines() if line.strip()]
+    """The chunk's own heading, read from the index fields.
+
+    The heading and its section trail are stored on the chunk, so a heading is
+    never inferred from line shape: a body paragraph is a paragraph, however it
+    is wrapped, and a quote that starts with the passage's opening sentence is
+    not a heading fragment.
+    """
     heads = []
-    for line in lines[:2]:
-        core = heading_core(line)
+    heading = ((chunk or {}).get("heading") or "").strip()
+    if heading:
+        core = heading_core(heading)
         if core and len(core) >= 8:
             heads.append(core)
-        elif len(line) >= 8 and not re.search(r"[.!?]$", line):
-            heads.append(line)
+    section = ((chunk or {}).get("section") or "").strip()
+    if section:
+        core = heading_core(section.split(">")[-1])
+        if core and len(core) >= 8 and core not in heads:
+            heads.append(core)
     return heads
 
 

@@ -6,12 +6,23 @@ PASS?* It is offline and deterministic. It never calls a model, a judge, an
 index, or the network, and it never re-retrieves. Actual shown evidence is the
 only evidence text it reads.
 
-The three-way rule is versioned (`reviewed-semantics-v1`). A review binds the
+The three-way rule is versioned (`reviewed-semantics-v2`). A review binds the
 exact output, input, evidence set, citation set, reference content, criterion
 version, and (when captured) model and engine fingerprints. Change any of them
-and the review is stale (`REVIEW`), never a silent pass. The failed Go judge v3
+and the review is stale (`REVIEW`), never a silent pass. v1 reviews predate the
+structural quote-attribution rule: they go stale, they are never retroactively
+certified. The failed Go judge v3
 calibration is retained elsewhere; it is never read here and cannot approve an
 answer.
+
+Quote attribution is structural at both stages: a quotation is a book claim
+only when a `[Ch. ...]` tag directly owns it or a structured citation carries
+its text explicitly. The engine's `Asked as:`/`Read as:` disclosure lines are
+metadata about the question, not book quotations, and only the SYSTEM stage is
+engine output: a raw MODEL line with the same label is a model claim. At that
+stage they are recognized only as a whole labeled line with one quotation, so a
+tag or extra text on the same line is never hidden. The graded bytes, including
+disclosures, stay unchanged and remain bound by the review's output digest.
 
 Two statuses stay independent:
 
@@ -48,13 +59,15 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+import chapter_labels
+
 ROOT = Path(__file__).resolve().parent.parent.parent
 
 EVALUATOR = {
     "name": "reviewed_eval",
-    "version": "1.0.0",
+    "version": "1.1.4",
     "schema_version": 1,
-    "criterion_version": "reviewed-semantics-v1",
+    "criterion_version": "reviewed-semantics-v2",
     "reference_version": "golden-schema-v1",
 }
 REFUSAL = "Not in this book."
@@ -69,8 +82,13 @@ RANK = {"PASS": 0, "REVIEW": 1, "FAIL": 2}
 EXIT = {"PASS": 0, "REVIEW": 1, "FAIL": 2}
 
 TAG_RE = re.compile(r"\[Ch\.\s*([^\]]+)\]")
-QUOTE_RE = re.compile(r'"[^"]{20,}"|“[^”]{20,}”')
-CHUNK_RE = re.compile(r"\b[A-Za-z][A-Za-z0-9]*(?:-\d+){1,2}\b")
+QUOTE_RE = re.compile(r'"[^"]*"|“[^”]*”')
+QUOTE_OPENER_RE = re.compile(r'["“]')
+ATTACHED_GAP_RE = re.compile(r"[\s,;:./·\-–—]*")
+DISCLOSURE_LINE_RE = re.compile(
+    r'\s*(?:Asked as|Read as)\s*:\s*(?:"[^"]*"|“[^”]*”)\s*[.!]?\s*',
+    re.IGNORECASE,
+)
 FIGURE_RE = re.compile(r"\(Figure\s+\d+-\d+\)", re.IGNORECASE)
 WS_RE = re.compile(r"\s+")
 WORD_RE = re.compile(r"[^\W_]", re.UNICODE)
@@ -164,16 +182,7 @@ class _SourceView:
 
 
 def _chapter_key(value):
-    if value is None:
-        return None
-    raw = str(value).strip()
-    match = re.fullmatch(r"(?:ch(?:apter)?\.?\s*|chapter[-_ ])?0*(\d+)", raw, re.IGNORECASE)
-    if match:
-        return match.group(1)
-    match = re.match(r"^(?:ch(?:apter)?\.?\s*)?0*(\d+)\b", raw, re.IGNORECASE)
-    if match:
-        return match.group(1)
-    return raw.casefold()
+    return chapter_labels.chapter_key(value)
 
 
 def _sources(response):
@@ -306,12 +315,13 @@ def _structured_citations(response, stage):
     rows = []
     for item in raw:
         if isinstance(item, str):
-            rows.append({"chapter": None, "chunk_id": item})
+            rows.append({"chapter": None, "chunk_id": item, "quote": None})
         elif isinstance(item, dict):
             rows.append(
                 {
                     "chapter": item.get("chapter"),
                     "chunk_id": item.get("chunk_id") or item.get("source_id"),
+                    "quote": item.get("quote"),
                 }
             )
     return rows
@@ -321,41 +331,177 @@ def _parse_tags(text):
     tags = []
     for match in TAG_RE.finditer(text or ""):
         inside = match.group(1)
-        chunk_ids = list(CHUNK_RE.findall(inside))
-        cleaned = re.sub(r"chunk_id\s*=\s*[^\s,]+", " ", inside, flags=re.IGNORECASE)
-        cleaned = CHUNK_RE.sub(" ", cleaned)
+        cleaned = re.sub(r"chunk_id\s*=\s*", " ", inside, flags=re.IGNORECASE)
+        chunk_ids = list(dict.fromkeys(chapter_labels.chunk_tokens(cleaned)))
+        for token in chunk_ids:
+            cleaned = cleaned.replace(token, " ")
         chapters = []
-        for token in re.split(r"[,;/]| and ", cleaned):
-            token = token.strip()
-            if not token:
-                continue
-            key = _chapter_key(token)
-            if key is not None:
-                chapters.append(key)
+        for label in chapter_labels.tag_labels(cleaned):
+            for key in sorted(chapter_labels.chapter_keys(label)):
+                if key not in chapters:
+                    chapters.append(key)
         tags.append(
             {
                 "start": match.start(),
                 "end": match.end(),
                 "raw": match.group(0),
-                "chapters": list(dict.fromkeys(chapters)),
-                "chunk_ids": list(dict.fromkeys(chunk_ids)),
+                "chapters": chapters,
+                "chunk_ids": chunk_ids,
             }
         )
     return tags
 
 
 def _parse_quotes(text):
+    """Every closed quotation, at any length.
+
+    Length is not evidence of attribution: a one-word phrase and a full
+    sentence are parsed the same way. Whether a quotation claims book text is
+    decided structurally, by the citation that precedes it (see
+    ``_attached_tag``), not by how long it is.
+    """
     quotes = []
     for match in QUOTE_RE.finditer(text or ""):
+        body = match.group(0)[1:-1]
+        if not body.strip():
+            continue
         quotes.append(
             {
                 "start": match.start(),
                 "end": match.end(),
-                "text": match.group(0)[1:-1],
+                "text": body,
                 "raw": match.group(0),
             }
         )
     return quotes
+
+
+def _unclosed_quote(text):
+    """The first opening delimiter left without a partner, if any.
+
+    A tag followed by an unterminated quotation is a claimed quote whose
+    boundary is unknown; it is reported, never silently skipped. Closed
+    spans are masked first so a stray apostrophe-like mark inside a real
+    quote is not mistaken for a new claim.
+    """
+    source = text or ""
+    masked = list(source)
+    for match in QUOTE_RE.finditer(source):
+        for index in range(match.start(), match.end()):
+            masked[index] = " "
+    match = QUOTE_OPENER_RE.search("".join(masked))
+    if not match:
+        return None
+    return {
+        "start": match.start(),
+        "end": len(source),
+        "text": source[match.start() + 1 :],
+        "raw": source[match.start() :],
+    }
+
+
+def _attribution_gap(text, tag, quotes, start):
+    """Text between a tag and a quotation, with intervening quotes masked."""
+    source = text or ""
+    cursor = tag["end"]
+    pieces = []
+    for quote in quotes:
+        if quote["end"] <= cursor:
+            continue
+        if quote["start"] >= start:
+            break
+        pieces.append(source[cursor : quote["start"]])
+        cursor = max(cursor, quote["end"])
+    pieces.append(source[cursor:start])
+    return "".join(pieces)
+
+
+def _attached_tag(text, tags, quotes, start):
+    """The citation tag that directly owns a quotation, if one does.
+
+    Ownership is a run: from the tag's close to the opening delimiter there
+    is only separator punctuation and, for a second quote, an earlier quote
+    from the same run. Any prose in between means the quotation is not
+    directly attributed to the book by that tag.
+    """
+    preceding = [tag for tag in tags if tag["start"] < start and tag["end"] <= start]
+    if not preceding:
+        return None
+    tag = preceding[-1]
+    gap = _attribution_gap(text, tag, quotes, start)
+    return tag if ATTACHED_GAP_RE.fullmatch(gap) else None
+
+
+def _same_line_tag(text, tags, quotes, start):
+    """A tag followed by prose and then the quotation, all on one line.
+
+    The quotation is not directly attached, but it sits in an attributed
+    sentence, so it cannot be silently treated as ordinary prose either.
+    """
+    preceding = [tag for tag in tags if tag["start"] < start and tag["end"] <= start]
+    if not preceding:
+        return None
+    tag = preceding[-1]
+    gap = _attribution_gap(text, tag, quotes, start)
+    if not gap.strip() or "\n" in gap:
+        return None
+    return tag
+
+
+def _engine_disclosure(text, quote, stage, provenance):
+    """True when a quotation is the engine's own query-disclosure line.
+
+    ``Asked as: "..."`` and ``Read as: "..."`` describe the question the
+    engine actually sent; they are not claims about the book. The exemption
+    needs both the SYSTEM stage and engine-authored reader text: a raw MODEL
+    body can write the same line, and a SYSTEM reader that declares
+    ``provenance: "model"`` is model-authored too, so neither is engine
+    metadata. Missing provenance gets no exemption; the readiness check
+    already reports reader provenance as uncertain. Recognition is
+    deliberately narrow: the quotation must be the only one on its line, the
+    whole line must be the label plus that quotation, and the line must carry
+    no `[Ch. ...]` tag. A label with extra text or a hidden citation is not a
+    disclosure, so it cannot mask a book claim.
+    """
+    if stage != "system" or provenance not in ("engine", "mixed"):
+        return False
+    source = text or ""
+    start = quote.get("start")
+    if not isinstance(start, int):
+        return False
+    line_start = source.rfind("\n", 0, start) + 1
+    line_end = source.find("\n", start)
+    if line_end == -1:
+        line_end = len(source)
+    line = source[line_start:line_end]
+    if TAG_RE.search(line) or not DISCLOSURE_LINE_RE.fullmatch(line):
+        return False
+    local = _parse_quotes(line)
+    return (
+        len(local) == 1
+        and line_start + local[0]["start"] == quote["start"]
+        and line_start + local[0]["end"] == quote["end"]
+    )
+
+
+def _structured_tag(item):
+    """A locator built from one structured citation entry."""
+    chapter = item.get("chapter")
+    chunk_id = item.get("chunk_id")
+    return {
+        "raw": f"structured citation {chunk_id or chapter!r}",
+        "chapters": [_chapter_key(chapter)] if chapter is not None else [],
+        "chunk_ids": [chunk_id] if _text(chunk_id) else [],
+    }
+
+
+def _structured_quote_tag(structured, quote_text):
+    """A tag built from an explicit structured citation ``quote`` field."""
+    for item in structured:
+        value = item.get("quote")
+        if _text(value) and _norm_text(value) == _norm_text(quote_text):
+            return _structured_tag(item)
+    return None
 
 
 def _citation_identity(response, stage):
@@ -366,10 +512,20 @@ def _citation_identity(response, stage):
     ]
     tags.sort(key=lambda item: (str(item["chapters"]), str(item["chunk_ids"])))
     structured = [
-        {"chapter": item.get("chapter"), "chunk_id": item.get("chunk_id")}
+        {
+            "chapter": item.get("chapter"),
+            "chunk_id": item.get("chunk_id"),
+            "quote": item.get("quote"),
+        }
         for item in _structured_citations(response, stage)
     ]
-    structured.sort(key=lambda item: (str(item.get("chapter")), str(item.get("chunk_id"))))
+    structured.sort(
+        key=lambda item: (
+            str(item.get("chapter")),
+            str(item.get("chunk_id")),
+            str(item.get("quote")),
+        )
+    )
     return {"tags": tags, "structured": structured}
 
 
@@ -887,10 +1043,27 @@ def _quote_and_citation_findings(golden, response, stage, text, sources, kind, n
     tags = _parse_tags(text)
     quotes = _parse_quotes(text)
     structured = _structured_citations(response, stage)
-    short = [quote for quote in quotes if len(quote["text"]) < 20]
-    quotes = [quote for quote in quotes if len(quote["text"]) >= 20]
-    if short:
-        notes.append(f"short_quotes_ignored:{len(short)}")
+    reader = response.get("reader") if isinstance(response.get("reader"), dict) else {}
+    reader_provenance = reader.get("provenance")
+    # Engine query disclosures describe the question, not the book. They are
+    # excluded as claims (and noted) only for engine-authored SYSTEM reader
+    # text; they stay in the graded bytes and the review's output binding.
+    disclosures = 0
+    claims = []
+    for quote in quotes:
+        if _engine_disclosure(text, quote, stage, reader_provenance):
+            disclosures += 1
+            continue
+        claims.append({**quote, "structured": None})
+    if disclosures:
+        notes.append(f"engine_disclosure_skipped:{disclosures}")
+    # A structured citation may carry the quoted text directly; that field is
+    # a book-quote claim even when the graded body does not repeat it.
+    for item in structured:
+        value = item.get("quote")
+        if not _text(value) or any(_norm_text(claim["text"]) == _norm_text(value) for claim in claims):
+            continue
+        claims.append({"start": None, "end": None, "text": value, "raw": value, "structured": item})
 
     # Citation presence is required for answer targets. At model stage only
     # the model's own visible tag counts; metadata supplied by the engine is
@@ -954,40 +1127,50 @@ def _quote_and_citation_findings(golden, response, stage, text, sources, kind, n
                     )
                 )
 
-    for quote in quotes:
-        preceding = [tag for tag in tags if tag["start"] < quote["start"]]
-        tag = preceding[-1] if preceding else None
+    for quote in claims:
+        if quote.get("structured") is not None:
+            tag = _structured_tag(quote["structured"])
+            notes.append("quote_attached_structured_quote")
+        else:
+            tag = _attached_tag(text, tags, quotes, quote["start"])
+            if tag is None:
+                tag = _structured_quote_tag(structured, quote["text"])
+                if tag is not None:
+                    notes.append("quote_attached_structured_quote")
         engine_narrowed = None
-        if tag is None and stage == "system" and len(structured) == 1:
-            tag = {
-                "chapters": [_chapter_key(structured[0].get("chapter"))]
-                if structured[0].get("chapter") is not None
-                else [],
-                "chunk_ids": [structured[0].get("chunk_id")] if _text(structured[0].get("chunk_id")) else [],
-            }
-            notes.append("quote_attached_structured")
+        # A single engine citation does not own every untagged quotation:
+        # that turned question disclosures and scare quotes into invented
+        # book quotes. Only a tag run or an explicit structured citation
+        # quote attributes a quotation.
         if tag is None:
-            matched = [
-                source
-                for source in sources
-                if _quote_match(quote["text"], source.text) in ("exact", "figure")
-            ]
-            if matched:
+            # No citation owns this quotation. If it is verbatim book text it
+            # is an uncited book quote (REVIEW: the attribution is missing).
+            # Anything else is ordinary prose quotation (a scare quote), not
+            # a claim about the book; the semantic review still decides.
+            levels = [_quote_match(quote["text"], source.text) for source in sources]
+            if any(level in ("exact", "figure", "folded") for level in levels):
                 if kind == "gloss":
                     notes.append("quote_untagged_gloss")
                 else:
                     findings.append(
-                        _review("quote_untagged", "quote has no preceding [Ch. N] tag", subject, "mechanical")
+                        _review(
+                            "quote_untagged",
+                            "quote has no preceding [Ch. N] tag or structured citation quote",
+                            subject,
+                            "mechanical",
+                        )
                     )
-            else:
+            elif _same_line_tag(text, tags, quotes, quote["start"]) is not None:
                 findings.append(
-                    _fail(
-                        "quote_not_in_shown_evidence",
-                        f"quote not found in any shown passage: {quote['text'][:80]!r}",
+                    _review(
+                        "quote_attribution_ambiguous",
+                        "quotation follows a citation tag on the same line but is not directly attached",
                         subject,
                         "mechanical",
                     )
                 )
+            else:
+                notes.append("quotation_unattributed")
             continue
 
         candidate_ids = set(tag.get("chunk_ids") or [])
@@ -1101,6 +1284,23 @@ def _quote_and_citation_findings(golden, response, stage, text, sources, kind, n
                     "mechanical",
                 )
             )
+
+    unclosed = _unclosed_quote(text)
+    if unclosed is not None:
+        tag = _attached_tag(text, tags, quotes, unclosed["start"])
+        if tag is None:
+            tag = _same_line_tag(text, tags, quotes, unclosed["start"])
+        if tag is not None:
+            findings.append(
+                _review(
+                    "quote_unclosed",
+                    f"quotation after {tag['raw']} has no closing delimiter",
+                    subject,
+                    "mechanical",
+                )
+            )
+        else:
+            notes.append("unclosed_quotation_unattributed")
 
     if kind == "refusal":
         has_quote = bool(quotes)
@@ -2226,7 +2426,7 @@ def _control_golden(kind="answer"):
             {
                 "source_id": "fde:ch08-039",
                 "book_id": "fde",
-                "index_path": "data/index.json",
+                "index_path": "data/index.sqlite",
                 "index_sha256": "0" * 64,
                 "chunk_id": "ch08-039",
                 "chapter": "8",

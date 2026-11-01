@@ -27,7 +27,9 @@ from retrieve import (
     search,
 )
 
-index = json.loads(Path("data/index.json").read_text(encoding="utf-8"))
+from retrieve import load_index
+
+index = load_index(ROOT / "data" / "index.sqlite")
 print("chunks", len(index["chunks"]), "figures", len(index.get("figures") or []))
 
 for question in ("MAD data landscape", "what is MAD data landscape"):

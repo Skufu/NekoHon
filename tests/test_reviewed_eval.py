@@ -6,9 +6,11 @@ no evaluator: a correct quote plus a generic paragraph must not pass, a forged
 quote must not validate against another chunk, and a review must stop applying
 the moment the response, evidence, question, reference, or criterion changes.
 
-The rule under test is versioned (`reviewed-semantics-v1`). The old failed Go
-judge v3 calibration is retained elsewhere and is never read here; a review
-carrying that criterion version is stale, not a pass.
+The rule under test is versioned (`reviewed-semantics-v2`). A v1 review was
+signed before quote attribution became structural, so it goes stale instead of
+being retroactively certified. The old failed Go judge v3 calibration is
+retained elsewhere and is never read here; a review carrying that criterion
+version is stale, not a pass.
 
 Module: `artifacts/harnesses/reviewed_eval.py`.
 Schema note: `artifacts/runs/data-repair-2026-10-29/evaluation/REVIEW-SCHEMA.md`.
@@ -54,7 +56,7 @@ def ref(source_id, chunk_id, chapter, text, spans=None):
     return {
         "source_id": source_id,
         "book_id": "fde",
-        "index_path": "data/index.json",
+        "index_path": "data/index.sqlite",
         "index_sha256": "0" * 64,
         "chunk_id": chunk_id,
         "chapter": chapter,
@@ -242,6 +244,100 @@ class ReviewedEvalTests(unittest.TestCase):
         self.assertEqual(record["mechanical"]["status"], "PASS", record["causes"])
         self.assertNotIn("cited_chapter_not_shown", codes(record))
 
+    def appendix_golden(self, source_id, chunk_id, chapter, text, question):
+        return golden(
+            question=question,
+            provided_source_ids=[source_id],
+            source_refs=[ref(source_id, chunk_id, chapter, text, spans=[])],
+            expected={
+                "book_answerable": True,
+                "evidence_sufficient": True,
+                "allowed_behaviors": ["answer"],
+                "required_facts": [
+                    {"claim": "Schema evolution changes a table without a rewrite.", "source_ids": [source_id]}
+                ],
+                "unsupported_claims": [],
+            },
+        )
+
+    def appendix_record(self, g, body, sources, witness=None):
+        r = response(
+            body,
+            input={"question": g["question"], "history": []},
+            evidence={"status": "shown", "sources": sources},
+        )
+        rev = review(g, r)
+        witness = witness or sources[0]
+        rev["facts"] = [
+            {
+                "fact_index": 0,
+                "status": "supported",
+                "witness": {"source_id": witness["source_id"], "quote": witness["text"]},
+            }
+        ]
+        return RE.evaluate([g], [r], [rev], self_check=False)
+
+    def test_appendix_chapter_label_resolves_in_a_tag(self):
+        """A capture labelled ``Appendix A: Tables`` answers ``[Ch. appendix-a]``."""
+        g = self.appendix_golden(
+            "fde:chA-001", "chA-001", "Appendix A: Tables", S3, "What does schema evolution change?"
+        )
+        sources = [shown("fde:chA-001", "chA-001", "Appendix A: Tables", S3)]
+        body = (
+            '[Ch. appendix-a] "Schema evolution changes a table without a rewrite."\n'
+            "A table can change in place."
+        )
+        record = one(self.appendix_record(g, body, sources))
+        self.assertEqual(record["mechanical"]["status"], "PASS", record["causes"])
+        self.assertEqual(record["status"], "PASS", record["causes"])
+
+    def test_chapter_range_and_slash_tags_resolve_each_member(self):
+        """``[Ch. 8-9]`` and ``[Ch. 8/9]`` cite chapter 9 as well as chapter 8."""
+        g = golden(
+            question="What does schema evolution change?",
+            provided_source_ids=["fde:ch08-039", "fde:ch09-001"],
+            source_refs=[
+                ref("fde:ch08-039", "ch08-039", "8", S1),
+                ref("fde:ch09-001", "ch09-001", "9", S3, spans=[]),
+            ],
+            expected={
+                "book_answerable": True,
+                "evidence_sufficient": True,
+                "allowed_behaviors": ["answer"],
+                "required_facts": [
+                    {"claim": "Schema evolution changes a table without a rewrite.", "source_ids": ["fde:ch09-001"]}
+                ],
+                "unsupported_claims": [],
+            },
+        )
+        sources = [
+            shown("fde:ch08-039", "ch08-039", "8", S1),
+            shown("fde:ch09-001", "ch09-001", "9", S3),
+        ]
+        for tag in ("[Ch. 8-9]", "[Ch. 8/9]"):
+            with self.subTest(tag=tag):
+                body = (
+                    f'{tag} "Schema evolution changes a table without a rewrite."\n'
+                    "A table can change in place."
+                )
+                record = one(self.appendix_record(g, body, sources, witness=sources[1]))
+                self.assertEqual(record["mechanical"]["status"], "PASS", record["causes"])
+                self.assertEqual(record["status"], "PASS", record["causes"])
+
+    def test_appendix_number_never_resolves_a_chapter_tag(self):
+        """``[Ch. 4]`` does not reach a capture whose chapter is ``Appendix 4``."""
+        g = self.appendix_golden(
+            "fde:chA-004", "chA-004", "Appendix 4", S3, "What does schema evolution change?"
+        )
+        sources = [shown("fde:chA-004", "chA-004", "Appendix 4", S3)]
+        body = (
+            '[Ch. 4] "Schema evolution changes a table without a rewrite."\n'
+            "A table can change in place."
+        )
+        record = one(self.appendix_record(g, body, sources))
+        self.assertEqual(record["status"], "FAIL")
+        self.assertIn("cited_chapter_not_shown", codes(record))
+
     def test_guard_no_call_answer_is_unverifiable(self):
         g = golden()
         r = response(
@@ -288,6 +384,409 @@ class ReviewedEvalTests(unittest.TestCase):
         report = RE.evaluate([golden()], [response(body)], self_check=False)
         self.assertEqual(one(report)["status"], "FAIL")
         self.assertIn("quote_not_in_shown_evidence", codes(one(report)))
+
+    # -- quote attribution is structural, never a length threshold ---------
+    # Independent review 2026-10-29, finding 3: a tagged quote under 20
+    # characters was invisible while an untagged scare quote over 20 was
+    # failed. Attribution now comes from the [Ch. ...] tag (or an explicit
+    # structured citation quote), so both directions are checked.
+
+    def test_short_tagged_forged_quote_fails_with_a_fresh_review(self):
+        g = golden()
+        baseline = response(GOOD_BODY)
+        baseline_record = one(RE.evaluate([g], [baseline], [review(g, baseline)], self_check=False))
+        self.assertEqual(baseline_record["status"], "PASS")
+
+        forged = response(GOOD_BODY + '\n[Ch. 8] "capital of France"')
+        record = one(RE.evaluate([g], [forged], [review(g, forged)], self_check=False))
+        self.assertEqual(record["mechanical"]["status"], "FAIL", record["causes"])
+        self.assertEqual(record["status"], "FAIL", record)
+        self.assertIn("quote_not_in_shown_evidence", codes(record))
+
+    def test_short_verbatim_book_quote_is_checked_and_accepted(self):
+        short = "Streams flow."
+        g = golden()
+        r = response(
+            f'[Ch. 8 chunk_id=ch08-041] "{short}"\n'
+            "A watermark tracks how far the incoming records have advanced.",
+            evidence={
+                "status": "shown",
+                "sources": [
+                    shown("fde:ch08-039", "ch08-039", "8", S1),
+                    shown("fde:ch08-041", "ch08-041", "8", f"{short} A watermark tracks progress."),
+                ],
+            },
+        )
+        record = one(RE.evaluate([g], [r], [review(g, r)], self_check=False))
+        self.assertEqual(record["mechanical"]["status"], "PASS", record["causes"])
+        self.assertEqual(record["status"], "PASS", record)
+
+    def test_unattributed_scare_quote_is_not_a_book_claim(self):
+        g = golden()
+        body = (
+            GOOD_BODY
+            + '\nIn plain words, a watermark is not "a clock that resets nightly" but a moving mark.'
+        )
+        r = response(body)
+        without_review = one(RE.evaluate([g], [r], self_check=False))
+        self.assertEqual(without_review["mechanical"]["status"], "PASS", without_review["causes"])
+        self.assertEqual(without_review["semantic"]["status"], "REVIEW")
+        self.assertEqual(without_review["status"], "REVIEW")
+
+        with_review = one(RE.evaluate([g], [r], [review(g, r)], self_check=False))
+        self.assertEqual(with_review["status"], "PASS", with_review)
+        self.assertNotIn("quote_not_in_shown_evidence", codes(with_review))
+
+    def test_long_unattributed_scare_quote_is_still_not_a_book_claim(self):
+        g = golden()
+        body = (
+            GOOD_BODY
+            + '\nThe phrase "a threshold that only exists inside the second paragraph of a '
+            'different book" describes how it feels, not what the book says.'
+        )
+        r = response(body)
+        record = one(RE.evaluate([g], [r], [review(g, r)], self_check=False))
+        self.assertEqual(record["mechanical"]["status"], "PASS", record["causes"])
+        self.assertEqual(record["status"], "PASS", record)
+
+    def test_unattributed_verbatim_book_quote_is_review_not_ignored(self):
+        g = golden()
+        body = (
+            GOOD_BODY
+            + '\nThe book calls it "A watermark is a threshold used to track the progress of a stream."'
+        )
+        r = response(body)
+        record = one(RE.evaluate([g], [r], [review(g, r)], self_check=False))
+        self.assertIn("quote_untagged", codes(record))
+        self.assertEqual(record["mechanical"]["status"], "REVIEW")
+
+    def test_curly_tagged_forged_quote_fails(self):
+        body = GOOD_BODY + "\n[Ch. 8] “capital of France”"
+        record = one(RE.evaluate([golden()], [response(body)], self_check=False))
+        self.assertEqual(record["mechanical"]["status"], "FAIL", record["causes"])
+        self.assertIn("quote_not_in_shown_evidence", codes(record))
+
+    def test_every_tagged_quote_is_checked_not_only_the_first(self):
+        body = (
+            '[Ch. 8] "capital of France" and [Ch. 8] "a small moon made of cheese"\n'
+            "A watermark tracks how far the incoming records have advanced."
+        )
+        record = one(RE.evaluate([golden()], [response(body)], self_check=False))
+        self.assertEqual(record["mechanical"]["status"], "FAIL")
+        findings = [f for f in record["findings"] if f["code"] == "quote_not_in_shown_evidence"]
+        self.assertEqual(len(findings), 2, record["findings"])
+
+    def test_unclosed_tagged_quote_is_review_not_ignored(self):
+        body = GOOD_BODY + '\n[Ch. 8] "capital of France'
+        record = one(RE.evaluate([golden()], [response(body)], self_check=False))
+        self.assertIn("quote_unclosed", codes(record))
+        self.assertEqual(record["mechanical"]["status"], "REVIEW")
+
+    def test_wrapped_tagged_quote_is_folded_review_not_ignored(self):
+        body = (
+            '[Ch. 8] "A watermark is a threshold used to\n'
+            'track the progress of a stream."\n'
+            "A watermark tracks how far the incoming records have advanced."
+        )
+        record = one(RE.evaluate([golden()], [response(body)], self_check=False))
+        self.assertIn("quote_folded_only", codes(record))
+        self.assertEqual(record["mechanical"]["status"], "REVIEW")
+
+    def test_structured_citation_quote_is_checked_against_its_chunk(self):
+        g = golden(
+            source_refs=[
+                ref("fde:ch08-039", "ch08-039", "8", S1),
+                ref("fde:ch08-040", "ch08-040", "8", S3),
+            ],
+            provided_source_ids=["fde:ch08-039", "fde:ch08-040"],
+        )
+        r = response(
+            PARAPHRASE,
+            evidence={
+                "status": "shown",
+                "sources": [
+                    shown("fde:ch08-039", "ch08-039", "8", S1),
+                    shown("fde:ch08-040", "ch08-040", "8", S3),
+                ],
+            },
+        )
+        r["reader"]["citations"] = [{"chapter": "8", "chunk_id": "ch08-040", "quote": "capital of France"}]
+        record = one(RE.evaluate([g], [r], stage="system", self_check=False), stage="system")
+        self.assertEqual(record["status"], "FAIL", record)
+        self.assertIn("quote_not_in_shown_evidence", codes(record))
+
+    def test_quote_is_checked_only_against_actually_shown_evidence(self):
+        g = golden(
+            source_refs=[
+                ref("fde:ch08-039", "ch08-039", "8", S1),
+                ref("fde:ch08-042", "ch08-042", "8", S3),
+            ],
+            provided_source_ids=["fde:ch08-039", "fde:ch08-042"],
+        )
+        body = '[Ch. 8] "Schema evolution changes a table."\nA watermark tracks progress.'
+        record = one(RE.evaluate([g], [response(body)], self_check=False))
+        self.assertEqual(record["mechanical"]["status"], "FAIL", record["causes"])
+        self.assertIn("quote_not_in_shown_evidence", codes(record))
+
+    def test_quote_after_prose_on_the_same_line_is_ambiguous_review(self):
+        body = GOOD_BODY + '\n[Ch. 8] The book calls it "capital of France".'
+        record = one(RE.evaluate([golden()], [response(body)], self_check=False))
+        self.assertIn("quote_attribution_ambiguous", codes(record))
+        self.assertEqual(record["mechanical"]["status"], "REVIEW")
+
+    def test_structured_citation_quote_is_bound_to_the_review(self):
+        g = golden()
+        r = response(
+            PARAPHRASE,
+            evidence={"status": "shown", "sources": [shown("fde:ch08-039", "ch08-039", "8", S1)]},
+        )
+        r["reader"]["citations"] = [
+            {"chapter": "8", "chunk_id": "ch08-039", "quote": "A watermark is a threshold"}
+        ]
+        rev = review(g, r, stage="system")
+        first = one(RE.evaluate([g], [r], [rev], stage="system", self_check=False), stage="system")
+        self.assertEqual(first["status"], "PASS", first)
+
+        changed = copy.deepcopy(r)
+        changed["reader"]["citations"][0]["quote"] = "It moves with the data."
+        second = one(
+            RE.evaluate([g], [changed], [rev], stage="system", self_check=False), stage="system"
+        )
+        self.assertEqual(second["status"], "REVIEW")
+        self.assertIn("review_stale_citation", codes(second))
+
+    def test_prior_criterion_version_is_not_retroactively_certified(self):
+        g = golden()
+        r = response(PARAPHRASE)
+        rev = review(g, r)
+        self.assertEqual(RE.EVALUATOR["criterion_version"], "reviewed-semantics-v2")
+        rev["bind"]["criterion_version"] = "reviewed-semantics-v1"
+        record = one(RE.evaluate([g], [r], [rev], self_check=False))
+        self.assertEqual(record["status"], "REVIEW")
+        self.assertIn("review_stale_criterion", codes(record))
+
+    # -- engine query disclosures are metadata, not book quotations --------
+    # Actual baseline 2026-10-29: the engine appends `Asked as: "..."` (or
+    # `Read as: "..."`) to the reader text. At system stage with exactly one
+    # structured citation, the old fallback attached that question echo to the
+    # citation and failed it as an invented book quote. The disclosure is not
+    # a claim about the book; tagged and explicitly-quoted claims still are.
+
+    def test_system_asked_as_disclosure_is_not_a_book_quote(self):
+        g = golden(task_stage="system")
+        baseline = response(GOOD_BODY)
+        baseline_record = one(
+            RE.evaluate(
+                [g], [baseline], [review(g, baseline, stage="system")],
+                stage="system", self_check=False,
+            ),
+            stage="system",
+        )
+        self.assertEqual(baseline_record["status"], "PASS", baseline_record)
+
+        disclosed = response(GOOD_BODY + '\nAsked as: "What is a watermark?"')
+        record = one(
+            RE.evaluate(
+                [g], [disclosed], [review(g, disclosed, stage="system")],
+                stage="system", self_check=False,
+            ),
+            stage="system",
+        )
+        self.assertEqual(record["mechanical"]["status"], "PASS", record["causes"])
+        self.assertEqual(record["status"], "PASS", record)
+        self.assertIn("engine_disclosure_skipped:1", record["notes"])
+
+    def test_system_read_as_disclosure_is_not_a_book_quote(self):
+        g = golden(task_stage="system")
+        r = response(GOOD_BODY + '\nRead as: "watermark"')
+        record = one(
+            RE.evaluate([g], [r], [review(g, r, stage="system")], stage="system", self_check=False),
+            stage="system",
+        )
+        self.assertEqual(record["status"], "PASS", record)
+        self.assertIn("engine_disclosure_skipped:1", record["notes"])
+
+    def test_system_scare_quote_with_one_citation_does_not_fail_mechanics(self):
+        g = golden(task_stage="system")
+        body = GOOD_BODY + '\nIn plain words, it is not "a clock that resets nightly" but a moving mark.'
+        r = response(body)
+        unreviewed = one(RE.evaluate([g], [r], stage="system", self_check=False), stage="system")
+        self.assertEqual(unreviewed["mechanical"]["status"], "PASS", unreviewed["causes"])
+        self.assertEqual(unreviewed["status"], "REVIEW")
+        reviewed = one(
+            RE.evaluate([g], [r], [review(g, r, stage="system")], stage="system", self_check=False),
+            stage="system",
+        )
+        self.assertEqual(reviewed["status"], "PASS", reviewed)
+        self.assertNotIn("quote_not_in_shown_evidence", codes(reviewed))
+
+    def test_system_tagged_forgery_still_fails_with_one_citation(self):
+        g = golden(task_stage="system")
+        r = response(GOOD_BODY + '\n[Ch. 8] "capital of France"')
+        record = one(
+            RE.evaluate([g], [r], [review(g, r, stage="system")], stage="system", self_check=False),
+            stage="system",
+        )
+        self.assertEqual(record["mechanical"]["status"], "FAIL", record["causes"])
+        self.assertIn("quote_not_in_shown_evidence", codes(record))
+
+    def test_system_disclosure_line_cannot_hide_a_tagged_forgery(self):
+        g = golden(task_stage="system")
+        r = response(GOOD_BODY + '\nAsked as: "What is a watermark?" [Ch. 8] "capital of France"')
+        record = one(RE.evaluate([g], [r], stage="system", self_check=False), stage="system")
+        self.assertEqual(record["mechanical"]["status"], "FAIL", record["causes"])
+        self.assertIn("quote_not_in_shown_evidence", codes(record))
+
+    def test_system_bare_book_quote_with_one_citation_is_review(self):
+        g = golden(task_stage="system")
+        r = response(
+            '"A watermark is a threshold used to track the progress of a stream."\n'
+            "A watermark tracks how far the incoming records have advanced."
+        )
+        record = one(
+            RE.evaluate([g], [r], [review(g, r, stage="system")], stage="system", self_check=False),
+            stage="system",
+        )
+        self.assertIn("quote_untagged", codes(record))
+        self.assertEqual(record["mechanical"]["status"], "REVIEW")
+        self.assertEqual(record["status"], "REVIEW")
+
+    def test_system_disclosure_does_not_skip_a_structured_quote_claim(self):
+        g = golden(
+            task_stage="system",
+            source_refs=[
+                ref("fde:ch08-039", "ch08-039", "8", S1),
+                ref("fde:ch08-040", "ch08-040", "8", S3),
+            ],
+            provided_source_ids=["fde:ch08-039", "fde:ch08-040"],
+        )
+        r = response(
+            PARAPHRASE + '\nAsked as: "What is a watermark?"',
+            evidence={
+                "status": "shown",
+                "sources": [
+                    shown("fde:ch08-039", "ch08-039", "8", S1),
+                    shown("fde:ch08-040", "ch08-040", "8", S3),
+                ],
+            },
+        )
+        r["reader"]["citations"] = [{"chapter": "8", "chunk_id": "ch08-040", "quote": "capital of France"}]
+        record = one(RE.evaluate([g], [r], stage="system", self_check=False), stage="system")
+        self.assertEqual(record["mechanical"]["status"], "FAIL", record["causes"])
+        self.assertIn("quote_not_in_shown_evidence", codes(record))
+
+    def test_system_unclosed_book_claim_is_review_not_ignored(self):
+        g = golden(task_stage="system")
+        r = response(GOOD_BODY + '\n[Ch. 8] "capital of France')
+        record = one(RE.evaluate([g], [r], stage="system", self_check=False), stage="system")
+        self.assertIn("quote_unclosed", codes(record))
+        self.assertEqual(record["mechanical"]["status"], "REVIEW")
+
+    def test_disclosure_is_kept_in_the_output_binding(self):
+        g = golden(task_stage="system")
+        body = GOOD_BODY + '\nAsked as: "What is a watermark?"'
+        r = response(body)
+        before = copy.deepcopy(r)
+        record = one(
+            RE.evaluate([g], [r], [review(g, r, stage="system")], stage="system", self_check=False),
+            stage="system",
+        )
+        self.assertEqual(record["binding"]["output_sha256"], digest(body))
+        self.assertEqual(r, before)
+
+    def test_same_bytes_model_stage_has_no_engine_disclosure_exemption(self):
+        # One response, one set of bytes: the raw model body and the engine
+        # reader text are identical. Only the graded stage (and the block's
+        # provenance) differs. A raw model line must not borrow the engine's
+        # metadata exemption; the engine's own line must keep it.
+        verbatim = "A watermark is a threshold used to track the progress of a stream."
+        g = golden()  # no task_stage: neither stage is capped by a mismatch
+        for label in ("Asked as:", "Read as:"):
+            body = GOOD_BODY + f'\n{label} "{verbatim}"'
+            r = response(body)
+            self.assertEqual(r["model"]["provenance"], "model")
+            self.assertEqual(r["reader"]["provenance"], "engine")
+            self.assertEqual(r["model"]["raw_body"], r["reader"]["final_text"])
+
+            model_record = one(
+                RE.evaluate([g], [r], [review(g, r)], stage="model", self_check=False),
+                stage="model",
+            )
+            self.assertEqual(model_record["mechanical"]["status"], "REVIEW", model_record["causes"])
+            self.assertIn("quote_untagged", codes(model_record))
+            self.assertEqual(model_record["status"], "REVIEW")
+            self.assertNotIn("engine_disclosure_skipped:1", model_record["notes"])
+
+            system_record = one(
+                RE.evaluate(
+                    [g], [r], [review(g, r, stage="system")],
+                    stage="system", self_check=False,
+                ),
+                stage="system",
+            )
+            self.assertEqual(system_record["mechanical"]["status"], "PASS", system_record["causes"])
+            self.assertEqual(system_record["status"], "PASS", system_record)
+            self.assertIn("engine_disclosure_skipped:1", system_record["notes"])
+
+    def test_system_disclosure_requires_engine_reader_provenance(self):
+        # Same SYSTEM bytes, same stage: only the reader's declared provenance
+        # changes. Engine/mixed may be metadata; an explicit model reader text
+        # is a model claim, and missing provenance stays readiness REVIEW
+        # without inventing an engine authorship or a quote FAIL.
+        verbatim = "A watermark is a threshold used to track the progress of a stream."
+        g = golden()  # no task_stage: neither stage is capped by a mismatch
+        for label in ("Asked as:", "Read as:"):
+            body = GOOD_BODY + f'\n{label} "{verbatim}"'
+
+            model_input = response(body)
+            model_record = one(
+                RE.evaluate([g], [model_input], [review(g, model_input)], stage="model", self_check=False),
+                stage="model",
+            )
+            self.assertEqual(model_record["mechanical"]["status"], "REVIEW", model_record["causes"])
+            self.assertIn("quote_untagged", codes(model_record))
+            self.assertEqual(model_record["status"], "REVIEW")
+
+            engine = response(body)
+            engine["reader"]["provenance"] = "engine"
+            engine_record = one(
+                RE.evaluate([g], [engine], [review(g, engine, stage="system")], stage="system", self_check=False),
+                stage="system",
+            )
+            self.assertEqual(engine_record["mechanical"]["status"], "PASS", engine_record["causes"])
+            self.assertEqual(engine_record["status"], "PASS", engine_record)
+            self.assertIn("engine_disclosure_skipped:1", engine_record["notes"])
+
+            model_reader = response(body)
+            model_reader["reader"]["provenance"] = "model"
+            model_reader_record = one(
+                RE.evaluate(
+                    [g], [model_reader], [review(g, model_reader, stage="system")],
+                    stage="system", self_check=False,
+                ),
+                stage="system",
+            )
+            self.assertEqual(
+                model_reader_record["mechanical"]["status"], "REVIEW", model_reader_record["causes"]
+            )
+            self.assertIn("quote_untagged", codes(model_reader_record))
+            self.assertEqual(model_reader_record["status"], "REVIEW")
+            self.assertNotIn("engine_disclosure_skipped:1", model_reader_record["notes"])
+
+            missing = response(GOOD_BODY + f'\n{label} "What is a watermark?"')
+            missing["reader"]["provenance"] = None
+            missing_record = one(
+                RE.evaluate(
+                    [g], [missing], [review(g, missing, stage="system")],
+                    stage="system", self_check=False,
+                ),
+                stage="system",
+            )
+            self.assertIn("reader_provenance_missing", codes(missing_record))
+            self.assertEqual(missing_record["mechanical"]["status"], "REVIEW", missing_record["causes"])
+            self.assertNotIn("quote_not_in_shown_evidence", codes(missing_record))
+            self.assertEqual(missing_record["status"], "REVIEW")
+            self.assertNotIn("engine_disclosure_skipped:1", missing_record["notes"])
 
     def test_refuse_all_fails_an_answerable_item(self):
         report = RE.evaluate([golden()], [response("Not in this book.")], self_check=False)

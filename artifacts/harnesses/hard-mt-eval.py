@@ -32,9 +32,9 @@ DATASET = ROOT / "artifacts" / "datasets" / "hard-mt-2026-10-24.jsonl"
 DATASET_SHA256 = "a45d80a0cbe875fbb83184730f857c983869df7d40ca5910a5cdb0239446ed3c"
 EVIDENCE_DIR = ROOT / "artifacts" / "evidence" / "hard-mt"
 INDEXES = {
-    "fde": ROOT / "data" / "index.json",
-    "quantization": ROOT / "data" / "index.quantization.json",
-    "ddia": ROOT / "data" / "index.ddia.json",
+    "fde": ROOT / "data" / "index.sqlite",
+    "quantization": ROOT / "data" / "index.quantization.sqlite",
+    "ddia": ROOT / "data" / "index.ddia.sqlite",
 }
 
 

@@ -77,9 +77,15 @@ Ask in this order; stop at the first yes.
    not build on its numbers, do not "fix" code to match it. Re-run it, or
    **ask the user first**. The dated names and the dates in this index are
    how you check.
-6. **Prune before docs commits.** `python artifacts/prune.py --plan` reports
+6. **Historical JSON-index references.** Artifacts dated before 2026-10-31
+   describe `data/index.json`, which no longer exists: index storage moved to
+   SQLite FTS5 on 2026-10-31 (`reports/sqlite-migration-2026-10-31.md`). Those
+   dated probes and reports are records, not current instructions; rerun a
+   probe only after replacing its index load with `retrieve.load_index` or
+   `data/index.sqlite`.
+7. **Prune before docs commits.** `python artifacts/prune.py --plan` reports
    unindexed, unreferenced, over-versioned, and stale files.
-7. **Deletion is recoverable.** Git history keeps everything; deleting is a
+8. **Deletion is recoverable.** Git history keeps everything; deleting is a
    commit, not a loss. `.git` size only grows via history (no rewrites).
 
 Untracked files (concurrent writers' scratch, `runs/`, logs) are not indexed;
@@ -101,7 +107,16 @@ Dates are first-commit dates (`2026-10-11/12/13`). Paths are relative to `artifa
 | `harnesses/step2-battery.py` | the commit-gate battery, both modes |
 | `harnesses/qa-sweep.py` | bulk sweep runner over `datasets/qa-questions-overnight.json` |
 | `harnesses/groundedness.py` | 4-gram support meter |
-| `harnesses/judge.py` | LLM judge (default `muse-spark-1.3-contributor`; `JUDGE_BACKEND=ollama` offline fallback) |
+| `harnesses/judge.py` | LLM judge: default tool-disabled OpenCode CLI, free DeepSeek Flash with only Go DeepSeek Flash as fallback; `JUDGE_BACKEND=ollama` explicitly selects the offline judge |
+| `harnesses/dataset_integrity.py` | source, provenance, review-binding, target, and split checks for canonical data; defect repairs tracked in `plans/data-quality-and-retraining-2026-10-29.md`; mechanical checks do not certify semantic truth |
+| `harnesses/reviewed_eval.py` | grades immutable captured responses with actual shown evidence and content-bound independent reviews; criterion v2 checks attributed quotations without a length floor and keeps mechanical, semantic, and reference readiness outcomes separate |
+| `harnesses/chapter_labels.py` | shared chapter-tag matching for the dataset and response tools; preserves chapter/appendix namespaces and handles named or multi-chapter labels |
+| `harnesses/training_audit.py` | offline original-message and canonical-record audit; records source exposure, whole-component split units, and row dispositions; quotation matching alone never approves target meaning |
+| `harnesses/corpus_release_verifier.py` | checks proposal records, review hashes, component folds, source overlap, and provisional-state consistency; reports a nonzero exit on integrity failure; independent verification review is in progress, and integrity is not training approval |
+| `colab/prepare_training.py` | offline training-package and run-report checks against frozen data, review, split, recipe, and script hashes; no GPU launch, and plans remain non-runnable without a manifest-consuming runner |
+| `colab/training_reviewed.py` | reviewed manifest-consuming training runner; CPU package checks executed locally and on Colab, but GPU tokenization, training, and export remain unverified |
+| `colab/run_reviewed_job.py`, `colab/watch_training.py` | detached single-attempt driver and completion-based monitor; preserve failure evidence and verify own-session cleanup; never approve training or retry automatically |
+| `colab/check_runtime_freeze.py` | offline dependency checker: canonical distribution names, exact locked versions, conflicting-duplicate rejection; the repaired file is not yet in a certified training packet |
 | `harnesses/rank-answers.py` | answer-quality ranking (method v2: machine checkables + yes/no bits voted ×3; worst-first triage dial) |
 | `harnesses/judge-agreement.py`, `probes/probe-judge-scale.py` | judge calibration |
 | `harnesses/judge-stability.py` | verdict flip-rate probe |
@@ -129,6 +144,10 @@ Dates are first-commit dates (`2026-10-11/12/13`). Paths are relative to `artifa
 
 ### Capture records
 
+Current data-quality and training track:
+[`plans/data-quality-and-retraining-2026-10-29.md`](plans/data-quality-and-retraining-2026-10-29.md)
+(in progress; no training job or model adoption yet).
+
 | File | What it is |
 | --- | --- |
 | `probes/ui-iterations-2026-10-21/` (37 files) | baseline + iterations 01-36, UI screenshots captured 2026-10-21; no doc cites them yet, kept as the visual iteration record |
@@ -147,11 +166,13 @@ Dates are first-commit dates (`2026-10-11/12/13`). Paths are relative to `artifa
 | `datasets/crossbook-evil-eval-2026-10-18.json` | 30 cross-book multi-turn evaluation scenarios (lazy queries, topic shifts, highlight refines, adversarial nuance traps) |
 | `datasets/trace-interaction-2026-10-29.jsonl` | 12 must-pass reader interactions taken from `runs/traces.jsonl`: 9 that must answer with a citation from the passage that carries the asked-for terms, 3 out-of-book controls that must refuse exactly; each item names the trace it locks |
 | `datasets/wide-net-2026-10-23.jsonl` | 57 hand-written questions (19 passages across all three books x literal / conversational / vague), gold = source chunk plus any audited sibling, 3 folds; **authored by the agent, not generated by a model**; labels audited 2026-10-23 (7 rows extended, see `reports/wide-net-recall-2026-10-23.md`) |
+| `datasets/definitional-2026-11-01.jsonl` | 10 hand-written short/acronym definitional questions (`what is RAG`, `what is ACID`, `what is a WAL`) across all four catalog books, one verified gold chunk each with verbatim `key_facts`; fills the class the other sets barely cover — 5 of 296 benchmark questions had an acronym and no usable phrase pair, so the abbreviation-only retrieval path was unmeasured. Baseline 2026-11-01 `nekohon_q35_2b_x3_2e`: **9/10** (retrieval 10/10 gold in top-5, top-1 6/10; the one loss is `missing_key_fact` on `what is hallucination`); dummy baselines 0/10 each, gold-chunk ceiling 10/10 |
 
 ### Evidence — current claims
 
 | Family | What it backs | Status |
 | --- | --- | --- |
+| `reports/sqlite-migration-2026-10-31.md`, `tests/test_store.py` | index storage moved from JSON to SQLite FTS5: schema + atomic writes + float64 embedding blobs, persisted FTS tables, five indexes migrated with zero field/vector differences, load/FTS/disk measurements, and the storage integrity check (`store.py --check`) | LIVE (2026-10-31) |
 | `plans/reranking-odp-2026-10-23.md`, `reports/eval-and-reranking-audit-2026-10-23.md` | reranking decision record: pre-registered gates (oracle recall, offline rescoring, answer-level, cost) + the audit that measured a 2-item ceiling on the 60-item bench | LIVE (2026-10-23) |
 | `reports/coverage-map-2026-10-23.md` | per-chapter chunk coverage for fde / quantization / ddia (41 chapter labels, 2822 chunks, 4 under 3 chunks) | LIVE (2026-10-23) |
 | `reports/wide-net-recall-2026-10-23.md` | wide-net recall before/after the label audit: 19/33 -> 24/33 at @5, vague 3/11 -> 7/11, and the reranking ceiling (4 items with a top-20 pool) | LIVE (2026-10-23) |
@@ -201,7 +222,10 @@ Dates are first-commit dates (`2026-10-11/12/13`). Paths are relative to `artifa
 | `evidence/refusal-fixes-evidence/refusal-fixes-evidence.txt` | refusal fixes evidence | kept (2026-10-13) |
 | `evidence/embedding-audit/embedding-audit-2026-10-13.txt` | vector audit numbers | kept (2026-10-13) |
 | `evidence/phase7-offline/phase7-offline*` | wifi-off gate evidence | kept (2026-10-12) |
+| `reports/handoff-lfm3-teacher-2026-10-30.md` | cold-start handoff (2026-10-30): the whole LFM3 + teacher context in one file for the next agent — owner decision rule (a teacher is adopted only if it beats the shipped student on the gates), the four-arm work order and what each arm isolates, the established LFM3 facts (TRL-only route with LFM3's own LoRA targets, `enable_thinking=False`, Ollama floor 0.40.12/0.40.13, llama.cpp #31252), the measured Colab shape (**A100-SXM4-40GB**, 83 GB host RAM, no llama.cpp preinstalled, 152.23 units), the teacher shortlist sized to 40 GB with its promotion rule, the excluded candidates (Saluki/Swift/GSQ-RCO are quantizations of the incumbent, DeepSeek-V4.1-Flash does not fit, flint is a coding model), exact gate and Colab commands, the hard rules, and the machine gotchas (this Mac lacks the revert tags quoted in AGENTS.md; uncommitted owner work must not be overwritten) | handoff (2026-10-30) |
 | `plans/README.md`, `plans/frontend-build-plan-2026-10-15.md`, `plans/frontend-navigation-plan.md` | the plans folder (2026-10-15): forward-looking plans, one file per track with its status; the frontend build plan is **approved** (follow Gloss's patterns — margin answers, citation chips that jump + peek, select-then-type; **stack: Next.js under `web/`** — the frontend exception; phases 1-4; phase 1 engine side + scaffold landed 2026-10-15); the older navigation direction keeps the locator design | kept (2026-10-15) |
+| `plans/lfm3-base-candidate-2026-10-30.md` | LFM3-1.7B base-model candidate (**candidate 2026-10-30**, not approved): verified release facts (1.73B, 24 layers tri-hybrid, 256K context, Q4_K_M 1.10 GB, LFM Open License v1.0 with its $10M revenue threshold and redistribution notices), the TRL SFT + LoRA route with LFM3's own target modules (`w1/w2/w3`, `in_proj/out_proj`, `q/k/v/o_proj`, optional `gate_proj`) and mandatory non-thinking mode, the tooling gaps (LEAP is LFM2-only, no Unsloth LFM3 repos), the GGUF path (llama.cpp #31252, merged 2026-10-27) and the runtime floor (Ollama >= 0.40.12/0.40.13 against 0.40.2 here and 0.40.3 on the Windows box); vendor IFBench/non-hallucination numbers are labelled as vendor-reported, not measured; sequencing is repaired-data retrain -> stock LFM3 -> LFM3 SFT, one factor per arm | candidate (2026-10-30) |
+| `plans/teacher-upgrade-2026-10-30.md` | teacher bake-off (**proposed 2026-10-30**, not started): hardware measured with a self-cleaning `colab run --gpu A100` probe — **A100-SXM4-40GB** (40,960 MiB VRAM, 83 GB host RAM, 206.8 GB disk, no llama.cpp preinstalled), so "High-RAM" is host memory and the arms run at Q4-Q6; the teacher's job is quote-verbatim + gloss + exact refusal, so public agentic benchmarks are not selection evidence; five arms — incumbent Qwen3.8-27B UD-Q4_K_XL (17.6 GB) plus a UD-Q6_K (22.0 GB) quant control, Nanbeige4.3-33B Q5_K_M (24.7 GB; Q6_K 30.1 and Q8 35.2 do not fit), Gemma-4-31B-it Q6_K (25.2 GB), Muse-Glimmer-30B UD-Q6_K_XL (26.3 GB); selection runs on the existing behavioral pre-gate with the promotion rule fixed in advance (verbatim rate, refusal correctness, zero thinking leaks, zero cap-hits, no invented gloss facts); excluded with reasons: DeepSeek-V4.1-Flash-1017 (~160 GB IQ2 shards, also the judge family), flint (agentic coding), and the Saluki/Swift/GSQ-RCO 27B builds, which are quantizations of the incumbent rather than upgrades | proposed (2026-10-30) |
 | `.agents/skills/book-companion-ui/` (`SKILL.md` + `references/tokens.css`, `references/gloss-and-craft.md`) | the project-local UI skill (2026-10-15): the quiet-book taste layer adapted from taste-skill (MIT, Leonxlnx) plus this repo's bindings — the two-toolchain rule (Next.js under `web/`), local-only, the frozen `POST /ask` shape, citation click → jump + exact-quote highlight, the states checklist (loading/refusal/error/empty/figure/reset), the anti-slop list, and the screenshot review loop at three widths; `references/gloss-and-craft.md` is the condensed Gloss/prompt-kit/interior.dev teardown; loads for any window/reader/frontend work | kept (2026-10-15) |
 | `plans/figure-understanding-plan-2026-10-15.md` | figure-understanding plan (**parked 2026-10-15**, user decision): the two live screenshots ("explain figure 4.4" -> refusal) traced to (a) no figure-number normalization ("4.4" vs the book's "4-4"; `canonical_query` leaves the dot form untouched) and (b) figure content absent from the index (only caption + referencing paragraph). Verdict on the VL proposal: pre-describe figures **at ingest** (build-time reader, 111 figures), keep the shipped runtime text-only — vision at inference buys nothing and costs the footprint promise. Phases: 0 = number normalization (cheap, independent); 1 = ingest-time VL+OCR reader with label cross-checks; 2 = retrieval + display; 3 = the generated-text citation policy (open decision: labeled block vs a distinct `[Fig. N]` class) | kept (2026-10-15) |
 | `reports/golden-growth-plan-2026-10-13.md` | labeled-set growth plan: statistical targets (24 -> ~100), strata, book-first labeling protocol, 4-batch rollout (not approved) | kept (2026-10-13) |
@@ -241,3 +265,4 @@ Dates are first-commit dates (`2026-10-11/12/13`). Paths are relative to `artifa
 
 | `reports/trace-interaction-evals-2026-10-29.md` | the trace-derived must-pass suite: 12 items (9 answer, 3 refuse), gold chunks and terms verified verbatim against each book's index, plus the candidates excluded and why |
 | `reports/followup-retrieval-drift-2026-10-29.md`, `probes/probe-followup-drift-2026-10-29.py` | follow-up retrieval drift: re-asked as a follow-up after one prior turn with the reader's page pin, **11 of 15** wide-net questions lose the gold chunk from `shown_passages` (2 of 15 with the prior turn alone); the follow-up gate at `answer.py:3030-3035` re-arms a pin that standalone asks ignore, and the pin window plus the four sequential neighbours fill all five slots; trace `879b5033eedd` reproduced chunk for chunk, deterministic across two runs | LIVE (2026-10-29) |
+| `reports/handoff-retrieval-embedding-generation-2026-10-31.md` | retrieval, embedding provenance, and generation handoff: RRF lexical promotion (top-1 25/42 -> 28/42), FTS section indexing, embedder input_sha256/provenance hygiene (1153 clean), trace regression 12/12 pass, comparisons 20/20 pass, wide-net v2 25/48 -> 31/48 pass with +1.09s latency trade-off; details Bucket 1 (11 right-chunk misses) and Bucket 2 (6 retrieval misses). | LIVE (2026-10-31) |

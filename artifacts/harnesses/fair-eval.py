@@ -49,9 +49,10 @@ PEEK_LEDGER = ROOT / "artifacts" / "datasets" / "fair-2026-10-27.peek-ledger.jso
 RUNS_DIR = ROOT / "artifacts" / "runs"
 
 INDEX_PATHS = {
-    "fde": ROOT / "data" / "index.json",
-    "quantization": ROOT / "data" / "index.quantization.json",
-    "ddia": ROOT / "data" / "index.ddia.json",
+    "fde": ROOT / "data" / "index.sqlite",
+    "quantization": ROOT / "data" / "index.quantization.sqlite",
+    "ddia": ROOT / "data" / "index.ddia.sqlite",
+    "ai-engineering": ROOT / "data" / "index.ai-engineering.sqlite",
 }
 
 _WS_RE = re.compile(r"\s+")
@@ -494,18 +495,22 @@ def main():
     parser.add_argument("--model", dest="flag_model", default=None, help="Model tag flag.")
     parser.add_argument("--split", choices=["dev", "locked", "all"], default="dev", help="Development split by default; locked/all require explicit selection.")
     parser.add_argument("--dummy-baselines", action="store_true", help="Run dumb baselines without LLM generation.")
+    parser.add_argument("--dataset", default=None,
+                        help="Dataset path. Defaults to the frozen fair set, whose hash is pinned.")
     args = parser.parse_args()
 
     model = args.flag_model or args.model or os.environ.get("ANSWER_MODEL") or ANSWER_MODEL
     split = args.split
 
-    # Verify dataset hash
-    actual_sha = dataset_sha256()
-    if actual_sha != FAIR_SHA256:
+    dataset_path = Path(args.dataset) if args.dataset else DATASET
+    actual_sha = dataset_sha256(dataset_path)
+    # The pin only means something for the frozen set; a newer dataset carries
+    # its own date in the filename instead.
+    if dataset_path == DATASET and actual_sha != FAIR_SHA256:
         print(f"ERROR: Dataset hash mismatch: {actual_sha} != {FAIR_SHA256}", file=sys.stderr)
         sys.exit(2)
 
-    items = load_items(split=split)
+    items = load_items(dataset_path, split=split)
     indexes = {b: load_index(p) for b, p in INDEX_PATHS.items()}
     chunk_tables = {b: {c["chunk_id"]: c for c in idx["chunks"]} for b, idx in indexes.items()}
 
@@ -560,12 +565,14 @@ def main():
     # Write evidence
     RUNS_DIR.mkdir(parents=True, exist_ok=True)
     slug = model.replace("/", "_").replace(":", "_")
-    out_file = RUNS_DIR / f"fair-eval-{datetime.date.today().isoformat()}-model-{slug}-split-{split}.json"
+    # A second dataset must not overwrite the frozen set's evidence for the day.
+    tag = "" if dataset_path == DATASET else "-" + dataset_path.stem
+    out_file = RUNS_DIR / f"fair-eval-{datetime.date.today().isoformat()}-model-{slug}-split-{split}{tag}.json"
     payload = {
         "date": datetime.date.today().isoformat(),
         "model": model,
         "split": split,
-        "dataset": DATASET.name,
+        "dataset": dataset_path.name,
         "dataset_sha256": actual_sha,
         "total": len(results),
         "passed": passed,

@@ -21,6 +21,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 import observe
+import store
 
 
 # =============================================================================
@@ -217,13 +218,15 @@ def summarize_eval_diagnostics(items, results):
 # =============================================================================
 
 def load_book_index(book_id="fde", index_file=None):
-    """Load a book index JSON from explicit path or data/ directory."""
+    """Load a book index from explicit path or data/ directory."""
     if index_file:
         p = Path(index_file)
         if not p.is_absolute():
             p = ROOT / p
         if p.is_file():
             try:
+                if store.is_index_db(p):
+                    return store.read_index(p)
                 return json.loads(p.read_text(encoding="utf-8"))
             except Exception:
                 pass
@@ -238,13 +241,13 @@ def load_book_index(book_id="fde", index_file=None):
 
     data_dir = ROOT / "data"
     candidates = [
-        data_dir / f"index.{book_id}.json",
-        data_dir / "index.json",
+        data_dir / f"index.{book_id}.sqlite",
+        data_dir / "index.sqlite",
     ]
     for c in candidates:
         if c.is_file():
             try:
-                return json.loads(c.read_text(encoding="utf-8"))
+                return store.read_index(c)
             except Exception:
                 pass
     return None

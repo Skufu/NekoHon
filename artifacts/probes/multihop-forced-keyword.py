@@ -7,7 +7,7 @@ asks the narrower follow-up: after one semantic step (the loop's default
 opener), if the next step is FORCED to keyword, can the model itself write a
 query that reaches the chunk dense search missed?
 
-Read-only over data/index.json; one live decision call per question. Ground
+Read-only over data/index.sqlite; one live decision call per question. Ground
 truth from the multihop set. Single forced step, single sample, temperature 0.
 
 Run: python artifacts/probes/multihop-forced-keyword.py

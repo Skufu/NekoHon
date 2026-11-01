@@ -1,0 +1,259 @@
+{
+  "date": "2026-10-24",
+  "model": "nekohon_q35_2b_a7",
+  "dataset": "hard-mt-2026-10-24.jsonl",
+  "dataset_sha256": "a45d80a0cbe875fbb83184730f857c983869df7d40ca5910a5cdb0239446ed3c",
+  "total_items": 12,
+  "total_passed": 11,
+  "pass_rate": 0.9167,
+  "by_category": {
+    "elision": [
+      3,
+      3
+    ],
+    "pronoun": [
+      2,
+      3
+    ],
+    "distraction": [
+      3,
+      3
+    ],
+    "trap": [
+      3,
+      3
+    ]
+  },
+  "mean_latency_sec": 3.719,
+  "results": [
+    {
+      "id": "mt-elision-01",
+      "category": "elision",
+      "book_id": "fde",
+      "question": "Put that in plainer words.",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "ch02-037",
+      "cited": [
+        "ch02-037"
+      ],
+      "gold_chunks": [
+        "ch02-037"
+      ],
+      "latency_sec": 1.666,
+      "answer": "[Ch. 2] \"The responsibilities of data engineers overlap significantly in analytics and ML, and the boundaries between data engineering, ML engineering, and analytics engineering can be fuzzy.\"\nData engineers support both analytics and machine learning by maintaining shared infrastructure.",
+      "reasons": []
+    },
+    {
+      "id": "mt-elision-02",
+      "category": "elision",
+      "book_id": "quantization",
+      "question": "Make that shorter.",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "chapter-2-033",
+      "cited": [
+        "chapter-2-033"
+      ],
+      "gold_chunks": [
+        "chapter-2-033"
+      ],
+      "latency_sec": 1.953,
+      "answer": "[Ch. 2] \"Per-tensor quantization calculates a single pair of (S,Z) for the entire tensor.\"\nOne scale and zero point cover the entire tensor.",
+      "reasons": []
+    },
+    {
+      "id": "mt-elision-03",
+      "category": "elision",
+      "book_id": "ddia",
+      "question": "Give me the gist.",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "text00013-010",
+      "cited": [
+        "text00013-010"
+      ],
+      "gold_chunks": [
+        "text00013-010"
+      ],
+      "latency_sec": 4.535,
+      "answer": "[Ch. 7] \"The word consistency is terribly overloaded: In Chapter 5 we discussed replica consistency and the issue of eventual consistency that arises in asynchronously replicated systems (see \u201cProblems with Replication Lag\u201d ). Consistent hashing is an approach to partitioning that some systems use for rebalancing (see \u201cConsistent Hashing\u201d ). In the CAP theorem (see Chapter 9 ), the word consistency is used to mean linearizability (see \u201cLinearizability\u201d ). In the context of ACID, consistency refers to an application-specific notion of the database being in a \u201cgood state.\u201d It\u2019s unfortunate that the same word is used with at least four different meanings. The idea of ACID consistency is that you have certain statements about your data (invariants ) that must always be true \u2014 for example, in an accounting system, credits and debits across all accounts must always be balanced. If a transaction starts with a database that is valid according to these invariants, and any writes during the transaction preserve the validity, then you can be sure that the invariants are always satisfied.\"\nConsistency means the database obeys the application's own rules, not a general guarantee.",
+      "reasons": []
+    },
+    {
+      "id": "mt-pronoun-01",
+      "category": "pronoun",
+      "book_id": "quantization",
+      "question": "Why is it risky?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "chapter-2-033",
+      "cited": [
+        "chapter-2-033"
+      ],
+      "gold_chunks": [
+        "chapter-2-033"
+      ],
+      "latency_sec": 1.984,
+      "answer": "[Ch. 2] \"This is the simplest approach and the most memory efficient, as we only store two extra FP32 values per tensor. But it is highly susceptible to outliers.\"\nA single scale covers the entire tensor, so one outlier can widen the range and destroy most values.",
+      "reasons": []
+    },
+    {
+      "id": "mt-pronoun-02",
+      "category": "pronoun",
+      "book_id": "ddia",
+      "question": "Why is that word a problem?",
+      "expect": "answer",
+      "refused": false,
+      "passed": false,
+      "first_citation": "text00013-011",
+      "cited": [
+        "text00013-011"
+      ],
+      "gold_chunks": [
+        "text00013-010"
+      ],
+      "latency_sec": 6.962,
+      "answer": "[Ch. 7] \"Atomicity, isolation, and durability are properties of the database, whereas consistency (in the ACID sense) is a property of the application. The application may rely on the database\u2019s atomicity and isolation properties in order to achieve consistency, but it\u2019s not up to the database alone.\"\nThe database cannot enforce application-defined invariants, so the application must validate data before writes.",
+      "reasons": [
+        "citation: no cited passage carries all of ['overloaded']; text00013-011 misses ['overloaded']",
+        "answer misses key_fact /overload/"
+      ]
+    },
+    {
+      "id": "mt-pronoun-03",
+      "category": "pronoun",
+      "book_id": "quantization",
+      "question": "Why does it hold?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "chapter-3-067",
+      "cited": [
+        "chapter-3-067"
+      ],
+      "gold_chunks": [
+        "chapter-3-067"
+      ],
+      "latency_sec": 3.953,
+      "answer": "[Ch. 3] \"Walking through the two functions: quantize_keys_per_channel receives keys with shape [batch, num_heads, seq_len, head_dim]. The amax(dim=(0, 1, 2)) call (#A) collapses every dimension except head_dim, producing one scale per channel\u2014shared across all batches, heads, and sequence positions. This works because keys develop consistent channel-wise magnitude patterns regardless of token position. quantize_values_per_token takes the same shape but calls amax(dim=-1) (#B), collapsing only head_dim to produce one scale per token position in each batch and head. This captures the token-wise variation that values exhibit. Both functions clamp to the signed INT8 range and handle the edge case of zero-valued scales (which would cause division errors) by replacing them with ones.\"\nKey magnitudes cluster by channel, so one scale per channel suffices.",
+      "reasons": []
+    },
+    {
+      "id": "mt-distract-01",
+      "category": "distraction",
+      "book_id": "quantization",
+      "question": "Why does key quantization use one scale per channel?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "chapter-2-034",
+      "cited": [
+        "chapter-2-034"
+      ],
+      "gold_chunks": [
+        "chapter-3-067"
+      ],
+      "latency_sec": 3.719,
+      "answer": "[Ch. 2] \"Per-channel quantization calculates a unique (S,Z) pair for each channel (typically the output channel for weights). This effectively gives each filter in a convolutional neural network (CNN) its own custom ruler. This isolates the effect of outliers; a filter with large weights gets a large S, while a filter with small weights gets a small S. This significantly improves accuracy but requires the hardware to support switching scale factors frequently during the dot product accumulation.\"\nEach output channel gets its own scale, so a filter with large weights does not ruin the small filters.",
+      "reasons": []
+    },
+    {
+      "id": "mt-distract-02",
+      "category": "distraction",
+      "book_id": "ddia",
+      "question": "Why do in-doubt transactions hold locks?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "text00015-102",
+      "cited": [
+        "text00015-102"
+      ],
+      "gold_chunks": [
+        "text00015-102"
+      ],
+      "latency_sec": 6.388,
+      "answer": "[Ch. 9] \"The problem is with locking\"\nLocks block readers while writers are in doubt, so readers cannot proceed.",
+      "reasons": []
+    },
+    {
+      "id": "mt-distract-03",
+      "category": "distraction",
+      "book_id": "ddia",
+      "question": "What does reprocessing let a system do?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "text00019-020",
+      "cited": [
+        "text00019-020"
+      ],
+      "gold_chunks": [
+        "text00019-020"
+      ],
+      "latency_sec": 4.592,
+      "answer": "[Ch. 12] \"In particular, reprocessing existing data provides a good mechanism for maintaining a system, evolving it to support new features and changed requirements (see Chapter 4 ). Without reprocessing, schema evolution is limited to simple changes like adding a new optional field to a record, or adding a new type of record. This is the case both in a schema-on-write and in a schema-on-read context (see \u201cSchema flexibility in the document model\u201d ). On the other hand, with reprocessing it is possible to restructure a dataset into a completely different model in order to better serve new requirements. Schema Migrations on Railways Large-scale \u201cschema migrations\u201d occur in noncomputer systems as well. For example, in the early days of railway building in 19th-century England there were various competing standards for the gauge (the distance between the two rails). Trains built for one gauge couldn\u2019t run on tracks of another gauge, which restricted the possible interconnections in the train network [9 ].\"\nReprocessing lets a system rebuild its structure to meet new needs.",
+      "reasons": []
+    },
+    {
+      "id": "mt-trap-01",
+      "category": "trap",
+      "book_id": "fde",
+      "question": "What did Dr. Helena Voss say about at-least-once delivery in 2031?",
+      "expect": "refuse",
+      "refused": true,
+      "passed": true,
+      "first_citation": null,
+      "cited": [],
+      "gold_chunks": [
+        "ch07-040"
+      ],
+      "latency_sec": 1.664,
+      "answer": "Not in this book.",
+      "reasons": []
+    },
+    {
+      "id": "mt-trap-02",
+      "category": "trap",
+      "book_id": "quantization",
+      "question": "What did Marcus Feld say about quantization-aware training costs in 2036?",
+      "expect": "refuse",
+      "refused": true,
+      "passed": true,
+      "first_citation": null,
+      "cited": [],
+      "gold_chunks": [
+        "chapter-5-034"
+      ],
+      "latency_sec": 2.16,
+      "answer": "Not in this book.",
+      "reasons": []
+    },
+    {
+      "id": "mt-trap-03",
+      "category": "trap",
+      "book_id": "ddia",
+      "question": "What did Priya Raman say about reprocessing in 2042?",
+      "expect": "refuse",
+      "refused": true,
+      "passed": true,
+      "first_citation": "text00019-019",
+      "cited": [
+        "text00019-019",
+        "text00019-020",
+        "text00019-021"
+      ],
+      "gold_chunks": [
+        "text00019-020"
+      ],
+      "latency_sec": 5.047,
+      "answer": "Not in this book.",
+      "reasons": []
+    }
+  ]
+}

@@ -18,15 +18,17 @@ import re
 import unittest
 from pathlib import Path
 
+import store
+
 ROOT = Path(__file__).resolve().parents[1]
 DATASETS = ROOT / "artifacts" / "datasets"
 BENCH = DATASETS / "hard-mt-2026-10-24.jsonl"
 BENCH_SHA256 = "a45d80a0cbe875fbb83184730f857c983869df7d40ca5910a5cdb0239446ed3c"
 TRAIN = ROOT / "data" / "finetune" / "quote-refuse-2026-10-17.train-x3.jsonl"
 INDEXES = [
-    ROOT / "data" / "index.json",
-    ROOT / "data" / "index.quantization.json",
-    ROOT / "data" / "index.ddia.json",
+    ROOT / "data" / "index.sqlite",
+    ROOT / "data" / "index.quantization.sqlite",
+    ROOT / "data" / "index.ddia.sqlite",
 ]
 NEAR_RATIO = 0.85
 NEAR_CONTENT_JACCARD = 0.7
@@ -118,7 +120,7 @@ class HardMultiTurnTest(unittest.TestCase):
         text = " ".join(
             fold(chunk.get("text", ""))
             for path in INDEXES
-            for chunk in json.loads(path.read_text(encoding="utf-8"))["chunks"]
+            for chunk in store.read_index(path)["chunks"]
         )
         for item in load_bench():
             for token in item.get("fabricated") or []:

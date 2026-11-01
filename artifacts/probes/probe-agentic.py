@@ -1,6 +1,6 @@
 """Live probe: the agentic tool loop over Ollama on five real questions.
 
-Read-only over data/index.json. Uses the same localhost model as the answer
+Read-only over data/index.sqlite. Uses the same localhost model as the answer
 path (prompt.ANSWER_MODEL, temperature 0 via answer.ollama_generate). One
 single-shot ask runs first as the latency reference; it also warms the model,
 so the five agentic traces below it are warm.
@@ -8,7 +8,6 @@ so the five agentic traces below it are warm.
 Run: python artifacts/probes/probe-agentic.py
 """
 
-import json
 import sys
 import time
 from pathlib import Path
@@ -22,7 +21,7 @@ from agentic import TOOL_NAMES, agentic_search
 from answer import ask as single_shot_ask
 from answer import ollama_generate
 from prompt import ANSWER_MODEL
-from retrieve import search as dense_search
+from retrieve import load_index, search as dense_search
 
 QUESTIONS = [
     "Codd introduced the idea of what",
@@ -36,8 +35,8 @@ REFERENCE_QUESTION = "Codd introduced the idea of what"
 
 
 def main():
-    index_path = ROOT / "data" / "index.json"
-    index = json.loads(index_path.read_text(encoding="utf-8"))
+    index_path = ROOT / "data" / "index.sqlite"
+    index = load_index(index_path)
     print(f"index {index_path.name}: {len(index['chunks'])} chunks, "
           f"embedder {index.get('embedder')}, answer model {ANSWER_MODEL}")
     print("tools: " + ", ".join(TOOL_NAMES))

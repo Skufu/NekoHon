@@ -1,6 +1,6 @@
 """Multi-hop hunt: does the agentic loop surface evidence the single-shot path misses?
 
-Read-only over data/index.json. For each candidate question, two retrieval paths:
+Read-only over data/index.sqlite. For each candidate question, two retrieval paths:
 
 - single-shot: `answer.retrieval_context(index, question)["passages"]` -- exactly
   what the answer model would be shown (top-5, after reading repair, fusion,
@@ -142,8 +142,9 @@ def all_present(ids, needed):
 
 
 def main():
-    index_path = ROOT / "data" / "index.json"
-    index = json.loads(index_path.read_text(encoding="utf-8"))
+    from retrieve import load_index
+
+    index = load_index(ROOT / "data" / "index.sqlite")
     print(f"index: {len(index['chunks'])} chunks, embedder {index.get('embedder')}")
     print(f"candidates: {len(CANDIDATES)}")
     print()

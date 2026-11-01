@@ -28,9 +28,9 @@ DATASET = ROOT / "artifacts" / "datasets" / "sealed-2026-10-24.jsonl"
 SEALED_SHA256 = "24fcc1c9138e158d26891a88bb07d5ef1e9eeb21bcbe137aa40d00961404d0d7"
 EVIDENCE_DIR = ROOT / "artifacts" / "evidence" / "sealed-eval"
 INDEXES = {
-    "fde": ROOT / "data" / "index.json",
-    "quantization": ROOT / "data" / "index.quantization.json",
-    "ddia": ROOT / "data" / "index.ddia.json",
+    "fde": ROOT / "data" / "index.sqlite",
+    "quantization": ROOT / "data" / "index.quantization.sqlite",
+    "ddia": ROOT / "data" / "index.ddia.sqlite",
 }
 
 

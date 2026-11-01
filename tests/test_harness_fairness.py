@@ -21,13 +21,14 @@ sys.path.insert(0, str(ROOT / "artifacts" / "harnesses"))
 import fair_cite  # noqa: E402
 
 PINS = ROOT / "artifacts" / "datasets" / "battery-pins.json"
-INDEX = ROOT / "data" / "index.json"
+INDEX = ROOT / "data" / "index.sqlite"
 
 
 def load_index():
     if not INDEX.is_file():
         return None
-    return json.loads(INDEX.read_text(encoding="utf-8"))
+    import store
+    return store.read_index(INDEX)
 
 
 class PinContentTest(unittest.TestCase):

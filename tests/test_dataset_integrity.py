@@ -543,6 +543,20 @@ class RefusalAndTargetTest(Fixture):
         result = self.one(rec)
         self.assertEqual(result["verdict"], "PASS", result["findings"])
 
+    def test_exact_refusal_sentence_declared_as_answer_or_gloss_fails(self):
+        """The refusal sentence is a refusal only when the target says so."""
+        for kind in ("answer", "gloss"):
+            with self.subTest(kind=kind):
+                rec = self.target(
+                    self.record(),
+                    kind=kind,
+                    answer="Not in this book.",
+                    refused=False,
+                )
+                result = self.one(rec)
+                self.assertEqual(result["verdict"], "FAIL", result["findings"])
+                self.assertIn("refusal_target_mislabelled", codes(result))
+
     def test_answer_target_without_citations_is_review(self):
         rec = self.target(self.record(), citations=[])
         result = self.one(rec)
@@ -908,6 +922,118 @@ class LeakageTest(Fixture):
         self.assertTrue(
             any("duplicate_id" in codes(r) for r in report["records"]), report["records"]
         )
+
+    def corpus_leak(self, corpus_row, dev_ref):
+        """Run one dev item that grades ``dev_ref``'s chunk against a corpus row."""
+        dev = self.record(
+            id="dev-1",
+            split="dev",
+            family_id="family-dev",
+            question="How does schema evolution change a table?",
+            source_refs=[dev_ref],
+            provided_source_ids=["s1"],
+        )
+        dev_path = self.dataset_file("dev-split.jsonl", [dev])
+        corpus_path = self.dataset_file("corpus-split.jsonl", [corpus_row])
+        report = DI.check_datasets([str(dev_path)], train_corpus=str(corpus_path))
+        return report, report["records"][0]
+
+    def test_corpus_distractor_fact_witness_is_support_exposure(self):
+        """A corpus passage its fact grades is support even if labelled a distractor.
+
+        The same row submitted as a dataset ``split: "train"`` record already
+        fails the dev item; the corpus path must classify exposure the same way.
+        """
+        row = self.record(
+            id="corpus-1",
+            split="train",
+            family_id="family-corpus",
+            question="How does schema evolution work?",
+            source_refs=[
+                self.source(
+                    chunk_id="ch03-001",
+                    chapter="3",
+                    text_sha256=digest(TEXT3),
+                    spans=[],
+                    role="distractor",
+                )
+            ],
+            provided_source_ids=["s1"],
+            target={"kind": "gloss", "answer": "The table changes in place.", "citations": []},
+        )
+        row = self.expect(
+            row,
+            required_facts=[
+                {"claim": "Schema evolution changes a table without a rewrite.", "source_ids": ["s1"]}
+            ],
+        )
+        dev_ref = self.source(
+            chunk_id="ch03-001", chapter="3", text_sha256=digest(TEXT3), spans=[]
+        )
+        report, dev = self.corpus_leak(row, dev_ref)
+        self.assertEqual(dev["verdict"], "FAIL", dev["findings"])
+        self.assertIn("source_component_split_leak", codes(dev))
+        self.assertIn("source_text_split_leak", codes(dev))
+        self.assertEqual(report["lineage"]["context_only_overlaps"], 0)
+
+    def test_corpus_extra_support_ref_is_support_exposure(self):
+        """role="support" is support even when no fact names it."""
+        row = self.record(
+            id="corpus-1",
+            split="train",
+            family_id="family-corpus",
+            question="How does schema evolution work?",
+            source_refs=[
+                self.source(source_id="s1", chunk_id="ch01-001", chapter="1", spans=[]),
+                self.source(
+                    source_id="s2",
+                    chunk_id="ch03-001",
+                    chapter="3",
+                    text_sha256=digest(TEXT3),
+                    spans=[],
+                    role="support",
+                ),
+            ],
+            provided_source_ids=["s1", "s2"],
+            target={"kind": "gloss", "answer": "Watermarks and tables.", "citations": ["s1"]},
+        )
+        dev_ref = self.source(
+            chunk_id="ch03-001", chapter="3", text_sha256=digest(TEXT3), spans=[]
+        )
+        report, dev = self.corpus_leak(row, dev_ref)
+        self.assertEqual(dev["verdict"], "FAIL", dev["findings"])
+        self.assertIn("source_component_split_leak", codes(dev))
+        self.assertIn("source_text_split_leak", codes(dev))
+        self.assertEqual(report["lineage"]["context_only_overlaps"], 0)
+
+    def test_corpus_unused_distractor_stays_context_only(self):
+        """Control: a corpus passage nothing uses is context, counted not failed."""
+        row = self.record(
+            id="corpus-1",
+            split="train",
+            family_id="family-corpus",
+            question="How does schema evolution work?",
+            source_refs=[
+                self.source(source_id="s1", chunk_id="ch01-001", chapter="1", spans=[]),
+                self.source(
+                    source_id="s2",
+                    chunk_id="ch03-001",
+                    chapter="3",
+                    text_sha256=digest(TEXT3),
+                    spans=[],
+                    role="distractor",
+                ),
+            ],
+            provided_source_ids=["s1", "s2"],
+            target={"kind": "gloss", "answer": "It marks progress.", "citations": ["s1"]},
+        )
+        dev_ref = self.source(
+            chunk_id="ch03-001", chapter="3", text_sha256=digest(TEXT3), spans=[]
+        )
+        report, dev = self.corpus_leak(row, dev_ref)
+        self.assertEqual(dev["verdict"], "PASS", dev["findings"])
+        self.assertNotIn("source_component_split_leak", codes(dev))
+        self.assertEqual(report["lineage"]["context_only_overlaps"], 1)
 
 
 class FailClosedTest(Fixture):
@@ -1490,6 +1616,140 @@ class TargetQuoteTest(Fixture):
         self.assertEqual(result["verdict"], "REVIEW", result["findings"])
         self.assertIn("target_quote_unparsed", codes(result))
         self.assertNotIn("target_quote_not_in_source", codes(result))
+
+    def named_index(self, name, chunks):
+        path = self.tmp / name
+        self._write_index(path, chunks=chunks, figures=[])
+        return path, hashlib.sha256(path.read_bytes()).hexdigest()
+
+    def test_equivalent_chapter_labels_resolve(self):
+        """A [Ch. …] tag resolves an equivalent chapter label, not only a bare number.
+
+        Index labels from other books: ``chapter-4``, a titled chapter, an
+        appendix, and a named front-matter section.
+        """
+        cases = (
+            ("chapter-4", "[Ch. 4]"),
+            ("chapter-4", "[Ch. chapter-4]"),
+            ("Appendix A: Tables", "[Ch. appendix-a]"),
+            ("preface", "[Ch. preface]"),
+        )
+        for position, (label, tag) in enumerate(cases):
+            with self.subTest(chapter=label, tag=tag):
+                path, sha = self.named_index(
+                    f"index.named-{position}.json",
+                    [{"chunk_id": "ch04-001", "chapter": label, "text": TEXT3}],
+                )
+                ref = self.source(
+                    chunk_id="ch04-001",
+                    chapter=label,
+                    index_path=str(path),
+                    index_sha256=sha,
+                    text_sha256=digest(TEXT3),
+                    spans=[],
+                )
+                rec = self.record(source_refs=[ref], provided_source_ids=["s1"])
+                rec = self.target(rec, answer=f'{tag} "{TEXT3}"')
+                result = self.one(rec)
+                self.assertEqual(result["verdict"], "PASS", result["findings"])
+
+    def test_equivalent_chapter_key_cannot_cross_to_another_chapter(self):
+        """The label key resolves one chapter, never the whole provided set."""
+        path, sha = self.named_index(
+            "index.named-two.json",
+            [
+                {"chunk_id": "ch04-001", "chapter": "chapter-4", "text": TEXT3},
+                {"chunk_id": "ch05-001", "chapter": "chapter-5", "text": TEXT2},
+            ],
+        )
+        first = self.source(
+            chunk_id="ch04-001",
+            chapter="chapter-4",
+            index_path=str(path),
+            index_sha256=sha,
+            text_sha256=digest(TEXT3),
+            spans=[],
+        )
+        second = self.source(
+            source_id="s2",
+            chunk_id="ch05-001",
+            chapter="chapter-5",
+            index_path=str(path),
+            index_sha256=sha,
+            text_sha256=digest(TEXT2),
+            spans=[],
+        )
+        rec = self.record(source_refs=[first, second], provided_source_ids=["s1", "s2"])
+        rec = self.target(rec, answer=f'[Ch. 4] "{TEXT2}"')
+        result = self.one(rec)
+        self.assertEqual(result["verdict"], "FAIL", result["findings"])
+        self.assertIn("target_quote_not_in_source", codes(result))
+
+    def chapter_record(self, path, sha, chunks, tag, quote, citations):
+        refs = [
+            self.source(
+                source_id=f"s{position}",
+                chunk_id=chunk["chunk_id"],
+                chapter=chunk["chapter"],
+                index_path=str(path),
+                index_sha256=sha,
+                text_sha256=digest(chunk["text"]),
+                spans=[],
+            )
+            for position, chunk in enumerate(chunks, 1)
+        ]
+        rec = self.record(
+            source_refs=refs,
+            provided_source_ids=[ref["source_id"] for ref in refs],
+        )
+        return self.target(rec, answer=f'{tag} "{quote}"', citations=citations)
+
+    def test_chapter_range_and_slash_tags_resolve_each_member(self):
+        """``[Ch. 4-5]`` and ``[Ch. 4/5]`` name both chapters, not one label."""
+        chunks = [
+            {"chunk_id": "ch04-001", "chapter": "4", "text": TEXT3},
+            {"chunk_id": "ch05-001", "chapter": "5", "text": TEXT1},
+        ]
+        path, sha = self.named_index("index.range.json", chunks)
+        for tag in ("[Ch. 4-5]", "[Ch. 4/5]"):
+            for position, chunk in enumerate(chunks, 1):
+                with self.subTest(tag=tag, chunk=chunk["chunk_id"]):
+                    rec = self.chapter_record(
+                        path, sha, chunks, tag, chunk["text"], [f"s{position}"]
+                    )
+                    result = self.one(rec)
+                    self.assertEqual(result["verdict"], "PASS", result["findings"])
+
+    def test_named_chapter_labels_fold_case_and_separators(self):
+        """A named chapter label compares by words, not by hyphen or case."""
+        cases = (
+            ("Front Matter", "[Ch. front-matter]"),
+            ("Front Matter", "[Ch. FrontMatter]"),
+            ("front-matter", "[Ch. Front Matter]"),
+        )
+        for position, (label, tag) in enumerate(cases):
+            with self.subTest(chapter=label, tag=tag):
+                chunk = {"chunk_id": "ch00-001", "chapter": label, "text": TEXT3}
+                path, sha = self.named_index(f"index.front-{position}.json", [chunk])
+                rec = self.chapter_record(path, sha, [chunk], tag, TEXT3, ["s1"])
+                result = self.one(rec)
+                self.assertEqual(result["verdict"], "PASS", result["findings"])
+
+    def test_appendix_number_never_resolves_a_chapter_tag(self):
+        """``[Ch. 4]`` is chapter 4; ``Appendix 4`` is another chapter space."""
+        appendix = {"chunk_id": "chA-004", "chapter": "Appendix 4", "text": TEXT3}
+        path, sha = self.named_index("index.appendix-4.json", [appendix])
+        rec = self.chapter_record(path, sha, [appendix], "[Ch. 4]", TEXT3, ["s1"])
+        result = self.one(rec)
+        self.assertEqual(result["verdict"], "FAIL", result["findings"])
+        self.assertIn("target_quote_chapter_unmatched", codes(result))
+
+        chapter = {"chunk_id": "ch04-001", "chapter": "4", "text": TEXT4}
+        path, sha = self.named_index("index.appendix-4-both.json", [chapter, appendix])
+        rec = self.chapter_record(path, sha, [chapter, appendix], "[Ch. 4]", TEXT3, ["s2"])
+        result = self.one(rec)
+        self.assertEqual(result["verdict"], "FAIL", result["findings"])
+        self.assertIn("target_quote_not_in_source", codes(result))
 
     def test_newlines_are_compared_literally_not_normalized(self):
         lf_quote = WRAPPED.replace("\r\n", "\n")

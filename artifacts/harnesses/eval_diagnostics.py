@@ -30,9 +30,9 @@ import observe
 DEFAULT_TRACES = ROOT / "artifacts" / "runs" / "traces.jsonl"
 FAIR_DATASET = ROOT / "artifacts" / "datasets" / "fair-2026-10-27.jsonl"
 INDEX_PATHS = {
-    "fde": ROOT / "data" / "index.json",
-    "quantization": ROOT / "data" / "index.quantization.json",
-    "ddia": ROOT / "data" / "index.ddia.json",
+    "fde": ROOT / "data" / "index.sqlite",
+    "quantization": ROOT / "data" / "index.quantization.sqlite",
+    "ddia": ROOT / "data" / "index.ddia.sqlite",
 }
 
 

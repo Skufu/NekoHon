@@ -1,0 +1,236 @@
+test_awaiting_approval_handoff_then_train_once_and_complete (tests.test_run_reviewed_job.DriverTests.test_awaiting_approval_handoff_then_train_once_and_complete) ... ok
+test_check_plan_and_changed_source_blocks_before_launch (tests.test_run_reviewed_job.DriverTests.test_check_plan_and_changed_source_blocks_before_launch) ... ok
+test_detached_status_is_readable_and_heartbeats (tests.test_run_reviewed_job.DriverTests.test_detached_status_is_readable_and_heartbeats) ... ok
+test_failure_after_train_keeps_checkpoints_and_failure (tests.test_run_reviewed_job.DriverTests.test_failure_after_train_keeps_checkpoints_and_failure) ... ok
+test_final_stage_shape_generates_contract_then_trains (tests.test_run_reviewed_job.DriverTests.test_final_stage_shape_generates_contract_then_trains) ... ok
+test_invalid_approval_blocks_train (tests.test_run_reviewed_job.DriverTests.test_invalid_approval_blocks_train) ... ok
+test_large_artifacts_are_chunked_and_reassemble (tests.test_run_reviewed_job.DriverTests.test_large_artifacts_are_chunked_and_reassemble) ... ok
+test_no_wall_timeout_and_no_timeout_keyword (tests.test_run_reviewed_job.DriverTests.test_no_wall_timeout_and_no_timeout_keyword) ... ok
+test_package_check_failure_blocks_before_preflight_and_train (tests.test_run_reviewed_job.DriverTests.test_package_check_failure_blocks_before_preflight_and_train) ... ok
+test_plan_hash_binding_blocks_changed_stage_argv (tests.test_run_reviewed_job.DriverTests.test_plan_hash_binding_blocks_changed_stage_argv) ... ok
+test_plan_requires_64_hex_identity_and_exact_session (tests.test_run_reviewed_job.DriverTests.test_plan_requires_64_hex_identity_and_exact_session) ... ok
+test_preflight_failure_never_trains (tests.test_run_reviewed_job.DriverTests.test_preflight_failure_never_trains) ... ok
+test_restart_attaches_without_second_optimizer_step (tests.test_run_reviewed_job.DriverTests.test_restart_attaches_without_second_optimizer_step) ... ok
+test_handoff_snapshot_hash_is_immutable (tests.test_run_reviewed_job.DriverWatchdogInteropTests.test_handoff_snapshot_hash_is_immutable) ... ERROR
+test_public_watchdog_accepts_real_terminal_status (tests.test_run_reviewed_job.DriverWatchdogInteropTests.test_public_watchdog_accepts_real_terminal_status) ... [watchdog] max polls reached without terminal state
+
+  test_public_watchdog_accepts_real_terminal_status (tests.test_run_reviewed_job.DriverWatchdogInteropTests.test_public_watchdog_accepts_real_terminal_status) (chunk_size=64) ... FAIL
+[watchdog] max polls reached without terminal state
+  test_public_watchdog_accepts_real_terminal_status (tests.test_run_reviewed_job.DriverWatchdogInteropTests.test_public_watchdog_accepts_real_terminal_status) (chunk_size=10000000) ... FAIL
+test_public_watchdog_salvages_real_failed_status (tests.test_run_reviewed_job.DriverWatchdogInteropTests.test_public_watchdog_salvages_real_failed_status) ... 
+  test_public_watchdog_salvages_real_failed_status (tests.test_run_reviewed_job.DriverWatchdogInteropTests.test_public_watchdog_salvages_real_failed_status) (chunk_size=64) ... FAIL
+test_duplicate_critical_train_flags_are_rejected (tests.test_run_reviewed_job.PlanBindingTests.test_duplicate_critical_train_flags_are_rejected) ... 
+  test_duplicate_critical_train_flags_are_rejected (tests.test_run_reviewed_job.PlanBindingTests.test_duplicate_critical_train_flags_are_rejected) (flag='--manifest') ... FAIL
+  test_duplicate_critical_train_flags_are_rejected (tests.test_run_reviewed_job.PlanBindingTests.test_duplicate_critical_train_flags_are_rejected) (flag='--contract') ... FAIL
+  test_duplicate_critical_train_flags_are_rejected (tests.test_run_reviewed_job.PlanBindingTests.test_duplicate_critical_train_flags_are_rejected) (flag='--preflight-report') ... FAIL
+  test_duplicate_critical_train_flags_are_rejected (tests.test_run_reviewed_job.PlanBindingTests.test_duplicate_critical_train_flags_are_rejected) (flag='--approval') ... FAIL
+test_extra_declared_source_is_closure_verified (tests.test_run_reviewed_job.PlanBindingTests.test_extra_declared_source_is_closure_verified) ... FAIL
+test_plan_is_parsed_once_from_verified_bytes (tests.test_run_reviewed_job.PlanBindingTests.test_plan_is_parsed_once_from_verified_bytes) ... FAIL
+test_real_verify_approval_binds_report_and_export (tests.test_run_reviewed_job.RealRunnerApprovalTests.test_real_verify_approval_binds_report_and_export) ... ok
+test_complete_and_failed_statuses_chunked_and_unchunked (tests.test_watch_training.DriverPackageWatchdogTests.test_complete_and_failed_statuses_chunked_and_unchunked) ... [watchdog] max polls reached without terminal state
+
+  test_complete_and_failed_statuses_chunked_and_unchunked (tests.test_watch_training.DriverPackageWatchdogTests.test_complete_and_failed_statuses_chunked_and_unchunked) (complete=True, chunk_size=64) ... FAIL
+[watchdog] max polls reached without terminal state
+  test_complete_and_failed_statuses_chunked_and_unchunked (tests.test_watch_training.DriverPackageWatchdogTests.test_complete_and_failed_statuses_chunked_and_unchunked) (complete=True, chunk_size=10000000) ... FAIL
+  test_complete_and_failed_statuses_chunked_and_unchunked (tests.test_watch_training.DriverPackageWatchdogTests.test_complete_and_failed_statuses_chunked_and_unchunked) (complete=False, chunk_size=64) ... FAIL
+test_explicit_metadata_beats_legacy_paths_and_operational_log (tests.test_watch_training.DriverPackageWatchdogTests.test_explicit_metadata_beats_legacy_paths_and_operational_log) ... FAIL
+test_legacy_status_without_explicit_artifacts_still_requires_log (tests.test_watch_training.DriverPackageWatchdogTests.test_legacy_status_without_explicit_artifacts_still_requires_log) ... ok
+test_alive_pid_not_finished (tests.test_watch_training.WatchdogTests.test_alive_pid_not_finished) ... [watchdog] max polls reached without terminal state
+ok
+test_checkpoint_binding_rejects_reuse (tests.test_watch_training.WatchdogTests.test_checkpoint_binding_rejects_reuse) ... ok
+test_cli_timeout_decimal_accepted (tests.test_watch_training.WatchdogTests.test_cli_timeout_decimal_accepted) ... ok
+test_complete_requires_artifact_and_report (tests.test_watch_training.WatchdogTests.test_complete_requires_artifact_and_report) ... [watchdog] max polls reached without terminal state
+ok
+test_complete_requires_exact_hashes (tests.test_watch_training.WatchdogTests.test_complete_requires_exact_hashes) ... [watchdog] max polls reached without terminal state
+ok
+test_complete_requires_exit_code_zero (tests.test_watch_training.WatchdogTests.test_complete_requires_exit_code_zero) ... /opt/homebrew/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/encoder.py:263: ResourceWarning: unclosed file <_io.FileIO name=3 mode='rb' closefd=True>
+  def _make_iterencode(markers, _default, _encoder, _indent, _floatstr,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/opt/homebrew/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/encoder.py:263: ResourceWarning: unclosed file <_io.FileIO name=5 mode='rb' closefd=True>
+  def _make_iterencode(markers, _default, _encoder, _indent, _floatstr,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+[watchdog] max polls reached without terminal state
+ok
+test_double_launch_blocked (tests.test_watch_training.WatchdogTests.test_double_launch_blocked) ... [watchdog] another instance is running (marker /var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/tmpkz_db39w/state/watchdog.lock)
+ok
+test_dry_run_cli_monitor (tests.test_watch_training.WatchdogTests.test_dry_run_cli_monitor) ... ok
+test_failed_download_blocks_no_stop (tests.test_watch_training.WatchdogTests.test_failed_download_blocks_no_stop) ... [watchdog] BLOCKED: cleanup not confirmed; VM left running for human decision
+ok
+test_good_complete_downloads_and_stops (tests.test_watch_training.WatchdogTests.test_good_complete_downloads_and_stops) ... ok
+test_healthy_long_run_no_deadline (tests.test_watch_training.WatchdogTests.test_healthy_long_run_no_deadline) ... [watchdog] max polls reached without terminal state
+ok
+test_launch_remote_worker_parses_pid (tests.test_watch_training.WatchdogTests.test_launch_remote_worker_parses_pid) ... ok
+test_launch_second_call_recovers_not_spawns (tests.test_watch_training.WatchdogTests.test_launch_second_call_recovers_not_spawns) ... ok
+test_main_monitor_with_fake_transport (tests.test_watch_training.WatchdogTests.test_main_monitor_with_fake_transport) ... [watchdog] max polls reached without terminal state
+ok
+test_network_error_not_success (tests.test_watch_training.WatchdogTests.test_network_error_not_success) ... [watchdog] max polls reached without terminal state
+ok
+test_normal_monitor_does_not_exit_on_preflight (tests.test_watch_training.WatchdogTests.test_normal_monitor_does_not_exit_on_preflight) ... [watchdog] max polls reached without terminal state
+ok
+test_ongoing_training_no_stop (tests.test_watch_training.WatchdogTests.test_ongoing_training_no_stop) ... [watchdog] max polls reached without terminal state
+ok
+test_parse_session_names_bracketed (tests.test_watch_training.WatchdogTests.test_parse_session_names_bracketed) ... ok
+test_preflight_handoff_bad_identity_blocks (tests.test_watch_training.WatchdogTests.test_preflight_handoff_bad_identity_blocks) ... [watchdog] max polls reached without terminal state
+ok
+test_preflight_handoff_exits_10_no_stop (tests.test_watch_training.WatchdogTests.test_preflight_handoff_exits_10_no_stop) ... [watchdog] PREFLIGHT HANDOFF: approval required; VM left running
+ok
+test_preflight_handoff_missing_hash_no_handoff (tests.test_watch_training.WatchdogTests.test_preflight_handoff_missing_hash_no_handoff) ... [watchdog] max polls reached without terminal state
+ok
+test_scoped_stop_does_not_stop_others (tests.test_watch_training.WatchdogTests.test_scoped_stop_does_not_stop_others) ... [watchdog] BLOCKED: cleanup not confirmed; VM left running for human decision
+ok
+test_stale_heartbeat_alone_not_complete (tests.test_watch_training.WatchdogTests.test_stale_heartbeat_alone_not_complete) ... [watchdog] max polls reached without terminal state
+ok
+test_stale_terminal_accepted_if_dead_pid_and_exit_proof (tests.test_watch_training.WatchdogTests.test_stale_terminal_accepted_if_dead_pid_and_exit_proof) ... ok
+test_stop_failure_propagates_blocked (tests.test_watch_training.WatchdogTests.test_stop_failure_propagates_blocked) ... [watchdog] BLOCKED: cleanup not confirmed; VM left running for human decision
+ok
+test_wrong_job_uuid_not_terminal (tests.test_watch_training.WatchdogTests.test_wrong_job_uuid_not_terminal) ... [watchdog] max polls reached without terminal state
+ok
+
+======================================================================
+ERROR: test_handoff_snapshot_hash_is_immutable (tests.test_run_reviewed_job.DriverWatchdogInteropTests.test_handoff_snapshot_hash_is_immutable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/tests/test_run_reviewed_job.py", line 751, in test_handoff_snapshot_hash_is_immutable
+    snapshot = Path(awaiting["log_snapshot_path"])
+                    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'log_snapshot_path'
+
+======================================================================
+FAIL: test_public_watchdog_accepts_real_terminal_status (tests.test_run_reviewed_job.DriverWatchdogInteropTests.test_public_watchdog_accepts_real_terminal_status) (chunk_size=64)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/tests/test_run_reviewed_job.py", line 712, in test_public_watchdog_accepts_real_terminal_status
+    self.assertEqual(wd.run(), 0)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: 4 != 0
+
+======================================================================
+FAIL: test_public_watchdog_accepts_real_terminal_status (tests.test_run_reviewed_job.DriverWatchdogInteropTests.test_public_watchdog_accepts_real_terminal_status) (chunk_size=10000000)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/tests/test_run_reviewed_job.py", line 712, in test_public_watchdog_accepts_real_terminal_status
+    self.assertEqual(wd.run(), 0)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: 4 != 0
+
+======================================================================
+FAIL: test_public_watchdog_salvages_real_failed_status (tests.test_run_reviewed_job.DriverWatchdogInteropTests.test_public_watchdog_salvages_real_failed_status) (chunk_size=64)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/tests/test_run_reviewed_job.py", line 740, in test_public_watchdog_salvages_real_failed_status
+    self.assertNotIn(status["log_path"], cli.download_calls)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/job.log' unexpectedly found in ['/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/checkpoints.zip.part001', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/checkpoints.zip.part002', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/checkpoints.zip.part003', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/checkpoints.zip.part004', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/work/download-manifest.json', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/preflight-report.json.part001', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/preflight-report.json.part002', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/preflight-report.json.part003', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/preflight-report.json.part004', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/runtime-freeze.json.part001', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/runtime-freeze.json.part002', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/work/runtime-freeze.txt', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/work/package-check.json', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/failure.json.part001', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/failure.json.part002', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/failure.json.part003', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/failure.json.part004', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/failure.json.part005', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/failure.json.part006', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/job.log', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part001', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part002', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part003', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part004', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part005', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part006', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part007', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part008', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part009', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part010', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part011', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part012', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part013', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part014', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part015', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part016', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part017', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part018', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part019', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part020', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part021', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part022', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part023', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part024', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part025', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part026', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part027', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part028', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part029', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part030', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part031', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part032', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part033', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part034', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part035', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part036', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part037', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part038', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part039', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part040', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part041', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part042', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part043', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part044', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part045', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part046', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part047', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part048', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part049', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part050', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part051', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part052', '/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/reviewed-interop-ps8ixj16/failed-64/job/pack/chunks/job.log.part053']
+
+======================================================================
+FAIL: test_duplicate_critical_train_flags_are_rejected (tests.test_run_reviewed_job.PlanBindingTests.test_duplicate_critical_train_flags_are_rejected) (flag='--manifest')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/tests/test_run_reviewed_job.py", line 822, in test_duplicate_critical_train_flags_are_rejected
+    self.assertEqual(check.returncode, 2, check.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 2 : 
+
+======================================================================
+FAIL: test_duplicate_critical_train_flags_are_rejected (tests.test_run_reviewed_job.PlanBindingTests.test_duplicate_critical_train_flags_are_rejected) (flag='--contract')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/tests/test_run_reviewed_job.py", line 822, in test_duplicate_critical_train_flags_are_rejected
+    self.assertEqual(check.returncode, 2, check.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 2 : 
+
+======================================================================
+FAIL: test_duplicate_critical_train_flags_are_rejected (tests.test_run_reviewed_job.PlanBindingTests.test_duplicate_critical_train_flags_are_rejected) (flag='--preflight-report')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/tests/test_run_reviewed_job.py", line 822, in test_duplicate_critical_train_flags_are_rejected
+    self.assertEqual(check.returncode, 2, check.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 2 : 
+
+======================================================================
+FAIL: test_duplicate_critical_train_flags_are_rejected (tests.test_run_reviewed_job.PlanBindingTests.test_duplicate_critical_train_flags_are_rejected) (flag='--approval')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/tests/test_run_reviewed_job.py", line 822, in test_duplicate_critical_train_flags_are_rejected
+    self.assertEqual(check.returncode, 2, check.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 2 : 
+
+======================================================================
+FAIL: test_extra_declared_source_is_closure_verified (tests.test_run_reviewed_job.PlanBindingTests.test_extra_declared_source_is_closure_verified)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/tests/test_run_reviewed_job.py", line 790, in test_extra_declared_source_is_closure_verified
+    self.assertEqual(bad.returncode, 2, bad.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 2 : 
+
+======================================================================
+FAIL: test_plan_is_parsed_once_from_verified_bytes (tests.test_run_reviewed_job.PlanBindingTests.test_plan_is_parsed_once_from_verified_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/tests/test_run_reviewed_job.py", line 873, in test_plan_is_parsed_once_from_verified_bytes
+    self.assertEqual(status["job_uuid"], "job-approved")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'job-swapped' != 'job-approved'
+- job-swapped
+?     --
++ job-approved
+?        +++
+
+
+======================================================================
+FAIL: test_complete_and_failed_statuses_chunked_and_unchunked (tests.test_watch_training.DriverPackageWatchdogTests.test_complete_and_failed_statuses_chunked_and_unchunked) (complete=True, chunk_size=64)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/tests/test_watch_training.py", line 573, in test_complete_and_failed_statuses_chunked_and_unchunked
+    self.assertEqual(rc, 0 if complete else 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 4 != 0
+
+======================================================================
+FAIL: test_complete_and_failed_statuses_chunked_and_unchunked (tests.test_watch_training.DriverPackageWatchdogTests.test_complete_and_failed_statuses_chunked_and_unchunked) (complete=True, chunk_size=10000000)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/tests/test_watch_training.py", line 573, in test_complete_and_failed_statuses_chunked_and_unchunked
+    self.assertEqual(rc, 0 if complete else 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 4 != 0
+
+======================================================================
+FAIL: test_complete_and_failed_statuses_chunked_and_unchunked (tests.test_watch_training.DriverPackageWatchdogTests.test_complete_and_failed_statuses_chunked_and_unchunked) (complete=False, chunk_size=64)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/tests/test_watch_training.py", line 578, in test_complete_and_failed_statuses_chunked_and_unchunked
+    self.assertEqual(sorted(cli.download_calls), sorted(expected))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['/va[148 chars]/job/job.log', '/var/folders/sz/zm0j7m1n6d9f15[1700 chars]txt'] != ['/va[148 chars]/job/pack/chunks/checkpoints.zip.part001', '/v[1624 chars]txt']
+
+First differing element 1:
+'/var[34 chars]fm0000gn/T/tmpj4fujnw2/job/job.log'
+'/var[34 chars]fm0000gn/T/tmpj4fujnw2/job/pack/chunks/checkpoints.zip.part001'
+
+First list contains 1 additional elements.
+First extra element 19:
+'/var/folders/sz/zm0j7m1n6d9f15t2wvvr3kfm0000gn/T/tmpj4fujnw2/out/runtime-freeze.txt'
+
+Diff is 1964 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_explicit_metadata_beats_legacy_paths_and_operational_log (tests.test_watch_training.DriverPackageWatchdogTests.test_explicit_metadata_beats_legacy_paths_and_operational_log)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book/tests/test_watch_training.py", line 615, in test_explicit_metadata_beats_legacy_paths_and_operational_log
+    self.assertEqual(items[0]["kind"], "model")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'artifact' != 'model'
+- artifact
++ model
+
+
+----------------------------------------------------------------------
+Ran 49 tests in 35.291s
+
+FAILED (failures=13, errors=1)

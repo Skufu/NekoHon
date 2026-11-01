@@ -24,6 +24,8 @@ import re
 import unittest
 from pathlib import Path
 
+import store
+
 ROOT = Path(__file__).resolve().parents[1]
 DATASET = ROOT / "artifacts" / "datasets" / "fair-2026-10-27.jsonl"
 FAIR_SHA256 = "6255b361c7b7511d5047e82d0fa3e93210a537a7fad92e040ee93f4d944697d8"
@@ -31,9 +33,9 @@ FINETUNE_DIR = ROOT / "data" / "finetune"
 DATASETS_DIR = ROOT / "artifacts" / "datasets"
 
 INDEX_PATHS = {
-    "fde": ROOT / "data" / "index.json",
-    "quantization": ROOT / "data" / "index.quantization.json",
-    "ddia": ROOT / "data" / "index.ddia.json",
+    "fde": ROOT / "data" / "index.sqlite",
+    "quantization": ROOT / "data" / "index.quantization.sqlite",
+    "ddia": ROOT / "data" / "index.ddia.sqlite",
 }
 
 PUNCT_RE = re.compile(r"[^a-z0-9 ]+")
@@ -267,7 +269,7 @@ class FairSetTest(unittest.TestCase):
         if not all(p.is_file() for p in INDEX_PATHS.values()):
             self.skipTest("data/ indexes not present on this machine")
 
-        indexes = {b: json.loads(p.read_text(encoding="utf-8")) for b, p in INDEX_PATHS.items()}
+        indexes = {b: store.read_index(p) for b, p in INDEX_PATHS.items()}
         chunk_tables = {b: {c["chunk_id"]: c for c in idx["chunks"]} for b, idx in indexes.items()}
 
         for it in self.items:
@@ -316,7 +318,7 @@ class FairSetTest(unittest.TestCase):
         if not all(p.is_file() for p in INDEX_PATHS.values()):
             self.skipTest("data/ indexes not present on this machine")
 
-        indexes = {b: json.loads(p.read_text(encoding="utf-8")) for b, p in INDEX_PATHS.items()}
+        indexes = {b: store.read_index(p) for b, p in INDEX_PATHS.items()}
 
         refuse_items = [it for it in self.items if it["expect"] == "refuse"]
         self.assertGreaterEqual(len(refuse_items), 40, "Expected at least 40 refusal items")

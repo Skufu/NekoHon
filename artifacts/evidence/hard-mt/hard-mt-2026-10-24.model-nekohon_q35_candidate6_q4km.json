@@ -1,0 +1,257 @@
+{
+  "date": "2026-10-24",
+  "model": "nekohon_q35_candidate6_q4km",
+  "dataset": "hard-mt-2026-10-24.jsonl",
+  "dataset_sha256": "a45d80a0cbe875fbb83184730f857c983869df7d40ca5910a5cdb0239446ed3c",
+  "total_items": 12,
+  "total_passed": 11,
+  "pass_rate": 0.9167,
+  "by_category": {
+    "elision": [
+      3,
+      3
+    ],
+    "pronoun": [
+      3,
+      3
+    ],
+    "distraction": [
+      3,
+      3
+    ],
+    "trap": [
+      2,
+      3
+    ]
+  },
+  "mean_latency_sec": 6.754,
+  "results": [
+    {
+      "id": "mt-elision-01",
+      "category": "elision",
+      "book_id": "fde",
+      "question": "Put that in plainer words.",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "ch02-037",
+      "cited": [
+        "ch02-037"
+      ],
+      "gold_chunks": [
+        "ch02-037"
+      ],
+      "latency_sec": 3.769,
+      "answer": "[Ch. 2] \"The responsibilities of data engineers overlap significantly in analytics and ML, and the boundaries between data engineering, ML engineering, and analytics engineering can be fuzzy.\"\nData engineers support feature stores that serve ML teams, so their responsibilities naturally cross into machine learning support.",
+      "reasons": []
+    },
+    {
+      "id": "mt-elision-02",
+      "category": "elision",
+      "book_id": "quantization",
+      "question": "Make that shorter.",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "chapter-2-033",
+      "cited": [
+        "chapter-2-033"
+      ],
+      "gold_chunks": [
+        "chapter-2-033"
+      ],
+      "latency_sec": 4.883,
+      "answer": "[Ch. 2] \"Per-tensor quantization calculates a single pair of (S,Z) for the entire tensor.\"\nOne scale covers the entire tensor, making it memory efficient but vulnerable to outliers.",
+      "reasons": []
+    },
+    {
+      "id": "mt-elision-03",
+      "category": "elision",
+      "book_id": "ddia",
+      "question": "Give me the gist.",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "text00013-010",
+      "cited": [
+        "text00013-010"
+      ],
+      "gold_chunks": [
+        "text00013-010"
+      ],
+      "latency_sec": 6.858,
+      "answer": "[Ch. 7] \"In the context of ACID, consistency refers to an application-specific notion of the database being in a \u201cgood state\"\nIt means the application defines what counts as valid data, not the database itself.",
+      "reasons": []
+    },
+    {
+      "id": "mt-pronoun-01",
+      "category": "pronoun",
+      "book_id": "quantization",
+      "question": "Why is it risky?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "chapter-2-033",
+      "cited": [
+        "chapter-2-033"
+      ],
+      "gold_chunks": [
+        "chapter-2-033"
+      ],
+      "latency_sec": 3.711,
+      "answer": "[Ch. 2] \"This is the simplest approach and the most memory efficient, as we only store two extra FP32 values per tensor. But it is highly susceptible to outliers.\"\nA single scale for the entire tensor leaves no margin for large outliers.",
+      "reasons": []
+    },
+    {
+      "id": "mt-pronoun-02",
+      "category": "pronoun",
+      "book_id": "ddia",
+      "question": "Why is that word a problem?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "text00013-010",
+      "cited": [
+        "text00013-010"
+      ],
+      "gold_chunks": [
+        "text00013-010"
+      ],
+      "latency_sec": 5.824,
+      "answer": "[Ch. 7] \"The word consistency is terribly overloaded: In Chapter 5 we discussed replica consistency and the issue of eventual consistency that arises in asynchronously replicated systems (see \u201cProblems with Replication Lag\"\nThe same word is used for different things, so it is confusing.",
+      "reasons": []
+    },
+    {
+      "id": "mt-pronoun-03",
+      "category": "pronoun",
+      "book_id": "quantization",
+      "question": "Why does it hold?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "chapter-3-067",
+      "cited": [
+        "chapter-3-067"
+      ],
+      "gold_chunks": [
+        "chapter-3-067"
+      ],
+      "latency_sec": 5.167,
+      "answer": "[Ch. 3] \"Walking through the two functions: quantize_keys_per_channel receives keys with shape [batch, num_heads, seq_len, head_dim]. The amax(dim=(0, 1, 2)) call (#A) collapses every dimension except head_dim, producing one scale per channel\u2014shared across all batches, heads, and sequence positions. This works because keys develop consistent channel-wise magnitude patterns regardless of token position. quantize_values_per_token takes the same shape but calls amax(dim=-1) (#B), collapsing only head_dim to produce one scale per token position in each batch and head. This captures the token-wise variation that values exhibit. Both functions clamp to the signed INT8 range and handle the edge case of zero-valued scales (which would cause division errors) by replacing them with ones. Notice the difference in scale shapes. Keys use [1, 1, 1, head_dim]\u2014one scale per channel, shared across all tokens. Values use [batch, num_heads, seq_len, 1]\u2014one scale per token position.\"\nKey magnitudes cluster by channel, so one scale per channel suffices.",
+      "reasons": []
+    },
+    {
+      "id": "mt-distract-01",
+      "category": "distraction",
+      "book_id": "quantization",
+      "question": "Why does key quantization use one scale per channel?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "chapter-2-034",
+      "cited": [
+        "chapter-2-034"
+      ],
+      "gold_chunks": [
+        "chapter-3-067"
+      ],
+      "latency_sec": 10.235,
+      "answer": "[Ch. 2] \"Per-channel quantization calculates a unique (S,Z) pair for each channel (typically the output channel for weights). This effectively gives each filter in a convolutional neural network (CNN) its own custom ruler. This isolates the effect of outliers; a filter with large weights gets a large S, while a filter with small weights gets a small S. This significantly improves accuracy but requires the hardware to support switching scale factors frequently during the dot product accumulation. Between these two extremes sits group-wise quantization: each channel is partitioned into smaller blocks (typically 32, 64, or 128 elements), and every block gets its own scale. This middle ground limits outlier damage where per-channel still costs too much, an arrangement that becomes load-bearing for 4-bit LLM weights, where neither per-tensor nor per-channel granularity holds up alone. Across the full spectrum, the choice trades model accuracy against hardware complexity.\"\nEach channel gets its own scale, which isolates outlier effects but adds hardware complexity.",
+      "reasons": []
+    },
+    {
+      "id": "mt-distract-02",
+      "category": "distraction",
+      "book_id": "ddia",
+      "question": "Why do in-doubt transactions hold locks?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "text00015-102",
+      "cited": [
+        "text00015-102"
+      ],
+      "gold_chunks": [
+        "text00015-102"
+      ],
+      "latency_sec": 16.875,
+      "answer": "[Ch. 9] \"Why do we care so much about a transaction being stuck in doubt? Can\u2019t the rest of the system just get on with its work, and ignore the in-doubt transaction that will be cleaned up eventually? The problem is with locking . As discussed in \u201cRead Committed\u201d , database transactions usually take a row-level exclusive lock on any rows they modify, to prevent dirty writes. In addition, if you want serializable isolation, a database using two-phase locking would also have to take a shared lock on any rows read by the transaction (see \u201cTwo-Phase Locking (2PL)\u201d ). The database cannot release those locks until the transaction commits or aborts (illustrated as a shaded area in Figure 9-9 ). Therefore, when using two-phase commit, a transaction must hold onto the locks throughout the time it is in doubt. If the coordinator has crashed and takes 20 minutes to start up again, those locks will be held for 20 minutes. If the coordinator\u2019s log is entirely lost for some reason, those locks will be held forever \u2014 or at least until the situation is manually resolved by an administrator.\"\nThe database cannot release locks until the transaction commits or aborts, which means it must hold them during the uncertain period.",
+      "reasons": []
+    },
+    {
+      "id": "mt-distract-03",
+      "category": "distraction",
+      "book_id": "ddia",
+      "question": "What does reprocessing let a system do?",
+      "expect": "answer",
+      "refused": false,
+      "passed": true,
+      "first_citation": "text00019-020",
+      "cited": [
+        "text00019-020"
+      ],
+      "gold_chunks": [
+        "text00019-020"
+      ],
+      "latency_sec": 4.007,
+      "answer": "[Ch. 12] \"When maintaining derived data, batch and stream processing are both useful. Stream processing allows changes in the input to be reflected in derived views with low delay, whereas batch processing allows large amounts of accumulated historical data to be reprocessed in order to derive new views onto an existing dataset. In particular, reprocessing existing data provides a good mechanism for maintaining a system, evolving it to support new features and changed requirements (see Chapter 4 ). Without reprocessing, schema evolution is limited to simple changes like adding a new optional field to a record, or adding a new type of record. This is the case both in a schema-on-write and in a schema-on-read context (see \u201cSchema flexibility in the document model\u201d ). On the other hand, with reprocessing it is possible to restructure a dataset into a completely different model in order to better serve new requirements.\"\nReprocessing lets a system change its structure to fit new needs.",
+      "reasons": []
+    },
+    {
+      "id": "mt-trap-01",
+      "category": "trap",
+      "book_id": "fde",
+      "question": "What did Dr. Helena Voss say about at-least-once delivery in 2031?",
+      "expect": "refuse",
+      "refused": true,
+      "passed": true,
+      "first_citation": null,
+      "cited": [],
+      "gold_chunks": [
+        "ch07-040"
+      ],
+      "latency_sec": 1.903,
+      "answer": "Not in this book.",
+      "reasons": []
+    },
+    {
+      "id": "mt-trap-02",
+      "category": "trap",
+      "book_id": "quantization",
+      "question": "What did Marcus Feld say about quantization-aware training costs in 2036?",
+      "expect": "refuse",
+      "refused": true,
+      "passed": true,
+      "first_citation": null,
+      "cited": [],
+      "gold_chunks": [
+        "chapter-5-034"
+      ],
+      "latency_sec": 2.171,
+      "answer": "Not in this book.",
+      "reasons": []
+    },
+    {
+      "id": "mt-trap-03",
+      "category": "trap",
+      "book_id": "ddia",
+      "question": "What did Priya Raman say about reprocessing in 2042?",
+      "expect": "refuse",
+      "refused": false,
+      "passed": false,
+      "first_citation": "text00019-020",
+      "cited": [
+        "text00019-020"
+      ],
+      "gold_chunks": [
+        "text00019-020"
+      ],
+      "latency_sec": 15.642,
+      "answer": "[Ch. 12] \"When maintaining derived data, batch and stream processing are both useful. Stream processing allows changes in the input to be reflected in derived views with low delay, whereas batch processing allows large amounts of accumulated historical data to be reprocessed in order to derive new views onto an existing dataset.\"\nBatch processing reprocesses historical data to support new requirements, enabling gradual schema evolution.",
+      "reasons": [
+        "expected refusal but answered",
+        "answer is not exactly 'Not in this book.'"
+      ]
+    }
+  ]
+}

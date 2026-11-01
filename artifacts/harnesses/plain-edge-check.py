@@ -45,7 +45,9 @@ def fold(text):
 
 
 def main():
-    index = json.load(open(ROOT / "data" / "index.json", encoding="utf-8"))
+    from retrieve import load_index
+
+    index = load_index(ROOT / "data" / "index.sqlite")
     chunks = {c["chunk_id"]: c for c in index["chunks"]}
     figure_ids = {f["id"]: f for f in index.get("figures") or []}
 
