@@ -68,10 +68,14 @@ class FrontendHealthAndProgressRulesTest(unittest.TestCase):
 
     def test_chunkblock_scopes_active_gloss_subscription(self):
         content = READER_TSX.read_text(encoding="utf-8")
-        # Must not do bare `useAsk((s) => s.activeGlossId)` inside ChunkBlock
-        self.assertNotIn("const activeGlossId = useAsk((s) => s.activeGlossId);", content)
-        # Must scope activeGlossId to whether chunk contains the gloss
-        self.assertIn("glosses.some((g) => g.id === activeId)", content)
+        # The rule is about ChunkBlock: a bare subscription there re-renders
+        # every block on each gloss change. The reader shell above it tracks
+        # the same id on purpose, to scroll the open gloss card into view.
+        start = content.index("const ChunkBlock = memo(")
+        block = content[start:]
+        self.assertNotIn("const activeGlossId = useAsk((s) => s.activeGlossId);", block)
+        # Must scope activeGlossId to whether this chunk holds the gloss
+        self.assertIn("glosses.some((g) => g.id === activeId)", block)
 
     def test_engine_url_uses_same_origin_and_no_8000_hardcode(self):
         content = ENGINE_TS.read_text(encoding="utf-8")

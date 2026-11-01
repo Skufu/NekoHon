@@ -54,8 +54,7 @@ function getHandleStyle(edge: Edge): CSSProperties {
 
 function modeBadge(gloss: GlossItem): string {
   if (gloss.kind === "quiz") return "Quiz";
-  const firstTurn = gloss.turns[0];
-  const mode = firstTurn?.mode ?? (gloss as unknown as { mode?: string }).mode;
+  const mode = gloss.turns[0]?.mode;
   if (mode === "explain") return "Explain";
   if (mode === "ask") return "Ask";
   if (mode === "quiz") return "Quiz";
@@ -307,6 +306,8 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
   const updateLeaderLineDOM = (newX: number, newY: number, customW?: number) => {
     const leaderPath = document.querySelector<SVGPathElement>(`[data-leader-for="${gloss.id}"]`);
     if (!leaderPath) return;
+    leaderPath.style.strokeDasharray = "none";
+    leaderPath.style.animation = "none";
     const y0 = parseFloat(leaderPath.getAttribute("data-y0") || "0");
     const widthShift = customW ? 320 - customW : 0;
     const x0 = 4;
@@ -325,8 +326,9 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
   };
 
   const badge = modeBadge(gloss);
-  const chLabel = formatChapter(gloss.chapter);
   const latestTurn = gloss.turns[gloss.turns.length - 1];
+  const activeChapter = latestTurn?.body?.citations?.[0]?.chapter || gloss.chapter;
+  const chLabel = formatChapter(activeChapter);
   const canFollowUp =
     latestTurn &&
     (latestTurn.status === "done" ||
@@ -397,20 +399,10 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
 
   const style: CSSProperties = floating ? floatingStyle : marginStyle;
 
-  // Keyboard: Alt+Arrow resizes, Alt+Shift+Arrow moves. "/" focuses [data-pa-followup]
+  // Keyboard: Alt+Arrow resizes, Alt+Shift+Arrow moves.
   useEffect(() => {
     if (!active) return;
     const onKey = (e: KeyboardEvent) => {
-      const t = e.target as HTMLElement | null;
-      const typing = t && typeof t.closest === "function" ? t.closest("input, textarea, [contenteditable]") : null;
-      if (e.key === "/" && !typing && !e.metaKey && !e.ctrlKey) {
-        const input = articleRef.current?.querySelector<HTMLElement>("[data-pa-followup]");
-        if (input) {
-          e.preventDefault();
-          input.focus();
-        }
-        return;
-      }
       if (floating && e.altKey && !maximized && currentFloatingGeom) {
         const step = e.shiftKey ? 24 : 16;
         const move = e.shiftKey;

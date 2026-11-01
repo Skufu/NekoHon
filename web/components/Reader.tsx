@@ -197,6 +197,11 @@ export default function Reader({
   const highlight = useAsk((s) => s.highlight);
   const clearHighlight = useAsk((s) => s.clearHighlight);
   const setActiveGloss = useAsk((s) => s.setActiveGloss);
+  const activeGlossId = useAsk((s) => s.activeGlossId);
+  const activeGlossTurnStatus = useAsk((s) => {
+    const g = s.glosses.find((item) => item.id === s.activeGlossId);
+    return g?.turns[g.turns.length - 1]?.status;
+  });
   const returnSpot = useAsk((s) => s.returnSpot);
   const clearReturnSpot = useAsk((s) => s.clearReturnSpot);
   // An empty margin has nothing to sit beside; nightfall.css uses this to put
@@ -327,9 +332,17 @@ export default function Reader({
           const chunkEl = document.querySelector(
             `[data-chunk-id="${CSS.escape(currentChunk.chunk_id)}"]`
           );
-          const paragraphs = chunkEl
+          let paragraphs = chunkEl
             ? Array.from(chunkEl.querySelectorAll<HTMLElement>("p.chunk-p"))
             : [];
+          if (paragraphs.length === 0) {
+            paragraphs = Array.from(
+              document.querySelectorAll<HTMLElement>(".nk-reader p.chunk-p")
+            ).filter((p) => {
+              const r = p.getBoundingClientRect();
+              return r.bottom >= 0 && r.top <= window.innerHeight;
+            });
+          }
           let lit: HTMLElement | null = null;
           let best = Number.POSITIVE_INFINITY;
           const readingLine = window.innerHeight * 0.42;
@@ -434,7 +447,7 @@ export default function Reader({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [setActiveGloss, clearHighlight, focusMode]);
 
-  // Jump helpers for TopBar & Rail
+  // Jump helpers for the topbar
   const scrollToChunk = useCallback((chunkId: string) => {
     const el = document.querySelector(
       `[data-chunk-id="${CSS.escape(chunkId)}"]`
@@ -448,6 +461,31 @@ export default function Reader({
 
 
 
+  // Ensure the active gloss card stays on screen when asked and when answered
+  useEffect(() => {
+    if (!activeGlossId || viewMode !== "reader") return;
+    const timer = setTimeout(() => {
+      const cardEl = document.querySelector<HTMLElement>(
+        `[data-gloss-id="${CSS.escape(activeGlossId)}"], .gloss-card.is-active`
+      );
+      if (!cardEl) return;
+      const rect = cardEl.getBoundingClientRect();
+      const topbarH = 72;
+      const bottomDockH = 90;
+      if (rect.top < topbarH) {
+        const delta = rect.top - topbarH - 12;
+        window.scrollBy({ top: delta, behavior: "smooth" });
+      } else if (rect.bottom > window.innerHeight - bottomDockH && rect.top > topbarH) {
+        const delta = Math.min(
+          rect.top - topbarH - 12,
+          rect.bottom - (window.innerHeight - bottomDockH)
+        );
+        window.scrollBy({ top: delta, behavior: "smooth" });
+      }
+    }, 60);
+    return () => clearTimeout(timer);
+  }, [activeGlossId, activeGlossTurnStatus, viewMode]);
+
   // Visible anchor chunk for Composer
   const getVisibleChunk = useCallback(() => {
     if (!payload || payload.chunks.length === 0) {
@@ -460,8 +498,11 @@ export default function Reader({
         heading: payload.chunks[0].heading ?? "",
       };
     }
-    const threshold = window.innerHeight * 0.35;
-    const hit = document.elementFromPoint(window.innerWidth / 2, threshold)?.closest<HTMLElement>("[data-chunk-id]");
+    const readingLine = window.innerHeight * 0.42;
+    const hit =
+      document.elementFromPoint(window.innerWidth / 2, readingLine)?.closest<HTMLElement>("[data-chunk-id]") ||
+      document.elementFromPoint(window.innerWidth / 2, window.innerHeight * 0.3)?.closest<HTMLElement>("[data-chunk-id]") ||
+      document.elementFromPoint(window.innerWidth / 2, window.innerHeight * 0.55)?.closest<HTMLElement>("[data-chunk-id]");
     if (hit) {
       const id = hit.getAttribute("data-chunk-id");
       const c = id ? chunkMap.get(id) : undefined;
@@ -472,6 +513,29 @@ export default function Reader({
           heading: c.heading ?? "",
         };
       }
+    }
+
+    // Fallback: search visible chunks in the viewport to find the one closest to the reading line
+    const chunkEls = document.querySelectorAll<HTMLElement>(".nk-reader [data-chunk-id]");
+    let bestChunk: Chunk | null = null;
+    let bestDist = Number.POSITIVE_INFINITY;
+    for (const el of chunkEls) {
+      const rect = el.getBoundingClientRect();
+      if (rect.bottom >= 0 && rect.top <= window.innerHeight) {
+        const dist = Math.abs((rect.top + rect.bottom) / 2 - readingLine);
+        if (dist < bestDist) {
+          bestDist = dist;
+          const id = el.getAttribute("data-chunk-id");
+          if (id) bestChunk = chunkMap.get(id) ?? null;
+        }
+      }
+    }
+    if (bestChunk) {
+      return {
+        chunkId: bestChunk.chunk_id,
+        chapter: bestChunk.chapter,
+        heading: bestChunk.heading ?? "",
+      };
     }
 
     const active = chunkMap.get(activeChunkId) || payload.chunks[0];
@@ -516,7 +580,7 @@ export default function Reader({
       <div className={`reader-pane ${viewMode === "reader" ? "is-active" : "is-hidden"}`}>
         <main
           className="reader nk-reader"
-          data-focus={focusMode && activeChunkId ? "true" : "false"}
+          data-focus={focusMode ? "true" : "false"}
           data-margin={hasNotes ? "filled" : "empty"}
           ref={readerRef}
           onPointerDown={(event) => {

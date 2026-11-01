@@ -41,7 +41,7 @@ flowchart TD
         Spine --> FigExt["Figure & Caption Extractor"]
         Packer --> Chunks["1,042 Chunks<br/>(0/1,042 mid-sentence starts)"]
         FigExt --> Figures["111 Extracted PNGs + Captions"]
-        Chunks --> Index["data/index.json"]
+        Chunks --> Index["data/index.sqlite"]
         Figures --> Index
     end
 

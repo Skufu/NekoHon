@@ -135,7 +135,7 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
   const openAndFocus = useCallback(() => {
     openPill();
     requestAnimationFrame(() => {
-      inputRef.current?.focus();
+      inputRef.current?.focus({ preventScroll: true });
     });
   }, [openPill]);
 
@@ -157,12 +157,6 @@ export default function Composer({ getAnchorChunk, chunks }: ComposerProps) {
         ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k")
       ) {
         e.preventDefault();
-        if (hiddenRef.current) {
-          if (e.key === "/") {
-            document.querySelector<HTMLElement>("[data-pa-followup]")?.focus();
-          }
-          return;
-        }
         openAndFocus();
       }
     };

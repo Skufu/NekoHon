@@ -674,7 +674,7 @@ export const useAsk = create<AskStore>((set, get) => {
         if (typeof requestAnimationFrame !== "undefined") {
           flight.pacerTimer = requestAnimationFrame(pacerStep);
         } else {
-          flight.pacerTimer = setTimeout(pacerStep, 16) as unknown as number;
+          flight.pacerTimer = window.setTimeout(pacerStep, 16);
         }
       }
     };

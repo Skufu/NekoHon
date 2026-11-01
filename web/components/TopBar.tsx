@@ -290,7 +290,7 @@ export default function TopBar({
 
           <button
             type="button"
-            className="topbar-focus-btn"
+            className={`topbar-focus-btn ${focusMode ? "is-active" : ""}`}
             onClick={onToggleFocus}
             aria-pressed={focusMode}
             title="Dim everything but the passage in focus"

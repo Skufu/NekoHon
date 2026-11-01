@@ -32,6 +32,9 @@ EMOJI = re.compile("[\U0001F000-\U0001FAFF\uFE0F]")
 CLASSNAME = re.compile(r'className="([^"{]+)"')
 ALLOWED_DEPS = {"next", "react", "react-dom", "zustand"}
 ALLOWED_DEV_DEPS = {
+    # Dev-only animation inspector; mounted off the production path in
+    # `components/LapsePanel.tsx`. Owner decision 2026-10-30.
+    "@aiforui/lapse",
     "@tailwindcss/postcss", "@types/node", "@types/react", "@types/react-dom",
     "tailwindcss", "typescript",
 }

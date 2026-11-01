@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import LapsePanel from "@/components/LapsePanel";
 import "./globals.css";
 import "./nightfall.css";
 
@@ -15,7 +16,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" data-theme="night" data-pen="vermilion" suppressHydrationWarning>
-      <body>{children}</body>
+      <body>
+        <LapsePanel />
+        {children}
+      </body>
     </html>
   );
 }

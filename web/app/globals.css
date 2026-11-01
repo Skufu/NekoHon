@@ -369,6 +369,58 @@
   }
 }
 
+.topbar-focus-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-2);
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease-out,
+    color 150ms ease-out,
+    transform 100ms ease-out;
+}
+
+.topbar-focus-btn:hover,
+.topbar-focus-btn[aria-pressed="true"],
+.topbar-focus-btn.is-active {
+  background: color-mix(in oklab, var(--rule) 60%, transparent);
+  color: var(--ink);
+}
+
+.topbar-focus-btn:active {
+  transform: scale(0.96);
+}
+
+.topbar-focus-dot {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border: 1px solid var(--ink-3);
+  border-radius: 50%;
+  transition:
+    background-color 150ms ease-out,
+    border-color 150ms ease-out;
+}
+
+.topbar-focus-btn[aria-pressed="true"] .topbar-focus-dot,
+.topbar-focus-btn.is-active .topbar-focus-dot {
+  background: var(--rubric);
+  border-color: var(--rubric);
+}
+
+.topbar-focus-text {
+  line-height: 1;
+}
+
 .topbar-aa-wrap {
   position: relative;
 }
@@ -580,8 +632,7 @@
 }
 
 /* ==========================================================================
-   Reader Layout: 3-column .reader-grid
-   Left .rg-rail (>= 1260px)
+   Reader Layout: 2-column .reader-grid
    Center .rg-prose (--m: min(calc(var(--read-size, 19px) * 34), 46rem))
    Right .rg-margin (>= 1080px, 320px wide, 28px gutter)
    ========================================================================== */
@@ -602,7 +653,6 @@
   position: relative;
 }
 
-.reader-grid > .rg-rail,
 .reader-grid > .rg-margin {
   display: none;
 }
@@ -615,126 +665,6 @@
   .reader-grid > .rg-margin {
     display: block;
   }
-}
-
-@media (min-width: 1260px) {
-  .reader-grid {
-    grid-template-columns: 48px minmax(0, var(--m)) 320px;
-    column-gap: 28px;
-  }
-  .reader-grid > .rg-rail {
-    display: block;
-  }
-}
-
-.rg-rail {
-  position: relative;
-}
-
-.rail-sticky {
-  position: sticky;
-  top: calc(var(--topbar-h, 60px) + 16px);
-  height: calc(100vh - var(--topbar-h, 60px) - 32px);
-}
-
-.rail {
-  position: relative;
-  height: 100%;
-  width: 32px;
-  cursor: pointer;
-  user-select: none;
-  touch-action: none;
-  padding: 8px 0;
-}
-
-.rail-track {
-  position: absolute;
-  left: 7px;
-  top: 8px;
-  bottom: 8px;
-  width: 14px;
-  background: repeating-linear-gradient(
-    to bottom,
-    var(--rule-strong) 0 1.5px,
-    transparent 1.5px 5.5px
-  );
-  opacity: 0.48;
-}
-
-.rail-tick {
-  position: absolute;
-  left: 6px;
-  height: 2px;
-  width: 18px;
-  border-radius: 1px;
-  background: var(--ink);
-  opacity: 0.7;
-  transition: opacity 0.15s;
-}
-
-.rail:hover .rail-tick {
-  opacity: 1;
-}
-
-.rail-hl {
-  position: absolute;
-  left: 4px;
-  height: 3px;
-  width: 20px;
-  border-radius: 1px;
-  background: var(--mk-yellow);
-  opacity: 0.9;
-}
-
-.rail-gloss {
-  position: absolute;
-  left: 22px;
-  width: 5px;
-  height: 5px;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background: var(--rubric);
-}
-
-.rail-thumb {
-  pointer-events: none;
-  position: absolute;
-  left: 2px;
-  width: 24px;
-  border-radius: 5px;
-  border: 1px solid color-mix(in oklab, var(--ink) 30%, transparent);
-  background: color-mix(in oklab, var(--ink) 5%, transparent);
-  transition: border-color 0.15s, background-color 0.15s;
-}
-
-.rail:hover .rail-thumb {
-  border-color: color-mix(in oklab, var(--ink) 60%, transparent);
-  background: color-mix(in oklab, var(--ink) 8%, transparent);
-}
-
-.rail-tooltip {
-  pointer-events: none;
-  position: absolute;
-  left: 36px;
-  z-index: 50;
-  white-space: nowrap;
-  border-radius: 6px;
-  background: var(--lens-bg);
-  color: var(--lens-fg);
-  padding: 4px 10px;
-  font-family: var(--font-sans);
-  font-size: 11px;
-  box-shadow: var(--shadow-pop);
-}
-
-.rail-tooltip-ch {
-  font-weight: 600;
-  color: var(--lens-fg);
-}
-
-.rail-tooltip-heading {
-  margin-left: 6px;
-  opacity: 0.7;
 }
 
 .rg-prose {
@@ -1285,10 +1215,15 @@ mark {
 .gloss-leader {
   stroke: var(--rubric);
   stroke-width: 1.5;
-  stroke-dasharray: 400;
-  stroke-dashoffset: 400;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
   animation: draw 0.45s var(--ease-out) forwards;
   transition: opacity 0.18s var(--ease-out);
+}
+
+.margin-column:has(.gloss-card.is-interacting) .gloss-leader {
+  stroke-dasharray: none !important;
+  animation: none !important;
 }
 
 @keyframes draw {
@@ -3960,9 +3895,11 @@ mark.key {
   .gloss-node-indicator {
     transition: none;
   }
-  .gloss-leader path {
+  .gloss-leader,
+  path.gloss-leader {
     animation: none;
     stroke-dashoffset: 0;
+    stroke-dasharray: none;
   }
   .gloss-sheet {
     animation: none;

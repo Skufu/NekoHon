@@ -1159,17 +1159,26 @@
 .nk-reader .topbar-focus-btn:hover,
 .nk-reader .topbar-aa-btn:hover,
 .nk-reader .topbar-chapter-btn[aria-expanded="true"],
+.nk-reader .topbar-focus-btn[aria-pressed="true"],
+.nk-reader .topbar-focus-btn.is-active,
 .nk-reader .topbar-aa-btn.is-active {
   background: var(--bg-raised);
   color: var(--ink);
   border-color: transparent;
 }
 
+.nk-reader .topbar-chapter-btn:active,
+.nk-reader .topbar-focus-btn:active,
+.nk-reader .topbar-aa-btn:active {
+  transform: scale(0.96);
+}
+
 .nk-reader .topbar-chapter-label {
   line-height: 1;
 }
 
-.topbar-focus-btn[aria-pressed="true"] {
+.topbar-focus-btn[aria-pressed="true"],
+.topbar-focus-btn.is-active {
   color: var(--ink);
 }
 
@@ -1184,7 +1193,8 @@
     border-color 150ms ease-out;
 }
 
-.topbar-focus-btn[aria-pressed="true"] .topbar-focus-dot {
+.topbar-focus-btn[aria-pressed="true"] .topbar-focus-dot,
+.topbar-focus-btn.is-active .topbar-focus-dot {
   background: var(--nf-amber);
   border-color: var(--nf-amber);
 }
@@ -1497,12 +1507,15 @@
 }
 
 /* Focus dimming: the paragraph on the reading line keeps full ink. */
-.nk-reader[data-focus="true"] .chunk-p,
-.nk-reader[data-focus="true"] .chunk p {
+.nk-reader[data-focus="true"]:has(.chunk-p.is-lit) .chunk-p:not(.is-lit),
+.nk-reader[data-focus="true"]:has(.chunk-p.is-lit) .chunk p:not(.is-lit) {
   color: var(--focus-dim);
 }
 
-.nk-reader[data-focus="true"] .chunk-p.is-lit {
+.nk-reader[data-focus="true"] .chunk-p.is-lit,
+.nk-reader[data-focus="true"]:has(.chunk-p.is-lit) .chunk-p.is-lit,
+.nk-reader[data-focus="true"] mark.cite-mark,
+.nk-reader[data-focus="true"] .chunk-p:has(mark.cite-mark) {
   color: var(--ink);
 }
 

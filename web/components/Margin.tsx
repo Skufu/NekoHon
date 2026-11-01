@@ -117,6 +117,9 @@ export default function Margin({
     const items: Item[] = [];
     const glossMap = new Map<string, GlossItem>();
 
+    const vTop = -marginColRect.top + 72;
+    const vBottom = -marginColRect.top + window.innerHeight - 80;
+
     for (const g of glosses) {
       glossMap.set(g.id, g);
       let desired = 0;
@@ -127,18 +130,55 @@ export default function Margin({
       );
 
       if (chunkEl) {
-        const anchorEl =
-          chunkEl.querySelector<HTMLElement>(
+        let anchorEl: HTMLElement = chunkEl;
+        if (g.kind === "whole") {
+          // For whole-book questions, anchor to the lit paragraph or the paragraph in view
+          const litInChunk = chunkEl.querySelector<HTMLElement>("p.chunk-p.is-lit");
+          const visibleP = Array.from(
+            chunkEl.querySelectorAll<HTMLElement>("p.chunk-p")
+          ).find((p) => {
+            const r = p.getBoundingClientRect();
+            return r.bottom >= 60 && r.top <= window.innerHeight - 80;
+          });
+          anchorEl = litInChunk || visibleP || chunkEl;
+        } else {
+          const glossAnchor = chunkEl.querySelector<HTMLElement>(
             `[data-gloss-id="${CSS.escape(g.id)}"]`
-          ) || chunkEl;
+          );
+          if (glossAnchor) anchorEl = glossAnchor;
+        }
+
         const targetRect = anchorEl.getBoundingClientRect();
         desired = targetRect.top - marginColRect.top - 6;
         anchorY = targetRect.top - marginColRect.top + targetRect.height / 2;
+      } else if (g.kind === "whole") {
+        // Fallback: anchor to the currently lit paragraph on screen
+        const lit = prose.querySelector<HTMLElement>(".chunk-p.is-lit");
+        if (lit) {
+          const targetRect = lit.getBoundingClientRect();
+          desired = targetRect.top - marginColRect.top - 6;
+          anchorY = targetRect.top - marginColRect.top + targetRect.height / 2;
+        } else {
+          desired = vTop;
+          anchorY = vTop + 18;
+        }
       }
 
       const isCardMin = Boolean(g.minimized);
       const cardEl = cards.current.get(g.id);
       const h = isCardMin ? 28 : (cardEl?.offsetHeight ?? 80);
+
+      // Keep active card on screen while asking or answering
+      if (g.id === activeGlossId && !isCardMin) {
+        const maxDesired = Math.max(vTop, vBottom - h);
+        if (desired < vTop) {
+          desired = vTop;
+          anchorY = Math.max(anchorY, vTop + 18);
+        } else if (desired > maxDesired) {
+          desired = maxDesired;
+          anchorY = Math.min(anchorY, maxDesired + 18);
+        }
+      }
 
       items.push({
         id: g.id,
@@ -319,6 +359,7 @@ export default function Margin({
                 <path
                   data-leader-for={id}
                   data-y0={y0}
+                  pathLength="1"
                   d={d}
                   className="gloss-leader"
                   stroke="var(--rubric)"
