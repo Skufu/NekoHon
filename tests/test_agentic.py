@@ -189,7 +189,8 @@ class LoopTests(unittest.TestCase):
         # The merge output is a drop-in for retrieve.search's hit shape.
         for hit in result["passages"]:
             self.assertEqual(set(hit),
-                             {"score", "chunk_id", "chapter", "heading", "text", "source"})
+                             {"score", "chunk_id", "chapter", "heading", "text",
+                              "source", "section", "anchor"})
 
     def test_stop_works(self):
         index = make_index()
