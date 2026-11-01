@@ -1,9 +1,10 @@
 """Contract test: the window builds against this fixture before the live server.
 
-The 200 body is locked in BUILD_PLAN.md ("Contract"): keys answer, citations,
-figures, refused. This test fails if the fixture drifts from that shape. It also
-pins the route shape (only the documented routes answer) and the exact
-refusal sentence, so server.py and prompt.py do not restate those rules.
+The 200 body is the engine's contract (docs/ARCHITECTURE.md, "HTTP surface"):
+keys answer, citations, figures, refused, followups. This test fails if the
+fixture drifts from that shape. It also pins the route shape (only the served
+routes answer) and the exact refusal sentence, so server.py and prompt.py do
+not restate those rules.
 """
 
 import http.client

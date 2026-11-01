@@ -204,9 +204,6 @@ export default function Reader({
   });
   const returnSpot = useAsk((s) => s.returnSpot);
   const clearReturnSpot = useAsk((s) => s.clearReturnSpot);
-  // An empty margin has nothing to sit beside; nightfall.css uses this to put
-  // the prose on the viewport's centre line while focus mode is on.
-  const hasNotes = useAsk((s) => s.glosses.length > 0);
 
   const readerRef = useRef<HTMLElement | null>(null);
   const textRef = useRef<HTMLDivElement | null>(null);
@@ -581,7 +578,6 @@ export default function Reader({
         <main
           className="reader nk-reader"
           data-focus={focusMode ? "true" : "false"}
-          data-margin={hasNotes ? "filled" : "empty"}
           ref={readerRef}
           onPointerDown={(event) => {
             if (

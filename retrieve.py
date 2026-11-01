@@ -229,8 +229,14 @@ def _vector_problem(vector, width):
     return None
 
 
-def embed_index(index, model=DEFAULT_EMBEDDER, embed_fn=None, batch=BATCH, dims=None):
-    """Add vectors to chunks and figures. Skip records that already match."""
+def embed_index(index, model=DEFAULT_EMBEDDER, embed_fn=None, batch=BATCH, dims=None,
+                on_progress=None):
+    """Add vectors to chunks and figures. Skip records that already match.
+
+    `on_progress(done, total)` is called after every batch, with `total` the
+    records that still needed a vector — the import UI draws its ring from
+    these numbers instead of animating a guess.
+    """
     embed_fn = embed_fn or ollama_embed
     if dims:
         width = dims
@@ -243,7 +249,8 @@ def embed_index(index, model=DEFAULT_EMBEDDER, embed_fn=None, batch=BATCH, dims=
             "Write a new file. Do not mix vectors."
         )
 
-    def fill(records, kind):
+    def plan(records, kind):
+        """The records that still need a vector, in order."""
         pending = []
         for record in records:
             text = document_input(model, record, kind)
@@ -256,6 +263,9 @@ def embed_index(index, model=DEFAULT_EMBEDDER, embed_fn=None, batch=BATCH, dims=
                 pending.append((record, text, text_sha))
             else:
                 record.setdefault("embedding_input_sha256", text_sha)
+        return pending
+
+    def fill(kind, pending):
         for start in range(0, len(pending), batch):
             group = pending[start:start + batch]
             vectors = embed_fn([text for _, text, _ in group], model)
@@ -276,12 +286,24 @@ def embed_index(index, model=DEFAULT_EMBEDDER, embed_fn=None, batch=BATCH, dims=
                 record["embedding_input_sha256"] = text_sha
             yield len(group)
 
+    chunk_plan = plan(index.get("chunks", []), "chunk")
+    figure_plan = plan(index.get("figures", []), "figure")
+    total = len(chunk_plan) + len(figure_plan)
+    done = 0
+    if on_progress:
+        on_progress(done, total)
     chunks_done = 0
-    figures_done = 0
-    for count in fill(index.get("chunks", []), "chunk"):
+    for count in fill("chunk", chunk_plan):
         chunks_done += count
-    for count in fill(index.get("figures", []), "figure"):
+        done += count
+        if on_progress:
+            on_progress(done, total)
+    figures_done = 0
+    for count in fill("figure", figure_plan):
         figures_done += count
+        done += count
+        if on_progress:
+            on_progress(done, total)
     index["embedder"] = model
     index["embedding_dims"] = width
     index["embedder_provenance"] = embedder_provenance(model, width)

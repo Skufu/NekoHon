@@ -321,10 +321,20 @@ export default function Margin({
     >
       {glosses.length === 0 && (
         <div className="margin-empty">
-          <p className="margin-empty-title">This area is for notes.</p>
+          <p className="margin-empty-title">Questions and notes live here</p>
           <p className="margin-empty-sub">
-            Select any highlighted word or phrase, then just start typing to ask.
+            Select any passage to ask, explain, or save a note.
           </p>
+          <div className="margin-empty-shortcuts">
+            <span className="margin-empty-shortcut">
+              <kbd className="nk-kbd">/</kbd>
+              <span>Ask whole book</span>
+            </span>
+            <span className="margin-empty-shortcut">
+              <kbd className="nk-kbd">Esc</kbd>
+              <span>Close note</span>
+            </span>
+          </div>
         </div>
       )}
 

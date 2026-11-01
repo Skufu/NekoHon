@@ -16,7 +16,6 @@ import gzip
 import json
 import mimetypes
 import os
-import re
 import sys
 import threading
 import time
@@ -403,6 +402,16 @@ class Handler(BaseHTTPRequestHandler):
                 self.wfile.write(body)
             return
 
+        if route == "/api/traces" or route.startswith("/api/traces?"):
+            try:
+                req = urllib.request.Request("http://127.0.0.1:3100" + self.path)
+                with urllib.request.urlopen(req, timeout=2.0) as resp:
+                    data = resp.read()
+                    self._send_bytes(200, data, "application/json; charset=utf-8", send_body=send_body)
+                    return
+            except Exception:
+                pass
+
         # Static asset serving for web/out Next.js export
         if (WEB_OUT / "index.html").is_file():
             try:
@@ -416,6 +425,13 @@ class Handler(BaseHTTPRequestHandler):
                     self._send_json(404, {"error": "not found"}, send_body=send_body)
                     return
                 candidate = (base / clean_rel).resolve()
+                if not candidate.is_file():
+                    html_cand = (base / f"{clean_rel}.html").resolve()
+                    idx_cand = (candidate / "index.html").resolve()
+                    if html_cand.is_file() and html_cand.is_relative_to(base):
+                        candidate = html_cand
+                    elif idx_cand.is_file() and idx_cand.is_relative_to(base):
+                        candidate = idx_cand
                 if candidate.is_file() and candidate.is_relative_to(base):
                     suffix = candidate.suffix.lower()
                     guessed_type, _ = mimetypes.guess_type(str(candidate))
@@ -537,80 +553,142 @@ class Handler(BaseHTTPRequestHandler):
         self._send_json(200, body)
 
     def _handle_import(self, request):
+        """Shelve an EPUB, whole or framed.
+
+        `stream: 1` sends the wait as NDJSON: `book` once the cover is on
+        disk, `progress` after every embedding batch, then exactly one
+        `final` or `error`. Without it the reply is the same single JSON
+        object as before.
+        """
+        streaming = bool(request.get("stream"))
+        if streaming:
+            self.send_response(200)
+            self.send_header("Content-Type", "application/x-ndjson; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("Connection", "close")
+            self._cors()
+            self.end_headers()
+
+        def frame(payload):
+            self.wfile.write((json.dumps(payload) + "\n").encode("utf-8"))
+            self.wfile.flush()
+
         try:
-            from ingest import ingest_epub, update_books_catalog
-            from retrieve import embed_index, save_index
-
-            data_b64 = request.get("data_base64")
-            epub_path_str = request.get("epub_path")
-            filename = request.get("filename") or ""
-
-            if data_b64:
-                try:
-                    raw_data = base64.b64decode(data_b64)
-                except Exception as exc:
-                    self._send_json(400, {"error": f"invalid base64: {exc}"})
-                    return
-                book_id = request.get("book_id") or Path(filename).stem.lower()
-                book_id = re.sub(r"[^a-zA-Z0-9_-]", "-", book_id).lower().strip("-") or "imported"
-                books_dir = ROOT / "books"
-                books_dir.mkdir(parents=True, exist_ok=True)
-                epub_path = books_dir / f"{book_id}.epub"
-                epub_path.write_bytes(raw_data)
-            elif epub_path_str:
-                epub_path = Path(epub_path_str)
-                if not epub_path.is_absolute():
-                    epub_path = ROOT / epub_path
-                if not epub_path.is_file():
-                    self._send_json(400, {"error": f"file not found: {epub_path_str}"})
-                    return
-                book_id = request.get("book_id") or epub_path.stem.lower()
-                book_id = re.sub(r"[^a-zA-Z0-9_-]", "-", book_id).lower().strip("-") or "imported"
+            final = self._import_book(request, frame if streaming else None)
+        except ValueError as exc:
+            if streaming:
+                frame({"type": "error", "error": str(exc)})
             else:
-                self._send_json(400, {"error": "missing data_base64 or epub_path"})
-                return
-
-            figures_dir = ROOT / "data" / "figures" / book_id
-            figures_dir.mkdir(parents=True, exist_ok=True)
-
-            index = ingest_epub(epub_path, figures_dir=figures_dir, write_images=True, book_id=book_id)
-            if request.get("title"):
-                index["title"] = request["title"]
-            if request.get("author"):
-                index["author"] = request["author"]
-
-            if not request.get("skip_embed"):
-                embed_index(index)
-
-            index_path = book_index_path(book_id)
-            save_index(index_path, index)
-
-            catalog_entry = update_books_catalog(
-                book_id,
-                index.get("title", ""),
-                index.get("author", ""),
-                index_path,
-                figures_dir,
-                index.get("chunks", []),
-                index.get("figures", []),
-                cover_file=index.get("cover_file", "cover.png"),
-            )
-
-            INDEX_CACHE[book_id] = index
-            CHUNKS_JSON_CACHE.clear()
-            CHUNKS_GZIP_CACHE.clear()
-            if not request.get("skip_embed"):
-                chunks_body(book_id)
-
-            self._send_json(200, {
-                "ok": True,
-                "book_id": book_id,
-                "book": catalog_entry,
-                "books": get_books_catalog(),
-            })
+                self._send_json(400, {"error": str(exc)})
+            return
+        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
+            return
         except Exception as exc:
             traceback.print_exc()
-            self._send_json(500, {"error": f"import failed: {exc}"})
+            if not streaming:
+                self._send_json(500, {"error": f"import failed: {exc}"})
+                return
+            try:
+                frame({"type": "error", "error": f"import failed: {exc}"})
+            except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
+                pass
+            return
+
+        if streaming:
+            frame({"type": "final", **final})
+        else:
+            self._send_json(200, final)
+
+    def _import_book(self, request, notify=None):
+        """Ingest, embed, save, catalogue. `notify` receives each stream frame."""
+        from ingest import book_id_for, ingest_epub, update_books_catalog
+        from retrieve import embed_index, save_index
+
+        def tell(payload):
+            if notify:
+                notify(payload)
+
+        data_b64 = request.get("data_base64")
+        epub_path_str = request.get("epub_path")
+        filename = request.get("filename") or ""
+
+        if data_b64:
+            try:
+                raw_data = base64.b64decode(data_b64)
+            except Exception as exc:
+                raise ValueError(f"invalid base64: {exc}") from exc
+            book_id = book_id_for(request.get("book_id") or filename)
+            books_dir = ROOT / "books"
+            books_dir.mkdir(parents=True, exist_ok=True)
+            epub_path = books_dir / f"{book_id}.epub"
+            epub_path.write_bytes(raw_data)
+        elif epub_path_str:
+            epub_path = Path(epub_path_str)
+            if not epub_path.is_absolute():
+                epub_path = ROOT / epub_path
+            if not epub_path.is_file():
+                raise ValueError(f"file not found: {epub_path_str}")
+            book_id = book_id_for(request.get("book_id") or epub_path.stem)
+        else:
+            raise ValueError("missing data_base64 or epub_path")
+
+        figures_dir = ROOT / "data" / "figures" / book_id
+        figures_dir.mkdir(parents=True, exist_ok=True)
+
+        index = ingest_epub(epub_path, figures_dir=figures_dir, write_images=True, book_id=book_id)
+        if request.get("title"):
+            index["title"] = request["title"]
+        if request.get("author"):
+            index["author"] = request["author"]
+
+        # The cover file is on disk now, so the card can show the real jacket
+        # for the whole wait instead of a placeholder.
+        tell({
+            "type": "book",
+            "book_id": book_id,
+            "title": index.get("title", ""),
+            "author": index.get("author", ""),
+            "cover_url": (
+                "/figures/cover" if book_id == DEFAULT_BOOK_ID
+                else f"/figures/cover?book_id={book_id}"
+            ),
+            "chunk_count": len(index.get("chunks") or []),
+        })
+
+        if not request.get("skip_embed"):
+            embed_index(
+                index,
+                on_progress=lambda done, total: tell(
+                    {"type": "progress", "done": done, "total": total}
+                ),
+            )
+
+        index_path = book_index_path(book_id)
+        save_index(index_path, index)
+
+        catalog_entry = update_books_catalog(
+            book_id,
+            index.get("title", ""),
+            index.get("author", ""),
+            index_path,
+            figures_dir,
+            index.get("chunks", []),
+            index.get("figures", []),
+            cover_file=index.get("cover_file", "cover.png"),
+        )
+
+        INDEX_CACHE[book_id] = index
+        CHUNKS_JSON_CACHE.clear()
+        CHUNKS_GZIP_CACHE.clear()
+        if not request.get("skip_embed"):
+            chunks_body(book_id)
+
+        return {
+            "ok": True,
+            "book_id": book_id,
+            "book": catalog_entry,
+            "books": get_books_catalog(),
+        }
 
     def _stream_ask(self, request, book):
         """NDJSON frames: token as the model writes, reset when a draft is

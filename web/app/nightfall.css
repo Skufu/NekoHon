@@ -228,45 +228,80 @@
   text-wrap: balance;
 }
 
-/* Ingestion card */
-.nk-ingest-card {
+/* An importing book: the jacket, dimmed, with a dial under it. It sits in
+   the shelf grid like a book, so the wait reads as one more volume going up
+   rather than a status bar. The dial fills from the engine's own batch
+   counts; until the first batch arrives it spins instead of claiming a
+   number. */
+.nk-ingest {
   display: flex;
+  flex-direction: column;
+  min-width: 0;
+  animation: nk-ingest-in 220ms var(--ease-out) both;
+}
+
+.nk-ingest-cover {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: 4px;
+  background: var(--cloth-plum);
+  color: var(--cloth-plum-fg);
+  box-shadow: var(--nf-cover-shadow);
+  opacity: var(--ingest-dim);
+}
+
+.nk-ingest.is-done .nk-ingest-cover {
+  opacity: 1;
+}
+
+.nk-ingest-cover-img {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.nk-ingest-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 12% 10%;
+  font-family: var(--font-serif);
+}
+
+.nk-ingest-fallback-title {
+  font-size: 15px;
+  line-height: 1.25;
+  letter-spacing: 0.005em;
+  text-wrap: balance;
+}
+
+.nk-ingest-wait {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 16px;
-  margin-top: 32px;
-  max-width: 660px;
-  padding: 14px 16px;
-  border: 1px solid var(--rule);
-  border-radius: 8px;
-  background: var(--bg-raised);
-  animation: nk-ingest-in 180ms var(--ease-out) both;
-}
-
-.nk-ingest-card.is-done {
-  border-color: color-mix(in oklab, var(--nf-amber) 45%, var(--rule));
-}
-
-.nk-ingest-card.is-error {
-  border-color: color-mix(in oklab, var(--danger) 45%, var(--rule));
-}
-
-.nk-ingest-card.is-error .nk-ingest-ring {
-  color: var(--danger);
-}
-
-.nk-ingest-ring {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  flex: none;
+  gap: var(--s2);
+  margin-top: var(--s4);
   color: var(--nf-amber);
 }
 
-.nk-ingest-spinner {
-  display: block;
-  transform-origin: center;
-  animation: nk-ingest-spin 0.9s linear infinite;
+.nk-ingest.is-error .nk-ingest-wait {
+  color: var(--danger);
+}
+
+.nk-ingest-dial {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
 }
 
 .nk-ingest-track {
@@ -275,75 +310,78 @@
 
 .nk-ingest-arc {
   stroke: currentColor;
+  transform: rotate(-90deg);
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset 320ms var(--ease-out);
 }
 
-.nk-ingest-check {
-  display: block;
-  stroke: currentColor;
-  stroke-dasharray: 22;
-  stroke-dashoffset: 22;
-  animation: nk-ingest-draw 260ms var(--ease-out) 60ms forwards;
+.nk-ingest-dial.is-spinning svg {
+  animation: nk-ingest-spin 1.1s linear infinite;
 }
 
-.nk-ingest-alert {
-  display: block;
-  stroke: currentColor;
+.nk-ingest-dial.is-spinning .nk-ingest-arc {
+  stroke-dasharray: 32 94;
 }
 
-.nk-ingest-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-}
-
-.nk-ingest-name {
-  font-family: var(--font-serif);
-  font-size: 17px;
-  line-height: 1.25;
-  letter-spacing: -0.005em;
-  color: var(--ink);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.nk-ingest-line {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
+.nk-ingest-percent {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
   font-family: var(--font-sans);
-  font-size: 12px;
-  line-height: 1.4;
-  color: var(--ink-2);
-}
-
-.nk-ingest-stage {
-  color: inherit;
-}
-
-.nk-ingest-card.is-error .nk-ingest-stage {
-  color: var(--danger);
-}
-
-.nk-ingest-time {
+  font-size: 11px;
+  line-height: 1;
   color: var(--ink-2);
   font-variant-numeric: tabular-nums;
 }
 
-.nk-ingest-time::before {
-  content: "·";
-  margin-right: 8px;
+.nk-ingest-check {
+  stroke: currentColor;
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  animation: nk-ingest-draw 260ms var(--ease-out) 60ms forwards;
+}
+
+.nk-ingest-alert {
+  stroke: currentColor;
+}
+
+.nk-ingest-stage {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--ink-2);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  text-wrap: balance;
+}
+
+.nk-ingest.is-error .nk-ingest-stage {
+  color: var(--danger);
+}
+
+.nk-ingest-name {
+  margin-top: var(--s3);
+  font-family: var(--font-serif);
+  font-size: 15.5px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .nk-ingest-dismiss {
-  margin-left: auto;
   min-height: 36px;
-  padding: 0 10px;
-  border: 0;
+  padding: 0 var(--s3);
+  border: 1px solid var(--rule-strong);
   border-radius: 4px;
   background: transparent;
-  color: inherit;
+  color: var(--ink-2);
   font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 500;
@@ -384,10 +422,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nk-ingest-card,
-  .nk-ingest-spinner,
+  .nk-ingest,
+  .nk-ingest-dial.is-spinning svg,
   .nk-ingest-check {
     animation: none;
+  }
+
+  .nk-ingest-arc {
+    transition: none;
   }
 
   .nk-ingest-check {
@@ -877,14 +919,8 @@
     margin-top: 28px;
   }
 
-  .nk-ingest-card {
-    margin-top: 20px;
-    gap: 12px;
-    padding: 12px 12px 12px 14px;
-  }
-
   .nk-ingest-name {
-    font-size: 15px;
+    font-size: 14.5px;
   }
 
   .nk-ingest-dismiss {
@@ -1385,7 +1421,6 @@
   .nk-reader .rg-prose {
     max-width: none;
     margin: 0;
-    transition: transform 240ms var(--ease-out);
   }
 
   .nk-reader .rg-margin {
@@ -1396,11 +1431,6 @@
   .nk-reader .margin-empty {
     max-width: 32ch;
     margin-top: 190px;
-    padding-left: 14px;
-    border-left: 1px solid var(--rule);
-    font-size: 12px;
-    line-height: 1.55;
-    color: var(--ink-3);
   }
 
   .nk-reader .margin-empty-title {
@@ -1409,23 +1439,14 @@
     font-weight: 400;
     color: var(--ink-2);
   }
-
-  .nk-reader .margin-empty-sub {
-    margin-top: 4px;
-    font-size: 12px;
-    color: var(--ink-3);
-  }
 }
 
-/* Focus mode is the reading surface, and an empty margin has nothing to sit
-   beside: the column slides onto the viewport's centre line instead of the
-   174px left of it that the reserved 320px margin and 28px gutter leave it.
-   The first note slides it back into the two-column reading layout. */
-@media (min-width: 1080px) {
-  .nk-reader[data-focus="true"][data-margin="empty"] .rg-prose {
-    transform: translateX(calc((320px + 28px) / 2));
-  }
-}
+/* Focus mode dims the prose; it does not move it. An earlier rule slid the
+   column right into the reserved margin while no note was open, which put the
+   text under the margin's own "notes live here" card (measured 2026-11-01:
+   prose 400..1027px, card 881..1201px in a 1440px window). The prose now keeps
+   its column whether the margin is empty or filled, so opening a note never
+   reflows the paragraph the reader is on. */
 
 .nk-reader .book-header {
   margin: 0 0 32px;

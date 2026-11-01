@@ -1184,24 +1184,51 @@ mark {
 
 .margin-empty {
   font-family: var(--font-sans);
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 12px;
+  line-height: 1.55;
   color: var(--ink-3);
   margin-top: 170px;
-  padding: 4px 0 4px 14px;
+  padding: 0 0 0 14px;
   border-left: 1px solid var(--rule-strong);
   user-select: none;
 }
 
 .margin-empty-title {
-  font-weight: 500;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 15.5px;
   color: var(--ink);
-  margin: 0;
+  margin: 0 0 6px;
+  line-height: 1.35;
 }
 
 .margin-empty-sub {
-  margin: 4px 0 0;
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 12px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.margin-empty-shortcuts {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+  font-size: 11px;
   color: var(--ink-3);
+}
+
+.margin-empty-shortcut {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.margin-empty-shortcut .nk-kbd {
+  position: static;
 }
 
 .gloss-leader-svg {

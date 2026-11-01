@@ -5,6 +5,7 @@ Pictures stay files. No pickle.
 """
 
 import argparse
+import hashlib
 import json
 import re
 import zipfile
@@ -21,6 +22,34 @@ FIGURES = ROOT / "data" / "figures"
 
 CHUNK_MAX_CHARS = 1400
 CHUNK_OVERLAP_CHARS = 180
+
+# The id becomes three file names (`books/<id>.epub`, `data/index.<id>.sqlite`,
+# `data/figures/<id>/`). macOS caps one name at 255 bytes and SQLite adds a
+# "-journal" sidecar beside whatever it opens, so a 226-char id from an
+# Anna's Archive filename failed the index write with "unable to open
+# database file" (measured 2026-11-01). 64 keeps the readable head of any
+# title and leaves the whole path short enough to read in a terminal.
+BOOK_ID_MAX = 64
+
+
+def book_id_for(name):
+    """Filesystem-safe book id from a file name or a title, bounded in length.
+
+    A name longer than BOOK_ID_MAX keeps its readable head and gains a digest
+    of the whole slug, so two long titles that share a prefix stay distinct
+    instead of overwriting each other's index.
+    """
+    stem = Path(str(name)).name
+    if stem.lower().endswith(".epub"):
+        stem = stem[:-5]
+    slug = re.sub(r"[^a-z0-9_-]+", "-", stem.lower()).strip("-_")
+    if not slug:
+        return "imported"
+    if len(slug) <= BOOK_ID_MAX:
+        return slug
+    digest = hashlib.sha1(slug.encode("utf-8")).hexdigest()[:8]
+    return f"{slug[: BOOK_ID_MAX - 9].rstrip('-_')}-{digest}"
+
 
 _TOKENIZER = None
 
@@ -888,7 +917,7 @@ def ingest_epub(epub_path=BOOK, figures_dir=None, write_images=True, book_id=Non
         if str(epub_path.resolve()) == str(BOOK.resolve()):
             book_id = "fde"
         else:
-            book_id = epub_path.stem
+            book_id = book_id_for(epub_path.stem)
 
     if figures_dir is None:
         figures_dir = FIGURES if book_id == "fde" else (ROOT / "data" / "figures" / book_id)
@@ -1091,7 +1120,7 @@ def main():
     if args.book_id:
         book_id = args.book_id
     elif str(epub_path.resolve()) != str(BOOK.resolve()):
-        book_id = epub_path.stem
+        book_id = book_id_for(epub_path.stem)
     else:
         book_id = "fde"
 

@@ -1,7 +1,8 @@
 """Answer-quality ranking, fair replay (checkables + voted yes/no bits).
 
-Plan: artifacts/plans/answer-quality-judge-plan-2026-10-15.md, "Rating method
-v2". Layer 1 is machine-checkable and deterministic (refusal correct against a
+Plan: "Rating method v2" (the plan file was retired 2026-11-01; the method is
+described below and in artifacts/reports/answer-quality-*.md). Layer 1 is
+machine-checkable and deterministic (refusal correct against a
 reviewed answerability label, quoted spans verbatim in the passages the answer
 itself cited). Layer 2 is four yes/no bits, each asked three times, majority
 decides; the defect label is derived from the first failed check, not asked of

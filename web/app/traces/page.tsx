@@ -609,7 +609,7 @@ export default function TracesPage() {
                                 <span className="traces-passage-heading">{p.heading}</span>
                               )}
                               <span className="traces-passage-quote">
-                                {p.text_preview ||
+                                {(isExpanded ? p.text : p.text_preview) ||
                                   p.text ||
                                   "This passage was matched from the book index."}
                               </span>

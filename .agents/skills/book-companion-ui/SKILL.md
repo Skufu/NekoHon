@@ -5,9 +5,9 @@ description: Use when doing UI, reader, window, or frontend work in ask-this-boo
 
 # book-companion-ui
 
-UI work in `ask-this-book`. Read `GOAL.md` first — only the constitution there can
-block work — then the hard rules in `AGENTS.md`. This skill is a tactic; the goal
-it serves is one line of `GOAL.md`: **the reader is the judge**. A window that
+UI work in `ask-this-book`. Read `AGENTS.md` first (repo map, guarantees the
+tests hold, operational facts), then `docs/ARCHITECTURE.md` for what the engine
+actually serves. The measure for every UI decision is the reader: a window that
 reads as broken (a refusal that looks like an error, a miss that looks like a
 citation) is a failure even when every mechanism is green.
 
@@ -27,11 +27,11 @@ citation) is a failure even when every mechanism is green.
   is built from; `doc` is the book file the citation lives in.
 - The reader + chat frontend is **approved** (user, 2026-10-15) and the
   stack is decided: a **Next.js app under `web/`** (the frontend exception in
-  AGENTS.md hard rules — Node + npm live there and nowhere else). The build
-  order, the references, and the resolved decisions live in
-  `artifacts/plans/frontend-build-plan-2026-10-15.md`; the older direction doc
-  (locator strategy, foliate-js) is `artifacts/plans/frontend-navigation-plan.md`.
-  Follow the build plan's phase order; do not skip ahead to the margin layout.
+  AGENTS.md hard rules — Node + npm live there and nowhere else). The built
+  result, the file map and the engine calls are in `web/README.md` and
+  `docs/ARCHITECTURE.md` §7; the phase record is
+  `artifacts/reports/frontend-phase1-2026-10-15.md`. Follow the ship order
+  those describe; do not skip ahead to the margin layout.
 - `window/index.html` (the vanilla window) stays working until the Next app
   covers all four modes; it is the reference for the honesty labels
   ("nearest misses:", "nearby, not an answer", "Show the key").
@@ -47,9 +47,11 @@ citation) is a failure even when every mechanism is green.
     bottom sheet. The `Rail` minimap is no longer mounted.
   - **Focus mode** (`Reader.tsx`, default on): every `.chunk-p` sits at
     `--focus-dim` except the paragraph nearest 42% of the viewport, which keeps
-    full `--ink`. With focus on and no note in the margin the column is
-    optically centred (`.rg-prose` translated 174px, half the reserved margin +
-    gutter, at `>= 1080px`); the first note slides it back beside the margin.
+    full `--ink`. The prose keeps its grid column whether the margin is empty
+    or filled: the margin always holds something (the "questions and notes live
+    here" hint, then the note cards), and sliding the column under it put text
+    behind the hint card (measured 2026-11-01). Opening a note therefore never
+    reflows the paragraph being read.
     Escape closes a gloss, then clears a highlight, then leaves focus; the
     topbar's Escape handler closes its menus first.
   - **TopBar**: 64px, Nekohon mark, centred volume switcher, Contents, Focus
@@ -92,10 +94,9 @@ citation) is a failure even when every mechanism is green.
 - The reader is a `.rg-prose` column, `max-width: 66ch` (627px at 19px
   Georgia), centred. From 1080px the grid becomes
   `minmax(0, read-size × 33) 320px` with a 28px gap, so the answer card sits in
-  a reserved right margin. The prose width tracks `--read-size`. The column is
-  reserved only while a note exists (a quiet "This area is for notes" hint
-  otherwise); with focus mode on and no note, the prose is translated 174px onto
-  the viewport's centre line and slides back when the first note opens. The
+  a reserved right margin. The prose width tracks `--read-size`. From 1080px the
+  right column hosts an empty-state card when no notes exist, anchoring beside
+  the first chunk; opening a note never shifts or collides with the prose. The
   `Rail` file still exists but nothing imports it.
 - A note in the margin is the `MarginCard` mini card: dragged by its header,
   resized from its edges, positioned by the old collision solver (`GAP=16`,

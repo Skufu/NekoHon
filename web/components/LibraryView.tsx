@@ -112,30 +112,52 @@ export default function LibraryView({ loadError = "" }: { loadError?: string }) 
       const base64 = await base64Promise;
 
       setImportingState({ status: "ingesting", filename: file.name });
-      const result = await importEpubBook(file.name, base64);
-      if (result.ok && result.book_id) {
-        const bookToAdd: BookCatalogItem = result.book || {
-          book_id: result.book_id,
-          title: displayTitle(file.name),
-          author: "Imported from this machine",
-          chapter_count: 0,
-          chunk_count: 0,
-          figure_count: 0,
-        };
-        addBookToCatalog(bookToAdd);
-        setImportingState({ status: "done", filename: file.name });
-        openTimerRef.current = window.setTimeout(() => {
-          openTimerRef.current = null;
-          setImportingState({ status: "idle" });
-          openBook(result.book_id);
-        }, 650);
-      } else {
-        setImportingState({
-          status: "error",
-          filename: file.name,
-          error: result.error || "The engine could not read that EPUB.",
-        });
+      const result = await importEpubBook(file.name, base64, {
+        onBook: (book) => {
+          setImportingState((current) =>
+            current.status !== "ingesting"
+              ? current
+              : {
+                  ...current,
+                  title: book.title || current.title,
+                  coverUrl: book.cover_url
+                    ? `${engineUrl()}${book.cover_url}`
+                    : current.coverUrl,
+                }
+          );
+        },
+        onProgress: (done, total) => {
+          setImportingState((current) =>
+            current.status !== "ingesting"
+              ? current
+              : { ...current, passages: { done, total } }
+          );
+        },
+      });
+      if (!result.ok || !result.book_id) {
+        throw new Error("The engine did not shelve that EPUB.");
       }
+      const bookToAdd: BookCatalogItem = result.book || {
+        book_id: result.book_id,
+        title: displayTitle(file.name),
+        author: "Imported from this machine",
+        chapter_count: 0,
+        chunk_count: 0,
+        figure_count: 0,
+      };
+      addBookToCatalog(bookToAdd);
+      setImportingState((current) => ({
+        status: "done",
+        filename: file.name,
+        title: current.title,
+        coverUrl: current.coverUrl,
+        passages: current.passages,
+      }));
+      openTimerRef.current = window.setTimeout(() => {
+        openTimerRef.current = null;
+        setImportingState({ status: "idle" });
+        openBook(result.book_id);
+      }, 650);
     } catch (error: unknown) {
       setImportingState({
         status: "error",
@@ -278,11 +300,6 @@ export default function LibraryView({ loadError = "" }: { loadError?: string }) 
           <h1 className="nk-lib-heading">Books to read</h1>
         </section>
 
-        <IngestCard
-          state={importingState}
-          onDismiss={() => setImportingState({ status: "idle" })}
-        />
-
         {loadError && !dismissedError && (
           <div className="nk-alert" role="alert">
             <svg
@@ -337,8 +354,12 @@ export default function LibraryView({ loadError = "" }: { loadError?: string }) 
           </div>
         )}
 
-        {filteredBooks.length > 0 ? (
+        {filteredBooks.length > 0 || importingState.status !== "idle" ? (
           <section className="nk-shelf" aria-label="Your library">
+            <IngestCard
+              state={importingState}
+              onDismiss={() => setImportingState({ status: "idle" })}
+            />
             {filteredBooks.map((book) => {
               const cloth = bookCloth(book.book_id);
               const src = coverSrc(book);

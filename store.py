@@ -195,8 +195,13 @@ def write_index(path, index):
             f"index storage must use one of {DB_SUFFIXES}, not {target.suffix or '<none>'}"
         )
     target.parent.mkdir(parents=True, exist_ok=True)
+    # The temp name carries no part of the target's name on purpose: SQLite
+    # also creates "<temp>-journal" while writing, and a book id near the
+    # filesystem's 255-byte name limit would push that sidecar past it.
+    # Measured 2026-11-01: a 226-char id saved to a 253-byte temp name and
+    # failed with "unable to open database file" when the journal was created.
     fd, tmp_name = tempfile.mkstemp(
-        prefix=target.name + ".", suffix=".tmp", dir=target.parent
+        prefix=".index-", suffix=".tmp", dir=target.parent
     )
     os.close(fd)
     tmp = Path(tmp_name)

@@ -8,6 +8,12 @@ export type IngestState = {
   status: IngestPhase;
   filename?: string;
   error?: string;
+  /** The engine's title for the volume, once it has read the OPF. */
+  title?: string;
+  /** The jacket the engine extracted, once it is on disk. */
+  coverUrl?: string;
+  /** Real counts from the embedding batches; absent until the first batch. */
+  passages?: { done: number; total: number };
 };
 
 export function displayTitle(filename: string): string {
@@ -24,6 +30,14 @@ function formatElapsed(totalSeconds: number): string {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
+const DIAL_RADIUS = 20;
+const DIAL_LENGTH = 2 * Math.PI * DIAL_RADIUS;
+
+/**
+ * The importing book: the real jacket, dimmed, with a dial under it that
+ * fills from the engine's own batch counts. No guess, no fake percentage —
+ * before the first batch the dial spins instead of claiming a number.
+ */
 export default function IngestCard({
   state,
   onDismiss,
@@ -32,14 +46,16 @@ export default function IngestCard({
   onDismiss: () => void;
 }) {
   const isActive = state.status === "reading" || state.status === "ingesting";
+  const isError = state.status === "error";
+  const isDone = state.status === "done";
   const startedAtRef = useRef(Date.now());
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
-    if (state.status === "reading") {
+    if (state.status === "reading" || state.status === "ingesting") {
       startedAtRef.current = Date.now();
-      setNow(Date.now());
     }
+    setNow(Date.now());
   }, [state.status]);
 
   useEffect(() => {
@@ -52,108 +68,115 @@ export default function IngestCard({
 
   if (state.status === "idle" || !state.filename) return null;
 
-  const isError = state.status === "error";
+  const title = state.title?.trim() || displayTitle(state.filename);
+  const total = state.passages?.total ?? 0;
+  const done = state.passages?.done ?? 0;
+  const percent = total > 0 ? Math.min(100, Math.round((100 * done) / total)) : 0;
+  const measured = total > 0;
   const elapsed = isActive
     ? Math.max(0, Math.floor((now - startedAtRef.current) / 1000))
     : 0;
 
   const stageText = isError
     ? state.error || "The import failed."
-    : state.status === "reading"
-      ? "Reading the file…"
-      : state.status === "ingesting"
-        ? "Shelving…"
-        : "Shelved. Opening the book…";
+    : isDone
+      ? "Shelved. Opening the book…"
+      : state.status === "reading"
+        ? `Reading the file… · ${formatElapsed(elapsed)}`
+        : measured
+          ? `${done} of ${total} passages · ${formatElapsed(elapsed)}`
+          : `Reading the text… · ${formatElapsed(elapsed)}`;
 
   return (
-    <section
-      className={`nk-ingest-card${state.status === "done" ? " is-done" : ""}${
-        isError ? " is-error" : ""
-      }`}
+    <article
+      className={`nk-ingest${isDone ? " is-done" : ""}${isError ? " is-error" : ""}`}
+      aria-busy={isActive}
     >
-      <span className="nk-ingest-ring" aria-hidden>
-        {isActive && (
-          <svg
-            viewBox="0 0 28 28"
-            width="28"
-            height="28"
-            fill="none"
-            stroke="currentColor"
-            className="nk-ingest-spinner"
-            aria-hidden
-            focusable="false"
-          >
-            <circle className="nk-ingest-track" cx="14" cy="14" r="11.5" strokeWidth="2" />
-            <circle
-              className="nk-ingest-arc"
-              cx="14"
-              cy="14"
-              r="11.5"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeDasharray="20 53"
-            />
-          </svg>
-        )}
-        {state.status === "done" && (
-          <svg
-            viewBox="0 0 28 28"
-            width="28"
-            height="28"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="nk-ingest-check"
-            aria-hidden
-            focusable="false"
-          >
-            <path d="M7.5 14.5l4.5 4.5 8.5-10" />
-          </svg>
-        )}
-        {isError && (
-          <svg
-            viewBox="0 0 28 28"
-            width="28"
-            height="28"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            className="nk-ingest-alert"
-            aria-hidden
-            focusable="false"
-          >
-            <circle cx="14" cy="14" r="11" />
-            <path d="M14 8.5v6.5" />
-            <circle cx="14" cy="19.5" r="1.1" fill="currentColor" stroke="none" />
-          </svg>
-        )}
-      </span>
-      <span className="nk-ingest-copy">
-        <span className="nk-ingest-name">{displayTitle(state.filename)}</span>
-        <span className="nk-ingest-line">
-          <span
-            className="nk-ingest-stage"
-            role={isError ? "alert" : "status"}
-            aria-live={isError ? "assertive" : "polite"}
-            aria-atomic="true"
-          >
-            {stageText}
-          </span>
-          {isActive && (
-            <span className="nk-ingest-time" aria-hidden>
-              {formatElapsed(elapsed)}
-            </span>
-          )}
+      <span className="nk-ingest-cover">
+        {state.coverUrl ? (
+          <img
+            src={state.coverUrl}
+            alt=""
+            className="nk-ingest-cover-img"
+            onError={(event) => {
+              event.currentTarget.style.display = "none";
+            }}
+          />
+        ) : null}
+        <span className="nk-ingest-fallback" aria-hidden>
+          <span className="nk-ingest-fallback-title">{title}</span>
         </span>
       </span>
-      {isError && (
-        <button type="button" className="nk-ingest-dismiss" onClick={onDismiss}>
-          Dismiss
-        </button>
-      )}
-    </section>
+
+      <span className="nk-ingest-wait">
+        <span
+          className={`nk-ingest-dial${isActive && !measured ? " is-spinning" : ""}`}
+        >
+          <svg
+            viewBox="0 0 48 48"
+            width="48"
+            height="48"
+            fill="none"
+            stroke="currentColor"
+            role={isActive ? "progressbar" : undefined}
+            aria-valuemin={isActive ? 0 : undefined}
+            aria-valuemax={isActive ? 100 : undefined}
+            aria-valuenow={isActive ? percent : undefined}
+            aria-label={isActive ? "Shelving progress" : undefined}
+            aria-hidden={isActive ? undefined : true}
+            focusable="false"
+          >
+            <circle
+              className="nk-ingest-track"
+              cx="24"
+              cy="24"
+              r={DIAL_RADIUS}
+              strokeWidth="3"
+            />
+            {isActive ? (
+              <circle
+                className="nk-ingest-arc"
+                cx="24"
+                cy="24"
+                r={DIAL_RADIUS}
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeDasharray={DIAL_LENGTH}
+                strokeDashoffset={DIAL_LENGTH * (1 - percent / 100)}
+              />
+            ) : null}
+            {isDone ? (
+              <path className="nk-ingest-check" d="M14 24.5l7 7 13-15" strokeWidth="2.6" />
+            ) : null}
+            {isError ? (
+              <path className="nk-ingest-alert" d="M24 14v12M24 33.5v0" strokeWidth="3" />
+            ) : null}
+          </svg>
+          {isActive && measured ? (
+            <span className="nk-ingest-percent" aria-hidden>
+              {percent}
+            </span>
+          ) : null}
+        </span>
+
+        <span
+          className="nk-ingest-stage"
+          role={isError ? "alert" : "status"}
+          aria-live={isError ? "assertive" : "polite"}
+        >
+          {stageText}
+        </span>
+
+        {isError ? (
+          <button type="button" className="nk-ingest-dismiss" onClick={onDismiss}>
+            Dismiss
+          </button>
+        ) : null}
+      </span>
+
+      <span className="nk-ingest-name" title={title}>
+        {title}
+      </span>
+    </article>
   );
 }

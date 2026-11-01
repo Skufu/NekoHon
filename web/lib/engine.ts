@@ -146,21 +146,88 @@ export async function fetchPassages(
   return data.passages ?? [];
 }
 
+export type ImportBookFrame = {
+  book_id: string;
+  title: string;
+  author: string;
+  cover_url: string;
+  chunk_count: number;
+};
+
+export type ImportResult = {
+  ok: boolean;
+  book_id: string;
+  book?: BookCatalogItem;
+  books?: BookCatalogItem[];
+};
+
+type ImportHandlers = {
+  onBook(book: ImportBookFrame): void;
+  onProgress(done: number, total: number): void;
+};
+
+type ImportFrame =
+  | ({ type: "book" } & ImportBookFrame)
+  | { type: "progress"; done: number; total: number }
+  | ({ type: "final" } & ImportResult)
+  | { type: "error"; error: string };
+
 export async function importEpubBook(
   filename: string,
-  dataBase64: string
-): Promise<{ ok: boolean; book_id: string; book?: BookCatalogItem; books?: BookCatalogItem[]; error?: string }> {
+  dataBase64: string,
+  handlers?: ImportHandlers,
+  signal?: AbortSignal
+): Promise<ImportResult> {
   const response = await fetch(`${engineUrl()}/ask`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ mode: "import", filename, data_base64: dataBase64 }),
-    signal: AbortSignal.timeout(600_000),
+    body: JSON.stringify({ mode: "import", filename, data_base64: dataBase64, stream: 1 }),
+    signal: signal ?? AbortSignal.timeout(600_000),
   });
-  if (!response.ok) {
+  if (!response.ok || !response.body) {
     const data = await response.json().catch(() => null);
     throw new Error(data?.error || `import failed with ${response.status}`);
   }
-  return response.json();
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let result: ImportResult | null = null;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let index: number;
+    while ((index = buffer.indexOf("\n")) >= 0) {
+      const line = buffer.slice(0, index).trim();
+      buffer = buffer.slice(index + 1);
+      if (!line) continue;
+      let frame: ImportFrame;
+      try {
+        frame = JSON.parse(line);
+      } catch {
+        continue;
+      }
+      if (frame.type === "book") {
+        handlers?.onBook(frame);
+      } else if (frame.type === "progress") {
+        handlers?.onProgress(frame.done, frame.total);
+      } else if (frame.type === "final") {
+        result = {
+          ok: Boolean(frame.ok),
+          book_id: frame.book_id,
+          book: frame.book,
+          books: frame.books,
+        };
+      } else if (frame.type === "error") {
+        throw new Error(frame.error || "The engine could not shelve that EPUB.");
+      }
+    }
+  }
+  // EOF before a final frame: the engine died mid-import, and a half-written
+  // index must not be reported as shelved.
+  if (!result) throw new Error("The engine stopped before the book was shelved.");
+  return result;
 }
 
 export type AskRequest = {

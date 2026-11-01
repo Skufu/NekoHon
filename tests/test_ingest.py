@@ -5,7 +5,13 @@ import unittest
 import zipfile
 from pathlib import Path
 
-from ingest import ChapterParser, _chapter_number, ingest_epub
+from ingest import (
+    BOOK_ID_MAX,
+    ChapterParser,
+    _chapter_number,
+    book_id_for,
+    ingest_epub,
+)
 
 CHAPTER = """<?xml version="1.0" encoding="utf-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -212,6 +218,37 @@ class ChapterNumberTests(unittest.TestCase):
 
     def test_the_heading_fallback_still_reads_the_label(self):
         self.assertEqual(_chapter_number("part1", "<h1>Chapter 5. CRUD</h1>"), "5")
+
+
+class BookIdTests(unittest.TestCase):
+    """An imported file name becomes three file names; it must be bounded.
+
+    Measured 2026-11-01: an Anna's Archive name derived a 226-char id, and
+    the index write failed with "unable to open database file" once SQLite's
+    temp and journal names pushed past the filesystem's 255-byte limit.
+    """
+
+    def test_a_long_import_name_is_bounded_and_still_names_the_book(self):
+        book_id = book_id_for(
+            "Mushoku Tensei_ Jobless Reincarnation (Light Novel) Vol_ 25 -- "
+            "Rifujin na Magonote; Shirotaka -- isbn13 9798891601420 -- "
+            "b7ca5d17f83a3908e62b360f9f77a2ef -- Anna's Archive.epub"
+        )
+        self.assertLessEqual(len(book_id), BOOK_ID_MAX)
+        self.assertRegex(book_id, r"^[a-z0-9_-]+$")
+        self.assertTrue(book_id.startswith("mushoku-tensei_-jobless-reincarnation"))
+        self.assertLess(len(f"index.{book_id}.sqlite"), 255)
+
+    def test_long_names_sharing_a_prefix_stay_distinct(self):
+        head = "the-same-long-title-of-a-volume-that-runs-well-past-the-cap"
+        first = book_id_for(f"{head}-part-one.epub")
+        second = book_id_for(f"{head}-part-two.epub")
+        self.assertNotEqual(first, second)
+
+    def test_short_names_and_the_empty_case_are_unchanged(self):
+        self.assertEqual(book_id_for("testmini.epub"), "testmini")
+        self.assertEqual(book_id_for("Vol. 25.epub"), "vol-25")
+        self.assertEqual(book_id_for(""), "imported")
 
 
 if __name__ == "__main__":

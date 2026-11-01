@@ -310,6 +310,9 @@
   --nf-amber-hover: color-mix(in oklab, var(--nf-amber) 88%, var(--ink));
   --focus-dim: color-mix(in oklab, var(--ink) 62%, var(--bg));
   --danger-soft: color-mix(in oklab, var(--danger) 8%, transparent);
+  /* A book still being shelved is dimmed so it reads as pending, never as
+     something to open; the dial under it carries the real progress. */
+  --ingest-dim: 0.42;
 
   /* Backward compatibility tokens */
   --paper: var(--bg);

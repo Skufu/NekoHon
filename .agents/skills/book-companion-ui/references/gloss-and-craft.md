@@ -1,9 +1,8 @@
 # Gloss + the craft references (condensed 2026-10-15)
 
 Condensed from three read-only audits (2026-10-15). Full notes:
-`artifacts/reports/frontend-phase1-2026-10-15.md`. Phase order:
-`artifacts/plans/frontend-build-plan-2026-10-15.md`. Implementation:
-`web/README.md`.
+`artifacts/reports/frontend-phase1-2026-10-15.md`. Architecture and engine
+calls: `docs/ARCHITECTURE.md` §7. Implementation: `web/README.md`.
 
 ## Gloss (github.com/Nutlope/gloss, main @ 54b13b8) — copy / skip
 

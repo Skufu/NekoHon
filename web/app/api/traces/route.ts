@@ -29,6 +29,25 @@ interface ChunkData {
   text?: string;
 }
 
+/**
+ * Preview text for a passage card. Cuts on a sentence end when one lands in the
+ * back half of the budget, otherwise on a word boundary: a card that stops at
+ * "...CRM apps l" reads as a truncated chunk even when the chunk is whole.
+ */
+function previewText(text: string, limit = 320): string {
+  if (!text) return "";
+  if (text.length <= limit) return text;
+  const window = text.slice(0, limit);
+  const sentenceEnd = Math.max(
+    window.lastIndexOf(". "),
+    window.lastIndexOf("? "),
+    window.lastIndexOf("! "),
+  );
+  if (sentenceEnd >= limit / 2) return window.slice(0, sentenceEnd + 1);
+  const wordEnd = window.lastIndexOf(" ");
+  return `${wordEnd > 0 ? window.slice(0, wordEnd) : window}…`;
+}
+
 const bookIndexCache = new Map<string, Map<string, ChunkData>>();
 
 function loadBookChunkMap(repoRoot: string, bookId: string): Map<string, ChunkData> {
@@ -152,7 +171,7 @@ function reconstructTrace(t: TraceRecord, repoRoot: string): TraceRecord {
         if (match) {
           p.heading = match.heading || "";
           p.text = match.text || "";
-          p.text_preview = match.text ? match.text.slice(0, 320) : "";
+          p.text_preview = previewText(match.text || "");
         }
       }
     }
@@ -170,7 +189,7 @@ function reconstructTrace(t: TraceRecord, repoRoot: string): TraceRecord {
             chunk_id: cid,
             chapter: match.chapter,
             heading: match.heading || "",
-            text_preview: match.text ? match.text.slice(0, 320) : "",
+            text_preview: previewText(match.text || ""),
           });
         } else {
           citedReconstructed.push({ chunk_id: cid });

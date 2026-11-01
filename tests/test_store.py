@@ -110,6 +110,19 @@ class StoreRoundTripTest(unittest.TestCase):
             after = store.read_index(path)
         self.assertEqual(before["chunks"], after["chunks"])
 
+    def test_a_name_near_the_filesystem_limit_still_writes(self):
+        """An imported book id can be 200+ characters, and 240-byte names are
+        legal. The atomic write must not add the target's name to a temp
+        name: measured 2026-11-01, a 240-byte target made a 253-byte temp
+        file, and the `-journal` SQLite creates beside it crossed the
+        filesystem's 255-byte limit with "unable to open database file".
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / f"index.{'a' * 227}.sqlite"
+            self.assertEqual(len(path.name), 240)
+            store.write_index(path, fixture())
+            self.assertEqual(store.read_index(path)["book_id"], "fixture")
+
 
 class PersistedFtsTest(unittest.TestCase):
     def test_persisted_fts_matches_in_memory_fts(self):

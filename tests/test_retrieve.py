@@ -68,6 +68,23 @@ class RetrieveTests(unittest.TestCase):
         self.assertEqual(cosine([0.0, 0.0], [1.0, 0.0]), 0.0)
         self.assertEqual(cosine([1.0], [1.0, 0.0]), 0.0)
 
+    def test_progress_reports_real_batch_counts(self):
+        """The import dial is drawn from these numbers, so they must count
+        the records that still needed a vector and keep one fixed total."""
+        index = tiny_index()
+        seen = []
+        embed_index(
+            index,
+            model=NOMIC_EMBEDDER,
+            embed_fn=fake_embed,
+            dims=DIMS,
+            batch=1,
+            on_progress=lambda done, total: seen.append((done, total)),
+        )
+        # Two chunks and one figure, one per batch: a frame up front, then
+        # one per record, and the total never moves.
+        self.assertEqual(seen, [(0, 3), (1, 3), (2, 3), (3, 3)])
+
     def test_embed_uses_prefix_and_skips_a_second_pass(self):
         seen = []
 

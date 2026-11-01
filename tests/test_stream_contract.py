@@ -10,6 +10,7 @@ alone would not be seen).
 
 import io
 import json
+import sqlite3
 import unittest
 from contextlib import redirect_stderr
 from unittest import mock
@@ -116,6 +117,78 @@ class StreamContractTest(unittest.TestCase):
         self.assertEqual([frame["type"] for frame in frames], ["final"])
         self.assertEqual(frames[-1]["body"]["answer"],
                          "Change data capture. [Ch. 1]")
+
+
+IMPORT_REQUEST = {"mode": "import", "stream": 1, "filename": "vol.epub"}
+
+
+class ImportStreamContractTest(unittest.TestCase):
+    """`stream: 1` on an import: the bookshelf card needs the jacket early,
+    the real batch counts while it works, and exactly one terminal frame."""
+
+    def frames(self, patcher, request=IMPORT_REQUEST):
+        wfile = io.BytesIO()
+
+        def bound(handler_self, request, notify):
+            # A method replaced on the class still receives the handler.
+            return patcher(request, notify)
+
+        with redirect_stderr(io.StringIO()):
+            with mock.patch.object(server.Handler, "_import_book", bound):
+                DirectHandler(wfile)._handle_import(request)
+        head, _, body = wfile.getvalue().partition(b"\r\n\r\n")
+        parsed = [json.loads(line) for line in body.decode("utf-8").splitlines() if line]
+        return head.decode("utf-8"), parsed
+
+    def test_the_import_stream_reports_the_book_then_progress_then_final(self):
+        def fake_import(request, notify):
+            notify({"type": "book", "book_id": "vol",
+                    "title": "A Volume", "author": "Someone",
+                    "cover_url": "/figures/cover?book_id=vol", "chunk_count": 3})
+            notify({"type": "progress", "done": 2, "total": 3})
+            notify({"type": "progress", "done": 3, "total": 3})
+            return {"ok": True, "book_id": "vol", "book": {"book_id": "vol"}, "books": []}
+
+        head, frames = self.frames(fake_import)
+        self.assertIn("application/x-ndjson", head)
+        self.assertEqual([frame["type"] for frame in frames],
+                         ["book", "progress", "progress", "final"])
+        # The jacket is the first thing the client can draw.
+        self.assertTrue(frames[0]["cover_url"])
+        self.assertEqual(frames[-1]["book_id"], "vol")
+
+    def test_a_refused_import_frames_its_error_and_never_a_final(self):
+        def refuses(request, notify):
+            raise ValueError("missing data_base64 or epub_path")
+
+        head, frames = self.frames(refuses)
+        self.assertIn("200", head)  # NDJSON is already committed when it fails
+        self.assertEqual([frame["type"] for frame in frames], ["error"])
+        self.assertEqual(frames[0]["error"], "missing data_base64 or epub_path")
+
+    def test_an_unexpected_failure_is_framed_as_import_failed(self):
+        def boom(request, notify):
+            raise sqlite3.OperationalError("unable to open database file")
+
+        head, frames = self.frames(boom)
+        self.assertEqual(frames[-1]["type"], "error")
+        self.assertEqual(frames[-1]["error"],
+                         "import failed: unable to open database file")
+
+    def test_without_stream_the_reply_is_one_json_body(self):
+        def fake_import(handler_self, request, notify):
+            self.assertIsNone(notify)  # nothing to stream to
+            return {"ok": True, "book_id": "vol", "book": {"book_id": "vol"}, "books": []}
+
+        wfile = io.BytesIO()
+        with redirect_stderr(io.StringIO()):
+            with mock.patch.object(server.Handler, "_import_book", fake_import):
+                DirectHandler(wfile)._handle_import({"mode": "import", "filename": "vol.epub"})
+        head, _, body = wfile.getvalue().partition(b"\r\n\r\n")
+        self.assertIn("application/json", head.decode("utf-8"))
+        payload = json.loads(body)
+        self.assertEqual(payload, {"ok": True, "book_id": "vol",
+                                   "book": {"book_id": "vol"}, "books": []})
 
 
 if __name__ == "__main__":
