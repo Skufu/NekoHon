@@ -69,7 +69,7 @@ The checker reads the engine's own paths and prints exactly what is missing
 audit). It exits 0 when ready.
 
 ```sh
-python3 ingest.py      # EPUB -> data/index.json + data/figures/ (no vectors)
+python3 ingest.py      # EPUB -> data/index.sqlite + data/figures/ (no vectors)
 python3 retrieve.py    # embed 1042 chunks + 111 figures (14.5 s measured on the dev box)
 python3 preflight.py   # should now say ready
 ```
@@ -159,7 +159,7 @@ Expect CPU-speed answers. Native Ollama is the supported path.
 - **8 GB RAM Macs**: `ANSWER_MODEL=llama3.2:3b python3 server.py` after
   `ollama pull llama3.2:3b` is the weak-machine fallback (2.0 GB); it may
   refuse more often — it is not the dev model.
-- The index (`data/index.json`, ~10.5 MB) contains book text. It is
+- The index (`data/index.sqlite`, ~15 MB) contains book text and FTS tables. It is
   gitignored and must stay out of git, even a private repo.
 - Rebuilding: if the index ever looks wrong, re-run `python3 retrieve.py`;
   do not hand-edit vectors.

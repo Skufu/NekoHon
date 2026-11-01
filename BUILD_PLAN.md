@@ -174,7 +174,7 @@ On the Windows runner (measured 2026-10-17): `nekohon_x3`, `nekohon_x3_mobile` (
 Changes that invalidate measurements — re-run, don't quietly swap:
 
 - A different nomic quant. This index is from the F16 tag. Q4 or Q8 makes different numbers. Rebuild, rerun the 10 questions. Do not reuse this file.
-- An embedder finetune. New file, new bake-off. Do not overwrite `data/index.json` until it wins.
+- An embedder finetune. New file, new bake-off. Do not overwrite `data/index.sqlite` until it wins.
 - An answer-model swap (the 7B back, or a new finetune). Re-run the battery in both modes and the trial-pattern probes; either direction moves pins.
 - A Gemma picture index. Separate file. It cannot mix with nomic numbers.
 
@@ -220,7 +220,7 @@ ask-this-book/
   window/index.html  # legacy v1 window (no build step)
   web/               # Next.js frontend (reader + margin cards + lens); see web/README.md
   artifacts/         # evidence, harnesses (hard-bench, step2-battery, hard-mt-eval), reports, datasets
-  data/              # gitignored: index.json, models/, extracted figures/
+  data/              # gitignored: index.sqlite, models/, extracted figures/
   books/             # gitignored: the epub (books/SOURCE.txt records origin)
   .gitignore         # data/, books/, __pycache__/, per-model indexes
 ```
@@ -310,13 +310,13 @@ Figures:
 - Caption is the caption element if present, else the alt text, else empty string. Do not invent a caption.
 - Referencing paragraph is the nearest paragraph that mentions the figure id, "Fig.", or "Figure". If none, store empty string.
 
-Write `data/index.json` and images under `data/figures/`. The index must be reloadable with `json` from the stdlib. No pickle, marshal, shelve, or sqlite. Do not base64 images into the index. Bake-off indexes are `data/index.<model>.json`.
+Write `data/index.sqlite` and images under `data/figures/`. Each book is one SQLite database: `meta`, `chunks`, `figures`, and the two FTS5 tables (`chunks_fts`, `chunks_trigram`). Embeddings are little-endian float64 blobs. Do not base64 images into the database. Bake-off indexes are `data/index.<model>.sqlite`.
 
 ## Retrieval rules
 
-Embed each chunk's `heading + text` with `nomic-embed-text` via Ollama. Embed each figure's `caption + referencing_paragraph` the same way. Store the vectors in the JSON index. 300 chunks fit in memory. Pure-Python cosine. Top 10 text chunks.
+Embed each chunk's `heading + text` with `nomic-embed-text` via Ollama. Embed each figure's `caption + referencing_paragraph` the same way. Store the vectors in the SQLite index. 300 chunks fit in memory. Pure-Python cosine. Top 10 text chunks.
 
-During the Phase 3b bake-off each contender embeds the same frozen chunks into its own index file (`data/index.<model>.json`). After the bake-off, `data/index.json` means the winning embedder's index.
+During the Phase 3b bake-off each contender embeds the same frozen chunks into its own index file (`data/index.<model>.sqlite`). After the bake-off, `data/index.sqlite` means the winning embedder's index.
 
 Attach a figure when either:
 
@@ -408,7 +408,7 @@ Expected: pass.
 
 ## Phase 2 — Ingest
 
-**Done when:** ingest writes `data/index.json`, chunk count is greater than 0, every figure record has `id`, `chapter`, `caption`, `referencing_paragraph`, `file`, and a sample chapter's text contains a heading you can see in the EPUB.
+**Done when:** ingest writes `data/index.sqlite`, chunk count is greater than 0, every figure record has `id`, `chapter`, `caption`, `referencing_paragraph`, `file`, and a sample chapter's text contains a heading you can see in the EPUB.
 
 Test: `tests/test_ingest.py` uses a tiny fake EPUB built in the test with `zipfile` (one chapter, one heading, one table, one image, one caption). Assert the table is one chunk. Assert the image record has the caption and the citing paragraph. Do not use the real book as the unit fixture.
 
@@ -479,7 +479,7 @@ Contenders:
 | `embeddinggemma` (v1) | challenger |
 | `embeddinggemma-2` | challenger, text path only (its multimodal ability is out of scope for v1) |
 
-Freeze the Phase-2 chunks first. Each contender embeds the same frozen chunks into its own index (`data/index.<model>.json`). Same questions, same top-10. Harness: `python3 retrieve.py --smoke tests/fixtures/questions.json --embedder <name>`. Report per model: hit@10, hit@5, figure-attachment rate, total embed time, index bytes.
+Freeze the Phase-2 chunks first. Each contender embeds the same frozen chunks into its own index (`data/index.<model>.sqlite`). Same questions, same top-10. Harness: `python3 retrieve.py --smoke tests/fixtures/questions.json --embedder <name>`. Report per model: hit@10, hit@5, figure-attachment rate, total embed time, index bytes.
 
 Decision rule (agreed 2026-10-11): a challenger replaces nomic as the v1 embedder only if it wins hit@10 by ≥2 **and** causes zero figure-question regressions. Otherwise nomic stays. The losing checkpoint stays on disk as a documented fallback, not deleted — the question stays open, it just stops blocking Phase 4.
 

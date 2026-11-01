@@ -10,7 +10,7 @@ flowchart TD
         Spine --> FigExt["Figure & Caption Extractor"]
         Packer --> Chunks["1,042 Chunks<br/>(0/1,042 mid-sentence starts)"]
         FigExt --> Figures["111 Extracted PNGs + Captions"]
-        Chunks --> Index["data/index.json"]
+        Chunks --> Index["data/index.sqlite"]
         Figures --> Index
     end
 
@@ -125,11 +125,11 @@ Standard chunking approaches that split text on fixed character lengths (`text[:
          overlap_sents.insert(0, s)
          acc_len += len(s)
      ```
-4. **Measured Outcome**: In the ingested *Fundamentals of Data Engineering* index (`data/index.json`):
+4. **Measured Outcome**: In the ingested *Fundamentals of Data Engineering* index (`data/index.sqlite`):
    - **`1,042` total chunks** (`1,025` prose chunks + `17` chunks containing HTML table text).
    - **`0 / 1,042` (`0.0%`) mid-sentence starts**.
    - **`983 / 1,042` (`94.34%`) ending with terminal punctuation** (`.`, `!`, `?`, quotes); the remaining `59` chunks (`5.66%`) are section headings, colon list lead-ins (`include the following:`), URLs, or bibliographic entries.
-   - **`111` extracted figure records** in `data/index.json` (`110` unique figures referenced across `118` chunk-level figure attachments in `GET /chunks`, plus `1` unreferenced appendix image `fig-app02-1`).
+   - **`111` extracted figure records** in `data/index.sqlite` (`110` unique figures referenced across `118` chunk-level figure attachments in `GET /chunks`, plus `1` unreferenced appendix image `fig-app02-1`).
 
 ### 1.3 Multi-Book Ingestion Library (`data/books.json`)
 The ingestion pipeline natively supports multi-volume catalogs configured in [`data/books.json`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/data/books.json):
@@ -164,7 +164,7 @@ To index a new book for the companion:
      ```
    - **Custom book run** (using exact `argparse` flags `--epub`, `--book-id`, `--index`, `--figures-dir`):
      ```sh
-     python ingest.py --epub books/my_book.epub --book-id my_book --index data/index.my_book.json
+     python ingest.py --epub books/my_book.epub --book-id my_book --index data/index.my_book.sqlite
      python retrieve.py --book-id my_book
      python verify_index.py --book-id my_book
      ```
@@ -209,7 +209,7 @@ This guarantees exact posting matches for `"s3"`, `"3nf"`, `"sha256"`, and `"ddr
 
 ### 2.2 Dense Retrieval ([`retrieve.py`](file:///c:/Users/ADRIAN/workspace/github.com/Skufu/ask-this-book/retrieve.py))
 - Model: `nomic-embed-text:latest` (137M parameters, 768 dimensions, F16 quantization).
-- All chunk texts and figure captions are stored in `data/index.json`.
+- All chunk texts and figure captions are stored in `data/index.sqlite` and its FTS5 tables.
 - Similarity computation is implemented in pure Python (no numpy dependency):
   ```python
   def cosine_similarity(v1, v2):
