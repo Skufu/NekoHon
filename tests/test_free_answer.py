@@ -1,9 +1,11 @@
 """The answer mode: free generation from the retrieved passages.
 
 parse_answered turns the model's prose and [Ch. tags into the contract body.
-The quote check is a meter here, not a gate: unbacked quotation marks are
-stripped, a zero-overlap sentence is left uncited rather than pinned to a
-guess, and a refusal is prompted, never fabricated from a failed check.
+Unbacked quotation marks are stripped, and a zero-overlap sentence is left
+uncited rather than pinned to a guess. The citation is then a gate, not a
+meter (owner decision 2026-11-01): a body that names no passage is recovered
+when the shown passages really contain the sentence, and is otherwise the
+refusal, so free prose never reaches the reader unattributed.
 
 Pins and fixtures live only in this test.
 """
@@ -321,6 +323,9 @@ class RespondTest(unittest.TestCase):
         self.assertTrue(body["answer"].startswith("[Ch. 1]"))
 
     def test_the_retry_is_kept_only_when_a_quote_validates(self):
+        # A retry that comes back with a quote no passage contains is dropped,
+        # and the uncited original is not shown either: two failures do not
+        # add up to an answer.
         def fake_search(index, question, k=10):
             return PASSAGES
 
@@ -335,9 +340,8 @@ class RespondTest(unittest.TestCase):
             generate_fn=fake_generate,
             search_fn=fake_search,
         )
-        self.assertFalse(body["refused"])
-        self.assertEqual(body["citations"], [])
-        self.assertIn("downstream systems in sync", body["answer"])
+        self.assertTrue(body["refused"])
+        self.assertEqual(body["answer"], REFUSAL)
 
     def test_a_refusal_is_not_retried_in_answer_mode(self):
         calls = []
@@ -360,7 +364,9 @@ class RespondTest(unittest.TestCase):
         self.assertTrue(body["refused"])
         self.assertEqual(calls, [""])
 
-    def test_a_generator_without_prefill_support_keeps_the_answer(self):
+    def test_prose_no_passage_can_back_is_a_refusal(self):
+        # A generator seam that cannot even retry still may not put a written
+        # sentence in front of a reader with nothing behind it.
         def fake_search(index, question, k=10):
             return PASSAGES
 
@@ -373,8 +379,30 @@ class RespondTest(unittest.TestCase):
             generate_fn=fake_generate,
             search_fn=fake_search,
         )
+        self.assertTrue(body["refused"])
+        self.assertEqual(body["answer"], REFUSAL)
+
+    def test_a_copied_sentence_without_a_tag_is_cited(self):
+        # The model forgets the tag often enough that the tag is rebuilt when
+        # the words really are in a shown passage; only unwritten prose is
+        # refused.
+        def fake_search(index, question, k=10):
+            return PASSAGES
+
+        def fake_generate(system, user, model):
+            return (
+                "Change data capture (CDC) streams row-level changes from a "
+                "database so downstream systems stay in sync."
+            )
+
+        body = A.respond(
+            self._index(),
+            "What does CDC do?",
+            generate_fn=fake_generate,
+            search_fn=fake_search,
+        )
         self.assertFalse(body["refused"])
-        self.assertEqual(body["citations"], [])
+        self.assertEqual([c["chunk_id"] for c in body["citations"]], ["c1-001"])
 
 
 class ModeTest(unittest.TestCase):

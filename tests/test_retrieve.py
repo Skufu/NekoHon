@@ -242,6 +242,38 @@ class RetrieveTests(unittest.TestCase):
         hits = search(index, "batch", embed_fn=fake_embed, k=10)
         self.assertEqual([hit["chunk_id"] for hit in hits], ["c5-001"])
 
+    def test_embed_index_records_provenance_and_reembeds_modified_text(self):
+        seen = []
+
+        def recording(texts, model):
+            seen.extend(texts)
+            return fake_embed(texts, model)
+
+        index = tiny_index()
+        embed_index(index, model=NOMIC_EMBEDDER, embed_fn=recording, dims=DIMS)
+        self.assertEqual(
+            index["embedder_provenance"],
+            {
+                "model": NOMIC_EMBEDDER,
+                "dims": DIMS,
+                "document_prefix": "search_document: ",
+                "query_prefix": "search_query: ",
+            },
+        )
+        first_sha = index["chunks"][0].get("embedding_input_sha256")
+        self.assertTrue(first_sha)
+        seen.clear()
+
+        index["chunks"][0]["text"] = "Change data capture\nUpdated prose for CDC."
+        re_chunks, re_figures = embed_index(
+            index, model=NOMIC_EMBEDDER, embed_fn=recording, dims=DIMS
+        )
+        self.assertEqual((re_chunks, re_figures), (1, 0))
+        self.assertEqual(len(seen), 1)
+        self.assertNotEqual(
+            index["chunks"][0].get("embedding_input_sha256"), first_sha
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -202,7 +202,7 @@ class ServerMultiBookTest(unittest.TestCase):
             self.assertEqual(payload.get("book", {}).get("title"), "Test Book")
 
             # Clean up test artifacts
-            test_idx = ROOT / "data" / "index.testmini.json"
+            test_idx = ROOT / "data" / "index.testmini.sqlite"
             if test_idx.is_file():
                 test_idx.unlink()
             test_epub = ROOT / "books" / "testmini.epub"

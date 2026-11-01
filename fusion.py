@@ -10,9 +10,9 @@ injected at 1.00; "capital" df=10 of 1042).
 
 Candidates are the current passages plus the single strongest admissible
 lexical candidate. The model receives the fused top of that pool, same size
-as before. A candidate already in the set moves nothing: the boost bailed
-the same way, and the battery has cases that fell over when a present
-passage was moved.
+as before. A candidate already in the set is re-placed by the same fusion
+(2026-10-31: the earlier bail-out was measured to strand a gold chunk at
+dense rank 2 behind a distractor).
 
 Measured 2026-10-12 on the live 1042-chunk index (re-measured after the
 sentence-chunk rebuild; the boost-era numbers 51 of 1065 and 35 of 1065 no
@@ -42,14 +42,22 @@ The trigger stays where the boost had it: the caller runs fusion only when
 the question carries a rare word (keywords.rare). Widening the trigger is a
 separate, measured step.
 
+``LEXICAL_BACKEND`` stays ``fts5`` by default and ``legacy`` is still the
+explicit seam. If FTS5 is unavailable or its SQLite query fails, fusion warns,
+marks ``lexical_backend=legacy`` in the request trace, and uses the legacy idf
+channel for that request; the served path must never change channels silently.
+
 Stdlib only. The embedder is injected so tests never call Ollama.
 """
 
+import logging
 import math
 import os
 
 from preprocess import words
 from retrieve import DEFAULT_EMBEDDER, dense_rank
+
+_LOGGER = logging.getLogger(__name__)
 
 RRF_K = 60
 # A lexical candidate must sit in the dense top RANK_BAND of the corpus.
@@ -83,12 +91,33 @@ def lexical_scores(question, word_map, chunks, ranks, band):
     return scores
 
 
+def _note_lexical_backend(backend, warning=None):
+    """Record which lexical channel served this request.
+
+    Telemetry is optional: a tracing failure must never change retrieval.
+    A fallback also logs at WARNING so a served-path backend change is visible
+    outside the trace log.
+    """
+    if warning:
+        _LOGGER.warning(
+            "%s; falling back to the legacy idf lexical channel", warning
+        )
+    try:
+        from observe import record_transform
+
+        record_transform(f"lexical_backend={backend}")
+    except Exception:
+        pass
+
+
 def _as_passage(chunk):
     return {
         "score": None,
         "chunk_id": chunk["chunk_id"],
         "chapter": chunk["chapter"],
         "heading": chunk.get("heading", ""),
+        "section": chunk.get("section", ""),
+        "anchor": chunk.get("anchor", ""),
         "text": chunk.get("text", ""),
         "source": chunk.get("source", ""),
     }
@@ -100,7 +129,8 @@ def fuse(index, question, passages, word_map=None, ranks=None,
 
     The pool is the current passages plus the single strongest admissible
     lexical candidate: the boost's one shot, placed by rank math instead of
-    the last slot. A candidate already in the set moves nothing. A candidate
+    the last slot. A candidate already in the set is placed by the same math
+    and never duplicated. A candidate
     with no dense rank has no evidence and is dropped (fails closed). Ties
     break on dense rank, then lexical rank: the sort is deterministic.
     """
@@ -117,20 +147,28 @@ def fuse(index, question, passages, word_map=None, ranks=None,
     band = max(1, round(RANK_BAND * total))
     if LEXICAL_BACKEND == "fts5":
         try:
-            from fts_index import fts_bm25_scores
+            from fts_index import FtsUnavailable, fts_bm25_scores
+
             scores = fts_bm25_scores(index, question, ranks=ranks, band=band)
-        except Exception:
+        except FtsUnavailable as exc:
+            _note_lexical_backend("legacy", f"FTS5 unavailable: {exc}")
             scores = lexical_scores(question, word_map, chunks, ranks, band)
+        else:
+            _note_lexical_backend("fts5")
     else:
+        _note_lexical_backend("legacy")
         scores = lexical_scores(question, word_map, chunks, ranks, band)
     if not scores:
         return passages
     best_pos = min(scores, key=lambda position: (-scores[position], position))
     candidate = _as_passage(chunks[best_pos])
     by_id = {hit["chunk_id"]: hit for hit in passages}
-    if candidate["chunk_id"] in by_id:
-        return passages
-    by_id[candidate["chunk_id"]] = candidate
+    # A candidate already in the set still earns its lexical rank: measured
+    # 2026-10-31, two gold chunks sat at dense rank 2 with lexical rank 1 and
+    # the old early return left them behind a distractor (25 to 27 of 42
+    # wide-net-v2 answerable items with the gold chunk shown first, no item
+    # lost; the always-fuse trigger was tried and rejected, 25 to 24).
+    by_id.setdefault(candidate["chunk_id"], candidate)
     lex_rank = {candidate["chunk_id"]: 1}
     fused = []
     for chunk_id, hit in by_id.items():

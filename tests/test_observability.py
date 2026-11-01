@@ -16,6 +16,7 @@ from unittest import mock
 import answer
 import observe
 import server
+import store
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -343,21 +344,18 @@ class TraceInspectCLITest(unittest.TestCase):
 
     def test_cli_reconstruct_with_index_file(self):
         with tempfile.TemporaryDirectory() as tmp:
-            idx_path = Path(tmp) / "index.json"
-            idx_path.write_text(
-                json.dumps({
-                    "book_id": "synth",
-                    "chunks": [
-                        {
-                            "chunk_id": "c1",
-                            "chapter": 1,
-                            "heading": "Consensus Heading",
-                            "text": "Linearizability requires a total order of operations.",
-                        }
-                    ],
-                }),
-                encoding="utf-8",
-            )
+            idx_path = Path(tmp) / "index.sqlite"
+            store.write_index(idx_path, {
+                "book_id": "synth",
+                "chunks": [
+                    {
+                        "chunk_id": "c1",
+                        "chapter": 1,
+                        "heading": "Consensus Heading",
+                        "text": "Linearizability requires a total order of operations.",
+                    }
+                ],
+            })
             log_path = Path(tmp) / "traces.jsonl"
             t1 = {
                 "trace_id": "tr1",
@@ -416,8 +414,8 @@ class TraceInspectCLITest(unittest.TestCase):
 
     def test_cli_dry_run_with_index_file(self):
         with tempfile.TemporaryDirectory() as tmp:
-            idx_path = Path(tmp) / "index.json"
-            idx_path.write_text(json.dumps(_synthetic_book()), encoding="utf-8")
+            idx_path = Path(tmp) / "index.sqlite"
+            store.write_index(idx_path, _synthetic_book())
 
             ret, out = self._run_cli([
                 "--dry-run", "What does linearizability require?",

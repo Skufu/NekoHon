@@ -65,6 +65,7 @@ ANSWER_GLOSS_SYSTEM = (
     "write a direct 1 to 2 sentence answer in plain words that answers the reader's question based on the passage. "
     "Do not use quotation marks, do not include [Ch. N] tags, do not repeat the sentence verbatim, "
     "do not start with 'In this context', 'The passage', or 'The authors state', and never say 'Not in this book.' "
+    "If the reader asks what something is, or names a term and asks about it, the answer must open with that term as its subject and say what it is (e.g., 'Information aggregation is the process of gathering and condensing information from many sources.'). Never open with a benefit, a use, or an effect instead of the thing itself, and never open with a gerund or a vague subject such as 'Aggregating', 'Using it', or 'This' when the reader asked what the thing is. Only describe what it does when the passage says nothing about what it is. "
     "If the reader asks 'What are the ...' (a list, stages, types, components, or reasons), you MUST explicitly name the specific items in your sentence (e.g., 'The five stages of the data engineering lifecycle are generation, storage, ingestion, transformation, and serving data.'). NEVER write vague pointer sentences like 'The stages are listed in the introduction' or 'The process is split into five steps' without naming them."
 )
 

@@ -350,6 +350,94 @@ class AnswerTests(unittest.TestCase):
         self.assertTrue(body["refused"])
         self.assertEqual(body["answer"], REFUSAL)
 
+    def test_the_span_reaches_the_paragraph_that_answers(self):
+        # The model quotes the topic sentence; the explanation is the next
+        # paragraph. The citation quote widens to both, verbatim.
+        passage = {
+            "chunk_id": "c1",
+            "chapter": "1",
+            "heading": "Retention",
+            "text": (
+                "Retention\nRetention keeps records for a fixed window.\n\n"
+                "Records past the window are deleted by the garbage collector, "
+                "which is what bounds the storage bill."
+            ),
+        }
+        body = parse_completion(
+            '[Ch. 1] "Retention keeps records for a fixed window."',
+            [passage],
+            [],
+            [],
+            question="how does retention bound the storage bill?",
+        )
+        quote = body["citations"][0]["quote"]
+        self.assertIn("Retention keeps records", quote)
+        self.assertIn("garbage collector", quote)
+        self.assertNotIn("\n", quote)
+        self.assertTrue(A._quote_in_passage(quote, passage["text"]))
+
+    def test_a_span_over_the_cap_keeps_the_quote(self):
+        filler = "Padding sentence with enough words for size. " * 40
+        passage = {
+            "chunk_id": "c2",
+            "chapter": "1",
+            "heading": "Retention",
+            "text": (
+                "Retention\nRetention keeps records for a fixed window.\n\n"
+                + filler
+            ),
+        }
+        body = parse_completion(
+            '[Ch. 1] "Retention keeps records for a fixed window."',
+            [passage],
+            [],
+            [],
+            question="what is retention?",
+        )
+        self.assertEqual(
+            body["citations"][0]["quote"],
+            "Retention keeps records for a fixed window",
+        )
+
+    def test_the_span_needs_the_ask_to_be_in_the_passage(self):
+        passage = {
+            "chunk_id": "c3",
+            "chapter": "1",
+            "heading": "Retention",
+            "text": (
+                "Retention\nRetention keeps records for a fixed window.\n\n"
+                "The scheduling calendar lives in another chapter entirely."
+            ),
+        }
+        body = parse_completion(
+            '[Ch. 1] "Retention keeps records for a fixed window."',
+            [passage],
+            [],
+            [],
+            question="what is retention?",
+        )
+        self.assertNotIn("scheduling calendar", body["citations"][0]["quote"])
+
+    def test_a_phrase_in_the_body_does_not_reorder(self):
+        leader = {"chunk_id": "a", "chapter": "1", "heading": "Enrichment",
+                  "text": "Joining a stream to other data is enrichment."}
+        cross_ref = {"chunk_id": "b", "chapter": "1", "heading": "Streaming DAGs",
+                     "text": "This is related to stream enrichment and joins."}
+        ordered = A._prioritize_phrase_matches([leader, cross_ref], "stream enrichment")
+        self.assertEqual([h["chunk_id"] for h in ordered], ["a", "b"])
+        self.assertEqual([h["phrase_score"] for h in ordered], [0, 0])
+
+    def test_a_phrase_in_the_heading_promotes(self):
+        other = {"chunk_id": "a", "chapter": "1", "heading": "Orchestration",
+                 "text": "Batch orchestration runs on a schedule."}
+        named = {"chunk_id": "b", "chapter": "1", "heading": "Stream enrichment",
+                 "text": "Joining a stream to other data."}
+        ordered = A._prioritize_phrase_matches([other, named], "stream enrichment")
+        self.assertEqual([h["chunk_id"] for h in ordered], ["b", "a"])
+        # The recorded score is the one that decided the order, so a trace can
+        # explain a list whose dense cosines run the other way.
+        self.assertEqual([h["phrase_score"] for h in ordered], [10, 0])
+
     def test_a_tagless_verbatim_reply_is_verified_and_tagged(self):
         passage = {
             "chunk_id": "ch08-051",
@@ -1346,6 +1434,33 @@ class ReadingAnchorTests(unittest.TestCase):
         body = explain(index, "RAM", generate_fn=fake_gen, chunk_id="c1")
         self.assertIn("RAM", body["answer"])
         self.assertNotIn("highlighted word introduces", body["answer"].lower())
+
+    def test_definitional_query_downweights_code_scaffolding(self):
+        c_code = {
+            "chunk_id": "c_code",
+            "chapter": "2",
+            "heading": "Building a Research Team",
+            "text": (
+                "Example 2-24. Assign roles to research agents\n"
+                "SEARCH_PROMPT = \"\"\"Role: Web researcher.\"\"\"\n"
+                "SCRAPER_PROMPT = \"\"\"Role: Web scraper.\"\"\"\n"
+                "Example 2-25. Create research agents"
+            ),
+        }
+        c_prose = {
+            "chunk_id": "c_prose",
+            "chapter": "2",
+            "heading": "Building a Research Team",
+            "text": (
+                "To make the idea of supervisors and subagents concrete, let's walk through an example "
+                "where you build a hierarchical research team. Each worker agent gets a clear role: "
+                "some focus on web search, others scrape pages."
+            ),
+        }
+        from answer import _prioritize_phrase_matches
+        passages = [c_code, c_prose]
+        reordered = _prioritize_phrase_matches(passages, "what is a research agent")
+        self.assertEqual(reordered[0]["chunk_id"], "c_prose")
 
 
 if __name__ == "__main__":

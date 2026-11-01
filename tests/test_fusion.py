@@ -86,6 +86,19 @@ class FusionTests(unittest.TestCase):
                      postings(index), ranks)
         self.assertEqual(fused, passages)
 
+    def test_a_present_lexical_leader_is_promoted_not_duplicated(self):
+        texts = ["the filler words here"] * 8
+        texts[3] = "the pragmatic lead cares about flexibility"
+        index = make_index(texts)
+        passages = [passage("ch00"), passage("ch03")] + [passage(f"ch{i:02d}") for i in (1, 2, 4)]
+        ranks = {"ch00": 1, "ch03": 2, "ch01": 3, "ch02": 4, "ch04": 5}
+        fused = fuse(index, "what is pragmatic about flexibility", passages,
+                     postings(index), ranks)
+        ids = [hit["chunk_id"] for hit in fused]
+        self.assertEqual(ids[0], "ch03")
+        self.assertEqual(len(ids), len(set(ids)))
+        self.assertEqual(sorted(ids), sorted(hit["chunk_id"] for hit in passages))
+
     def test_only_the_strongest_candidate_joins_the_pool(self):
         texts = ["the filler words here"] * 8
         texts[3] = "the pragmatic lead"

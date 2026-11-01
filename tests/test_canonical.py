@@ -59,6 +59,8 @@ class TriggerTest(unittest.TestCase):
             "Is data mesh decentralized?",
             "Do watermarks help?",
             "Can you explain CDC",
+            "waht is jdbc",
+            "waht is the absoloot maximum method",
         ):
             with self.subTest(question=question):
                 self.assertEqual(canonical_query(question), question)

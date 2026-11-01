@@ -114,6 +114,8 @@ def canonical_query(question):
         return question
     if words[0] in AUX or words[0] in OPENERS:
         return question
+    if len(words) >= 2 and words[1] in AUX:
+        return question
     if any(word in PRONOUNS for word in words):
         return question
     return f"What is {text}?"
