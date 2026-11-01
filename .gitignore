@@ -25,3 +25,7 @@ nul
 
 # Marked do-not-commit in artifacts/plans/synthesis-eval-2026-10-19.md
 artifacts/probes/synthesis-2026-10-19/
+
+# Root-level run logs and probe dumps (nothing lands at the repo root)
+/*.log
+/set.json
