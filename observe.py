@@ -403,6 +403,8 @@ def record_retrieval(
             }
             if p.get("rerank_score") is not None:
                 entry["rerank_score"] = round(float(p["rerank_score"]), 4)
+            if p.get("phrase_score") is not None:
+                entry["phrase_score"] = int(p["phrase_score"])
             shown.append(entry)
         tr.shown_passages = shown
 

@@ -30,7 +30,7 @@ from pathlib import Path
 mimetypes.init()
 
 import observe
-from retrieve import DEFAULT_EMBEDDER, INDEX, chunk_title, chunks_payload, format_input, load_index, search
+from retrieve import DEFAULT_EMBEDDER, INDEX, chunk_title, chunks_payload, format_input, book_index_path, load_index, search
 from answer import ask, explain, ollama_generate_stream, quiz, respond, sanitize_history
 from figures import figure_file
 from keywords import postings
@@ -149,7 +149,7 @@ def get_books_catalog():
                 "chunk_count": len(fde_idx.get("chunks", [])),
                 "figure_count": len(fde_idx.get("figures", [])),
                 "cover_url": "/figures/cover",
-                "index_path": "data/index.json",
+                "index_path": "data/index.sqlite",
                 "figures_dir": "data/figures",
             })
         except Exception:
@@ -179,7 +179,7 @@ def get_book_index(book_id=None):
     if book_id == DEFAULT_BOOK_ID:
         index_path = INDEX
     else:
-        candidate = ROOT / "data" / f"index.{book_id}.json"
+        candidate = book_index_path(book_id)
         if candidate.is_file():
             index_path = candidate
         else:
@@ -582,7 +582,7 @@ class Handler(BaseHTTPRequestHandler):
             if not request.get("skip_embed"):
                 embed_index(index)
 
-            index_path = ROOT / "data" / f"index.{book_id}.json"
+            index_path = book_index_path(book_id)
             save_index(index_path, index)
 
             catalog_entry = update_books_catalog(

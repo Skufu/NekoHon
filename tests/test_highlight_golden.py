@@ -12,7 +12,7 @@ from prompt import SYSTEM
 ROOT = Path(__file__).resolve().parent.parent
 HELDOUT = ROOT / "artifacts" / "datasets" / "highlight-golden-2026-10-16.jsonl"
 TRAIN = ROOT / "artifacts" / "datasets" / "highlight-train-2026-10-16.jsonl"
-INDEX = ROOT / "data" / "index.json"
+INDEX = ROOT / "data" / "index.sqlite"
 SEALED = ROOT / "artifacts" / "datasets" / "sealed-forms.json"
 SOURCE = "highlight-golden-2026-10-16"
 QUOTE_LINE = re.compile(r'^\[Ch\. (.+)\] "(.*)"$')
@@ -65,7 +65,8 @@ class HighlightGoldenTest(unittest.TestCase):
             raise AssertionError(f"missing {INDEX}")
         if not SEALED.is_file():
             raise AssertionError(f"missing {SEALED}")
-        index = json.loads(INDEX.read_text(encoding="utf-8"))
+        import store
+        index = store.read_index(INDEX)
         cls.chunks = {chunk["chunk_id"]: chunk for chunk in index["chunks"]}
         sealed = json.loads(SEALED.read_text(encoding="utf-8"))
         cls.sealed_items = list(sealed["items"])

@@ -1,10 +1,11 @@
 """Embed frozen chunks and search them. No chunking changes.
 
-Stdlib only. Vectors live in the JSON index. Cosine is plain Python.
+Indexes live in SQLite (store.py); vectors are float64 blobs. Cosine is plain Python.
 The embedder is injected so tests never call Ollama.
 """
 
 import argparse
+import hashlib
 import json
 import math
 import operator
@@ -13,13 +14,34 @@ import time
 import urllib.request
 from pathlib import Path
 
+import store
+
 from prompt import OLLAMA_KEEP_ALIVE
 
 from figures import cited_numbers, figure_cards
 from preprocess import normalize
 
 ROOT = Path(__file__).resolve().parent
-INDEX = ROOT / "data" / "index.json"
+INDEX = ROOT / "data" / "index.sqlite"
+
+
+def book_index_path(book_id=None):
+    """SQLite index path for a book; no book id means the default index."""
+    if not book_id:
+        return INDEX
+    cand = ROOT / "data" / f"index.{book_id}.sqlite"
+    if not cand.is_file():
+        books_path = ROOT / "data" / "books.json"
+        if books_path.is_file():
+            try:
+                for b in json.loads(books_path.read_text(encoding="utf-8")):
+                    if b.get("book_id") == book_id and b.get("index_path"):
+                        return ROOT / b["index_path"]
+            except Exception:
+                pass
+    return cand
+
+
 OLLAMA = "http://127.0.0.1:11434/api/embed"
 NOMIC_EMBEDDER = "nomic-embed-text"
 GEMMA_EMBEDDER = "embeddinggemma-2:270m-bf16-text"
@@ -169,9 +191,30 @@ def embed_texts(texts, model, embed_fn, kind, title=""):
     return embed_fn(formatted, model)
 
 
-def _needs_vector(record, dims):
+def input_sha256(text):
+    """SHA-256 hex prefix (16 chars) of the exact formatted embedding input."""
+    return hashlib.sha256((text or "").encode("utf-8")).hexdigest()[:16]
+
+
+def embedder_provenance(model, dims):
+    """Expected index-level embedder provenance metadata."""
+    prefixes = PREFIXES.get(model, {})
+    return {
+        "model": model,
+        "dims": dims,
+        "document_prefix": prefixes.get("document", ""),
+        "query_prefix": prefixes.get("query", ""),
+    }
+
+
+def _needs_vector(record, dims, expected_sha256=None):
     vector = record.get("embedding")
-    return not isinstance(vector, list) or len(vector) != dims
+    if not isinstance(vector, list) or len(vector) != dims:
+        return True
+    stored_sha256 = record.get("embedding_input_sha256")
+    if expected_sha256 and stored_sha256 and stored_sha256 != expected_sha256:
+        return True
+    return False
 
 
 def _vector_problem(vector, width):
@@ -206,19 +249,23 @@ def embed_index(index, model=DEFAULT_EMBEDDER, embed_fn=None, batch=BATCH, dims=
             text = document_input(model, record, kind)
             if not text or text.endswith("text: ") or text.endswith("search_document: "):
                 record.pop("embedding", None)
+                record.pop("embedding_input_sha256", None)
                 continue
-            if _needs_vector(record, width):
-                pending.append((record, text))
+            text_sha = input_sha256(text)
+            if _needs_vector(record, width, text_sha):
+                pending.append((record, text, text_sha))
+            else:
+                record.setdefault("embedding_input_sha256", text_sha)
         for start in range(0, len(pending), batch):
             group = pending[start:start + batch]
-            vectors = embed_fn([text for _, text in group], model)
+            vectors = embed_fn([text for _, text, _ in group], model)
             if not isinstance(vectors, list) or len(vectors) != len(group):
                 got = len(vectors) if isinstance(vectors, list) else "no"
                 raise SystemExit(
                     f"embedder returned {got} vectors for {len(group)} texts; "
                     "refusing to store the batch."
                 )
-            for (record, _), vector in zip(group, vectors):
+            for (record, _, text_sha), vector in zip(group, vectors):
                 name = record.get("chunk_id") if kind == "chunk" else record.get("id")
                 problem = _vector_problem(vector, width)
                 if problem:
@@ -226,6 +273,7 @@ def embed_index(index, model=DEFAULT_EMBEDDER, embed_fn=None, batch=BATCH, dims=
                         f"{kind} {name}: embedding is {problem}; refusing to store it."
                     )
                 record["embedding"] = [round(value, 6) for value in vector]
+                record["embedding_input_sha256"] = text_sha
             yield len(group)
 
     chunks_done = 0
@@ -236,6 +284,7 @@ def embed_index(index, model=DEFAULT_EMBEDDER, embed_fn=None, batch=BATCH, dims=
         figures_done += count
     index["embedder"] = model
     index["embedding_dims"] = width
+    index["embedder_provenance"] = embedder_provenance(model, width)
     _prepare_index(index)
     return chunks_done, figures_done
 
@@ -465,6 +514,8 @@ def search(index, question, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K, retu
             "chunk_id": chunk["chunk_id"],
             "chapter": chunk["chapter"],
             "heading": chunk.get("heading", ""),
+            "section": chunk.get("section", ""),
+            "anchor": chunk.get("anchor", ""),
             "text": chunk.get("text", ""),
             "source": chunk.get("source", ""),
         }
@@ -532,6 +583,8 @@ def smoke(index, questions, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K):
 
 def load_index(path):
     p = Path(path).resolve()
+    if not p.is_file() and p.suffix == ".json" and p.with_suffix(".sqlite").is_file():
+        p = p.with_suffix(".sqlite")
     if p.is_file():
         stat = p.stat()
         mtime_ns = stat.st_mtime_ns
@@ -539,7 +592,11 @@ def load_index(path):
         cache_entry = _INDEX_CACHE.get(str(p))
         if cache_entry and cache_entry["mtime_ns"] == mtime_ns and cache_entry["size"] == size:
             return cache_entry["index"]
-        data = json.loads(p.read_text(encoding="utf-8"))
+        if store.is_index_db(p):
+            data = store.read_index(p)
+            data["_db_path"] = str(p)
+        else:
+            data = json.loads(p.read_text(encoding="utf-8"))
         _prepare_index(data)
         _INDEX_CACHE[str(p)] = {"mtime_ns": mtime_ns, "size": size, "index": data}
         return data
@@ -555,32 +612,13 @@ def warm_caches(index_path=INDEX, embedder=DEFAULT_EMBEDDER):
 
 
 def save_index(path, index):
-    clean_index = dict(index)
-    clean_index.pop("_book_forms", None)
-    clean_index.pop("_postings", None)
-    clean_index.pop("_df", None)
-    clean_index.pop("_chunk_items", None)
-    clean_index.pop("_uvec_matrix", None)
-    clean_index.pop("_uvec_chunks", None)
-    clean_index.pop("_uvec_matrix_chunk_count", None)
-    clean_index.pop("_uvec_dims", None)
-    clean_index.pop("_fts_conn", None)
-    clean_index.pop("_fts_chunk_count", None)
-    clean_chunks = []
-    for chunk in index.get("chunks", []):
-        c = dict(chunk)
-        c.pop("_uvec", None)
-        c.pop("_cited_numbers", None)
-        clean_chunks.append(c)
-    clean_index["chunks"] = clean_chunks
-    clean_figures = []
-    for figure in index.get("figures", []):
-        f = dict(figure)
-        f.pop("_uvec", None)
-        clean_figures.append(f)
-    clean_index["figures"] = clean_figures
+    """Persist the index to SQLite; derived keys and unit vectors are dropped."""
+    import fts_index
+
+    fts_index.close_fts_connection(index)
     p = Path(path).resolve()
-    p.write_text(json.dumps(clean_index), encoding="utf-8")
+    store.write_index(p, index)
+    index["_db_path"] = str(p)
     _INDEX_CACHE.pop(str(p), None)
 
 
@@ -662,7 +700,7 @@ def main():
     parser.add_argument(
         "--book-id",
         default=None,
-        help="Book ID; resolves index to data/index.<book_id>.json if --index is not set and data/index.<book_id>.json exists, else data/index.json",
+        help="Book ID; resolves index to data/index.<book_id>.sqlite if --index is not set and it exists, else data/index.sqlite",
     )
     parser.add_argument("--embedder", default=DEFAULT_EMBEDDER)
     parser.add_argument("--smoke", default="")
@@ -670,7 +708,7 @@ def main():
     args = parser.parse_args()
 
     if args.book_id is not None and args.index == str(INDEX):
-        book_index = ROOT / "data" / f"index.{args.book_id}.json"
+        book_index = book_index_path(args.book_id)
         if book_index.exists():
             index_path = book_index
         else:
@@ -680,8 +718,8 @@ def main():
 
     if args.embedder != DEFAULT_EMBEDDER and index_path.resolve() == INDEX.resolve():
         raise SystemExit(
-            f"{args.embedder} must not write data/index.json. "
-            "Pass --index data/index.<model>.json."
+            f"{args.embedder} must not write data/index.sqlite. "
+            "Pass --index data/index.<model>.sqlite."
         )
     if not index_path.is_file():
         if not args.smoke and INDEX.is_file() and index_path != INDEX and args.book_id is None:

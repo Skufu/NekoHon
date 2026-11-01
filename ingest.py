@@ -1,6 +1,7 @@
-"""EPUB -> data/index.json + data/figures/. No vectors, no Ollama.
+"""EPUB -> data/index.sqlite + data/figures/. No vectors, no Ollama.
 
-Stdlib only. Records are JSON. Pictures stay files. No pickle.
+Passages and figures are rows; the FTS5 tables are written with the index.
+Pictures stay files. No pickle.
 """
 
 import argparse
@@ -12,10 +13,10 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 
 from figures import cited_numbers, number_from_id
+from retrieve import INDEX, book_index_path, load_index, save_index
 
 ROOT = Path(__file__).resolve().parent
 BOOK = ROOT / "books" / "fde.epub"
-INDEX = ROOT / "data" / "index.json"
 FIGURES = ROOT / "data" / "figures"
 
 CHUNK_MAX_CHARS = 1400
@@ -1076,10 +1077,10 @@ def ingest_pdf(pdf_path, max_tokens=None):
     return chunks
 
 def main():
-    parser = argparse.ArgumentParser(description="Ingest EPUB into JSON index and extracted figure files.")
+    parser = argparse.ArgumentParser(description="Ingest EPUB into a SQLite index and extracted figure files.")
     parser.add_argument("--epub", default=str(BOOK), help="Path to input EPUB file (default: books/fde.epub)")
     parser.add_argument("--book-id", default=None, help="Book ID (default: fde, or stem of --epub)")
-    parser.add_argument("--index", default=None, help="Path to output index JSON")
+    parser.add_argument("--index", default=None, help="Path to output index database")
     parser.add_argument("--figures-dir", default=None, help="Directory to extract figures to")
     args = parser.parse_args()
 
@@ -1096,10 +1097,10 @@ def main():
 
     if args.index:
         index_path = Path(args.index)
-    elif book_id != "fde":
-        index_path = ROOT / "data" / f"index.{book_id}.json"
-    else:
+    elif str(epub_path.resolve()) == str(BOOK.resolve()):
         index_path = INDEX
+    else:
+        index_path = book_index_path(book_id)
 
     if args.figures_dir:
         figures_dir = Path(args.figures_dir)
@@ -1115,8 +1116,7 @@ def main():
     figures_dir.mkdir(parents=True, exist_ok=True)
 
     index = ingest_epub(epub_path, figures_dir, write_images=True, book_id=book_id)
-    index_path.parent.mkdir(parents=True, exist_ok=True)
-    index_path.write_text(json.dumps(index, indent=2), encoding="utf-8")
+    save_index(index_path, index)
 
     update_books_catalog(
         book_id,
@@ -1129,7 +1129,7 @@ def main():
         cover_file=index.get("cover_file", "cover.png"),
     )
 
-    reloaded = json.loads(index_path.read_text(encoding="utf-8"))
+    reloaded = load_index(index_path)
     captions = [f["caption"] for f in reloaded["figures"] if f["caption"]][:3]
     print(f"chunks {len(reloaded['chunks'])}")
     print(f"figures {len(reloaded['figures'])}")

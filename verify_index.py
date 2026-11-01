@@ -9,9 +9,10 @@ import math
 from collections import Counter
 from pathlib import Path
 
-from retrieve import INDEX, load_index
+import store
+from retrieve import INDEX, document_input, embedder_provenance, book_index_path, input_sha256, load_index
 
-AXES = ("nonfinite", "zero_norm", "dim_drift")
+AXES = ("nonfinite", "zero_norm", "dim_drift", "stale_input", "provenance_drift")
 
 
 def _label(kind, record, position):
@@ -51,7 +52,18 @@ def audit(index):
         "nonfinite": [],
         "zero_norm": [],
         "dim_drift": [],
+        "stale_input": [],
+        "provenance_drift": [],
     }
+    model = index.get("embedder")
+    prov = index.get("embedder_provenance")
+    if isinstance(prov, dict) and model and declared:
+        expected_prov = embedder_provenance(model, declared)
+        for key, expected_val in expected_prov.items():
+            if prov.get(key) != expected_val:
+                report["provenance_drift"].append(
+                    f"{key} ({prov.get(key)!r} != {expected_val!r})"
+                )
     for kind, record, position, vector in vectors:
         label = _label(kind, record, position)
         if not vector or any(not math.isfinite(value) for value in vector):
@@ -60,6 +72,14 @@ def audit(index):
             report["zero_norm"].append(label)
         if declared and len(vector) != declared:
             report["dim_drift"].append(f"{label} ({len(vector)} wide)")
+        stored_sha = record.get("embedding_input_sha256")
+        if stored_sha and model:
+            try:
+                expected_sha = input_sha256(document_input(model, record, kind))
+            except SystemExit:
+                expected_sha = None
+            if expected_sha and stored_sha != expected_sha:
+                report["stale_input"].append(label)
     return report
 
 
@@ -85,7 +105,7 @@ def main():
     args = parser.parse_args()
 
     if args.book_id is not None and args.index == str(INDEX):
-        book_index = INDEX.parent / f"index.{args.book_id}.json"
+        book_index = book_index_path(args.book_id)
         if book_index.exists():
             index_path = book_index
         else:
@@ -103,10 +123,12 @@ def main():
     print(f"missing_vectors {len(report['missing'])} {report['missing'][:5]}")
     for axis in AXES:
         print(f"{axis}_vectors {len(report[axis])} {report[axis][:5]}")
-    code = exit_code(report)
+    storage = store.check_database(index_path) if store.is_index_db(index_path) else []
+    print(f"storage {'clean' if not storage else '; '.join(storage)}")
+    code = exit_code(report) or bool(storage)
     if code:
         print("dirty")
-        raise SystemExit(code)
+        raise SystemExit(1)
     print("clean")
 
 

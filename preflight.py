@@ -20,6 +20,7 @@ import time
 import urllib.error
 import urllib.request
 
+import store
 from ingest import BOOK, ROOT
 from prompt import ANSWER_MODEL
 from retrieve import DEFAULT_EMBEDDER, INDEX, load_index
@@ -107,6 +108,8 @@ def next_steps(state):
             steps.append(f"pull the model: ollama pull {name}")
     if state["audit_clean"] is False:
         steps.append("the index failed its vector audit; re-run python retrieve.py")
+    if state.get("storage_clean") is False:
+        steps.append("the index database failed its storage check; rebuild it with ingest.py + retrieve.py")
     if not steps:
         steps.append("ready: python server.py, then open http://127.0.0.1:8000/")
     return steps
@@ -149,6 +152,7 @@ def main():
         "ollama": ollama_up(),
         "missing_models": [],
         "audit_clean": None,
+        "storage_clean": None,
     }
     tags = None
     if state["ollama"]:
@@ -168,6 +172,8 @@ def main():
             state["audit_clean"] = False
         else:
             state["audit_clean"] = audit_clean(report)
+        if store.is_index_db(INDEX):
+            state["storage_clean"] = not store.check_database(INDEX)
 
     print(f"python {sys.version.split()[0]} {'ok' if state['python_ok'] else 'TOO OLD'}")
     print(f"book   {'ok' if state['book'] else 'MISSING'}   {BOOK}")
@@ -181,6 +187,8 @@ def main():
             print(f"model  {mark:<8}{name}{res}")
     if state["audit_clean"] is not None:
         print(f"vectors {'clean' if state['audit_clean'] else 'DIRTY'}")
+    if state.get("storage_clean") is not None:
+        print(f"storage {'clean' if state['storage_clean'] else 'DIRTY'}")
     print("next:")
     for step in next_steps(state):
         print(f"  - {step}")
@@ -192,6 +200,7 @@ def main():
         and state["ollama"]
         and not state["missing_models"]
         and state["audit_clean"] is True
+        and state.get("storage_clean", True) is True
     )
     raise SystemExit(0 if ready else 1)
 

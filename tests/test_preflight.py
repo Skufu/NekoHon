@@ -13,6 +13,7 @@ def _state(**overrides):
         "ollama": True,
         "missing_models": [],
         "audit_clean": True,
+        "storage_clean": True,
     }
     state.update(overrides)
     return state
@@ -55,6 +56,10 @@ class PreflightTests(unittest.TestCase):
     def test_dirty_index_is_flagged(self):
         steps = next_steps(_state(audit_clean=False))
         self.assertTrue(any("audit" in step for step in steps))
+
+    def test_dirty_storage_is_flagged(self):
+        steps = next_steps(_state(storage_clean=False))
+        self.assertTrue(any("storage check" in step for step in steps))
 
     def test_audit_clean_flags_each_axis(self):
         clean = {

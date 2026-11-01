@@ -30,9 +30,9 @@ from retrieve import load_index  # noqa: E402
 
 DATA = ROOT / "data" / "finetune"
 INDEXES = [
-    ROOT / "data" / "index.json",
-    ROOT / "data" / "index.quantization.json",
-    ROOT / "data" / "index.ddia.json",
+    ROOT / "data" / "index.sqlite",
+    ROOT / "data" / "index.quantization.sqlite",
+    ROOT / "data" / "index.ddia.sqlite",
 ]
 IN_BOOK = re.compile(r"^(ch\d|app\d|text\d|chapter-)")
 QUOTE = re.compile(r'\[Ch\.\s*[^\]]+\]\s*["“](.+?)["”]', re.S)

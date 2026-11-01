@@ -19,7 +19,7 @@ plus two complements).
 
 The three tools share one interface: `.name` and
 `.search(query, index, state) -> list of retrieve.search-shaped hits`
-(chunk_id, chapter, heading, text, source, score). `state` is per-search
+(chunk_id, chapter, heading, text, source, section, anchor, score). `state` is per-search
 scratch; the keyword tool memoizes the postings map there, so the two or
 three attempts of one search build it at most once.
 
@@ -77,6 +77,8 @@ def _as_hit(chunk, score):
         "heading": chunk.get("heading", ""),
         "text": chunk.get("text", ""),
         "source": chunk.get("source", ""),
+        "section": chunk.get("section", ""),
+        "anchor": chunk.get("anchor", ""),
     }
 
 

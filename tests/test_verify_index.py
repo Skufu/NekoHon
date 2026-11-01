@@ -64,6 +64,27 @@ class AuditTests(unittest.TestCase):
         self.assertTrue(report["no_declared_dims"])
         self.assertEqual(exit_code(report), 1)
 
+    def test_stale_input_hash_is_flagged_when_text_changes(self):
+        index = clean_index()
+        index["chunks"][0]["text"] = "Modified chunk text after embedding"
+        index["chunks"][0]["embedding_input_sha256"] = "0000000000000000"
+        report = audit(index)
+        self.assertEqual(report["stale_input"], ["chunk c1-001"])
+        self.assertEqual(exit_code(report), 1)
+
+    def test_provenance_drift_is_flagged(self):
+        index = clean_index()
+        index["embedder_provenance"] = {
+            "model": "nomic-embed-text",
+            "dims": 2,
+            "document_prefix": "wrong_prefix: ",
+            "query_prefix": "search_query: ",
+        }
+        report = audit(index)
+        self.assertEqual(len(report["provenance_drift"]), 1)
+        self.assertIn("document_prefix", report["provenance_drift"][0])
+        self.assertEqual(exit_code(report), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
