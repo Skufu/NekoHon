@@ -45,12 +45,14 @@ def book_index_path(book_id=None):
 OLLAMA = "http://127.0.0.1:11434/api/embed"
 NOMIC_EMBEDDER = "nomic-embed-text"
 GEMMA_EMBEDDER = "embeddinggemma-2:270m-bf16-text"
-# Gemma was tried as the default 2026-10-23 and reverted the same day: recall on
-# the 57-question wide net rose (43/57 vs 38/57 at @5) but the hard bench fell
-# 60/60 -> 53/60 and adrian 32/35 -> 29/35, both on citation mismatches. A
-# wide-net win does not buy a gate regression. Evidence:
-# artifacts/reports/reranking-bakeoff-2026-10-23.md.
-DEFAULT_EMBEDDER = NOMIC_EMBEDDER
+# Each index stores its own `embedder` and `embedder_provenance` in SQLite;
+# `rank_chunks`, `search`, `dense_rank`, `captions.caption_seed`, and
+# `readings.second_reading` resolve `index.get("embedder") or DEFAULT_EMBEDDER`
+# so existing Nomic and Gemma indexes never cross-query. In this worktree,
+# DEFAULT_EMBEDDER is `embeddinggemma-2:270m-bf16-text` (768 dims); see
+# `artifacts/reports/embeddinggemma2-vs-nomic-2026-11-04.md` and
+# `artifacts/runs/empirical-gemma-vs-nomic-2026-11-03.json` (sha256 5defe639).
+DEFAULT_EMBEDDER = GEMMA_EMBEDDER
 TOP_K = 10
 BATCH = 16
 
@@ -422,9 +424,11 @@ def _build_uvec_matrix(index):
         return None
 
 
-def rank_chunks(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
+def rank_chunks(index, question, model=None, embed_fn=None):
     """Every chunk with a vector, best cosine first. The math search uses."""
     embed_fn = embed_fn or ollama_embed
+    if model is None:
+        model = index.get("embedder") or DEFAULT_EMBEDDER
     if index.get("embedder") != model:
         raise SystemExit(f"index was embedded with {index.get('embedder')}, not {model}")
 
@@ -528,7 +532,7 @@ def rank_chunks(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
     return list(ranked)
 
 
-def search(index, question, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K, return_ranks=False):
+def search(index, question, model=None, embed_fn=None, k=TOP_K, return_ranks=False):
     ranked = rank_chunks(index, question, model, embed_fn)
     passages = [
         {
@@ -552,11 +556,11 @@ def search(index, question, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K, retu
     return passages
 
 
-def search_with_ranks(index, question, model=DEFAULT_EMBEDDER, embed_fn=None, k=TOP_K):
+def search_with_ranks(index, question, model=None, embed_fn=None, k=TOP_K):
     return search(index, question, model=model, embed_fn=embed_fn, k=k, return_ranks=True)
 
 
-def dense_rank(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
+def dense_rank(index, question, model=None, embed_fn=None):
     """chunk_id -> 1-based dense rank over every chunk. No embedder: empty.
 
     An index with no embedder has no evidence to offer, so a caller that needs
@@ -564,6 +568,8 @@ def dense_rank(index, question, model=DEFAULT_EMBEDDER, embed_fn=None):
     """
     if not index.get("embedder"):
         return {}
+    if model is None:
+        model = index.get("embedder") or DEFAULT_EMBEDDER
     use_cache = (embed_fn is None or embed_fn is ollama_embed)
     norm_q = normalize(question)
     key = (id(index), len(index.get("chunks", [])), model, norm_q)

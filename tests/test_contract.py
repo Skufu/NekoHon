@@ -88,8 +88,12 @@ class RouteShapeTest(unittest.TestCase):
 
 
 class PromptContractTest(unittest.TestCase):
-    def test_the_four_modes_are_the_contract_modes(self):
-        self.assertEqual(server.MODES, ("ask", "answer", "explain", "quiz"))
+    def test_the_five_modes_are_the_contract_modes(self):
+        # "teach" added 2026-11-02: the stuck-reader mode. It keeps the refusal
+        # sentence and the body keys, but not the quote-first answer shape.
+        self.assertEqual(
+            server.MODES, ("ask", "answer", "explain", "quiz", "teach")
+        )
 
     def test_the_refusal_sentence_is_exact(self):
         self.assertEqual(prompt.REFUSAL, "Not in this book.")

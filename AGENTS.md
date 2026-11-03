@@ -28,7 +28,7 @@ Read in this order: this file → `docs/ARCHITECTURE.md` → `docs/OPERATIONS.md
 | `store.py` | SQLite schema, atomic writes, integrity check |
 | `fts_index.py` | FTS5 BM25 scoring, persisted/in-memory connection |
 | `fusion.py` | RRF fusion of the dense and lexical legs |
-| `keywords.py` | postings, rare-term detection (`RARE_DF`) |
+| `keywords.py` | postings, rare-term detection (`RARE_DF`), named-term detection (`NAMED_DF`) |
 | `canonical.py` | bare phrase → question ("watermark" → "What is watermark?") |
 | `preprocess.py` | NFKC fold, tokenising, stemming |
 | `intent.py` | intent analysis, follow-up pills |
@@ -36,7 +36,9 @@ Read in this order: this file → `docs/ARCHITECTURE.md` → `docs/OPERATIONS.md
 | `acronyms.py` | short head term ("what is ai") asked with the book's own spelling |
 | `captions.py` | figure-caption seeding |
 | `figures.py` | figure cards, figure file lookup |
-| `prompt.py` | system prompts, `ANSWER_MODEL`, `OLLAMA_KEEP_ALIVE` |
+| `prompt.py` | system prompts, `ANSWER_MODEL`, `OLLAMA_KEEP_ALIVE`, sampler sets |
+| `bookkind.py` | book kind (fiction or non-fiction) and the generation settings it picks |
+| `entity.py` | "who is X": the book's own sentences about a person, one per chapter |
 | `observe.py` | per-request JSONL trace |
 | `ingest.py` | EPUB/PDF → chunks, figures, SQLite |
 | `preflight.py`, `verify_index.py` | readiness, index audit |
@@ -45,8 +47,8 @@ Read in this order: this file → `docs/ARCHITECTURE.md` → `docs/OPERATIONS.md
 | `docs/adr/` | decisions that are hard to reverse — read before changing one |
 | `GLOSSARY.md` | the project's vocabulary; a term is settled there or it is not settled |
 | `artifacts/` | dated measurements, zone rules in `artifacts/README.md` |
-| `tests/` | 63 test modules, `python3 -m unittest discover -s tests` |
-| `scripts/` | `launch.py`, `setup_models.py`, `show-passages.py` |
+| `tests/` | 67 test modules, `python3 -m unittest discover -s tests` |
+| `scripts/` | `launch.py`, `setup_models.py`, `show-passages.py`, `book-kind.py` |
 
 `GOAL.md` and `BUILD_PLAN.md` no longer exist; they were stale and were removed
 on 2026-11-01. Do not recreate a plan document — put decisions in the code, a
@@ -89,7 +91,10 @@ five passages the model saw.
 | `stream=1` emits `token`, `reset`, then exactly one `final` or `error` | `server.py` | `test_stream_contract` |
 | `stream=1` on an import emits `book`, then `progress {done,total}`, then exactly one `final` or `error` | `server._handle_import` | `test_stream_contract` |
 | an imported file name becomes a book id of at most 64 characters, and a long index file name still writes | `ingest.book_id_for`, `store.write_index` | `test_ingest`, `test_store` |
+| the lexical leg joins for a named term as well as a rare one, and widens the window by additions instead of evicting the dense head; `added=0` is byte-identical to the old fusion | `keywords.lexical_terms`, `fusion.fuse(added=)` | `test_lexical_gate`, `test_fusion_lexical_cap` |
 | logic modules carry no book ids, chunk ids, chapter numbers or query strings | the listed modules | `test_generalization` |
+| a fiction book is answered warm from eight passages with a paragraph kept, a technical book cold from five with one gloss line | `bookkind.for_index`, `answer._fiction_body` | `test_fiction_profile` |
+| "who is X" on a fiction book is answered from the book's own sentences, one per chapter, with the titles it uses; nothing is generated | `entity.py`, `answer._entity_profile_body` | `test_entity_profile` |
 | every in-book quote in `data/finetune/*.jsonl` is verbatim | data factory | `test_training_quotes` |
 | UI style: tokens only, no hex outside `tokens.css`, no emoji, allowlisted deps | `web/` | `test_frontend_rules` |
 | sealed and fair `locked` items never leak into training or dev | datasets | `test_eval_leakage`, `test_hard_mt_leakage` |
@@ -115,7 +120,51 @@ the harness that measures it.
   prefix keep a digest suffix, so they never overwrite each other.
 - `ingest.py` then `retrieve.py` is the rebuild path: ingest writes chunks and
   figures without vectors, `retrieve.py` embeds what is missing (hash-checked,
-  idempotent) and saves.
+  idempotent) and saves. Both `embeddinggemma-2:270m-bf16-text`
+  (`DEFAULT_EMBEDDER`, 768 dims) and `nomic-embed-text` (`NOMIC_EMBEDDER`, 768
+  dims) are supported; `retrieve.rank_chunks`, `retrieve.search`,
+  `retrieve.dense_rank`, `captions.caption_seed`, `readings.second_reading`, and
+  `fusion.fuse` resolve `index.get("embedder") or DEFAULT_EMBEDDER` so each
+  index queries with the embedder it was built with.
+- A book's kind is `index["kind"]` when set, else read off dialogue density
+  (`bookkind.detect_kind`). `python3 scripts/book-kind.py <index>` prints the
+  numbers and the kind; `--set fiction` pins it for a book the guess gets
+  wrong. `ingest.py --kind fiction` writes it at ingest time. The trace records
+  `query.generation_profile`.
+- The fiction knobs are environment-readable, so a new book can be tried
+  without an edit: `FICTION_TEMPERATURE` (0.55), `FICTION_PASSAGE_LIMIT` (8),
+  `FICTION_QUOTE_TARGET` (2), `FICTION_SAMPLE_ROUNDS` (3). A fiction answer is
+  two or three generations (one quote each, merged), measured at 20 s a
+  question on the M-series machine against 5 s for a technical one.
+- Retrieval scoreboard: `python3 artifacts/harnesses/retrieval-recall.py` over the
+  authored six-book set (`artifacts/datasets/retrieval/retrieval-recall-2026-11-02.jsonl`,
+  42 rows). It reports chapter coverage@5 and chunk recall@5 per book; coverage
+  shows diffusion, recall decides a ship. Dense-only equals the pre-fix rare
+  gate, so any future lexical change must be measured against this file, not
+  argued.
+- The lexical gate is `keywords.lexical_terms`: a term opens the BM25 leg when it
+  is rare (`df <= RARE_DF = 8`) or named in the book (capitalised in >= 2 chunks
+  and in >= 50% of its mentions). Named detection costs ~60 ms once per book per
+  process (ddia, 1306 chunks), then 0.6 us. `rare()` is kept for callers that
+  want the old question.
+- Fusion appends lexical candidates instead of re-placing dense ones:
+  `MAX_LEXICAL_ADDITIONS_FICTION = 2`, `MAX_LEXICAL_ADDITIONS = 1`.
+  `MAX_LEXICAL_CANDIDATES` stays 1 because raising it cost recall: cap 2 dropped
+  quantization 1.000 -> 0.875, cap 3 dropped novel 0.700 -> 0.600. The window
+  grows by what was appended and the trace records `fusion_added=<n>`.
+- A "who is X" question on a fiction book takes the entity path (`entity.py`)
+  before retrieval: the sentences that name the person, one per chapter, plus
+  the titles their own sentences use ("Known as: Immortal Demon King Atofe").
+  No model call, so it answers in ~15 ms and cannot invent. It fires only for
+  a fresh question on a fiction book, and only when the name appears in at
+  least two chapters; otherwise the normal path answers.
+- Answer length is `TECHNICAL_ANSWER_WORDS` and `FICTION_ANSWER_WORDS`, in
+  words of the answer's own prose (quotes excluded). `0`, the default, keeps
+  every prompt exactly as measured; any other value aims the answer and forces
+  the gloss pass. The target is an aim, not a guarantee: this fine-tune stops
+  at about 65 words of gloss, measured 26 -> 36 -> 57 words for targets 0, 80,
+  200 on `ddia`, and 16 -> 22 -> 29 on the novel (`artifacts/reports/answer-length-2026-11-02.md`).
+  `outcome.answer_words` in the trace reports what was actually written.
 - Traces are on by default for HTTP (`artifacts/runs/traces.jsonl`),
   `OBSERVE=0` disables, `OBSERVE_LOG=<path>` redirects. Eval and unit runs do
   not write unless `OBSERVE_LOG` is set.

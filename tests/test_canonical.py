@@ -224,7 +224,7 @@ class _SeamBase(unittest.TestCase):
             for name in ("fuse", "caption_seed", "second_reading", "llm_second_reading")
         }
 
-        def fuse(index, question, passages, word_map):
+        def fuse(index, question, passages, word_map, *a, **kw):
             self.calls["fuse"] = question
             return passages
 
@@ -236,10 +236,13 @@ class _SeamBase(unittest.TestCase):
         A.caption_seed = caption_seed
         A.second_reading = lambda *a, **kw: None
         A.llm_second_reading = lambda *a, **kw: None
+        self.saved_acronyms_expand = A.acronyms.expand
+        A.acronyms.expand = lambda index, q: None
 
     def tearDown(self):
         for name, fn in self.saved.items():
             setattr(A, name, fn)
+        A.acronyms.expand = self.saved_acronyms_expand
 
     def search_recorder(self):
         def search(index, question, k=10):

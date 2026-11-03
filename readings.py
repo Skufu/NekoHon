@@ -178,7 +178,7 @@ def _clean_completion(text):
 
 
 def llm_second_reading(index, question, literal_top, answer_model=ANSWER_MODEL,
-                       generate_fn=None, embed_model=DEFAULT_EMBEDDER,
+                       generate_fn=None, embed_model=None,
                        embed_fn=None, word_map=None):
     """{"reading", "chunk", "swaps"} from an LLM correction, or None.
 
@@ -237,7 +237,7 @@ def llm_second_reading(index, question, literal_top, answer_model=ANSWER_MODEL,
     }
 
 
-def second_reading(index, question, literal_top, model=DEFAULT_EMBEDDER,
+def second_reading(index, question, literal_top, model=None,
                    embed_fn=None, word_map=None):
     """{"reading": question, "chunk": passage, "swaps": {typed: book}} or None.
 

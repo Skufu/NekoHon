@@ -13,6 +13,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
+import bookkind
 from figures import cited_numbers, number_from_id
 from retrieve import INDEX, book_index_path, load_index, save_index
 
@@ -62,7 +63,7 @@ def get_tokenizer():
     try:
         import glob
         import os
-        from tokenizers import Tokenizer
+        from tokenizers import Tokenizer, models, pre_tokenizers
         pattern = os.path.expanduser("~/.cache/huggingface/hub/models--BAAI--bge-small-en-v1.5/**/tokenizer.json")
         matches = glob.glob(pattern, recursive=True)
         if not matches:
@@ -70,6 +71,10 @@ def get_tokenizer():
         if matches:
             _TOKENIZER = Tokenizer.from_file(matches[0])
             return _TOKENIZER
+        tok = Tokenizer(models.Unigram([("<unk>", 0.0)], 0))
+        tok.pre_tokenizer = pre_tokenizers.BertPreTokenizer()
+        _TOKENIZER = tok
+        return _TOKENIZER
     except Exception:
         pass
     return None
@@ -910,8 +915,14 @@ def update_books_catalog(book_id, title, author, index_path, figures_dir, chunks
     return entry
 
 
-def ingest_epub(epub_path=BOOK, figures_dir=None, write_images=True, book_id=None):
-    """Return the index dict. Write images when figures_dir is set."""
+def ingest_epub(epub_path=BOOK, figures_dir=None, write_images=True, book_id=None,
+                kind=None):
+    """Return the index dict. Write images when figures_dir is set.
+
+    `kind` is "fiction" or "nonfiction" when the operator says so, and lands
+    in the index metadata, where bookkind.for_index reads it ahead of the
+    dialogue guess. None leaves it out so the guess stays live.
+    """
     epub_path = Path(epub_path)
     if book_id is None:
         if str(epub_path.resolve()) == str(BOOK.resolve()):
@@ -1022,7 +1033,7 @@ def ingest_epub(epub_path=BOOK, figures_dir=None, write_images=True, book_id=Non
             for number in cited_numbers(chunk["text"])
             if number in by_number
         })
-    return {
+    index = {
         "book_id": book_id,
         "title": meta.get("title", ""),
         "author": meta.get("author", ""),
@@ -1030,6 +1041,9 @@ def ingest_epub(epub_path=BOOK, figures_dir=None, write_images=True, book_id=Non
         "chunks": chunks,
         "figures": figures,
     }
+    if kind:
+        index["kind"] = kind
+    return index
 
 
 
@@ -1111,6 +1125,10 @@ def main():
     parser.add_argument("--book-id", default=None, help="Book ID (default: fde, or stem of --epub)")
     parser.add_argument("--index", default=None, help="Path to output index database")
     parser.add_argument("--figures-dir", default=None, help="Directory to extract figures to")
+    parser.add_argument(
+        "--kind", default=None, choices=("fiction", "nonfiction"),
+        help="Pin the book's kind in the index instead of detecting it from dialogue density",
+    )
     args = parser.parse_args()
 
     epub_path = Path(args.epub)
@@ -1144,7 +1162,9 @@ def main():
                 old.unlink()
     figures_dir.mkdir(parents=True, exist_ok=True)
 
-    index = ingest_epub(epub_path, figures_dir, write_images=True, book_id=book_id)
+    index = ingest_epub(
+        epub_path, figures_dir, write_images=True, book_id=book_id, kind=args.kind,
+    )
     save_index(index_path, index)
 
     update_books_catalog(
@@ -1160,6 +1180,7 @@ def main():
 
     reloaded = load_index(index_path)
     captions = [f["caption"] for f in reloaded["figures"] if f["caption"]][:3]
+    print(f"kind {bookkind.kind(reloaded)}")
     print(f"chunks {len(reloaded['chunks'])}")
     print(f"figures {len(reloaded['figures'])}")
     for caption in captions:

@@ -53,7 +53,7 @@ cd web && npm install && npm run dev    # reader on :3100, against :8000
 |---|---|
 | Storage | SQLite, one database per book, with FTS5 (`porter unicode61` + trigram) |
 | Retrieval | `nomic-embed-text` (768-d) vectors scored with `numpy` SIMD dot products, RRF-fused with lexical BM25 |
-| Generation | local Ollama chat model, temperature 0, `[Ch. N]` citations checked against the shown passages |
+| Generation | local Ollama chat model, temperature 0 for technical books and a warmer sampler for fiction, `[Ch. N]` citations checked against the shown passages, answer length aimable in words |
 | Figures | extracted at ingest into `data/figures/`, served by the engine |
 | UI | Next.js 16 static export, one zustand store, design tokens in `web/app/tokens.css` |
 | Traces | one JSON line per request in `artifacts/runs/traces.jsonl` |

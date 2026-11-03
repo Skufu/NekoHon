@@ -33,7 +33,7 @@ from retrieve import DEFAULT_EMBEDDER, INDEX, chunk_title, chunks_payload, forma
 from answer import ask, explain, ollama_generate_stream, quiz, respond, sanitize_history
 from figures import figure_file
 from keywords import postings
-from prompt import ANSWER_GLOSS_SYSTEM, ANSWER_MODEL, EXPLAIN_GLOSS_SYSTEM, FOLLOWUP_GLOSS_SYSTEM, OLLAMA_KEEP_ALIVE, SYSTEM
+from prompt import ANSWER_GLOSS_SYSTEM, ANSWER_MODEL, EXPLAIN_GLOSS_SYSTEM, FOLLOWUP_GLOSS_SYSTEM, OLLAMA_KEEP_ALIVE, is_quote_system
 
 ROOT = Path(__file__).resolve().parent
 WEB_OUT = ROOT / "web" / "out"
@@ -84,8 +84,8 @@ def parse_port(argv=None, env=None):
 PORT = parse_port()
 OLLAMA_URL = "http://127.0.0.1:11434/"
 DEFAULT_BOOK_ID = "".join(["f", "d", "e"])
-MODES = ("ask", "answer", "explain", "quiz")
-EXTRA_MODES = ("import",)
+MODES = ("ask", "answer", "explain", "quiz", "teach")
+EXTRA_MODES = ("import", "locate")
 BOOK = None
 CHUNKS = None
 ORIGINS = (
@@ -700,7 +700,7 @@ class Handler(BaseHTTPRequestHandler):
             self.wfile.write((json.dumps(payload) + "\n").encode("utf-8"))
             self.wfile.flush()
 
-        def generate(system, user, model=ANSWER_MODEL, prefill=""):
+        def generate(system, user, model=ANSWER_MODEL, prefill="", options=None):
             calls["n"] += 1
             if calls["n"] > 1:
                 # A later generation replaces whatever ran before it. Emitted
@@ -711,7 +711,7 @@ class Handler(BaseHTTPRequestHandler):
             live = bool(prefill) or (
                 system in (EXPLAIN_GLOSS_SYSTEM, ANSWER_GLOSS_SYSTEM, FOLLOWUP_GLOSS_SYSTEM)
             ) or (
-                system == SYSTEM and mode != "quiz" and getattr(respond, "__name__", "") != "fake_respond"
+                is_quote_system(system) and mode != "quiz" and getattr(respond, "__name__", "") != "fake_respond"
             )
 
             def on_token(text):
@@ -720,9 +720,11 @@ class Handler(BaseHTTPRequestHandler):
             return ollama_generate_stream(
                 system, user, model=model, prefill=prefill,
                 on_token=on_token if live else None,
+                options=options,
             )
 
         generate._is_live = True
+        generate._accepts_options = True
 
         self.send_response(200)
         self.send_header("Content-Type", "application/x-ndjson; charset=utf-8")

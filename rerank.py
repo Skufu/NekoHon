@@ -61,8 +61,14 @@ def rerank_passages(
         ]
         scores = model.predict(pairs)
     except Exception:
-        # Graceful fallback if model loading or inference fails
-        return passages[:top_k]
+        # Graceful offline lexical fallback if local HF cache is absent
+        import re
+        q_toks = set(re.findall(r"[a-z0-9]+", question.lower()))
+        scores = []
+        for p in passages:
+            p_text = f"{p.get('heading', '')}\n{p.get('text', '')}".lower()
+            p_toks = set(re.findall(r"[a-z0-9]+", p_text))
+            scores.append(len(q_toks & p_toks) / max(1, len(q_toks)))
 
     scored = []
     for p, s in zip(passages, scores):

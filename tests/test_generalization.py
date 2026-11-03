@@ -16,9 +16,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 LOGIC = (
+    "acronyms.py",
     "answer.py",
     "canonical.py",
     "captions.py",
+    "entity.py",
     "figures.py",
     "fts_index.py",
     "fusion.py",
@@ -26,6 +28,7 @@ LOGIC = (
     "keywords.py",
     "observe.py",
     "preprocess.py",
+    "bookkind.py",
     "prompt.py",
     "readings.py",
     "rerank.py",

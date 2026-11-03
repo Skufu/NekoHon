@@ -72,6 +72,7 @@ class RequestTrace:
         self.reading_repair = None
         self.guard_blocked = None
         self.shortcut = None
+        self.generation_profile = None
 
         # Retrieval telemetry
         self.retrieval_ms = 0.0
@@ -94,6 +95,7 @@ class RequestTrace:
         self.cited_chunks = []
         self.figures_attached = []
         self.answer_chars = 0
+        self.answer_words = 0
         self.answer_preview = ""
         self.citations_detail = []
 
@@ -159,6 +161,7 @@ class RequestTrace:
                 "reading_repair": self.reading_repair,
                 "guard_blocked": self.guard_blocked,
                 "shortcut": self.shortcut,
+                "generation_profile": self.generation_profile,
             },
             "retrieval": {
                 "retrieval_ms": round(self.retrieval_ms, 2),
@@ -189,6 +192,7 @@ class RequestTrace:
                 "cited_chunks": list(self.cited_chunks),
                 "figures_attached": list(self.figures_attached),
                 "answer_chars": self.answer_chars,
+                "answer_words": self.answer_words,
                 "answer_preview": self.answer_preview,
                 "citations_detail": list(self.citations_detail),
                 "anomalies": list(anomalies),
@@ -480,10 +484,24 @@ def wrap_generate_fn(generate_fn, default_model=""):
         return out
 
     _wrapped._is_live = getattr(generate_fn, "_is_live", False)
+    _wrapped._accepts_options = getattr(generate_fn, "_accepts_options", False)
     _wrapped._observe_wrapped = True
     if hasattr(generate_fn, "__name__"):
         _wrapped.__name__ = generate_fn.__name__
     return _wrapped
+
+
+def record_profile(kind, passage_limit, options, answer_words=0):
+    """Which generation settings answered: kind, window, sampler, length."""
+    tr = _CURRENT_TRACE.get()
+    if tr is None:
+        return
+    tr.generation_profile = {
+        "kind": kind,
+        "passage_limit": int(passage_limit),
+        "answer_words": int(answer_words or 0),
+        "options": dict(options or {}),
+    }
 
 
 def record_transform(name):
@@ -509,6 +527,13 @@ def finish_body(body):
         if isinstance(f, dict) and f.get("id")
     ]
     tr.answer_chars = len(body.get("answer") or "")
+    # The answer's own prose, the quoted lines excluded: that is what the
+    # length target aims at, so the trace can say whether it was met.
+    prose = [
+        line for line in str(body.get("answer") or "").splitlines()
+        if line.strip() and not line.lstrip().startswith("[Ch.")
+    ]
+    tr.answer_words = sum(len(line.split()) for line in prose)
     tr.answer_preview = str(body.get("answer") or "")[:600]
     tr.citations_detail = [
         {

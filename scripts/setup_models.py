@@ -305,16 +305,18 @@ def run_status():
         else:
             print(f"  Ollama Tag    : UNKNOWN (Ollama offline)")
 
-    # 3. Check nomic-embed-text
-    print("\n[NOMIC-EMBED-TEXT] - Embedding Model")
-    if ollama_tags is not None:
-        if "nomic-embed-text" in ollama_tags or "nomic-embed-text:latest" in ollama_tags:
-            print("  Ollama Tag    : REGISTERED (nomic-embed-text:latest)")
+    # 3. Check embedding models (DEFAULT_EMBEDDER and nomic-embed-text)
+    for emb_name in (DEFAULT_EMBEDDER, "nomic-embed-text"):
+        print(f"\n[{emb_name.upper()}] - Embedding Model")
+        if ollama_tags is not None:
+            if emb_name in ollama_tags or f"{emb_name}:latest" in ollama_tags:
+                print(f"  Ollama Tag    : REGISTERED ({emb_name})")
+            else:
+                print(f"  Ollama Tag    : NOT FOUND (Run 'ollama pull {emb_name}')")
+                if emb_name == DEFAULT_EMBEDDER:
+                    all_ok = False
         else:
-            print("  Ollama Tag    : NOT FOUND (Run 'ollama pull nomic-embed-text')")
-            all_ok = False
-    else:
-        print("  Ollama Tag    : UNKNOWN (Ollama offline)")
+            print("  Ollama Tag    : UNKNOWN (Ollama offline)")
 
     print("\n" + "=" * 76)
     if all_ok:
@@ -373,7 +375,7 @@ def run_install(target="all"):
     print("=" * 76)
 
 
-DEFAULT_EMBEDDER = "nomic-embed-text"
+DEFAULT_EMBEDDER = "embeddinggemma-2:270m-bf16-text"
 
 
 def warmup_models(target_answer_model="nekohon_x3", embed_model=DEFAULT_EMBEDDER):
@@ -385,9 +387,14 @@ def warmup_models(target_answer_model="nekohon_x3", embed_model=DEFAULT_EMBEDDER
 
     # 1. Warm embedder
     embed_url = f"{OLLAMA_API_BASE}/api/embed"
+    warmup_input = (
+        "task: search result | query: warmup"
+        if embed_model.startswith("embeddinggemma")
+        else "search_query: warmup"
+    )
     embed_payload = {
         "model": embed_model,
-        "input": ["search_query: warmup"],
+        "input": [warmup_input],
         "keep_alive": keep_alive,
     }
     req = urllib.request.Request(

@@ -28,7 +28,7 @@ from figures import cited_numbers, number_from_id
 from retrieve import DEFAULT_EMBEDDER, _dot, cosine, embed_texts, ollama_embed
 
 
-def caption_seed(index, question, passages, model=DEFAULT_EMBEDDER, embed_fn=None):
+def caption_seed(index, question, passages, model=None, embed_fn=None):
     """Passages with the figure-naming chunk prepended, or unchanged.
 
     Fires only when a figure caption scores above the best chunk score. A
@@ -39,6 +39,8 @@ def caption_seed(index, question, passages, model=DEFAULT_EMBEDDER, embed_fn=Non
     chunks = index.get("chunks") or []
     if not figures or not chunks or not passages:
         return passages
+    if model is None:
+        model = index.get("embedder") or DEFAULT_EMBEDDER
     # Fusion reorders, so the base is the best chunk score in the set, not the
     # first passage's.
     top_score = max((hit.get("score") or 0.0) for hit in passages)
@@ -100,4 +102,9 @@ def caption_seed(index, question, passages, model=DEFAULT_EMBEDDER, embed_fn=Non
         "text": best.get("text", ""),
         "source": best.get("source", ""),
     }
-    return [seed] + passages[:-1]
+    # The seed is added, not swapped for the tail. It used to be
+    # `[seed] + passages[:-1]`, which evicted the last passage: measured
+    # 2026-11-02 on ai-engineering "How does RLHF work?", the dropped tail was
+    # gold chunk ch02-066, and the row only passed on its second gold chunk.
+    # Same rule as fusion's additions: a better passage joins, nothing leaves.
+    return [seed] + passages

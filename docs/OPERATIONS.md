@@ -9,11 +9,13 @@ the output quoted is that day's real output.
 - `python3` ≥ 3.9 (3.13.5 here). The engine is standard-library plus the
   packages in `requirements.txt`.
 - `node` ≥ 22.5 and npm, only for `web/`.
-- Ollama on `127.0.0.1:11434` with `nomic-embed-text` pulled and the answer
-  model imported.
+- Ollama on `127.0.0.1:11434` with the embedding model
+  (`embeddinggemma-2:270m-bf16-text` or `nomic-embed-text`) pulled and the
+  answer model imported.
 
 ```sh
 python3 -m pip install -r requirements.txt
+ollama pull embeddinggemma-2:270m-bf16-text
 ollama pull nomic-embed-text
 python3 scripts/setup_models.py --status          # what is on disk, SHA-checked
 python3 scripts/setup_models.py --install --model nekohon_q35_2b_x3_2e
@@ -39,9 +41,10 @@ python3 retrieve.py --book-id fde
 in `data/books.json`. It **deletes existing figure files** in the target
 directory first.
 
-`retrieve.py` embeds with `nomic-embed-text` (768 dims) and saves. It is
+`retrieve.py` embeds with `DEFAULT_EMBEDDER` (`embeddinggemma-2:270m-bf16-text`,
+768 dims; pass `--embedder nomic-embed-text` for Nomic indexes) and saves. It is
 idempotent by content hash, so re-running it after an ingest costs only new
-chunks.
+chunks, and query-time ranking reads `index["embedder"]` from the SQLite file.
 
 The same import is available over HTTP (`mode: "import"`) and from the web UI
 (drag and drop).
@@ -144,7 +147,8 @@ peeking invalidates the number.
 | `nekohon_q35_2b_x3` | previous Qwen3.5 run | 1.31 GB |
 | `nekohon_x3` | previous desktop answerer (revert) | 1.93 GB |
 | `nekohon_x3_mobile` | edge/companion variant | 986 MB |
-| `nomic-embed-text` | embeddings, 768 dims | 274 MB |
+| `embeddinggemma-2:270m-bf16-text` | default embeddings (`DEFAULT_EMBEDDER`), 768 dims | 582 MB |
+| `nomic-embed-text` | supported embeddings (`NOMIC_EMBEDDER`), 768 dims | 274 MB |
 
 Swap the answerer without editing code:
 
