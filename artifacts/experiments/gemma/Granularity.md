@@ -132,14 +132,22 @@ prefix-truncated to 256 dims and re-ranked, no re-embedding.
 
 | config | 768-d | 256-d |
 |---|---|---|
-| whole | 19 / 30 | 18 / 31 |
-| halves | 21 / 30 | 19 / 31 |
-| sentences (20 rows only) | 8 / 12 | 8 / 13 |
+| whole | 19 / 30 | 21 / 32 |
+| halves | 21 / 30 | 23 / 30 |
+| sentences (20 rows only) | 8 / 12 | 9 / 13 |
 
-Finer units and truncation do not fight each other, but they do not add up either:
-halves+256 is 19 top-1 / 31 top-5 of 35 at 4.76 MB of vectors, versus whole-768 at
-19/30 and 7.2 MB. That is the cheapest arm anyone in this round has produced, and
-it is still a one-row difference.
+A first pass at this table was wrong: it truncated the stored vectors without
+re-normalizing them, and prefix norms vary between 0.66 and 0.72, so that biased the
+order. The figures above re-normalize every truncated vector. The 768-d column is
+untouched — those vectors are unit norm, so the two procedures are identical — and
+the corrected 256-d whole-chunk numbers now match Dims per row (21/32).
+
+Finer units and truncation do not fight each other, but they do not add up either.
+Halves+256 has the best point estimate of any arm (23 top-1, 30 top-5 of 35, 9.5 MB
+of vectors) but adds nothing reliable over whole-256 (21/32, 4.9 MB): +2 top-1 with
+a bootstrap CI of −5 … +9, and −2 top-5 (−7 … +3). Truncation alone is the tighter
+result (whole-256 vs whole-768: +2 top-1, CI 0 … +5; +2 top-5, CI 0 … +5), and it
+is free.
 
 ## Cost
 
@@ -168,8 +176,9 @@ embedding time to buy +2 top-1 and 0 top-5 across the full 35 rows (CI −3…+8
 recover rows where a long chunk buried the answer and lose rows gemma already had,
 so the ranking is reshuffled rather than improved. Sentences cost six times the index
 and lose top-5 outright (−4, CI −9…0 on the 20-row subset), so they are dead.
-Truncation does not change the picture: halves+256 matches whole-768 on top-1 at
-two-thirds of the vector size, which is a cost story, not an accuracy one. Nor does
+Truncation does not convert granularity into a win: halves+256 reaches the round's
+best point estimate (23 top-1) but its interval against whole-256 spans zero and it
+gives back two top-5 rows, so the reliable move is truncation alone. Nor does
 the finer leg lift fusion: DualFusion's Round 3 over these unit vectors reaches
 25 top-1 / 32 top-5 on the 35 rows (best halves arm), still one top-1 short of
 nomic alone (26/31).

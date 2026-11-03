@@ -1303,89 +1303,293 @@
   },
   "truncation_256d": {
     "method": "prefix truncation of the stored whole-chunk and unit vectors to the first 256 dims, query re-normalized; no re-embedding",
+    "correction": "first pass of this table truncated but did not re-normalize each stored vector; prefix norms vary 0.66-0.72 so that biased the ordering. Numbers below re-normalize every truncated vector (full 768-d vectors are unit norm, so all 768-d results are unaffected). They now match Dims per row: 21/32 on the 35 rows.",
     "subset_20": {
       "whole": {
-        "index": {
-          "top1": 2,
-          "top5": 4,
-          "n": 5
-        },
-        "index.ai-engineering": {
-          "top1": 3,
-          "top5": 5,
-          "n": 5
-        },
-        "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0": {
-          "top1": 0,
-          "top5": 8,
-          "n": 10
-        }
+        "top1": 7,
+        "top5": 17,
+        "n": 20
       },
       "halves": {
-        "index": {
-          "top1": 4,
-          "top5": 5,
-          "n": 5
-        },
-        "index.ai-engineering": {
-          "top1": 4,
-          "top5": 5,
-          "n": 5
-        },
-        "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0": {
-          "top1": 2,
-          "top5": 6,
-          "n": 10
-        }
-      },
-      "sentences": {
-        "index": {
-          "top1": 4,
-          "top5": 5,
-          "n": 5
-        },
-        "index.ai-engineering": {
-          "top1": 3,
-          "top5": 5,
-          "n": 5
-        },
-        "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0": {
-          "top1": 1,
-          "top5": 3,
-          "n": 10
-        }
+        "top1": 11,
+        "top5": 16,
+        "n": 20
       }
     },
     "other_15": {
       "whole": {
-        "top1": 13,
-        "top5": 14,
+        "top1": 14,
+        "top5": 15,
         "n": 15
       },
       "halves": {
-        "top1": 9,
-        "top5": 15,
+        "top1": 12,
+        "top5": 14,
         "n": 15
       }
     },
     "all_35": {
       "whole": {
-        "top1": 18,
-        "top5": 31
+        "top1": 21,
+        "top5": 32,
+        "n": 35
       },
       "halves": {
-        "top1": 19,
-        "top5": 31
-      },
-      "sentences": {
-        "top1": 8,
-        "top5": 13,
-        "n": 20,
-        "note": "20-row subset only"
+        "top1": 23,
+        "top5": 30,
+        "n": 35
       }
     },
-    "vector_bytes_halves_256": 4755456,
-    "note": "halves+256 is 19 top-1 / 31 top-5 of 35 at 4.76 MB, vs whole-768 19/30 at 7.2 MB"
+    "sentences_20": {
+      "768": {
+        "top1": 8,
+        "top5": 12,
+        "n": 20
+      },
+      "256": {
+        "top1": 9,
+        "top5": 13,
+        "n": 20
+      }
+    },
+    "vector_bytes": {
+      "halves_256_all_35": 9548800,
+      "whole_256_all_35": 4876288,
+      "whole_768_all_35": 14628864
+    },
+    "bootstrap": {
+      "halves256_vs_whole768": {
+        "top1": {
+          "mean": 3.96,
+          "lo95": -2,
+          "hi95": 10
+        },
+        "top5": {
+          "mean": 0.01,
+          "lo95": -5,
+          "hi95": 5
+        }
+      },
+      "halves256_vs_whole256": {
+        "top1": {
+          "mean": 1.98,
+          "lo95": -5,
+          "hi95": 9
+        },
+        "top5": {
+          "mean": -1.96,
+          "lo95": -7,
+          "hi95": 3
+        }
+      },
+      "whole256_vs_whole768": {
+        "top1": {
+          "mean": 2.01,
+          "lo95": 0,
+          "hi95": 5
+        },
+        "top5": {
+          "mean": 1.99,
+          "lo95": 0,
+          "hi95": 5
+        }
+      }
+    },
+    "note": "halves+256 is the highest point estimate (23 top-1) but adds nothing reliable over whole-256: +2 top-1 (CI -5..+9) and -2 top-5 (CI -7..+3) for 9.5 MB of vectors against 4.9 MB. Truncation alone is the tighter result: whole-256 vs whole-768 is +2 top-1 (CI 0..+5) and +2 top-5 (0..+5).",
+    "per_row": {
+      "whole_768": {
+        "tech-fde-01": 1,
+        "tech-fde-02": 2,
+        "tech-fde-03": 2,
+        "tech-fde-04": 12,
+        "tech-fde-05": 1,
+        "tech-aieng-01": 1,
+        "tech-aieng-02": 2,
+        "tech-aieng-03": 1,
+        "tech-aieng-04": 1,
+        "tech-aieng-05": 2,
+        "fic-ent-atofe": 2,
+        "fic-ent-sandor": 4,
+        "fic-ent-eris": 10,
+        "fic-ent-ruijerd": 3,
+        "fic-ent-rudeus": 4,
+        "fic-ent-dohga": 2,
+        "fic-scene-white-place": 7,
+        "fic-scene-gall-fire": 2,
+        "fic-scene-alec-dead": 21,
+        "fic-scene-badigadi": 2,
+        "tech-quant-01": 1,
+        "tech-quant-02": 1,
+        "tech-quant-03": 1,
+        "tech-quant-04": 1,
+        "tech-quant-05": 1,
+        "tech-ddia-01": 1,
+        "tech-ddia-02": 9,
+        "tech-ddia-03": 1,
+        "tech-ddia-04": 1,
+        "tech-ddia-05": 1,
+        "tech-aiagents-01": 1,
+        "tech-aiagents-02": 1,
+        "tech-aiagents-03": 1,
+        "tech-aiagents-04": 1,
+        "tech-aiagents-05": 1
+      },
+      "whole_256": {
+        "tech-fde-01": 1,
+        "tech-fde-02": 2,
+        "tech-fde-03": 2,
+        "tech-fde-04": 14,
+        "tech-fde-05": 1,
+        "tech-aieng-01": 1,
+        "tech-aieng-02": 2,
+        "tech-aieng-03": 1,
+        "tech-aieng-04": 1,
+        "tech-aieng-05": 2,
+        "fic-ent-atofe": 2,
+        "fic-ent-sandor": 3,
+        "fic-ent-eris": 6,
+        "fic-ent-ruijerd": 3,
+        "fic-ent-rudeus": 4,
+        "fic-ent-dohga": 1,
+        "fic-scene-white-place": 4,
+        "fic-scene-gall-fire": 1,
+        "fic-scene-alec-dead": 14,
+        "fic-scene-badigadi": 2,
+        "tech-quant-01": 1,
+        "tech-quant-02": 1,
+        "tech-quant-03": 1,
+        "tech-quant-04": 1,
+        "tech-quant-05": 1,
+        "tech-ddia-01": 1,
+        "tech-ddia-02": 3,
+        "tech-ddia-03": 1,
+        "tech-ddia-04": 1,
+        "tech-ddia-05": 1,
+        "tech-aiagents-01": 1,
+        "tech-aiagents-02": 1,
+        "tech-aiagents-03": 1,
+        "tech-aiagents-04": 1,
+        "tech-aiagents-05": 1
+      },
+      "halves_768": {
+        "tech-fde-01": 1,
+        "tech-fde-02": 1,
+        "tech-fde-03": 1,
+        "tech-fde-04": 2,
+        "tech-fde-05": 2,
+        "tech-aieng-01": 1,
+        "tech-aieng-02": 2,
+        "tech-aieng-03": 1,
+        "tech-aieng-04": 1,
+        "tech-aieng-05": 1,
+        "fic-ent-atofe": 1,
+        "fic-ent-sandor": 17,
+        "fic-ent-eris": 6,
+        "fic-ent-ruijerd": 4,
+        "fic-ent-rudeus": 20,
+        "fic-ent-dohga": 3,
+        "fic-scene-white-place": 33,
+        "fic-scene-gall-fire": 4,
+        "fic-scene-alec-dead": 62,
+        "fic-scene-badigadi": 1,
+        "tech-quant-01": 1,
+        "tech-quant-02": 1,
+        "tech-quant-03": 1,
+        "tech-quant-04": 1,
+        "tech-quant-05": 2,
+        "tech-ddia-01": 1,
+        "tech-ddia-02": 2,
+        "tech-ddia-03": 1,
+        "tech-ddia-04": 1,
+        "tech-ddia-05": 1,
+        "tech-aiagents-01": 1,
+        "tech-aiagents-02": 1,
+        "tech-aiagents-03": 1,
+        "tech-aiagents-04": 2,
+        "tech-aiagents-05": 1
+      },
+      "halves_256": {
+        "tech-fde-01": 1,
+        "tech-fde-02": 1,
+        "tech-fde-03": 1,
+        "tech-fde-04": 2,
+        "tech-fde-05": 1,
+        "tech-aieng-01": 1,
+        "tech-aieng-02": 1,
+        "tech-aieng-03": 1,
+        "tech-aieng-04": 1,
+        "tech-aieng-05": 1,
+        "fic-ent-atofe": 1,
+        "fic-ent-sandor": 21,
+        "fic-ent-eris": 2,
+        "fic-ent-ruijerd": 3,
+        "fic-ent-rudeus": 18,
+        "fic-ent-dohga": 2,
+        "fic-scene-white-place": 16,
+        "fic-scene-gall-fire": 3,
+        "fic-scene-alec-dead": 46,
+        "fic-scene-badigadi": 1,
+        "tech-quant-01": 1,
+        "tech-quant-02": 1,
+        "tech-quant-03": 1,
+        "tech-quant-04": 1,
+        "tech-quant-05": 3,
+        "tech-ddia-01": 1,
+        "tech-ddia-02": 1,
+        "tech-ddia-03": 1,
+        "tech-ddia-04": 1,
+        "tech-ddia-05": 1,
+        "tech-aiagents-01": 1,
+        "tech-aiagents-02": 2,
+        "tech-aiagents-03": 1,
+        "tech-aiagents-04": 6,
+        "tech-aiagents-05": 1
+      },
+      "sentences_768": {
+        "tech-fde-01": 1,
+        "tech-fde-02": 3,
+        "tech-fde-03": 1,
+        "tech-fde-04": 1,
+        "tech-fde-05": 2,
+        "tech-aieng-01": 4,
+        "tech-aieng-02": 1,
+        "tech-aieng-03": 1,
+        "tech-aieng-04": 1,
+        "tech-aieng-05": 2,
+        "fic-ent-atofe": 1,
+        "fic-ent-sandor": 15,
+        "fic-ent-eris": 45,
+        "fic-ent-ruijerd": 7,
+        "fic-ent-rudeus": 21,
+        "fic-ent-dohga": 17,
+        "fic-scene-white-place": 36,
+        "fic-scene-gall-fire": 47,
+        "fic-scene-alec-dead": 192,
+        "fic-scene-badigadi": 1
+      },
+      "sentences_256": {
+        "tech-fde-01": 1,
+        "tech-fde-02": 3,
+        "tech-fde-03": 1,
+        "tech-fde-04": 1,
+        "tech-fde-05": 2,
+        "tech-aieng-01": 1,
+        "tech-aieng-02": 1,
+        "tech-aieng-03": 1,
+        "tech-aieng-04": 1,
+        "tech-aieng-05": 2,
+        "fic-ent-atofe": 1,
+        "fic-ent-sandor": 7,
+        "fic-ent-eris": 39,
+        "fic-ent-ruijerd": 2,
+        "fic-ent-rudeus": 23,
+        "fic-ent-dohga": 16,
+        "fic-scene-white-place": 20,
+        "fic-scene-gall-fire": 59,
+        "fic-scene-alec-dead": 190,
+        "fic-scene-badigadi": 1
+      }
+    }
   },
   "all_35": {
     "rows": 35,

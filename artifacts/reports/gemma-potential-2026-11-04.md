@@ -33,8 +33,8 @@ support@5 26/29 for both embedders.
 | experiment | best configuration | top-1 | top-5 | verdict |
 |---|---|---|---|---|
 | document format (fde, 1042 chunks × 6 formats; widened to 34 questions) | today's `title: H \| text: body` is unbeaten; raw text, `title:none`, heading-in-both all within noise | 18/34 | 27/34 | no lever. Formats reshuffle the shown five (Jaccard 0.45–0.57) without changing top-1; the heading contributes nothing (dropping it: same top-1, worse mean rank) |
-| Matryoshka / centring (no re-embed) | 256-d truncation | 21/35 | 32/35 | no reliable rank-1 or window gain (p=0.23 / post-hoc 0.025). Robust: mean gold rank 2.40 vs 3.00 (p=0.003, 3/1000 random subsets reach it) — ordering depth and 3× less storage, not accuracy |
-| finer retrieval units (halves, sentences; 35 rows) | halves | 21/35 | 30/35 | reshuffles, does not repair: +2 top-1 (CI −3…+8), top-5 flat, 2× index; sentences 5.9 units/chunk and lose top-5 |
+| Matryoshka / centring (no re-embed) | 256-d truncation | 21/35 | 32/35 | the tightest cheap lever, not a proven win: +2 top-1 and +2 top-5, both CI 0…+5 (includes zero). Robust: mean gold rank 2.40 vs 3.00 (p=0.003, 3/1000 random subsets reach it) — ordering depth and 3× less storage, not accuracy |
+| finer retrieval units (halves, sentences; 35 rows) | halves | 21/35 | 30/35 | reshuffles, does not repair: +2 top-1 (CI −3…+8), top-5 flat, 2× index; sentences 5.9 units/chunk and lose top-5. Halves at 256-d reach 23 top-1, +2 over whole-256 at CI −5…+9 — not distinguishable, for double the vectors |
 | dual embedder (gemma + nomic, 8 fusions, 3 rounds incl. a halves leg) | z-max, nomic-768 + gemma-256 | 26/35 | 32/35 | ties nomic, never beats it; +1 top-5 is one fiction row (p=0.15); depth gain owned by the gemma leg, not by fusing |
 
 Cost, measured five times each, uncached, same box: gemma **2 238 ms** per query
@@ -55,8 +55,10 @@ and its real cost is per-query latency.
 
 Recommendation: do not switch the default. Nomic is equal on the served path,
 better on exact rank-1, and 4–50× cheaper to query. Keep gemma installed for the
-wide-net coverage experiments. If storage ever matters, 256-d truncation is free
-and measured; it belongs to a storage decision, not an accuracy one.
+wide-net coverage experiments. If storage ever matters, 256-d truncation is the
+one measured free lever — +2 top-1 / +2 top-5 at CI 0…+5, and 3× less storage —
+but the interval includes zero, so it belongs to a storage decision, not an
+accuracy claim.
 
 ## Evidence on disk, in this worktree
 
