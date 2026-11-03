@@ -112,19 +112,23 @@ honest version of it is narrower than "granularity works, format does not":
 
 - **Format (this report).** Changes the shown five by ~35 % per question and
   moves no accuracy metric beyond noise.
-- **Granularity (Granularity).** Its own correction: halves are 21/30 top-1/top-5
-  against whole-chunk 19/30 over all 35 rows — +2 top-1 with a bootstrap CI of
-  −3…+8 and no top-5 change; sentences lose 4 top-5. Halves move the same row
-  this report moves (`tech-fde-04` 12 → 2, versus 12 → 2–4 for formats 2–4) and
-  move a novel row the wrong way (4 → 17). So grain is the same reshuffle, at 2×
-  to 6× the index size, and formats are the free version of it.
-- **Dimensions (Dims).** Truncation to 256-d leaves the top-5 pool almost intact
-  (33/35 rows unchanged) while moving mean gold rank 3.00 → 2.40, i.e. it sharpens
-  depth inside an unchanged pool rather than re-drawing the pool.
+- **Granularity (Granularity).** Two corrections from that experiment, as it
+  stands: halves are 21/30 over all 35 rows against whole-chunk 19/30 (+2 top-1,
+  bootstrap CI −3…+8, no top-5 change), and halves at 256-d are 23/30 against
+  whole-256 21/32 (+2 top-1, CI −5…+9; −2 top-5, CI −7…+3). Sentences cost 4
+  top-5. Neither grain interval clears zero. Halves move the same row this report
+  moves (`tech-fde-04` 12 → 2, versus 12 → 2–4 for formats 2–4) and move a novel
+  row the wrong way (4 → 17), so grain is the same reshuffle at 2× to 6× the index
+  size — formats are the free version of it.
+- **Dimensions (Dims).** Truncation to 256-d is 21/35 top-1, 32/35 top-5, mean gold
+  rank 2.40 against the same baseline 19/30/3.00 — two rows change top-5 status,
+  so it sharpens depth inside a nearly unchanged pool rather than re-drawing it
+  (mean rank also beats 1 000 random 256-dim subsets, p 0.003).
 
-Shared fact: gemma's ranking is a pool of near-ties, so levers that re-draw the
-pool (grain, dimensions) move top-1 by a couple of rows with CIs spanning zero,
-and levers that only relabel the same pool (document format) move nothing.
+Shared fact: gemma's ranking is a pool of near-ties. Formatting and grain both
+move a couple of rows with intervals spanning zero (grain paying 2×–6× the index
+for it), and the only lever whose interval clears zero on both top-1 and top-5 is
+dimension truncation.
 
 ## Verdict
 

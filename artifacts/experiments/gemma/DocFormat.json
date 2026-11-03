@@ -2237,29 +2237,19 @@
  },
  "verdict": "nothing beats the current document format on any metric beyond noise; keep f1",
  "cross_experiment": {
-  "shared_fact": "gemma's ranking is a pool of near-ties; levers that re-draw the pool (granularity, dimensions) move top-1 by a couple of rows with CIs spanning zero, levers that relabel the pool (document format) move nothing",
+  "shared_fact": "gemma's ranking is a pool of near-ties: document formatting and grain each move a couple of rows with intervals spanning zero (grain at 2x-6x the index cost), while dimension truncation is the only lever measured whose interval clears zero on both top-1 and top-5",
   "granularity_peer": {
-   "halves_top1": 21,
-   "halves_top5": 30,
-   "whole_top1": 19,
-   "whole_top5": 30,
-   "n": 35,
-   "delta_top1_ci": [
-    -3,
-    8
-   ],
-   "sentences_top5_delta_ci": [
-    -9,
-    0
-   ],
-   "same_row_moved": "tech-fde-04 12->2 (halves) vs 12->2..4 (formats 2-4 here)"
+   "halves_768": "21/35 top-1, 30/35 top-5 (whole 19/30), delta top-1 +2, CI -3..+8",
+   "halves_256": "23/35 top-1, 30/35 top-5 vs whole-256 21/32; delta top-1 +2 CI -5..+9, delta top-5 -2 CI -7..+3",
+   "sentences": "loses 4 top-5 (CI -9..0)",
+   "same_row_moved": "tech-fde-04 12->2 (halves) vs 12->2..4 (formats 2-4 here); novel row 4->17",
+   "note": "post-correction numbers from Granularity; halves first pass was not renormalised after truncation"
   },
   "dims_peer": {
-   "trunc_256_top5_pool_unchanged": "33/35 rows",
-   "mean_rank": [
-    3.0,
-    2.4
-   ]
+   "trunc_256": "21/35 top-1, 32/35 top-5, mean gold rank 2.40 (baseline 19/35, 30/35, 3.00)",
+   "top5_changed": "two rows change top-5 status (tech-ddia-02, fic-scene-white-place)",
+   "depth_control": "mean rank 2.40 vs 1000 random 256-dim subsets at 3.995, p 0.003",
+   "attribution": "Dims artifact; not measured in this report"
   }
  }
 }

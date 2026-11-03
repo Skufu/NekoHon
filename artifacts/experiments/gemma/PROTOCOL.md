@@ -1,9 +1,9 @@
 # Gemma embedder experiments — protocol
 
 **Every gemma experiment runs in this worktree** (`ask-this-book-gemma`, branch
-`test-gemma-embedder`). `ask-this-book` on `main` is read-only for this work:
-its 45 uncommitted paths are the generation/teach work, and it does not carry the
-gemma indexes. If a tool call takes a relative path, prefix
+`test-gemma-embedder`). This worktree is for gemma embedder work only. Engine, teach mode, retrieval
+gate and test work belong in `ask-this-book` on `main`; that tree does not carry
+the gemma indexes, and this one is a stale snapshot of it. If a tool call takes a relative path, prefix
 `../ask-this-book-gemma/` or pass `cwd`.
 
 One question: can `embeddinggemma-2:270m-bf16-text` be made to beat, or at least
