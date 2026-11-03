@@ -855,6 +855,32 @@ def judge_book_fidelity(question, passages_text, answer, model=None, timeout=Non
     return _one_word(FIDELITY_SYSTEM, user, FIDELITY_KEYS, model, timeout)
 
 
+TEACH_EXAMPLE_SYSTEM = (
+    "You check the example in a teaching answer about a book. You see the "
+    "question, passages from the book, and a system answer. The answer's "
+    "example is the writer's own illustration, not a quote, so it does not "
+    "have to appear in the passages. Judge only whether it teaches the idea "
+    "correctly. Reply with exactly one word: contradicts, if the example "
+    "misstates the idea or contradicts the passages; correct, if it "
+    "illustrates the idea without contradicting them; missing, if the answer "
+    "has no concrete example. No other words."
+)
+TEACH_EXAMPLE_KEYS = [
+    ("missing", ["missing", "none", "no", "false"]),
+    ("contradicts", ["contradicts", "contradict", "wrong", "false"]),
+    ("correct", ["correct", "yes", "true"]),
+]
+
+
+def judge_teach_example(question, passages_text, answer, model=None, timeout=None):
+    """correct / contradicts / missing: whether a teaching answer's example teaches correctly."""
+    user = (
+        f"Question: {question}\n\nPassages:\n{passages_text[:4000]}\n\n"
+        f"System answer:\n{answer[:ANSWER_CHARS]}"
+    )
+    return _one_word(TEACH_EXAMPLE_SYSTEM, user, TEACH_EXAMPLE_KEYS, model, timeout)
+
+
 def judge_plain_example(question, passages_text, answer, model=None, timeout=None):
     """example / none: the answer uses a concrete example from the passages."""
     user = (

@@ -23,6 +23,7 @@ type Item = {
   h: number;
   created: number;
   mini: boolean;
+  pinned: boolean;
 };
 
 type Layout = {
@@ -37,17 +38,25 @@ const gapAfter = (a: Item, b: Item) => (a.mini && b.mini ? GAP_MINI : GAP);
 /**
  * Places gloss cards beside their passages. The active gloss sits exactly
  * at its anchor; the rest stack away in both directions without overlapping.
+ * Pinned minimized cards keep their own viewport rect, so they neither take
+ * space in the stack nor push their neighbours around.
  */
 function place(items: Item[], activeId: string | null): Record<string, number> {
-  if (items.length === 0) return {};
-  const tops: number[] = items.map((it) => it.desired);
-  const ai = activeId ? items.findIndex((it) => it.id === activeId) : -1;
+  const flow = items.filter((it) => !it.pinned);
+  const out: Record<string, number> = {};
+  for (const it of items) {
+    if (it.pinned) out[it.id] = it.desired;
+  }
+  if (flow.length === 0) return out;
+
+  const tops: number[] = flow.map((it) => it.desired);
+  const ai = activeId ? flow.findIndex((it) => it.id === activeId) : -1;
 
   const forward = (from: number) => {
-    for (let i = Math.max(1, from); i < items.length; i++) {
+    for (let i = Math.max(1, from); i < flow.length; i++) {
       tops[i] = Math.max(
         tops[i],
-        tops[i - 1] + items[i - 1].h + gapAfter(items[i - 1], items[i])
+        tops[i - 1] + flow[i - 1].h + gapAfter(flow[i - 1], flow[i])
       );
     }
   };
@@ -60,7 +69,7 @@ function place(items: Item[], activeId: string | null): Record<string, number> {
     for (let i = ai - 1; i >= 0; i--) {
       tops[i] = Math.min(
         tops[i],
-        tops[i + 1] - gapAfter(items[i], items[i + 1]) - items[i].h
+        tops[i + 1] - gapAfter(flow[i], flow[i + 1]) - flow[i].h
       );
     }
     if (tops[0] < 0) {
@@ -69,8 +78,7 @@ function place(items: Item[], activeId: string | null): Record<string, number> {
     }
   }
 
-  const out: Record<string, number> = {};
-  items.forEach((it, i) => {
+  flow.forEach((it, i) => {
     out[it.id] = tops[i];
   });
   return out;
@@ -187,6 +195,7 @@ export default function Margin({
         h,
         created: g.createdAt,
         mini: isCardMin,
+        pinned: Boolean(g.minimized && g.pinnedAt),
       });
     }
 
@@ -229,7 +238,9 @@ export default function Margin({
 
     for (const it of items) {
       anchors[it.id] = it.anchorY;
-      height = Math.max(height, (tops[it.id] ?? 0) + it.h);
+      if (!it.pinned) {
+        height = Math.max(height, (tops[it.id] ?? 0) + it.h);
+      }
     }
 
     setLayout((prev) => {
@@ -300,6 +311,10 @@ export default function Margin({
     );
   }
 
+  const pinnedIds = new Set(
+    glosses.filter((g) => g.minimized && g.pinnedAt).map((g) => g.id)
+  );
+
   // Active / hovered leader lines
   const lead = [
     activeGlossId,
@@ -351,11 +366,12 @@ export default function Margin({
         >
           {lead.map((id) => {
             const g = glosses.find((item) => item.id === id);
-            const dragX = g?.dragOffset?.x ?? 0;
-            const dragY = g?.dragOffset?.y ?? 0;
-            const widthShift = g?.customWidth ? 320 - g.customWidth : 0;
+            const pin = g?.minimized ? g.pinnedAt : undefined;
+            const dragX = pin ? pin.x : g?.dragOffset?.x ?? 0;
+            const dragY = pin ? pin.y : g?.dragOffset?.y ?? 0;
+            const widthShift = !pin && g?.customWidth ? 320 - g.customWidth : 0;
             const y0 = layout.anchors[id];
-            const y1 = (layout.tops[id] ?? 0) + 18 + dragY;
+            const y1 = pin ? pin.y + 14 : (layout.tops[id] ?? 0) + 18 + dragY;
             const x0 = 4;
             const x1 = 27 + dragX + widthShift;
             const dx = x1 - x0;
@@ -396,7 +412,7 @@ export default function Margin({
           key={g.id}
           gloss={g}
           top={layout.tops[g.id] ?? 0}
-          placed={placed.current.has(g.id)}
+          placed={placed.current.has(g.id) || pinnedIds.has(g.id)}
           mini={layout.mini[g.id] ?? false}
           active={g.id === activeGlossId}
           hovered={g.id === hoveredGlossId}

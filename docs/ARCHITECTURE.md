@@ -121,7 +121,8 @@ filesystem's 255-byte name limit inside SQLite's temp and journal files
 ## 3. One request, in order
 
 Both answering modes share `answer.retrieval_context`, so the two modes see the
-same five passages.
+same passages: five for a technical book, eight for fiction
+(`bookkind.for_index`).
 
 ### 3.1 Before retrieval
 
@@ -145,10 +146,10 @@ answered straight from the pinned chunk with no retrieval
 
 | # | Stage | What it does | Knob |
 |---|---|---|---|
-| 1 | `retrieve.rank_chunks` | dense cosine ranking over the whole book (`_uvec` dot products) | `PASSAGE_LIMIT = 5` |
+| 1 | `retrieve.rank_chunks` | dense cosine ranking over the whole book (`_uvec` dot products) | `PASSAGE_LIMIT = 5` (`bookkind.FICTION_PASSAGE_LIMIT = 8`) |
 | 2 | `_pin_chunk` | the reader's pinned passage leads the window | — |
 | 3 | `_figure_referencing_chunk` | a question naming `figure N-M` fronts the chunk that names it | — |
-| 4 | `keywords.rare` + `fusion.fuse` | lexical FTS5 BM25 leg, RRF-fused with dense; runs only when a question term is rare (`df ≤ RARE_DF = 8`) | `LEXICAL_BACKEND` |
+| 4 | `keywords.lexical_terms` + `fusion.fuse` | lexical FTS5 BM25 leg, RRF-fused with dense; runs when a question term is rare (`df ≤ RARE_DF = 8`) **or named in the book** (capitalised in ≥ 2 chunks and in ≥ 50 % of its mentions). Appends up to 1 candidate (2 on fiction) instead of re-placing dense ones | `LEXICAL_BACKEND`, `MAX_LEXICAL_ADDITIONS*` |
 | 5 | `captions.caption_seed` | a figure caption that out-scores the best chunk is prepended | — |
 | 6 | `_prioritize_phrase_matches` | heading/bigram matches score up; code-shaped hits score down for definitional asks | — |
 | 7 | `rerank.rerank_passages` | cross-encoder rerank, off unless asked for | `RERANK_ENABLED=1` |
@@ -159,7 +160,20 @@ answered straight from the pinned chunk with no retrieval
 (`RANK_BAND = 0.20`) and fuses with `RRF_K = 60`. A lexical hit outside the band
 can still enter as a single strongest candidate.
 
+Two changes on 2026-11-02 came out of the retrieval baseline
+(`artifacts/reports/retrieval-ranking-2026-11-02.md`). The gate was inverted for
+entity questions: `rare()` fires only on vocabulary the book barely uses, so a
+name the book repeats 51 times never woke the lexical leg. `lexical_terms` adds
+the other end — a capitalised, mostly-capitalised term counts as named. And
+fusion admits candidates as *additions*: the dense head is kept and the window
+grows by what was appended (`fusion_added=<n>` in the trace), because the
+measurable alternative — raising `MAX_LEXICAL_CANDIDATES` — traded chapter
+coverage for the answering chunk (cap 2 cost quantization 1.000 → 0.875, cap 3
+cost the novel 0.700 → 0.600). With additions, chapter coverage on the novel
+went 0.767 → 0.900 at the served window and no technical book moved.
+
 Tuning constants, all in one place for a reader: `PASSAGE_LIMIT = 5`,
+`bookkind.FICTION_PASSAGE_LIMIT = 8`, `bookkind.FICTION_QUOTE_TARGET = 2`,
 `HISTORY_TURNS = 2`, `MISS_QUOTE_CHARS = 160`, `PARAGRAPH_CAP = 1200`,
 `RARE_DF = 8`, `COVER_DF = 80`, `RRF_K = 60`, `RANK_BAND = 0.20`, chunk size
 1400/180, `readings.CUTOFF = 0.85`.
@@ -186,15 +200,89 @@ allowed to be elliptical.
 
 `answer.ollama_generate` posts to `http://127.0.0.1:11434/api/chat` with
 `model`, `stream`, `think: false`, `keep_alive: OLLAMA_KEEP_ALIVE` (default
-`10m`), and `options: {temperature: 0, num_predict: 512}`. The system prompt
-comes from `prompt.py`; the user message carries the five passages.
+`10m`), and `options`: `prompt.GENERATION_OPTIONS` (`{temperature: 0,
+num_predict: 512}`) unless the book's profile names another set. The system
+prompt comes from `prompt.py`; the user message carries the passages.
+
+A technical book is answered cold, in one quote plus one gloss line, because a
+definition has to come out the same way twice. A novel is not a definition, so
+`bookkind.for_index` gives it `prompt.SYSTEM_FICTION`, eight passages,
+`FICTION_GENERATION_OPTIONS`, and keeps the paragraph the model wrote instead
+of trimming it to one line (`_ensure_answer_gloss` is skipped). Its quotes are
+read by `answer.parse_fiction`, not by the two technical parsers: both assume
+prose whose sentences run past `KEY_MIN_CHARS = 40`, and a novel's dialogue is
+shorter than that. Because a 2B model answers with one quote however the prompt
+asks, `_fiction_body` asks again and merges the quotes each round verified
+against a shown passage, up to `FICTION_QUOTE_TARGET = 2` distinct passages.
+
+### 3.5 Mode `teach` — the stuck reader
+
+`mode: "teach"` answers the other question a reader has: not "what does the book
+say" but "explain this part to me". It cannot share the quote contract —
+`PARAPHRASE_SYSTEM` in the plain register explicitly forbids adding "any fact,
+comparison, or example", and the quote-first prompts make the answer a quote plus
+one gloss line.
+
+Two calls, because the fine-tune will not do both jobs in one: the explanation
+(prefilled `In plain words, `, because without it the model answers with the
+passage itself), then the example (prefilled `Example: `, the only shape in which
+it writes one). `build_teach_body` keeps the prose, labels the example, strips a
+repeated prefill, figure-number prefixes and an example that merely repeats the
+explanation, and rejects a non-Latin answer. Citations are attached by the
+engine from the passages the explanation overlaps; the reader taps a real
+sentence. A rejected explanation degrades to `mode: "answer"` instead of
+refusing. The `Example:` label is the honesty mechanism: it tells the reader
+which sentence is theirs, not the book's.
+
+### 3.6 Entity profiles — "who is X"
+
+A name is not a concept, so dense retrieval answers "who is atofe" from
+whichever scene the name last appeared in. Measured 2026-11-01 on the light
+novel: `Atofe` appears in 51 chunks across 8 chapters, and the engine answered
+`who is atofe` with "Atofe was here. The narrator states that Atofe is present
+at the scene."
+
+`entity.py` runs before retrieval for a fresh question on a fiction book whose
+name appears in at least two chapters. It keeps, per chapter, the best sentence
+that names the person — scored by a title or rank beside the name, the name
+opening the sentence, and length — skipping front and back matter and skipping
+a chunk next to one already used in the same chapter (same scene). The body is
+those sentences as ordinary quote lines, plus one closing line of titles copied
+out of them (`Known as: Immortal Demon King Atofe; Demon King Atofe.`).
+
+Nothing is generated. Asked to write the profile, the model invented one ("a
+character from the epic fantasy series The Legend of the Northern God") and
+tagged every bullet `[Ch. 1]`; asked for one summary sentence from four tagged
+sentences it wrote "Master Rudeus is the ruler of the Asura Kingdom" from a
+passage that says the ruler is *close to* him, which no word-overlap check
+catches. Quotes and titles are passage text, so the profile cannot be false.
+
+### 3.7 Answer length
+
+`TECHNICAL_ANSWER_WORDS` and `FICTION_ANSWER_WORDS` aim the answer's own prose
+(quoted lines are not counted). `0`, the default, leaves every prompt exactly as
+measured. A target above zero does three things: it replaces the length sentence
+inside the system prompt (`prompt.technical_system`, `prompt.answer_gloss_system`,
+`prompt.fiction_system`, `prompt.compare_system`), it adds `Write about N words.`
+to the user turn (`prompt.length_hint`), and it forces the gloss pass, whose
+prompt switches to a paragraph shape at `PARAGRAPH_WORDS = 40`. Both are needed:
+measured 2026-11-01 on `ddia`, the target in the system prompt alone left the
+gloss at 19 words, in the user turn alone at 19, in both at 35. The token cap
+rises to `max(512, 2 × words)`.
+
+The target is an aim. The fine-tune stops at roughly 65 words of gloss however
+large the number is; measured 26 → 36 → 57 words for targets 0, 80, 200 on
+`ddia`, and 16 → 22 → 29 on the novel. `outcome.answer_words` records what was
+written, so a target can be tuned against real output. Asking for a longer
+answer by appending continuation rounds produced repeated sentences, so the
+engine does not pad: see `artifacts/reports/answer-length-2026-11-02.md`.
 
 Uncited retries use the prefill trick: an assistant turn containing `[Ch. `
 forces the model to continue with a citation instead of prose
 (`_retry_uncited`). The transport itself never retries; every retry is a
 caller decision.
 
-### 3.5 After the model
+### 3.8 After the model
 
 | Transform | Effect | Trace name |
 |---|---|---|

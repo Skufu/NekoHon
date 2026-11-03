@@ -1625,6 +1625,17 @@ mark {
   display: flex;
 }
 
+/* A pinned minimized note holds a viewport position and is dragged by its bar. */
+.gloss-card.is-pinned {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.gloss-card.is-pinned:active {
+  cursor: grabbing;
+}
+
 .gloss-card.is-minimized .gloss-resize-handle,
 .gloss-card.is-minimized .gloss-resize-handle-bottom,
 .gloss-card.is-minimized .gloss-resize-handle-top,

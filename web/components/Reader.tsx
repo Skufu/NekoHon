@@ -462,6 +462,10 @@ export default function Reader({
   useEffect(() => {
     if (!activeGlossId || viewMode !== "reader") return;
     const timer = setTimeout(() => {
+      const active = useAsk.getState().glosses.find((g) => g.id === activeGlossId);
+      // A minimized note is pinned to the viewport: scrolling the page to it
+      // would move the reader instead of the note.
+      if (!active || active.minimized) return;
       const cardEl = document.querySelector<HTMLElement>(
         `[data-gloss-id="${CSS.escape(activeGlossId)}"], .gloss-card.is-active`
       );

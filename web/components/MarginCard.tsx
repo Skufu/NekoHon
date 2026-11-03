@@ -193,6 +193,7 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
   const askFollowUp = useAsk((s) => s.askFollowUp);
   const startQuiz = useAsk((s) => s.startQuiz);
   const toggleMinimizeGloss = useAsk((s) => s.toggleMinimizeGloss);
+  const setGlossPinned = useAsk((s) => s.setGlossPinned);
   const setGlossDragOffset = useAsk((s) => s.setGlossDragOffset);
   const setGlossWidth = useAsk((s) => s.setGlossWidth);
   const setGlossHeight = useAsk((s) => s.setGlossHeight);
@@ -220,6 +221,17 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
     origX: 0,
     origY: 0,
   });
+  const barDragRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    x: number;
+    y: number;
+    w: number;
+    moved: boolean;
+  } | null>(null);
+  const suppressBarClickRef = useRef(false);
+  const livePinRef = useRef<{ x: number; y: number } | null>(null);
 
   const activeEdgeRef = useRef<Edge | null>(null);
   const resizeStartGeomRef = useRef<{
@@ -362,6 +374,42 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
   };
 
   const isMinimized = mini || Boolean(gloss.minimized);
+  const isPinned = Boolean(gloss.minimized && gloss.pinnedAt);
+
+  // A pinned minimized note holds its own spot in the page, in margin-column
+  // coordinates: it scrolls with the passage it belongs to, is not placed by
+  // the margin flow, and stays draggable.
+  useEffect(() => {
+    const at = gloss.pinnedAt;
+    if (!at) return;
+    const clamp = () => {
+      const col = articleRef.current?.closest<HTMLElement>(".margin-column");
+      if (!col) return;
+      const colLeft = col.getBoundingClientRect().left;
+      const pageW = document.documentElement.clientWidth;
+      const minX = 8 - colLeft;
+      const maxX = Math.max(minX, pageW - 8 - at.w - colLeft);
+      const x = Math.min(Math.max(at.x, minX), maxX);
+      const y = Math.max(at.y, 0);
+      if (x !== at.x || y !== at.y) {
+        setGlossPinned(gloss.id, { ...at, x, y });
+      }
+    };
+    clamp();
+    window.addEventListener("resize", clamp);
+    return () => window.removeEventListener("resize", clamp);
+  }, [gloss.pinnedAt, gloss.id, setGlossPinned]);
+
+  const pinnedStyle: CSSProperties | null = isPinned
+    ? {
+        left: 0,
+        right: "auto",
+        width: `${gloss.pinnedAt!.w}px`,
+        transform: `translate3d(${gloss.pinnedAt!.x}px, ${gloss.pinnedAt!.y}px, 0)`,
+        zIndex: 30,
+        transition: "none",
+      }
+    : null;
 
   const floatingStyle: CSSProperties = currentFloatingGeom
     ? {
@@ -397,7 +445,9 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
       : null),
   };
 
-  const style: CSSProperties = floating ? floatingStyle : marginStyle;
+  const style: CSSProperties = floating
+    ? floatingStyle
+    : pinnedStyle ?? marginStyle;
 
   // Keyboard: Alt+Arrow resizes, Alt+Shift+Arrow moves.
   useEffect(() => {
@@ -539,6 +589,67 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
     }
     updateLeaderLineDOM(0, 0, liveWidthRef.current);
     setGlossDragOffset(gloss.id, { x: 0, y: 0 });
+  };
+
+  const handleBarPointerDown = (e: React.PointerEvent<HTMLElement>) => {
+    if (e.button !== 0 || !isPinned || !gloss.pinnedAt) return;
+    if ((e.target as HTMLElement).closest("button, a, input")) return;
+    e.preventDefault();
+    try {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    } catch {}
+    suppressBarClickRef.current = false;
+    livePinRef.current = { x: gloss.pinnedAt.x, y: gloss.pinnedAt.y };
+    barDragRef.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      x: gloss.pinnedAt.x,
+      y: gloss.pinnedAt.y,
+      w: gloss.pinnedAt.w,
+      moved: false,
+    };
+  };
+
+  const handleBarPointerMove = (e: React.PointerEvent<HTMLElement>) => {
+    const drag = barDragRef.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+    const dx = e.clientX - drag.startX;
+    const dy = e.clientY - drag.startY;
+    if (!drag.moved && Math.hypot(dx, dy) < 3) return;
+    if (!drag.moved) {
+      drag.moved = true;
+      setIsInteracting(true);
+    }
+    const col = articleRef.current?.closest<HTMLElement>(".margin-column");
+    const colLeft = col?.getBoundingClientRect().left ?? 0;
+    const pageW = document.documentElement.clientWidth;
+    const minX = 8 - colLeft;
+    const maxX = Math.max(minX, pageW - 8 - drag.w - colLeft);
+    const x = Math.round(Math.min(Math.max(drag.x + dx, minX), maxX));
+    const y = Math.round(Math.max(drag.y + dy, 0));
+    livePinRef.current = { x, y };
+    if (articleRef.current) {
+      articleRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    }
+  };
+
+  const handleBarPointerUp = (e: React.PointerEvent<HTMLElement>) => {
+    const drag = barDragRef.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+    barDragRef.current = null;
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {}
+    if (!drag.moved) return;
+    suppressBarClickRef.current = true;
+    setIsInteracting(false);
+    const live = livePinRef.current;
+    setGlossPinned(gloss.id, {
+      x: live?.x ?? drag.x,
+      y: live?.y ?? drag.y,
+      w: drag.w,
+    });
   };
 
   const handleResizeDown = (e: React.PointerEvent<HTMLDivElement>, edge: Edge) => {
@@ -735,10 +846,22 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
       className={`gloss-card ${floating ? "is-floating" : ""} ${placed ? "" : "unplaced"} ${
         active ? "is-active" : ""
       } ${hovered ? "is-hover" : ""} ${isMinimized ? "is-minimized" : ""} ${
+        isPinned ? "is-pinned" : ""
+      } ${
         isInteracting ? "is-interacting" : ""
       }`}
       style={style}
-      onClick={onSelect}
+      onPointerDown={() => {
+        suppressBarClickRef.current = false;
+      }}
+      onClick={(e) => {
+        if (suppressBarClickRef.current) {
+          suppressBarClickRef.current = false;
+          e.stopPropagation();
+          return;
+        }
+        onSelect();
+      }}
       onMouseEnter={() => onHover(true)}
       onMouseLeave={() => onHover(false)}
       onTransitionEnd={(e) => {
@@ -755,8 +878,16 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
         className="gloss-node-bar"
         role="button"
         tabIndex={0}
+        onPointerDown={handleBarPointerDown}
+        onPointerMove={handleBarPointerMove}
+        onPointerUp={handleBarPointerUp}
+        onPointerCancel={handleBarPointerUp}
         onClick={(e) => {
           e.stopPropagation();
+          if (suppressBarClickRef.current) {
+            suppressBarClickRef.current = false;
+            return;
+          }
           if (gloss.minimized) {
             toggleMinimizeGloss(gloss.id);
           }
@@ -873,6 +1004,17 @@ const MarginCard = forwardRef<HTMLElement, MarginCardProps>(function MarginCard(
                 className="gloss-icon-btn"
                 onClick={(e) => {
                   e.stopPropagation();
+                  if (!floating && !gloss.minimized && articleRef.current) {
+                    const el = articleRef.current;
+                    const col = el.closest<HTMLElement>(".margin-column");
+                    const rect = el.getBoundingClientRect();
+                    const colRect = col?.getBoundingClientRect();
+                    setGlossPinned(gloss.id, {
+                      x: Math.round(rect.left - (colRect?.left ?? 0)),
+                      y: Math.round(rect.top - (colRect?.top ?? 0)),
+                      w: Math.round(rect.width),
+                    });
+                  }
                   toggleMinimizeGloss(gloss.id);
                 }}
                 aria-label="Minimize note"

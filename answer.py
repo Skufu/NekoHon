@@ -25,12 +25,15 @@ import re
 import time
 import urllib.request
 
+import acronyms
+import entity
 import observe
+import bookkind
 
 from canonical import STEM_WORDS, canonical_query, is_deictic_question, is_incomplete_stem
 from captions import caption_seed
 from figures import cited_numbers, figures_for, number_from_id
-from fusion import fuse
+from fusion import MAX_LEXICAL_ADDITIONS, MAX_LEXICAL_ADDITIONS_FICTION, fuse
 from intent import (
     INTENT_AUTHOR_QUESTION,
     INTENT_CONCEPT_TERM,
@@ -45,7 +48,7 @@ from intent import (
     select_substantive_anchor_sentence,
     split_sentences,
 )
-from keywords import anchor_words, postings, rare
+from keywords import anchor_words, lexical_terms, postings
 from preprocess import STOPWORDS, stem as _pre_stem, tokens as _pre_tokens, words as _pre_words
 
 @functools.lru_cache(maxsize=4096)
@@ -101,7 +104,7 @@ _IN_THIS_CONTEXT_START_RE = re.compile(r"^[Ii]n this context,?\s*")
 # The short noun phrase a definitional question asks about ("what is data
 # engineering" -> "data engineering"). "an" must precede "a" in the alternation
 # or "a" eats the first letter of "an".
-_DEFINITION_Q_RE = re.compile(r"^\s*(?:what\s+(?:is|are)|what's|define)\s+(?:an?|the)?\s*(.+?)\s*\??\s*$", re.I)
+_DEFINITION_Q_RE = re.compile(r"^\s*(?:what\s+(?:is|are)|what's|define)\s+(?:an?\s+|the\s+)?(.+?)\s*\??\s*$", re.I)
 _IN_THIS_CONTEXT_WORD_RE = re.compile(r"\bin this context\b", re.I)
 _HIGHLIGHTED_QUESTION_RE = re.compile(r"\b[Tt]he highlighted question\b")
 _IN_THIS_PASSAGE_START_RE = re.compile(r"^[Ii]n this passage,?\s*")
@@ -227,13 +230,17 @@ FRAMING_WORDS = frozenset((
 ))
 from prompt import (
     ANSWER_GLOSS_SYSTEM,
+    length_hint,
     ANSWER_MODEL,
     COMPARE_SYSTEM,
     EXPLAIN_GLOSS_SYSTEM,
     FOLLOWUP_GLOSS_SYSTEM,
+    GENERATION_OPTIONS,
     OLLAMA_KEEP_ALIVE,
     PARAPHRASE_SYSTEM,
     REFUSAL,
+    TEACH_EXAMPLE_SYSTEM,
+    TEACH_SYSTEM,
     SPELL_SYSTEM,
     SYSTEM,
     SYSTEM_ANSWER,
@@ -243,6 +250,8 @@ from retrieve import rank_chunks, search
 
 OLLAMA_CHAT = "http://127.0.0.1:11434/api/chat"
 PASSAGE_LIMIT = 5
+# One citation shows at most this much of a scene (see _cap_fiction_quote).
+FICTION_QUOTE_CAP = 600
 # Rewrites per plain answer: one call each, a call budget, not a quality knob
 # (measured citations run at 1-3; the scorecard's answers stayed under five).
 PARAPHRASE_LIMIT = 5
@@ -343,6 +352,56 @@ def definition_passage(passage, tokens):
         return False
     term = r"\s+".join(re.escape(token) for token in tokens)
     return bool(re.search(term + r"[^.]{0,60}" + DEF_VERB_RE.pattern, text, re.I))
+
+
+# A definition the author hands to someone else: "The classic book by X ...
+# defines Y as Z". First person ("we define X as") is the author's own words
+# and is not this case.
+_QUOTED_DEFINITION_RE = re.compile(r"\bdefines?\b[^.]{0,140}\bas\b", re.I)
+_OWN_DEFINITION_RE = re.compile(r"\b(?:we|i)\s+define\b", re.I)
+
+
+def quoted_definition_note(question, body):
+    """A line saying the book is quoting a definition rather than writing one.
+
+    Measured reason (2026-11-01): "what is ai" answers with the Russell and
+    Norvig sentence the book quotes in an aside about agents. The quote names
+    its source, but read alone it states the book's position; a reader cannot
+    tell that the author never defines AI herself. The note is the difference:
+    it fires only when the cited sentence attributes the definition to another
+    work, so a definition written in the author's own voice keeps a plain
+    answer.
+    """
+    if body.get("refused") or not body.get("citations"):
+        return ""
+    match = _DEFINITION_Q_RE.match(question or "")
+    if not match:
+        return ""
+    head = re.sub(r"\s+", " ", match.group(1)).strip()
+    # The line the reader sees, not the citation record: the citation may hold
+    # another sentence from the same chunk (measured 2026-11-01 on this exact
+    # answer), and the note describes what is on screen.
+    shown = re.search(r'\[Ch\.\s*[^\]]+\]\s*["\u201c](.+?)["\u201d]', body.get("answer") or "", re.S)
+    quote = shown.group(1) if shown else ""
+    if not head or head.lower() not in quote.lower():
+        return ""
+    if _OWN_DEFINITION_RE.search(quote) or not _QUOTED_DEFINITION_RE.search(quote):
+        return ""
+    return (
+        f"This book does not define {head} itself; "
+        "the definition above is quoted from another work."
+    )
+
+
+def _with_definition_note(question, body):
+    """Append the quoted-definition line when the answer earns it."""
+    note = quoted_definition_note(question, body)
+    if not note:
+        return body
+    observe.record_transform("definition_quoted")
+    body = dict(body)
+    body["answer"] = f'{body.get("answer") or ""}\n{note}'
+    return body
 
 
 def prefer_definitions(question, passages):
@@ -653,6 +712,94 @@ def has_unmentioned_technical_anchor(index, question):
     return False
 
 
+# "Give me an example" is a request, "a concrete example of an SLO" is book
+# content. The patterns require a request verb or a second-person ask, which is
+# what separates the reader's question from a phrase that merely contains the
+# word: the hard bench carries "What uptime percentage represents a concrete
+# example of a service-level objective in contracts?" and it must not switch
+# modes. "Analogy" is deliberately not a cue for the same reason: the fair set
+# asks "How does the mechanical odometer analogy explain two's complement...".
+EXAMPLE_REQUEST_PATTERNS = (
+    re.compile(r"\b(?:give|show|provide|share|add)\b[^.?!]{0,30}\bexamples?\b", re.I),
+    re.compile(r"\bcan\s+you\b[^.?!]{0,30}\bexamples?\b", re.I),
+    re.compile(r"\bexamples?\s+(?:of|for)\s+(?:it|this|that|them|these|those)\b", re.I),
+    re.compile(
+        r"\bwith\s+(?:an?|some|a few)\s+"
+        r"(?:concrete\s+|real[\s-]world\s+|simple\s+|practical\s+)?examples?\b",
+        re.I,
+    ),
+    re.compile(r"\b(?:an?|one)\s+example\s*[?.!]?\s*$", re.I),
+    re.compile(r"\bexamples?\s+please\b", re.I),
+)
+
+
+def asks_for_example(question):
+    """True when the reader is asking for an example, not about one."""
+    text = question or ""
+    return any(pattern.search(text) for pattern in EXAMPLE_REQUEST_PATTERNS)
+
+
+_TEACH_SUBJECT = re.compile(
+    r"^\s*(?:what|why|how)\s+(?:is|are|was|were|does|do|did)\s+"
+    r"(?:the\s+|a\s+|an\s+)?(.+?)"
+    r"(?:\s+(?:work|works|matter|matters|mean|means|measure|measures)\b.*)?\s*$",
+    re.I,
+)
+_TEACH_CUE_TAIL = re.compile(
+    r"\b(?:explain|in simple words|in plain words|simply|please)\b.*$", re.I
+)
+TEACH_COVER_WINDOW = 10
+
+
+def teach_subject(question):
+    """The thing the question asks about, as written, or None.
+
+    "what is a write-ahead log, explain simply with an example" -> "write-ahead
+    log"; "what is the difference between X and Y..." -> "X and Y" (both sides
+    are checked by the caller).
+    """
+    text = _TEACH_CUE_TAIL.sub("", question or "").strip(" .?!,")
+    match = _TEACH_SUBJECT.match(text)
+    if match is None:
+        return None
+    subject = match.group(1).strip(" .?!,'\"")
+    subject = re.sub(r"^(?:the\s+)?(?:difference\s+between|differences\s+between)\s+",
+                     "", subject, flags=re.I)
+    subject = re.sub(r"^(?:the|a|an)\s+", "", subject, flags=re.I).strip()
+    return subject or None
+
+
+def _content_words(text):
+    return [tok for tok in re.findall(r"[a-z0-9]+", (text or "").lower())
+            if len(tok) > 2 and tok not in STOPWORDS]
+
+
+def phrase_covered(index, phrase, window=TEACH_COVER_WINDOW):
+    """True when the book actually discusses this phrase.
+
+    Every content word appearing somewhere in a book is not coverage: an
+    out-of-book subject made of common words ("capability extension") passes a
+    word-level check and no passage discusses it. So the words must either
+    appear as the phrase, or inside one window of `window` tokens. Measured
+    2026-11-02 against 25 sampled teach questions: the rule separates all 20
+    in-book subjects from all 5 absent ones.
+    """
+    words = _content_words(phrase)
+    if not words:
+        return False
+    exact = re.compile(r"\b" + re.escape(phrase.strip()) + r"\b", re.I)
+    for chunk in index.get("chunks") or []:
+        text = chunk.get("text") or ""
+        if exact.search(text):
+            return True
+        stream = re.findall(r"[a-z0-9]+", text.lower())
+        for start in range(len(stream)):
+            span = set(stream[start:start + window])
+            if all(word in span for word in words):
+                return True
+    return False
+
+
 def has_no_book_vocabulary(index, question, word_map=None):
     """True when not one content word of the question appears anywhere in the book.
 
@@ -852,7 +999,7 @@ def sanitize_history(history):
     return kept[-HISTORY_TURNS:]
 
 
-def user_message(question, passages, history=None):
+def user_message(question, passages, history=None, words=None):
     turns = sanitize_history(history)
     prefix = ""
     if turns:
@@ -867,6 +1014,7 @@ def user_message(question, passages, history=None):
         "Passages:\n"
         f"{passages_block(passages)}\n\n"
         f"{FORMAT_REMINDER}"
+        f"{length_hint(words)}"
     )
 
 
@@ -880,10 +1028,12 @@ def answer_user_message(question, passages):
 
 
 def ollama_generate(system, user, model=ANSWER_MODEL, url=OLLAMA_CHAT, timeout=120,
-                    prefill=""):
+                    prefill="", options=None):
     # num_predict caps runaway generations: a loop becomes a truncated answer
     # instead of the 120 s client timeout (loop-mechanism-analysis-2026-10-14).
     # 512 is far above the longest legal reply (answer targets p90 622 chars).
+    # `options` is how bookkind.for_index relaxes that for fiction; None keeps
+    # the measured technical sampler.
     messages = [
         {"role": "system", "content": system},
         {"role": "user", "content": user},
@@ -898,7 +1048,7 @@ def ollama_generate(system, user, model=ANSWER_MODEL, url=OLLAMA_CHAT, timeout=1
         "stream": False,
         "think": False,
         "keep_alive": OLLAMA_KEEP_ALIVE,
-        "options": {"temperature": 0, "num_predict": 512},
+        "options": dict(options or GENERATION_OPTIONS),
         "messages": messages,
     }
     request = urllib.request.Request(
@@ -930,16 +1080,37 @@ def ollama_generate(system, user, model=ANSWER_MODEL, url=OLLAMA_CHAT, timeout=1
 
 
 ollama_generate._is_live = True
+# Set on every generate_fn that takes an `options` kwarg; _with_generation_options
+# binds the book's sampler only to those, so test doubles need no change.
+ollama_generate._accepts_options = True
+
+
+def _with_generation_options(generate_fn, options):
+    """Bind a sampler to a generate_fn that accepts one.
+
+    Test doubles take (system, user, model); they are returned untouched, so
+    the sampler stays where the model is. The bound flags are copied because
+    callers read them off the function (`_is_live` decides whether a gloss may
+    call the model at all).
+    """
+    if not getattr(generate_fn, "_accepts_options", False):
+        return generate_fn
+    bound = functools.partial(generate_fn, options=options)
+    for attribute in ("_is_live", "_accepts_options", "_observe_wrapped"):
+        if hasattr(generate_fn, attribute):
+            setattr(bound, attribute, getattr(generate_fn, attribute))
+    return bound
 
 
 def ollama_generate_stream(system, user, model=ANSWER_MODEL, url=OLLAMA_CHAT,
-                           timeout=120, prefill="", on_token=None):
+                           timeout=120, prefill="", on_token=None, options=None):
     """ollama_generate, but each token reaches on_token as it arrives.
 
     Same request shape (stream=True), same return value (the stripped
     completion), same empty-completion RuntimeError; on_token receives each
     non-empty content piece. The server's stream=1 path passes on_token;
-    every other caller keeps using ollama_generate.
+    every other caller keeps using ollama_generate. `options` is the book's
+    sampler, exactly as ollama_generate takes it.
     """
     messages = [
         {"role": "system", "content": system},
@@ -953,7 +1124,7 @@ def ollama_generate_stream(system, user, model=ANSWER_MODEL, url=OLLAMA_CHAT,
         "stream": True,
         "think": False,
         "keep_alive": OLLAMA_KEEP_ALIVE,
-        "options": {"temperature": 0, "num_predict": 512},
+        "options": dict(options or GENERATION_OPTIONS),
         "messages": messages,
     }
     request = urllib.request.Request(
@@ -1010,6 +1181,7 @@ def ollama_generate_stream(system, user, model=ANSWER_MODEL, url=OLLAMA_CHAT,
 
 
 ollama_generate_stream._is_live = True
+ollama_generate_stream._accepts_options = True
 
 
 def _strip_quotes(text):
@@ -2086,7 +2258,8 @@ def _comparison_user_message(left_name, right_name, passages, left_tokens,
     return "\n".join(parts)
 
 
-def _comparison_body(index, context, sides, generate_fn, model, history, figures):
+def _comparison_body(index, context, sides, generate_fn, model, history, figures,
+                     system=None):
     """A quote-backed comparison body, or None when the passages cannot support one.
 
     Both sides must appear in the shown passages (a missing side gets one
@@ -2143,7 +2316,7 @@ def _comparison_body(index, context, sides, generate_fn, model, history, figures
                 "differ or relate."
             )
         try:
-            raw = generate_fn(COMPARE_SYSTEM, prompt, model)
+            raw = generate_fn(system or COMPARE_SYSTEM, prompt, model)
         except Exception:
             raw = ""
         gloss = _clean_boilerplate_gloss(raw)
@@ -3440,7 +3613,7 @@ def _prior_quote_chunk(chunks, chapter, quote):
 
 def retrieval_context(index, question, search_fn=None, generate_fn=None,
                       pin_chunk=None, end_chunk_id=None, history=None, selection="",
-                      embed_fn=None, model=None):
+                      embed_fn=None, model=None, passage_limit=PASSAGE_LIMIT):
     """The passages the model is shown, after reading, fusion, and seeding.
 
     Shared by ask and respond so both modes see the same evidence; the
@@ -3500,13 +3673,14 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
                 "text": chunk.get("text", ""),
                 "source": chunk.get("source", ""),
             }
-            for score, chunk in ranked[:PASSAGE_LIMIT]
+            for score, chunk in ranked[:passage_limit]
         ]
         ranks = {chunk["chunk_id"]: i for i, (_, chunk) in enumerate(ranked, start=1)}
     else:
-        passages = search_fn(index, question, k=PASSAGE_LIMIT)
+        passages = search_fn(index, question, k=passage_limit)
     dense_top5 = list(passages)
-    passages = _pin_chunk(index, passages, effective_pin, end_chunk_id=end_chunk_id)
+    passages = _pin_chunk(index, passages, effective_pin, end_chunk_id=end_chunk_id,
+                          limit=passage_limit)
     # A question that names a figure is answered from the book's words about
     # that figure. Dense search has nothing to rank on "figure 2-1" — the number
     # is not vocabulary — so it returned the explain-plan passage instead.
@@ -3516,7 +3690,7 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
     }:
         figure_chunk = dict(figure_chunk)
         figure_chunk["score"] = passages[0].get("score") if passages else 1.0
-        passages = [figure_chunk] + passages[: max(0, PASSAGE_LIMIT - 1)]
+        passages = [figure_chunk] + passages[: max(0, passage_limit - 1)]
 
     context = {
         "question": question,
@@ -3580,31 +3754,77 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
                     "text": chunk.get("text", ""),
                     "source": chunk.get("source", ""),
                 }
-                for score, chunk in ranked_reading[:PASSAGE_LIMIT]
+                for score, chunk in ranked_reading[:passage_limit]
             ]
             ranks = {chunk["chunk_id"]: i for i, (_, chunk) in enumerate(ranked_reading, start=1)}
         else:
-            passages = search_fn(index, reading["reading"], k=PASSAGE_LIMIT)
-        passages = _pin_chunk(index, passages, effective_pin, end_chunk_id=end_chunk_id)
+            passages = search_fn(index, reading["reading"], k=passage_limit)
+        passages = _pin_chunk(index, passages, effective_pin, end_chunk_id=end_chunk_id,
+                          limit=passage_limit)
     asked = context["asked"]
+    # A single short acronym is not vocabulary the embedder can rank on: "what
+    # is ai" scored its whole top five inside 0.006 (an ordering of noise,
+    # 2026-11-01) and the chunk that defines the term landed fifth. The book
+    # spells the words out, so the same question is asked with them.
+    spelled = None
+    if not (selection or "").strip() and effective_pin is None and not context.get("reading"):
+        spelled = acronyms.expand(index, asked)
+    if spelled and spelled != asked:
+        stages.append("acronym")
+        observe.record_reading_repair("acronym", spelled)
+        asked = spelled
+        context["asked"] = spelled
+        if search_fn is None:
+            ranked_spelled = rank_chunks(index, spelled, embed_fn=embed_fn)
+            passages = [
+                {
+                    "score": score,
+                    "chunk_id": chunk["chunk_id"],
+                    "chapter": chunk["chapter"],
+                    "heading": chunk.get("heading", ""),
+                    "text": chunk.get("text", ""),
+                    "source": chunk.get("source", ""),
+                }
+                for score, chunk in ranked_spelled[:passage_limit]
+            ]
+            ranks = {
+                chunk["chunk_id"]: i
+                for i, (_, chunk) in enumerate(ranked_spelled, start=1)
+            }
+        else:
+            passages = search_fn(index, spelled, k=passage_limit)
     # Fusion pays one embed plus a full cosine pass. The lexical channel joins
-    # only when the question carries a rare book word, the trigger the boost
-    # used; other asks do not pay.
-    if rare(asked, word_map):
+    # when the question carries a rare book word or names something the book
+    # names by capitalising it (`atofe` lives in 51 chunks, so `rare` never
+    # opened it); other asks do not pay.
+    if lexical_terms(index, asked, word_map):
         stages.append("fusion")
+        # Lexical chunks follow the dense head instead of displacing it, so a
+        # filled window cannot lose the chunk that answers. Fiction takes the
+        # two slots its coverage curve needed; technical books take one.
+        addition_slots = (
+            MAX_LEXICAL_ADDITIONS_FICTION
+            if bookkind.kind(index) == bookkind.FICTION
+            else MAX_LEXICAL_ADDITIONS
+        )
+        before_add = len(passages)
         if ranks is not None and asked == question:
             try:
-                passages = fuse(index, asked, passages, word_map, ranks=ranks, embed_fn=embed_fn)
+                passages = fuse(index, asked, passages, word_map, ranks=ranks, embed_fn=embed_fn, added=addition_slots)
             except TypeError:
                 try:
-                    passages = fuse(index, asked, passages, word_map, ranks=ranks)
+                    passages = fuse(index, asked, passages, word_map, ranks=ranks, added=addition_slots)
                 except TypeError:
                     passages = fuse(index, asked, passages, word_map)
         else:
             try:
-                passages = fuse(index, asked, passages, word_map, embed_fn=embed_fn)
+                passages = fuse(index, asked, passages, word_map, embed_fn=embed_fn, added=addition_slots)
             except TypeError:
                 passages = fuse(index, asked, passages, word_map)
+        added = max(0, len(passages) - before_add)
+        if added:
+            passage_limit += added
+            stages.append(f"fusion_added={added}")
     # Caption seeding runs last: its measured effect is which chunk leads, and
     # fusion would otherwise be free to demote that lead.
     pre_cap_ids = [p.get("chunk_id") for p in passages]
@@ -3672,7 +3892,7 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
                     injected.append(c_dict)
                 injected_ids = {c["chunk_id"] for c in injected}
                 passages = injected + [p for p in passages if p.get("chunk_id") not in injected_ids]
-                passages = passages[:PASSAGE_LIMIT]
+                passages = passages[:passage_limit]
 
     if effective_pin and not topic_shift:
         chunks = index.get("chunks") or []
@@ -3691,7 +3911,7 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
                     chunks.index(p_obj)
                     if p_obj.get("chunk_id") not in {p.get("chunk_id") for p in passages}:
                         passages = [dict(p_obj)] + passages
-                    passages = passages[:PASSAGE_LIMIT]
+                    passages = passages[:passage_limit]
                 except ValueError:
                     pass
             else:
@@ -3734,7 +3954,8 @@ def retrieval_context(index, question, search_fn=None, generate_fn=None,
 
     if effective_pin or end_chunk_id:
         stages.append("pinned")
-        passages = _pin_chunk(index, passages, effective_pin, end_chunk_id=end_chunk_id)
+        passages = _pin_chunk(index, passages, effective_pin, end_chunk_id=end_chunk_id,
+                          limit=passage_limit)
     if DEF_PREF:
         passages = prefer_definitions(question, passages)
     context["passages"] = passages
@@ -4341,7 +4562,8 @@ def _synthesize_list_answer(question: str, quote: str, chunk_obj: dict) -> str:
 
 def _ensure_answer_gloss(index, body, question, passages, is_live=False,
                          history=None, selection="", heading="", model=ANSWER_MODEL,
-                         generate_fn=None):
+                         generate_fn=None, gloss_system=None, followup_system=None,
+                         answer_words=0):
     """Ensure every non-refused answer has a crisp, informative 2nd line gloss."""
     if not body or body.get("refused") or not body.get("citations") or not passages:
         return body
@@ -4435,7 +4657,10 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
             if is_live:
                 prompt = _followup_gloss_user_message(clean_history, question, quote, chunk_obj, neighbors)
                 try:
-                    raw = generate_fn(FOLLOWUP_GLOSS_SYSTEM, prompt, model)
+                    raw = generate_fn(
+                        followup_system or FOLLOWUP_GLOSS_SYSTEM,
+                        prompt + length_hint(answer_words), model,
+                    )
                 except Exception:
                     raw = ""
                 new_gloss = _clean_boilerplate_gloss(raw, question)
@@ -4499,11 +4724,19 @@ def _ensure_answer_gloss(index, body, question, passages, is_live=False,
             if cands:
                 new_gloss = cands[0]
 
-    elif not gloss_line or _gloss_repeats_quote(gloss_line, quote) or not _is_coherent_gloss(gloss_line, quote, question=question):
+    elif (
+        answer_words
+        or not gloss_line
+        or _gloss_repeats_quote(gloss_line, quote)
+        or not _is_coherent_gloss(gloss_line, quote, question=question)
+    ):
         if is_live:
             prompt = _answer_gloss_user_message(question, quote, chunk_obj)
             try:
-                raw = generate_fn(ANSWER_GLOSS_SYSTEM, prompt, model)
+                raw = generate_fn(
+                gloss_system or ANSWER_GLOSS_SYSTEM,
+                prompt + length_hint(answer_words), model,
+            )
             except Exception:
                 raw = ""
             new_gloss = _clean_boilerplate_gloss(raw, question)
@@ -4535,6 +4768,424 @@ def _maybe_enrich_contextual_gloss(index, body, resolved_question, passages,
     return body
 
 
+ENTITY_MIN_QUOTES = 2
+
+
+def _entity_profile_body(index, question, book_profile, clean_history=None,
+                         selection="", mode="answer"):
+    """A "who is X" profile for a fiction book, or None to answer normally.
+
+    A scroll position is not an anchor: the reader UI sends the chunk on screen
+    with every question, and `retrieval_context` already ignores a pin that is
+    not backed by a selection or a follow-up turn (see its comment). Measured
+    2026-11-02: the profile fired only from a bare curl, because the app's own
+    `chunk_id` blocked it.
+
+    A follow-up stays on the normal path, since it is about the passage the
+    reader is reading; a self-contained question that starts a new subject
+    (`topic_shift`) is a profile even when the thread has earlier turns, which
+    is what asking "who is eris" after "who is rudeus" is.
+
+    The book has to name the person in at least ENTITY_MIN_QUOTES chapters,
+    otherwise there is no profile to build and the normal path answers.
+    """
+    if book_profile["kind"] != bookkind.FICTION:
+        return None
+    if (selection or "").strip():
+        return None
+    name = entity.subject(question)
+    if not name:
+        return None
+    if clean_history:
+        # The same person asked about again is a follow-up on them, and that
+        # belongs to the normal path with the previous turn in view. A
+        # different person, or an earlier question that was not about a
+        # person, starts a new subject.
+        previous = entity.subject(str((clean_history[-1] or {}).get("question") or ""))
+        if previous and previous.lower() == name.lower():
+            return None
+    sentences = entity.profile_sentences(index, name)
+    if len({item["chapter"] for item in sentences}) < ENTITY_MIN_QUOTES:
+        return None
+    body = _entity_body(index, name, sentences, mode=mode)
+    observe.record_shortcut("entity_profile")
+    observe.record_retrieval(
+        retrieval_ms=0.0,
+        stages=["entity_profile"],
+        shown_passages=[
+            next((c for c in (index.get("chunks") or []) if c.get("chunk_id") == item["chunk_id"]), {})
+            for item in sentences
+        ],
+        embedder=index.get("embedder") if isinstance(index, dict) else None,
+    )
+    return body
+
+
+def _entity_body(index, name, sentences, mode="answer"):
+    """A profile body: the book's sentences about the person, then its names for them.
+
+    Every line is passage text. The quotes are picked by
+    `entity.profile_sentences`, and the closing line is the titles their own
+    sentences use. Nothing is generated: a summary was tried and dropped
+    2026-11-01, because given four tagged sentences the model wrote "Master
+    Rudeus is the ruler of the Asura Kingdom" from a passage that says the
+    ruler is close to him, and word overlap cannot tell a misread relation from
+    a correct one.
+    """
+    chunks = index.get("chunks") or []
+    shown = []
+    citations = []
+    for item in sentences:
+        chunk = next((c for c in chunks if c.get("chunk_id") == item["chunk_id"]), None)
+        if chunk is not None:
+            shown.append(dict(chunk))
+        citations.append({
+            "chunk_id": item["chunk_id"],
+            "chapter": str(item["chapter"]),
+            "quote": item["quote"],
+        })
+    lines = [f'[Ch. {item["chapter"]}] "{item["quote"]}"' for item in sentences]
+    known = entity.titles(sentences, name)
+    if known:
+        lines.append("Known as: " + "; ".join(known) + ".")
+    body = {
+        "answer": "\n".join(lines),
+        "citations": citations,
+        "figures": figures_for(shown, index.get("figures") or []),
+        "refused": False,
+    }
+    lead = shown[0] if shown else {}
+    neighbors = [
+        chunk for chunk in shown[1:]
+        if str(chunk.get("chapter")) == str(lead.get("chapter"))
+    ]
+    body["followups"] = compute_dynamic_followups(
+        lead, neighbors, selection="", question=name,
+        answer_text=body["answer"], mode=mode,
+    )
+    return body
+
+_TEACH_EXAMPLE = re.compile(r"^\s*Example\s*[:\u2014-]\s*(.*)$", re.I)
+# The explanation is prefilled because the fine-tune's drilled shape is a quote;
+# with no prefill it answers with the passage itself (measured 2026-11-02:
+# a 145-word quote for "explain write-ahead logging"), with this one it writes
+# its own prose. The model repeats the prefill, so it is stripped once.
+TEACH_EXPLANATION_PREFILL = "In plain words, "
+_TEACH_FRAGMENT_START = re.compile(
+    r"^(?:is|are|was|were|means|refer|refers|consist|consists|include|includes|"
+    r"contain|contains|says|said|shows|showed|describes|described)\b",
+    re.I,
+)
+# Prefills tried in order until one answers in Latin script. Measured
+# 2026-11-02: the first prefill drifted to Chinese on "what does
+# linearizability mean", the second landed on English. A retry changes the
+# path the model takes, where repeating the same call at temperature 0 does not.
+TEACH_EXPLANATION_PREFILLS = (TEACH_EXPLANATION_PREFILL, "Here is the idea: ")
+_TEACH_TAG_LINE = re.compile(r"^\s*\[Ch\.", re.I)
+TEACH_EXAMPLE_MIN_WORDS = 6
+
+
+def _generate_prefilled(generate_fn, system, user, model, prefill):
+    """One generation that must start with `prefill`; the prefill is prepended.
+
+    A test double takes (system, user, model) and knows nothing about prefills,
+    so a TypeError from the extra keyword falls back to the plain call and the
+    output is used as written.
+    """
+    try:
+        return prefill + generate_fn(system, user, model, prefill=prefill)
+    except TypeError:
+        return generate_fn(system, user, model)
+
+
+# CJK, kana, hangul: this is an English book companion, so a run of these in an
+# answer is a language drift, not a quotation. The share-based version of this
+# check missed a six-character Chinese lead-in on a mostly English sentence, so
+# the rule is presence, not proportion.
+_NON_LATIN_SCRIPT = re.compile(r"[\u2e80-\u9fff\uac00-\ud7af\u3040-\u30ff]")
+
+
+def has_non_latin_script(text):
+    """True when the text carries a non-Latin script.
+
+    The fine-tune drifts into Chinese on some prompts (measured 2026-11-02:
+    "what does linearizability mean" came back as "线性可确定性 (linearizability)
+    means ..."). An English book companion cannot show that, and no punctuation
+    rule catches it.
+    """
+    return bool(_NON_LATIN_SCRIPT.search(text or ""))
+
+
+def _teach_explanation(completion):
+    """The explanation lines of a teaching call: no quote lines, no tags.
+
+    The prompt asks for the model's own words; a model that falls back to
+    quoting the book anyway is trimmed here rather than shown as an answer the
+    reader already struggled with.
+    """
+    kept = []
+    for line in (completion or "").splitlines():
+        stripped = line.strip()
+        if not stripped or _TEACH_TAG_LINE.match(stripped):
+            continue
+        stripped = re.sub(r"^[-\u2013\u2014*]\s*", "", stripped)
+        if stripped.endswith("\"") and stripped.count('"') == 1:
+            continue
+        kept.append(stripped)
+    text = " ".join(kept).strip()
+    text = re.sub(r"\s+", " ", text).strip()
+    repeat = re.match(
+        r"^(?:(?:in plain words|here is the idea|for instance)\s*[:,]?\s*)+", text, re.I
+    )
+    if repeat:
+        text = text[repeat.end():]
+    text = _clean_boilerplate_gloss(text)
+    # Figure references leak in as prefixes ("1.0 data warehouses ...",
+    # "8-8-8 is a rule ..."), measured 2026-11-02. A figure number is not part
+    # of the idea, so the prefix goes; if what is left no longer opens a
+    # sentence it is not an answer and the caller degrades.
+    text = re.sub(r"^\d+(?:[.\-]\d+)+\s*", "", text).strip()
+    # A number may open a real answer ("3-tier architecture separates ..."), so
+    # the start check is a fragment check, not a capital check: a bare copula or
+    # reporting verb means the cut left a piece of a sentence behind.
+    if not text or not text[0].isalnum():
+        return ""
+    if _TEACH_FRAGMENT_START.match(text):
+        return ""
+    if not text.endswith((".", "!", "?")):
+        return ""
+    if not _is_coherent_gloss(text, "", ""):
+        return ""
+    return text
+
+
+def _teach_example(completion):
+    """The example, with one leading label removed.
+
+    The call is prefilled with `Example: `, and the model usually starts its
+    continuation with the same label again, so the label is stripped before the
+    body adds exactly one.
+    """
+    text = (completion or "").strip()
+    text = re.sub(r"^(?:(?:Example|For instance)\s*[:,\u2014-]\s*)+", "", text, flags=re.I)
+    text = re.sub(r"\s+", " ", text).strip().strip('"“”')
+    if len(text.split()) < TEACH_EXAMPLE_MIN_WORDS:
+        return ""
+    if _free_refusal(text):
+        return ""
+    return text
+
+
+def _teach_citations(explanation, passages, limit=2):
+    """The passages the explanation leans on, with the sentence each came from.
+
+    Attached by the engine, not quoted by the model: overlap between the
+    explanation's content words and each passage decides, and the quote is a
+    real sentence of the winning passage. A reader taps the chip and finds the
+    words the explanation is built on.
+    """
+    if not passages:
+        return []
+    claim = _tokens(explanation or "")
+    scored = []
+    for hit in passages:
+        text = hit.get("text") or ""
+        overlap = len(claim & _tokens(text))
+        scored.append((overlap, hit))
+    scored.sort(key=lambda pair: -pair[0])
+    citations, seen = [], set()
+    for _, hit in scored:
+        if hit.get("chunk_id") in seen:
+            continue
+        seen.add(hit.get("chunk_id"))
+        quote = _evidence_quote(explanation or "", hit) or (hit.get("text") or "")[:MISS_QUOTE_CHARS]
+        citations.append({
+            "chunk_id": hit.get("chunk_id"),
+            "chapter": str(hit.get("chapter")),
+            "quote": quote,
+        })
+        if len(citations) >= max(1, limit):
+            break
+    return citations
+
+
+def _teach_example_user_message(question, explanation, passages):
+    """The second call reads the idea it is illustrating, plus the passage.
+
+    The idea is labelled "Idea" and not quoted as a previous answer: measured
+    2026-11-02, "Explanation so far: ..." made the model re-emit the
+    explanation as its example.
+    """
+    passage = " ".join((hit.get("text") or "") for hit in passages[:2])[:1600]
+    return (
+        f"Question: {question}\n\n"
+        f"Idea: {explanation}\n\n"
+        f"Passage:\n{passage}"
+    )
+
+
+def build_teach_body(explanation_raw, example_raw, passages, figures=None, question=""):
+    """A teaching body from the two calls: prose, one labelled example, sources."""
+    if _free_refusal((explanation_raw or "").strip()):
+        return _refusal(passages, figures), "refused"
+    if has_non_latin_script(explanation_raw):
+        return _refusal(passages, figures), "nonlatin"
+    explanation = _teach_explanation(explanation_raw)
+    if len(explanation.split()) < 5:
+        return _refusal(passages, figures), "empty"
+    example = _teach_example(example_raw)
+    if example:
+        # An example that repeats the explanation is not an example: measured
+        # 2026-11-02, the fde lake/warehouse question came back with the same
+        # sentence in both parts.
+        folded_example = re.sub(r"[^a-z0-9 ]+", "", example.lower())
+        folded_answer = re.sub(r"[^a-z0-9 ]+", "", explanation.lower())
+        if folded_example and (
+            folded_example in folded_answer or folded_answer in folded_example
+        ):
+            example = ""
+    answer = explanation
+    if example:
+        answer = explanation + "\nExample: " + example
+    citations = _teach_citations(explanation, passages)
+    cited = {item["chunk_id"] for item in citations}
+    named = [hit for hit in passages if hit["chunk_id"] in cited] or passages[:1]
+    body = {
+        "answer": answer,
+        "citations": citations,
+        "figures": figures_for(named, figures or []),
+        "refused": False,
+    }
+    return body, ("cited" if example else "no_example")
+
+
+def teach(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
+          history=None, pin_chunk=None, selection="", heading="",
+          end_chunk_id=None, embed_fn=None):
+    """Explain a passage in plain words with one labelled example.
+
+    The mode the reader uses when they are stuck: retrieval and the guards that
+    stop it explaining something the book never covers are the same, and the
+    answer shape is not. Two calls, both parsed by `build_teach_body`: the
+    explanation keeps the model's own prose, the example gets its own prefilled
+    call, and the citations are attached by the engine from the passages the
+    explanation overlaps. The example carries its own label instead of being
+    forbidden.
+
+    What is not free: the refusal sentence, the citation rows the reader taps,
+    and figures attached only from cited passages.
+    """
+    observe.record_query(
+        raw_question=question,
+        pin_chunk=pin_chunk,
+        has_selection=bool(selection),
+        model=model,
+        book_id=index.get("book_id") if isinstance(index, dict) else None,
+    )
+    if is_prompt_injection(question):
+        observe.record_guard("prompt_injection")
+        return observe.finish_body(_refusal([]))
+    question = sanitize_query(question)
+    generate_fn = observe.wrap_generate_fn(generate_fn or ollama_generate,
+                                           default_model=model)
+    book_profile = bookkind.for_index(index)
+    generate_fn = _with_generation_options(generate_fn, book_profile["options"])
+    observe.record_profile(
+        book_profile["kind"], book_profile["passage_limit"], book_profile["options"],
+        book_profile["answer_words"],
+    )
+    history = sanitize_history(history)
+    context = retrieval_context(
+        index, question, search_fn, generate_fn, pin_chunk=pin_chunk,
+        end_chunk_id=end_chunk_id, history=history, selection=selection,
+        embed_fn=embed_fn, model=model, passage_limit=book_profile["passage_limit"],
+    )
+    passages = context["passages"]
+    if not passages:
+        observe.record_guard("empty_passages")
+        return observe.finish_body(_refusal([]))
+    asked = context["asked"]
+    word_map = context.get("word_map") or {}
+    # The same two guards the other modes use to refuse a subject the book
+    # never covers: a teaching answer about a stranger would be invented.
+    if not history and not selection and has_no_book_vocabulary(index, asked, word_map):
+        observe.record_guard("no_book_vocabulary")
+        return observe.finish_body(_refusal([]))
+    if not history and not selection and has_uncovered_subject(index, question):
+        observe.record_guard("uncovered_subject")
+        return observe.finish_body(_refusal([]))
+    subject = teach_subject(asked)
+    if subject:
+        # A teaching answer to a subject no passage discusses is invented, and
+        # the vocabulary guard cannot see it: "capability extension" is made of
+        # two words the book uses separately. Measured 2026-11-02 on the 25
+        # sampled teach questions: separates 20 in-book subjects from 5 absent.
+        sides = [side.strip() for side in re.split(r"\s+(?:and|vs\.?|versus)\s+", subject) if side.strip()]
+        if not all(phrase_covered(index, side) for side in sides):
+            observe.record_guard("teach_subject_uncovered")
+            return observe.finish_body(_refusal([]))
+    explanation_raw = ""
+    for prefill in TEACH_EXPLANATION_PREFILLS:
+        explanation_raw = _generate_prefilled(
+            generate_fn, TEACH_SYSTEM,
+            user_message(asked, passages, history=history,
+                         words=book_profile["answer_words"]),
+            model, prefill,
+        )
+        if (not has_non_latin_script(explanation_raw)
+                and _teach_explanation(explanation_raw)):
+            break
+    body, status = build_teach_body(
+        explanation_raw, "", passages, index.get("figures") or [], question=question,
+    )
+    if status in ("nonlatin", "empty"):
+        # A model that answered in another language is not a refusal of the
+        # question; degrade to the ordinary answer rather than showing it.
+        observe.record_transform("teach_language_fallback")
+        return respond(
+            index, question, generate_fn=generate_fn, search_fn=search_fn,
+            model=model, history=history, pin_chunk=pin_chunk, selection=selection,
+            heading=heading, end_chunk_id=end_chunk_id, embed_fn=embed_fn,
+        )
+    if not body.get("refused"):
+        # The example is its own call: measured 2026-11-02, the fine-tune never
+        # writes one inside a mixed answer, and does when the reply is prefilled
+        # and the example is the only thing asked for.
+        # Two prefills: the first sometimes comes back empty or as a repeat of
+        # the explanation, and a different opening changes the path the model
+        # takes. An example the mode promises is worth one retry (~2 s).
+        example_raw = ""
+        for prefill in ("Example: ", "For instance, "):
+            example_raw = _generate_prefilled(
+                generate_fn, TEACH_EXAMPLE_SYSTEM,
+                _teach_example_user_message(asked, body["answer"], passages),
+                model, prefill,
+            )
+            if _teach_example(example_raw):
+                break
+        body, status = build_teach_body(
+            explanation_raw, example_raw, passages, index.get("figures") or [],
+            question=question,
+        )
+        if status != "cited":
+            observe.record_transform("teach_no_example")
+        if not body.get("citations"):
+            observe.record_transform("teach_uncited")
+    if not body.get("refused"):
+        lead = passages[0]
+        neighbors = [
+            hit for hit in passages[1:]
+            if str(hit.get("chapter")) == str(lead.get("chapter"))
+        ]
+        body["followups"] = compute_dynamic_followups(
+            lead, neighbors, selection=selection, question=asked,
+            answer_text=body.get("answer", ""), mode="teach",
+        )
+    else:
+        body["followups"] = []
+    return observe.finish_body(_patch_figures_src(body, index))
+
+
 def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
         canonical=True, history=None, pin_chunk=None, selection="", heading="",
         end_chunk_id=None, embed_fn=None):
@@ -4553,6 +5204,12 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
     question = sanitize_query(question)
     is_live = (generate_fn is None) or bool(getattr(generate_fn, "_is_live", False))
     generate_fn = observe.wrap_generate_fn(generate_fn or ollama_generate, default_model=model)
+    book_profile = bookkind.for_index(index)
+    generate_fn = _with_generation_options(generate_fn, book_profile["options"])
+    observe.record_profile(
+        book_profile["kind"], book_profile["passage_limit"], book_profile["options"],
+        book_profile["answer_words"],
+    )
     history = sanitize_history(history)
     clean_history = [
         h for h in (history or [])
@@ -4565,6 +5222,12 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
         topic_shift=topic_shift,
     )
     effective_pin = None if (topic_shift and not selection) else pin_chunk
+    profile_body = _entity_profile_body(
+        index, question, book_profile, clean_history=clean_history,
+        selection=selection, mode='ask',
+    )
+    if profile_body is not None:
+        return observe.finish_body(_patch_figures_src(profile_body, index))
     if clean_history and not topic_shift and (SIMPLIFY_RE.search(question) or is_structural_elided_followup(question, index)):
         target_chunk_obj = None
         if effective_pin:
@@ -4620,6 +5283,9 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
                     index, body, question, passages, is_live=is_live,
                     history=history, selection=selection, heading=heading, model=model,
                     generate_fn=generate_fn,
+                    gloss_system=book_profile["gloss_system"],
+                    followup_system=book_profile["followup_system"],
+                    answer_words=book_profile["answer_words"],
                 )
                 lead_chunk = target_chunk_obj
                 chunks = index.get("chunks") or []
@@ -4647,6 +5313,7 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
         index, asked_form, search_fn, generate_fn, pin_chunk=effective_pin,
         end_chunk_id=end_chunk_id, history=history, selection=selection,
         embed_fn=embed_fn, model=model,
+        passage_limit=book_profile["passage_limit"],
     )
     passages = context["passages"]
     if not passages:
@@ -4670,14 +5337,24 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
     if not clean_history and not selection and names_unknown_figure(index, question):
         observe.record_guard("unknown_figure")
         return observe.finish_body(_refusal([]))
-    completion = generate_fn(
-        SYSTEM, user_message(context["asked"], passages, history=history), model
-    )
     anchors = anchor_words(asked_form, context["word_map"])
     figures = index.get("figures") or []
-    raw_is_refusal = (completion or "").strip() == REFUSAL or (completion or "").strip().startswith(REFUSAL + "\n")
-    body = parse_completion(completion, passages, figures, anchors, question=resolved_question,
-                            prior_quote=_prior_turn_quote(history))
+    if book_profile["keep_body"]:
+        body = _fiction_body(
+            context["asked"], passages, figures, generate_fn, model,
+            book_profile, question=resolved_question, history=history,
+        )
+        raw_is_refusal = bool(body.get("refused"))
+    else:
+        completion = generate_fn(
+            book_profile["system"],
+            user_message(context["asked"], passages, history=history,
+                         words=book_profile["answer_words"]), model,
+        )
+        raw_is_refusal = (completion or "").strip() == REFUSAL or (completion or "").strip().startswith(REFUSAL + "\n")
+        body = parse_completion(completion, passages, figures, anchors,
+                                question=resolved_question,
+                                prior_quote=_prior_turn_quote(history))
     if body.get("refused") and not raw_is_refusal:
         observe.record_transform("parse_refused")
     was_refused = bool(body.get("refused"))
@@ -4892,11 +5569,18 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
             body = _refusal(passages, figures)
 
     if not body.get("refused") and not simple_words(question):
-        body = _ensure_answer_gloss(
-            index, body, resolved_question, passages, is_live=is_live,
-            history=history, selection=selection, heading=heading, model=model,
-            generate_fn=generate_fn,
-        )
+        # Fiction keeps the model's own paragraph: the gloss pass rewrites the
+        # body down to one quote plus one line, which is the whole reason a
+        # scene came back as a two-line answer.
+        if not book_profile["keep_body"]:
+            body = _ensure_answer_gloss(
+                index, body, resolved_question, passages, is_live=is_live,
+                history=history, selection=selection, heading=heading, model=model,
+                generate_fn=generate_fn,
+                gloss_system=book_profile["gloss_system"],
+                followup_system=book_profile["followup_system"],
+                answer_words=book_profile["answer_words"],
+            )
         first_cite_id = body["citations"][0].get("chunk_id") if body.get("citations") else None
         lead_chunk = next((c for c in passages if c.get("chunk_id") == first_cite_id), passages[0]) if passages else {}
         lead_neighbors = [p for p in passages if p != lead_chunk and str(p.get("chapter")) == str(lead_chunk.get("chapter"))]
@@ -4911,6 +5595,7 @@ def ask(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODEL,
     # would drop a runner-up quote inserted earlier (measured 2026-10-25).
     if MULTI_QUOTE:
         body = add_second_quote(body, passages, resolved_question)
+    body = _with_definition_note(context["asked"], body)
     return observe.finish_body(_patch_figures_src(body, index))
 
 
@@ -5086,16 +5771,20 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
             end_chunk_id=None, embed_fn=None):
     """Free-generation answer from the retrieved passages.
 
-    No quote enforcement: the model answers, its [Ch. n] tags become the
-    citations, and quotation marks the passages cannot back are stripped (see
-    parse_answered). The prompt is the ask-shaped one (SYSTEM + user_message)
-    because that is what the student is trained on (2026-10-15 alignment; see
-    the module docstring). A question that asks for simple words routes
-    through the plain register (`_plain_body`): the draft selects evidence
-    sentences and each is rewritten one-in-one-out, so nothing is written from
-    scratch. A bare topic phrase is asked as its question first
-    (canonical_query). An uncited answer is retried once with a `[Ch. `
-    prefill and kept only when a citation validates (`_retry_uncited`).
+    The model answers and its [Ch. n] tags become the citations; quotation
+    marks the passages cannot back are stripped (see parse_answered). The
+    prompt is the ask-shaped one (SYSTEM + user_message) because that is what
+    the student is trained on (2026-10-15 alignment; see the module
+    docstring). A question that asks for simple words routes through the plain
+    register (`_plain_body`): the draft selects evidence sentences and each is
+    rewritten one-in-one-out, so nothing is written from scratch. A bare topic
+    phrase is asked as its question first (canonical_query).
+
+    The citation gate closes the path: an uncited answer is retried once with
+    a `[Ch. ` prefill and kept only when a citation validates
+    (`_retry_uncited`); if the retry fails, `_tagless_citation` recovers a
+    verbatim sentence from the shown passages (`citation_recovered`), and a
+    body that still names no passage becomes the refusal (`uncited_refused`).
     """
     selection_text = selection
     observe.record_query(
@@ -5112,6 +5801,12 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
     question = sanitize_query(question)
     is_live = (generate_fn is None) or bool(getattr(generate_fn, "_is_live", False))
     generate_fn = observe.wrap_generate_fn(generate_fn or ollama_generate, default_model=model)
+    book_profile = bookkind.for_index(index)
+    generate_fn = _with_generation_options(generate_fn, book_profile["options"])
+    observe.record_profile(
+        book_profile["kind"], book_profile["passage_limit"], book_profile["options"],
+        book_profile["answer_words"],
+    )
     history = sanitize_history(history)
     clean_history = [
         h for h in (history or [])
@@ -5124,6 +5819,12 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
         topic_shift=topic_shift,
     )
     effective_pin = None if (topic_shift and not selection) else pin_chunk
+    profile_body = _entity_profile_body(
+        index, question, book_profile, clean_history=clean_history,
+        selection=selection, mode='answer',
+    )
+    if profile_body is not None:
+        return observe.finish_body(_patch_figures_src(profile_body, index))
     if clean_history and not topic_shift and (SIMPLIFY_RE.search(question) or is_structural_elided_followup(question, index)):
         target_chunk_obj = None
         if effective_pin:
@@ -5179,6 +5880,9 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
                     index, body, question, passages, is_live=is_live,
                     history=history, selection=selection, heading=heading, model=model,
                     generate_fn=generate_fn,
+                    gloss_system=book_profile["gloss_system"],
+                    followup_system=book_profile["followup_system"],
+                    answer_words=book_profile["answer_words"],
                 )
                 lead_chunk = target_chunk_obj
                 chunks = index.get("chunks") or []
@@ -5206,6 +5910,7 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
         index, asked_form, search_fn, generate_fn, pin_chunk=effective_pin,
         end_chunk_id=end_chunk_id, history=history, selection=selection,
         embed_fn=embed_fn, model=model,
+        passage_limit=book_profile["passage_limit"],
     )
     passages = context["passages"]
     if not passages:
@@ -5235,6 +5940,7 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
     if sides is not None:
         comparison = _comparison_body(
             index, context, sides, generate_fn, model, history, figures,
+            system=book_profile["compare_system"],
         )
         if comparison is not None:
             observe.record_transform("comparison_branch")
@@ -5272,18 +5978,30 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
             return observe.finish_body(_patch_figures_src(comparison, index))
     if simple_words(question) and not (clean_history and effective_pin and SIMPLIFY_RE.search(question)):
         observe.record_transform("plain_register")
-        body = _plain_body(index, context, generate_fn, model)
+        body = _plain_body(
+            index, context, generate_fn, model, system=book_profile["system_plain"]
+        )
         was_refused = bool(body.get("refused"))
         body = _half_covered(body, resolved_question, asked_form, passages, figures)
         if body.get("refused") and not was_refused:
             observe.record_transform("half_covered_refused")
     else:
-        completion = generate_fn(
-            SYSTEM, user_message(context["asked"], passages, history=history), model
-        )
-        raw_is_refusal = (completion or "").strip() == REFUSAL or (completion or "").strip().startswith(REFUSAL + "\n")
-        body = parse_answered(completion, passages, figures, anchors=anchors, question=resolved_question,
-                              prior_quote=_prior_turn_quote(history))
+        if book_profile["keep_body"]:
+            body = _fiction_body(
+                context["asked"], passages, figures, generate_fn, model,
+                book_profile, question=resolved_question, history=history,
+            )
+            raw_is_refusal = bool(body.get("refused"))
+        else:
+            completion = generate_fn(
+                book_profile["system"],
+                user_message(context["asked"], passages, history=history,
+                             words=book_profile["answer_words"]), model,
+            )
+            raw_is_refusal = (completion or "").strip() == REFUSAL or (completion or "").strip().startswith(REFUSAL + "\n")
+            body = parse_answered(completion, passages, figures, anchors=anchors,
+                                  question=resolved_question,
+                                  prior_quote=_prior_turn_quote(history))
         if body.get("refused") and not raw_is_refusal:
             observe.record_transform("parse_refused")
         was_refused = bool(body.get("refused"))
@@ -5501,11 +6219,18 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
             body = _refusal(passages, figures)
 
     if not body.get("refused") and not simple_words(question):
-        body = _ensure_answer_gloss(
-            index, body, resolved_question, passages, is_live=is_live,
-            history=history, selection=selection, heading=heading, model=model,
-            generate_fn=generate_fn,
-        )
+        # Fiction keeps the model's own paragraph: the gloss pass rewrites the
+        # body down to one quote plus one line, which is the whole reason a
+        # scene came back as a two-line answer.
+        if not book_profile["keep_body"]:
+            body = _ensure_answer_gloss(
+                index, body, resolved_question, passages, is_live=is_live,
+                history=history, selection=selection, heading=heading, model=model,
+                generate_fn=generate_fn,
+                gloss_system=book_profile["gloss_system"],
+                followup_system=book_profile["followup_system"],
+                answer_words=book_profile["answer_words"],
+            )
         first_cite_id = body["citations"][0].get("chunk_id") if body.get("citations") else None
         lead_chunk = next((c for c in passages if c.get("chunk_id") == first_cite_id), passages[0]) if passages else {}
         lead_neighbors = [p for p in passages if p != lead_chunk and str(p.get("chapter")) == str(lead_chunk.get("chapter"))]
@@ -5516,6 +6241,7 @@ def respond(index, question, generate_fn=None, search_fn=None, model=ANSWER_MODE
     else:
         body["followups"] = []
 
+    body = _with_definition_note(context["asked"], body)
     return observe.finish_body(_patch_figures_src(body, index))
 
 
@@ -5528,7 +6254,7 @@ def _clean_rewrite(text):
     return re.sub(r"\s+", " ", text).strip()
 
 
-def _plain_body(index, context, generate_fn, model):
+def _plain_body(index, context, generate_fn, model, system=SYSTEM_ANSWER):
     """The plain register: draft selects evidence sentences, each is rewritten.
 
     The draft runs the standard path, so its citations' quotes are passage
@@ -5539,7 +6265,7 @@ def _plain_body(index, context, generate_fn, model):
     """
     passages = context["passages"]
     completion = generate_fn(
-        SYSTEM_ANSWER, answer_user_message(context["asked"], passages), model
+        system, answer_user_message(context["asked"], passages), model
     )
     draft = parse_answered(completion, passages, index.get("figures") or [])
     if draft["refused"]:
@@ -5601,6 +6327,15 @@ def _tokens(text):
 def _claim_after_tag(rest):
     """Quote or remainder of a tag-first line. Empty when the tag stands alone."""
     first_line = rest.split("\n", 1)[0]
+    # The outer quote, not the first inner one. A definition the book borrows
+    # carries its own quotation marks ("... defines the field ... as "the study
+    # and design of rational agents.""), and a plain search takes the nested
+    # span as the claim; the citation then lands on a different sentence of the
+    # same chunk (measured 2026-11-01: the answer quoted the definition while
+    # the citation record held a sentence about economic value).
+    outer = re.match(r'\s*["\u201c](.*)["\u201d]\s*$', first_line)
+    if outer:
+        return outer.group(1).strip()
     quoted = QUOTE_PATTERN.search(first_line)
     if quoted:
         return quoted.group(1).strip()
@@ -5728,6 +6463,211 @@ def _evidence_quote(claim, hit):
     return res
 
 
+def _one_quote_pair(text):
+    """Drop one outer pair of quotation marks, and only that pair.
+
+    A novel's passage is usually speech, so the model's quote holds the
+    character's own curly quotes inside it. `_strip_quotes` strips every quote
+    character at both ends, which eats the opening mark of that speech and
+    leaves text the passage no longer contains.
+    """
+    value = (text or "").strip()
+    for open_mark, close_mark in (('"', '"'), ("\u201c", "\u201d"), ("'", "'")):
+        if len(value) >= 2 and value.startswith(open_mark) and value.endswith(close_mark):
+            return value[1:-1].strip()
+    return value
+
+
+def _fiction_gloss(answer_text):
+    """The paragraph lines of a fiction answer, tags and quotes removed."""
+    kept = []
+    for line in (answer_text or "").splitlines():
+        stripped = line.strip()
+        if not stripped or _CH_PREFIX_RE.match(stripped):
+            continue
+        kept.append(stripped)
+    return " ".join(kept).strip()
+
+
+def _cap_fiction_quote(quote, cap=FICTION_QUOTE_CAP):
+    """Cut a quoted scene down to one readable stretch.
+
+    Asked about a long action scene the model sometimes quotes the whole
+    thing (measured 2026-11-01: a 909-character run of dialogue in one
+    citation). The cut falls on a sentence end when there is one inside the
+    cap, so what is left is still verbatim words from the passage.
+    """
+    text = (quote or "").strip()
+    if len(text) <= cap:
+        return text
+    head = text[:cap]
+    cut = max(head.rfind(". "), head.rfind("? "), head.rfind("! "))
+    if cut >= cap // 2:
+        return head[: cut + 1].strip()
+    space = head.rfind(" ")
+    return (head[:space] if space > 0 else head).strip()
+
+
+def _add_fiction_quote(citations, citation):
+    """One quote per passage, the longer cut of it.
+
+    Two rounds answer the same question from the same passage, so the second
+    round often quotes the same moment again — sometimes with the sentence cut
+    at a different point, which no text comparison catches ("He was covered in
+    wounds." and "He was covered in wounds,"). A citation is a passage, so a
+    passage that is already quoted stays quoted once, and the longer text is
+    the better evidence. True when the answer changed.
+    """
+    for index, held in enumerate(citations):
+        if held["chunk_id"] != citation["chunk_id"]:
+            continue
+        if len(citation["quote"]) > len(held["quote"]):
+            citations[index] = citation
+            return True
+        return False
+    citations.append(citation)
+    return True
+
+
+def _fiction_body(asked, passages, figures, generate_fn, model, settings,
+                  question="", history=None):
+    """Ask until the answer holds more than one passage, then merge.
+
+    The fine-tune cannot be prompted into quoting several moments: measured
+    2026-11-01, three prompt shapes (quote-first, three mandatory quote lines,
+    inline tags) over eight questions produced one citation in 8, 7 and 7 of
+    the eight answers. So the count comes from asking again, not from asking
+    harder — and each round after the first drops the passages already quoted,
+    because the model always answers from the front of its window. Every round
+    is parsed with `parse_fiction`, so a quote joins the answer only when a
+    shown passage really holds it; a passage is quoted once, at its longer cut,
+    and the rounds stop as soon as `quote_target` distinct passages are cited.
+    The longest paragraph any round wrote is the one kept.
+    """
+    target = max(1, min(int(settings.get("quote_target") or 1),
+                        len({hit.get("chunk_id") for hit in passages})))
+    cap = max(target, int(settings.get("quote_max") or target))
+    citations = []
+    gloss = ""
+    refusal = None
+    for round_index in range(max(1, int(settings.get("rounds") or 1))):
+        # Later rounds drop the passages already quoted. The model answers from
+        # the front of the window every time, so without this the second round
+        # quotes the same scene again and the answer never holds two passages
+        # (measured 2026-11-01: with the full window repeated, 6 of 8 answers
+        # still cited one passage after three rounds).
+        window = passages
+        if round_index and citations:
+            cited = {item["chunk_id"] for item in citations}
+            fresh = [hit for hit in passages if hit.get("chunk_id") not in cited]
+            if fresh:
+                window = fresh
+        completion = generate_fn(
+            settings["system"],
+            user_message(asked, window, history=history,
+                         words=settings.get("answer_words")), model,
+        )
+        draft = parse_fiction(completion, window, figures, question=question)
+        before = len(citations)
+        if draft.get("refused"):
+            refusal = refusal or draft
+        else:
+            for citation in draft["citations"]:
+                if len(citations) >= cap:
+                    break
+                _add_fiction_quote(citations, citation)
+            draft_gloss = _fiction_gloss(draft.get("answer") or "")
+            if len(draft_gloss) > len(gloss):
+                gloss = draft_gloss
+        if len({item["chunk_id"] for item in citations}) >= target:
+            break
+        if citations and len(citations) == before:
+            # Nothing new joined: another round would repeat this one.
+            break
+    if not citations:
+        return refusal or _refusal(passages, figures)
+    lines = [f'[Ch. {item["chapter"]}] "{item["quote"]}"' for item in citations]
+    if gloss:
+        lines.append(gloss)
+    cited = {item["chunk_id"] for item in citations}
+    named = [hit for hit in passages if hit["chunk_id"] in cited] or passages
+    body = {
+        "answer": "\n".join(lines),
+        "citations": citations,
+        "figures": figures_for(named, figures or []),
+        "refused": False,
+    }
+    return _align_citation_to_query_concepts(body, question, passages)
+
+
+def parse_fiction(completion, passages, figures=None, question=""):
+    """A fiction answer: `[Ch. N] "copied words"` lines, then the paragraph.
+
+    Neither existing parser fits a novel. `parse_completion` reads the first
+    `"..."` pair on a line as the quote, which in fiction is the character's
+    speech, not the passage. `parse_answered` rebuilds the quote from the
+    best-overlapping passage sentence and drops anything under
+    KEY_MIN_CHARS, and a novel's dialogue is mostly shorter than that — so it
+    fell back to the whole passage. Here the rule is the one that matters and
+    nothing else: the text after the tag, minus one outer pair of quotes, must
+    appear in a shown passage. A line whose quote no passage holds is dropped;
+    a body with no surviving quote is the refusal.
+    """
+    text = (completion or "").strip()
+    if not text or _free_refusal(text):
+        return _refusal(passages, figures)
+    citations = []
+    seen = set()
+    gloss_lines = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        tag = TAG_PATTERN.match(stripped)
+        if tag is None:
+            gloss_lines.append(stripped)
+            continue
+        chapter = tag.group(1).strip().rstrip(".")
+        rest = re.sub(r"^\s*[-\u2013\u2014:]\s*", "", stripped[tag.end():].strip())
+        quote = _one_quote_pair(rest)
+        if len(quote) < MIN_QUOTE_CHARS:
+            continue
+        hit = _matching_passage(chapter, quote, passages)
+        if hit is None:
+            hit = _matching_passage_anywhere(quote, passages)
+        if hit is None:
+            hit, quote = _span_from_chapter(chapter, rest, passages)
+        if hit is None or len(quote) < MIN_QUOTE_CHARS:
+            continue
+        quote = _cap_fiction_quote(quote)
+        key = (hit["chunk_id"], quote)
+        if key in seen:
+            continue
+        seen.add(key)
+        citations.append({
+            "chunk_id": hit["chunk_id"],
+            "chapter": str(hit["chapter"]),
+            "quote": quote,
+        })
+    if not citations:
+        return _refusal(passages, figures)
+    lines = [f'[Ch. {item["chapter"]}] "{item["quote"]}"' for item in citations]
+    gloss = _clean_boilerplate_gloss(" ".join(gloss_lines))
+    if gloss and not _gloss_repeats_quote(
+        gloss, " ".join(item["quote"] for item in citations)
+    ):
+        lines.append(gloss)
+    cited = {item["chunk_id"] for item in citations}
+    named = [hit for hit in passages if hit["chunk_id"] in cited] or passages
+    body = {
+        "answer": "\n".join(lines),
+        "citations": citations,
+        "figures": figures_for(named, figures or []),
+        "refused": False,
+    }
+    return _align_citation_to_query_concepts(body, question, passages)
+
+
 def parse_answered(completion, passages, figures=None, anchors=None, question="",
                    prior_quote=""):
     """A free answer turned into the contract body.
@@ -5832,11 +6772,17 @@ def highlight_query(selection, heading=""):
     return f"What is {text}?"
 
 
-def _pin_chunk(index, passages, chunk_id, end_chunk_id=None):
+def _pin_chunk(index, passages, chunk_id, end_chunk_id=None, limit=PASSAGE_LIMIT):
     """The chunk the reader was looking at leads. Search does not replace it.
 
     When end_chunk_id is provided and differs from chunk_id, chunk_id leads at
     index 0 and end_chunk_id sits at index 1.
+
+    `limit` is the window this request asked for. It used to be the module
+    constant, so a fiction request that asked for eight passages got five as
+    soon as it carried a pin - and the reader UI sends the on-screen chunk with
+    every follow-up. Measured 2026-11-02: "who is sandor" with a chapter-1 pin
+    covered 0 of 3 gold chapters at five slots and 3 of 3 at eight.
     """
     if not chunk_id and not end_chunk_id:
         return passages
@@ -5870,7 +6816,7 @@ def _pin_chunk(index, passages, chunk_id, end_chunk_id=None):
 
     pinned_ids = {p["chunk_id"] for p in pinned}
     rest = [hit for hit in passages if hit.get("chunk_id") not in pinned_ids]
-    return pinned + rest[: max(0, PASSAGE_LIMIT - len(pinned))]
+    return pinned + rest[: max(0, limit - len(pinned))]
 
 
 def _anchor_sentence_for_selection(chunk, selection):
@@ -6406,7 +7352,14 @@ def _sentences_cached(text):
         sentence = part.strip()
         if len(sentence) < KEY_MIN_CHARS:
             continue
-        if sentence[0].isupper() and sentence.endswith((".", "?", "!")):
+        # A closing quote is not the end of the sentence: a quoted definition
+        # ("... as "the study and design of rational agents."") ends with a
+        # quote character, and dropping it starves every caller of _sentences
+        # (measured 2026-11-01: the citation for "what is ai" fell back to a
+        # sentence about economic value because the definition was not in the
+        # list, and the answer quoted it anyway).
+        terminal = sentence.rstrip("\"'\u2019\u201d\u2018\u201c)]")
+        if sentence[0].isupper() and terminal.endswith((".", "?", "!")):
             sentences.append(sentence)
     return tuple(sentences)
 

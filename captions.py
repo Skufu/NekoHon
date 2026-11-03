@@ -100,4 +100,9 @@ def caption_seed(index, question, passages, model=DEFAULT_EMBEDDER, embed_fn=Non
         "text": best.get("text", ""),
         "source": best.get("source", ""),
     }
-    return [seed] + passages[:-1]
+    # The seed is added, not swapped for the tail. It used to be
+    # `[seed] + passages[:-1]`, which evicted the last passage: measured
+    # 2026-11-02 on ai-engineering "How does RLHF work?", the dropped tail was
+    # gold chunk ch02-066, and the row only passed on its second gold chunk.
+    # Same rule as fusion's additions: a better passage joins, nothing leaves.
+    return [seed] + passages

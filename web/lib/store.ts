@@ -71,6 +71,7 @@ export type GlossItem = {
   createdAt: number;
   turns: GlossTurn[];
   minimized?: boolean;
+  pinnedAt?: { x: number; y: number; w: number };
   dragOffset?: { x: number; y: number };
   customWidth?: number;
   customHeight?: number;
@@ -196,6 +197,7 @@ type AskStore = {
   toggleQuizKey: (glossId: string, turnId?: string) => void;
   stopGloss: (glossId?: string) => void;
   toggleMinimizeGloss: (id: string) => void;
+  setGlossPinned: (id: string, at: { x: number; y: number; w: number } | null) => void;
   setGlossDragOffset: (id: string, offset: { x: number; y: number }) => void;
   setGlossWidth: (id: string, width: number) => void;
   setGlossHeight: (id: string, height: number | undefined) => void;
@@ -1173,7 +1175,7 @@ export const useAsk = create<AskStore>((set, get) => {
     setActiveGloss: (id) => {
       if (id) {
         const next = get().glosses.map((g) =>
-          g.id === id ? { ...g, minimized: false } : g
+          g.id === id ? { ...g, minimized: false, pinnedAt: undefined } : g
         );
         syncActiveTurn(next, id);
       } else {
@@ -1237,7 +1239,19 @@ export const useAsk = create<AskStore>((set, get) => {
     toggleMinimizeGloss: (id) => {
       set((state) => ({
         glosses: state.glosses.map((g) =>
-          g.id === id ? { ...g, minimized: !g.minimized } : g
+          g.id === id
+            ? g.minimized
+              ? { ...g, minimized: false, pinnedAt: undefined }
+              : { ...g, minimized: true }
+            : g
+        ),
+      }));
+    },
+
+    setGlossPinned: (id, at) => {
+      set((state) => ({
+        glosses: state.glosses.map((g) =>
+          g.id === id ? { ...g, pinnedAt: at ?? undefined } : g
         ),
       }));
     },

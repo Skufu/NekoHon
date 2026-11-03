@@ -80,9 +80,12 @@ class CaptionSeedTests(unittest.TestCase):
         )
         self.assertEqual(seeded[0]["chunk_id"], "ch04-020")
         self.assertEqual(seeded[0]["score"], 1.0)
-        self.assertEqual(len(seeded), len(DENSE))
+        # The seed joins the window; nothing is dropped for it. It used to
+        # replace the tail, which evicted a gold chunk on ai-engineering
+        # "How does RLHF work?" (measured 2026-11-02).
+        self.assertEqual(len(seeded), len(DENSE) + 1)
         self.assertEqual([hit["chunk_id"] for hit in seeded[1:]],
-                         [hit["chunk_id"] for hit in DENSE[:-1]])
+                         [hit["chunk_id"] for hit in DENSE])
 
     def test_the_naming_chunk_is_chosen_by_relevance_not_position(self):
         figures = [figure("figure-4-1", "Matt Turck's 2021 MAD data landscape", [1.0, 0.0])]

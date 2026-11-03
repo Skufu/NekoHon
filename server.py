@@ -30,10 +30,19 @@ mimetypes.init()
 
 import observe
 from retrieve import DEFAULT_EMBEDDER, INDEX, chunk_title, chunks_payload, format_input, book_index_path, load_index, search
-from answer import ask, explain, ollama_generate_stream, quiz, respond, sanitize_history
+from answer import (
+    ask,
+    asks_for_example,
+    explain,
+    ollama_generate_stream,
+    quiz,
+    respond,
+    sanitize_history,
+    teach as teach_fn,
+)
 from figures import figure_file
 from keywords import postings
-from prompt import ANSWER_GLOSS_SYSTEM, ANSWER_MODEL, EXPLAIN_GLOSS_SYSTEM, FOLLOWUP_GLOSS_SYSTEM, OLLAMA_KEEP_ALIVE, SYSTEM
+from prompt import ANSWER_GLOSS_SYSTEM, ANSWER_MODEL, EXPLAIN_GLOSS_SYSTEM, FOLLOWUP_GLOSS_SYSTEM, OLLAMA_KEEP_ALIVE, is_quote_system
 
 ROOT = Path(__file__).resolve().parent
 WEB_OUT = ROOT / "web" / "out"
@@ -84,7 +93,20 @@ def parse_port(argv=None, env=None):
 PORT = parse_port()
 OLLAMA_URL = "http://127.0.0.1:11434/"
 DEFAULT_BOOK_ID = "".join(["f", "d", "e"])
-MODES = ("ask", "answer", "explain", "quiz")
+MODES = ("ask", "answer", "explain", "quiz", "teach")
+
+
+def effective_mode(mode, question):
+    """The mode a request runs in.
+
+    The reader does not pick "teach" from a menu; they ask for an example and
+    the request is answered by the teaching path (owner decision 2026-11-02).
+    Only ask/answer are re-routed: explain and quiz were chosen explicitly for
+    a piece of text, and import is not a question at all.
+    """
+    if mode in ("ask", "answer") and asks_for_example(question or ""):
+        return "teach"
+    return mode
 EXTRA_MODES = ("import",)
 BOOK = None
 CHUNKS = None
@@ -475,10 +497,11 @@ class Handler(BaseHTTPRequestHandler):
         if mode not in MODES and mode not in EXTRA_MODES:
             self._send_json(400, {"error": "bad mode"})
             return
+        mode = effective_mode(mode, request.get("question") or "")
         if mode == "import":
             self._handle_import(request)
             return
-        if mode in ("ask", "answer") and not request.get("question"):
+        if mode in ("ask", "answer", "teach") and not request.get("question"):
             self._send_json(400, {"error": "missing question"})
             return
         if mode == "explain" and not request.get("selection"):
@@ -532,6 +555,14 @@ class Handler(BaseHTTPRequestHandler):
                         book, request.get("selection") or "",
                         chunk_id=chunk_id,
                         end_chunk_id=end_chunk_id,
+                        heading=request.get("heading") or "",
+                    )
+                elif mode == "teach":
+                    body = teach_fn(
+                        book, request["question"], history=history,
+                        pin_chunk=chunk_id,
+                        end_chunk_id=end_chunk_id,
+                        selection=request.get("selection") or "",
                         heading=request.get("heading") or "",
                     )
                 else:
@@ -693,14 +724,14 @@ class Handler(BaseHTTPRequestHandler):
     def _stream_ask(self, request, book):
         """NDJSON frames: token as the model writes, reset when a draft is
         discarded, final with the same body the non-stream path returns."""
-        mode = request["mode"]
+        mode = effective_mode(request["mode"], request.get("question") or "")
         calls = {"n": 0}
 
         def frame(payload):
             self.wfile.write((json.dumps(payload) + "\n").encode("utf-8"))
             self.wfile.flush()
 
-        def generate(system, user, model=ANSWER_MODEL, prefill=""):
+        def generate(system, user, model=ANSWER_MODEL, prefill="", options=None):
             calls["n"] += 1
             if calls["n"] > 1:
                 # A later generation replaces whatever ran before it. Emitted
@@ -711,7 +742,7 @@ class Handler(BaseHTTPRequestHandler):
             live = bool(prefill) or (
                 system in (EXPLAIN_GLOSS_SYSTEM, ANSWER_GLOSS_SYSTEM, FOLLOWUP_GLOSS_SYSTEM)
             ) or (
-                system == SYSTEM and mode != "quiz" and getattr(respond, "__name__", "") != "fake_respond"
+                is_quote_system(system) and mode != "quiz" and getattr(respond, "__name__", "") != "fake_respond"
             )
 
             def on_token(text):
@@ -720,9 +751,11 @@ class Handler(BaseHTTPRequestHandler):
             return ollama_generate_stream(
                 system, user, model=model, prefill=prefill,
                 on_token=on_token if live else None,
+                options=options,
             )
 
         generate._is_live = True
+        generate._accepts_options = True
 
         self.send_response(200)
         self.send_header("Content-Type", "application/x-ndjson; charset=utf-8")
@@ -771,6 +804,15 @@ class Handler(BaseHTTPRequestHandler):
                         generate_fn=generate,
                         chunk_id=chunk_id,
                         end_chunk_id=end_chunk_id,
+                        heading=request.get("heading") or "",
+                    )
+                elif mode == "teach":
+                    body = teach_fn(
+                        book, request["question"], generate_fn=generate,
+                        history=history,
+                        pin_chunk=chunk_id,
+                        end_chunk_id=end_chunk_id,
+                        selection=request.get("selection") or "",
                         heading=request.get("heading") or "",
                     )
                 else:

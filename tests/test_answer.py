@@ -1393,7 +1393,7 @@ class ReadingAnchorTests(unittest.TestCase):
             {"score": 0.8, "chunk_id": "c2", "chapter": "1", "heading": "Other",
              "text": "Other text.", "source": ""},
         ]
-        with mock.patch.object(A, "rare", return_value=False), \
+        with mock.patch.object(A, "lexical_terms", return_value=[]), \
              mock.patch.object(A, "second_reading", return_value=None), \
              mock.patch.object(A, "llm_second_reading", return_value=None):
             return A.retrieval_context(

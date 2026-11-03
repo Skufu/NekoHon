@@ -68,7 +68,7 @@ class ElidedFollowupSeedsTheChunkTest(unittest.TestCase):
     def test_gist_followup_puts_the_prior_chunk_first(self):
         hits = [{"score": 0.9, "chunk_id": "text00008-009", "chapter": "3",
                  "heading": "Compaction", "text": COMPACTION_TEXT, "source": ""}]
-        with mock.patch.object(A, "rare", return_value=False), \
+        with mock.patch.object(A, "lexical_terms", return_value=[]), \
              mock.patch.object(A, "second_reading", return_value=None), \
              mock.patch.object(A, "llm_second_reading", return_value=None):
             context = A.retrieval_context(
@@ -80,7 +80,7 @@ class ElidedFollowupSeedsTheChunkTest(unittest.TestCase):
         """A real shift must not be overridden by the prior quote."""
         hits = [{"score": 0.9, "chunk_id": "text00008-009", "chapter": "3",
                  "heading": "Compaction", "text": COMPACTION_TEXT, "source": ""}]
-        with mock.patch.object(A, "rare", return_value=False), \
+        with mock.patch.object(A, "lexical_terms", return_value=[]), \
              mock.patch.object(A, "second_reading", return_value=None), \
              mock.patch.object(A, "llm_second_reading", return_value=None):
             context = A.retrieval_context(
