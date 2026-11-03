@@ -1,0 +1,905 @@
+{
+ "summary": {
+  "embedder": "nomic",
+  "model": "nomic-embed-text",
+  "rows": 35,
+  "exact@1": 26,
+  "support@1": 27,
+  "support@5": 32,
+  "exact@1_pct": 74.3,
+  "support@1_pct": 77.1,
+  "support@5_pct": 91.4
+ },
+ "results": [
+  {
+   "id": "tech-fde-01",
+   "question": "watermark",
+   "gold": [
+    "ch08-039"
+   ],
+   "top": [
+    "ch08-039",
+    "ch06-032",
+    "ch06-070",
+    "ch05-019",
+    "ch06-100"
+   ],
+   "reasons": [
+    "exact",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-fde-02",
+   "question": "What are the five stages of the data engineering lifecycle?",
+   "gold": [
+    "ch02-002"
+   ],
+   "top": [
+    "ch02-002",
+    "ch02-091",
+    "ch01-006",
+    "ch02-003",
+    "ch09-072"
+   ],
+   "reasons": [
+    "exact",
+    "",
+    "",
+    "neighbour",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-fde-03",
+   "question": "Who proposed the Kappa architecture?",
+   "gold": [
+    "ch03-088"
+   ],
+   "top": [
+    "ch03-088",
+    "ch08-032",
+    "ch08-033",
+    "ch03-087",
+    "ch03-086"
+   ],
+   "reasons": [
+    "exact",
+    "",
+    "",
+    "neighbour",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-fde-04",
+   "question": "What does Kinesis Data Firehose do with the events it receives?",
+   "gold": [
+    "ch07-013"
+   ],
+   "top": [
+    "ch07-013",
+    "ch07-014",
+    "ch07-010",
+    "ch06-078",
+    "ch07-041"
+   ],
+   "reasons": [
+    "exact",
+    "neighbour",
+    "",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-fde-05",
+   "question": "How does batch ingestion compare with streaming ingestion?",
+   "gold": [
+    "ch02-018",
+    "ch02-019"
+   ],
+   "top": [
+    "ch02-021",
+    "ch02-020",
+    "ch02-018",
+    "ch07-060",
+    "ch02-019"
+   ],
+   "reasons": [
+    "",
+    "neighbour",
+    "exact",
+    "",
+    "exact"
+   ],
+   "exact1": false,
+   "support1": false,
+   "support5": true,
+   "support5_at": 2
+  },
+  {
+   "id": "tech-quant-01",
+   "question": "zero point",
+   "gold": [
+    "chapter-2-035"
+   ],
+   "top": [
+    "chapter-2-035",
+    "chapter-2-045",
+    "chapter-2-072",
+    "chapter-2-067",
+    "chapter-2-083"
+   ],
+   "reasons": [
+    "exact",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-quant-02",
+   "question": "How does dynamic quantization work?",
+   "gold": [
+    "chapter-3-044"
+   ],
+   "top": [
+    "chapter-3-044",
+    "chapter-3-046",
+    "chapter-6-042",
+    "chapter-3-043",
+    "chapter-6-038"
+   ],
+   "reasons": [
+    "exact",
+    "",
+    "",
+    "neighbour",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-quant-03",
+   "question": "How many calibration samples do GPTQ, AWQ and the llama.cpp scripts use?",
+   "gold": [
+    "chapter-4-024"
+   ],
+   "top": [
+    "chapter-4-024",
+    "chapter-4-026",
+    "chapter-7-057",
+    "chapter-7-059",
+    "chapter-7-039"
+   ],
+   "reasons": [
+    "exact",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-quant-04",
+   "question": "Who introduced the straight-through estimator?",
+   "gold": [
+    "chapter-5-021"
+   ],
+   "top": [
+    "chapter-5-021",
+    "chapter-5-018",
+    "chapter-7-025",
+    "chapter-5-023",
+    "chapter-5-022"
+   ],
+   "reasons": [
+    "exact",
+    "",
+    "",
+    "",
+    "neighbour"
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-quant-05",
+   "question": "How does per-tensor quantization compare with per-channel quantization?",
+   "gold": [
+    "chapter-3-030"
+   ],
+   "top": [
+    "chapter-3-030",
+    "chapter-3-029",
+    "chapter-3-038",
+    "chapter-5-059",
+    "chapter-3-023"
+   ],
+   "reasons": [
+    "exact",
+    "neighbour",
+    "",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-ddia-01",
+   "question": "read repair",
+   "gold": [
+    "text00011-067"
+   ],
+   "top": [
+    "text00011-067",
+    "text00019-069",
+    "text00013-035",
+    "text00013-036",
+    "text00015-032"
+   ],
+   "reasons": [
+    "exact",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-ddia-02",
+   "question": "What is linearizability?",
+   "gold": [
+    "text00015-008"
+   ],
+   "top": [
+    "text00015-018",
+    "text00015-027",
+    "text00015-051",
+    "text00015-017",
+    "text00015-011"
+   ],
+   "reasons": [
+    "",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "exact1": false,
+   "support1": false,
+   "support5": false,
+   "support5_at": null
+  },
+  {
+   "id": "tech-ddia-03",
+   "question": "Who originally described the LSM-tree indexing structure, and under what name?",
+   "gold": [
+    "text00008-017"
+   ],
+   "top": [
+    "text00008-017",
+    "text00008-018",
+    "text00008-080",
+    "text00008-081",
+    "text00008-021"
+   ],
+   "reasons": [
+    "exact",
+    "neighbour",
+    "",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-ddia-04",
+   "question": "What does Google\u2019s TrueTime API report when you ask it for the current time?",
+   "gold": [
+    "text00014-053"
+   ],
+   "top": [
+    "text00014-053",
+    "text00014-056",
+    "text00014-039",
+    "text00014-038",
+    "text00018-081"
+   ],
+   "reasons": [
+    "exact",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-ddia-05",
+   "question": "How do B-trees compare with LSM-trees for reads and writes?",
+   "gold": [
+    "text00008-028"
+   ],
+   "top": [
+    "text00008-028",
+    "text00008-030",
+    "text00008-029",
+    "text00008-032",
+    "text00008-033"
+   ],
+   "reasons": [
+    "exact",
+    "",
+    "neighbour",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-aieng-01",
+   "question": "What is AI engineering?",
+   "gold": [
+    "ch01-022"
+   ],
+   "top": [
+    "ch01-095",
+    "ch01-022",
+    "ch01-028",
+    "afterword01-002",
+    "ch01-070"
+   ],
+   "reasons": [
+    "",
+    "exact",
+    "",
+    "",
+    ""
+   ],
+   "exact1": false,
+   "support1": false,
+   "support5": true,
+   "support5_at": 2
+  },
+  {
+   "id": "tech-aieng-02",
+   "question": "How does RLHF work?",
+   "gold": [
+    "ch02-066",
+    "ch02-067"
+   ],
+   "top": [
+    "ch02-067",
+    "ch02-068",
+    "ch06-031",
+    "ch02-113",
+    "ch02-114"
+   ],
+   "reasons": [
+    "exact",
+    "neighbour",
+    "",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-aieng-03",
+   "question": "Which paper proposed the Chinchilla scaling law, and what ratio does it give between training tokens and model size?",
+   "gold": [
+    "ch02-044"
+   ],
+   "top": [
+    "ch02-044",
+    "ch02-045",
+    "ch02-046",
+    "ch02-038",
+    "ch02-116"
+   ],
+   "reasons": [
+    "exact",
+    "neighbour",
+    "",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-aieng-04",
+   "question": "How did DeepMind speed up Chinchilla-70B\u2019s decoding with speculative decoding?",
+   "gold": [
+    "ch09-046"
+   ],
+   "top": [
+    "ch09-046",
+    "ch09-045",
+    "ch09-044",
+    "ch09-049",
+    "ch09-050"
+   ],
+   "reasons": [
+    "exact",
+    "neighbour",
+    "",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-aieng-05",
+   "question": "How does AI engineering compare with ML engineering?",
+   "gold": [
+    "ch01-074"
+   ],
+   "top": [
+    "ch01-074",
+    "ch01-093",
+    "ch01-075",
+    "ch01-092",
+    "ch01-076"
+   ],
+   "reasons": [
+    "exact",
+    "",
+    "neighbour",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-aiagents-01",
+   "question": "What is a finite state machine?",
+   "gold": [
+    "ch01-012"
+   ],
+   "top": [
+    "ch01-012",
+    "ch01-013",
+    "ch01-010",
+    "ch01-011",
+    "ch01-015"
+   ],
+   "reasons": [
+    "exact",
+    "neighbour",
+    "",
+    "neighbour",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-aiagents-02",
+   "question": "How does GRPO work?",
+   "gold": [
+    "ch03-013"
+   ],
+   "top": [
+    "ch03-013",
+    "ch03-023",
+    "ch03-019",
+    "ch03-017",
+    "ch03-015"
+   ],
+   "reasons": [
+    "exact",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-aiagents-03",
+   "question": "When was the Agentic AI Foundation formed, and whose protocol was a founding contribution?",
+   "gold": [
+    "ch05-026"
+   ],
+   "top": [
+    "ch05-026",
+    "foreword01-001",
+    "preface01-011",
+    "ch11-052",
+    "ch02-058"
+   ],
+   "reasons": [
+    "exact",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-aiagents-04",
+   "question": "Which frameworks does the book name for quantizing open source models?",
+   "gold": [
+    "ch04-046"
+   ],
+   "top": [
+    "ch04-046",
+    "ch04-041",
+    "ch07-054",
+    "ch07-048",
+    "ch04-048"
+   ],
+   "reasons": [
+    "exact",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "tech-aiagents-05",
+   "question": "How does streaming compare with polling for long-running agent tasks?",
+   "gold": [
+    "ch07-013"
+   ],
+   "top": [
+    "ch07-013",
+    "ch07-023",
+    "ch07-021",
+    "ch07-015",
+    "ch07-022"
+   ],
+   "reasons": [
+    "exact",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "fic-ent-atofe",
+   "question": "who is atofe",
+   "gold": [
+    "section-0006-013",
+    "section-0010-018",
+    "section-0012-029",
+    "section-0014-033"
+   ],
+   "top": [
+    "section-0010-019",
+    "section-0010-020",
+    "section-0010-018",
+    "section-0006-013",
+    "section-0014-033"
+   ],
+   "reasons": [
+    "neighbour",
+    "",
+    "exact",
+    "exact",
+    "exact"
+   ],
+   "exact1": false,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "fic-ent-sandor",
+   "question": "who is sandor",
+   "gold": [
+    "section-0007-017",
+    "section-0010-003",
+    "section-0012-007"
+   ],
+   "top": [
+    "section-0005-006",
+    "section-0009-013",
+    "section-0009-003",
+    "section-0005-007",
+    "section-0007-004"
+   ],
+   "reasons": [
+    "",
+    "key_fact",
+    "key_fact",
+    "",
+    "key_fact"
+   ],
+   "exact1": false,
+   "support1": false,
+   "support5": true,
+   "support5_at": 2
+  },
+  {
+   "id": "fic-ent-eris",
+   "question": "who is eris",
+   "gold": [
+    "section-0007-017",
+    "section-0008-007",
+    "section-0012-014"
+   ],
+   "top": [
+    "section-0012-014",
+    "section-0012-009",
+    "section-0012-013",
+    "section-0010-005",
+    "section-0012-008"
+   ],
+   "reasons": [
+    "exact",
+    "",
+    "neighbour",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "fic-ent-ruijerd",
+   "question": "who is ruijerd",
+   "gold": [
+    "section-0005-009",
+    "section-0008-012",
+    "section-0012-019"
+   ],
+   "top": [
+    "section-0012-019",
+    "section-0012-034",
+    "section-0012-018",
+    "section-0010-006",
+    "section-0012-022"
+   ],
+   "reasons": [
+    "exact",
+    "key_fact",
+    "neighbour",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "fic-ent-rudeus",
+   "question": "who is rudeus",
+   "gold": [
+    "section-0005-010",
+    "section-0011-008",
+    "section-0015-005"
+   ],
+   "top": [
+    "section-0012-019",
+    "section-0015-005",
+    "section-0015-007",
+    "section-0005-013",
+    "section-0005-003"
+   ],
+   "reasons": [
+    "",
+    "exact",
+    "key_fact",
+    "",
+    ""
+   ],
+   "exact1": false,
+   "support1": false,
+   "support5": true,
+   "support5_at": 2
+  },
+  {
+   "id": "fic-ent-dohga",
+   "question": "who is dohga",
+   "gold": [
+    "section-0006-009",
+    "section-0007-015",
+    "section-0011-004"
+   ],
+   "top": [
+    "section-0006-009",
+    "section-0006-010",
+    "section-0006-008",
+    "section-0010-014",
+    "section-0006-011"
+   ],
+   "reasons": [
+    "exact",
+    "neighbour",
+    "neighbour",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  },
+  {
+   "id": "fic-scene-white-place",
+   "question": "where did rudeus wake up after falling from the bridge?",
+   "gold": [
+    "section-0006-001"
+   ],
+   "top": [
+    "section-0005-008",
+    "section-0005-012",
+    "section-0005-009",
+    "section-0005-011",
+    "section-0009-021"
+   ],
+   "reasons": [
+    "",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "exact1": false,
+   "support1": false,
+   "support5": false,
+   "support5_at": null
+  },
+  {
+   "id": "fic-scene-gall-fire",
+   "question": "how did eris finish off gall falion?",
+   "gold": [
+    "section-0008-018"
+   ],
+   "top": [
+    "section-0008-011",
+    "section-0008-009",
+    "section-0008-017",
+    "section-0008-018",
+    "section-0008-008"
+   ],
+   "reasons": [
+    "",
+    "",
+    "neighbour",
+    "exact",
+    ""
+   ],
+   "exact1": false,
+   "support1": false,
+   "support5": true,
+   "support5_at": 3
+  },
+  {
+   "id": "fic-scene-alec-dead",
+   "question": "what happened to alexander after his duel with rudeus?",
+   "gold": [
+    "section-0011-016"
+   ],
+   "top": [
+    "section-0011-001",
+    "section-0015-005",
+    "section-0009-017",
+    "section-0010-023",
+    "section-0005-013"
+   ],
+   "reasons": [
+    "",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "exact1": false,
+   "support1": false,
+   "support5": false,
+   "support5_at": null
+  },
+  {
+   "id": "fic-scene-badigadi",
+   "question": "what did badigadi admit to rudeus at the end?",
+   "gold": [
+    "section-0013-024"
+   ],
+   "top": [
+    "section-0013-024",
+    "section-0013-027",
+    "section-0005-013",
+    "section-0013-026",
+    "section-0015-005"
+   ],
+   "reasons": [
+    "exact",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "exact1": true,
+   "support1": true,
+   "support5": true,
+   "support5_at": 1
+  }
+ ]
+}

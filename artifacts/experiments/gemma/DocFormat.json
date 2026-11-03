@@ -1,0 +1,2265 @@
+{
+ "experiment": "document-side format sweep, embeddinggemma-2:270m-bf16-text, fde book",
+ "embedder": "embeddinggemma-2:270m-bf16-text",
+ "index": "/Users/adriangabriellfrancisco/workspace/github.com/Skufu/ask-this-book-gemma/data/index.sqlite",
+ "chunks": 1042,
+ "query_prefix": "task: search result | query: ",
+ "format_strings": {
+  "f1_title_body": "title: {heading} | text: {body}  (today)",
+  "f2_none_heading_in_text": "title: none | text: {heading}\\n\\n{body}",
+  "f3_title_body_heading_twice": "title: {heading} | text: {heading}\\n\\n{body}",
+  "f4_raw": "chunk text as stored (no prefix)",
+  "f5_passage_body": "passage: {heading} | text: {body}",
+  "f6_none_no_heading": "title: none | text: {body}  (no heading anywhere)"
+ },
+ "measurement": "dense only, no FTS/fusion; cosine over all 1042 fde chunks; rank = best rank over the row gold ids",
+ "validation": {
+  "stored_vectors_vs_f1_reconstruction": "identical top-5 on all 34 fde queries; 1022/1042 stored vectors reproduce bit-identically, 20 differ by <=0.0289 absolute (legacy formatting) with no rank effect",
+  "ollama_determinism": "f1 re-embedded end to end: max abs component diff 0.0, min self-cosine 1.0 - the order changes below are not embedder noise",
+  "cross_check_granularity_peer": "Granularity measured whole-chunk gemma on the canonical fde rows as 2 top-1 / 4 top-5, matching f1 here"
+ },
+ "embed_seconds": {
+  "f1_title_body": {
+   "docs": 1042,
+   "seconds": 161.14,
+   "median_batch_s": 2.407,
+   "max_batch_s": 3.805
+  },
+  "f2_none_heading_in_text": {
+   "docs": 1042,
+   "seconds": 142.09,
+   "median_batch_s": 1.888,
+   "max_batch_s": 4.646
+  },
+  "f3_title_body_heading_twice": {
+   "docs": 1042,
+   "seconds": 137.52,
+   "median_batch_s": 2.057,
+   "max_batch_s": 3.85
+  },
+  "f4_raw": {
+   "docs": 1042,
+   "seconds": 106.57,
+   "median_batch_s": 1.307,
+   "max_batch_s": 4.464
+  },
+  "f5_passage_body": {
+   "docs": 1042,
+   "seconds": 58.32,
+   "median_batch_s": 0.881,
+   "max_batch_s": 1.274
+  },
+  "f6_none_no_heading": {
+   "docs": 1042,
+   "seconds": 68.11
+  }
+ },
+ "scope_sizes": {
+  "canonical_35_fde": 5,
+  "legacy_fde_added": 8,
+  "widenet_fde_21": 21,
+  "union_fde": 34
+ },
+ "tables": {
+  "canonical_35_fde": {
+   "f1_title_body": {
+    "n": 5,
+    "top1": 2,
+    "top3": 4,
+    "top5": 4,
+    "top10": 4,
+    "mrr": 0.617,
+    "mean_rank": 3.6,
+    "median_rank": 2
+   },
+   "f2_none_heading_in_text": {
+    "n": 5,
+    "top1": 3,
+    "top3": 5,
+    "top5": 5,
+    "top10": 5,
+    "mrr": 0.733,
+    "mean_rank": 1.8,
+    "median_rank": 1
+   },
+   "f3_title_body_heading_twice": {
+    "n": 5,
+    "top1": 2,
+    "top3": 5,
+    "top5": 5,
+    "top10": 5,
+    "mrr": 0.667,
+    "mean_rank": 1.8,
+    "median_rank": 2
+   },
+   "f4_raw": {
+    "n": 5,
+    "top1": 4,
+    "top3": 4,
+    "top5": 5,
+    "top10": 5,
+    "mrr": 0.85,
+    "mean_rank": 1.6,
+    "median_rank": 1
+   },
+   "f5_passage_body": {
+    "n": 5,
+    "top1": 3,
+    "top3": 4,
+    "top5": 4,
+    "top10": 5,
+    "mrr": 0.72,
+    "mean_rank": 3.0,
+    "median_rank": 1
+   },
+   "f6_none_no_heading": {
+    "n": 5,
+    "top1": 2,
+    "top3": 5,
+    "top5": 5,
+    "top10": 5,
+    "mrr": 0.667,
+    "mean_rank": 1.8,
+    "median_rank": 2
+   }
+  },
+  "legacy_fde_added": {
+   "f1_title_body": {
+    "n": 8,
+    "top1": 6,
+    "top3": 7,
+    "top5": 7,
+    "top10": 7,
+    "mrr": 0.823,
+    "mean_rank": 2.5,
+    "median_rank": 1
+   },
+   "f2_none_heading_in_text": {
+    "n": 8,
+    "top1": 5,
+    "top3": 6,
+    "top5": 7,
+    "top10": 8,
+    "mrr": 0.728,
+    "mean_rank": 2.5,
+    "median_rank": 1
+   },
+   "f3_title_body_heading_twice": {
+    "n": 8,
+    "top1": 4,
+    "top3": 5,
+    "top5": 5,
+    "top10": 7,
+    "mrr": 0.606,
+    "mean_rank": 4.25,
+    "median_rank": 2
+   },
+   "f4_raw": {
+    "n": 8,
+    "top1": 4,
+    "top3": 6,
+    "top5": 7,
+    "top10": 7,
+    "mrr": 0.663,
+    "mean_rank": 3.875,
+    "median_rank": 2
+   },
+   "f5_passage_body": {
+    "n": 8,
+    "top1": 4,
+    "top3": 7,
+    "top5": 7,
+    "top10": 8,
+    "mrr": 0.682,
+    "mean_rank": 2.375,
+    "median_rank": 2
+   },
+   "f6_none_no_heading": {
+    "n": 8,
+    "top1": 4,
+    "top3": 7,
+    "top5": 7,
+    "top10": 7,
+    "mrr": 0.677,
+    "mean_rank": 2.875,
+    "median_rank": 2
+   }
+  },
+  "widenet_fde_21": {
+   "f1_title_body": {
+    "n": 21,
+    "top1": 10,
+    "top3": 16,
+    "top5": 16,
+    "top10": 18,
+    "mrr": 0.622,
+    "mean_rank": 6.143,
+    "median_rank": 2
+   },
+   "f2_none_heading_in_text": {
+    "n": 21,
+    "top1": 10,
+    "top3": 14,
+    "top5": 16,
+    "top10": 17,
+    "mrr": 0.598,
+    "mean_rank": 6.476,
+    "median_rank": 2
+   },
+   "f3_title_body_heading_twice": {
+    "n": 21,
+    "top1": 7,
+    "top3": 16,
+    "top5": 18,
+    "top10": 18,
+    "mrr": 0.578,
+    "mean_rank": 6.095,
+    "median_rank": 2
+   },
+   "f4_raw": {
+    "n": 21,
+    "top1": 9,
+    "top3": 14,
+    "top5": 14,
+    "top10": 17,
+    "mrr": 0.568,
+    "mean_rank": 14.476,
+    "median_rank": 2
+   },
+   "f5_passage_body": {
+    "n": 21,
+    "top1": 9,
+    "top3": 15,
+    "top5": 17,
+    "top10": 18,
+    "mrr": 0.588,
+    "mean_rank": 5.714,
+    "median_rank": 2
+   },
+   "f6_none_no_heading": {
+    "n": 21,
+    "top1": 12,
+    "top3": 15,
+    "top5": 15,
+    "top10": 17,
+    "mrr": 0.655,
+    "mean_rank": 15.714,
+    "median_rank": 1
+   }
+  },
+  "union_fde": {
+   "f1_title_body": {
+    "n": 34,
+    "top1": 18,
+    "top3": 27,
+    "top5": 27,
+    "top10": 29,
+    "mrr": 0.669,
+    "mean_rank": 4.912,
+    "median_rank": 1
+   },
+   "f2_none_heading_in_text": {
+    "n": 34,
+    "top1": 18,
+    "top3": 25,
+    "top5": 28,
+    "top10": 30,
+    "mrr": 0.648,
+    "mean_rank": 4.853,
+    "median_rank": 1
+   },
+   "f3_title_body_heading_twice": {
+    "n": 34,
+    "top1": 13,
+    "top3": 26,
+    "top5": 28,
+    "top10": 30,
+    "mrr": 0.598,
+    "mean_rank": 5.029,
+    "median_rank": 2
+   },
+   "f4_raw": {
+    "n": 34,
+    "top1": 17,
+    "top3": 24,
+    "top5": 26,
+    "top10": 29,
+    "mrr": 0.632,
+    "mean_rank": 10.088,
+    "median_rank": 2
+   },
+   "f5_passage_body": {
+    "n": 34,
+    "top1": 16,
+    "top3": 26,
+    "top5": 28,
+    "top10": 31,
+    "mrr": 0.63,
+    "mean_rank": 4.529,
+    "median_rank": 2
+   },
+   "f6_none_no_heading": {
+    "n": 34,
+    "top1": 18,
+    "top3": 27,
+    "top5": 27,
+    "top10": 29,
+    "mrr": 0.662,
+    "mean_rank": 10.647,
+    "median_rank": 1
+   }
+  }
+ },
+ "stats_vs_today": {
+  "canonical_35_fde": {
+   "f2_none_heading_in_text": {
+    "mean_rank_improvement": -1.8,
+    "ci95": [
+     -5.6,
+     0.8
+    ],
+    "signflip_p": 0.625,
+    "top5_gained": [
+     [
+      "tech-fde-04",
+      12,
+      3
+     ]
+    ],
+    "top5_lost": [],
+    "moved_rows": [
+     [
+      "tech-fde-02",
+      2,
+      1
+     ],
+     [
+      "tech-fde-03",
+      2,
+      1
+     ],
+     [
+      "tech-fde-04",
+      12,
+      3
+     ],
+     [
+      "tech-fde-05",
+      1,
+      3
+     ]
+    ]
+   },
+   "f3_title_body_heading_twice": {
+    "mean_rank_improvement": -1.8,
+    "ci95": [
+     -6.0,
+     1.0
+    ],
+    "signflip_p": 0.75,
+    "top5_gained": [
+     [
+      "tech-fde-04",
+      12,
+      2
+     ]
+    ],
+    "top5_lost": [],
+    "moved_rows": [
+     [
+      "tech-fde-03",
+      2,
+      1
+     ],
+     [
+      "tech-fde-04",
+      12,
+      2
+     ],
+     [
+      "tech-fde-05",
+      1,
+      3
+     ]
+    ]
+   },
+   "f4_raw": {
+    "mean_rank_improvement": -2.0,
+    "ci95": [
+     -5.0,
+     -0.2
+    ],
+    "signflip_p": 0.25,
+    "top5_gained": [
+     [
+      "tech-fde-04",
+      12,
+      4
+     ]
+    ],
+    "top5_lost": [],
+    "moved_rows": [
+     [
+      "tech-fde-02",
+      2,
+      1
+     ],
+     [
+      "tech-fde-03",
+      2,
+      1
+     ],
+     [
+      "tech-fde-04",
+      12,
+      4
+     ]
+    ]
+   },
+   "f5_passage_body": {
+    "mean_rank_improvement": -0.6,
+    "ci95": [
+     -1.4,
+     0.0
+    ],
+    "signflip_p": 0.5,
+    "top5_gained": [],
+    "top5_lost": [],
+    "moved_rows": [
+     [
+      "tech-fde-02",
+      2,
+      1
+     ],
+     [
+      "tech-fde-04",
+      12,
+      10
+     ]
+    ]
+   },
+   "f6_none_no_heading": {
+    "mean_rank_improvement": -1.8,
+    "ci95": [
+     -5.4,
+     0.4
+    ],
+    "signflip_p": 0.75,
+    "top5_gained": [
+     [
+      "tech-fde-04",
+      12,
+      3
+     ]
+    ],
+    "top5_lost": [],
+    "moved_rows": [
+     [
+      "tech-fde-02",
+      2,
+      1
+     ],
+     [
+      "tech-fde-04",
+      12,
+      3
+     ],
+     [
+      "tech-fde-05",
+      1,
+      2
+     ]
+    ]
+   }
+  },
+  "legacy_fde_added": {
+   "f2_none_heading_in_text": {
+    "mean_rank_improvement": 0.0,
+    "ci95": [
+     -1.5,
+     1.5
+    ],
+    "signflip_p": 1.0,
+    "top5_gained": [],
+    "top5_lost": [],
+    "moved_rows": [
+     [
+      "fair-dev-04",
+      1,
+      5
+     ],
+     [
+      "fair-dev-05",
+      12,
+      8
+     ]
+    ]
+   },
+   "f3_title_body_heading_twice": {
+    "mean_rank_improvement": 1.75,
+    "ci95": [
+     0.0,
+     3.875
+    ],
+    "signflip_p": 0.25,
+    "top5_gained": [],
+    "top5_lost": [
+     [
+      "fair-dev-04",
+      1,
+      7
+     ],
+     [
+      "fair-dev-08",
+      1,
+      8
+     ]
+    ],
+    "moved_rows": [
+     [
+      "fair-dev-01",
+      1,
+      2
+     ],
+     [
+      "fair-dev-03",
+      2,
+      1
+     ],
+     [
+      "fair-dev-04",
+      1,
+      7
+     ],
+     [
+      "fair-dev-05",
+      12,
+      13
+     ],
+     [
+      "fair-dev-08",
+      1,
+      8
+     ]
+    ]
+   },
+   "f4_raw": {
+    "mean_rank_improvement": 1.375,
+    "ci95": [
+     0.125,
+     3.125
+    ],
+    "signflip_p": 0.25,
+    "top5_gained": [],
+    "top5_lost": [],
+    "moved_rows": [
+     [
+      "fair-dev-01",
+      1,
+      2
+     ],
+     [
+      "fair-dev-04",
+      1,
+      4
+     ],
+     [
+      "fair-dev-05",
+      12,
+      19
+     ]
+    ]
+   },
+   "f5_passage_body": {
+    "mean_rank_improvement": -0.125,
+    "ci95": [
+     -1.375,
+     0.875
+    ],
+    "signflip_p": 1.0,
+    "top5_gained": [],
+    "top5_lost": [],
+    "moved_rows": [
+     [
+      "fair-dev-02",
+      1,
+      2
+     ],
+     [
+      "fair-dev-04",
+      1,
+      3
+     ],
+     [
+      "fair-dev-05",
+      12,
+      8
+     ]
+    ]
+   },
+   "f6_none_no_heading": {
+    "mean_rank_improvement": 0.375,
+    "ci95": [
+     0.0,
+     0.875
+    ],
+    "signflip_p": 0.5,
+    "top5_gained": [],
+    "top5_lost": [],
+    "moved_rows": [
+     [
+      "fair-dev-02",
+      1,
+      2
+     ],
+     [
+      "fair-dev-04",
+      1,
+      3
+     ]
+    ]
+   }
+  },
+  "widenet_fde_21": {
+   "f2_none_heading_in_text": {
+    "mean_rank_improvement": 0.333,
+    "ci95": [
+     -1.286,
+     2.0
+    ],
+    "signflip_p": 0.7551,
+    "top5_gained": [
+     [
+      "fde-2-vague",
+      6,
+      1
+     ]
+    ],
+    "top5_lost": [
+     [
+      "fde-3-conversational",
+      3,
+      15
+     ]
+    ],
+    "moved_rows": [
+     [
+      "fde-10-vague",
+      9,
+      14
+     ],
+     [
+      "fde-2-vague",
+      6,
+      1
+     ],
+     [
+      "fde-6-vague",
+      3,
+      5
+     ],
+     [
+      "fde-8-conversational",
+      28,
+      30
+     ],
+     [
+      "fde-8-vague",
+      14,
+      8
+     ],
+     [
+      "fde-3-conversational",
+      3,
+      15
+     ],
+     [
+      "fde-7-literal",
+      1,
+      3
+     ],
+     [
+      "fde-7-conversational",
+      2,
+      5
+     ],
+     [
+      "fde-7-vague",
+      48,
+      40
+     ]
+    ]
+   },
+   "f3_title_body_heading_twice": {
+    "mean_rank_improvement": -0.048,
+    "ci95": [
+     -3.524,
+     4.524
+    ],
+    "signflip_p": 1.0,
+    "top5_gained": [
+     [
+      "fde-10-vague",
+      9,
+      2
+     ],
+     [
+      "fde-8-vague",
+      14,
+      4
+     ]
+    ],
+    "top5_lost": [],
+    "moved_rows": [
+     [
+      "fde-10-vague",
+      9,
+      2
+     ],
+     [
+      "fde-2-vague",
+      6,
+      43
+     ],
+     [
+      "fde-6-vague",
+      3,
+      1
+     ],
+     [
+      "fde-8-literal",
+      1,
+      2
+     ],
+     [
+      "fde-8-conversational",
+      28,
+      11
+     ],
+     [
+      "fde-8-vague",
+      14,
+      4
+     ],
+     [
+      "fde-3-conversational",
+      3,
+      4
+     ],
+     [
+      "fde-7-literal",
+      1,
+      2
+     ],
+     [
+      "fde-7-vague",
+      48,
+      41
+     ],
+     [
+      "fde-9-conversational",
+      1,
+      2
+     ],
+     [
+      "fde-9-vague",
+      1,
+      2
+     ]
+    ]
+   },
+   "f4_raw": {
+    "mean_rank_improvement": 8.333,
+    "ci95": [
+     0.048,
+     19.762
+    ],
+    "signflip_p": 0.1351,
+    "top5_gained": [
+     [
+      "fde-2-vague",
+      6,
+      1
+     ]
+    ],
+    "top5_lost": [
+     [
+      "fde-6-vague",
+      3,
+      9
+     ],
+     [
+      "fde-3-conversational",
+      3,
+      24
+     ],
+     [
+      "fde-7-conversational",
+      2,
+      8
+     ]
+    ],
+    "moved_rows": [
+     [
+      "fde-10-conversational",
+      2,
+      1
+     ],
+     [
+      "fde-2-vague",
+      6,
+      1
+     ],
+     [
+      "fde-6-vague",
+      3,
+      9
+     ],
+     [
+      "fde-8-literal",
+      1,
+      2
+     ],
+     [
+      "fde-8-conversational",
+      28,
+      98
+     ],
+     [
+      "fde-8-vague",
+      14,
+      100
+     ],
+     [
+      "fde-3-conversational",
+      3,
+      24
+     ],
+     [
+      "fde-7-literal",
+      1,
+      2
+     ],
+     [
+      "fde-7-conversational",
+      2,
+      8
+     ],
+     [
+      "fde-7-vague",
+      48,
+      37
+     ],
+     [
+      "fde-9-conversational",
+      1,
+      2
+     ]
+    ]
+   },
+   "f5_passage_body": {
+    "mean_rank_improvement": -0.429,
+    "ci95": [
+     -2.619,
+     1.524
+    ],
+    "signflip_p": 0.7388,
+    "top5_gained": [
+     [
+      "fde-10-vague",
+      9,
+      5
+     ],
+     [
+      "fde-2-vague",
+      6,
+      2
+     ],
+     [
+      "fde-8-vague",
+      14,
+      5
+     ]
+    ],
+    "top5_lost": [
+     [
+      "fde-6-vague",
+      3,
+      7
+     ],
+     [
+      "fde-3-conversational",
+      3,
+      12
+     ]
+    ],
+    "moved_rows": [
+     [
+      "fde-10-conversational",
+      2,
+      1
+     ],
+     [
+      "fde-10-vague",
+      9,
+      5
+     ],
+     [
+      "fde-2-vague",
+      6,
+      2
+     ],
+     [
+      "fde-6-conversational",
+      2,
+      1
+     ],
+     [
+      "fde-6-vague",
+      3,
+      7
+     ],
+     [
+      "fde-8-literal",
+      1,
+      2
+     ],
+     [
+      "fde-8-conversational",
+      28,
+      35
+     ],
+     [
+      "fde-8-vague",
+      14,
+      5
+     ],
+     [
+      "fde-3-conversational",
+      3,
+      12
+     ],
+     [
+      "fde-7-literal",
+      1,
+      3
+     ],
+     [
+      "fde-7-conversational",
+      2,
+      3
+     ],
+     [
+      "fde-7-vague",
+      48,
+      33
+     ],
+     [
+      "fde-9-conversational",
+      1,
+      2
+     ]
+    ]
+   },
+   "f6_none_no_heading": {
+    "mean_rank_improvement": 9.571,
+    "ci95": [
+     0.095,
+     27.0
+    ],
+    "signflip_p": 0.1208,
+    "top5_gained": [
+     [
+      "fde-2-vague",
+      6,
+      2
+     ]
+    ],
+    "top5_lost": [
+     [
+      "fde-6-vague",
+      3,
+      7
+     ],
+     [
+      "fde-3-conversational",
+      3,
+      12
+     ]
+    ],
+    "moved_rows": [
+     [
+      "fde-10-vague",
+      9,
+      7
+     ],
+     [
+      "fde-2-vague",
+      6,
+      2
+     ],
+     [
+      "fde-6-conversational",
+      2,
+      1
+     ],
+     [
+      "fde-6-vague",
+      3,
+      7
+     ],
+     [
+      "fde-8-conversational",
+      28,
+      44
+     ],
+     [
+      "fde-8-vague",
+      14,
+      188
+     ],
+     [
+      "fde-3-conversational",
+      3,
+      12
+     ],
+     [
+      "fde-7-literal",
+      1,
+      3
+     ],
+     [
+      "fde-7-conversational",
+      2,
+      1
+     ],
+     [
+      "fde-7-vague",
+      48,
+      53
+     ],
+     [
+      "fde-9-literal",
+      2,
+      1
+     ]
+    ]
+   }
+  },
+  "union_fde": {
+   "f2_none_heading_in_text": {
+    "mean_rank_improvement": -0.059,
+    "ci95": [
+     -1.265,
+     1.147
+    ],
+    "signflip_p": 0.9643,
+    "top5_gained": [
+     [
+      "tech-fde-04",
+      12,
+      3
+     ],
+     [
+      "fde-2-vague",
+      6,
+      1
+     ]
+    ],
+    "top5_lost": [
+     [
+      "fde-3-conversational",
+      3,
+      15
+     ]
+    ],
+    "moved_rows": [
+     [
+      "tech-fde-02",
+      2,
+      1
+     ],
+     [
+      "tech-fde-03",
+      2,
+      1
+     ],
+     [
+      "tech-fde-04",
+      12,
+      3
+     ],
+     [
+      "tech-fde-05",
+      1,
+      3
+     ],
+     [
+      "fair-dev-04",
+      1,
+      5
+     ],
+     [
+      "fair-dev-05",
+      12,
+      8
+     ],
+     [
+      "fde-10-vague",
+      9,
+      14
+     ],
+     [
+      "fde-2-vague",
+      6,
+      1
+     ],
+     [
+      "fde-6-vague",
+      3,
+      5
+     ],
+     [
+      "fde-8-conversational",
+      28,
+      30
+     ],
+     [
+      "fde-8-vague",
+      14,
+      8
+     ],
+     [
+      "fde-3-conversational",
+      3,
+      15
+     ],
+     [
+      "fde-7-literal",
+      1,
+      3
+     ],
+     [
+      "fde-7-conversational",
+      2,
+      5
+     ],
+     [
+      "fde-7-vague",
+      48,
+      40
+     ]
+    ]
+   },
+   "f3_title_body_heading_twice": {
+    "mean_rank_improvement": 0.118,
+    "ci95": [
+     -2.235,
+     3.029
+    ],
+    "signflip_p": 0.9605,
+    "top5_gained": [
+     [
+      "tech-fde-04",
+      12,
+      2
+     ],
+     [
+      "fde-10-vague",
+      9,
+      2
+     ],
+     [
+      "fde-8-vague",
+      14,
+      4
+     ]
+    ],
+    "top5_lost": [
+     [
+      "fair-dev-04",
+      1,
+      7
+     ],
+     [
+      "fair-dev-08",
+      1,
+      8
+     ]
+    ],
+    "moved_rows": [
+     [
+      "tech-fde-03",
+      2,
+      1
+     ],
+     [
+      "tech-fde-04",
+      12,
+      2
+     ],
+     [
+      "tech-fde-05",
+      1,
+      3
+     ],
+     [
+      "fair-dev-01",
+      1,
+      2
+     ],
+     [
+      "fair-dev-03",
+      2,
+      1
+     ],
+     [
+      "fair-dev-04",
+      1,
+      7
+     ],
+     [
+      "fair-dev-05",
+      12,
+      13
+     ],
+     [
+      "fair-dev-08",
+      1,
+      8
+     ],
+     [
+      "fde-10-vague",
+      9,
+      2
+     ],
+     [
+      "fde-2-vague",
+      6,
+      43
+     ],
+     [
+      "fde-6-vague",
+      3,
+      1
+     ],
+     [
+      "fde-8-literal",
+      1,
+      2
+     ],
+     [
+      "fde-8-conversational",
+      28,
+      11
+     ],
+     [
+      "fde-8-vague",
+      14,
+      4
+     ],
+     [
+      "fde-3-conversational",
+      3,
+      4
+     ],
+     [
+      "fde-7-literal",
+      1,
+      2
+     ],
+     [
+      "fde-7-vague",
+      48,
+      41
+     ],
+     [
+      "fde-9-conversational",
+      1,
+      2
+     ],
+     [
+      "fde-9-vague",
+      1,
+      2
+     ]
+    ]
+   },
+   "f4_raw": {
+    "mean_rank_improvement": 5.176,
+    "ci95": [
+     -0.088,
+     12.294
+    ],
+    "signflip_p": 0.1356,
+    "top5_gained": [
+     [
+      "tech-fde-04",
+      12,
+      4
+     ],
+     [
+      "fde-2-vague",
+      6,
+      1
+     ]
+    ],
+    "top5_lost": [
+     [
+      "fde-6-vague",
+      3,
+      9
+     ],
+     [
+      "fde-3-conversational",
+      3,
+      24
+     ],
+     [
+      "fde-7-conversational",
+      2,
+      8
+     ]
+    ],
+    "moved_rows": [
+     [
+      "tech-fde-02",
+      2,
+      1
+     ],
+     [
+      "tech-fde-03",
+      2,
+      1
+     ],
+     [
+      "tech-fde-04",
+      12,
+      4
+     ],
+     [
+      "fair-dev-01",
+      1,
+      2
+     ],
+     [
+      "fair-dev-04",
+      1,
+      4
+     ],
+     [
+      "fair-dev-05",
+      12,
+      19
+     ],
+     [
+      "fde-10-conversational",
+      2,
+      1
+     ],
+     [
+      "fde-2-vague",
+      6,
+      1
+     ],
+     [
+      "fde-6-vague",
+      3,
+      9
+     ],
+     [
+      "fde-8-literal",
+      1,
+      2
+     ],
+     [
+      "fde-8-conversational",
+      28,
+      98
+     ],
+     [
+      "fde-8-vague",
+      14,
+      100
+     ],
+     [
+      "fde-3-conversational",
+      3,
+      24
+     ],
+     [
+      "fde-7-literal",
+      1,
+      2
+     ],
+     [
+      "fde-7-conversational",
+      2,
+      8
+     ],
+     [
+      "fde-7-vague",
+      48,
+      37
+     ],
+     [
+      "fde-9-conversational",
+      1,
+      2
+     ]
+    ]
+   },
+   "f5_passage_body": {
+    "mean_rank_improvement": -0.382,
+    "ci95": [
+     -1.765,
+     0.853
+    ],
+    "signflip_p": 0.6256,
+    "top5_gained": [
+     [
+      "fde-10-vague",
+      9,
+      5
+     ],
+     [
+      "fde-2-vague",
+      6,
+      2
+     ],
+     [
+      "fde-8-vague",
+      14,
+      5
+     ]
+    ],
+    "top5_lost": [
+     [
+      "fde-6-vague",
+      3,
+      7
+     ],
+     [
+      "fde-3-conversational",
+      3,
+      12
+     ]
+    ],
+    "moved_rows": [
+     [
+      "tech-fde-02",
+      2,
+      1
+     ],
+     [
+      "tech-fde-04",
+      12,
+      10
+     ],
+     [
+      "fair-dev-02",
+      1,
+      2
+     ],
+     [
+      "fair-dev-04",
+      1,
+      3
+     ],
+     [
+      "fair-dev-05",
+      12,
+      8
+     ],
+     [
+      "fde-10-conversational",
+      2,
+      1
+     ],
+     [
+      "fde-10-vague",
+      9,
+      5
+     ],
+     [
+      "fde-2-vague",
+      6,
+      2
+     ],
+     [
+      "fde-6-conversational",
+      2,
+      1
+     ],
+     [
+      "fde-6-vague",
+      3,
+      7
+     ],
+     [
+      "fde-8-literal",
+      1,
+      2
+     ],
+     [
+      "fde-8-conversational",
+      28,
+      35
+     ],
+     [
+      "fde-8-vague",
+      14,
+      5
+     ],
+     [
+      "fde-3-conversational",
+      3,
+      12
+     ],
+     [
+      "fde-7-literal",
+      1,
+      3
+     ],
+     [
+      "fde-7-conversational",
+      2,
+      3
+     ],
+     [
+      "fde-7-vague",
+      48,
+      33
+     ],
+     [
+      "fde-9-conversational",
+      1,
+      2
+     ]
+    ]
+   },
+   "f6_none_no_heading": {
+    "mean_rank_improvement": 5.735,
+    "ci95": [
+     -0.294,
+     16.618
+    ],
+    "signflip_p": 0.2001,
+    "top5_gained": [
+     [
+      "tech-fde-04",
+      12,
+      3
+     ],
+     [
+      "fde-2-vague",
+      6,
+      2
+     ]
+    ],
+    "top5_lost": [
+     [
+      "fde-6-vague",
+      3,
+      7
+     ],
+     [
+      "fde-3-conversational",
+      3,
+      12
+     ]
+    ],
+    "moved_rows": [
+     [
+      "tech-fde-02",
+      2,
+      1
+     ],
+     [
+      "tech-fde-04",
+      12,
+      3
+     ],
+     [
+      "tech-fde-05",
+      1,
+      2
+     ],
+     [
+      "fair-dev-02",
+      1,
+      2
+     ],
+     [
+      "fair-dev-04",
+      1,
+      3
+     ],
+     [
+      "fde-10-vague",
+      9,
+      7
+     ],
+     [
+      "fde-2-vague",
+      6,
+      2
+     ],
+     [
+      "fde-6-conversational",
+      2,
+      1
+     ],
+     [
+      "fde-6-vague",
+      3,
+      7
+     ],
+     [
+      "fde-8-conversational",
+      28,
+      44
+     ],
+     [
+      "fde-8-vague",
+      14,
+      188
+     ],
+     [
+      "fde-3-conversational",
+      3,
+      12
+     ],
+     [
+      "fde-7-literal",
+      1,
+      3
+     ],
+     [
+      "fde-7-conversational",
+      2,
+      1
+     ],
+     [
+      "fde-7-vague",
+      48,
+      53
+     ],
+     [
+      "fde-9-literal",
+      2,
+      1
+     ]
+    ]
+   }
+  }
+ },
+ "per_row_ranks": {
+  "canonical_35_fde": {
+   "f1_title_body": {
+    "tech-fde-01": 1,
+    "tech-fde-02": 2,
+    "tech-fde-03": 2,
+    "tech-fde-04": 12,
+    "tech-fde-05": 1
+   },
+   "f2_none_heading_in_text": {
+    "tech-fde-01": 1,
+    "tech-fde-02": 1,
+    "tech-fde-03": 1,
+    "tech-fde-04": 3,
+    "tech-fde-05": 3
+   },
+   "f3_title_body_heading_twice": {
+    "tech-fde-01": 1,
+    "tech-fde-02": 2,
+    "tech-fde-03": 1,
+    "tech-fde-04": 2,
+    "tech-fde-05": 3
+   },
+   "f4_raw": {
+    "tech-fde-01": 1,
+    "tech-fde-02": 1,
+    "tech-fde-03": 1,
+    "tech-fde-04": 4,
+    "tech-fde-05": 1
+   },
+   "f5_passage_body": {
+    "tech-fde-01": 1,
+    "tech-fde-02": 1,
+    "tech-fde-03": 2,
+    "tech-fde-04": 10,
+    "tech-fde-05": 1
+   },
+   "f6_none_no_heading": {
+    "tech-fde-01": 1,
+    "tech-fde-02": 1,
+    "tech-fde-03": 2,
+    "tech-fde-04": 3,
+    "tech-fde-05": 2
+   }
+  },
+  "legacy_fde_added": {
+   "f1_title_body": {
+    "fair-dev-01": 1,
+    "fair-dev-02": 1,
+    "fair-dev-03": 2,
+    "fair-dev-04": 1,
+    "fair-dev-05": 12,
+    "fair-dev-06": 1,
+    "fair-dev-08": 1,
+    "fair-dev-09": 1
+   },
+   "f2_none_heading_in_text": {
+    "fair-dev-01": 1,
+    "fair-dev-02": 1,
+    "fair-dev-03": 2,
+    "fair-dev-04": 5,
+    "fair-dev-05": 8,
+    "fair-dev-06": 1,
+    "fair-dev-08": 1,
+    "fair-dev-09": 1
+   },
+   "f3_title_body_heading_twice": {
+    "fair-dev-01": 2,
+    "fair-dev-02": 1,
+    "fair-dev-03": 1,
+    "fair-dev-04": 7,
+    "fair-dev-05": 13,
+    "fair-dev-06": 1,
+    "fair-dev-08": 8,
+    "fair-dev-09": 1
+   },
+   "f4_raw": {
+    "fair-dev-01": 2,
+    "fair-dev-02": 1,
+    "fair-dev-03": 2,
+    "fair-dev-04": 4,
+    "fair-dev-05": 19,
+    "fair-dev-06": 1,
+    "fair-dev-08": 1,
+    "fair-dev-09": 1
+   },
+   "f5_passage_body": {
+    "fair-dev-01": 1,
+    "fair-dev-02": 2,
+    "fair-dev-03": 2,
+    "fair-dev-04": 3,
+    "fair-dev-05": 8,
+    "fair-dev-06": 1,
+    "fair-dev-08": 1,
+    "fair-dev-09": 1
+   },
+   "f6_none_no_heading": {
+    "fair-dev-01": 1,
+    "fair-dev-02": 2,
+    "fair-dev-03": 2,
+    "fair-dev-04": 3,
+    "fair-dev-05": 12,
+    "fair-dev-06": 1,
+    "fair-dev-08": 1,
+    "fair-dev-09": 1
+   }
+  },
+  "widenet_fde_21": {
+   "f1_title_body": {
+    "fde-10-literal": 1,
+    "fde-10-conversational": 2,
+    "fde-10-vague": 9,
+    "fde-2-literal": 1,
+    "fde-2-conversational": 1,
+    "fde-2-vague": 6,
+    "fde-6-literal": 1,
+    "fde-6-conversational": 2,
+    "fde-6-vague": 3,
+    "fde-8-literal": 1,
+    "fde-8-conversational": 28,
+    "fde-8-vague": 14,
+    "fde-3-literal": 1,
+    "fde-3-conversational": 3,
+    "fde-3-vague": 1,
+    "fde-7-literal": 1,
+    "fde-7-conversational": 2,
+    "fde-7-vague": 48,
+    "fde-9-literal": 2,
+    "fde-9-conversational": 1,
+    "fde-9-vague": 1
+   },
+   "f2_none_heading_in_text": {
+    "fde-10-literal": 1,
+    "fde-10-conversational": 2,
+    "fde-10-vague": 14,
+    "fde-2-literal": 1,
+    "fde-2-conversational": 1,
+    "fde-2-vague": 1,
+    "fde-6-literal": 1,
+    "fde-6-conversational": 2,
+    "fde-6-vague": 5,
+    "fde-8-literal": 1,
+    "fde-8-conversational": 30,
+    "fde-8-vague": 8,
+    "fde-3-literal": 1,
+    "fde-3-conversational": 15,
+    "fde-3-vague": 1,
+    "fde-7-literal": 3,
+    "fde-7-conversational": 5,
+    "fde-7-vague": 40,
+    "fde-9-literal": 2,
+    "fde-9-conversational": 1,
+    "fde-9-vague": 1
+   },
+   "f3_title_body_heading_twice": {
+    "fde-10-literal": 1,
+    "fde-10-conversational": 2,
+    "fde-10-vague": 2,
+    "fde-2-literal": 1,
+    "fde-2-conversational": 1,
+    "fde-2-vague": 43,
+    "fde-6-literal": 1,
+    "fde-6-conversational": 2,
+    "fde-6-vague": 1,
+    "fde-8-literal": 2,
+    "fde-8-conversational": 11,
+    "fde-8-vague": 4,
+    "fde-3-literal": 1,
+    "fde-3-conversational": 4,
+    "fde-3-vague": 1,
+    "fde-7-literal": 2,
+    "fde-7-conversational": 2,
+    "fde-7-vague": 41,
+    "fde-9-literal": 2,
+    "fde-9-conversational": 2,
+    "fde-9-vague": 2
+   },
+   "f4_raw": {
+    "fde-10-literal": 1,
+    "fde-10-conversational": 1,
+    "fde-10-vague": 9,
+    "fde-2-literal": 1,
+    "fde-2-conversational": 1,
+    "fde-2-vague": 1,
+    "fde-6-literal": 1,
+    "fde-6-conversational": 2,
+    "fde-6-vague": 9,
+    "fde-8-literal": 2,
+    "fde-8-conversational": 98,
+    "fde-8-vague": 100,
+    "fde-3-literal": 1,
+    "fde-3-conversational": 24,
+    "fde-3-vague": 1,
+    "fde-7-literal": 2,
+    "fde-7-conversational": 8,
+    "fde-7-vague": 37,
+    "fde-9-literal": 2,
+    "fde-9-conversational": 2,
+    "fde-9-vague": 1
+   },
+   "f5_passage_body": {
+    "fde-10-literal": 1,
+    "fde-10-conversational": 1,
+    "fde-10-vague": 5,
+    "fde-2-literal": 1,
+    "fde-2-conversational": 1,
+    "fde-2-vague": 2,
+    "fde-6-literal": 1,
+    "fde-6-conversational": 1,
+    "fde-6-vague": 7,
+    "fde-8-literal": 2,
+    "fde-8-conversational": 35,
+    "fde-8-vague": 5,
+    "fde-3-literal": 1,
+    "fde-3-conversational": 12,
+    "fde-3-vague": 1,
+    "fde-7-literal": 3,
+    "fde-7-conversational": 3,
+    "fde-7-vague": 33,
+    "fde-9-literal": 2,
+    "fde-9-conversational": 2,
+    "fde-9-vague": 1
+   },
+   "f6_none_no_heading": {
+    "fde-10-literal": 1,
+    "fde-10-conversational": 2,
+    "fde-10-vague": 7,
+    "fde-2-literal": 1,
+    "fde-2-conversational": 1,
+    "fde-2-vague": 2,
+    "fde-6-literal": 1,
+    "fde-6-conversational": 1,
+    "fde-6-vague": 7,
+    "fde-8-literal": 1,
+    "fde-8-conversational": 44,
+    "fde-8-vague": 188,
+    "fde-3-literal": 1,
+    "fde-3-conversational": 12,
+    "fde-3-vague": 1,
+    "fde-7-literal": 3,
+    "fde-7-conversational": 1,
+    "fde-7-vague": 53,
+    "fde-9-literal": 1,
+    "fde-9-conversational": 1,
+    "fde-9-vague": 1
+   }
+  },
+  "union_fde": {
+   "f1_title_body": {
+    "tech-fde-01": 1,
+    "tech-fde-02": 2,
+    "tech-fde-03": 2,
+    "tech-fde-04": 12,
+    "tech-fde-05": 1,
+    "fair-dev-01": 1,
+    "fair-dev-02": 1,
+    "fair-dev-03": 2,
+    "fair-dev-04": 1,
+    "fair-dev-05": 12,
+    "fair-dev-06": 1,
+    "fair-dev-08": 1,
+    "fair-dev-09": 1,
+    "fde-10-literal": 1,
+    "fde-10-conversational": 2,
+    "fde-10-vague": 9,
+    "fde-2-literal": 1,
+    "fde-2-conversational": 1,
+    "fde-2-vague": 6,
+    "fde-6-literal": 1,
+    "fde-6-conversational": 2,
+    "fde-6-vague": 3,
+    "fde-8-literal": 1,
+    "fde-8-conversational": 28,
+    "fde-8-vague": 14,
+    "fde-3-literal": 1,
+    "fde-3-conversational": 3,
+    "fde-3-vague": 1,
+    "fde-7-literal": 1,
+    "fde-7-conversational": 2,
+    "fde-7-vague": 48,
+    "fde-9-literal": 2,
+    "fde-9-conversational": 1,
+    "fde-9-vague": 1
+   },
+   "f2_none_heading_in_text": {
+    "tech-fde-01": 1,
+    "tech-fde-02": 1,
+    "tech-fde-03": 1,
+    "tech-fde-04": 3,
+    "tech-fde-05": 3,
+    "fair-dev-01": 1,
+    "fair-dev-02": 1,
+    "fair-dev-03": 2,
+    "fair-dev-04": 5,
+    "fair-dev-05": 8,
+    "fair-dev-06": 1,
+    "fair-dev-08": 1,
+    "fair-dev-09": 1,
+    "fde-10-literal": 1,
+    "fde-10-conversational": 2,
+    "fde-10-vague": 14,
+    "fde-2-literal": 1,
+    "fde-2-conversational": 1,
+    "fde-2-vague": 1,
+    "fde-6-literal": 1,
+    "fde-6-conversational": 2,
+    "fde-6-vague": 5,
+    "fde-8-literal": 1,
+    "fde-8-conversational": 30,
+    "fde-8-vague": 8,
+    "fde-3-literal": 1,
+    "fde-3-conversational": 15,
+    "fde-3-vague": 1,
+    "fde-7-literal": 3,
+    "fde-7-conversational": 5,
+    "fde-7-vague": 40,
+    "fde-9-literal": 2,
+    "fde-9-conversational": 1,
+    "fde-9-vague": 1
+   },
+   "f3_title_body_heading_twice": {
+    "tech-fde-01": 1,
+    "tech-fde-02": 2,
+    "tech-fde-03": 1,
+    "tech-fde-04": 2,
+    "tech-fde-05": 3,
+    "fair-dev-01": 2,
+    "fair-dev-02": 1,
+    "fair-dev-03": 1,
+    "fair-dev-04": 7,
+    "fair-dev-05": 13,
+    "fair-dev-06": 1,
+    "fair-dev-08": 8,
+    "fair-dev-09": 1,
+    "fde-10-literal": 1,
+    "fde-10-conversational": 2,
+    "fde-10-vague": 2,
+    "fde-2-literal": 1,
+    "fde-2-conversational": 1,
+    "fde-2-vague": 43,
+    "fde-6-literal": 1,
+    "fde-6-conversational": 2,
+    "fde-6-vague": 1,
+    "fde-8-literal": 2,
+    "fde-8-conversational": 11,
+    "fde-8-vague": 4,
+    "fde-3-literal": 1,
+    "fde-3-conversational": 4,
+    "fde-3-vague": 1,
+    "fde-7-literal": 2,
+    "fde-7-conversational": 2,
+    "fde-7-vague": 41,
+    "fde-9-literal": 2,
+    "fde-9-conversational": 2,
+    "fde-9-vague": 2
+   },
+   "f4_raw": {
+    "tech-fde-01": 1,
+    "tech-fde-02": 1,
+    "tech-fde-03": 1,
+    "tech-fde-04": 4,
+    "tech-fde-05": 1,
+    "fair-dev-01": 2,
+    "fair-dev-02": 1,
+    "fair-dev-03": 2,
+    "fair-dev-04": 4,
+    "fair-dev-05": 19,
+    "fair-dev-06": 1,
+    "fair-dev-08": 1,
+    "fair-dev-09": 1,
+    "fde-10-literal": 1,
+    "fde-10-conversational": 1,
+    "fde-10-vague": 9,
+    "fde-2-literal": 1,
+    "fde-2-conversational": 1,
+    "fde-2-vague": 1,
+    "fde-6-literal": 1,
+    "fde-6-conversational": 2,
+    "fde-6-vague": 9,
+    "fde-8-literal": 2,
+    "fde-8-conversational": 98,
+    "fde-8-vague": 100,
+    "fde-3-literal": 1,
+    "fde-3-conversational": 24,
+    "fde-3-vague": 1,
+    "fde-7-literal": 2,
+    "fde-7-conversational": 8,
+    "fde-7-vague": 37,
+    "fde-9-literal": 2,
+    "fde-9-conversational": 2,
+    "fde-9-vague": 1
+   },
+   "f5_passage_body": {
+    "tech-fde-01": 1,
+    "tech-fde-02": 1,
+    "tech-fde-03": 2,
+    "tech-fde-04": 10,
+    "tech-fde-05": 1,
+    "fair-dev-01": 1,
+    "fair-dev-02": 2,
+    "fair-dev-03": 2,
+    "fair-dev-04": 3,
+    "fair-dev-05": 8,
+    "fair-dev-06": 1,
+    "fair-dev-08": 1,
+    "fair-dev-09": 1,
+    "fde-10-literal": 1,
+    "fde-10-conversational": 1,
+    "fde-10-vague": 5,
+    "fde-2-literal": 1,
+    "fde-2-conversational": 1,
+    "fde-2-vague": 2,
+    "fde-6-literal": 1,
+    "fde-6-conversational": 1,
+    "fde-6-vague": 7,
+    "fde-8-literal": 2,
+    "fde-8-conversational": 35,
+    "fde-8-vague": 5,
+    "fde-3-literal": 1,
+    "fde-3-conversational": 12,
+    "fde-3-vague": 1,
+    "fde-7-literal": 3,
+    "fde-7-conversational": 3,
+    "fde-7-vague": 33,
+    "fde-9-literal": 2,
+    "fde-9-conversational": 2,
+    "fde-9-vague": 1
+   },
+   "f6_none_no_heading": {
+    "tech-fde-01": 1,
+    "tech-fde-02": 1,
+    "tech-fde-03": 2,
+    "tech-fde-04": 3,
+    "tech-fde-05": 2,
+    "fair-dev-01": 1,
+    "fair-dev-02": 2,
+    "fair-dev-03": 2,
+    "fair-dev-04": 3,
+    "fair-dev-05": 12,
+    "fair-dev-06": 1,
+    "fair-dev-08": 1,
+    "fair-dev-09": 1,
+    "fde-10-literal": 1,
+    "fde-10-conversational": 2,
+    "fde-10-vague": 7,
+    "fde-2-literal": 1,
+    "fde-2-conversational": 1,
+    "fde-2-vague": 2,
+    "fde-6-literal": 1,
+    "fde-6-conversational": 1,
+    "fde-6-vague": 7,
+    "fde-8-literal": 1,
+    "fde-8-conversational": 44,
+    "fde-8-vague": 188,
+    "fde-3-literal": 1,
+    "fde-3-conversational": 12,
+    "fde-3-vague": 1,
+    "fde-7-literal": 3,
+    "fde-7-conversational": 1,
+    "fde-7-vague": 53,
+    "fde-9-literal": 1,
+    "fde-9-conversational": 1,
+    "fde-9-vague": 1
+   }
+  }
+ },
+ "scope_rows": {
+  "canonical_35_fde": [
+   "tech-fde-01",
+   "tech-fde-02",
+   "tech-fde-03",
+   "tech-fde-04",
+   "tech-fde-05"
+  ],
+  "legacy_fde_added": [
+   "fair-dev-01",
+   "fair-dev-02",
+   "fair-dev-03",
+   "fair-dev-04",
+   "fair-dev-05",
+   "fair-dev-06",
+   "fair-dev-08",
+   "fair-dev-09"
+  ],
+  "widenet_fde_21": [
+   "fde-10-literal",
+   "fde-10-conversational",
+   "fde-10-vague",
+   "fde-2-literal",
+   "fde-2-conversational",
+   "fde-2-vague",
+   "fde-6-literal",
+   "fde-6-conversational",
+   "fde-6-vague",
+   "fde-8-literal",
+   "fde-8-conversational",
+   "fde-8-vague",
+   "fde-3-literal",
+   "fde-3-conversational",
+   "fde-3-vague",
+   "fde-7-literal",
+   "fde-7-conversational",
+   "fde-7-vague",
+   "fde-9-literal",
+   "fde-9-conversational",
+   "fde-9-vague"
+  ],
+  "union_fde": [
+   "tech-fde-01",
+   "tech-fde-02",
+   "tech-fde-03",
+   "tech-fde-04",
+   "tech-fde-05",
+   "fair-dev-01",
+   "fair-dev-02",
+   "fair-dev-03",
+   "fair-dev-04",
+   "fair-dev-05",
+   "fair-dev-06",
+   "fair-dev-08",
+   "fair-dev-09",
+   "fde-10-literal",
+   "fde-10-conversational",
+   "fde-10-vague",
+   "fde-2-literal",
+   "fde-2-conversational",
+   "fde-2-vague",
+   "fde-6-literal",
+   "fde-6-conversational",
+   "fde-6-vague",
+   "fde-8-literal",
+   "fde-8-conversational",
+   "fde-8-vague",
+   "fde-3-literal",
+   "fde-3-conversational",
+   "fde-3-vague",
+   "fde-7-literal",
+   "fde-7-conversational",
+   "fde-7-vague",
+   "fde-9-literal",
+   "fde-9-conversational",
+   "fde-9-vague"
+  ]
+ },
+ "top5_overlap_vs_today": {
+  "f2_none_heading_in_text": {
+   "mean_jaccard": 0.512,
+   "identical": 5
+  },
+  "f3_title_body_heading_twice": {
+   "mean_jaccard": 0.55,
+   "identical": 2
+  },
+  "f4_raw": {
+   "mean_jaccard": 0.456,
+   "identical": 4
+  },
+  "f5_passage_body": {
+   "mean_jaccard": 0.572,
+   "identical": 5
+  },
+  "f6_none_no_heading": {
+   "mean_jaccard": 0.451,
+   "identical": 1
+  },
+  "n": 34
+ },
+ "gold_heading_family_in_top5": {
+  "f1_title_body": 29,
+  "f2_none_heading_in_text": 29,
+  "f3_title_body_heading_twice": 28,
+  "f4_raw": 27,
+  "f5_passage_body": 30,
+  "f6_none_no_heading": 28,
+  "n": 34
+ },
+ "heading_duplication": {
+  "chunks_sharing_heading_with_another": 743,
+  "total": 1042,
+  "top": "Additional Resources 25, Conclusion 16, DataOps 15, Data Management 11"
+ },
+ "verdict": "nothing beats the current document format on any metric beyond noise; keep f1",
+ "cross_experiment": {
+  "shared_fact": "gemma's ranking is a pool of near-ties; levers that re-draw the pool (granularity, dimensions) move top-1 by a couple of rows with CIs spanning zero, levers that relabel the pool (document format) move nothing",
+  "granularity_peer": {
+   "halves_top1": 21,
+   "halves_top5": 30,
+   "whole_top1": 19,
+   "whole_top5": 30,
+   "n": 35,
+   "delta_top1_ci": [
+    -3,
+    8
+   ],
+   "sentences_top5_delta_ci": [
+    -9,
+    0
+   ],
+   "same_row_moved": "tech-fde-04 12->2 (halves) vs 12->2..4 (formats 2-4 here)"
+  },
+  "dims_peer": {
+   "trunc_256_top5_pool_unchanged": "33/35 rows",
+   "mean_rank": [
+    3.0,
+    2.4
+   ]
+  }
+ }
+}

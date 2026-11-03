@@ -1,0 +1,2295 @@
+{
+ "experiment": "Dims: truncation / renormalisation / centring of stored gemma vectors",
+ "embedder": "embeddinggemma-2:270m-bf16-text",
+ "dataset": "artifacts/datasets/retrieval/retrieval-recall-2026-11-02.jsonl",
+ "rows": 35,
+ "query_prefix": "task: search result | query: ",
+ "query_embed_seconds": 1.5,
+ "total_seconds": 1.7,
+ "configs": {
+  "base": {
+   "top1": 19,
+   "top5": 30,
+   "mean_gold_rank": 3.0,
+   "mean_gold_rank_found_only": 3.0,
+   "missing": 0,
+   "per_row": [
+    {
+     "id": "tech-fde-01",
+     "book": "index",
+     "rank": 1,
+     "n": 1042,
+     "top_score": 0.7887743075796494,
+     "top1_id": "ch08-039"
+    },
+    {
+     "id": "tech-fde-02",
+     "book": "index",
+     "rank": 2,
+     "n": 1042,
+     "top_score": 0.873642455798837,
+     "top1_id": "ch01-006"
+    },
+    {
+     "id": "tech-fde-03",
+     "book": "index",
+     "rank": 2,
+     "n": 1042,
+     "top_score": 0.7571753781422863,
+     "top1_id": "ch08-032"
+    },
+    {
+     "id": "tech-fde-04",
+     "book": "index",
+     "rank": 12,
+     "n": 1042,
+     "top_score": 0.7594014844752264,
+     "top1_id": "ch07-014"
+    },
+    {
+     "id": "tech-fde-05",
+     "book": "index",
+     "rank": 1,
+     "n": 1042,
+     "top_score": 0.8799396676831968,
+     "top1_id": "ch02-018"
+    },
+    {
+     "id": "tech-quant-01",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.7770950606293754,
+     "top1_id": "chapter-2-035"
+    },
+    {
+     "id": "tech-quant-02",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.8462070374483834,
+     "top1_id": "chapter-3-044"
+    },
+    {
+     "id": "tech-quant-03",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.8230424926951393,
+     "top1_id": "chapter-4-024"
+    },
+    {
+     "id": "tech-quant-04",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.728029430165374,
+     "top1_id": "chapter-5-021"
+    },
+    {
+     "id": "tech-quant-05",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.873728147628461,
+     "top1_id": "chapter-3-030"
+    },
+    {
+     "id": "tech-ddia-01",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.7573194118467607,
+     "top1_id": "text00011-067"
+    },
+    {
+     "id": "tech-ddia-02",
+     "book": "index.ddia",
+     "rank": 9,
+     "n": 1306,
+     "top_score": 0.8036542667789598,
+     "top1_id": "text00015-017"
+    },
+    {
+     "id": "tech-ddia-03",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.8304843524333494,
+     "top1_id": "text00008-017"
+    },
+    {
+     "id": "tech-ddia-04",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.8231444167475308,
+     "top1_id": "text00014-053"
+    },
+    {
+     "id": "tech-ddia-05",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.9074765136229345,
+     "top1_id": "text00008-028"
+    },
+    {
+     "id": "tech-aieng-01",
+     "book": "index.ai-engineering",
+     "rank": 1,
+     "n": 1030,
+     "top_score": 0.8098516235888044,
+     "top1_id": "ch01-022"
+    },
+    {
+     "id": "tech-aieng-02",
+     "book": "index.ai-engineering",
+     "rank": 2,
+     "n": 1030,
+     "top_score": 0.7518691521531524,
+     "top1_id": "ch02-068"
+    },
+    {
+     "id": "tech-aieng-03",
+     "book": "index.ai-engineering",
+     "rank": 1,
+     "n": 1030,
+     "top_score": 0.7881513850225239,
+     "top1_id": "ch02-044"
+    },
+    {
+     "id": "tech-aieng-04",
+     "book": "index.ai-engineering",
+     "rank": 1,
+     "n": 1030,
+     "top_score": 0.8244740417347673,
+     "top1_id": "ch09-046"
+    },
+    {
+     "id": "tech-aieng-05",
+     "book": "index.ai-engineering",
+     "rank": 2,
+     "n": 1030,
+     "top_score": 0.902229727352929,
+     "top1_id": "ch01-075"
+    },
+    {
+     "id": "tech-aiagents-01",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.8311576738843371,
+     "top1_id": "ch01-012"
+    },
+    {
+     "id": "tech-aiagents-02",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.8424767088991673,
+     "top1_id": "ch03-013"
+    },
+    {
+     "id": "tech-aiagents-03",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.8293080216848803,
+     "top1_id": "ch05-026"
+    },
+    {
+     "id": "tech-aiagents-04",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.7292868534094006,
+     "top1_id": "ch04-046"
+    },
+    {
+     "id": "tech-aiagents-05",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.824321937961902,
+     "top1_id": "ch07-013"
+    },
+    {
+     "id": "fic-ent-atofe",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 2,
+     "n": 274,
+     "top_score": 0.7411810166621379,
+     "top1_id": "section-0010-020"
+    },
+    {
+     "id": "fic-ent-sandor",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 4,
+     "n": 274,
+     "top_score": 0.7617366070635341,
+     "top1_id": "section-0009-003"
+    },
+    {
+     "id": "fic-ent-eris",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 10,
+     "n": 274,
+     "top_score": 0.7471083011781845,
+     "top1_id": "section-0007-008"
+    },
+    {
+     "id": "fic-ent-ruijerd",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 3,
+     "n": 274,
+     "top_score": 0.7354083698459978,
+     "top1_id": "section-0012-017"
+    },
+    {
+     "id": "fic-ent-rudeus",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 4,
+     "n": 274,
+     "top_score": 0.7564030224668653,
+     "top1_id": "section-0012-019"
+    },
+    {
+     "id": "fic-ent-dohga",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 2,
+     "n": 274,
+     "top_score": 0.6956847641500155,
+     "top1_id": "section-0006-007"
+    },
+    {
+     "id": "fic-scene-white-place",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 7,
+     "n": 274,
+     "top_score": 0.8023381231835396,
+     "top1_id": "section-0005-008"
+    },
+    {
+     "id": "fic-scene-gall-fire",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 2,
+     "n": 274,
+     "top_score": 0.8279419798459355,
+     "top1_id": "section-0008-017"
+    },
+    {
+     "id": "fic-scene-alec-dead",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 21,
+     "n": 274,
+     "top_score": 0.7956591616505027,
+     "top1_id": "section-0011-001"
+    },
+    {
+     "id": "fic-scene-badigadi",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 2,
+     "n": 274,
+     "top_score": 0.7892984178268181,
+     "top1_id": "section-0013-026"
+    }
+   ],
+   "seconds": 0.04
+  },
+  "t512": {
+   "top1": 20,
+   "top5": 29,
+   "mean_gold_rank": 2.74,
+   "mean_gold_rank_found_only": 2.74,
+   "missing": 0,
+   "per_row": [
+    {
+     "id": "tech-fde-01",
+     "book": "index",
+     "rank": 1,
+     "n": 1042,
+     "top_score": 0.7992862720776585,
+     "top1_id": "ch08-039"
+    },
+    {
+     "id": "tech-fde-02",
+     "book": "index",
+     "rank": 2,
+     "n": 1042,
+     "top_score": 0.8762150277734959,
+     "top1_id": "ch01-006"
+    },
+    {
+     "id": "tech-fde-03",
+     "book": "index",
+     "rank": 2,
+     "n": 1042,
+     "top_score": 0.7685615613377981,
+     "top1_id": "ch08-032"
+    },
+    {
+     "id": "tech-fde-04",
+     "book": "index",
+     "rank": 13,
+     "n": 1042,
+     "top_score": 0.7567223229236666,
+     "top1_id": "ch07-014"
+    },
+    {
+     "id": "tech-fde-05",
+     "book": "index",
+     "rank": 1,
+     "n": 1042,
+     "top_score": 0.8826194464427695,
+     "top1_id": "ch02-018"
+    },
+    {
+     "id": "tech-quant-01",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.7860201768942471,
+     "top1_id": "chapter-2-035"
+    },
+    {
+     "id": "tech-quant-02",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.8482867093226283,
+     "top1_id": "chapter-3-044"
+    },
+    {
+     "id": "tech-quant-03",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.823029729649581,
+     "top1_id": "chapter-4-024"
+    },
+    {
+     "id": "tech-quant-04",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.7295934693638276,
+     "top1_id": "chapter-5-021"
+    },
+    {
+     "id": "tech-quant-05",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.881342619878744,
+     "top1_id": "chapter-3-030"
+    },
+    {
+     "id": "tech-ddia-01",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.7560219120357237,
+     "top1_id": "text00011-067"
+    },
+    {
+     "id": "tech-ddia-02",
+     "book": "index.ddia",
+     "rank": 7,
+     "n": 1306,
+     "top_score": 0.8064511559628993,
+     "top1_id": "text00015-017"
+    },
+    {
+     "id": "tech-ddia-03",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.8341888371922849,
+     "top1_id": "text00008-017"
+    },
+    {
+     "id": "tech-ddia-04",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.8279456022265095,
+     "top1_id": "text00014-053"
+    },
+    {
+     "id": "tech-ddia-05",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.9045064572250809,
+     "top1_id": "text00008-028"
+    },
+    {
+     "id": "tech-aieng-01",
+     "book": "index.ai-engineering",
+     "rank": 1,
+     "n": 1030,
+     "top_score": 0.8215442226089192,
+     "top1_id": "ch01-022"
+    },
+    {
+     "id": "tech-aieng-02",
+     "book": "index.ai-engineering",
+     "rank": 2,
+     "n": 1030,
+     "top_score": 0.7603623776950548,
+     "top1_id": "ch02-068"
+    },
+    {
+     "id": "tech-aieng-03",
+     "book": "index.ai-engineering",
+     "rank": 1,
+     "n": 1030,
+     "top_score": 0.7933065998423727,
+     "top1_id": "ch02-044"
+    },
+    {
+     "id": "tech-aieng-04",
+     "book": "index.ai-engineering",
+     "rank": 1,
+     "n": 1030,
+     "top_score": 0.8252084747773271,
+     "top1_id": "ch09-046"
+    },
+    {
+     "id": "tech-aieng-05",
+     "book": "index.ai-engineering",
+     "rank": 2,
+     "n": 1030,
+     "top_score": 0.9062157213635114,
+     "top1_id": "ch01-075"
+    },
+    {
+     "id": "tech-aiagents-01",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.8376790136288164,
+     "top1_id": "ch01-012"
+    },
+    {
+     "id": "tech-aiagents-02",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.8490909372005477,
+     "top1_id": "ch03-013"
+    },
+    {
+     "id": "tech-aiagents-03",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.8356578616753666,
+     "top1_id": "ch05-026"
+    },
+    {
+     "id": "tech-aiagents-04",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.7272827347391841,
+     "top1_id": "ch04-046"
+    },
+    {
+     "id": "tech-aiagents-05",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.8320522821593588,
+     "top1_id": "ch07-013"
+    },
+    {
+     "id": "fic-ent-atofe",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 2,
+     "n": 274,
+     "top_score": 0.7427209764971536,
+     "top1_id": "section-0010-020"
+    },
+    {
+     "id": "fic-ent-sandor",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 4,
+     "n": 274,
+     "top_score": 0.7614814223182718,
+     "top1_id": "section-0009-003"
+    },
+    {
+     "id": "fic-ent-eris",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 10,
+     "n": 274,
+     "top_score": 0.746078264795121,
+     "top1_id": "section-0007-008"
+    },
+    {
+     "id": "fic-ent-ruijerd",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 3,
+     "n": 274,
+     "top_score": 0.7355912152585455,
+     "top1_id": "section-0012-017"
+    },
+    {
+     "id": "fic-ent-rudeus",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 6,
+     "n": 274,
+     "top_score": 0.7601684693863383,
+     "top1_id": "section-0015-007"
+    },
+    {
+     "id": "fic-ent-dohga",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 2,
+     "n": 274,
+     "top_score": 0.7019409078180491,
+     "top1_id": "section-0006-007"
+    },
+    {
+     "id": "fic-scene-white-place",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 7,
+     "n": 274,
+     "top_score": 0.8044898362787529,
+     "top1_id": "section-0005-008"
+    },
+    {
+     "id": "fic-scene-gall-fire",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 1,
+     "n": 274,
+     "top_score": 0.8334894966226061,
+     "top1_id": "section-0008-018"
+    },
+    {
+     "id": "fic-scene-alec-dead",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 12,
+     "n": 274,
+     "top_score": 0.7960177525586584,
+     "top1_id": "section-0011-001"
+    },
+    {
+     "id": "fic-scene-badigadi",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 2,
+     "n": 274,
+     "top_score": 0.7974051230179241,
+     "top1_id": "section-0013-026"
+    }
+   ],
+   "seconds": 0.03
+  },
+  "t256": {
+   "top1": 21,
+   "top5": 32,
+   "mean_gold_rank": 2.4,
+   "mean_gold_rank_found_only": 2.4,
+   "missing": 0,
+   "per_row": [
+    {
+     "id": "tech-fde-01",
+     "book": "index",
+     "rank": 1,
+     "n": 1042,
+     "top_score": 0.820071773647393,
+     "top1_id": "ch08-039"
+    },
+    {
+     "id": "tech-fde-02",
+     "book": "index",
+     "rank": 2,
+     "n": 1042,
+     "top_score": 0.8905108243445918,
+     "top1_id": "ch01-006"
+    },
+    {
+     "id": "tech-fde-03",
+     "book": "index",
+     "rank": 2,
+     "n": 1042,
+     "top_score": 0.7763116336322831,
+     "top1_id": "ch08-032"
+    },
+    {
+     "id": "tech-fde-04",
+     "book": "index",
+     "rank": 14,
+     "n": 1042,
+     "top_score": 0.7679097483939623,
+     "top1_id": "ch07-014"
+    },
+    {
+     "id": "tech-fde-05",
+     "book": "index",
+     "rank": 1,
+     "n": 1042,
+     "top_score": 0.892999815105104,
+     "top1_id": "ch02-018"
+    },
+    {
+     "id": "tech-quant-01",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.7874093896396496,
+     "top1_id": "chapter-2-035"
+    },
+    {
+     "id": "tech-quant-02",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.8635514273177995,
+     "top1_id": "chapter-3-044"
+    },
+    {
+     "id": "tech-quant-03",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.8255224597712187,
+     "top1_id": "chapter-4-024"
+    },
+    {
+     "id": "tech-quant-04",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.7602430944496534,
+     "top1_id": "chapter-5-021"
+    },
+    {
+     "id": "tech-quant-05",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.8889994179627014,
+     "top1_id": "chapter-3-030"
+    },
+    {
+     "id": "tech-ddia-01",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.7624422199483886,
+     "top1_id": "text00011-067"
+    },
+    {
+     "id": "tech-ddia-02",
+     "book": "index.ddia",
+     "rank": 3,
+     "n": 1306,
+     "top_score": 0.8173285651312583,
+     "top1_id": "text00015-017"
+    },
+    {
+     "id": "tech-ddia-03",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.8449269682889103,
+     "top1_id": "text00008-017"
+    },
+    {
+     "id": "tech-ddia-04",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.8311096378440254,
+     "top1_id": "text00014-053"
+    },
+    {
+     "id": "tech-ddia-05",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.9166671119596905,
+     "top1_id": "text00008-028"
+    },
+    {
+     "id": "tech-aieng-01",
+     "book": "index.ai-engineering",
+     "rank": 1,
+     "n": 1030,
+     "top_score": 0.8405036819974414,
+     "top1_id": "ch01-022"
+    },
+    {
+     "id": "tech-aieng-02",
+     "book": "index.ai-engineering",
+     "rank": 2,
+     "n": 1030,
+     "top_score": 0.7869298949857544,
+     "top1_id": "ch02-068"
+    },
+    {
+     "id": "tech-aieng-03",
+     "book": "index.ai-engineering",
+     "rank": 1,
+     "n": 1030,
+     "top_score": 0.813573873392307,
+     "top1_id": "ch02-044"
+    },
+    {
+     "id": "tech-aieng-04",
+     "book": "index.ai-engineering",
+     "rank": 1,
+     "n": 1030,
+     "top_score": 0.8481418329964765,
+     "top1_id": "ch09-046"
+    },
+    {
+     "id": "tech-aieng-05",
+     "book": "index.ai-engineering",
+     "rank": 2,
+     "n": 1030,
+     "top_score": 0.9019987918643902,
+     "top1_id": "ch01-075"
+    },
+    {
+     "id": "tech-aiagents-01",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.8571525149570709,
+     "top1_id": "ch01-012"
+    },
+    {
+     "id": "tech-aiagents-02",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.8616858696051892,
+     "top1_id": "ch03-013"
+    },
+    {
+     "id": "tech-aiagents-03",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.8427527958048571,
+     "top1_id": "ch05-026"
+    },
+    {
+     "id": "tech-aiagents-04",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.7446041437557493,
+     "top1_id": "ch04-046"
+    },
+    {
+     "id": "tech-aiagents-05",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.8340801939471123,
+     "top1_id": "ch07-013"
+    },
+    {
+     "id": "fic-ent-atofe",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 2,
+     "n": 274,
+     "top_score": 0.7698027969853917,
+     "top1_id": "section-0010-020"
+    },
+    {
+     "id": "fic-ent-sandor",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 3,
+     "n": 274,
+     "top_score": 0.774742255516951,
+     "top1_id": "section-0009-003"
+    },
+    {
+     "id": "fic-ent-eris",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 6,
+     "n": 274,
+     "top_score": 0.7596571777681373,
+     "top1_id": "section-0007-008"
+    },
+    {
+     "id": "fic-ent-ruijerd",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 3,
+     "n": 274,
+     "top_score": 0.7571727340527395,
+     "top1_id": "section-0012-017"
+    },
+    {
+     "id": "fic-ent-rudeus",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 4,
+     "n": 274,
+     "top_score": 0.7864999719377681,
+     "top1_id": "section-0012-019"
+    },
+    {
+     "id": "fic-ent-dohga",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 1,
+     "n": 274,
+     "top_score": 0.7174470763309242,
+     "top1_id": "section-0006-009"
+    },
+    {
+     "id": "fic-scene-white-place",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 4,
+     "n": 274,
+     "top_score": 0.8219013061954638,
+     "top1_id": "section-0005-007"
+    },
+    {
+     "id": "fic-scene-gall-fire",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 1,
+     "n": 274,
+     "top_score": 0.8483439853892926,
+     "top1_id": "section-0008-018"
+    },
+    {
+     "id": "fic-scene-alec-dead",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 14,
+     "n": 274,
+     "top_score": 0.8189702447918001,
+     "top1_id": "section-0009-016"
+    },
+    {
+     "id": "fic-scene-badigadi",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 2,
+     "n": 274,
+     "top_score": 0.820737512145395,
+     "top1_id": "section-0013-026"
+    }
+   ],
+   "seconds": 0.02
+  },
+  "center": {
+   "top1": 20,
+   "top5": 28,
+   "mean_gold_rank": 3.46,
+   "mean_gold_rank_found_only": 3.46,
+   "missing": 0,
+   "per_row": [
+    {
+     "id": "tech-fde-01",
+     "book": "index",
+     "rank": 1,
+     "n": 1042,
+     "top_score": 0.5046556857479614,
+     "top1_id": "ch08-039"
+    },
+    {
+     "id": "tech-fde-02",
+     "book": "index",
+     "rank": 2,
+     "n": 1042,
+     "top_score": 0.6160400290639939,
+     "top1_id": "ch01-006"
+    },
+    {
+     "id": "tech-fde-03",
+     "book": "index",
+     "rank": 2,
+     "n": 1042,
+     "top_score": 0.475433870416757,
+     "top1_id": "ch08-032"
+    },
+    {
+     "id": "tech-fde-04",
+     "book": "index",
+     "rank": 20,
+     "n": 1042,
+     "top_score": 0.4055898593948457,
+     "top1_id": "ch07-014"
+    },
+    {
+     "id": "tech-fde-05",
+     "book": "index",
+     "rank": 1,
+     "n": 1042,
+     "top_score": 0.6912660219777313,
+     "top1_id": "ch02-018"
+    },
+    {
+     "id": "tech-quant-01",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.45891874102779767,
+     "top1_id": "chapter-2-035"
+    },
+    {
+     "id": "tech-quant-02",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.49936756029464446,
+     "top1_id": "chapter-3-044"
+    },
+    {
+     "id": "tech-quant-03",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.4994479648749821,
+     "top1_id": "chapter-4-024"
+    },
+    {
+     "id": "tech-quant-04",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.3957395386711687,
+     "top1_id": "chapter-5-021"
+    },
+    {
+     "id": "tech-quant-05",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.5646471845502654,
+     "top1_id": "chapter-3-030"
+    },
+    {
+     "id": "tech-ddia-01",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.4356370988295081,
+     "top1_id": "text00011-067"
+    },
+    {
+     "id": "tech-ddia-02",
+     "book": "index.ddia",
+     "rank": 8,
+     "n": 1306,
+     "top_score": 0.500904922511098,
+     "top1_id": "text00015-017"
+    },
+    {
+     "id": "tech-ddia-03",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.605378390712766,
+     "top1_id": "text00008-017"
+    },
+    {
+     "id": "tech-ddia-04",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.6540686495489663,
+     "top1_id": "text00014-053"
+    },
+    {
+     "id": "tech-ddia-05",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.7939208942726317,
+     "top1_id": "text00008-028"
+    },
+    {
+     "id": "tech-aieng-01",
+     "book": "index.ai-engineering",
+     "rank": 2,
+     "n": 1030,
+     "top_score": 0.5520712397709551,
+     "top1_id": "ch01-070"
+    },
+    {
+     "id": "tech-aieng-02",
+     "book": "index.ai-engineering",
+     "rank": 2,
+     "n": 1030,
+     "top_score": 0.4053537147112036,
+     "top1_id": "ch02-068"
+    },
+    {
+     "id": "tech-aieng-03",
+     "book": "index.ai-engineering",
+     "rank": 1,
+     "n": 1030,
+     "top_score": 0.4750362355580306,
+     "top1_id": "ch02-044"
+    },
+    {
+     "id": "tech-aieng-04",
+     "book": "index.ai-engineering",
+     "rank": 1,
+     "n": 1030,
+     "top_score": 0.5761268182212759,
+     "top1_id": "ch09-046"
+    },
+    {
+     "id": "tech-aieng-05",
+     "book": "index.ai-engineering",
+     "rank": 2,
+     "n": 1030,
+     "top_score": 0.7615111178712102,
+     "top1_id": "ch01-075"
+    },
+    {
+     "id": "tech-aiagents-01",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.6197697268165787,
+     "top1_id": "ch01-012"
+    },
+    {
+     "id": "tech-aiagents-02",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.6347262950200403,
+     "top1_id": "ch03-013"
+    },
+    {
+     "id": "tech-aiagents-03",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.5817923367631969,
+     "top1_id": "ch05-026"
+    },
+    {
+     "id": "tech-aiagents-04",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.3667809434304362,
+     "top1_id": "ch04-046"
+    },
+    {
+     "id": "tech-aiagents-05",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.5545247929171278,
+     "top1_id": "ch07-013"
+    },
+    {
+     "id": "fic-ent-atofe",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 1,
+     "n": 274,
+     "top_score": 0.3030219780324067,
+     "top1_id": "section-0014-033"
+    },
+    {
+     "id": "fic-ent-sandor",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 7,
+     "n": 274,
+     "top_score": 0.31758642172166146,
+     "top1_id": "section-0005-005"
+    },
+    {
+     "id": "fic-ent-eris",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 10,
+     "n": 274,
+     "top_score": 0.381924102604729,
+     "top1_id": "section-0008-018"
+    },
+    {
+     "id": "fic-ent-ruijerd",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 4,
+     "n": 274,
+     "top_score": 0.3635935553706009,
+     "top1_id": "section-0012-017"
+    },
+    {
+     "id": "fic-ent-rudeus",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 6,
+     "n": 274,
+     "top_score": 0.3774243043961382,
+     "top1_id": "section-0012-018"
+    },
+    {
+     "id": "fic-ent-dohga",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 4,
+     "n": 274,
+     "top_score": 0.2723479220944371,
+     "top1_id": "section-0006-007"
+    },
+    {
+     "id": "fic-scene-white-place",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 6,
+     "n": 274,
+     "top_score": 0.3713631597020473,
+     "top1_id": "section-0005-007"
+    },
+    {
+     "id": "fic-scene-gall-fire",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 1,
+     "n": 274,
+     "top_score": 0.5597982211277763,
+     "top1_id": "section-0008-018"
+    },
+    {
+     "id": "fic-scene-alec-dead",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 24,
+     "n": 274,
+     "top_score": 0.3500555205412063,
+     "top1_id": "section-0011-001"
+    },
+    {
+     "id": "fic-scene-badigadi",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 2,
+     "n": 274,
+     "top_score": 0.28754716481151643,
+     "top1_id": "section-0013-026"
+    }
+   ],
+   "seconds": 0.04
+  },
+  "t512_center": {
+   "top1": 20,
+   "top5": 27,
+   "mean_gold_rank": 3.26,
+   "mean_gold_rank_found_only": 3.26,
+   "missing": 0,
+   "per_row": [
+    {
+     "id": "tech-fde-01",
+     "book": "index",
+     "rank": 1,
+     "n": 1042,
+     "top_score": 0.5285195979080034,
+     "top1_id": "ch08-039"
+    },
+    {
+     "id": "tech-fde-02",
+     "book": "index",
+     "rank": 2,
+     "n": 1042,
+     "top_score": 0.618683169716511,
+     "top1_id": "ch01-006"
+    },
+    {
+     "id": "tech-fde-03",
+     "book": "index",
+     "rank": 2,
+     "n": 1042,
+     "top_score": 0.4902869506264955,
+     "top1_id": "ch08-032"
+    },
+    {
+     "id": "tech-fde-04",
+     "book": "index",
+     "rank": 22,
+     "n": 1042,
+     "top_score": 0.39338871883518384,
+     "top1_id": "ch07-014"
+    },
+    {
+     "id": "tech-fde-05",
+     "book": "index",
+     "rank": 1,
+     "n": 1042,
+     "top_score": 0.6941919584665901,
+     "top1_id": "ch02-018"
+    },
+    {
+     "id": "tech-quant-01",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.4792750618472489,
+     "top1_id": "chapter-2-035"
+    },
+    {
+     "id": "tech-quant-02",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.5047600267044923,
+     "top1_id": "chapter-3-044"
+    },
+    {
+     "id": "tech-quant-03",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.49391034890831764,
+     "top1_id": "chapter-4-024"
+    },
+    {
+     "id": "tech-quant-04",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.39581765414416525,
+     "top1_id": "chapter-5-021"
+    },
+    {
+     "id": "tech-quant-05",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.5912637487399317,
+     "top1_id": "chapter-3-030"
+    },
+    {
+     "id": "tech-ddia-01",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.42461641577747944,
+     "top1_id": "text00011-067"
+    },
+    {
+     "id": "tech-ddia-02",
+     "book": "index.ddia",
+     "rank": 7,
+     "n": 1306,
+     "top_score": 0.5018606344306777,
+     "top1_id": "text00015-017"
+    },
+    {
+     "id": "tech-ddia-03",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.6160600346131522,
+     "top1_id": "text00008-017"
+    },
+    {
+     "id": "tech-ddia-04",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.6746458047968668,
+     "top1_id": "text00014-053"
+    },
+    {
+     "id": "tech-ddia-05",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.7876253632042547,
+     "top1_id": "text00008-028"
+    },
+    {
+     "id": "tech-aieng-01",
+     "book": "index.ai-engineering",
+     "rank": 2,
+     "n": 1030,
+     "top_score": 0.5724104617253657,
+     "top1_id": "ch01-070"
+    },
+    {
+     "id": "tech-aieng-02",
+     "book": "index.ai-engineering",
+     "rank": 2,
+     "n": 1030,
+     "top_score": 0.4131976122844387,
+     "top1_id": "ch02-068"
+    },
+    {
+     "id": "tech-aieng-03",
+     "book": "index.ai-engineering",
+     "rank": 1,
+     "n": 1030,
+     "top_score": 0.478339285707636,
+     "top1_id": "ch02-044"
+    },
+    {
+     "id": "tech-aieng-04",
+     "book": "index.ai-engineering",
+     "rank": 1,
+     "n": 1030,
+     "top_score": 0.5642874657416006,
+     "top1_id": "ch09-046"
+    },
+    {
+     "id": "tech-aieng-05",
+     "book": "index.ai-engineering",
+     "rank": 2,
+     "n": 1030,
+     "top_score": 0.7661369818878324,
+     "top1_id": "ch01-075"
+    },
+    {
+     "id": "tech-aiagents-01",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.6300935961659747,
+     "top1_id": "ch01-012"
+    },
+    {
+     "id": "tech-aiagents-02",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.6470594580897615,
+     "top1_id": "ch03-013"
+    },
+    {
+     "id": "tech-aiagents-03",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.5934239691921015,
+     "top1_id": "ch05-026"
+    },
+    {
+     "id": "tech-aiagents-04",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.3647108091572937,
+     "top1_id": "ch04-046"
+    },
+    {
+     "id": "tech-aiagents-05",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.5711532461829166,
+     "top1_id": "ch07-013"
+    },
+    {
+     "id": "fic-ent-atofe",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 1,
+     "n": 274,
+     "top_score": 0.3030823226434627,
+     "top1_id": "section-0014-033"
+    },
+    {
+     "id": "fic-ent-sandor",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 7,
+     "n": 274,
+     "top_score": 0.33332891252767943,
+     "top1_id": "section-0005-005"
+    },
+    {
+     "id": "fic-ent-eris",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 9,
+     "n": 274,
+     "top_score": 0.3943526803168611,
+     "top1_id": "section-0008-018"
+    },
+    {
+     "id": "fic-ent-ruijerd",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 4,
+     "n": 274,
+     "top_score": 0.3642632978626512,
+     "top1_id": "section-0012-017"
+    },
+    {
+     "id": "fic-ent-rudeus",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 6,
+     "n": 274,
+     "top_score": 0.3934767168040462,
+     "top1_id": "section-0012-018"
+    },
+    {
+     "id": "fic-ent-dohga",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 6,
+     "n": 274,
+     "top_score": 0.2720633802469176,
+     "top1_id": "section-0006-007"
+    },
+    {
+     "id": "fic-scene-white-place",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 6,
+     "n": 274,
+     "top_score": 0.3665324872336503,
+     "top1_id": "section-0005-007"
+    },
+    {
+     "id": "fic-scene-gall-fire",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 1,
+     "n": 274,
+     "top_score": 0.5816705784538827,
+     "top1_id": "section-0008-018"
+    },
+    {
+     "id": "fic-scene-alec-dead",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 14,
+     "n": 274,
+     "top_score": 0.3494126786039544,
+     "top1_id": "section-0011-001"
+    },
+    {
+     "id": "fic-scene-badigadi",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 3,
+     "n": 274,
+     "top_score": 0.31084034548072165,
+     "top1_id": "section-0013-026"
+    }
+   ],
+   "seconds": 0.03
+  },
+  "t256_center": {
+   "top1": 17,
+   "top5": 31,
+   "mean_gold_rank": 2.91,
+   "mean_gold_rank_found_only": 2.91,
+   "missing": 0,
+   "per_row": [
+    {
+     "id": "tech-fde-01",
+     "book": "index",
+     "rank": 1,
+     "n": 1042,
+     "top_score": 0.5742357082548152,
+     "top1_id": "ch08-039"
+    },
+    {
+     "id": "tech-fde-02",
+     "book": "index",
+     "rank": 2,
+     "n": 1042,
+     "top_score": 0.6472488044365656,
+     "top1_id": "ch01-006"
+    },
+    {
+     "id": "tech-fde-03",
+     "book": "index",
+     "rank": 2,
+     "n": 1042,
+     "top_score": 0.5084146316947933,
+     "top1_id": "ch08-032"
+    },
+    {
+     "id": "tech-fde-04",
+     "book": "index",
+     "rank": 20,
+     "n": 1042,
+     "top_score": 0.423833029916974,
+     "top1_id": "ch07-014"
+    },
+    {
+     "id": "tech-fde-05",
+     "book": "index",
+     "rank": 1,
+     "n": 1042,
+     "top_score": 0.6838326277658872,
+     "top1_id": "ch02-018"
+    },
+    {
+     "id": "tech-quant-01",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.4943242970561758,
+     "top1_id": "chapter-2-035"
+    },
+    {
+     "id": "tech-quant-02",
+     "book": "index.quantization",
+     "rank": 2,
+     "n": 473,
+     "top_score": 0.5219818803313769,
+     "top1_id": "chapter-3-046"
+    },
+    {
+     "id": "tech-quant-03",
+     "book": "index.quantization",
+     "rank": 2,
+     "n": 473,
+     "top_score": 0.46023185795894384,
+     "top1_id": "chapter-4-026"
+    },
+    {
+     "id": "tech-quant-04",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.4418444936962992,
+     "top1_id": "chapter-5-021"
+    },
+    {
+     "id": "tech-quant-05",
+     "book": "index.quantization",
+     "rank": 1,
+     "n": 473,
+     "top_score": 0.5749413547194406,
+     "top1_id": "chapter-3-030"
+    },
+    {
+     "id": "tech-ddia-01",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.38734239193690306,
+     "top1_id": "text00011-067"
+    },
+    {
+     "id": "tech-ddia-02",
+     "book": "index.ddia",
+     "rank": 5,
+     "n": 1306,
+     "top_score": 0.5006524527516045,
+     "top1_id": "text00015-017"
+    },
+    {
+     "id": "tech-ddia-03",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.6323295429756735,
+     "top1_id": "text00008-017"
+    },
+    {
+     "id": "tech-ddia-04",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.6608898033092585,
+     "top1_id": "text00014-053"
+    },
+    {
+     "id": "tech-ddia-05",
+     "book": "index.ddia",
+     "rank": 1,
+     "n": 1306,
+     "top_score": 0.8078729033636932,
+     "top1_id": "text00008-028"
+    },
+    {
+     "id": "tech-aieng-01",
+     "book": "index.ai-engineering",
+     "rank": 2,
+     "n": 1030,
+     "top_score": 0.585076167835689,
+     "top1_id": "ch01-070"
+    },
+    {
+     "id": "tech-aieng-02",
+     "book": "index.ai-engineering",
+     "rank": 2,
+     "n": 1030,
+     "top_score": 0.4620904270712469,
+     "top1_id": "ch02-068"
+    },
+    {
+     "id": "tech-aieng-03",
+     "book": "index.ai-engineering",
+     "rank": 1,
+     "n": 1030,
+     "top_score": 0.5070446620105306,
+     "top1_id": "ch02-044"
+    },
+    {
+     "id": "tech-aieng-04",
+     "book": "index.ai-engineering",
+     "rank": 1,
+     "n": 1030,
+     "top_score": 0.5911034567748639,
+     "top1_id": "ch09-046"
+    },
+    {
+     "id": "tech-aieng-05",
+     "book": "index.ai-engineering",
+     "rank": 2,
+     "n": 1030,
+     "top_score": 0.7394013634747878,
+     "top1_id": "ch01-075"
+    },
+    {
+     "id": "tech-aiagents-01",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.6534474593905135,
+     "top1_id": "ch01-012"
+    },
+    {
+     "id": "tech-aiagents-02",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.6585072435075239,
+     "top1_id": "ch03-013"
+    },
+    {
+     "id": "tech-aiagents-03",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.5958250711357448,
+     "top1_id": "ch05-026"
+    },
+    {
+     "id": "tech-aiagents-04",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.3376456428548018,
+     "top1_id": "ch04-046"
+    },
+    {
+     "id": "tech-aiagents-05",
+     "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+     "rank": 1,
+     "n": 637,
+     "top_score": 0.5758562085127485,
+     "top1_id": "ch07-013"
+    },
+    {
+     "id": "fic-ent-atofe",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 2,
+     "n": 274,
+     "top_score": 0.3138885709162074,
+     "top1_id": "section-0010-020"
+    },
+    {
+     "id": "fic-ent-sandor",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 5,
+     "n": 274,
+     "top_score": 0.33389639874113375,
+     "top1_id": "section-0005-005"
+    },
+    {
+     "id": "fic-ent-eris",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 7,
+     "n": 274,
+     "top_score": 0.3700311878625127,
+     "top1_id": "section-0008-018"
+    },
+    {
+     "id": "fic-ent-ruijerd",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 4,
+     "n": 274,
+     "top_score": 0.396238928844193,
+     "top1_id": "section-0012-017"
+    },
+    {
+     "id": "fic-ent-rudeus",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 6,
+     "n": 274,
+     "top_score": 0.37911420120948003,
+     "top1_id": "section-0012-018"
+    },
+    {
+     "id": "fic-ent-dohga",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 5,
+     "n": 274,
+     "top_score": 0.27332496761916886,
+     "top1_id": "section-0012-003"
+    },
+    {
+     "id": "fic-scene-white-place",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 4,
+     "n": 274,
+     "top_score": 0.3832559973821,
+     "top1_id": "section-0005-007"
+    },
+    {
+     "id": "fic-scene-gall-fire",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 1,
+     "n": 274,
+     "top_score": 0.5870476257576971,
+     "top1_id": "section-0008-018"
+    },
+    {
+     "id": "fic-scene-alec-dead",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 11,
+     "n": 274,
+     "top_score": 0.37186912933548216,
+     "top1_id": "section-0011-001"
+    },
+    {
+     "id": "fic-scene-badigadi",
+     "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+     "rank": 2,
+     "n": 274,
+     "top_score": 0.31416953264539305,
+     "top1_id": "section-0013-026"
+    }
+   ],
+   "seconds": 0.02
+  }
+ },
+ "truncation_curve": {
+  "768": {
+   "top1": 19,
+   "top5": 30,
+   "mean_gold_rank": 3.0
+  },
+  "640": {
+   "top1": 19,
+   "top5": 30,
+   "mean_gold_rank": 2.91
+  },
+  "512": {
+   "top1": 20,
+   "top5": 29,
+   "mean_gold_rank": 2.74
+  },
+  "448": {
+   "top1": 20,
+   "top5": 30,
+   "mean_gold_rank": 2.49
+  },
+  "384": {
+   "top1": 21,
+   "top5": 30,
+   "mean_gold_rank": 2.34
+  },
+  "320": {
+   "top1": 20,
+   "top5": 32,
+   "mean_gold_rank": 2.4
+  },
+  "256": {
+   "top1": 21,
+   "top5": 32,
+   "mean_gold_rank": 2.4
+  },
+  "224": {
+   "top1": 22,
+   "top5": 31,
+   "mean_gold_rank": 2.74
+  },
+  "192": {
+   "top1": 21,
+   "top5": 32,
+   "mean_gold_rank": 2.57
+  },
+  "128": {
+   "top1": 17,
+   "top5": 29,
+   "mean_gold_rank": 3.17
+  },
+  "96": {
+   "top1": 15,
+   "top5": 29,
+   "mean_gold_rank": 4.37
+  },
+  "64": {
+   "top1": 13,
+   "top5": 25,
+   "mean_gold_rank": 6.77
+  }
+ },
+ "per_book": {
+  "index": {
+   "base": {
+    "n": 5,
+    "top1": 2,
+    "top5": 4
+   },
+   "t512": {
+    "n": 5,
+    "top1": 2,
+    "top5": 4
+   },
+   "t256": {
+    "n": 5,
+    "top1": 2,
+    "top5": 4
+   },
+   "center": {
+    "n": 5,
+    "top1": 2,
+    "top5": 4
+   },
+   "t512_center": {
+    "n": 5,
+    "top1": 2,
+    "top5": 4
+   },
+   "t256_center": {
+    "n": 5,
+    "top1": 2,
+    "top5": 4
+   }
+  },
+  "index.quantization": {
+   "base": {
+    "n": 5,
+    "top1": 5,
+    "top5": 5
+   },
+   "t512": {
+    "n": 5,
+    "top1": 5,
+    "top5": 5
+   },
+   "t256": {
+    "n": 5,
+    "top1": 5,
+    "top5": 5
+   },
+   "center": {
+    "n": 5,
+    "top1": 5,
+    "top5": 5
+   },
+   "t512_center": {
+    "n": 5,
+    "top1": 5,
+    "top5": 5
+   },
+   "t256_center": {
+    "n": 5,
+    "top1": 3,
+    "top5": 5
+   }
+  },
+  "index.ddia": {
+   "base": {
+    "n": 5,
+    "top1": 4,
+    "top5": 4
+   },
+   "t512": {
+    "n": 5,
+    "top1": 4,
+    "top5": 4
+   },
+   "t256": {
+    "n": 5,
+    "top1": 4,
+    "top5": 5
+   },
+   "center": {
+    "n": 5,
+    "top1": 4,
+    "top5": 4
+   },
+   "t512_center": {
+    "n": 5,
+    "top1": 4,
+    "top5": 4
+   },
+   "t256_center": {
+    "n": 5,
+    "top1": 4,
+    "top5": 5
+   }
+  },
+  "index.ai-engineering": {
+   "base": {
+    "n": 5,
+    "top1": 3,
+    "top5": 5
+   },
+   "t512": {
+    "n": 5,
+    "top1": 3,
+    "top5": 5
+   },
+   "t256": {
+    "n": 5,
+    "top1": 3,
+    "top5": 5
+   },
+   "center": {
+    "n": 5,
+    "top1": 2,
+    "top5": 5
+   },
+   "t512_center": {
+    "n": 5,
+    "top1": 2,
+    "top5": 5
+   },
+   "t256_center": {
+    "n": 5,
+    "top1": 2,
+    "top5": 5
+   }
+  },
+  "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive": {
+   "base": {
+    "n": 5,
+    "top1": 5,
+    "top5": 5
+   },
+   "t512": {
+    "n": 5,
+    "top1": 5,
+    "top5": 5
+   },
+   "t256": {
+    "n": 5,
+    "top1": 5,
+    "top5": 5
+   },
+   "center": {
+    "n": 5,
+    "top1": 5,
+    "top5": 5
+   },
+   "t512_center": {
+    "n": 5,
+    "top1": 5,
+    "top5": 5
+   },
+   "t256_center": {
+    "n": 5,
+    "top1": 5,
+    "top5": 5
+   }
+  },
+  "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0": {
+   "base": {
+    "n": 10,
+    "top1": 0,
+    "top5": 7
+   },
+   "t512": {
+    "n": 10,
+    "top1": 1,
+    "top5": 6
+   },
+   "t256": {
+    "n": 10,
+    "top1": 2,
+    "top5": 8
+   },
+   "center": {
+    "n": 10,
+    "top1": 2,
+    "top5": 5
+   },
+   "t512_center": {
+    "n": 10,
+    "top1": 2,
+    "top5": 4
+   },
+   "t256_center": {
+    "n": 10,
+    "top1": 1,
+    "top5": 7
+   }
+  }
+ },
+ "rank_deltas_vs_base": [
+  {
+   "id": "tech-fde-01",
+   "book": "index",
+   "base": 1,
+   "t512": 1,
+   "t256": 1
+  },
+  {
+   "id": "tech-fde-02",
+   "book": "index",
+   "base": 2,
+   "t512": 2,
+   "t256": 2
+  },
+  {
+   "id": "tech-fde-03",
+   "book": "index",
+   "base": 2,
+   "t512": 2,
+   "t256": 2
+  },
+  {
+   "id": "tech-fde-04",
+   "book": "index",
+   "base": 12,
+   "t512": 13,
+   "t256": 14
+  },
+  {
+   "id": "tech-fde-05",
+   "book": "index",
+   "base": 1,
+   "t512": 1,
+   "t256": 1
+  },
+  {
+   "id": "tech-quant-01",
+   "book": "index.quantization",
+   "base": 1,
+   "t512": 1,
+   "t256": 1
+  },
+  {
+   "id": "tech-quant-02",
+   "book": "index.quantization",
+   "base": 1,
+   "t512": 1,
+   "t256": 1
+  },
+  {
+   "id": "tech-quant-03",
+   "book": "index.quantization",
+   "base": 1,
+   "t512": 1,
+   "t256": 1
+  },
+  {
+   "id": "tech-quant-04",
+   "book": "index.quantization",
+   "base": 1,
+   "t512": 1,
+   "t256": 1
+  },
+  {
+   "id": "tech-quant-05",
+   "book": "index.quantization",
+   "base": 1,
+   "t512": 1,
+   "t256": 1
+  },
+  {
+   "id": "tech-ddia-01",
+   "book": "index.ddia",
+   "base": 1,
+   "t512": 1,
+   "t256": 1
+  },
+  {
+   "id": "tech-ddia-02",
+   "book": "index.ddia",
+   "base": 9,
+   "t512": 7,
+   "t256": 3
+  },
+  {
+   "id": "tech-ddia-03",
+   "book": "index.ddia",
+   "base": 1,
+   "t512": 1,
+   "t256": 1
+  },
+  {
+   "id": "tech-ddia-04",
+   "book": "index.ddia",
+   "base": 1,
+   "t512": 1,
+   "t256": 1
+  },
+  {
+   "id": "tech-ddia-05",
+   "book": "index.ddia",
+   "base": 1,
+   "t512": 1,
+   "t256": 1
+  },
+  {
+   "id": "tech-aieng-01",
+   "book": "index.ai-engineering",
+   "base": 1,
+   "t512": 1,
+   "t256": 1
+  },
+  {
+   "id": "tech-aieng-02",
+   "book": "index.ai-engineering",
+   "base": 2,
+   "t512": 2,
+   "t256": 2
+  },
+  {
+   "id": "tech-aieng-03",
+   "book": "index.ai-engineering",
+   "base": 1,
+   "t512": 1,
+   "t256": 1
+  },
+  {
+   "id": "tech-aieng-04",
+   "book": "index.ai-engineering",
+   "base": 1,
+   "t512": 1,
+   "t256": 1
+  },
+  {
+   "id": "tech-aieng-05",
+   "book": "index.ai-engineering",
+   "base": 2,
+   "t512": 2,
+   "t256": 2
+  },
+  {
+   "id": "tech-aiagents-01",
+   "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+   "base": 1,
+   "t512": 1,
+   "t256": 1
+  },
+  {
+   "id": "tech-aiagents-02",
+   "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+   "base": 1,
+   "t512": 1,
+   "t256": 1
+  },
+  {
+   "id": "tech-aiagents-03",
+   "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+   "base": 1,
+   "t512": 1,
+   "t256": 1
+  },
+  {
+   "id": "tech-aiagents-04",
+   "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+   "base": 1,
+   "t512": 1,
+   "t256": 1
+  },
+  {
+   "id": "tech-aiagents-05",
+   "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+   "base": 1,
+   "t512": 1,
+   "t256": 1
+  },
+  {
+   "id": "fic-ent-atofe",
+   "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+   "base": 2,
+   "t512": 2,
+   "t256": 2
+  },
+  {
+   "id": "fic-ent-sandor",
+   "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+   "base": 4,
+   "t512": 4,
+   "t256": 3
+  },
+  {
+   "id": "fic-ent-eris",
+   "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+   "base": 10,
+   "t512": 10,
+   "t256": 6
+  },
+  {
+   "id": "fic-ent-ruijerd",
+   "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+   "base": 3,
+   "t512": 3,
+   "t256": 3
+  },
+  {
+   "id": "fic-ent-rudeus",
+   "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+   "base": 4,
+   "t512": 6,
+   "t256": 4
+  },
+  {
+   "id": "fic-ent-dohga",
+   "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+   "base": 2,
+   "t512": 2,
+   "t256": 1
+  },
+  {
+   "id": "fic-scene-white-place",
+   "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+   "base": 7,
+   "t512": 7,
+   "t256": 4
+  },
+  {
+   "id": "fic-scene-gall-fire",
+   "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+   "base": 2,
+   "t512": 1,
+   "t256": 1
+  },
+  {
+   "id": "fic-scene-alec-dead",
+   "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+   "base": 21,
+   "t512": 12,
+   "t256": 14
+  },
+  {
+   "id": "fic-scene-badigadi",
+   "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+   "base": 2,
+   "t512": 2,
+   "t256": 2
+  }
+ ],
+ "controls": {
+  "note": "same 35 rows, same query vectors; 256 dims selected WITHOUT the labels",
+  "first_256": {
+   "top1": 21,
+   "top5": 32
+  },
+  "random_256_subsets_2000draws": {
+   "top1_mean": 19.25,
+   "top1_sd": 1.71,
+   "top5_mean": 29.02,
+   "top5_sd": 1.28,
+   "p_top1_ge_21": 0.229,
+   "p_top5_ge_32": 0.025,
+   "p_both": 0.007
+  },
+  "pca_per_book_512": [
+   20,
+   28,
+   3.46
+  ],
+  "pca_per_book_256": [
+   21,
+   28,
+   3.51
+  ],
+  "pca_per_book_128": [
+   18,
+   29,
+   3.74
+  ],
+  "query_determinism_max_abs_diff": 0.0,
+  "random_256_subsets_meanrank_1000draws": {
+   "mean": 3.995,
+   "sd": 0.822,
+   "min": 2.229,
+   "max": 9.429,
+   "p_random_meanrank_le_2_40": 0.003,
+   "first_256_percentile": 0.2
+  }
+ },
+ "verdict": "Truncation to 256-d genuinely improves ranking depth: mean gold rank 2.40 vs 3.00 (or 3.995 for a random 256-dim subset, p=0.003), so the first 256 MRL dimensions are not a random projection. But top-1 (21 vs 19) and top-5 (32 vs 30) gains are not distinguishable from random 256-dim subsets (p=0.23 and 0.025 post-hoc), and every top-1 gain is a fiction row. Centring is worse than baseline on top-5 and mean rank. Verdict: free ordering depth, no reliable free rank-1 or window accuracy."
+}

@@ -1,0 +1,1694 @@
+{
+  "experiment": "granularity",
+  "question": "Are 1400-char chunks too coarse for gemma; do halves or sentences fix the top-1 losses?",
+  "date": "2026-11-04",
+  "model": "embeddinggemma-2:270m-bf16-text",
+  "dataset": "artifacts/datasets/retrieval/retrieval-recall-2026-11-02.jsonl",
+  "books": [
+    "index",
+    "index.ai-engineering",
+    "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0"
+  ],
+  "rows": 20,
+  "method": {
+    "halves": "chunk body split at the sentence boundary (. ! ? + whitespace) nearest the character midpoint; each half >= 20% of the body, else the chunk stays one unit (31/16/1 chunks in fde/aieng/novel)",
+    "sentences": "answer._sentences(body), keep sentences with >= 12 words, accumulate in order while the running character count stays within the parent's own length; no cap ever bound (0 dropped); chunks with no qualifying sentence fall back to the whole body (28/9/2 chunks)",
+    "formatting": "documents use retrieve.format_input(model,'document', unit_text, heading) i.e. 'title: <heading> | text: <unit>' - exactly the engine's document formatting; queries use the engine's 'task: search result | query: ' prefix",
+    "ranking": "cosine(unit, query); parent score = max unit score; parents ranked descending; metrics at parent level",
+    "no_writes": "data/ untouched; vectors held in /tmp/Granularity and the engine imported read-only"
+  },
+  "baseline_reproduction": {
+    "whole_chunk_all_35_answerable": {
+      "top1": 19,
+      "top5": 30
+    },
+    "note": "matches PROTOCOL 19/35 and 30/35 exactly; Dims and DualFusion independently report the same 19 top-1 and 30 top-5 over the same 35 rows",
+    "whole_chunk_these_20_rows": {
+      "n": 20,
+      "top1": 5,
+      "top5": 16,
+      "mean_rank_capped6": 2.8,
+      "mean_rank_uncapped": 4.1,
+      "mean_hit_rank": 2.0
+    }
+  },
+  "table": {
+    "whole": {
+      "index": {
+        "n": 5,
+        "top1": 2,
+        "top5": 4,
+        "mean_rank_capped6": 2.4,
+        "mean_rank_uncapped": 3.6,
+        "mean_hit_rank": 1.5
+      },
+      "index.ai-engineering": {
+        "n": 5,
+        "top1": 3,
+        "top5": 5,
+        "mean_rank_capped6": 1.4,
+        "mean_rank_uncapped": 1.4,
+        "mean_hit_rank": 1.4
+      },
+      "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0": {
+        "n": 10,
+        "top1": 0,
+        "top5": 7,
+        "mean_rank_capped6": 3.7,
+        "mean_rank_uncapped": 5.7,
+        "mean_hit_rank": 2.71
+      },
+      "ALL": {
+        "n": 20,
+        "top1": 5,
+        "top5": 16,
+        "mean_rank_capped6": 2.8,
+        "mean_rank_uncapped": 4.1,
+        "mean_hit_rank": 2.0
+      }
+    },
+    "halves": {
+      "index": {
+        "n": 5,
+        "top1": 3,
+        "top5": 5,
+        "mean_rank_capped6": 1.4,
+        "mean_rank_uncapped": 1.4,
+        "mean_hit_rank": 1.4
+      },
+      "index.ai-engineering": {
+        "n": 5,
+        "top1": 4,
+        "top5": 5,
+        "mean_rank_capped6": 1.2,
+        "mean_rank_uncapped": 1.2,
+        "mean_hit_rank": 1.2
+      },
+      "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0": {
+        "n": 10,
+        "top1": 2,
+        "top5": 5,
+        "mean_rank_capped6": 4.3,
+        "mean_rank_uncapped": 15.1,
+        "mean_hit_rank": 2.6
+      },
+      "ALL": {
+        "n": 20,
+        "top1": 9,
+        "top5": 15,
+        "mean_rank_capped6": 2.8,
+        "mean_rank_uncapped": 8.2,
+        "mean_hit_rank": 1.73
+      }
+    },
+    "sentences": {
+      "index": {
+        "n": 5,
+        "top1": 3,
+        "top5": 5,
+        "mean_rank_capped6": 1.6,
+        "mean_rank_uncapped": 1.6,
+        "mean_hit_rank": 1.6
+      },
+      "index.ai-engineering": {
+        "n": 5,
+        "top1": 3,
+        "top5": 5,
+        "mean_rank_capped6": 1.8,
+        "mean_rank_uncapped": 1.8,
+        "mean_hit_rank": 1.8
+      },
+      "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0": {
+        "n": 10,
+        "top1": 2,
+        "top5": 2,
+        "mean_rank_capped6": 5.0,
+        "mean_rank_uncapped": 38.2,
+        "mean_hit_rank": 1.0
+      },
+      "ALL": {
+        "n": 20,
+        "top1": 8,
+        "top5": 12,
+        "mean_rank_capped6": 3.35,
+        "mean_rank_uncapped": 19.95,
+        "mean_hit_rank": 1.58
+      }
+    }
+  },
+  "cost": {
+    "books": {
+      "index": {
+        "chunks": 1042,
+        "units": {
+          "halves": 2053,
+          "sentences": 5867
+        },
+        "units_per_parent": {
+          "halves": 1.97,
+          "sentences": 5.63
+        },
+        "parent_chars": 960596,
+        "unit_chars": {
+          "halves": 933252,
+          "sentences": 774625
+        },
+        "embed_seconds": {
+          "halves": 85.68,
+          "sentences": 202.71
+        },
+        "embed_seconds_per_unit": {
+          "halves": 0.0417,
+          "sentences": 0.0346
+        },
+        "vector_bytes": {
+          "whole": 3201024,
+          "halves": 6306816,
+          "sentences": 18023424
+        }
+      },
+      "index.ai-engineering": {
+        "chunks": 1030,
+        "units": {
+          "halves": 2044,
+          "sentences": 6295
+        },
+        "units_per_parent": {
+          "halves": 1.98,
+          "sentences": 6.11
+        },
+        "parent_chars": 1075458,
+        "unit_chars": {
+          "halves": 1050204,
+          "sentences": 784565
+        },
+        "embed_seconds": {
+          "halves": 64.91,
+          "sentences": 185.94
+        },
+        "embed_seconds_per_unit": {
+          "halves": 0.0318,
+          "sentences": 0.0295
+        },
+        "vector_bytes": {
+          "whole": 3164160,
+          "halves": 6279168,
+          "sentences": 19338240
+        }
+      },
+      "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0": {
+        "chunks": 274,
+        "units": {
+          "halves": 547,
+          "sentences": 1654
+        },
+        "units_per_parent": {
+          "halves": 2.0,
+          "sentences": 6.04
+        },
+        "parent_chars": 332987,
+        "unit_chars": {
+          "halves": 299893,
+          "sentences": 157329
+        },
+        "embed_seconds": {
+          "halves": 13.28,
+          "sentences": 27.42
+        },
+        "embed_seconds_per_unit": {
+          "halves": 0.0243,
+          "sentences": 0.0166
+        },
+        "vector_bytes": {
+          "whole": 841728,
+          "halves": 1680384,
+          "sentences": 5081088
+        }
+      }
+    },
+    "totals": {
+      "chunks": 2346,
+      "units": {
+        "halves": 4644,
+        "sentences": 13816
+      },
+      "parent_chars": 2369041,
+      "unit_chars": {
+        "halves": 2283349,
+        "sentences": 1716519
+      },
+      "embed_seconds": {
+        "halves": 163.9,
+        "sentences": 416.1
+      },
+      "vector_bytes": {
+        "whole": 7206912,
+        "halves": 14266368,
+        "sentences": 42442752
+      },
+      "units_per_parent": {
+        "halves": 1.98,
+        "sentences": 5.89
+      },
+      "ms_per_unit": {
+        "halves": 35.3,
+        "sentences": 30.1
+      },
+      "projection_six_books": {
+        "chunks": 4762,
+        "halves_units": 9429,
+        "sentences_units": 28048,
+        "halves_embed_seconds": 333,
+        "sentences_embed_seconds": 844,
+        "halves_vector_bytes": 28965888,
+        "sentences_vector_bytes": 86163456
+      }
+    },
+    "wall_clock_seconds": 583.7,
+    "ollama": "shared with three other experiments; 30-35 ms/unit measured under contention, 24 ms/unit for a quiet 64-text batch before the others ramped up"
+  },
+  "transitions": {
+    "halves": {
+      "fixed_top1": [
+        "tech-fde-02",
+        "tech-fde-03",
+        "tech-aieng-05",
+        "fic-ent-atofe",
+        "fic-scene-badigadi"
+      ],
+      "broke_top1": [
+        "tech-fde-05"
+      ]
+    },
+    "sentences": {
+      "fixed_top1": [
+        "tech-fde-03",
+        "tech-fde-04",
+        "tech-aieng-02",
+        "fic-ent-atofe",
+        "fic-scene-badigadi"
+      ],
+      "broke_top1": [
+        "tech-fde-05",
+        "tech-aieng-01"
+      ]
+    }
+  },
+  "bootstrap_deltas_vs_whole": {
+    "halves_top1": {
+      "mean": 3.97,
+      "lo95": 0,
+      "hi95": 9
+    },
+    "halves_top5": {
+      "mean": -1.02,
+      "lo95": -4,
+      "hi95": 2
+    },
+    "halves_rank": {
+      "mean": 82.16,
+      "lo95": -4,
+      "hi95": 193
+    },
+    "sentences_top1": {
+      "mean": 3.0,
+      "lo95": -2,
+      "hi95": 8
+    },
+    "sentences_top5": {
+      "mean": -4.01,
+      "lo95": -9,
+      "hi95": 0
+    },
+    "sentences_rank": {
+      "mean": 316.47,
+      "lo95": 66,
+      "hi95": 711
+    }
+  },
+  "neighbour_analysis": {
+    "whole_top1_is_pm1_neighbour_of_gold": 4,
+    "rows": [
+      "tech-fde-04",
+      "tech-aieng-02",
+      "tech-aieng-05",
+      "fic-scene-gall-fire"
+    ],
+    "of_those_fixed_to_top1_by_halves": [
+      "tech-aieng-05"
+    ],
+    "of_those_fixed_to_top1_by_sentences": [
+      "tech-fde-04",
+      "tech-aieng-02"
+    ],
+    "whole_top1_misses": 15
+  },
+  "diagnostics": {
+    "length_score_correlation": {
+      "index": {
+        "halves": {
+          "mean_top_score": 0.8325,
+          "mean_unit_chars": 454.6,
+          "mean_winning_unit_chars": 418.2,
+          "mean_length_score_correlation": -0.112
+        },
+        "sentences": {
+          "mean_top_score": 0.8371,
+          "mean_unit_chars": 132.0,
+          "mean_winning_unit_chars": 192.4,
+          "mean_length_score_correlation": 0.047
+        },
+        "whole": {
+          "mean_top_score": 0.8118,
+          "mean_unit_chars": 921.9,
+          "mean_winning_unit_chars": 921.9,
+          "mean_length_score_correlation": -0.149
+        }
+      },
+      "index.ai-engineering": {
+        "halves": {
+          "mean_top_score": 0.8446,
+          "mean_unit_chars": 513.8,
+          "mean_winning_unit_chars": 560.6,
+          "mean_length_score_correlation": -0.004
+        },
+        "sentences": {
+          "mean_top_score": 0.8535,
+          "mean_unit_chars": 124.6,
+          "mean_winning_unit_chars": 163.0,
+          "mean_length_score_correlation": 0.137
+        },
+        "whole": {
+          "mean_top_score": 0.8153,
+          "mean_unit_chars": 1044.1,
+          "mean_winning_unit_chars": 1044.1,
+          "mean_length_score_correlation": -0.008
+        }
+      },
+      "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0": {
+        "halves": {
+          "mean_top_score": 0.7846,
+          "mean_unit_chars": 548.3,
+          "mean_winning_unit_chars": 504.4,
+          "mean_length_score_correlation": 0.043
+        },
+        "sentences": {
+          "mean_top_score": 0.7866,
+          "mean_unit_chars": 95.1,
+          "mean_winning_unit_chars": 114.0,
+          "mean_length_score_correlation": 0.059
+        },
+        "whole": {
+          "mean_top_score": 0.7653,
+          "mean_unit_chars": 1215.3,
+          "mean_winning_unit_chars": 1215.3,
+          "mean_length_score_correlation": 0.141
+        }
+      }
+    },
+    "pooling_max_vs_mean": {
+      "index": {
+        "halves_max": {
+          "top1": 3,
+          "top5": 5,
+          "ranks": [
+            1,
+            1,
+            1,
+            2,
+            2
+          ]
+        },
+        "halves_mean": {
+          "top1": 2,
+          "top5": 5,
+          "ranks": [
+            1,
+            2,
+            1,
+            2,
+            2
+          ]
+        },
+        "sentences_max": {
+          "top1": 3,
+          "top5": 5,
+          "ranks": [
+            1,
+            3,
+            1,
+            1,
+            2
+          ]
+        },
+        "sentences_mean": {
+          "top1": 2,
+          "top5": 5,
+          "ranks": [
+            1,
+            2,
+            1,
+            2,
+            3
+          ]
+        }
+      },
+      "index.ai-engineering": {
+        "halves_max": {
+          "top1": 4,
+          "top5": 5,
+          "ranks": [
+            1,
+            2,
+            1,
+            1,
+            1
+          ]
+        },
+        "halves_mean": {
+          "top1": 4,
+          "top5": 5,
+          "ranks": [
+            3,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "sentences_max": {
+          "top1": 3,
+          "top5": 5,
+          "ranks": [
+            4,
+            1,
+            1,
+            1,
+            2
+          ]
+        },
+        "sentences_mean": {
+          "top1": 4,
+          "top5": 5,
+          "ranks": [
+            5,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0": {
+        "halves_max": {
+          "top1": 2,
+          "top5": 5,
+          "ranks": [
+            1,
+            17,
+            6,
+            4,
+            20,
+            3,
+            33,
+            4,
+            62,
+            1
+          ]
+        },
+        "halves_mean": {
+          "top1": 0,
+          "top5": 3,
+          "ranks": [
+            2,
+            9,
+            21,
+            5,
+            8,
+            2,
+            15,
+            6,
+            63,
+            16
+          ]
+        },
+        "sentences_max": {
+          "top1": 2,
+          "top5": 2,
+          "ranks": [
+            1,
+            15,
+            45,
+            7,
+            21,
+            17,
+            36,
+            47,
+            192,
+            1
+          ]
+        },
+        "sentences_mean": {
+          "top1": 0,
+          "top5": 1,
+          "ranks": [
+            7,
+            6,
+            111,
+            13,
+            37,
+            5,
+            37,
+            10,
+            226,
+            14
+          ]
+        }
+      }
+    },
+    "note": "no short-text score inflation (per-query Pearson r between unit length and cosine is 0.00-0.14, not negative); mean pooling is worse than max everywhere, so the sentence-level loss is granularity, not an aggregation artefact"
+  },
+  "per_row": {
+    "tech-fde-01": {
+      "book": "index",
+      "question": "watermark",
+      "gold": [
+        "ch08-039"
+      ],
+      "whole": {
+        "rank": 1,
+        "top1": "ch08-039",
+        "top1_is_gold_neighbour": false
+      },
+      "halves": {
+        "rank": 1,
+        "top1": "ch08-039",
+        "top1_score": 0.7818,
+        "gold_best_score": 0.7818,
+        "median_parent_score": 0.6009
+      },
+      "sentences": {
+        "rank": 1,
+        "top1": "ch08-039",
+        "top1_score": 0.7811,
+        "gold_best_score": 0.7811,
+        "median_parent_score": 0.6207
+      }
+    },
+    "tech-fde-02": {
+      "book": "index",
+      "question": "What are the five stages of the data engineering lifecycle?",
+      "gold": [
+        "ch02-002"
+      ],
+      "whole": {
+        "rank": 2,
+        "top1": "ch01-006",
+        "top1_is_gold_neighbour": false
+      },
+      "halves": {
+        "rank": 1,
+        "top1": "ch02-002",
+        "top1_score": 0.8851,
+        "gold_best_score": 0.8851,
+        "median_parent_score": 0.6429
+      },
+      "sentences": {
+        "rank": 3,
+        "top1": "ch02-003",
+        "top1_score": 0.8639,
+        "gold_best_score": 0.8335,
+        "median_parent_score": 0.6511
+      }
+    },
+    "tech-fde-03": {
+      "book": "index",
+      "question": "Who proposed the Kappa architecture?",
+      "gold": [
+        "ch03-088"
+      ],
+      "whole": {
+        "rank": 2,
+        "top1": "ch08-032",
+        "top1_is_gold_neighbour": false
+      },
+      "halves": {
+        "rank": 1,
+        "top1": "ch03-088",
+        "top1_score": 0.8052,
+        "gold_best_score": 0.8052,
+        "median_parent_score": 0.5597
+      },
+      "sentences": {
+        "rank": 1,
+        "top1": "ch03-088",
+        "top1_score": 0.8173,
+        "gold_best_score": 0.8173,
+        "median_parent_score": 0.5813
+      }
+    },
+    "tech-fde-04": {
+      "book": "index",
+      "question": "What does Kinesis Data Firehose do with the events it receives?",
+      "gold": [
+        "ch07-013"
+      ],
+      "whole": {
+        "rank": 12,
+        "top1": "ch07-014",
+        "top1_is_gold_neighbour": true
+      },
+      "halves": {
+        "rank": 2,
+        "top1": "ch07-014",
+        "top1_score": 0.8013,
+        "gold_best_score": 0.7848,
+        "median_parent_score": 0.6009
+      },
+      "sentences": {
+        "rank": 1,
+        "top1": "ch07-013",
+        "top1_score": 0.8294,
+        "gold_best_score": 0.8294,
+        "median_parent_score": 0.6138
+      }
+    },
+    "tech-fde-05": {
+      "book": "index",
+      "question": "How does batch ingestion compare with streaming ingestion?",
+      "gold": [
+        "ch02-018",
+        "ch02-019"
+      ],
+      "whole": {
+        "rank": 1,
+        "top1": "ch02-018",
+        "top1_is_gold_neighbour": false
+      },
+      "halves": {
+        "rank": 2,
+        "top1": "ch02-021",
+        "top1_score": 0.889,
+        "gold_best_score": 0.8867,
+        "median_parent_score": 0.6121
+      },
+      "sentences": {
+        "rank": 2,
+        "top1": "ch02-020",
+        "top1_score": 0.8938,
+        "gold_best_score": 0.8882,
+        "median_parent_score": 0.621
+      }
+    },
+    "tech-aieng-01": {
+      "book": "index.ai-engineering",
+      "question": "What is AI engineering?",
+      "gold": [
+        "ch01-022"
+      ],
+      "whole": {
+        "rank": 1,
+        "top1": "ch01-022",
+        "top1_is_gold_neighbour": false
+      },
+      "halves": {
+        "rank": 1,
+        "top1": "ch01-022",
+        "top1_score": 0.8131,
+        "gold_best_score": 0.8131,
+        "median_parent_score": 0.5837
+      },
+      "sentences": {
+        "rank": 4,
+        "top1": "ch01-028",
+        "top1_score": 0.8063,
+        "gold_best_score": 0.7949,
+        "median_parent_score": 0.5979
+      }
+    },
+    "tech-aieng-02": {
+      "book": "index.ai-engineering",
+      "question": "How does RLHF work?",
+      "gold": [
+        "ch02-066",
+        "ch02-067"
+      ],
+      "whole": {
+        "rank": 2,
+        "top1": "ch02-068",
+        "top1_is_gold_neighbour": true
+      },
+      "halves": {
+        "rank": 2,
+        "top1": "ch02-068",
+        "top1_score": 0.7917,
+        "gold_best_score": 0.7903,
+        "median_parent_score": 0.5946
+      },
+      "sentences": {
+        "rank": 1,
+        "top1": "ch02-067",
+        "top1_score": 0.7854,
+        "gold_best_score": 0.7854,
+        "median_parent_score": 0.6156
+      }
+    },
+    "tech-aieng-03": {
+      "book": "index.ai-engineering",
+      "question": "Which paper proposed the Chinchilla scaling law, and what ratio does it give between training tokens and model size?",
+      "gold": [
+        "ch02-044"
+      ],
+      "whole": {
+        "rank": 1,
+        "top1": "ch02-044",
+        "top1_is_gold_neighbour": false
+      },
+      "halves": {
+        "rank": 1,
+        "top1": "ch02-044",
+        "top1_score": 0.8299,
+        "gold_best_score": 0.8299,
+        "median_parent_score": 0.6055
+      },
+      "sentences": {
+        "rank": 1,
+        "top1": "ch02-044",
+        "top1_score": 0.8772,
+        "gold_best_score": 0.8772,
+        "median_parent_score": 0.6193
+      }
+    },
+    "tech-aieng-04": {
+      "book": "index.ai-engineering",
+      "question": "How did DeepMind speed up Chinchilla-70B\u2019s decoding with speculative decoding?",
+      "gold": [
+        "ch09-046"
+      ],
+      "whole": {
+        "rank": 1,
+        "top1": "ch09-046",
+        "top1_is_gold_neighbour": false
+      },
+      "halves": {
+        "rank": 1,
+        "top1": "ch09-046",
+        "top1_score": 0.8749,
+        "gold_best_score": 0.8749,
+        "median_parent_score": 0.5881
+      },
+      "sentences": {
+        "rank": 1,
+        "top1": "ch09-046",
+        "top1_score": 0.899,
+        "gold_best_score": 0.899,
+        "median_parent_score": 0.5987
+      }
+    },
+    "tech-aieng-05": {
+      "book": "index.ai-engineering",
+      "question": "How does AI engineering compare with ML engineering?",
+      "gold": [
+        "ch01-074"
+      ],
+      "whole": {
+        "rank": 2,
+        "top1": "ch01-075",
+        "top1_is_gold_neighbour": true
+      },
+      "halves": {
+        "rank": 1,
+        "top1": "ch01-074",
+        "top1_score": 0.9137,
+        "gold_best_score": 0.9137,
+        "median_parent_score": 0.6109
+      },
+      "sentences": {
+        "rank": 2,
+        "top1": "ch01-075",
+        "top1_score": 0.8995,
+        "gold_best_score": 0.8896,
+        "median_parent_score": 0.6222
+      }
+    },
+    "fic-ent-atofe": {
+      "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+      "question": "who is atofe",
+      "gold": [
+        "section-0006-013",
+        "section-0010-018",
+        "section-0012-029",
+        "section-0014-033"
+      ],
+      "whole": {
+        "rank": 2,
+        "top1": "section-0010-020",
+        "top1_is_gold_neighbour": false
+      },
+      "halves": {
+        "rank": 1,
+        "top1": "section-0014-033",
+        "top1_score": 0.7816,
+        "gold_best_score": 0.7816,
+        "median_parent_score": 0.6217
+      },
+      "sentences": {
+        "rank": 1,
+        "top1": "section-0014-033",
+        "top1_score": 0.7787,
+        "gold_best_score": 0.7787,
+        "median_parent_score": 0.6344
+      }
+    },
+    "fic-ent-sandor": {
+      "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+      "question": "who is sandor",
+      "gold": [
+        "section-0007-017",
+        "section-0010-003",
+        "section-0012-007"
+      ],
+      "whole": {
+        "rank": 4,
+        "top1": "section-0009-003",
+        "top1_is_gold_neighbour": false
+      },
+      "halves": {
+        "rank": 17,
+        "top1": "section-0005-005",
+        "top1_score": 0.7745,
+        "gold_best_score": 0.7404,
+        "median_parent_score": 0.6412
+      },
+      "sentences": {
+        "rank": 15,
+        "top1": "section-0010-007",
+        "top1_score": 0.794,
+        "gold_best_score": 0.7618,
+        "median_parent_score": 0.6424
+      }
+    },
+    "fic-ent-eris": {
+      "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+      "question": "who is eris",
+      "gold": [
+        "section-0007-017",
+        "section-0008-007",
+        "section-0012-014"
+      ],
+      "whole": {
+        "rank": 10,
+        "top1": "section-0007-008",
+        "top1_is_gold_neighbour": false
+      },
+      "halves": {
+        "rank": 6,
+        "top1": "section-0008-018",
+        "top1_score": 0.7429,
+        "gold_best_score": 0.7353,
+        "median_parent_score": 0.628
+      },
+      "sentences": {
+        "rank": 45,
+        "top1": "section-0012-011",
+        "top1_score": 0.7782,
+        "gold_best_score": 0.7084,
+        "median_parent_score": 0.6349
+      }
+    },
+    "fic-ent-ruijerd": {
+      "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+      "question": "who is ruijerd",
+      "gold": [
+        "section-0005-009",
+        "section-0008-012",
+        "section-0012-019"
+      ],
+      "whole": {
+        "rank": 3,
+        "top1": "section-0012-017",
+        "top1_is_gold_neighbour": false
+      },
+      "halves": {
+        "rank": 4,
+        "top1": "section-0010-006",
+        "top1_score": 0.7751,
+        "gold_best_score": 0.7413,
+        "median_parent_score": 0.6274
+      },
+      "sentences": {
+        "rank": 7,
+        "top1": "section-0012-030",
+        "top1_score": 0.7856,
+        "gold_best_score": 0.7685,
+        "median_parent_score": 0.641
+      }
+    },
+    "fic-ent-rudeus": {
+      "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+      "question": "who is rudeus",
+      "gold": [
+        "section-0005-010",
+        "section-0011-008",
+        "section-0015-005"
+      ],
+      "whole": {
+        "rank": 4,
+        "top1": "section-0012-019",
+        "top1_is_gold_neighbour": false
+      },
+      "halves": {
+        "rank": 20,
+        "top1": "section-0015-007",
+        "top1_score": 0.7812,
+        "gold_best_score": 0.7162,
+        "median_parent_score": 0.6376
+      },
+      "sentences": {
+        "rank": 21,
+        "top1": "section-0012-019",
+        "top1_score": 0.7942,
+        "gold_best_score": 0.7186,
+        "median_parent_score": 0.6379
+      }
+    },
+    "fic-ent-dohga": {
+      "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+      "question": "who is dohga",
+      "gold": [
+        "section-0006-009",
+        "section-0007-015",
+        "section-0011-004"
+      ],
+      "whole": {
+        "rank": 2,
+        "top1": "section-0006-007",
+        "top1_is_gold_neighbour": false
+      },
+      "halves": {
+        "rank": 3,
+        "top1": "section-0010-015",
+        "top1_score": 0.7226,
+        "gold_best_score": 0.6959,
+        "median_parent_score": 0.5884
+      },
+      "sentences": {
+        "rank": 17,
+        "top1": "section-0006-016",
+        "top1_score": 0.733,
+        "gold_best_score": 0.6603,
+        "median_parent_score": 0.6064
+      }
+    },
+    "fic-scene-white-place": {
+      "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+      "question": "where did rudeus wake up after falling from the bridge?",
+      "gold": [
+        "section-0006-001"
+      ],
+      "whole": {
+        "rank": 7,
+        "top1": "section-0005-008",
+        "top1_is_gold_neighbour": false
+      },
+      "halves": {
+        "rank": 33,
+        "top1": "section-0005-009",
+        "top1_score": 0.8184,
+        "gold_best_score": 0.7398,
+        "median_parent_score": 0.6802
+      },
+      "sentences": {
+        "rank": 36,
+        "top1": "section-0005-011",
+        "top1_score": 0.8115,
+        "gold_best_score": 0.7185,
+        "median_parent_score": 0.6716
+      }
+    },
+    "fic-scene-gall-fire": {
+      "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+      "question": "how did eris finish off gall falion?",
+      "gold": [
+        "section-0008-018"
+      ],
+      "whole": {
+        "rank": 2,
+        "top1": "section-0008-017",
+        "top1_is_gold_neighbour": true
+      },
+      "halves": {
+        "rank": 4,
+        "top1": "section-0008-017",
+        "top1_score": 0.8382,
+        "gold_best_score": 0.8231,
+        "median_parent_score": 0.6644
+      },
+      "sentences": {
+        "rank": 47,
+        "top1": "section-0008-011",
+        "top1_score": 0.8248,
+        "gold_best_score": 0.7082,
+        "median_parent_score": 0.6578
+      }
+    },
+    "fic-scene-alec-dead": {
+      "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+      "question": "what happened to alexander after his duel with rudeus?",
+      "gold": [
+        "section-0011-016"
+      ],
+      "whole": {
+        "rank": 21,
+        "top1": "section-0011-001",
+        "top1_is_gold_neighbour": false
+      },
+      "halves": {
+        "rank": 62,
+        "top1": "section-0011-001",
+        "top1_score": 0.8073,
+        "gold_best_score": 0.732,
+        "median_parent_score": 0.6924
+      },
+      "sentences": {
+        "rank": 192,
+        "top1": "section-0010-012",
+        "top1_score": 0.7868,
+        "gold_best_score": 0.6581,
+        "median_parent_score": 0.6767
+      }
+    },
+    "fic-scene-badigadi": {
+      "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+      "question": "what did badigadi admit to rudeus at the end?",
+      "gold": [
+        "section-0013-024"
+      ],
+      "whole": {
+        "rank": 2,
+        "top1": "section-0013-026",
+        "top1_is_gold_neighbour": false
+      },
+      "halves": {
+        "rank": 1,
+        "top1": "section-0013-024",
+        "top1_score": 0.8045,
+        "gold_best_score": 0.8045,
+        "median_parent_score": 0.6848
+      },
+      "sentences": {
+        "rank": 1,
+        "top1": "section-0013-024",
+        "top1_score": 0.7796,
+        "gold_best_score": 0.7796,
+        "median_parent_score": 0.6779
+      }
+    }
+  },
+  "extension_other_books": {
+    "rows": 15,
+    "summary": {
+      "n": 15,
+      "whole": {
+        "top1": 14,
+        "top5": 14,
+        "mean_capped6": 1.33
+      },
+      "halves": {
+        "top1": 12,
+        "top5": 15,
+        "mean_capped6": 1.2
+      }
+    },
+    "per_book": {
+      "index.quantization": {
+        "n": 5,
+        "whole_top1": 5,
+        "whole_top5": 5,
+        "halves_top1": 4,
+        "halves_top5": 5
+      },
+      "index.ddia": {
+        "n": 5,
+        "whole_top1": 4,
+        "whole_top5": 4,
+        "halves_top1": 4,
+        "halves_top5": 5
+      },
+      "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive": {
+        "n": 5,
+        "whole_top1": 5,
+        "whole_top5": 5,
+        "halves_top1": 4,
+        "halves_top5": 5
+      }
+    },
+    "cost": {
+      "halves_units": 4681,
+      "embed_seconds": 91.0,
+      "chunks": 2416
+    },
+    "per_row": {
+      "tech-quant-01": {
+        "book": "index.quantization",
+        "question": "zero point",
+        "gold": [
+          "chapter-2-035"
+        ],
+        "whole_rank": 1,
+        "halves_rank": 1,
+        "whole_top1": "chapter-2-035"
+      },
+      "tech-quant-02": {
+        "book": "index.quantization",
+        "question": "How does dynamic quantization work?",
+        "gold": [
+          "chapter-3-044"
+        ],
+        "whole_rank": 1,
+        "halves_rank": 1,
+        "whole_top1": "chapter-3-044"
+      },
+      "tech-quant-03": {
+        "book": "index.quantization",
+        "question": "How many calibration samples do GPTQ, AWQ and the llama.cpp scripts use?",
+        "gold": [
+          "chapter-4-024"
+        ],
+        "whole_rank": 1,
+        "halves_rank": 1,
+        "whole_top1": "chapter-4-024"
+      },
+      "tech-quant-04": {
+        "book": "index.quantization",
+        "question": "Who introduced the straight-through estimator?",
+        "gold": [
+          "chapter-5-021"
+        ],
+        "whole_rank": 1,
+        "halves_rank": 1,
+        "whole_top1": "chapter-5-021"
+      },
+      "tech-quant-05": {
+        "book": "index.quantization",
+        "question": "How does per-tensor quantization compare with per-channel quantization?",
+        "gold": [
+          "chapter-3-030"
+        ],
+        "whole_rank": 1,
+        "halves_rank": 2,
+        "whole_top1": "chapter-3-030"
+      },
+      "tech-ddia-01": {
+        "book": "index.ddia",
+        "question": "read repair",
+        "gold": [
+          "text00011-067"
+        ],
+        "whole_rank": 1,
+        "halves_rank": 1,
+        "whole_top1": "text00011-067"
+      },
+      "tech-ddia-02": {
+        "book": "index.ddia",
+        "question": "What is linearizability?",
+        "gold": [
+          "text00015-008"
+        ],
+        "whole_rank": 9,
+        "halves_rank": 2,
+        "whole_top1": "text00015-017"
+      },
+      "tech-ddia-03": {
+        "book": "index.ddia",
+        "question": "Who originally described the LSM-tree indexing structure, and under what name?",
+        "gold": [
+          "text00008-017"
+        ],
+        "whole_rank": 1,
+        "halves_rank": 1,
+        "whole_top1": "text00008-017"
+      },
+      "tech-ddia-04": {
+        "book": "index.ddia",
+        "question": "What does Google\u2019s TrueTime API report when you ask it for the current time?",
+        "gold": [
+          "text00014-053"
+        ],
+        "whole_rank": 1,
+        "halves_rank": 1,
+        "whole_top1": "text00014-053"
+      },
+      "tech-ddia-05": {
+        "book": "index.ddia",
+        "question": "How do B-trees compare with LSM-trees for reads and writes?",
+        "gold": [
+          "text00008-028"
+        ],
+        "whole_rank": 1,
+        "halves_rank": 1,
+        "whole_top1": "text00008-028"
+      },
+      "tech-aiagents-01": {
+        "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+        "question": "What is a finite state machine?",
+        "gold": [
+          "ch01-012"
+        ],
+        "whole_rank": 1,
+        "halves_rank": 1,
+        "whole_top1": "ch01-012"
+      },
+      "tech-aiagents-02": {
+        "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+        "question": "How does GRPO work?",
+        "gold": [
+          "ch03-013"
+        ],
+        "whole_rank": 1,
+        "halves_rank": 1,
+        "whole_top1": "ch03-013"
+      },
+      "tech-aiagents-03": {
+        "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+        "question": "When was the Agentic AI Foundation formed, and whose protocol was a founding contribution?",
+        "gold": [
+          "ch05-026"
+        ],
+        "whole_rank": 1,
+        "halves_rank": 1,
+        "whole_top1": "ch05-026"
+      },
+      "tech-aiagents-04": {
+        "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+        "question": "Which frameworks does the book name for quantizing open source models?",
+        "gold": [
+          "ch04-046"
+        ],
+        "whole_rank": 1,
+        "halves_rank": 2,
+        "whole_top1": "ch04-046"
+      },
+      "tech-aiagents-05": {
+        "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+        "question": "How does streaming compare with polling for long-running agent tasks?",
+        "gold": [
+          "ch07-013"
+        ],
+        "whole_rank": 1,
+        "halves_rank": 1,
+        "whole_top1": "ch07-013"
+      }
+    }
+  },
+  "truncation_256d": {
+    "method": "prefix truncation of the stored whole-chunk and unit vectors to the first 256 dims, query re-normalized; no re-embedding",
+    "subset_20": {
+      "whole": {
+        "index": {
+          "top1": 2,
+          "top5": 4,
+          "n": 5
+        },
+        "index.ai-engineering": {
+          "top1": 3,
+          "top5": 5,
+          "n": 5
+        },
+        "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0": {
+          "top1": 0,
+          "top5": 8,
+          "n": 10
+        }
+      },
+      "halves": {
+        "index": {
+          "top1": 4,
+          "top5": 5,
+          "n": 5
+        },
+        "index.ai-engineering": {
+          "top1": 4,
+          "top5": 5,
+          "n": 5
+        },
+        "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0": {
+          "top1": 2,
+          "top5": 6,
+          "n": 10
+        }
+      },
+      "sentences": {
+        "index": {
+          "top1": 4,
+          "top5": 5,
+          "n": 5
+        },
+        "index.ai-engineering": {
+          "top1": 3,
+          "top5": 5,
+          "n": 5
+        },
+        "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0": {
+          "top1": 1,
+          "top5": 3,
+          "n": 10
+        }
+      }
+    },
+    "other_15": {
+      "whole": {
+        "top1": 13,
+        "top5": 14,
+        "n": 15
+      },
+      "halves": {
+        "top1": 9,
+        "top5": 15,
+        "n": 15
+      }
+    },
+    "all_35": {
+      "whole": {
+        "top1": 18,
+        "top5": 31
+      },
+      "halves": {
+        "top1": 19,
+        "top5": 31
+      },
+      "sentences": {
+        "top1": 8,
+        "top5": 13,
+        "n": 20,
+        "note": "20-row subset only"
+      }
+    },
+    "vector_bytes_halves_256": 4755456,
+    "note": "halves+256 is 19 top-1 / 31 top-5 of 35 at 4.76 MB, vs whole-768 19/30 at 7.2 MB"
+  },
+  "all_35": {
+    "rows": 35,
+    "whole": {
+      "top1": 19,
+      "top5": 30
+    },
+    "halves": {
+      "top1": 21,
+      "top5": 30
+    },
+    "bootstrap_delta_halves": {
+      "top1": {
+        "mean": 2.02,
+        "lo95": -3,
+        "hi95": 8
+      },
+      "top5": {
+        "mean": 0.0,
+        "lo95": -4,
+        "hi95": 4
+      }
+    },
+    "per_book": {
+      "index": {
+        "n": 5,
+        "halves_top1_top5": [
+          3,
+          5
+        ],
+        "whole_top1_top5": [
+          2,
+          4
+        ]
+      },
+      "index.ai-engineering": {
+        "n": 5,
+        "halves_top1_top5": [
+          4,
+          5
+        ],
+        "whole_top1_top5": [
+          3,
+          5
+        ]
+      },
+      "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0": {
+        "n": 10,
+        "halves_top1_top5": [
+          2,
+          5
+        ],
+        "whole_top1_top5": [
+          0,
+          7
+        ]
+      },
+      "index.quantization": {
+        "n": 5,
+        "halves_top1_top5": [
+          4,
+          5
+        ],
+        "whole_top1_top5": [
+          5,
+          5
+        ]
+      },
+      "index.ddia": {
+        "n": 5,
+        "halves_top1_top5": [
+          4,
+          5
+        ],
+        "whole_top1_top5": [
+          4,
+          4
+        ]
+      },
+      "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive": {
+        "n": 5,
+        "halves_top1_top5": [
+          4,
+          5
+        ],
+        "whole_top1_top5": [
+          5,
+          5
+        ]
+      }
+    },
+    "sentences": "not extended: ruled out on the 20-row subset by top-5 (-4, CI -9..0) and 6x index",
+    "per_row": {
+      "tech-fde-01": {
+        "whole": 1,
+        "halves": 1,
+        "sentences": 1,
+        "book": "index"
+      },
+      "tech-fde-02": {
+        "whole": 2,
+        "halves": 1,
+        "sentences": 3,
+        "book": "index"
+      },
+      "tech-fde-03": {
+        "whole": 2,
+        "halves": 1,
+        "sentences": 1,
+        "book": "index"
+      },
+      "tech-fde-04": {
+        "whole": 12,
+        "halves": 2,
+        "sentences": 1,
+        "book": "index"
+      },
+      "tech-fde-05": {
+        "whole": 1,
+        "halves": 2,
+        "sentences": 2,
+        "book": "index"
+      },
+      "tech-aieng-01": {
+        "whole": 1,
+        "halves": 1,
+        "sentences": 4,
+        "book": "index.ai-engineering"
+      },
+      "tech-aieng-02": {
+        "whole": 2,
+        "halves": 2,
+        "sentences": 1,
+        "book": "index.ai-engineering"
+      },
+      "tech-aieng-03": {
+        "whole": 1,
+        "halves": 1,
+        "sentences": 1,
+        "book": "index.ai-engineering"
+      },
+      "tech-aieng-04": {
+        "whole": 1,
+        "halves": 1,
+        "sentences": 1,
+        "book": "index.ai-engineering"
+      },
+      "tech-aieng-05": {
+        "whole": 2,
+        "halves": 1,
+        "sentences": 2,
+        "book": "index.ai-engineering"
+      },
+      "fic-ent-atofe": {
+        "whole": 2,
+        "halves": 1,
+        "sentences": 1,
+        "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0"
+      },
+      "fic-ent-sandor": {
+        "whole": 4,
+        "halves": 17,
+        "sentences": 15,
+        "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0"
+      },
+      "fic-ent-eris": {
+        "whole": 10,
+        "halves": 6,
+        "sentences": 45,
+        "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0"
+      },
+      "fic-ent-ruijerd": {
+        "whole": 3,
+        "halves": 4,
+        "sentences": 7,
+        "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0"
+      },
+      "fic-ent-rudeus": {
+        "whole": 4,
+        "halves": 20,
+        "sentences": 21,
+        "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0"
+      },
+      "fic-ent-dohga": {
+        "whole": 2,
+        "halves": 3,
+        "sentences": 17,
+        "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0"
+      },
+      "fic-scene-white-place": {
+        "whole": 7,
+        "halves": 33,
+        "sentences": 36,
+        "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0"
+      },
+      "fic-scene-gall-fire": {
+        "whole": 2,
+        "halves": 4,
+        "sentences": 47,
+        "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0"
+      },
+      "fic-scene-alec-dead": {
+        "whole": 21,
+        "halves": 62,
+        "sentences": 192,
+        "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0"
+      },
+      "fic-scene-badigadi": {
+        "whole": 2,
+        "halves": 1,
+        "sentences": 1,
+        "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0"
+      },
+      "tech-quant-01": {
+        "whole": 1,
+        "halves": 1,
+        "sentences": null,
+        "book": "index.quantization"
+      },
+      "tech-quant-02": {
+        "whole": 1,
+        "halves": 1,
+        "sentences": null,
+        "book": "index.quantization"
+      },
+      "tech-quant-03": {
+        "whole": 1,
+        "halves": 1,
+        "sentences": null,
+        "book": "index.quantization"
+      },
+      "tech-quant-04": {
+        "whole": 1,
+        "halves": 1,
+        "sentences": null,
+        "book": "index.quantization"
+      },
+      "tech-quant-05": {
+        "whole": 1,
+        "halves": 2,
+        "sentences": null,
+        "book": "index.quantization"
+      },
+      "tech-ddia-01": {
+        "whole": 1,
+        "halves": 1,
+        "sentences": null,
+        "book": "index.ddia"
+      },
+      "tech-ddia-02": {
+        "whole": 9,
+        "halves": 2,
+        "sentences": null,
+        "book": "index.ddia"
+      },
+      "tech-ddia-03": {
+        "whole": 1,
+        "halves": 1,
+        "sentences": null,
+        "book": "index.ddia"
+      },
+      "tech-ddia-04": {
+        "whole": 1,
+        "halves": 1,
+        "sentences": null,
+        "book": "index.ddia"
+      },
+      "tech-ddia-05": {
+        "whole": 1,
+        "halves": 1,
+        "sentences": null,
+        "book": "index.ddia"
+      },
+      "tech-aiagents-01": {
+        "whole": 1,
+        "halves": 1,
+        "sentences": null,
+        "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive"
+      },
+      "tech-aiagents-02": {
+        "whole": 1,
+        "halves": 1,
+        "sentences": null,
+        "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive"
+      },
+      "tech-aiagents-03": {
+        "whole": 1,
+        "halves": 1,
+        "sentences": null,
+        "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive"
+      },
+      "tech-aiagents-04": {
+        "whole": 1,
+        "halves": 2,
+        "sentences": null,
+        "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive"
+      },
+      "tech-aiagents-05": {
+        "whole": 1,
+        "halves": 1,
+        "sentences": null,
+        "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive"
+      }
+    }
+  }
+}

@@ -1,0 +1,5266 @@
+{
+ "generated_at": "2026-11-04T02:58:44+0800",
+ "latency_note": "single uncached query, same Ollama, both models resident on GPU: gemma median 2233 ms (mlx runner, fixed ~2.1 s per request), nomic median 43 ms; shared with three other experiments",
+ "leg_overlap": {
+  "mean_top5_overlap_fraction": 0.606,
+  "rows_with_identical_top1": 20,
+  "rows": 35
+ },
+ "rows": 35,
+ "rrf_k": 60,
+ "embed_seconds": {
+  "gemma": 3.73,
+  "nomic": 0.66
+ },
+ "index_alignment": {
+  "index": {
+   "gemma": 1042,
+   "nomic": 1042,
+   "shared": 1042,
+   "gemma_only": 0,
+   "nomic_only": 0
+  },
+  "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive": {
+   "gemma": 637,
+   "nomic": 637,
+   "shared": 637,
+   "gemma_only": 0,
+   "nomic_only": 0
+  },
+  "index.ai-engineering": {
+   "gemma": 1030,
+   "nomic": 1030,
+   "shared": 1030,
+   "gemma_only": 0,
+   "nomic_only": 0
+  },
+  "index.ddia": {
+   "gemma": 1306,
+   "nomic": 1306,
+   "shared": 1306,
+   "gemma_only": 0,
+   "nomic_only": 0
+  },
+  "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0": {
+   "gemma": 274,
+   "nomic": 274,
+   "shared": 274,
+   "gemma_only": 0,
+   "nomic_only": 0
+  },
+  "index.quantization": {
+   "gemma": 473,
+   "nomic": 473,
+   "shared": 473,
+   "gemma_only": 0,
+   "nomic_only": 0
+  }
+ },
+ "summary": {
+  "gemma": {
+   "top1": 19,
+   "top5": 30,
+   "mean_gold_rank": 3.0,
+   "mean_gold_rank_found": 3.0,
+   "median_gold_rank": 1
+  },
+  "nomic": {
+   "top1": 26,
+   "top5": 31,
+   "mean_gold_rank": 5.257,
+   "mean_gold_rank_found": 5.257,
+   "median_gold_rank": 1
+  },
+  "rrf60": {
+   "top1": 24,
+   "top5": 30,
+   "mean_gold_rank": 3.457,
+   "mean_gold_rank_found": 3.457,
+   "median_gold_rank": 1
+  },
+  "z_50_50": {
+   "top1": 24,
+   "top5": 31,
+   "mean_gold_rank": 3.4,
+   "mean_gold_rank_found": 3.4,
+   "median_gold_rank": 1
+  },
+  "z_60n_40g": {
+   "top1": 24,
+   "top5": 31,
+   "mean_gold_rank": 3.771,
+   "mean_gold_rank_found": 3.771,
+   "median_gold_rank": 1
+  },
+  "z_40n_60g": {
+   "top1": 23,
+   "top5": 31,
+   "mean_gold_rank": 3.171,
+   "mean_gold_rank_found": 3.171,
+   "median_gold_rank": 1
+  },
+  "z_max": {
+   "top1": 24,
+   "top5": 31,
+   "mean_gold_rank": 3.029,
+   "mean_gold_rank_found": 3.029,
+   "median_gold_rank": 1
+  },
+  "z_mean": {
+   "top1": 24,
+   "top5": 31,
+   "mean_gold_rank": 3.4,
+   "mean_gold_rank_found": 3.4,
+   "median_gold_rank": 1
+  }
+ },
+ "deltas_vs_nomic": {
+  "gemma": {
+   "top1_gain": [
+    "tech-fde-05",
+    "tech-aieng-01"
+   ],
+   "top1_loss": [
+    "tech-fde-02",
+    "tech-fde-03",
+    "tech-fde-04",
+    "tech-aieng-02",
+    "tech-aieng-05",
+    "fic-ent-eris",
+    "fic-ent-ruijerd",
+    "fic-ent-dohga",
+    "fic-scene-badigadi"
+   ],
+   "top5_gain": [
+    "fic-ent-sandor"
+   ],
+   "top5_loss": [
+    "tech-fde-04",
+    "fic-ent-eris"
+   ]
+  },
+  "rrf60": {
+   "top1_gain": [
+    "tech-fde-05",
+    "tech-aieng-01"
+   ],
+   "top1_loss": [
+    "tech-fde-03",
+    "tech-fde-04",
+    "tech-aieng-02",
+    "fic-ent-eris"
+   ],
+   "top5_gain": [],
+   "top5_loss": [
+    "tech-fde-04"
+   ]
+  },
+  "z_50_50": {
+   "top1_gain": [
+    "tech-fde-05"
+   ],
+   "top1_loss": [
+    "tech-fde-04",
+    "tech-aieng-02",
+    "fic-ent-eris"
+   ],
+   "top5_gain": [],
+   "top5_loss": []
+  },
+  "z_60n_40g": {
+   "top1_gain": [
+    "tech-fde-05"
+   ],
+   "top1_loss": [
+    "tech-fde-04",
+    "tech-aieng-02",
+    "fic-ent-eris"
+   ],
+   "top5_gain": [],
+   "top5_loss": []
+  },
+  "z_40n_60g": {
+   "top1_gain": [
+    "tech-fde-05"
+   ],
+   "top1_loss": [
+    "tech-fde-04",
+    "tech-aieng-02",
+    "tech-aieng-05",
+    "fic-ent-eris"
+   ],
+   "top5_gain": [],
+   "top5_loss": []
+  },
+  "z_max": {
+   "top1_gain": [
+    "tech-aieng-01"
+   ],
+   "top1_loss": [
+    "tech-aieng-05",
+    "fic-ent-eris",
+    "fic-ent-dohga"
+   ],
+   "top5_gain": [],
+   "top5_loss": []
+  },
+  "z_mean": {
+   "top1_gain": [
+    "tech-fde-05"
+   ],
+   "top1_loss": [
+    "tech-fde-04",
+    "tech-aieng-02",
+    "fic-ent-eris"
+   ],
+   "top5_gain": [],
+   "top5_loss": []
+  }
+ },
+ "per_row": {
+  "tech-fde-01": {
+   "book": "index",
+   "question": "watermark",
+   "gold": [
+    "ch08-039"
+   ],
+   "n_chunks": 1042,
+   "ranks": {
+    "gemma": 1,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "ch08-039",
+     "ch07-028",
+     "ch08-077",
+     "ch08-137",
+     "ch08-054"
+    ],
+    "nomic": [
+     "ch08-039",
+     "ch06-032",
+     "ch06-070",
+     "ch05-019",
+     "ch06-100"
+    ],
+    "rrf60": [
+     "ch08-039",
+     "ch07-031",
+     "ch07-041",
+     "app01-017",
+     "ch07-027"
+    ],
+    "z_50_50": [
+     "ch08-039",
+     "ch07-031",
+     "ch07-041",
+     "app01-017",
+     "app01-005"
+    ],
+    "z_60n_40g": [
+     "ch08-039",
+     "ch07-031",
+     "app01-017",
+     "ch07-027",
+     "ch07-041"
+    ],
+    "z_40n_60g": [
+     "ch08-039",
+     "ch07-031",
+     "ch07-041",
+     "app01-017",
+     "app01-005"
+    ],
+    "z_max": [
+     "ch08-039",
+     "ch06-032",
+     "ch06-070",
+     "ch05-019",
+     "ch06-100"
+    ],
+    "z_mean": [
+     "ch08-039",
+     "ch07-031",
+     "ch07-041",
+     "app01-017",
+     "app01-005"
+    ]
+   }
+  },
+  "tech-fde-02": {
+   "book": "index",
+   "question": "What are the five stages of the data engineering lifecycle?",
+   "gold": [
+    "ch02-002"
+   ],
+   "n_chunks": 1042,
+   "ranks": {
+    "gemma": 2,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "ch01-006",
+     "ch02-002",
+     "ch02-003",
+     "ch02-091",
+     "ch02-004"
+    ],
+    "nomic": [
+     "ch02-002",
+     "ch02-091",
+     "ch01-006",
+     "ch02-003",
+     "ch09-072"
+    ],
+    "rrf60": [
+     "ch02-002",
+     "ch01-006",
+     "ch02-091",
+     "ch02-003",
+     "ch02-001"
+    ],
+    "z_50_50": [
+     "ch02-002",
+     "ch01-006",
+     "ch02-091",
+     "ch02-003",
+     "ch02-001"
+    ],
+    "z_60n_40g": [
+     "ch02-002",
+     "ch01-006",
+     "ch02-091",
+     "ch02-003",
+     "ch02-001"
+    ],
+    "z_40n_60g": [
+     "ch02-002",
+     "ch01-006",
+     "ch02-091",
+     "ch02-003",
+     "ch02-001"
+    ],
+    "z_max": [
+     "ch02-002",
+     "ch02-091",
+     "ch01-006",
+     "ch02-003",
+     "ch09-072"
+    ],
+    "z_mean": [
+     "ch02-002",
+     "ch01-006",
+     "ch02-091",
+     "ch02-003",
+     "ch02-001"
+    ]
+   }
+  },
+  "tech-fde-03": {
+   "book": "index",
+   "question": "Who proposed the Kappa architecture?",
+   "gold": [
+    "ch03-088"
+   ],
+   "n_chunks": 1042,
+   "ranks": {
+    "gemma": 2,
+    "nomic": 1,
+    "rrf60": 2,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "ch08-032",
+     "ch03-088",
+     "ch03-086",
+     "ch03-089",
+     "ch08-033"
+    ],
+    "nomic": [
+     "ch03-088",
+     "ch08-032",
+     "ch08-033",
+     "ch03-087",
+     "ch03-086"
+    ],
+    "rrf60": [
+     "ch08-032",
+     "ch03-088",
+     "ch03-086",
+     "ch08-033",
+     "ch03-087"
+    ],
+    "z_50_50": [
+     "ch03-088",
+     "ch08-032",
+     "ch08-033",
+     "ch03-086",
+     "ch03-089"
+    ],
+    "z_60n_40g": [
+     "ch03-088",
+     "ch08-032",
+     "ch08-033",
+     "ch03-086",
+     "ch03-087"
+    ],
+    "z_40n_60g": [
+     "ch03-088",
+     "ch08-032",
+     "ch08-033",
+     "ch03-086",
+     "ch03-089"
+    ],
+    "z_max": [
+     "ch03-088",
+     "ch08-032",
+     "ch08-033",
+     "ch03-086",
+     "ch03-089"
+    ],
+    "z_mean": [
+     "ch03-088",
+     "ch08-032",
+     "ch08-033",
+     "ch03-086",
+     "ch03-089"
+    ]
+   }
+  },
+  "tech-fde-04": {
+   "book": "index",
+   "question": "What does Kinesis Data Firehose do with the events it receives?",
+   "gold": [
+    "ch07-013"
+   ],
+   "n_chunks": 1042,
+   "ranks": {
+    "gemma": 12,
+    "nomic": 1,
+    "rrf60": 6,
+    "z_50_50": 2,
+    "z_60n_40g": 2,
+    "z_40n_60g": 2,
+    "z_max": 1,
+    "z_mean": 2
+   },
+   "orders5": {
+    "gemma": [
+     "ch07-014",
+     "ch07-045",
+     "ch06-078",
+     "ch07-070",
+     "ch05-064"
+    ],
+    "nomic": [
+     "ch07-013",
+     "ch07-014",
+     "ch07-010",
+     "ch06-078",
+     "ch07-041"
+    ],
+    "rrf60": [
+     "ch07-014",
+     "ch06-078",
+     "ch07-045",
+     "ch07-070",
+     "ch07-041"
+    ],
+    "z_50_50": [
+     "ch07-014",
+     "ch07-013",
+     "ch06-078",
+     "ch07-045",
+     "ch07-041"
+    ],
+    "z_60n_40g": [
+     "ch07-014",
+     "ch07-013",
+     "ch06-078",
+     "ch07-045",
+     "ch07-041"
+    ],
+    "z_40n_60g": [
+     "ch07-014",
+     "ch07-013",
+     "ch07-045",
+     "ch06-078",
+     "ch07-041"
+    ],
+    "z_max": [
+     "ch07-013",
+     "ch07-014",
+     "ch07-045",
+     "ch06-078",
+     "ch07-070"
+    ],
+    "z_mean": [
+     "ch07-014",
+     "ch07-013",
+     "ch06-078",
+     "ch07-045",
+     "ch07-041"
+    ]
+   }
+  },
+  "tech-fde-05": {
+   "book": "index",
+   "question": "How does batch ingestion compare with streaming ingestion?",
+   "gold": [
+    "ch02-018",
+    "ch02-019"
+   ],
+   "n_chunks": 1042,
+   "ranks": {
+    "gemma": 1,
+    "nomic": 3,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 3,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "ch02-018",
+     "ch02-019",
+     "ch02-021",
+     "ch02-020",
+     "ch07-060"
+    ],
+    "nomic": [
+     "ch02-021",
+     "ch02-020",
+     "ch02-018",
+     "ch07-060",
+     "ch02-019"
+    ],
+    "rrf60": [
+     "ch02-018",
+     "ch02-021",
+     "ch02-020",
+     "ch02-019",
+     "ch07-060"
+    ],
+    "z_50_50": [
+     "ch02-018",
+     "ch02-021",
+     "ch02-020",
+     "ch02-019",
+     "ch07-060"
+    ],
+    "z_60n_40g": [
+     "ch02-018",
+     "ch02-021",
+     "ch02-020",
+     "ch02-019",
+     "ch07-060"
+    ],
+    "z_40n_60g": [
+     "ch02-018",
+     "ch02-021",
+     "ch02-020",
+     "ch02-019",
+     "ch07-060"
+    ],
+    "z_max": [
+     "ch02-021",
+     "ch02-020",
+     "ch02-018",
+     "ch02-019",
+     "ch07-060"
+    ],
+    "z_mean": [
+     "ch02-018",
+     "ch02-021",
+     "ch02-020",
+     "ch02-019",
+     "ch07-060"
+    ]
+   }
+  },
+  "tech-quant-01": {
+   "book": "index.quantization",
+   "question": "zero point",
+   "gold": [
+    "chapter-2-035"
+   ],
+   "n_chunks": 473,
+   "ranks": {
+    "gemma": 1,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "chapter-2-035",
+     "chapter-2-080",
+     "chapter-2-037",
+     "chapter-2-067",
+     "chapter-2-036"
+    ],
+    "nomic": [
+     "chapter-2-035",
+     "chapter-2-045",
+     "chapter-2-072",
+     "chapter-2-067",
+     "chapter-2-083"
+    ],
+    "rrf60": [
+     "chapter-2-035",
+     "chapter-2-067",
+     "chapter-2-037",
+     "chapter-2-036",
+     "chapter-2-080"
+    ],
+    "z_50_50": [
+     "chapter-2-035",
+     "chapter-2-067",
+     "chapter-2-037",
+     "chapter-2-072",
+     "chapter-2-080"
+    ],
+    "z_60n_40g": [
+     "chapter-2-035",
+     "chapter-2-067",
+     "chapter-2-037",
+     "chapter-2-072",
+     "chapter-2-081"
+    ],
+    "z_40n_60g": [
+     "chapter-2-035",
+     "chapter-2-067",
+     "chapter-2-037",
+     "chapter-2-080",
+     "chapter-2-036"
+    ],
+    "z_max": [
+     "chapter-2-035",
+     "chapter-2-045",
+     "chapter-2-072",
+     "chapter-2-067",
+     "chapter-2-083"
+    ],
+    "z_mean": [
+     "chapter-2-035",
+     "chapter-2-067",
+     "chapter-2-037",
+     "chapter-2-072",
+     "chapter-2-080"
+    ]
+   }
+  },
+  "tech-quant-02": {
+   "book": "index.quantization",
+   "question": "How does dynamic quantization work?",
+   "gold": [
+    "chapter-3-044"
+   ],
+   "n_chunks": 473,
+   "ranks": {
+    "gemma": 1,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "chapter-3-044",
+     "chapter-3-046",
+     "chapter-3-043",
+     "chapter-3-045",
+     "chapter-3-049"
+    ],
+    "nomic": [
+     "chapter-3-044",
+     "chapter-3-046",
+     "chapter-6-042",
+     "chapter-3-043",
+     "chapter-6-038"
+    ],
+    "rrf60": [
+     "chapter-3-044",
+     "chapter-3-046",
+     "chapter-3-043",
+     "chapter-3-045",
+     "chapter-6-038"
+    ],
+    "z_50_50": [
+     "chapter-3-044",
+     "chapter-3-046",
+     "chapter-3-043",
+     "chapter-6-042",
+     "chapter-3-045"
+    ],
+    "z_60n_40g": [
+     "chapter-3-044",
+     "chapter-3-046",
+     "chapter-3-043",
+     "chapter-6-042",
+     "chapter-3-045"
+    ],
+    "z_40n_60g": [
+     "chapter-3-044",
+     "chapter-3-046",
+     "chapter-3-043",
+     "chapter-3-045",
+     "chapter-6-042"
+    ],
+    "z_max": [
+     "chapter-3-044",
+     "chapter-3-046",
+     "chapter-6-042",
+     "chapter-3-043",
+     "chapter-6-038"
+    ],
+    "z_mean": [
+     "chapter-3-044",
+     "chapter-3-046",
+     "chapter-3-043",
+     "chapter-6-042",
+     "chapter-3-045"
+    ]
+   }
+  },
+  "tech-quant-03": {
+   "book": "index.quantization",
+   "question": "How many calibration samples do GPTQ, AWQ and the llama.cpp scripts use?",
+   "gold": [
+    "chapter-4-024"
+   ],
+   "n_chunks": 473,
+   "ranks": {
+    "gemma": 1,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "chapter-4-024",
+     "chapter-4-026",
+     "chapter-7-057",
+     "chapter-7-039",
+     "chapter-4-021"
+    ],
+    "nomic": [
+     "chapter-4-024",
+     "chapter-4-026",
+     "chapter-7-057",
+     "chapter-7-059",
+     "chapter-7-039"
+    ],
+    "rrf60": [
+     "chapter-4-024",
+     "chapter-4-026",
+     "chapter-7-057",
+     "chapter-7-039",
+     "chapter-7-076"
+    ],
+    "z_50_50": [
+     "chapter-4-024",
+     "chapter-4-026",
+     "chapter-7-057",
+     "chapter-7-039",
+     "chapter-7-059"
+    ],
+    "z_60n_40g": [
+     "chapter-4-024",
+     "chapter-4-026",
+     "chapter-7-057",
+     "chapter-7-039",
+     "chapter-7-059"
+    ],
+    "z_40n_60g": [
+     "chapter-4-024",
+     "chapter-4-026",
+     "chapter-7-057",
+     "chapter-7-039",
+     "chapter-7-059"
+    ],
+    "z_max": [
+     "chapter-4-024",
+     "chapter-4-026",
+     "chapter-7-057",
+     "chapter-7-059",
+     "chapter-7-039"
+    ],
+    "z_mean": [
+     "chapter-4-024",
+     "chapter-4-026",
+     "chapter-7-057",
+     "chapter-7-039",
+     "chapter-7-059"
+    ]
+   }
+  },
+  "tech-quant-04": {
+   "book": "index.quantization",
+   "question": "Who introduced the straight-through estimator?",
+   "gold": [
+    "chapter-5-021"
+   ],
+   "n_chunks": 473,
+   "ranks": {
+    "gemma": 1,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "chapter-5-021",
+     "chapter-5-023",
+     "chapter-4-041",
+     "chapter-5-018",
+     "chapter-2-035"
+    ],
+    "nomic": [
+     "chapter-5-021",
+     "chapter-5-018",
+     "chapter-7-025",
+     "chapter-5-023",
+     "chapter-5-022"
+    ],
+    "rrf60": [
+     "chapter-5-021",
+     "chapter-5-023",
+     "chapter-5-018",
+     "chapter-5-022",
+     "chapter-2-064"
+    ],
+    "z_50_50": [
+     "chapter-5-021",
+     "chapter-5-023",
+     "chapter-5-018",
+     "chapter-5-022",
+     "chapter-7-025"
+    ],
+    "z_60n_40g": [
+     "chapter-5-021",
+     "chapter-5-018",
+     "chapter-5-023",
+     "chapter-5-022",
+     "chapter-7-025"
+    ],
+    "z_40n_60g": [
+     "chapter-5-021",
+     "chapter-5-023",
+     "chapter-5-018",
+     "chapter-5-022",
+     "chapter-4-041"
+    ],
+    "z_max": [
+     "chapter-5-021",
+     "chapter-5-023",
+     "chapter-4-041",
+     "chapter-5-018",
+     "chapter-7-025"
+    ],
+    "z_mean": [
+     "chapter-5-021",
+     "chapter-5-023",
+     "chapter-5-018",
+     "chapter-5-022",
+     "chapter-7-025"
+    ]
+   }
+  },
+  "tech-quant-05": {
+   "book": "index.quantization",
+   "question": "How does per-tensor quantization compare with per-channel quantization?",
+   "gold": [
+    "chapter-3-030"
+   ],
+   "n_chunks": 473,
+   "ranks": {
+    "gemma": 1,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "chapter-3-030",
+     "chapter-2-034",
+     "chapter-3-029",
+     "chapter-3-023",
+     "chapter-3-038"
+    ],
+    "nomic": [
+     "chapter-3-030",
+     "chapter-3-029",
+     "chapter-3-038",
+     "chapter-5-059",
+     "chapter-3-023"
+    ],
+    "rrf60": [
+     "chapter-3-030",
+     "chapter-3-029",
+     "chapter-3-038",
+     "chapter-3-023",
+     "chapter-5-048"
+    ],
+    "z_50_50": [
+     "chapter-3-030",
+     "chapter-3-029",
+     "chapter-3-038",
+     "chapter-3-023",
+     "chapter-2-034"
+    ],
+    "z_60n_40g": [
+     "chapter-3-030",
+     "chapter-3-029",
+     "chapter-3-038",
+     "chapter-3-023",
+     "chapter-2-034"
+    ],
+    "z_40n_60g": [
+     "chapter-3-030",
+     "chapter-3-029",
+     "chapter-3-038",
+     "chapter-2-034",
+     "chapter-3-023"
+    ],
+    "z_max": [
+     "chapter-3-030",
+     "chapter-3-029",
+     "chapter-2-034",
+     "chapter-3-023",
+     "chapter-3-038"
+    ],
+    "z_mean": [
+     "chapter-3-030",
+     "chapter-3-029",
+     "chapter-3-038",
+     "chapter-3-023",
+     "chapter-2-034"
+    ]
+   }
+  },
+  "tech-ddia-01": {
+   "book": "index.ddia",
+   "question": "read repair",
+   "gold": [
+    "text00011-067"
+   ],
+   "n_chunks": 1306,
+   "ranks": {
+    "gemma": 1,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "text00011-067",
+     "text00004-011",
+     "text00011-032",
+     "text00011-098",
+     "text00019-114"
+    ],
+    "nomic": [
+     "text00011-067",
+     "text00019-069",
+     "text00013-035",
+     "text00013-036",
+     "text00015-032"
+    ],
+    "rrf60": [
+     "text00011-067",
+     "text00013-035",
+     "text00011-032",
+     "text00011-031",
+     "text00008-025"
+    ],
+    "z_50_50": [
+     "text00011-067",
+     "text00011-032",
+     "text00008-025",
+     "text00013-035",
+     "text00011-031"
+    ],
+    "z_60n_40g": [
+     "text00011-067",
+     "text00013-035",
+     "text00011-032",
+     "text00019-069",
+     "text00008-025"
+    ],
+    "z_40n_60g": [
+     "text00011-067",
+     "text00011-032",
+     "text00008-025",
+     "text00013-035",
+     "text00011-013"
+    ],
+    "z_max": [
+     "text00011-067",
+     "text00019-069",
+     "text00004-011",
+     "text00011-032",
+     "text00011-098"
+    ],
+    "z_mean": [
+     "text00011-067",
+     "text00011-032",
+     "text00008-025",
+     "text00013-035",
+     "text00011-031"
+    ]
+   }
+  },
+  "tech-ddia-02": {
+   "book": "index.ddia",
+   "question": "What is linearizability?",
+   "gold": [
+    "text00015-008"
+   ],
+   "n_chunks": 1306,
+   "ranks": {
+    "gemma": 9,
+    "nomic": 9,
+    "rrf60": 10,
+    "z_50_50": 11,
+    "z_60n_40g": 9,
+    "z_40n_60g": 11,
+    "z_max": 10,
+    "z_mean": 11
+   },
+   "orders5": {
+    "gemma": [
+     "text00015-017",
+     "text00015-051",
+     "text00015-070",
+     "text00015-052",
+     "text00015-019"
+    ],
+    "nomic": [
+     "text00015-018",
+     "text00015-027",
+     "text00015-051",
+     "text00015-017",
+     "text00015-011"
+    ],
+    "rrf60": [
+     "text00015-017",
+     "text00015-051",
+     "text00015-052",
+     "text00015-015",
+     "text00015-018"
+    ],
+    "z_50_50": [
+     "text00015-017",
+     "text00015-051",
+     "text00015-018",
+     "text00015-052",
+     "text00015-015"
+    ],
+    "z_60n_40g": [
+     "text00015-017",
+     "text00015-051",
+     "text00015-018",
+     "text00015-027",
+     "text00015-052"
+    ],
+    "z_40n_60g": [
+     "text00015-017",
+     "text00015-051",
+     "text00015-052",
+     "text00015-018",
+     "text00015-015"
+    ],
+    "z_max": [
+     "text00015-018",
+     "text00015-027",
+     "text00015-051",
+     "text00015-017",
+     "text00015-011"
+    ],
+    "z_mean": [
+     "text00015-017",
+     "text00015-051",
+     "text00015-018",
+     "text00015-052",
+     "text00015-015"
+    ]
+   }
+  },
+  "tech-ddia-03": {
+   "book": "index.ddia",
+   "question": "Who originally described the LSM-tree indexing structure, and under what name?",
+   "gold": [
+    "text00008-017"
+   ],
+   "n_chunks": 1306,
+   "ranks": {
+    "gemma": 1,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "text00008-017",
+     "text00008-018",
+     "text00008-020",
+     "text00008-079",
+     "text00008-033"
+    ],
+    "nomic": [
+     "text00008-017",
+     "text00008-018",
+     "text00008-080",
+     "text00008-081",
+     "text00008-021"
+    ],
+    "rrf60": [
+     "text00008-017",
+     "text00008-018",
+     "text00008-020",
+     "text00008-080",
+     "text00008-079"
+    ],
+    "z_50_50": [
+     "text00008-017",
+     "text00008-018",
+     "text00008-079",
+     "text00008-020",
+     "text00008-081"
+    ],
+    "z_60n_40g": [
+     "text00008-017",
+     "text00008-018",
+     "text00008-079",
+     "text00008-020",
+     "text00008-081"
+    ],
+    "z_40n_60g": [
+     "text00008-017",
+     "text00008-018",
+     "text00008-079",
+     "text00008-020",
+     "text00008-081"
+    ],
+    "z_max": [
+     "text00008-017",
+     "text00008-018",
+     "text00008-020",
+     "text00008-079",
+     "text00008-080"
+    ],
+    "z_mean": [
+     "text00008-017",
+     "text00008-018",
+     "text00008-079",
+     "text00008-020",
+     "text00008-081"
+    ]
+   }
+  },
+  "tech-ddia-04": {
+   "book": "index.ddia",
+   "question": "What does Google\u2019s TrueTime API report when you ask it for the current time?",
+   "gold": [
+    "text00014-053"
+   ],
+   "n_chunks": 1306,
+   "ranks": {
+    "gemma": 1,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "text00014-053",
+     "text00014-038",
+     "text00014-035",
+     "text00018-081",
+     "text00014-056"
+    ],
+    "nomic": [
+     "text00014-053",
+     "text00014-056",
+     "text00014-039",
+     "text00014-038",
+     "text00018-081"
+    ],
+    "rrf60": [
+     "text00014-053",
+     "text00014-038",
+     "text00014-056",
+     "text00018-081",
+     "text00014-039"
+    ],
+    "z_50_50": [
+     "text00014-053",
+     "text00014-038",
+     "text00014-056",
+     "text00014-039",
+     "text00018-081"
+    ],
+    "z_60n_40g": [
+     "text00014-053",
+     "text00014-038",
+     "text00014-056",
+     "text00014-039",
+     "text00018-081"
+    ],
+    "z_40n_60g": [
+     "text00014-053",
+     "text00014-038",
+     "text00014-056",
+     "text00014-039",
+     "text00018-081"
+    ],
+    "z_max": [
+     "text00014-053",
+     "text00014-038",
+     "text00014-056",
+     "text00014-035",
+     "text00018-081"
+    ],
+    "z_mean": [
+     "text00014-053",
+     "text00014-038",
+     "text00014-056",
+     "text00014-039",
+     "text00018-081"
+    ]
+   }
+  },
+  "tech-ddia-05": {
+   "book": "index.ddia",
+   "question": "How do B-trees compare with LSM-trees for reads and writes?",
+   "gold": [
+    "text00008-028"
+   ],
+   "n_chunks": 1306,
+   "ranks": {
+    "gemma": 1,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "text00008-028",
+     "text00008-030",
+     "text00008-033",
+     "text00008-032",
+     "text00008-020"
+    ],
+    "nomic": [
+     "text00008-028",
+     "text00008-030",
+     "text00008-029",
+     "text00008-032",
+     "text00008-033"
+    ],
+    "rrf60": [
+     "text00008-028",
+     "text00008-030",
+     "text00008-033",
+     "text00008-032",
+     "text00008-029"
+    ],
+    "z_50_50": [
+     "text00008-028",
+     "text00008-030",
+     "text00008-032",
+     "text00008-033",
+     "text00008-029"
+    ],
+    "z_60n_40g": [
+     "text00008-028",
+     "text00008-030",
+     "text00008-032",
+     "text00008-033",
+     "text00008-029"
+    ],
+    "z_40n_60g": [
+     "text00008-028",
+     "text00008-030",
+     "text00008-033",
+     "text00008-032",
+     "text00008-029"
+    ],
+    "z_max": [
+     "text00008-028",
+     "text00008-030",
+     "text00008-029",
+     "text00008-033",
+     "text00008-032"
+    ],
+    "z_mean": [
+     "text00008-028",
+     "text00008-030",
+     "text00008-032",
+     "text00008-033",
+     "text00008-029"
+    ]
+   }
+  },
+  "tech-aieng-01": {
+   "book": "index.ai-engineering",
+   "question": "What is AI engineering?",
+   "gold": [
+    "ch01-022"
+   ],
+   "n_chunks": 1030,
+   "ranks": {
+    "gemma": 1,
+    "nomic": 2,
+    "rrf60": 1,
+    "z_50_50": 2,
+    "z_60n_40g": 2,
+    "z_40n_60g": 2,
+    "z_max": 1,
+    "z_mean": 2
+   },
+   "orders5": {
+    "gemma": [
+     "ch01-022",
+     "ch01-095",
+     "ch01-070",
+     "ch01-075",
+     "ch01-028"
+    ],
+    "nomic": [
+     "ch01-095",
+     "ch01-022",
+     "ch01-028",
+     "afterword01-002",
+     "ch01-070"
+    ],
+    "rrf60": [
+     "ch01-022",
+     "ch01-095",
+     "ch01-070",
+     "ch01-028",
+     "ch01-094"
+    ],
+    "z_50_50": [
+     "ch01-095",
+     "ch01-022",
+     "ch01-070",
+     "ch01-028",
+     "ch01-094"
+    ],
+    "z_60n_40g": [
+     "ch01-095",
+     "ch01-022",
+     "ch01-070",
+     "ch01-028",
+     "ch01-094"
+    ],
+    "z_40n_60g": [
+     "ch01-095",
+     "ch01-022",
+     "ch01-070",
+     "ch01-028",
+     "ch01-075"
+    ],
+    "z_max": [
+     "ch01-022",
+     "ch01-095",
+     "ch01-070",
+     "ch01-075",
+     "ch01-028"
+    ],
+    "z_mean": [
+     "ch01-095",
+     "ch01-022",
+     "ch01-070",
+     "ch01-028",
+     "ch01-094"
+    ]
+   }
+  },
+  "tech-aieng-02": {
+   "book": "index.ai-engineering",
+   "question": "How does RLHF work?",
+   "gold": [
+    "ch02-066",
+    "ch02-067"
+   ],
+   "n_chunks": 1030,
+   "ranks": {
+    "gemma": 2,
+    "nomic": 1,
+    "rrf60": 2,
+    "z_50_50": 2,
+    "z_60n_40g": 2,
+    "z_40n_60g": 2,
+    "z_max": 1,
+    "z_mean": 2
+   },
+   "orders5": {
+    "gemma": [
+     "ch02-068",
+     "ch02-067",
+     "ch02-066",
+     "ch02-072",
+     "ch03-070"
+    ],
+    "nomic": [
+     "ch02-067",
+     "ch02-068",
+     "ch06-031",
+     "ch02-113",
+     "ch02-114"
+    ],
+    "rrf60": [
+     "ch02-068",
+     "ch02-067",
+     "ch02-066",
+     "ch02-072",
+     "ch03-095"
+    ],
+    "z_50_50": [
+     "ch02-068",
+     "ch02-067",
+     "ch02-066",
+     "ch02-072",
+     "ch03-095"
+    ],
+    "z_60n_40g": [
+     "ch02-068",
+     "ch02-067",
+     "ch02-066",
+     "ch06-031",
+     "ch02-072"
+    ],
+    "z_40n_60g": [
+     "ch02-068",
+     "ch02-067",
+     "ch02-066",
+     "ch02-072",
+     "ch03-095"
+    ],
+    "z_max": [
+     "ch02-067",
+     "ch02-068",
+     "ch06-031",
+     "ch02-113",
+     "ch02-066"
+    ],
+    "z_mean": [
+     "ch02-068",
+     "ch02-067",
+     "ch02-066",
+     "ch02-072",
+     "ch03-095"
+    ]
+   }
+  },
+  "tech-aieng-03": {
+   "book": "index.ai-engineering",
+   "question": "Which paper proposed the Chinchilla scaling law, and what ratio does it give between training tokens and model size?",
+   "gold": [
+    "ch02-044"
+   ],
+   "n_chunks": 1030,
+   "ranks": {
+    "gemma": 1,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "ch02-044",
+     "ch02-045",
+     "ch02-038",
+     "ch02-046",
+     "ch02-041"
+    ],
+    "nomic": [
+     "ch02-044",
+     "ch02-045",
+     "ch02-046",
+     "ch02-038",
+     "ch02-116"
+    ],
+    "rrf60": [
+     "ch02-044",
+     "ch02-045",
+     "ch02-038",
+     "ch02-046",
+     "ch02-116"
+    ],
+    "z_50_50": [
+     "ch02-044",
+     "ch02-045",
+     "ch02-046",
+     "ch02-038",
+     "ch02-116"
+    ],
+    "z_60n_40g": [
+     "ch02-044",
+     "ch02-045",
+     "ch02-046",
+     "ch02-038",
+     "ch02-116"
+    ],
+    "z_40n_60g": [
+     "ch02-044",
+     "ch02-045",
+     "ch02-046",
+     "ch02-038",
+     "ch02-116"
+    ],
+    "z_max": [
+     "ch02-044",
+     "ch02-045",
+     "ch02-046",
+     "ch02-038",
+     "ch02-116"
+    ],
+    "z_mean": [
+     "ch02-044",
+     "ch02-045",
+     "ch02-046",
+     "ch02-038",
+     "ch02-116"
+    ]
+   }
+  },
+  "tech-aieng-04": {
+   "book": "index.ai-engineering",
+   "question": "How did DeepMind speed up Chinchilla-70B\u2019s decoding with speculative decoding?",
+   "gold": [
+    "ch09-046"
+   ],
+   "n_chunks": 1030,
+   "ranks": {
+    "gemma": 1,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "ch09-046",
+     "ch09-044",
+     "ch09-045",
+     "ch09-050",
+     "ch09-076"
+    ],
+    "nomic": [
+     "ch09-046",
+     "ch09-045",
+     "ch09-044",
+     "ch09-049",
+     "ch09-050"
+    ],
+    "rrf60": [
+     "ch09-046",
+     "ch09-044",
+     "ch09-045",
+     "ch09-050",
+     "ch09-085"
+    ],
+    "z_50_50": [
+     "ch09-046",
+     "ch09-044",
+     "ch09-045",
+     "ch09-050",
+     "ch09-049"
+    ],
+    "z_60n_40g": [
+     "ch09-046",
+     "ch09-044",
+     "ch09-045",
+     "ch09-050",
+     "ch09-049"
+    ],
+    "z_40n_60g": [
+     "ch09-046",
+     "ch09-044",
+     "ch09-045",
+     "ch09-050",
+     "ch09-085"
+    ],
+    "z_max": [
+     "ch09-046",
+     "ch09-045",
+     "ch09-044",
+     "ch09-049",
+     "ch09-050"
+    ],
+    "z_mean": [
+     "ch09-046",
+     "ch09-044",
+     "ch09-045",
+     "ch09-050",
+     "ch09-049"
+    ]
+   }
+  },
+  "tech-aieng-05": {
+   "book": "index.ai-engineering",
+   "question": "How does AI engineering compare with ML engineering?",
+   "gold": [
+    "ch01-074"
+   ],
+   "n_chunks": 1030,
+   "ranks": {
+    "gemma": 2,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 2,
+    "z_max": 2,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "ch01-075",
+     "ch01-074",
+     "ch01-076",
+     "ch01-070",
+     "ch01-093"
+    ],
+    "nomic": [
+     "ch01-074",
+     "ch01-093",
+     "ch01-075",
+     "ch01-092",
+     "ch01-076"
+    ],
+    "rrf60": [
+     "ch01-074",
+     "ch01-075",
+     "ch01-093",
+     "ch01-076",
+     "ch01-070"
+    ],
+    "z_50_50": [
+     "ch01-074",
+     "ch01-075",
+     "ch01-093",
+     "ch01-076",
+     "ch01-070"
+    ],
+    "z_60n_40g": [
+     "ch01-074",
+     "ch01-075",
+     "ch01-093",
+     "ch01-076",
+     "ch01-070"
+    ],
+    "z_40n_60g": [
+     "ch01-075",
+     "ch01-074",
+     "ch01-093",
+     "ch01-076",
+     "ch01-070"
+    ],
+    "z_max": [
+     "ch01-075",
+     "ch01-074",
+     "ch01-076",
+     "ch01-070",
+     "ch01-093"
+    ],
+    "z_mean": [
+     "ch01-074",
+     "ch01-075",
+     "ch01-093",
+     "ch01-076",
+     "ch01-070"
+    ]
+   }
+  },
+  "tech-aiagents-01": {
+   "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+   "question": "What is a finite state machine?",
+   "gold": [
+    "ch01-012"
+   ],
+   "n_chunks": 637,
+   "ranks": {
+    "gemma": 1,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "ch01-012",
+     "ch01-010",
+     "ch01-011",
+     "ch01-013",
+     "ch01-014"
+    ],
+    "nomic": [
+     "ch01-012",
+     "ch01-013",
+     "ch01-010",
+     "ch01-011",
+     "ch01-015"
+    ],
+    "rrf60": [
+     "ch01-012",
+     "ch01-010",
+     "ch01-013",
+     "ch01-011",
+     "ch01-014"
+    ],
+    "z_50_50": [
+     "ch01-012",
+     "ch01-010",
+     "ch01-011",
+     "ch01-013",
+     "ch01-014"
+    ],
+    "z_60n_40g": [
+     "ch01-012",
+     "ch01-010",
+     "ch01-013",
+     "ch01-011",
+     "ch01-015"
+    ],
+    "z_40n_60g": [
+     "ch01-012",
+     "ch01-010",
+     "ch01-011",
+     "ch01-013",
+     "ch01-014"
+    ],
+    "z_max": [
+     "ch01-012",
+     "ch01-013",
+     "ch01-010",
+     "ch01-011",
+     "ch01-014"
+    ],
+    "z_mean": [
+     "ch01-012",
+     "ch01-010",
+     "ch01-011",
+     "ch01-013",
+     "ch01-014"
+    ]
+   }
+  },
+  "tech-aiagents-02": {
+   "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+   "question": "How does GRPO work?",
+   "gold": [
+    "ch03-013"
+   ],
+   "n_chunks": 637,
+   "ranks": {
+    "gemma": 1,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "ch03-013",
+     "ch03-023",
+     "ch03-017",
+     "ch03-019",
+     "ch03-015"
+    ],
+    "nomic": [
+     "ch03-013",
+     "ch03-023",
+     "ch03-019",
+     "ch03-017",
+     "ch03-015"
+    ],
+    "rrf60": [
+     "ch03-013",
+     "ch03-023",
+     "ch03-017",
+     "ch03-019",
+     "ch03-015"
+    ],
+    "z_50_50": [
+     "ch03-013",
+     "ch03-023",
+     "ch03-017",
+     "ch03-019",
+     "ch03-015"
+    ],
+    "z_60n_40g": [
+     "ch03-013",
+     "ch03-023",
+     "ch03-017",
+     "ch03-019",
+     "ch03-015"
+    ],
+    "z_40n_60g": [
+     "ch03-013",
+     "ch03-023",
+     "ch03-017",
+     "ch03-019",
+     "ch03-015"
+    ],
+    "z_max": [
+     "ch03-013",
+     "ch03-023",
+     "ch03-019",
+     "ch03-017",
+     "ch03-015"
+    ],
+    "z_mean": [
+     "ch03-013",
+     "ch03-023",
+     "ch03-017",
+     "ch03-019",
+     "ch03-015"
+    ]
+   }
+  },
+  "tech-aiagents-03": {
+   "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+   "question": "When was the Agentic AI Foundation formed, and whose protocol was a founding contribution?",
+   "gold": [
+    "ch05-026"
+   ],
+   "n_chunks": 637,
+   "ranks": {
+    "gemma": 1,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "ch05-026",
+     "ch01-020",
+     "ch01-021",
+     "preface01-001",
+     "foreword01-001"
+    ],
+    "nomic": [
+     "ch05-026",
+     "foreword01-001",
+     "preface01-011",
+     "ch11-052",
+     "ch02-058"
+    ],
+    "rrf60": [
+     "ch05-026",
+     "foreword01-001",
+     "preface01-001",
+     "ch12-001",
+     "preface01-011"
+    ],
+    "z_50_50": [
+     "ch05-026",
+     "foreword01-001",
+     "preface01-001",
+     "preface01-011",
+     "ch01-021"
+    ],
+    "z_60n_40g": [
+     "ch05-026",
+     "foreword01-001",
+     "preface01-001",
+     "preface01-011",
+     "ch02-058"
+    ],
+    "z_40n_60g": [
+     "ch05-026",
+     "foreword01-001",
+     "preface01-001",
+     "ch01-021",
+     "ch01-020"
+    ],
+    "z_max": [
+     "ch05-026",
+     "foreword01-001",
+     "ch01-020",
+     "ch01-021",
+     "preface01-011"
+    ],
+    "z_mean": [
+     "ch05-026",
+     "foreword01-001",
+     "preface01-001",
+     "preface01-011",
+     "ch01-021"
+    ]
+   }
+  },
+  "tech-aiagents-04": {
+   "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+   "question": "Which frameworks does the book name for quantizing open source models?",
+   "gold": [
+    "ch04-046"
+   ],
+   "n_chunks": 637,
+   "ranks": {
+    "gemma": 1,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "ch04-046",
+     "ch04-041",
+     "ch04-036",
+     "preface01-006",
+     "preface01-004"
+    ],
+    "nomic": [
+     "ch04-046",
+     "ch04-041",
+     "ch07-054",
+     "ch07-048",
+     "ch04-048"
+    ],
+    "rrf60": [
+     "ch04-046",
+     "ch04-041",
+     "preface01-006",
+     "preface01-004",
+     "ch04-048"
+    ],
+    "z_50_50": [
+     "ch04-046",
+     "ch04-041",
+     "preface01-006",
+     "ch07-054",
+     "preface01-004"
+    ],
+    "z_60n_40g": [
+     "ch04-046",
+     "ch04-041",
+     "ch07-054",
+     "preface01-006",
+     "ch04-048"
+    ],
+    "z_40n_60g": [
+     "ch04-046",
+     "ch04-041",
+     "preface01-006",
+     "preface01-004",
+     "ch07-054"
+    ],
+    "z_max": [
+     "ch04-046",
+     "ch04-041",
+     "ch07-054",
+     "ch07-048",
+     "ch04-036"
+    ],
+    "z_mean": [
+     "ch04-046",
+     "ch04-041",
+     "preface01-006",
+     "ch07-054",
+     "preface01-004"
+    ]
+   }
+  },
+  "tech-aiagents-05": {
+   "book": "index.ai-agents_-the-definitive-guide---design--deployment--and----nicole-koenigstein----1--2026----o-reilly-media--incorporated----isbn13-9788341666932----21c075cd6653c33f7c5ffdac819a5fa9----anna-s-archive",
+   "question": "How does streaming compare with polling for long-running agent tasks?",
+   "gold": [
+    "ch07-013"
+   ],
+   "n_chunks": 637,
+   "ranks": {
+    "gemma": 1,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "ch07-013",
+     "ch07-023",
+     "ch07-016",
+     "ch07-020",
+     "ch07-021"
+    ],
+    "nomic": [
+     "ch07-013",
+     "ch07-023",
+     "ch07-021",
+     "ch07-015",
+     "ch07-022"
+    ],
+    "rrf60": [
+     "ch07-013",
+     "ch07-023",
+     "ch07-021",
+     "ch07-016",
+     "ch07-022"
+    ],
+    "z_50_50": [
+     "ch07-013",
+     "ch07-023",
+     "ch07-021",
+     "ch07-022",
+     "ch07-016"
+    ],
+    "z_60n_40g": [
+     "ch07-013",
+     "ch07-023",
+     "ch07-021",
+     "ch07-022",
+     "ch07-016"
+    ],
+    "z_40n_60g": [
+     "ch07-013",
+     "ch07-023",
+     "ch07-021",
+     "ch07-016",
+     "ch07-022"
+    ],
+    "z_max": [
+     "ch07-013",
+     "ch07-023",
+     "ch07-016",
+     "ch07-021",
+     "ch07-015"
+    ],
+    "z_mean": [
+     "ch07-013",
+     "ch07-023",
+     "ch07-021",
+     "ch07-022",
+     "ch07-016"
+    ]
+   }
+  },
+  "fic-ent-atofe": {
+   "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+   "question": "who is atofe",
+   "gold": [
+    "section-0006-013",
+    "section-0010-018",
+    "section-0012-029",
+    "section-0014-033"
+   ],
+   "n_chunks": 274,
+   "ranks": {
+    "gemma": 2,
+    "nomic": 3,
+    "rrf60": 3,
+    "z_50_50": 3,
+    "z_60n_40g": 3,
+    "z_40n_60g": 3,
+    "z_max": 3,
+    "z_mean": 3
+   },
+   "orders5": {
+    "gemma": [
+     "section-0010-020",
+     "section-0014-033",
+     "section-0011-018",
+     "section-0013-014",
+     "section-0010-019"
+    ],
+    "nomic": [
+     "section-0010-019",
+     "section-0010-020",
+     "section-0010-018",
+     "section-0006-013",
+     "section-0014-033"
+    ],
+    "rrf60": [
+     "section-0010-020",
+     "section-0010-019",
+     "section-0014-033",
+     "section-0010-018",
+     "section-0006-013"
+    ],
+    "z_50_50": [
+     "section-0010-020",
+     "section-0010-019",
+     "section-0010-018",
+     "section-0014-033",
+     "section-0006-013"
+    ],
+    "z_60n_40g": [
+     "section-0010-020",
+     "section-0010-019",
+     "section-0010-018",
+     "section-0014-033",
+     "section-0006-013"
+    ],
+    "z_40n_60g": [
+     "section-0010-020",
+     "section-0010-019",
+     "section-0014-033",
+     "section-0010-018",
+     "section-0006-013"
+    ],
+    "z_max": [
+     "section-0010-019",
+     "section-0010-020",
+     "section-0014-033",
+     "section-0010-018",
+     "section-0006-013"
+    ],
+    "z_mean": [
+     "section-0010-020",
+     "section-0010-019",
+     "section-0010-018",
+     "section-0014-033",
+     "section-0006-013"
+    ]
+   }
+  },
+  "fic-ent-sandor": {
+   "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+   "question": "who is sandor",
+   "gold": [
+    "section-0007-017",
+    "section-0010-003",
+    "section-0012-007"
+   ],
+   "n_chunks": 274,
+   "ranks": {
+    "gemma": 4,
+    "nomic": 32,
+    "rrf60": 9,
+    "z_50_50": 11,
+    "z_60n_40g": 14,
+    "z_40n_60g": 9,
+    "z_max": 10,
+    "z_mean": 11
+   },
+   "orders5": {
+    "gemma": [
+     "section-0009-003",
+     "section-0010-002",
+     "section-0007-002",
+     "section-0010-003",
+     "section-0012-015"
+    ],
+    "nomic": [
+     "section-0005-006",
+     "section-0009-013",
+     "section-0009-003",
+     "section-0005-007",
+     "section-0007-004"
+    ],
+    "rrf60": [
+     "section-0009-003",
+     "section-0005-006",
+     "section-0012-015",
+     "section-0007-004",
+     "section-0005-005"
+    ],
+    "z_50_50": [
+     "section-0009-003",
+     "section-0005-006",
+     "section-0012-015",
+     "section-0007-004",
+     "section-0007-002"
+    ],
+    "z_60n_40g": [
+     "section-0005-006",
+     "section-0009-003",
+     "section-0012-015",
+     "section-0007-004",
+     "section-0009-013"
+    ],
+    "z_40n_60g": [
+     "section-0009-003",
+     "section-0005-006",
+     "section-0012-015",
+     "section-0010-002",
+     "section-0007-002"
+    ],
+    "z_max": [
+     "section-0005-006",
+     "section-0009-003",
+     "section-0010-002",
+     "section-0009-013",
+     "section-0007-002"
+    ],
+    "z_mean": [
+     "section-0009-003",
+     "section-0005-006",
+     "section-0012-015",
+     "section-0007-004",
+     "section-0007-002"
+    ]
+   }
+  },
+  "fic-ent-eris": {
+   "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+   "question": "who is eris",
+   "gold": [
+    "section-0007-017",
+    "section-0008-007",
+    "section-0012-014"
+   ],
+   "n_chunks": 274,
+   "ranks": {
+    "gemma": 10,
+    "nomic": 1,
+    "rrf60": 4,
+    "z_50_50": 3,
+    "z_60n_40g": 2,
+    "z_40n_60g": 4,
+    "z_max": 2,
+    "z_mean": 3
+   },
+   "orders5": {
+    "gemma": [
+     "section-0007-008",
+     "section-0012-008",
+     "section-0008-004",
+     "section-0008-018",
+     "section-0008-017"
+    ],
+    "nomic": [
+     "section-0012-014",
+     "section-0012-009",
+     "section-0012-013",
+     "section-0010-005",
+     "section-0012-008"
+    ],
+    "rrf60": [
+     "section-0012-008",
+     "section-0007-008",
+     "section-0008-018",
+     "section-0012-014",
+     "section-0012-009"
+    ],
+    "z_50_50": [
+     "section-0007-008",
+     "section-0012-008",
+     "section-0012-014",
+     "section-0008-018",
+     "section-0012-009"
+    ],
+    "z_60n_40g": [
+     "section-0012-008",
+     "section-0012-014",
+     "section-0007-008",
+     "section-0008-018",
+     "section-0012-009"
+    ],
+    "z_40n_60g": [
+     "section-0007-008",
+     "section-0012-008",
+     "section-0008-018",
+     "section-0012-014",
+     "section-0012-009"
+    ],
+    "z_max": [
+     "section-0007-008",
+     "section-0012-014",
+     "section-0012-008",
+     "section-0008-004",
+     "section-0012-009"
+    ],
+    "z_mean": [
+     "section-0007-008",
+     "section-0012-008",
+     "section-0012-014",
+     "section-0008-018",
+     "section-0012-009"
+    ]
+   }
+  },
+  "fic-ent-ruijerd": {
+   "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+   "question": "who is ruijerd",
+   "gold": [
+    "section-0005-009",
+    "section-0008-012",
+    "section-0012-019"
+   ],
+   "n_chunks": 274,
+   "ranks": {
+    "gemma": 3,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "section-0012-017",
+     "section-0012-022",
+     "section-0012-019",
+     "section-0012-018",
+     "section-0012-034"
+    ],
+    "nomic": [
+     "section-0012-019",
+     "section-0012-034",
+     "section-0012-018",
+     "section-0010-006",
+     "section-0012-022"
+    ],
+    "rrf60": [
+     "section-0012-019",
+     "section-0012-022",
+     "section-0012-034",
+     "section-0012-018",
+     "section-0012-030"
+    ],
+    "z_50_50": [
+     "section-0012-019",
+     "section-0012-018",
+     "section-0012-034",
+     "section-0012-022",
+     "section-0012-017"
+    ],
+    "z_60n_40g": [
+     "section-0012-019",
+     "section-0012-018",
+     "section-0012-034",
+     "section-0012-022",
+     "section-0012-017"
+    ],
+    "z_40n_60g": [
+     "section-0012-019",
+     "section-0012-018",
+     "section-0012-034",
+     "section-0012-022",
+     "section-0012-017"
+    ],
+    "z_max": [
+     "section-0012-019",
+     "section-0012-017",
+     "section-0012-034",
+     "section-0012-018",
+     "section-0010-006"
+    ],
+    "z_mean": [
+     "section-0012-019",
+     "section-0012-018",
+     "section-0012-034",
+     "section-0012-022",
+     "section-0012-017"
+    ]
+   }
+  },
+  "fic-ent-rudeus": {
+   "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+   "question": "who is rudeus",
+   "gold": [
+    "section-0005-010",
+    "section-0011-008",
+    "section-0015-005"
+   ],
+   "n_chunks": 274,
+   "ranks": {
+    "gemma": 4,
+    "nomic": 2,
+    "rrf60": 3,
+    "z_50_50": 2,
+    "z_60n_40g": 2,
+    "z_40n_60g": 2,
+    "z_max": 2,
+    "z_mean": 2
+   },
+   "orders5": {
+    "gemma": [
+     "section-0012-019",
+     "section-0015-007",
+     "section-0012-018",
+     "section-0015-005",
+     "section-0013-012"
+    ],
+    "nomic": [
+     "section-0012-019",
+     "section-0015-005",
+     "section-0015-007",
+     "section-0005-013",
+     "section-0005-003"
+    ],
+    "rrf60": [
+     "section-0012-019",
+     "section-0015-007",
+     "section-0015-005",
+     "section-0012-018",
+     "section-0012-009"
+    ],
+    "z_50_50": [
+     "section-0012-019",
+     "section-0015-005",
+     "section-0015-007",
+     "section-0012-018",
+     "section-0012-009"
+    ],
+    "z_60n_40g": [
+     "section-0012-019",
+     "section-0015-005",
+     "section-0015-007",
+     "section-0012-018",
+     "section-0012-009"
+    ],
+    "z_40n_60g": [
+     "section-0012-019",
+     "section-0015-005",
+     "section-0015-007",
+     "section-0012-018",
+     "section-0014-045"
+    ],
+    "z_max": [
+     "section-0012-019",
+     "section-0015-005",
+     "section-0015-007",
+     "section-0005-013",
+     "section-0005-003"
+    ],
+    "z_mean": [
+     "section-0012-019",
+     "section-0015-005",
+     "section-0015-007",
+     "section-0012-018",
+     "section-0012-009"
+    ]
+   }
+  },
+  "fic-ent-dohga": {
+   "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+   "question": "who is dohga",
+   "gold": [
+    "section-0006-009",
+    "section-0007-015",
+    "section-0011-004"
+   ],
+   "n_chunks": 274,
+   "ranks": {
+    "gemma": 2,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 2,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "section-0006-007",
+     "section-0006-009",
+     "section-0012-003",
+     "section-0010-014",
+     "section-0006-021"
+    ],
+    "nomic": [
+     "section-0006-009",
+     "section-0006-010",
+     "section-0006-008",
+     "section-0010-014",
+     "section-0006-011"
+    ],
+    "rrf60": [
+     "section-0006-009",
+     "section-0006-007",
+     "section-0006-010",
+     "section-0010-014",
+     "section-0012-003"
+    ],
+    "z_50_50": [
+     "section-0006-009",
+     "section-0006-007",
+     "section-0006-010",
+     "section-0012-003",
+     "section-0010-014"
+    ],
+    "z_60n_40g": [
+     "section-0006-009",
+     "section-0006-007",
+     "section-0006-010",
+     "section-0012-003",
+     "section-0010-014"
+    ],
+    "z_40n_60g": [
+     "section-0006-009",
+     "section-0006-007",
+     "section-0012-003",
+     "section-0006-010",
+     "section-0010-014"
+    ],
+    "z_max": [
+     "section-0006-007",
+     "section-0006-009",
+     "section-0006-010",
+     "section-0012-003",
+     "section-0010-014"
+    ],
+    "z_mean": [
+     "section-0006-009",
+     "section-0006-007",
+     "section-0006-010",
+     "section-0012-003",
+     "section-0010-014"
+    ]
+   }
+  },
+  "fic-scene-white-place": {
+   "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+   "question": "where did rudeus wake up after falling from the bridge?",
+   "gold": [
+    "section-0006-001"
+   ],
+   "n_chunks": 274,
+   "ranks": {
+    "gemma": 7,
+    "nomic": 34,
+    "rrf60": 16,
+    "z_50_50": 14,
+    "z_60n_40g": 18,
+    "z_40n_60g": 13,
+    "z_max": 11,
+    "z_mean": 14
+   },
+   "orders5": {
+    "gemma": [
+     "section-0005-008",
+     "section-0005-007",
+     "section-0005-011",
+     "section-0007-001",
+     "section-0009-021"
+    ],
+    "nomic": [
+     "section-0005-008",
+     "section-0005-012",
+     "section-0005-009",
+     "section-0005-011",
+     "section-0009-021"
+    ],
+    "rrf60": [
+     "section-0005-008",
+     "section-0005-011",
+     "section-0005-007",
+     "section-0009-021",
+     "section-0005-009"
+    ],
+    "z_50_50": [
+     "section-0005-008",
+     "section-0005-011",
+     "section-0005-007",
+     "section-0005-009",
+     "section-0009-021"
+    ],
+    "z_60n_40g": [
+     "section-0005-008",
+     "section-0005-011",
+     "section-0005-009",
+     "section-0005-007",
+     "section-0005-012"
+    ],
+    "z_40n_60g": [
+     "section-0005-008",
+     "section-0005-011",
+     "section-0005-007",
+     "section-0005-009",
+     "section-0009-021"
+    ],
+    "z_max": [
+     "section-0005-008",
+     "section-0005-012",
+     "section-0005-009",
+     "section-0005-011",
+     "section-0005-007"
+    ],
+    "z_mean": [
+     "section-0005-008",
+     "section-0005-011",
+     "section-0005-007",
+     "section-0005-009",
+     "section-0009-021"
+    ]
+   }
+  },
+  "fic-scene-gall-fire": {
+   "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+   "question": "how did eris finish off gall falion?",
+   "gold": [
+    "section-0008-018"
+   ],
+   "n_chunks": 274,
+   "ranks": {
+    "gemma": 2,
+    "nomic": 4,
+    "rrf60": 4,
+    "z_50_50": 3,
+    "z_60n_40g": 4,
+    "z_40n_60g": 2,
+    "z_max": 2,
+    "z_mean": 3
+   },
+   "orders5": {
+    "gemma": [
+     "section-0008-017",
+     "section-0008-018",
+     "section-0008-009",
+     "section-0008-011",
+     "section-0008-012"
+    ],
+    "nomic": [
+     "section-0008-011",
+     "section-0008-009",
+     "section-0008-017",
+     "section-0008-018",
+     "section-0008-008"
+    ],
+    "rrf60": [
+     "section-0008-017",
+     "section-0008-011",
+     "section-0008-009",
+     "section-0008-018",
+     "section-0008-012"
+    ],
+    "z_50_50": [
+     "section-0008-017",
+     "section-0008-009",
+     "section-0008-018",
+     "section-0008-011",
+     "section-0008-012"
+    ],
+    "z_60n_40g": [
+     "section-0008-017",
+     "section-0008-011",
+     "section-0008-009",
+     "section-0008-018",
+     "section-0008-008"
+    ],
+    "z_40n_60g": [
+     "section-0008-017",
+     "section-0008-018",
+     "section-0008-009",
+     "section-0008-011",
+     "section-0008-012"
+    ],
+    "z_max": [
+     "section-0008-017",
+     "section-0008-018",
+     "section-0008-011",
+     "section-0008-009",
+     "section-0008-008"
+    ],
+    "z_mean": [
+     "section-0008-017",
+     "section-0008-009",
+     "section-0008-018",
+     "section-0008-011",
+     "section-0008-012"
+    ]
+   }
+  },
+  "fic-scene-alec-dead": {
+   "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+   "question": "what happened to alexander after his duel with rudeus?",
+   "gold": [
+    "section-0011-016"
+   ],
+   "n_chunks": 274,
+   "ranks": {
+    "gemma": 21,
+    "nomic": 69,
+    "rrf60": 38,
+    "z_50_50": 42,
+    "z_60n_40g": 50,
+    "z_40n_60g": 36,
+    "z_max": 35,
+    "z_mean": 42
+   },
+   "orders5": {
+    "gemma": [
+     "section-0011-001",
+     "section-0009-016",
+     "section-0009-017",
+     "section-0010-021",
+     "section-0010-023"
+    ],
+    "nomic": [
+     "section-0011-001",
+     "section-0015-005",
+     "section-0009-017",
+     "section-0010-023",
+     "section-0005-013"
+    ],
+    "rrf60": [
+     "section-0011-001",
+     "section-0009-017",
+     "section-0010-023",
+     "section-0009-003",
+     "section-0010-021"
+    ],
+    "z_50_50": [
+     "section-0011-001",
+     "section-0009-017",
+     "section-0010-023",
+     "section-0010-021",
+     "section-0009-003"
+    ],
+    "z_60n_40g": [
+     "section-0011-001",
+     "section-0009-017",
+     "section-0010-023",
+     "section-0015-005",
+     "section-0010-021"
+    ],
+    "z_40n_60g": [
+     "section-0011-001",
+     "section-0009-017",
+     "section-0010-023",
+     "section-0010-021",
+     "section-0009-003"
+    ],
+    "z_max": [
+     "section-0011-001",
+     "section-0015-005",
+     "section-0009-017",
+     "section-0010-023",
+     "section-0005-013"
+    ],
+    "z_mean": [
+     "section-0011-001",
+     "section-0009-017",
+     "section-0010-023",
+     "section-0010-021",
+     "section-0009-003"
+    ]
+   }
+  },
+  "fic-scene-badigadi": {
+   "book": "index.mushoku-tensei_-jobless-reincarnation--light-novel--vol-80a406d0",
+   "question": "what did badigadi admit to rudeus at the end?",
+   "gold": [
+    "section-0013-024"
+   ],
+   "n_chunks": 274,
+   "ranks": {
+    "gemma": 2,
+    "nomic": 1,
+    "rrf60": 1,
+    "z_50_50": 1,
+    "z_60n_40g": 1,
+    "z_40n_60g": 1,
+    "z_max": 1,
+    "z_mean": 1
+   },
+   "orders5": {
+    "gemma": [
+     "section-0013-026",
+     "section-0013-024",
+     "section-0013-027",
+     "section-0013-025",
+     "section-0014-041"
+    ],
+    "nomic": [
+     "section-0013-024",
+     "section-0013-027",
+     "section-0005-013",
+     "section-0013-026",
+     "section-0015-005"
+    ],
+    "rrf60": [
+     "section-0013-024",
+     "section-0013-026",
+     "section-0013-027",
+     "section-0015-005",
+     "section-0005-013"
+    ],
+    "z_50_50": [
+     "section-0013-024",
+     "section-0013-026",
+     "section-0013-027",
+     "section-0005-013",
+     "section-0015-005"
+    ],
+    "z_60n_40g": [
+     "section-0013-024",
+     "section-0013-026",
+     "section-0013-027",
+     "section-0005-013",
+     "section-0015-005"
+    ],
+    "z_40n_60g": [
+     "section-0013-024",
+     "section-0013-026",
+     "section-0013-027",
+     "section-0005-013",
+     "section-0011-019"
+    ],
+    "z_max": [
+     "section-0013-024",
+     "section-0013-027",
+     "section-0005-013",
+     "section-0013-026",
+     "section-0013-025"
+    ],
+    "z_mean": [
+     "section-0013-024",
+     "section-0013-026",
+     "section-0013-027",
+     "section-0005-013",
+     "section-0015-005"
+    ]
+   }
+  }
+ },
+ "second_round_truncated_gemma_leg": {
+  "why": "Dims found first-256 truncation of the stored gemma vectors scores 21/32 on its own; rerun the same fusion with that leg, and control for the truncation with 40 random dimension subsets.",
+  "base_768": {
+   "summary": {
+    "gemma_trunc": {
+     "top1": 19,
+     "top5": 30,
+     "mean_gold_rank": 3.0
+    },
+    "nomic": {
+     "top1": 26,
+     "top5": 31,
+     "mean_gold_rank": 5.257
+    },
+    "rrf60": {
+     "top1": 24,
+     "top5": 30,
+     "mean_gold_rank": 3.457
+    },
+    "z_50_50": {
+     "top1": 24,
+     "top5": 31,
+     "mean_gold_rank": 3.4
+    },
+    "z_60n_40g": {
+     "top1": 24,
+     "top5": 31,
+     "mean_gold_rank": 3.771
+    },
+    "z_40n_60g": {
+     "top1": 23,
+     "top5": 31,
+     "mean_gold_rank": 3.171
+    },
+    "z_max": {
+     "top1": 24,
+     "top5": 31,
+     "mean_gold_rank": 3.029
+    },
+    "z_mean": {
+     "top1": 24,
+     "top5": 31,
+     "mean_gold_rank": 3.4
+    }
+   },
+   "deltas_vs_nomic": {
+    "gemma_trunc": {
+     "top1_gain": [
+      "tech-fde-05",
+      "tech-aieng-01"
+     ],
+     "top1_loss": [
+      "tech-fde-02",
+      "tech-fde-03",
+      "tech-fde-04",
+      "tech-aieng-02",
+      "tech-aieng-05",
+      "fic-ent-eris",
+      "fic-ent-ruijerd",
+      "fic-ent-dohga",
+      "fic-scene-badigadi"
+     ],
+     "top5_gain": [
+      "fic-ent-sandor"
+     ],
+     "top5_loss": [
+      "tech-fde-04",
+      "fic-ent-eris"
+     ]
+    },
+    "rrf60": {
+     "top1_gain": [
+      "tech-fde-05",
+      "tech-aieng-01"
+     ],
+     "top1_loss": [
+      "tech-fde-03",
+      "tech-fde-04",
+      "tech-aieng-02",
+      "fic-ent-eris"
+     ],
+     "top5_gain": [],
+     "top5_loss": [
+      "tech-fde-04"
+     ]
+    },
+    "z_50_50": {
+     "top1_gain": [
+      "tech-fde-05"
+     ],
+     "top1_loss": [
+      "tech-fde-04",
+      "tech-aieng-02",
+      "fic-ent-eris"
+     ],
+     "top5_gain": [],
+     "top5_loss": []
+    },
+    "z_60n_40g": {
+     "top1_gain": [
+      "tech-fde-05"
+     ],
+     "top1_loss": [
+      "tech-fde-04",
+      "tech-aieng-02",
+      "fic-ent-eris"
+     ],
+     "top5_gain": [],
+     "top5_loss": []
+    },
+    "z_40n_60g": {
+     "top1_gain": [
+      "tech-fde-05"
+     ],
+     "top1_loss": [
+      "tech-fde-04",
+      "tech-aieng-02",
+      "tech-aieng-05",
+      "fic-ent-eris"
+     ],
+     "top5_gain": [],
+     "top5_loss": []
+    },
+    "z_max": {
+     "top1_gain": [
+      "tech-aieng-01"
+     ],
+     "top1_loss": [
+      "tech-aieng-05",
+      "fic-ent-eris",
+      "fic-ent-dohga"
+     ],
+     "top5_gain": [],
+     "top5_loss": []
+    },
+    "z_mean": {
+     "top1_gain": [
+      "tech-fde-05"
+     ],
+     "top1_loss": [
+      "tech-fde-04",
+      "tech-aieng-02",
+      "fic-ent-eris"
+     ],
+     "top5_gain": [],
+     "top5_loss": []
+    }
+   }
+  },
+  "gemma_256_leg": {
+   "summary": {
+    "gemma_trunc": {
+     "top1": 21,
+     "top5": 32,
+     "mean_gold_rank": 2.4
+    },
+    "nomic": {
+     "top1": 26,
+     "top5": 31,
+     "mean_gold_rank": 5.257
+    },
+    "rrf60": {
+     "top1": 26,
+     "top5": 32,
+     "mean_gold_rank": 2.8
+    },
+    "z_50_50": {
+     "top1": 26,
+     "top5": 31,
+     "mean_gold_rank": 2.943
+    },
+    "z_60n_40g": {
+     "top1": 26,
+     "top5": 31,
+     "mean_gold_rank": 3.2
+    },
+    "z_40n_60g": {
+     "top1": 24,
+     "top5": 31,
+     "mean_gold_rank": 2.514
+    },
+    "z_max": {
+     "top1": 26,
+     "top5": 32,
+     "mean_gold_rank": 2.371
+    },
+    "z_mean": {
+     "top1": 26,
+     "top5": 31,
+     "mean_gold_rank": 2.943
+    }
+   },
+   "deltas_vs_nomic": {
+    "gemma_trunc": {
+     "top1_gain": [
+      "tech-fde-05",
+      "tech-aieng-01",
+      "fic-scene-gall-fire"
+     ],
+     "top1_loss": [
+      "tech-fde-02",
+      "tech-fde-03",
+      "tech-fde-04",
+      "tech-aieng-02",
+      "tech-aieng-05",
+      "fic-ent-eris",
+      "fic-ent-ruijerd",
+      "fic-scene-badigadi"
+     ],
+     "top5_gain": [
+      "tech-ddia-02",
+      "fic-ent-sandor",
+      "fic-scene-white-place"
+     ],
+     "top5_loss": [
+      "tech-fde-04",
+      "fic-ent-eris"
+     ]
+    },
+    "rrf60": {
+     "top1_gain": [
+      "tech-fde-05",
+      "tech-aieng-01",
+      "fic-scene-gall-fire"
+     ],
+     "top1_loss": [
+      "tech-fde-03",
+      "tech-fde-04",
+      "tech-aieng-02"
+     ],
+     "top5_gain": [
+      "tech-ddia-02"
+     ],
+     "top5_loss": []
+    },
+    "z_50_50": {
+     "top1_gain": [
+      "tech-fde-05",
+      "tech-aieng-01"
+     ],
+     "top1_loss": [
+      "tech-fde-04",
+      "fic-ent-eris"
+     ],
+     "top5_gain": [],
+     "top5_loss": []
+    },
+    "z_60n_40g": {
+     "top1_gain": [
+      "tech-fde-05",
+      "tech-aieng-01"
+     ],
+     "top1_loss": [
+      "tech-fde-04",
+      "fic-ent-eris"
+     ],
+     "top5_gain": [],
+     "top5_loss": []
+    },
+    "z_40n_60g": {
+     "top1_gain": [
+      "tech-fde-05",
+      "tech-aieng-01"
+     ],
+     "top1_loss": [
+      "tech-fde-04",
+      "tech-aieng-02",
+      "fic-ent-eris",
+      "fic-scene-badigadi"
+     ],
+     "top5_gain": [],
+     "top5_loss": []
+    },
+    "z_max": {
+     "top1_gain": [
+      "tech-aieng-01",
+      "fic-scene-gall-fire"
+     ],
+     "top1_loss": [
+      "tech-aieng-05",
+      "fic-ent-eris"
+     ],
+     "top5_gain": [
+      "fic-ent-sandor"
+     ],
+     "top5_loss": []
+    },
+    "z_mean": {
+     "top1_gain": [
+      "tech-fde-05",
+      "tech-aieng-01"
+     ],
+     "top1_loss": [
+      "tech-fde-04",
+      "fic-ent-eris"
+     ],
+     "top5_gain": [],
+     "top5_loss": []
+    }
+   }
+  },
+  "gemma_224_leg": {
+   "summary": {
+    "gemma_trunc": {
+     "top1": 22,
+     "top5": 31,
+     "mean_gold_rank": 2.743
+    },
+    "nomic": {
+     "top1": 26,
+     "top5": 31,
+     "mean_gold_rank": 5.257
+    },
+    "rrf60": {
+     "top1": 26,
+     "top5": 31,
+     "mean_gold_rank": 2.743
+    },
+    "z_50_50": {
+     "top1": 26,
+     "top5": 31,
+     "mean_gold_rank": 2.8
+    },
+    "z_60n_40g": {
+     "top1": 26,
+     "top5": 31,
+     "mean_gold_rank": 3.286
+    },
+    "z_40n_60g": {
+     "top1": 26,
+     "top5": 31,
+     "mean_gold_rank": 2.571
+    },
+    "z_max": {
+     "top1": 26,
+     "top5": 32,
+     "mean_gold_rank": 2.371
+    },
+    "z_mean": {
+     "top1": 26,
+     "top5": 31,
+     "mean_gold_rank": 2.8
+    }
+   },
+   "deltas_vs_nomic": {
+    "gemma_trunc": {
+     "top1_gain": [
+      "tech-fde-05",
+      "tech-aieng-01",
+      "fic-scene-gall-fire"
+     ],
+     "top1_loss": [
+      "tech-fde-02",
+      "tech-fde-03",
+      "tech-fde-04",
+      "tech-aieng-02",
+      "tech-aieng-05",
+      "fic-ent-eris",
+      "fic-ent-ruijerd"
+     ],
+     "top5_gain": [
+      "tech-ddia-02",
+      "fic-ent-sandor",
+      "fic-scene-white-place"
+     ],
+     "top5_loss": [
+      "tech-fde-04",
+      "fic-ent-eris",
+      "fic-ent-rudeus"
+     ]
+    },
+    "rrf60": {
+     "top1_gain": [
+      "tech-fde-05",
+      "tech-aieng-01",
+      "fic-scene-gall-fire"
+     ],
+     "top1_loss": [
+      "tech-fde-03",
+      "tech-fde-04",
+      "tech-aieng-02"
+     ],
+     "top5_gain": [
+      "tech-ddia-02"
+     ],
+     "top5_loss": [
+      "tech-fde-04"
+     ]
+    },
+    "z_50_50": {
+     "top1_gain": [
+      "tech-fde-05",
+      "tech-aieng-01",
+      "fic-scene-gall-fire"
+     ],
+     "top1_loss": [
+      "tech-fde-04",
+      "tech-aieng-02",
+      "fic-ent-eris"
+     ],
+     "top5_gain": [],
+     "top5_loss": []
+    },
+    "z_60n_40g": {
+     "top1_gain": [
+      "tech-fde-05"
+     ],
+     "top1_loss": [
+      "tech-fde-04"
+     ],
+     "top5_gain": [],
+     "top5_loss": []
+    },
+    "z_40n_60g": {
+     "top1_gain": [
+      "tech-fde-05",
+      "tech-aieng-01",
+      "fic-scene-gall-fire"
+     ],
+     "top1_loss": [
+      "tech-fde-04",
+      "tech-aieng-02",
+      "fic-ent-eris"
+     ],
+     "top5_gain": [],
+     "top5_loss": []
+    },
+    "z_max": {
+     "top1_gain": [
+      "tech-aieng-01",
+      "fic-scene-gall-fire"
+     ],
+     "top1_loss": [
+      "tech-aieng-05",
+      "fic-ent-eris"
+     ],
+     "top5_gain": [
+      "fic-ent-sandor"
+     ],
+     "top5_loss": []
+    },
+    "z_mean": {
+     "top1_gain": [
+      "tech-fde-05",
+      "tech-aieng-01",
+      "fic-scene-gall-fire"
+     ],
+     "top1_loss": [
+      "tech-fde-04",
+      "tech-aieng-02",
+      "fic-ent-eris"
+     ],
+     "top5_gain": [],
+     "top5_loss": []
+    }
+   }
+  },
+  "fixed_legs_numpy_path": {
+   "gemma768": [
+    19,
+    30,
+    3.0
+   ],
+   "gemma256": [
+    21,
+    32,
+    2.4
+   ],
+   "gemma224": [
+    22,
+    31,
+    2.743
+   ],
+   "nomic": [
+    26,
+    31,
+    5.257
+   ],
+   "first256_zmax": [
+    26,
+    32,
+    2.371
+   ],
+   "first256_z5050": [
+    26,
+    31,
+    2.943
+   ],
+   "first256_rrf": [
+    26,
+    32,
+    2.8
+   ],
+   "first224_zmax": [
+    26,
+    32,
+    2.371
+   ],
+   "first224_z5050": [
+    26,
+    31,
+    2.8
+   ],
+   "first224_rrf": [
+    26,
+    31,
+    2.743
+   ]
+  },
+  "random_dims_control": {
+   "gemma256_zmax": {
+    "draws": 40,
+    "first_dims": {
+     "top1": 26,
+     "top5": 32,
+     "mean": 2.371
+    },
+    "random_top1_mean": 24.82,
+    "random_top1_max": 27,
+    "random_top5_mean": 31.15,
+    "random_top5_max": 32,
+    "p_top1_at_least": 0.25,
+    "p_top5_at_least": 0.15,
+    "p_mean_at_most": 0.0,
+    "random_mean_rank_mean": 3.589,
+    "random_mean_rank_sd": 0.639,
+    "random_mean_rank_min": 2.571,
+    "draws_top1": [
+     24,
+     26,
+     25,
+     25,
+     24,
+     26,
+     26,
+     24,
+     26,
+     25,
+     25,
+     26,
+     24,
+     23,
+     23,
+     24,
+     24,
+     24,
+     25,
+     25,
+     25,
+     25,
+     25,
+     26,
+     26,
+     24,
+     25,
+     25,
+     25,
+     25,
+     24,
+     25,
+     26,
+     26,
+     25,
+     24,
+     23,
+     24,
+     27,
+     24
+    ],
+    "draws_top5": [
+     32,
+     31,
+     32,
+     32,
+     32,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     32,
+     31,
+     31,
+     31,
+     31,
+     31,
+     32,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31
+    ],
+    "draws_mean_rank": [
+     2.914,
+     4.429,
+     3.029,
+     2.571,
+     2.886,
+     3.229,
+     2.771,
+     2.971,
+     4.343,
+     3.943,
+     4.2,
+     3.971,
+     3.457,
+     3.371,
+     4.429,
+     3.8,
+     3.114,
+     2.686,
+     3.857,
+     3.857,
+     3.114,
+     3.686,
+     4.743,
+     4.171,
+     3.314,
+     4.0,
+     4.4,
+     3.714,
+     4.457,
+     2.6,
+     2.829,
+     3.971,
+     4.029,
+     3.257,
+     3.057,
+     3.171,
+     5.086,
+     3.886,
+     2.857,
+     3.371
+    ]
+   },
+   "gemma256_z5050": {
+    "draws": 40,
+    "first_dims": {
+     "top1": 26,
+     "top5": 31,
+     "mean": 2.943
+    },
+    "random_top1_mean": 24.02,
+    "random_top1_max": 28,
+    "random_top5_mean": 30.95,
+    "random_top5_max": 32,
+    "p_top1_at_least": 0.1,
+    "p_top5_at_least": 0.875,
+    "p_mean_at_most": 0.025,
+    "random_mean_rank_mean": 3.591,
+    "random_mean_rank_sd": 0.34,
+    "random_mean_rank_min": 2.886,
+    "draws_top1": [
+     24,
+     25,
+     23,
+     25,
+     22,
+     24,
+     26,
+     23,
+     24,
+     23,
+     24,
+     26,
+     23,
+     24,
+     23,
+     25,
+     24,
+     22,
+     24,
+     22,
+     24,
+     28,
+     25,
+     25,
+     24,
+     24,
+     23,
+     23,
+     24,
+     24,
+     25,
+     24,
+     24,
+     24,
+     27,
+     23,
+     24,
+     22,
+     24,
+     24
+    ],
+    "draws_top5": [
+     32,
+     31,
+     31,
+     31,
+     32,
+     31,
+     31,
+     31,
+     31,
+     30,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     30,
+     31,
+     31,
+     30,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     30,
+     32,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     30,
+     31
+    ],
+    "draws_mean_rank": [
+     3.257,
+     3.971,
+     3.486,
+     2.886,
+     3.4,
+     3.429,
+     2.971,
+     3.4,
+     4.086,
+     4.029,
+     3.914,
+     3.657,
+     3.286,
+     3.429,
+     4.114,
+     3.657,
+     3.286,
+     3.114,
+     3.857,
+     3.914,
+     3.486,
+     3.571,
+     4.057,
+     3.857,
+     3.286,
+     3.971,
+     4.057,
+     3.657,
+     4.0,
+     3.029,
+     3.314,
+     3.571,
+     3.771,
+     3.543,
+     3.257,
+     3.343,
+     4.114,
+     3.829,
+     3.371,
+     3.429
+    ]
+   },
+   "gemma256_rrf": {
+    "draws": 40,
+    "first_dims": {
+     "top1": 26,
+     "top5": 32,
+     "mean": 2.8
+    },
+    "random_top1_mean": 23.8,
+    "random_top1_max": 27,
+    "random_top5_mean": 30.15,
+    "random_top5_max": 32,
+    "p_top1_at_least": 0.1,
+    "p_top5_at_least": 0.025,
+    "p_mean_at_most": 0.0,
+    "random_mean_rank_mean": 3.675,
+    "random_mean_rank_sd": 0.418,
+    "random_mean_rank_min": 2.943,
+    "draws_top1": [
+     25,
+     24,
+     23,
+     24,
+     24,
+     25,
+     25,
+     21,
+     21,
+     24,
+     23,
+     24,
+     26,
+     24,
+     23,
+     24,
+     22,
+     24,
+     25,
+     25,
+     26,
+     25,
+     26,
+     24,
+     27,
+     22,
+     23,
+     22,
+     20,
+     23,
+     24,
+     24,
+     24,
+     25,
+     25,
+     24,
+     22,
+     23,
+     24,
+     23
+    ],
+    "draws_top5": [
+     30,
+     30,
+     30,
+     30,
+     30,
+     30,
+     31,
+     30,
+     31,
+     29,
+     30,
+     31,
+     29,
+     30,
+     30,
+     30,
+     29,
+     30,
+     29,
+     29,
+     30,
+     31,
+     31,
+     30,
+     31,
+     30,
+     30,
+     31,
+     32,
+     30,
+     29,
+     31,
+     31,
+     30,
+     30,
+     30,
+     31,
+     30,
+     29,
+     31
+    ],
+    "draws_mean_rank": [
+     3.2,
+     4.457,
+     3.571,
+     2.943,
+     3.543,
+     3.257,
+     3.057,
+     3.457,
+     4.143,
+     4.486,
+     4.057,
+     3.743,
+     3.429,
+     3.486,
+     4.143,
+     3.8,
+     3.571,
+     3.314,
+     4.229,
+     4.229,
+     3.543,
+     3.486,
+     4.086,
+     3.743,
+     3.114,
+     4.0,
+     4.2,
+     3.771,
+     4.057,
+     3.057,
+     3.229,
+     3.743,
+     3.714,
+     3.4,
+     3.343,
+     3.314,
+     4.543,
+     3.686,
+     3.543,
+     3.314
+    ]
+   },
+   "gemma224_zmax": {
+    "draws": 40,
+    "first_dims": {
+     "top1": 26,
+     "top5": 32,
+     "mean": 2.371
+    },
+    "random_top1_mean": 24.98,
+    "random_top1_max": 27,
+    "random_top5_mean": 31.27,
+    "random_top5_max": 32,
+    "p_top1_at_least": 0.275,
+    "p_top5_at_least": 0.275,
+    "p_mean_at_most": 0.0,
+    "random_mean_rank_mean": 3.77,
+    "random_mean_rank_sd": 0.766,
+    "random_mean_rank_min": 2.429,
+    "draws_top1": [
+     26,
+     24,
+     25,
+     25,
+     25,
+     24,
+     26,
+     26,
+     24,
+     25,
+     24,
+     26,
+     26,
+     23,
+     25,
+     25,
+     25,
+     25,
+     25,
+     25,
+     25,
+     25,
+     26,
+     25,
+     27,
+     25,
+     24,
+     26,
+     23,
+     26,
+     24,
+     25,
+     25,
+     23,
+     26,
+     24,
+     25,
+     25,
+     26,
+     25
+    ],
+    "draws_top5": [
+     31,
+     32,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     32,
+     32,
+     31,
+     31,
+     31,
+     32,
+     31,
+     31,
+     31,
+     32,
+     31,
+     32,
+     31,
+     32,
+     31,
+     31,
+     32,
+     32,
+     31,
+     31,
+     31,
+     31,
+     32,
+     32,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31
+    ],
+    "draws_mean_rank": [
+     3.6,
+     2.857,
+     4.4,
+     3.429,
+     4.8,
+     3.771,
+     3.171,
+     4.829,
+     2.829,
+     2.943,
+     4.143,
+     4.171,
+     5.0,
+     3.286,
+     2.457,
+     4.171,
+     4.2,
+     3.343,
+     3.057,
+     4.0,
+     2.429,
+     3.743,
+     3.171,
+     4.629,
+     4.714,
+     3.657,
+     4.257,
+     2.543,
+     3.857,
+     4.257,
+     4.457,
+     2.514,
+     3.057,
+     3.257,
+     4.943,
+     4.686,
+     4.257,
+     5.114,
+     3.343,
+     3.457
+    ]
+   },
+   "gemma224_z5050": {
+    "draws": 40,
+    "first_dims": {
+     "top1": 26,
+     "top5": 31,
+     "mean": 2.8
+    },
+    "random_top1_mean": 23.77,
+    "random_top1_max": 26,
+    "random_top5_mean": 30.82,
+    "random_top5_max": 32,
+    "p_top1_at_least": 0.075,
+    "p_top5_at_least": 0.75,
+    "p_mean_at_most": 0.025,
+    "random_mean_rank_mean": 3.718,
+    "random_mean_rank_sd": 0.44,
+    "random_mean_rank_min": 2.743,
+    "draws_top1": [
+     23,
+     24,
+     24,
+     25,
+     24,
+     23,
+     26,
+     25,
+     23,
+     24,
+     23,
+     23,
+     23,
+     25,
+     25,
+     23,
+     24,
+     22,
+     23,
+     24,
+     24,
+     25,
+     24,
+     24,
+     26,
+     24,
+     23,
+     25,
+     23,
+     25,
+     25,
+     23,
+     25,
+     21,
+     24,
+     24,
+     21,
+     22,
+     26,
+     21
+    ],
+    "draws_top5": [
+     30,
+     32,
+     30,
+     31,
+     30,
+     31,
+     31,
+     31,
+     31,
+     30,
+     31,
+     30,
+     31,
+     31,
+     31,
+     31,
+     31,
+     30,
+     31,
+     31,
+     31,
+     31,
+     31,
+     30,
+     30,
+     32,
+     31,
+     31,
+     31,
+     31,
+     31,
+     31,
+     32,
+     31,
+     31,
+     31,
+     31,
+     30,
+     30,
+     31
+    ],
+    "draws_mean_rank": [
+     4.057,
+     3.057,
+     4.0,
+     3.514,
+     4.686,
+     3.771,
+     3.457,
+     4.086,
+     3.257,
+     3.343,
+     4.0,
+     4.171,
+     4.314,
+     3.343,
+     2.743,
+     3.886,
+     3.943,
+     3.657,
+     3.486,
+     3.686,
+     3.171,
+     3.743,
+     3.4,
+     4.343,
+     4.114,
+     3.686,
+     3.857,
+     3.057,
+     3.629,
+     3.914,
+     4.029,
+     3.057,
+     3.229,
+     3.371,
+     4.171,
+     4.171,
+     3.971,
+     4.543,
+     3.429,
+     3.371
+    ]
+   },
+   "gemma224_rrf": {
+    "draws": 40,
+    "first_dims": {
+     "top1": 26,
+     "top5": 31,
+     "mean": 2.743
+    },
+    "random_top1_mean": 23.45,
+    "random_top1_max": 26,
+    "random_top5_mean": 30.12,
+    "random_top5_max": 32,
+    "p_top1_at_least": 0.05,
+    "p_top5_at_least": 0.3,
+    "p_mean_at_most": 0.0,
+    "random_mean_rank_mean": 3.821,
+    "random_mean_rank_sd": 0.481,
+    "random_mean_rank_min": 2.886,
+    "draws_top1": [
+     23,
+     25,
+     23,
+     24,
+     24,
+     23,
+     23,
+     24,
+     22,
+     24,
+     23,
+     26,
+     25,
+     25,
+     26,
+     24,
+     21,
+     25,
+     23,
+     23,
+     24,
+     24,
+     23,
+     24,
+     25,
+     24,
+     22,
+     25,
+     22,
+     24,
+     25,
+     22,
+     25,
+     20,
+     23,
+     23,
+     22,
+     21,
+     22,
+     22
+    ],
+    "draws_top5": [
+     30,
+     31,
+     30,
+     32,
+     29,
+     31,
+     30,
+     30,
+     30,
+     30,
+     30,
+     29,
+     30,
+     31,
+     30,
+     30,
+     30,
+     29,
+     30,
+     29,
+     31,
+     31,
+     31,
+     29,
+     31,
+     30,
+     30,
+     30,
+     29,
+     28,
+     31,
+     31,
+     31,
+     31,
+     30,
+     30,
+     30,
+     30,
+     30,
+     30
+    ],
+    "draws_mean_rank": [
+     3.829,
+     3.314,
+     3.8,
+     3.314,
+     4.771,
+     3.829,
+     3.743,
+     4.314,
+     3.257,
+     3.4,
+     4.257,
+     4.286,
+     4.514,
+     3.343,
+     2.886,
+     4.114,
+     4.057,
+     3.657,
+     3.543,
+     3.829,
+     3.029,
+     3.686,
+     3.6,
+     4.543,
+     4.286,
+     3.714,
+     4.229,
+     3.2,
+     3.714,
+     4.057,
+     3.886,
+     3.2,
+     3.257,
+     3.457,
+     4.6,
+     4.457,
+     4.057,
+     4.686,
+     3.514,
+     3.6
+    ]
+   }
+  },
+  "per_row_ranks": {
+   "tech-fde-01": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "tech-fde-02": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "tech-fde-03": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "tech-fde-04": {
+    "zmax_768": 1,
+    "z5050_768": 2,
+    "zmax_256": 1,
+    "z5050_256": 2,
+    "rrf_256": 5,
+    "nomic": 1
+   },
+   "tech-fde-05": {
+    "zmax_768": 3,
+    "z5050_768": 1,
+    "zmax_256": 3,
+    "z5050_256": 1,
+    "rrf_256": 2,
+    "nomic": 3
+   },
+   "tech-quant-01": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "tech-quant-02": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "tech-quant-03": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "tech-quant-04": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "tech-quant-05": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "tech-ddia-01": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "tech-ddia-02": {
+    "zmax_768": 10,
+    "z5050_768": 11,
+    "zmax_256": 9,
+    "z5050_256": 9,
+    "rrf_256": 3,
+    "nomic": 9
+   },
+   "tech-ddia-03": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "tech-ddia-04": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "tech-ddia-05": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "tech-aieng-01": {
+    "zmax_768": 1,
+    "z5050_768": 2,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 2
+   },
+   "tech-aieng-02": {
+    "zmax_768": 1,
+    "z5050_768": 2,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "tech-aieng-03": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "tech-aieng-04": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "tech-aieng-05": {
+    "zmax_768": 2,
+    "z5050_768": 1,
+    "zmax_256": 2,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "tech-aiagents-01": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "tech-aiagents-02": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "tech-aiagents-03": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "tech-aiagents-04": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "tech-aiagents-05": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "fic-ent-atofe": {
+    "zmax_768": 3,
+    "z5050_768": 3,
+    "zmax_256": 3,
+    "z5050_256": 3,
+    "rrf_256": 3,
+    "nomic": 3
+   },
+   "fic-ent-sandor": {
+    "zmax_768": 10,
+    "z5050_768": 11,
+    "zmax_256": 5,
+    "z5050_256": 10,
+    "rrf_256": 10,
+    "nomic": 32
+   },
+   "fic-ent-eris": {
+    "zmax_768": 2,
+    "z5050_768": 3,
+    "zmax_256": 2,
+    "z5050_256": 3,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "fic-ent-ruijerd": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "fic-ent-rudeus": {
+    "zmax_768": 2,
+    "z5050_768": 2,
+    "zmax_256": 2,
+    "z5050_256": 2,
+    "rrf_256": 3,
+    "nomic": 2
+   },
+   "fic-ent-dohga": {
+    "zmax_768": 2,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   },
+   "fic-scene-white-place": {
+    "zmax_768": 11,
+    "z5050_768": 14,
+    "zmax_256": 8,
+    "z5050_256": 14,
+    "rrf_256": 15,
+    "nomic": 34
+   },
+   "fic-scene-gall-fire": {
+    "zmax_768": 2,
+    "z5050_768": 3,
+    "zmax_256": 1,
+    "z5050_256": 2,
+    "rrf_256": 2,
+    "nomic": 4
+   },
+   "fic-scene-alec-dead": {
+    "zmax_768": 35,
+    "z5050_768": 42,
+    "zmax_256": 23,
+    "z5050_256": 32,
+    "rrf_256": 29,
+    "nomic": 69
+   },
+   "fic-scene-badigadi": {
+    "zmax_768": 1,
+    "z5050_768": 1,
+    "zmax_256": 1,
+    "z5050_256": 1,
+    "rrf_256": 1,
+    "nomic": 1
+   }
+  },
+  "dims_note": "Dims' later 1000-subset dense-only control gives random-subset mean gold rank 3.995 (sd 0.822) against first-256's 2.40, so truncation itself deepens the ranking; top-1 and top-5 gains stay noise-level. Fusion-side random-subset means (40 draws): z max 3.589 (sd 0.639, min 2.571), RRF 3.675, z 0.5/0.5 3.591 at 256 dims; first-dims fusion 2.371. Fusion inherits most of its depth from the gemma leg."
+ },
+ "third_round_halves_gemma_leg": {
+  "why": "Granularity's halves units (max-pooled to the parent) lift gemma's own top-1 on the 20 rows whose books have unit vectors; run the same fusion over that leg to see whether a finer gemma leg lifts the fusion ceiling.",
+  "rows": 20,
+  "books": [
+   "index",
+   "index.ai-engineering",
+   "index.mushoku-tensei..."
+  ],
+  "summary": {
+   "gemma_whole": [
+    5,
+    16,
+    4.1
+   ],
+   "gemma_halves": [
+    9,
+    15,
+    8.2
+   ],
+   "nomic": [
+    12,
+    17,
+    8.05
+   ],
+   "zmax_whole": [
+    10,
+    17,
+    4.1
+   ],
+   "zmax_halves": [
+    10,
+    17,
+    8.5
+   ],
+   "g120_halves": [
+    11,
+    17,
+    6.7
+   ],
+   "z5050_halves": [
+    11,
+    17,
+    6.75
+   ]
+  },
+  "per_row": {
+   "tech-fde-01": {
+    "gemma_whole": 1,
+    "gemma_halves": 1,
+    "nomic": 1,
+    "zmax_whole": 1,
+    "zmax_halves": 1,
+    "g120_halves": 1,
+    "z5050_halves": 1
+   },
+   "tech-fde-02": {
+    "gemma_whole": 2,
+    "gemma_halves": 1,
+    "nomic": 1,
+    "zmax_whole": 1,
+    "zmax_halves": 1,
+    "g120_halves": 1,
+    "z5050_halves": 1
+   },
+   "tech-fde-03": {
+    "gemma_whole": 2,
+    "gemma_halves": 1,
+    "nomic": 1,
+    "zmax_whole": 1,
+    "zmax_halves": 1,
+    "g120_halves": 1,
+    "z5050_halves": 1
+   },
+   "tech-fde-04": {
+    "gemma_whole": 12,
+    "gemma_halves": 2,
+    "nomic": 1,
+    "zmax_whole": 1,
+    "zmax_halves": 2,
+    "g120_halves": 2,
+    "z5050_halves": 2
+   },
+   "tech-fde-05": {
+    "gemma_whole": 1,
+    "gemma_halves": 2,
+    "nomic": 3,
+    "zmax_whole": 3,
+    "zmax_halves": 3,
+    "g120_halves": 2,
+    "z5050_halves": 2
+   },
+   "tech-aieng-01": {
+    "gemma_whole": 1,
+    "gemma_halves": 1,
+    "nomic": 2,
+    "zmax_whole": 1,
+    "zmax_halves": 1,
+    "g120_halves": 1,
+    "z5050_halves": 1
+   },
+   "tech-aieng-02": {
+    "gemma_whole": 2,
+    "gemma_halves": 2,
+    "nomic": 1,
+    "zmax_whole": 1,
+    "zmax_halves": 2,
+    "g120_halves": 2,
+    "z5050_halves": 2
+   },
+   "tech-aieng-03": {
+    "gemma_whole": 1,
+    "gemma_halves": 1,
+    "nomic": 1,
+    "zmax_whole": 1,
+    "zmax_halves": 1,
+    "g120_halves": 1,
+    "z5050_halves": 1
+   },
+   "tech-aieng-04": {
+    "gemma_whole": 1,
+    "gemma_halves": 1,
+    "nomic": 1,
+    "zmax_whole": 1,
+    "zmax_halves": 1,
+    "g120_halves": 1,
+    "z5050_halves": 1
+   },
+   "tech-aieng-05": {
+    "gemma_whole": 2,
+    "gemma_halves": 1,
+    "nomic": 1,
+    "zmax_whole": 2,
+    "zmax_halves": 1,
+    "g120_halves": 1,
+    "z5050_halves": 1
+   },
+   "fic-ent-atofe": {
+    "gemma_whole": 2,
+    "gemma_halves": 1,
+    "nomic": 3,
+    "zmax_whole": 3,
+    "zmax_halves": 1,
+    "g120_halves": 1,
+    "z5050_halves": 1
+   },
+   "fic-ent-sandor": {
+    "gemma_whole": 4,
+    "gemma_halves": 17,
+    "nomic": 32,
+    "zmax_whole": 10,
+    "zmax_halves": 27,
+    "g120_halves": 17,
+    "z5050_halves": 18
+   },
+   "fic-ent-eris": {
+    "gemma_whole": 10,
+    "gemma_halves": 6,
+    "nomic": 1,
+    "zmax_whole": 2,
+    "zmax_halves": 1,
+    "g120_halves": 1,
+    "z5050_halves": 1
+   },
+   "fic-ent-ruijerd": {
+    "gemma_whole": 3,
+    "gemma_halves": 4,
+    "nomic": 1,
+    "zmax_whole": 1,
+    "zmax_halves": 2,
+    "g120_halves": 3,
+    "z5050_halves": 2
+   },
+   "fic-ent-rudeus": {
+    "gemma_whole": 4,
+    "gemma_halves": 20,
+    "nomic": 2,
+    "zmax_whole": 2,
+    "zmax_halves": 2,
+    "g120_halves": 3,
+    "z5050_halves": 3
+   },
+   "fic-ent-dohga": {
+    "gemma_whole": 2,
+    "gemma_halves": 3,
+    "nomic": 1,
+    "zmax_whole": 2,
+    "zmax_halves": 2,
+    "g120_halves": 1,
+    "z5050_halves": 1
+   },
+   "fic-scene-white-place": {
+    "gemma_whole": 7,
+    "gemma_halves": 33,
+    "nomic": 34,
+    "zmax_whole": 11,
+    "zmax_halves": 38,
+    "g120_halves": 30,
+    "z5050_halves": 29
+   },
+   "fic-scene-gall-fire": {
+    "gemma_whole": 2,
+    "gemma_halves": 4,
+    "nomic": 4,
+    "zmax_whole": 2,
+    "zmax_halves": 5,
+    "g120_halves": 4,
+    "z5050_halves": 4
+   },
+   "fic-scene-alec-dead": {
+    "gemma_whole": 21,
+    "gemma_halves": 62,
+    "nomic": 69,
+    "zmax_whole": 35,
+    "zmax_halves": 77,
+    "g120_halves": 60,
+    "z5050_halves": 62
+   },
+   "fic-scene-badigadi": {
+    "gemma_whole": 2,
+    "gemma_halves": 1,
+    "nomic": 1,
+    "zmax_whole": 1,
+    "zmax_halves": 1,
+    "g120_halves": 1,
+    "z5050_halves": 1
+   }
+  },
+  "metric_note": "mean gold rank counts a miss as n_chunks + 1, so the halves leg's deep novel misses inflate its 8.20; Granularity reports mean rank <=6 and mean hit over found rows instead.",
+  "rows_35": {
+   "why": "Granularity extended unit vectors to the other three books, so the halves-leg fusion now covers all 35 answerable rows.",
+   "summary": {
+    "gemma_whole": [
+     19,
+     30,
+     3.0
+    ],
+    "gemma_halves": [
+     21,
+     30,
+     5.2
+    ],
+    "nomic": [
+     26,
+     31,
+     5.257
+    ],
+    "zmax_whole": [
+     24,
+     31,
+     3.029
+    ],
+    "zmax_halves": [
+     24,
+     32,
+     5.4
+    ],
+    "g120_halves": [
+     25,
+     32,
+     4.314
+    ],
+    "z5050_halves": [
+     25,
+     32,
+     4.343
+    ],
+    "g160_halves": [
+     24,
+     31,
+     4.543
+    ]
+   },
+   "per_row": {
+    "tech-fde-01": {
+     "gemma_whole": 1,
+     "gemma_halves": 1,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "tech-fde-02": {
+     "gemma_whole": 2,
+     "gemma_halves": 1,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "tech-fde-03": {
+     "gemma_whole": 2,
+     "gemma_halves": 1,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "tech-fde-04": {
+     "gemma_whole": 12,
+     "gemma_halves": 2,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 2,
+     "g120_halves": 2,
+     "z5050_halves": 2,
+     "g160_halves": 2
+    },
+    "tech-fde-05": {
+     "gemma_whole": 1,
+     "gemma_halves": 2,
+     "nomic": 3,
+     "zmax_whole": 3,
+     "zmax_halves": 3,
+     "g120_halves": 2,
+     "z5050_halves": 2,
+     "g160_halves": 2
+    },
+    "tech-quant-01": {
+     "gemma_whole": 1,
+     "gemma_halves": 1,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "tech-quant-02": {
+     "gemma_whole": 1,
+     "gemma_halves": 1,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "tech-quant-03": {
+     "gemma_whole": 1,
+     "gemma_halves": 1,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "tech-quant-04": {
+     "gemma_whole": 1,
+     "gemma_halves": 1,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "tech-quant-05": {
+     "gemma_whole": 1,
+     "gemma_halves": 2,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "tech-ddia-01": {
+     "gemma_whole": 1,
+     "gemma_halves": 1,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "tech-ddia-02": {
+     "gemma_whole": 9,
+     "gemma_halves": 2,
+     "nomic": 9,
+     "zmax_whole": 10,
+     "zmax_halves": 5,
+     "g120_halves": 3,
+     "z5050_halves": 3,
+     "g160_halves": 6
+    },
+    "tech-ddia-03": {
+     "gemma_whole": 1,
+     "gemma_halves": 1,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "tech-ddia-04": {
+     "gemma_whole": 1,
+     "gemma_halves": 1,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "tech-ddia-05": {
+     "gemma_whole": 1,
+     "gemma_halves": 1,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "tech-aieng-01": {
+     "gemma_whole": 1,
+     "gemma_halves": 1,
+     "nomic": 2,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "tech-aieng-02": {
+     "gemma_whole": 2,
+     "gemma_halves": 2,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 2,
+     "g120_halves": 2,
+     "z5050_halves": 2,
+     "g160_halves": 2
+    },
+    "tech-aieng-03": {
+     "gemma_whole": 1,
+     "gemma_halves": 1,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "tech-aieng-04": {
+     "gemma_whole": 1,
+     "gemma_halves": 1,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "tech-aieng-05": {
+     "gemma_whole": 2,
+     "gemma_halves": 1,
+     "nomic": 1,
+     "zmax_whole": 2,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "tech-aiagents-01": {
+     "gemma_whole": 1,
+     "gemma_halves": 1,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "tech-aiagents-02": {
+     "gemma_whole": 1,
+     "gemma_halves": 1,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "tech-aiagents-03": {
+     "gemma_whole": 1,
+     "gemma_halves": 1,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "tech-aiagents-04": {
+     "gemma_whole": 1,
+     "gemma_halves": 2,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "tech-aiagents-05": {
+     "gemma_whole": 1,
+     "gemma_halves": 1,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "fic-ent-atofe": {
+     "gemma_whole": 2,
+     "gemma_halves": 1,
+     "nomic": 3,
+     "zmax_whole": 3,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 3
+    },
+    "fic-ent-sandor": {
+     "gemma_whole": 4,
+     "gemma_halves": 17,
+     "nomic": 32,
+     "zmax_whole": 10,
+     "zmax_halves": 27,
+     "g120_halves": 17,
+     "z5050_halves": 18,
+     "g160_halves": 20
+    },
+    "fic-ent-eris": {
+     "gemma_whole": 10,
+     "gemma_halves": 6,
+     "nomic": 1,
+     "zmax_whole": 2,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "fic-ent-ruijerd": {
+     "gemma_whole": 3,
+     "gemma_halves": 4,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 2,
+     "g120_halves": 3,
+     "z5050_halves": 2,
+     "g160_halves": 2
+    },
+    "fic-ent-rudeus": {
+     "gemma_whole": 4,
+     "gemma_halves": 20,
+     "nomic": 2,
+     "zmax_whole": 2,
+     "zmax_halves": 2,
+     "g120_halves": 3,
+     "z5050_halves": 3,
+     "g160_halves": 3
+    },
+    "fic-ent-dohga": {
+     "gemma_whole": 2,
+     "gemma_halves": 3,
+     "nomic": 1,
+     "zmax_whole": 2,
+     "zmax_halves": 2,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    },
+    "fic-scene-white-place": {
+     "gemma_whole": 7,
+     "gemma_halves": 33,
+     "nomic": 34,
+     "zmax_whole": 11,
+     "zmax_halves": 38,
+     "g120_halves": 30,
+     "z5050_halves": 29,
+     "g160_halves": 27
+    },
+    "fic-scene-gall-fire": {
+     "gemma_whole": 2,
+     "gemma_halves": 4,
+     "nomic": 4,
+     "zmax_whole": 2,
+     "zmax_halves": 5,
+     "g120_halves": 4,
+     "z5050_halves": 4,
+     "g160_halves": 4
+    },
+    "fic-scene-alec-dead": {
+     "gemma_whole": 21,
+     "gemma_halves": 62,
+     "nomic": 69,
+     "zmax_whole": 35,
+     "zmax_halves": 77,
+     "g120_halves": 60,
+     "z5050_halves": 62,
+     "g160_halves": 64
+    },
+    "fic-scene-badigadi": {
+     "gemma_whole": 2,
+     "gemma_halves": 1,
+     "nomic": 1,
+     "zmax_whole": 1,
+     "zmax_halves": 1,
+     "g120_halves": 1,
+     "z5050_halves": 1,
+     "g160_halves": 1
+    }
+   },
+   "deltas_vs_nomic": {
+    "zmax_halves": {
+     "top1_gain": [
+      "tech-aieng-01",
+      "fic-ent-atofe"
+     ],
+     "top1_loss": [
+      "tech-fde-04",
+      "tech-aieng-02",
+      "fic-ent-ruijerd",
+      "fic-ent-dohga"
+     ],
+     "top5_gain": [
+      "tech-ddia-02"
+     ],
+     "top5_loss": []
+    },
+    "g120_halves": {
+     "top1_gain": [
+      "tech-aieng-01",
+      "fic-ent-atofe"
+     ],
+     "top1_loss": [
+      "tech-fde-04",
+      "tech-aieng-02",
+      "fic-ent-ruijerd"
+     ],
+     "top5_gain": [
+      "tech-ddia-02"
+     ],
+     "top5_loss": []
+    },
+    "z5050_halves": {
+     "top1_gain": [
+      "tech-aieng-01",
+      "fic-ent-atofe"
+     ],
+     "top1_loss": [
+      "tech-fde-04",
+      "tech-aieng-02",
+      "fic-ent-ruijerd"
+     ],
+     "top5_gain": [
+      "tech-ddia-02"
+     ],
+     "top5_loss": []
+    },
+    "g160_halves": {
+     "top1_gain": [
+      "tech-aieng-01"
+     ],
+     "top1_loss": [
+      "tech-fde-04",
+      "tech-aieng-02",
+      "fic-ent-ruijerd"
+     ],
+     "top5_gain": [],
+     "top5_loss": []
+    },
+    "gemma_halves": {
+     "top1_gain": [
+      "tech-aieng-01",
+      "fic-ent-atofe"
+     ],
+     "top1_loss": [
+      "tech-fde-04",
+      "tech-quant-05",
+      "tech-aieng-02",
+      "tech-aiagents-04",
+      "fic-ent-eris",
+      "fic-ent-ruijerd",
+      "fic-ent-dohga"
+     ],
+     "top5_gain": [
+      "tech-ddia-02"
+     ],
+     "top5_loss": [
+      "fic-ent-eris",
+      "fic-ent-rudeus"
+     ]
+    }
+   },
+   "note": "gemma halves 21/30 matches Granularity's own dense-only number on the same 35 rows; z max over whole 768-d gemma reproduces round 1 exactly (24/31/3.029), so the 35-row extension is on the same footing as the earlier rounds."
+  }
+ },
+ "cross_experiment_note": "Three levers now sit side by side: DocFormat's six document formats (no reliable change, Jaccard 0.45-0.57 between the shown fives), Granularity's finer units (halves +2 top-1 over 35 rows, CI -3..+8, top-5 unchanged; sentences lose 4 top-5), and Dims' truncation (32/35 top-5, and mean gold rank 3.00 -> 2.40, p=0.003 against 1 000 random subsets). The shared fact is that gemma's ranking is a near-tie pool: label formatting, grain and dimension changes all reshuffle which near-tied chunk wins, and only the dimension lever changes depth in place. This experiment's shape follows from that \u2014 the fusion's top-1 (24-26) sits inside the random-subset band because it inherits a fragile ordering at the top, while its depth gain is robust because depth is read further down the same ranking. RRF k=60, which discards gemma's score magnitudes and keeps only its order, did worse (24/30 at 768-d, 26/32 at 256-d), so the ceiling is not a normalisation artefact. Attribution: the depth finding is Dims' (truncation) and this experiment's (same effect at a later stage); DocFormat's arm contributes the label result (no reliable change, mean rank declared tail-sensitive there) and the 29/34 heading-family number."
+}
