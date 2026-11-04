@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RAG statechart — query to answer, 2026-11-04</title>
+<style>
+  :root {
+    --bg: #100f0f;
+    --surface: #1c1b1a;
+    --surface-2: #232220;
+    --border: #403e3c;
+    --line: #6f6d66;
+    --fg: #cecdc3;
+    --muted: #878580;
+    --accent: #4385be;
+    --red: #d14d41;
+    --teal: #3aa99f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 14px/1.5 ui-sans-serif, -apple-system, "SF Pro Text", Inter, system-ui, sans-serif;
+  }
+  .page { max-width: 1220px; margin: 0 auto; padding: 28px 24px 48px; }
+  header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 20px; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0; letter-spacing: -.01em; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  .stage { display: grid; grid-template-columns: minmax(0, 1fr) 324px; gap: 26px; align-items: start; }
+  svg { display: block; width: 100%; height: auto; }
+  .edge { fill: none; stroke: var(--line); stroke-width: 1.4; }
+  .edge.refuse { stroke: #8a3b33; }
+  .edge.answer { stroke: #2f6f6a; }
+  .edge.live { stroke: var(--accent); stroke-width: 2.4; }
+  .edge.live-ref { stroke: var(--red); stroke-width: 2.4; }
+  .elabel {
+    font-size: 11px;
+    fill: var(--muted);
+    paint-order: stroke;
+    stroke: var(--bg);
+    stroke-width: 4;
+    stroke-linejoin: round;
+  }
+  .node rect { fill: var(--surface); stroke: var(--border); }
+  .node text { font-size: 13px; fill: var(--fg); }
+  .node .small { font-size: 11px; fill: var(--muted); }
+  .node.visited rect { stroke: #2f4a5e; }
+  .node.hot rect { stroke: var(--accent); stroke-width: 2; fill: #1f2933; }
+  .node.hot-ref rect { stroke: var(--red); stroke-width: 2; fill: #2a1b19; }
+  .node.hot-ref text { fill: #e6a196; }
+  #token { opacity: 0; }
+  #halo { opacity: 0; }
+  .panel { border: 1px solid var(--border); border-radius: 10px; padding: 16px; background: #141313; }
+  .eyebrow {
+    font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 8px;
+  }
+  .scenarios { display: grid; gap: 6px; margin-bottom: 16px; }
+  .scenarios button {
+    all: unset; cursor: pointer; padding: 8px 10px; border-radius: 7px;
+    border: 1px solid var(--border); background: transparent; color: var(--fg);
+    display: block;
+  }
+  .scenarios button:hover { border-color: #57544e; }
+  .scenarios button.on { border-color: var(--accent); background: var(--surface); }
+  .scenarios b { display: block; font-weight: 550; font-size: 12.5px; }
+  .scenarios span { display: block; color: var(--muted); font-size: 11.5px; margin-top: 1px; }
+  .trace { border-top: 1px solid var(--border); padding-top: 12px; display: grid; gap: 5px; }
+  .trace .row { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; }
+  .trace .row span { color: var(--muted); }
+  .trace .row b { font-weight: 550; font-variant-numeric: tabular-nums; }
+  .note {
+    margin: 12px 0 16px; padding: 9px 10px; border-radius: 7px;
+    background: var(--surface); border: 1px solid var(--border);
+    min-height: 38px; font-size: 12.5px; color: var(--fg);
+  }
+  .rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+  .rule { display: grid; grid-template-columns: 9px 1fr; gap: 8px; align-items: start; font-size: 12px; color: var(--muted); }
+  .rule .dot { width: 8px; height: 8px; margin-top: 4px; border-radius: 50%; border: 1px solid var(--border); }
+  .rule.on { color: var(--fg); }
+  .rule.on .dot { background: var(--teal); border-color: var(--teal); }
+  footer { margin-top: 26px; border-top: 1px solid var(--border); padding-top: 14px; color: var(--muted); font-size: 12px; max-width: 72ch; }
+  footer code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; color: var(--fg); }
+  @media (max-width: 900px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .edge.live, .edge.live-ref { stroke-width: 1.4; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>Query → answer</h1>
+    <span class="sub">the states a question passes through, checked in TLA+</span>
+  </header>
+
+  <div class="stage">
+    <div>
+      <svg id="chart" viewBox="0 0 1000 760" role="img" aria-label="Statechart: a question is read, searched, guarded, generated, checked for a citation, glossed, and answered or refused">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#6f6d66"/>
+          </marker>
+          <marker id="arrow-ref" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#8a3b33"/>
+          </marker>
+          <marker id="arrow-ans" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#2f6f6a"/>
+          </marker>
+        </defs>
+
+        <g class="edges">
+          <path id="e-inject" class="edge refuse" d="M435 56 H690 V338" marker-end="url(#arrow-ref)"/>
+          <path id="e-asks" class="edge" d="M330 78 V114" marker-end="url(#arrow)"/>
+          <path id="e-reads" class="edge" d="M330 158 V194" marker-end="url(#arrow)"/>
+          <path id="e-fuses" class="edge" d="M330 238 V274" marker-end="url(#arrow)"/>
+          <path id="e-checks" class="edge" d="M330 318 V354" marker-end="url(#arrow)"/>
+          <path id="e-generate" class="edge" d="M330 398 V434" marker-end="url(#arrow)"/>
+          <path id="e-writes" class="edge" d="M330 478 V514" marker-end="url(#arrow)"/>
+          <path id="e-accept" class="edge answer" d="M330 558 V594" marker-end="url(#arrow-ans)"/>
+          <path id="e-glosses" class="edge answer" d="M330 638 V674" marker-end="url(#arrow-ans)"/>
+          <path id="e-nopass" class="edge refuse" d="M435 216 H735 V338" marker-end="url(#arrow-ref)"/>
+          <path id="e-guardref" class="edge refuse" d="M435 376 H675" marker-end="url(#arrow-ref)"/>
+          <path id="e-gateref" class="edge refuse" d="M435 536 H650 V414 H700" marker-end="url(#arrow-ref)"/>
+          <path id="e-retry" class="edge" d="M225 536 H160 V456 H225" marker-end="url(#arrow)"/>
+        </g>
+
+        <g class="labels">
+          <text class="elabel" x="555" y="38" text-anchor="middle"><tspan x="555" y="38">the question tries to</tspan><tspan x="555" y="52">inject instructions</tspan></text>
+          <text class="elabel" x="342" y="101">the reader asks</text>
+          <text class="elabel" x="342" y="181">the ask is read and searched</text>
+          <text class="elabel" x="342" y="261">the passages are fused into a window</text>
+          <text class="elabel" x="342" y="341">the question's words are in the book</text>
+          <text class="elabel" x="342" y="421">the passages go to the model</text>
+          <text class="elabel" x="342" y="501">the model writes a body</text>
+          <text class="elabel" x="342" y="574">the citation checks out,</text>
+          <text class="elabel" x="342" y="588">or a sentence is recovered</text>
+          <text class="elabel" x="342" y="661">the gloss is written</text>
+          <text class="elabel" x="560" y="204">no passage matches</text>
+          <text class="elabel" x="560" y="356" text-anchor="middle"><tspan x="560" y="356">the book never</tspan><tspan x="560" y="370">mentions it</tspan></text>
+          <text class="elabel" x="480" y="512"><tspan x="480" y="512">nothing shown</tspan><tspan x="480" y="526">can back the body</tspan></text>
+          <text class="elabel" x="152" y="494" text-anchor="end">uncited,</text>
+          <text class="elabel" x="152" y="508" text-anchor="end">one retry</text>
+        </g>
+
+        <g class="nodes">
+          <g class="node" id="n-q" transform="translate(330 56)">
+            <rect x="-105" y="-22" width="210" height="44" rx="9"/>
+            <text y="5" text-anchor="middle">Question arrives</text>
+          </g>
+          <g class="node" id="n-read" transform="translate(330 136)">
+            <rect x="-105" y="-22" width="210" height="44" rx="9"/>
+            <text y="5" text-anchor="middle">The question is read</text>
+          </g>
+          <g class="node" id="n-search" transform="translate(330 216)">
+            <rect x="-105" y="-22" width="210" height="44" rx="9"/>
+            <text y="5" text-anchor="middle">The book is searched</text>
+          </g>
+          <g class="node" id="n-window" transform="translate(330 296)">
+            <rect x="-105" y="-22" width="210" height="44" rx="9"/>
+            <text y="5" text-anchor="middle">Passages chosen</text>
+          </g>
+          <g class="node" id="n-guard" transform="translate(330 376)">
+            <rect x="-105" y="-22" width="210" height="44" rx="9"/>
+            <text y="5" text-anchor="middle">Book guard</text>
+          </g>
+          <g class="node" id="n-gen" transform="translate(330 456)">
+            <rect x="-105" y="-22" width="210" height="44" rx="9"/>
+            <text y="5" text-anchor="middle">The model writes</text>
+          </g>
+          <g class="node" id="n-gate" transform="translate(330 536)">
+            <rect x="-105" y="-22" width="210" height="44" rx="9"/>
+            <text y="5" text-anchor="middle">Citation gate</text>
+          </g>
+          <g class="node" id="n-gloss" transform="translate(330 616)">
+            <rect x="-105" y="-22" width="210" height="44" rx="9"/>
+            <text y="5" text-anchor="middle">Gloss pass</text>
+          </g>
+          <g class="node" id="n-ans" transform="translate(330 696)">
+            <rect x="-105" y="-22" width="210" height="44" rx="9"/>
+            <text y="5" text-anchor="middle">Answer shown</text>
+          </g>
+          <g class="node" id="n-ref" transform="translate(770 376)">
+            <rect x="-95" y="-38" width="190" height="76" rx="9"/>
+            <text y="-6" text-anchor="middle">Refused</text>
+            <text class="small" y="14" text-anchor="middle">Not in this book.</text>
+          </g>
+        </g>
+
+        <circle id="halo" r="12" fill="#4385be" opacity="0"/>
+        <circle id="token" r="5.5" fill="#4385be"/>
+      </svg>
+    </div>
+
+    <aside class="panel">
+      <p class="eyebrow">Scenarios</p>
+      <div class="scenarios" id="scenarios">
+        <button data-scenario="answer" class="on"><b>A question with an answer</b><span>five passages, one citation, a gloss</span></button>
+        <button data-scenario="nopass"><b>Nothing to retrieve</b><span>the search returns nothing</span></button>
+        <button data-scenario="guard"><b>The book never mentions it</b><span>the guard refuses after retrieval</span></button>
+        <button data-scenario="inject"><b>A prompt injection</b><span>refused before reading</span></button>
+        <button data-scenario="recover"><b>Uncited, then recovered</b><span>one retry, then a verbatim sentence</span></button>
+        <button data-scenario="uncited"><b>Uncited, then refused</b><span>one retry, nothing backs the body</span></button>
+      </div>
+
+      <div class="trace">
+        <div class="row"><span>Passages shown</span><b id="v-shown">0</b></div>
+        <div class="row"><span>Model calls</span><b id="v-calls">0</b></div>
+        <div class="row"><span>Citation</span><b id="v-cite">—</b></div>
+        <div class="row"><span>Verdict</span><b id="v-verdict">—</b></div>
+      </div>
+
+      <div class="note" id="note" aria-live="polite">Pick a scenario.</div>
+
+      <p class="eyebrow">Rules the model checked</p>
+      <ul class="rules">
+        <li class="rule" data-rule="r1"><span class="dot"></span><span>Every answer names a shown passage.</span></li>
+        <li class="rule" data-rule="r2"><span class="dot"></span><span>A refusal carries no citation.</span></li>
+        <li class="rule" data-rule="r3"><span class="dot"></span><span>The model runs only after passages exist.</span></li>
+        <li class="rule" data-rule="r4"><span class="dot"></span><span>An injected question never reaches the model.</span></li>
+        <li class="rule" data-rule="r5"><span class="dot"></span><span>The model sees at most five passages.</span></li>
+        <li class="rule" data-rule="r6"><span class="dot"></span><span>Every question ends in an answer or a refusal.</span></li>
+      </ul>
+    </aside>
+  </div>
+
+  <footer>
+    <p>
+      Model <code>RagPipeline.tla</code>, checked by TLC 2.19: 115 states and 231 steps
+      collapse to 10 chart states and 13 arrows; every rule held, and TLC found no deadlock.
+      The replay is a walkthrough of that model and does not call the engine.
+    </p>
+    <p>
+      Left out: the fiction “who is X” shortcut, follow-up and selection shortcuts,
+      teach mode, the fiction body without a gloss, streaming, import.
+    </p>
+  </footer>
+</div>
+
+<script>
+const SCENARIOS = {
+  answer: {
+    steps: [
+      { e: "e-asks",     node: "read",   vars: { shown: 0 }, note: "the reader asks" },
+      { e: "e-reads",    node: "search", vars: { shown: 5 }, note: "the ask is read and searched; five passages come back" },
+      { e: "e-fuses",    node: "window", vars: {}, note: "the passages are fused into a window" },
+      { e: "e-checks",   node: "guard",  vars: {}, note: "the question's words are in the book" },
+      { e: "e-generate", node: "gen",    vars: { calls: 1 }, note: "the five passages go to the model" },
+      { e: "e-writes",   node: "gate",   vars: {}, note: "the model writes a body" },
+      { e: "e-accept",   node: "gloss",  vars: { cite: "shown passage" }, note: "the citation checks out" },
+      { e: "e-glosses",  node: "ans",    vars: { verdict: "answer" }, note: "the gloss is written; the answer is shown" },
+    ],
+    rules: ["r1", "r3", "r5", "r6"],
+  },
+  nopass: {
+    steps: [
+      { e: "e-asks",    node: "read",   vars: { shown: 0 }, note: "the reader asks" },
+      { e: "e-reads",   node: "search", vars: { shown: 0 }, note: "the ask is read and searched; nothing comes back" },
+      { e: "e-nopass",  node: "ref",    vars: { verdict: "refused, no passage" }, note: "no passage matches; no model call" },
+    ],
+    rules: ["r2", "r3", "r6"],
+  },
+  guard: {
+    steps: [
+      { e: "e-asks",     node: "read",   vars: { shown: 0 }, note: "the reader asks" },
+      { e: "e-reads",    node: "search", vars: { shown: 5 }, note: "five passages come back" },
+      { e: "e-fuses",    node: "window", vars: {}, note: "the passages are fused into a window" },
+      { e: "e-checks",   node: "guard",  vars: {}, note: "the question's words are checked against the book" },
+      { e: "e-guardref", node: "ref",    vars: { verdict: "refused, book guard" }, note: "the book never mentions it; no model call" },
+    ],
+    rules: ["r2", "r3", "r6"],
+  },
+  inject: {
+    steps: [
+      { e: "e-inject", node: "ref", vars: { verdict: "refused, injection" }, note: "refused before reading or searching; no model call" },
+    ],
+    rules: ["r2", "r4", "r6"],
+  },
+  recover: {
+    steps: [
+      { e: "e-asks",     node: "read",   vars: { shown: 0 }, note: "the reader asks" },
+      { e: "e-reads",    node: "search", vars: { shown: 5 }, note: "five passages come back" },
+      { e: "e-fuses",    node: "window", vars: {}, note: "the passages are fused into a window" },
+      { e: "e-checks",   node: "guard",  vars: {}, note: "the question's words are in the book" },
+      { e: "e-generate", node: "gen",    vars: { calls: 1 }, note: "the five passages go to the model" },
+      { e: "e-writes",   node: "gate",   vars: {}, note: "the body names no passage" },
+      { e: "e-retry",    node: "gen",    vars: { calls: 2 }, note: "uncited, so one retry with a citation prefill" },
+      { e: "e-writes",   node: "gate",   vars: {}, note: "the retry still names no passage" },
+      { e: "e-accept",   node: "gloss",  vars: { cite: "recovered sentence" }, note: "a verbatim sentence from a shown passage is recovered" },
+      { e: "e-glosses",  node: "ans",    vars: { verdict: "answer" }, note: "the gloss is written; the answer is shown" },
+    ],
+    rules: ["r1", "r3", "r5", "r6"],
+  },
+  uncited: {
+    steps: [
+      { e: "e-asks",     node: "read",   vars: { shown: 0 }, note: "the reader asks" },
+      { e: "e-reads",    node: "search", vars: { shown: 5 }, note: "five passages come back" },
+      { e: "e-fuses",    node: "window", vars: {}, note: "the passages are fused into a window" },
+      { e: "e-checks",   node: "guard",  vars: {}, note: "the question's words are in the book" },
+      { e: "e-generate", node: "gen",    vars: { calls: 1 }, note: "the five passages go to the model" },
+      { e: "e-writes",   node: "gate",   vars: {}, note: "the body names no passage" },
+      { e: "e-retry",    node: "gen",    vars: { calls: 2 }, note: "uncited, so one retry with a citation prefill" },
+      { e: "e-writes",   node: "gate",   vars: {}, note: "the retry still names no passage" },
+      { e: "e-gateref",  node: "ref",    vars: { verdict: "refused, uncited" }, note: "nothing shown can back the body" },
+    ],
+    rules: ["r2", "r3", "r5", "r6"],
+  },
+};
+
+const token = document.getElementById("token");
+const halo = document.getElementById("halo");
+const note = document.getElementById("note");
+const paths = {};
+document.querySelectorAll("path.edge").forEach((p) => { paths[p.id] = p; });
+
+const state = { shown: 0, calls: 0, cite: "—", verdict: "—" };
+const shownEl = document.getElementById("v-shown");
+const callsEl = document.getElementById("v-calls");
+const citeEl = document.getElementById("v-cite");
+const verdictEl = document.getElementById("v-verdict");
+
+function setVars(patch) {
+  Object.assign(state, patch);
+  shownEl.textContent = String(state.shown);
+  callsEl.textContent = String(state.calls);
+  citeEl.textContent = state.cite;
+  verdictEl.textContent = state.verdict;
+}
+
+let run = 0;
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const sleep = (ms) => new Promise((r) => setTimeout(r, reduce ? 0 : ms));
+
+function reset() {
+  run += 1;
+  token.setAttribute("opacity", "0");
+  halo.setAttribute("opacity", "0");
+  document.querySelectorAll(".node").forEach((n) => n.classList.remove("hot", "hot-ref", "visited"));
+  document.querySelectorAll("path.edge").forEach((p) => p.classList.remove("live", "live-ref"));
+  document.querySelectorAll(".rule").forEach((r) => r.classList.remove("on"));
+  Object.assign(state, { shown: 0, calls: 0, cite: "—", verdict: "—" });
+  setVars({});
+  note.textContent = "…";
+}
+
+function traverse(path, ms) {
+  return new Promise((resolve) => {
+    const len = path.getTotalLength();
+    const refusal = path.classList.contains("refuse");
+    const color = refusal ? "#d14d41" : "#4385be";
+    token.setAttribute("fill", color);
+    halo.setAttribute("fill", color);
+    token.setAttribute("opacity", "1");
+    halo.setAttribute("opacity", "0.18");
+    path.classList.add(refusal ? "live-ref" : "live");
+    if (reduce || ms === 0) {
+      place(len);
+      path.classList.remove("live", "live-ref");
+      resolve();
+      return;
+    }
+    const t0 = performance.now();
+    function place(at) {
+      const pt = path.getPointAtLength(at);
+      token.setAttribute("cx", pt.x);
+      token.setAttribute("cy", pt.y);
+      halo.setAttribute("cx", pt.x);
+      halo.setAttribute("cy", pt.y);
+    }
+    function frame(now) {
+      const t = Math.min(1, (now - t0) / ms);
+      const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      place(len * e);
+      if (t < 1) requestAnimationFrame(frame);
+      else {
+        path.classList.remove("live", "live-ref");
+        resolve();
+      }
+    }
+    requestAnimationFrame(frame);
+  });
+}
+
+async function play(name) {
+  reset();
+  const my = run;
+  const sc = SCENARIOS[name];
+  for (const step of sc.steps) {
+    if (my !== run) return;
+    await traverse(paths[step.e], 380);
+    if (my !== run) return;
+    document.querySelectorAll(".node.hot, .node.hot-ref").forEach((n) => {
+      n.classList.remove("hot", "hot-ref");
+      n.classList.add("visited");
+    });
+    const target = document.getElementById("n-" + step.node);
+    target.classList.add(step.node === "ref" ? "hot-ref" : "hot");
+    setVars(step.vars);
+    note.textContent = step.note;
+    await sleep(160);
+  }
+  if (my !== run) return;
+  for (const id of sc.rules) {
+    document.querySelector('[data-rule="' + id + '"]').classList.add("on");
+  }
+}
+
+document.getElementById("scenarios").addEventListener("click", (ev) => {
+  const btn = ev.target.closest("button[data-scenario]");
+  if (!btn) return;
+  document.querySelectorAll("#scenarios button").forEach((b) => b.classList.remove("on"));
+  btn.classList.add("on");
+  play(btn.dataset.scenario);
+});
+
+setTimeout(() => play("answer"), 350);
+</script>
+</body>
+</html>

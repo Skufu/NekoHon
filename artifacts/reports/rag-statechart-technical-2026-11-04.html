@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Query to answer: a technical map, 2026-11-04</title>
+<style>
+  :root {
+    --bg: #100f0f;
+    --surface: #1c1b1a;
+    --surface-2: #232220;
+    --border: #403e3c;
+    --line: #6f6d66;
+    --fg: #cecdc3;
+    --muted: #878580;
+    --accent: #4385be;
+    --red: #d14d41;
+    --teal: #3aa99f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 14px/1.5 ui-sans-serif, -apple-system, "SF Pro Text", Inter, system-ui, sans-serif;
+  }
+  .page { max-width: 1240px; margin: 0 auto; padding: 26px 24px 48px; }
+  header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0; letter-spacing: -.01em; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  .stage { display: grid; grid-template-columns: minmax(0, 1fr) 356px; gap: 26px; align-items: start; }
+  svg { display: block; width: 100%; height: auto; }
+  .edge { fill: none; stroke: var(--line); stroke-width: 1.4; }
+  .edge.refuse { stroke: #8a3b33; }
+  .edge.answer { stroke: #2f6f6a; }
+  .edge.dash { stroke-dasharray: 4 4; }
+  .edge.live { stroke: var(--accent); stroke-width: 2.4; }
+  .edge.live-ref { stroke: var(--red); stroke-width: 2.4; }
+  .elabel {
+    font-size: 11px;
+    fill: var(--muted);
+    paint-order: stroke;
+    stroke: var(--bg);
+    stroke-width: 4;
+    stroke-linejoin: round;
+  }
+  .node { cursor: pointer; }
+  .node rect { fill: var(--surface); stroke: var(--border); transition: stroke 150ms ease-out, fill 150ms ease-out; }
+  .node:active rect { fill: #26303a; }
+  .node text { font-size: 13px; fill: var(--fg); }
+  .node .small { font-size: 10.5px; fill: var(--muted); }
+  .node.sel rect { stroke: var(--accent); stroke-width: 2.2; fill: #1f2933; }
+  .node:focus-visible { outline: none; }
+  .node:focus-visible rect { stroke: var(--accent); stroke-width: 2.2; }
+  .node.sel text { fill: #f2f1ea; }
+  .node.sel .small { fill: #9fb4c7; }
+  @media (hover: hover) and (pointer: fine) {
+    .node:hover rect { stroke: #6b8fb0; }
+  }
+  #token, #halo { opacity: 0; }
+  .panel { position: sticky; top: 20px; }
+  .panel-inner { border: 1px solid var(--border); border-radius: 10px; padding: 16px; background: #141313; }
+  .eyebrow {
+    font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 8px;
+  }
+  .walk {
+    all: unset; box-sizing: border-box; cursor: pointer; display: block; width: 100%; text-align: center;
+    padding: 12px 10px; border-radius: 7px; border: 1px solid var(--accent);
+    color: #cfe2f3; font-size: 12.5px; font-weight: 550; margin-bottom: 16px;
+    transition: background-color 150ms ease-out, transform 150ms ease-out;
+  }
+  .walk:active { transform: scale(0.96); }
+  .walk:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (hover: hover) and (pointer: fine) {
+    .walk:hover { background: #17222c; }
+  }
+  .card { min-height: 420px; }
+  .kicker { margin: 0 0 2px; color: var(--muted); font-size: 11px; }
+  .card h2 { margin: 0 0 10px; font-size: 17px; font-weight: 600; letter-spacing: -.01em; text-wrap: balance; }
+  .plain { margin: 0 0 16px; font-size: 13.5px; line-height: 1.55; text-wrap: pretty; }
+  .card .eyebrow { margin-top: 16px; }
+  .tech { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .tech li { position: relative; padding-left: 13px; font-size: 12px; line-height: 1.5; color: var(--muted); }
+  .tech li::before { content: ""; position: absolute; left: 0; top: 7px; width: 4px; height: 4px; border-radius: 50%; background: var(--border); }
+  .facts { margin: 0; font-size: 12px; line-height: 1.55; color: var(--fg); }
+  @media (max-width: 940px) {
+    .stage { grid-template-columns: 1fr; }
+    .panel { position: static; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>Query → answer, technical</h1>
+    <span class="sub">Click a node to see how it works.</span>
+  </header>
+
+  <div class="stage">
+    <div>
+      <svg id="chart" viewBox="0 0 1000 860" role="img" aria-label="Technical statechart: cutting the book into pieces, turning them into numbers, searching, writing, and checking citations">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#6f6d66"></path>
+          </marker>
+          <marker id="arrow-ref" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#8a3b33"></path>
+          </marker>
+          <marker id="arrow-ans" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#2f6f6a"></path>
+          </marker>
+        </defs>
+
+        <text class="elabel" x="120" y="146" text-anchor="middle">once per book</text>
+
+        <g class="edges">
+          <path id="e-i1" class="edge" d="M120 202 V228" marker-end="url(#arrow)"></path>
+          <path id="e-i2" class="edge" d="M120 272 V298" marker-end="url(#arrow)"></path>
+          <path id="e-store" class="edge dash" d="M220 320 H325" marker-end="url(#arrow)"></path>
+
+          <path id="e-asks" class="edge" d="M430 202 V228" marker-end="url(#arrow)"></path>
+          <path id="e-reads" class="edge" d="M430 272 V298" marker-end="url(#arrow)"></path>
+          <path id="e-dense" class="edge" d="M430 342 V368" marker-end="url(#arrow)"></path>
+          <path id="e-lex" class="edge" d="M430 412 V438" marker-end="url(#arrow)"></path>
+          <path id="e-rerank" class="edge" d="M430 482 V508" marker-end="url(#arrow)"></path>
+          <path id="e-guard" class="edge" d="M430 552 V578" marker-end="url(#arrow)"></path>
+          <path id="e-gen" class="edge" d="M430 622 V648" marker-end="url(#arrow)"></path>
+          <path id="e-gate" class="edge answer" d="M430 692 V718" marker-end="url(#arrow-ans)"></path>
+          <path id="e-gloss" class="edge answer" d="M430 762 V788" marker-end="url(#arrow-ans)"></path>
+          <path id="e-retry" class="edge" d="M325 670 H260 V600 H325" marker-end="url(#arrow)"></path>
+
+          <path id="e-inject" class="edge refuse" d="M535 180 H740 V432" marker-end="url(#arrow-ref)"></path>
+          <path id="e-nopass" class="edge refuse" d="M535 320 H770 V432" marker-end="url(#arrow-ref)"></path>
+          <path id="e-guardref" class="edge refuse" d="M535 530 H690 V470 H705" marker-end="url(#arrow-ref)"></path>
+          <path id="e-gateref" class="edge refuse" d="M535 670 H640 V508 H760" marker-end="url(#arrow-ref)"></path>
+        </g>
+
+        <g class="labels">
+          <text class="elabel" x="272" y="312" text-anchor="middle">the saved book</text>
+          <text class="elabel" x="555" y="136" text-anchor="middle"><tspan x="555" y="136">the query tries to</tspan><tspan x="555" y="150">instruct the model</tspan></text>
+          <text class="elabel" x="442" y="222">the reader asks</text>
+          <text class="elabel" x="442" y="292">bare phrase, typo fix, short term</text>
+          <text class="elabel" x="442" y="362">compare the query with every piece</text>
+          <text class="elabel" x="442" y="432">a rare or named word opens keyword search</text>
+          <text class="elabel" x="442" y="502">query phrases first, then 5 pieces</text>
+          <text class="elabel" x="442" y="572">person, term and vocabulary checks</text>
+          <text class="elabel" x="442" y="642">the local model writes</text>
+          <text class="elabel" x="442" y="712">the quote must exist word for word</text>
+          <text class="elabel" x="442" y="782">one plain sentence</text>
+          <text class="elabel" x="250" y="642" text-anchor="end">no citation,</text>
+          <text class="elabel" x="250" y="656" text-anchor="end">one retry</text>
+          <text class="elabel" x="555" y="310">no piece is close enough</text>
+          <text class="elabel" x="545" y="520">the book never says it</text>
+          <text class="elabel" x="545" y="700">no shown piece backs it</text>
+        </g>
+
+        <g class="nodes">
+          <g class="node" id="n-chunk" data-id="chunk" transform="translate(120 180)">
+            <rect x="-100" y="-26" width="200" height="52" rx="9"></rect>
+            <text y="-4" text-anchor="middle">Cut into pieces</text>
+            <text class="small" y="14" text-anchor="middle">1,400 characters · 180 overlap</text>
+          </g>
+          <g class="node" id="n-embed" data-id="embed" transform="translate(120 250)">
+            <rect x="-100" y="-26" width="200" height="52" rx="9"></rect>
+            <text y="-4" text-anchor="middle">Turned into numbers</text>
+            <text class="small" y="14" text-anchor="middle">nomic · 768 numbers</text>
+          </g>
+          <g class="node" id="n-store" data-id="store" transform="translate(120 320)">
+            <rect x="-100" y="-26" width="200" height="52" rx="9"></rect>
+            <text y="-4" text-anchor="middle">Saved</text>
+            <text class="small" y="14" text-anchor="middle">one file per book</text>
+          </g>
+
+          <g class="node" id="n-q" data-id="q" transform="translate(430 180)">
+            <rect x="-105" y="-22" width="210" height="44" rx="9"></rect>
+            <text y="5" text-anchor="middle">Query arrives</text>
+          </g>
+          <g class="node" id="n-read" data-id="read" transform="translate(430 250)">
+            <rect x="-105" y="-22" width="210" height="44" rx="9"></rect>
+            <text y="5" text-anchor="middle">Read and fixed</text>
+          </g>
+          <g class="node" id="n-dense" data-id="dense" transform="translate(430 320)">
+            <rect x="-105" y="-22" width="210" height="44" rx="9"></rect>
+            <text y="5" text-anchor="middle">Similarity search</text>
+          </g>
+          <g class="node" id="n-lex" data-id="lex" transform="translate(430 390)">
+            <rect x="-105" y="-22" width="210" height="44" rx="9"></rect>
+            <text y="5" text-anchor="middle">Keyword search and merge</text>
+          </g>
+          <g class="node" id="n-rerank" data-id="rerank" transform="translate(430 460)">
+            <rect x="-105" y="-22" width="210" height="44" rx="9"></rect>
+            <text y="5" text-anchor="middle">Reorder and cut</text>
+          </g>
+          <g class="node" id="n-guard" data-id="guard" transform="translate(430 530)">
+            <rect x="-105" y="-22" width="210" height="44" rx="9"></rect>
+            <text y="5" text-anchor="middle">Book check</text>
+          </g>
+          <g class="node" id="n-gen" data-id="gen" transform="translate(430 600)">
+            <rect x="-105" y="-22" width="210" height="44" rx="9"></rect>
+            <text y="5" text-anchor="middle">Model writes</text>
+          </g>
+          <g class="node" id="n-gate" data-id="gate" transform="translate(430 670)">
+            <rect x="-105" y="-22" width="210" height="44" rx="9"></rect>
+            <text y="5" text-anchor="middle">Citation check</text>
+          </g>
+          <g class="node" id="n-gloss" data-id="gloss" transform="translate(430 740)">
+            <rect x="-105" y="-22" width="210" height="44" rx="9"></rect>
+            <text y="5" text-anchor="middle">Plain sentence</text>
+          </g>
+          <g class="node" id="n-ans" data-id="ans" transform="translate(430 810)">
+            <rect x="-105" y="-22" width="210" height="44" rx="9"></rect>
+            <text y="5" text-anchor="middle">Answer</text>
+          </g>
+          <g class="node" id="n-ref" data-id="ref" transform="translate(800 470)">
+            <rect x="-95" y="-38" width="190" height="76" rx="9"></rect>
+            <text y="-6" text-anchor="middle">Refused</text>
+            <text class="small" y="14" text-anchor="middle">Not in this book.</text>
+          </g>
+        </g>
+
+        <circle id="halo" r="12" fill="#4385be" opacity="0"></circle>
+        <circle id="token" r="5.5" fill="#4385be" opacity="0"></circle>
+      </svg>
+    </div>
+
+    <aside class="panel">
+      <div class="panel-inner">
+        <button class="walk" id="walk">Walk the answer path</button>
+        <div class="card" id="card" aria-live="polite">
+          <p class="kicker" id="c-kicker">Once per book · 1 of 3</p>
+          <h2 id="c-title">Cut into pieces</h2>
+          <p class="plain" id="c-plain"></p>
+          <p class="eyebrow">How it works</p>
+          <ul class="tech" id="c-tech"></ul>
+          <div id="c-numbers-wrap">
+            <p class="eyebrow">Facts</p>
+            <p class="facts" id="c-numbers"></p>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+</div>
+
+<script>
+const NODES = {
+  chunk: {
+    kicker: "Once per book · 1 of 3",
+    title: "Cut into pieces",
+    plain: "The book is cut into pieces about the length of a page section. Each piece, a chunk, stops at a sentence, so a quote never starts mid-thought. A long section repeats its last sentences in the next piece, so a cut never loses the idea.",
+    tech: [
+      "Paragraphs are joined up to 1,400 characters. A table or code listing stays whole, however long.",
+      "A sentence ends at a period, question mark or exclamation mark, except after abbreviations such as e.g. or Fig.",
+      "The heading sits at the top and counts toward the 1,400 characters."
+    ],
+    numbers: "1,400 characters per piece, heading included. 180 characters of overlap. One book: 1,306 pieces, 1,064 characters on average.",
+  },
+  embed: {
+    kicker: "Once per book · 2 of 3",
+    title: "Turned into numbers",
+    plain: "Each piece becomes a list of 768 numbers, its embedding. The query becomes a list the same way, so the two can be compared by arithmetic.",
+    tech: [
+      "The model is nomic-embed-text, running locally. It expects a different label on a stored piece and on a query; the engine adds both.",
+      "Text is normalized first: look-alike characters fold to one form, runs of spaces collapse to one. Changing that means rebuilding every stored list.",
+      "The stored lists are scaled to length 1, so comparing two is cheap. A re-run builds only what is missing."
+    ],
+    numbers: "768 numbers per piece. 16 pieces per batch.",
+  },
+  store: {
+    kicker: "Once per book · 3 of 3",
+    title: "Saved",
+    plain: "Everything a query needs lives in one database file per book: the text, a keyword index, the number lists and the figure cards.",
+    tech: [
+      "Each piece keeps its chapter, heading and text, plus the blocks it came from, so code and tables can be drawn as blocks later.",
+      "One index handles keyword search; another handles substring lookups.",
+      "A write either lands whole or not at all. A checker can verify the file and the sizes of the stored lists."
+    ],
+    numbers: "One file per book.",
+  },
+  q: {
+    kicker: "Query · 1 of 10",
+    title: "Query arrives",
+    plain: "The query is cleaned and checked for an attempt to give the model instructions. If it looks like one, it is refused before anything is read or searched.",
+    tech: [
+      "Cleaning collapses extra spaces. The check looks for instruction patterns.",
+      "The refusal is one fixed sentence, with no citation and no figure.",
+      "On a fiction book, a “who is X” query is answered from the book’s own sentences before retrieval. That shortcut is not drawn here."
+    ],
+    numbers: "Refusal: “Not in this book.”",
+  },
+  read: {
+    kicker: "Query · 2 of 10",
+    title: "Read and fixed",
+    plain: "A bare phrase is turned into a question. A word the book never uses is treated as a possible typo, and a corrected query is kept only if it scores better.",
+    tech: [
+      "The rewrite asks “What is watermark?” when the reader typed “watermark”.",
+      "The typo repair tries a nearby spelling; if that fails, a local model proposes one. The same strict test decides.",
+      "A short term such as “ai” is asked with the book’s spelling. A repair is shown as Read as: “...”."
+    ],
+    numbers: "",
+  },
+  dense: {
+    kicker: "Query · 3 of 10",
+    title: "Similarity search",
+    plain: "The query’s list of numbers is compared with every piece’s list. The closest pieces go forward.",
+    tech: [
+      "Each piece gets a similarity score: the two lists are multiplied and summed.",
+      "The top 10 are ranked; the model is shown 5.",
+      "An empty or all-zero query list is refused instead of ranked."
+    ],
+    numbers: "Top 10 ranked. 5 shown.",
+  },
+  lex: {
+    kicker: "Query · 4 of 10",
+    title: "Keyword search and merge",
+    plain: "A rare word, or one the book capitalizes like a name, opens a keyword search. Its best piece is added after the first five, never in place of them.",
+    tech: [
+      "Keyword scoring stems words, so “runs” matches “run”, and a heading match counts double a body match.",
+      "Rare means 8 pieces or fewer. Named means 2 pieces and a capital letter in half the mentions.",
+      "The ranked lists merge by position, not score. One keyword piece is added, so the set shown grows by one."
+    ],
+    numbers: "Rare: 8 pieces or fewer. Named: 2 pieces and 50% capitalized. One added piece.",
+  },
+  rerank: {
+    kicker: "Query · 5 of 10",
+    title: "Reorder and cut",
+    plain: "The pieces found so far are reordered by the query’s own phrases, a figure caption can move a piece to the front, and the model gets a fixed number of pieces.",
+    tech: [
+      "A piece that matches the query’s phrase in its heading, or two phrases anywhere, moves up; an acronym in the heading moves it higher.",
+      "A figure caption can put the piece that names the figure first, but only when the caption scores above the best piece.",
+      "A separate model can reorder by reading the query and each piece together. It is off by default."
+    ],
+    numbers: "5 pieces technical. 8 fiction.",
+  },
+  guard: {
+    kicker: "Query · 6 of 10",
+    title: "Book check",
+    plain: "Before the model runs, the engine refuses a query the book cannot support: a person or figure it never names, a term it never uses, or no book vocabulary.",
+    tech: [
+      "Five checks: an absent person, a term it never uses, no book vocabulary, a subject it does not cover, an unknown figure.",
+      "They run after retrieval because they need the book’s word list and the pieces that came back.",
+      "One hit returns the fixed refusal without running the model."
+    ],
+    numbers: "",
+  },
+  gen: {
+    kicker: "Query · 7 of 10",
+    title: "Model writes",
+    plain: "The five pieces and the query go to a local model tuned for this task. It writes a body with a chapter tag such as [Ch. 3].",
+    tech: [
+      "The model runs in Ollama. For a technical book it is deterministic: the same request gives the same answer, and it stops at 512 tokens, about a page.",
+      "Each piece is numbered and quoted in the text sent to the model. The query has already been rewritten into a full question.",
+      "Fiction changes this: 8 pieces, a more varied setting, and the model’s whole paragraph is the answer."
+    ],
+    numbers: "Temperature 0 technical, 0.55 fiction (more variation). Up to 512 tokens, about a page.",
+  },
+  gate: {
+    kicker: "Query · 8 of 10",
+    title: "Citation check",
+    plain: "An answer with no citation is not shown. The engine retries once, then recovers a sentence that exists word for word in a shown piece, or refuses.",
+    tech: [
+      "The chapter tag must point to a shown piece, and the quote must appear in it exactly.",
+      "With no citation, one retry is told to start with a chapter tag. If that fails, the engine finds a sentence it can quote.",
+      "Anything else becomes the fixed refusal. This check exists so a fluent answer never arrives with nothing to cite."
+    ],
+    numbers: "One retry.",
+  },
+  gloss: {
+    kicker: "Query · 9 of 10",
+    title: "Plain sentence",
+    plain: "A technical answer gets one plain sentence under the quote. The sentence is the model’s; the citation is the engine’s.",
+    tech: [
+      "The sentence is requested only when it is missing, repeats the quote, or does not follow from it.",
+      "It is a second run of the model for a technical answer. Fiction keeps the paragraph instead.",
+      "A target answer length is off by default. Setting one aims the length and forces this step."
+    ],
+    numbers: "",
+  },
+  ans: {
+    kicker: "Query · 10 of 10",
+    title: "Answer",
+    plain: "The body returns with its citations, figure cards and follow-up suggestions. Nothing outside the shown pieces can be cited.",
+    tech: [
+      "The body carries the answer, its citations, any figure cards, whether it refused, and follow-up questions.",
+      "A figure card is drawn only when a cited piece names the figure. Follow-ups come from the leading piece and the pieces around it.",
+      "A refusal is exactly “Not in this book.” with no citation and no figure."
+    ],
+    numbers: "",
+  },
+  ref: {
+    kicker: "End",
+    title: "Refused",
+    plain: "Every refusal is the same body: one sentence, no citation, no figure. The reason lives in the engine’s log, not in the text.",
+    tech: [
+      "The reason is one of: an instruction attempt, no passage, an absent person, a term the book never uses, no book vocabulary, a subject the book does not cover, an unknown figure, no citation.",
+      "A refusal after the citation check means the model wrote something no shown piece could support."
+    ],
+    numbers: "“Not in this book.”",
+  },
+};
+
+const ORDER = ["q", "read", "dense", "lex", "rerank", "guard", "gen", "gate", "gloss", "ans"];
+const WALK = [
+  ["e-asks", "q", "read"],
+  ["e-reads", "read", "dense"],
+  ["e-dense", "dense", "lex"],
+  ["e-lex", "lex", "rerank"],
+  ["e-rerank", "rerank", "guard"],
+  ["e-guard", "guard", "gen"],
+  ["e-gen", "gen", "gate"],
+  ["e-gate", "gate", "gloss"],
+  ["e-gloss", "gloss", "ans"],
+];
+
+const token = document.getElementById("token");
+const halo = document.getElementById("halo");
+const walkBtn = document.getElementById("walk");
+const card = document.getElementById("card");
+const kicker = document.getElementById("c-kicker");
+const title = document.getElementById("c-title");
+const plain = document.getElementById("c-plain");
+const tech = document.getElementById("c-tech");
+const numbers = document.getElementById("c-numbers");
+const numbersWrap = document.getElementById("c-numbers-wrap");
+const paths = {};
+document.querySelectorAll("path.edge").forEach((p) => { paths[p.id] = p; });
+
+let selected = null;
+let run = 0;
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const sleep = (ms) => new Promise((r) => setTimeout(r, reduce ? 0 : ms));
+
+function show(id, animate = false) {
+  const n = NODES[id];
+  if (!n) return;
+  selected = id;
+  document.querySelectorAll(".node").forEach((el) => el.classList.toggle("sel", el.dataset.id === id));
+  kicker.textContent = n.kicker;
+  title.textContent = n.title;
+  plain.textContent = n.plain;
+  tech.replaceChildren(...n.tech.map((line) => {
+    const li = document.createElement("li");
+    li.textContent = line;
+    return li;
+  }));
+  numbers.textContent = n.numbers;
+  numbersWrap.hidden = !n.numbers;
+  if (animate && !reduce) {
+    card.getAnimations().forEach((a) => a.cancel());
+    card.animate(
+      [{ opacity: 0.55 }, { opacity: 1 }],
+      { duration: 130, easing: "ease-out" },
+    );
+  }
+}
+
+function stopWalk() {
+  run += 1;
+  walkBtn.textContent = "Walk the answer path";
+  document.querySelectorAll("path.edge").forEach((p) => p.classList.remove("live", "live-ref"));
+  token.setAttribute("opacity", "0");
+  halo.setAttribute("opacity", "0");
+}
+
+function traverse(path, ms) {
+  return new Promise((resolve) => {
+    const len = path.getTotalLength();
+    const refusal = path.classList.contains("refuse");
+    const color = refusal ? "#d14d41" : "#4385be";
+    token.setAttribute("fill", color);
+    halo.setAttribute("fill", color);
+    token.setAttribute("opacity", "1");
+    halo.setAttribute("opacity", "0.18");
+    path.classList.add(refusal ? "live-ref" : "live");
+    const place = (at) => {
+      const pt = path.getPointAtLength(at);
+      token.setAttribute("cx", pt.x);
+      token.setAttribute("cy", pt.y);
+      halo.setAttribute("cx", pt.x);
+      halo.setAttribute("cy", pt.y);
+    };
+    if (reduce) {
+      place(len);
+      path.classList.remove("live", "live-ref");
+      resolve();
+      return;
+    }
+    const t0 = performance.now();
+    const frame = (now) => {
+      const t = Math.min(1, (now - t0) / ms);
+      const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      place(len * e);
+      if (t < 1) requestAnimationFrame(frame);
+      else {
+        path.classList.remove("live", "live-ref");
+        resolve();
+      }
+    };
+    requestAnimationFrame(frame);
+  });
+}
+
+async function walk() {
+  stopWalk();
+  const my = run;
+  walkBtn.textContent = "Stop";
+  for (const [edge, , to] of WALK) {
+    if (my !== run) return;
+    await traverse(paths[edge], 340);
+    if (my !== run) return;
+    show(to, true);
+    await sleep(280);
+  }
+  if (my !== run) return;
+  walkBtn.textContent = "Walk the answer path";
+  token.setAttribute("opacity", "0");
+  halo.setAttribute("opacity", "0");
+}
+
+document.getElementById("chart").addEventListener("click", (ev) => {
+  const node = ev.target.closest(".node");
+  if (!node) return;
+  stopWalk();
+  show(node.dataset.id, true);
+});
+
+document.getElementById("chart").addEventListener("keydown", (ev) => {
+  if (ev.key !== "Enter" && ev.key !== " ") return;
+  const node = ev.target.closest(".node");
+  if (!node) return;
+  ev.preventDefault();
+  stopWalk();
+  show(node.dataset.id, true);
+});
+
+walkBtn.addEventListener("click", () => {
+  if (walkBtn.textContent.startsWith("Stop")) {
+    stopWalk();
+    return;
+  }
+  walk();
+});
+
+document.querySelectorAll(".node[data-id]").forEach((el) => {
+  el.setAttribute("tabindex", "0");
+  el.setAttribute("role", "button");
+});
+show("chunk");
+</script>
+</body>
+</html>

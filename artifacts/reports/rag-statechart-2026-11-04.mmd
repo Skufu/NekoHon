@@ -1,0 +1,50 @@
+---
+title: "A question through the book engine: query to answer"
+---
+stateDiagram-v2
+  state "Legend" as legend {
+    lg0: Ask
+    lg1: Retrieve
+    lg2: Generate
+    lg3: Answer
+    lg4: Refused
+  }
+  class lg0 blue
+  class lg1 purple
+  class lg2 yellow
+  class lg3 teal
+  class lg4 orange
+  s0: Question arrives
+  s1: Refused
+  s2: The question is read
+  s3: The book is searched
+  s4: Passages chosen
+  s5: Book guard
+  s6: The model writes
+  s7: Citation gate
+  s8: Gloss pass
+  s9: Answer shown
+  [*] --> s0
+  s0 --> s1: the question tries to inject instructions
+  s0 --> s2: the reader asks
+  s2 --> s3: the ask is read and searched
+  s3 --> s1: no passage matches
+  s3 --> s4: the passages are fused into a window
+  s4 --> s5: the question's words are in the book
+  s5 --> s1: the question names something the book never mentions
+  s5 --> s6: the passages go to the model
+  s6 --> s7: the model writes a body
+  s7 --> s6: the body is uncited, so one retry with a citation prefill
+  s7 --> s8: a verbatim sentence from a shown passage is recovered or the citation checks out
+  s7 --> s1: nothing shown can back the body
+  s8 --> s9: the gloss is written
+  class s0 blue
+  class s1 orange
+  class s2 blue
+  class s3 purple
+  class s4 purple
+  class s5 yellow
+  class s6 yellow
+  class s7 yellow
+  class s8 yellow
+  class s9 teal
